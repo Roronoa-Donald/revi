@@ -188,25 +188,25 @@ module.exports = {
     },
     {
       stem: 'Quel problème mathématique assure la sécurité du protocole d\'échange de clés de Diffie-Hellman ?',
-      opts: ['La factorisation de grands entiers', 'Le problème du sac à dos', 'Le problème du logarithme discret (DLP)', 'La recherche de collision MD5'],
-      correct: 2,
+      opts: ['La factorisation de grands entiers', 'Le problème du logarithme discret (DLP)', 'Le problème du sac à dos', 'La recherche de collision MD5'],
+      correct: 1,
       exp: 'Diffie-Hellman repose sur la difficulté calculatoire du problème du logarithme discret : étant donnés g, p et g^x mod p, il est extrêmement difficile de retrouver x.'
     },
     {
       stem: 'Dans l\'algorithme RSA, comment calcule-t-on l\'exposant privé \'d\' connaissant \'e\', \'p\' et \'q\' ?',
-      opts: ['d = (p * q) mod e', 'd est l\'inverse modulaire de e modulo phi(n) = (p - 1)(q - 1)', 'd = e^(p - 1) mod q', 'd = pgcd(e, p - 1)'],
-      correct: 1,
+      opts: ["d est l'inverse modulaire de e modulo phi(n) = (p - 1)(q - 1)","d = (p * q) mod e, soit le produit des facteurs réduit modulo l'exposant","d = e^(p - 1) mod q, l'exposant élevé selon le petit théorème de Fermat","d = pgcd(e, p - 1), le plus grand commun diviseur des deux valeurs"],
+      correct: 0,
       exp: 'Par définition de RSA, d est l\'inverse de l\'exposant public e modulo l\'indicatrice d\'Euler phi(n) = (p - 1)(q - 1), vérifiant e * d = 1 mod phi(n).'
     },
     {
       stem: 'Quelle taille de clé pour une courbe elliptique (ECC) offre un niveau de sécurité équivalent à une clé RSA de 3072 bits ?',
-      opts: ['128 bits', '256 bits (ex: secp256k1 ou Curve25519)', '1024 bits', '2048 bits'],
-      correct: 1,
+      opts: ["256 bits (ex: secp256k1 ou Curve25519)","128 bits (taille d'une clé AES standard)","1024 bits (RSA désormais déprécié)","2048 bits (double d'une clé RSA minimale)"],
+      correct: 0,
       exp: 'Une clé ECC de 256 bits procure un niveau de sécurité d\'environ 128 bits symétriques, équivalent à une clé RSA de 3072 bits.'
     },
     {
       stem: 'Pourquoi l\'utilisation de Textbook RSA (RSA sans bourrage) est-elle proscrite en production ?',
-      opts: ['Elle ne fonctionne pas avec Python', 'Elle est déterministe et malléable, nécessitant un padding probabiliste comme OAEP', 'Elle ne permet pas de chiffrer des entiers supérieurs à 10', 'Elle ralentit les cartes réseau'],
+      opts: ["Elle ne fonctionne pas avec les bibliothèques Python modernes de cryptographie","Elle est déterministe et malléable, nécessitant un padding probabiliste comme OAEP","Elle ne permet pas de chiffrer des entiers supérieurs à 10 sans segmentation","Elle ralentit considérablement les cartes réseau lors des échanges TLS"],
       correct: 1,
       exp: 'Textbook RSA est strictement déterministe (un même clair donne toujours le même chiffré) et homomorphe multiplicatif, ce qui permet à un attaquant de manipuler le message sans le déchiffrer. Le standard RSA-OAEP élimine ces failles.'
     }

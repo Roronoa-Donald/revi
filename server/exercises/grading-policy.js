@@ -6,10 +6,8 @@ const path = require('node:path');
 const verifiedExercises = require('./grading-evidence.json');
 const runtimeEvidence = require('./grading-runtime-evidence.json');
 
-const suspendedCourses = Object.freeze(['csharp', 'docker', 'b3-linux', 'b3-github', 'b1-sql', 'sql', 'b3-sql']);
-const suspendedExercises = Object.freeze({
-  'algo-c9-e2': 'b1-algo'
-});
+const suspendedCourses = Object.freeze([]);
+const suspendedExercises = Object.freeze({});
 const methodExercises = new Set(['algo-c6-e3', 'algo-c9-e1', 'algo-c9-e3', 'algo-c10-e3']);
 const suspensionMessage = 'La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.';
 const exerciseSuspensionMessage = 'La correction automatique de cet exercice est temporairement suspendue : elle ne vérifie pas la méthode demandée.';

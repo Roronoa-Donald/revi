@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -220,10 +218,13 @@ EXECUTE 'SELECT * FROM users WHERE nom = $1' USING entree;</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="sql3-c5-e1" data-lab
      data-exercise="sql3-c5-e1"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);&#10;-- VERIFY:&#10;UPDATE comptes SET solde = -2000 WHERE id = 1; UPDATE comptes SET solde = 4000 WHERE id = 2; SELECT compte_id, montant_tente FROM alertes_fraude ORDER BY compte_id;&#10;-- exemple">
@@ -233,13 +234,11 @@ SELECT * FROM comptes;</script>
     <h3 class="lab__title">Exercice 1 — Alerte sur solde négatif (AFTER UPDATE + WHEN)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déclencher une alerte automatique sur condition métier dans un trigger SQL.</p>
-    <p class="lab__note" id="sql3-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans cet atelier SQLite, soient <code>comptes(id INT, solde INT)</code> et <code>alertes_fraude(compte_id INT, montant_tente INT)</code>. Créez un trigger <code>trg_alerte_decouvert</code> qui, <code>AFTER UPDATE ON comptes WHEN NEW.solde &lt; 0</code>, insère <code>(NEW.id, NEW.solde)</code> dans <code>alertes_fraude</code>. Ce déclencheur alerte sans empêcher le solde négatif ; un ROLLBACK annule la mise à jour et l’alerte dans la même transaction.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE comptes (id INT, solde INT); CREATE TABLE alertes_fraude (compte_id INT, montant_tente INT); INSERT INTO comptes VALUES (1, 5000), (2, 10000);
@@ -261,10 +260,11 @@ Instruction exécutée avec succès (1 ligne modifiée).
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez la clause WHEN NEW.solde &lt; 0 avant BEGIN dans la définition du trigger.</li>
         <li>Insérez (NEW.id, NEW.solde) dans alertes_fraude.</li>
+        <li>1. Déclarer le trigger AFTER UPDATE avec condition de solde négatif. 2. Insérer l’identifiant et le montant dans la table d’alertes. 3. Laisser la mise à jour d’origine s’effectuer.</li>
       </ol>
     </details>
   </div>
@@ -272,7 +272,6 @@ Instruction exécutée avec succès (1 ligne modifiée).
 
 <div class="lab" id="sql3-c5-e2" data-lab
      data-exercise="sql3-c5-e2"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');&#10;-- VERIFY:&#10;SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;&#10;-- exemple">
@@ -282,13 +281,11 @@ CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patien
     <h3 class="lab__title">Exercice 2 — Isolation multi-locataires (Row-Level Security / Politique RLS)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler une politique d’isolation Row-Level Security filtrant selon le contexte de session.</p>
-    <p class="lab__note" id="sql3-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans une architecture SaaS multi-tenant, la table <code>contexte_session(tenant_actif TEXT, role_actif TEXT)</code> contient 1 ligne décrivant l’utilisateur connecté, et la table <code>dossiers_patients(id INT, tenant_id TEXT, patient TEXT)</code> contient les données. Créez une vue sécurisée <code>v_dossiers_rls</code> qui renvoie <code>id</code>, <code>tenant_id</code> et <code>patient</code> uniquement lorsque <code>tenant_id = (SELECT tenant_actif FROM contexte_session)</code> OU lorsque <code>(SELECT role_actif FROM contexte_session) = 'SUPERADMIN'</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE contexte_session (tenant_actif TEXT, role_actif TEXT); CREATE TABLE dossiers_patients (id INT, tenant_id TEXT, patient TEXT); INSERT INTO contexte_session VALUES ('clinique_a', 'MEDECIN'); INSERT INTO dossiers_patients VALUES (1, 'clinique_a', 'Koffi'), (2, 'clinique_b', 'Amina');
@@ -306,10 +303,11 @@ SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Créez CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE ...</li>
         <li>Combinez les deux conditions avec OR.</li>
+        <li>1. Restreindre les dossiers au tenant actif de la session. 2. Autoriser néanmoins le rôle SUPERADMIN à tout voir. 3. Exposer uniquement les trois colonnes demandées.</li>
       </ol>
     </details>
   </div>
@@ -317,7 +315,6 @@ SELECT id, tenant_id, patient FROM v_dossiers_rls ORDER BY id;
 
 <div class="lab" id="sql3-c5-e3" data-lab
      data-exercise="sql3-c5-e3"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);&#10;-- VERIFY:&#10;INSERT INTO commandes VALUES (100, 1, 25000), (101, 2, 15000); SELECT client_id, nb_cmd, cumul_montant FROM stats_clients ORDER BY client_id;&#10;-- exemple">
@@ -327,13 +324,11 @@ SELECT * FROM stats_clients;</script>
     <h3 class="lab__title">Exercice 3 — Maintien automatique d’une table de matérialisation par Trigger</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Maintenir un compteur dénormalisé en temps réel à chaque insertion.</p>
-    <p class="lab__note" id="sql3-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Soient <code>commandes(id INT, client_id INT, montant INT)</code> et la table de synthèse <code>stats_clients(client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT)</code>. Créez un trigger <code>trg_maj_stats</code> qui, <code>AFTER INSERT ON commandes</code>, met à jour <code>stats_clients</code> (<code>SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant WHERE client_id = NEW.client_id</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE commandes (id INT, client_id INT, montant INT); CREATE TABLE stats_clients (client_id INT PRIMARY KEY, nb_cmd INT, cumul_montant INT); INSERT INTO stats_clients VALUES (1, 0, 0), (2, 1, 10000);
@@ -354,10 +349,11 @@ Instruction exécutée avec succès (2 lignes modifiées).
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez CREATE TRIGGER trg_maj_stats AFTER INSERT ON commandes FOR EACH ROW BEGIN ... END;</li>
         <li>Mettez à jour stats_clients avec NEW.montant et NEW.client_id.</li>
+        <li>1. Se déclencher après chaque insertion de commande. 2. Incrémenter le compteur et cumuler le montant pour le client concerné. 3. La ligne de synthèse du client existe déjà.</li>
       </ol>
     </details>
   </div>
@@ -370,9 +366,9 @@ Instruction exécutée avec succès (2 lignes modifiées).
     <div class="q">
       <p class="q__stem">Que vaut la variable OLD dans une fonction déclencheur interceptant un INSERT ?</p>
       <div class="opts">
-        <button class="opt">La valeur par défaut de la colonne</button>
-        <button class="opt">Une chaîne vide</button>
         <button class="opt" data-correct="1">NULL</button>
+        <button class="opt">Une chaîne vide</button>
+        <button class="opt">La valeur par défaut de la colonne</button>
         <button class="opt">Une copie de NEW</button>
       </div>
       <div class="q__exp">Lors d’un INSERT, aucune ligne préalable n’existait dans la table : la variable OLD vaut donc strictement NULL.</div>
@@ -380,8 +376,8 @@ Instruction exécutée avec succès (2 lignes modifiées).
     <div class="q">
       <p class="q__stem">Dans PostgreSQL, quel type de déclencheur permet de modifier ou normaliser une ligne avant son insertion ou sa mise à jour ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">BEFORE INSERT OR UPDATE FOR EACH ROW</button>
         <button class="opt">AFTER INSERT FOR EACH STATEMENT</button>
+        <button class="opt" data-correct="1">BEFORE INSERT OR UPDATE FOR EACH ROW</button>
         <button class="opt">INSTEAD OF TABLE</button>
         <button class="opt">DEFERRED TRANSACTION TRIGGER</button>
       </div>
@@ -391,8 +387,8 @@ Instruction exécutée avec succès (2 lignes modifiées).
       <p class="q__stem">Si une fonction déclencheur BEFORE INSERT retourne NULL, que se passe-t-il pour la ligne en cours d’insertion ?</p>
       <div class="opts">
         <button class="opt">La ligne est insérée avec des valeurs nulles</button>
-        <button class="opt" data-correct="1">L’opération d’insertion pour cette ligne est silencieusement annulée</button>
         <button class="opt">Une erreur fatale est levée et le serveur plante</button>
+        <button class="opt" data-correct="1">L’opération d’insertion pour cette ligne est silencieusement annulée</button>
         <button class="opt">La ligne est insérée dans la table de log</button>
       </div>
       <div class="q__exp">Retourner NULL dans un trigger BEFORE interrompt immédiatement l’opération pour le tuple courant, l’ignorant sans lever d’exception.</div>
@@ -400,20 +396,20 @@ Instruction exécutée avec succès (2 lignes modifiées).
     <div class="q">
       <p class="q__stem">Dans une politique PostgreSQL Row-Level Security, quel est le rôle de la clause WITH CHECK ?</p>
       <div class="opts">
-        <button class="opt">Vérifier que la table possède un index primaire</button>
+        <button class="opt">Vérifier préalablement que la table protégée possède bien un index primaire valide</button>
+        <button class="opt">Filtrer les lignes retournées par les requêtes SELECT de lecture</button>
+        <button class="opt">Chiffrer automatiquement le mot de passe de l’utilisateur courant</button>
         <button class="opt" data-correct="1">Valider que les nouvelles lignes insérées ou mises à jour respectent la condition de sécurité</button>
-        <button class="opt">Filtrer les lignes retournées par un SELECT</button>
-        <button class="opt">Chiffrer le mot de passe de l’utilisateur</button>
       </div>
       <div class="q__exp">La clause WITH CHECK valide les données en entrée lors d’un INSERT ou UPDATE, rejetant toute ligne violant la condition.</div>
     </div>
     <div class="q">
       <p class="q__stem">Par défaut, pourquoi le super-utilisateur postgres n’est-il pas filtré par les politiques Row-Level Security ?</p>
       <div class="opts">
-        <button class="opt">Parce qu’il a un mot de passe trop long</button>
         <button class="opt" data-correct="1">Parce que les superusers ont le droit de bypasser RLS afin de pouvoir administrer et sauvegarder la base</button>
-        <button class="opt">Parce que RLS est désactivé sur le port 5432</button>
-        <button class="opt">C’est un bogue connu corrigé en version 17</button>
+        <button class="opt">Parce que son mot de passe est réputé trop long pour être vérifié par RLS</button>
+        <button class="opt">Parce que le mécanisme RLS est désactivé sur le port d’écoute 5432 du serveur</button>
+        <button class="opt">C’est un bogue connu de PostgreSQL officiellement corrigé depuis la version 17</button>
       </div>
       <div class="q__exp">Les super-utilisateurs et les rôles BYPASSRLS contournent toujours RLS. FORCE soumet le propriétaire ordinaire aux politiques, mais ne limite pas ces rôles privilégiés.</div>
     </div>
@@ -430,10 +426,10 @@ Instruction exécutée avec succès (2 lignes modifiées).
     <div class="q">
       <p class="q__stem">Que contient la variable spéciale TG_OP dans un trigger PL/pgSQL ?</p>
       <div class="opts">
-        <button class="opt">Le temps d’exécution de la requête</button>
+        <button class="opt">Le temps d’exécution total de la requête déclencheuse exprimé en millisecondes</button>
+        <button class="opt">L’identifiant numérique du processus serveur PostgreSQL en cours d’exécution</button>
         <button class="opt" data-correct="1">Une chaîne de caractères indiquant l’opération déclencheuse ('INSERT', 'UPDATE', 'DELETE')</button>
-        <button class="opt">L’identifiant du processus PostgreSQL</button>
-        <button class="opt">Le nom de l’index utilisé</button>
+        <button class="opt">Le nom de l’index utilisé par la requête ayant déclenché le trigger</button>
       </div>
       <div class="q__exp">TG_OP contient sous forme de chaîne de caractères l’événement SQL ayant déclenché l’exécution (INSERT, UPDATE, DELETE ou TRUNCATE).</div>
     </div>
@@ -441,9 +437,9 @@ Instruction exécutée avec succès (2 lignes modifiées).
       <p class="q__stem">Quel trigger permet de journaliser chaque ligne après sa modification, dans la même transaction ?</p>
       <div class="opts">
         <button class="opt">BEFORE ... FOR EACH STATEMENT</button>
-        <button class="opt" data-correct="1">AFTER ... FOR EACH ROW</button>
-        <button class="opt">INSTEAD OF VIEW</button>
         <button class="opt">BEFORE ... FOR EACH ROW</button>
+        <button class="opt">INSTEAD OF VIEW</button>
+        <button class="opt" data-correct="1">AFTER ... FOR EACH ROW</button>
       </div>
       <div class="q__exp">Dans PostgreSQL, AFTER ... FOR EACH ROW trace la ligne après sa modification. BEFORE peut aussi écrire dans la même transaction : un ROLLBACK annule les écritures des deux, et une contrainte différée peut encore faire échouer le COMMIT.</div>
     </div>
@@ -569,7 +565,7 @@ Instruction exécutée avec succès (2 lignes modifiées).
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

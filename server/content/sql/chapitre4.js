@@ -118,34 +118,34 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale entre une fonction de fenêtrage (Window Function) et une clause GROUP BY classique ?',
       opts: [
-        'La fonction de fenêtrage conserve chaque ligne individuelle tout en effectuant des calculs sur une partition, alors que GROUP BY fusionne et aplatit les lignes du groupe',
-        'Les fonctions de fenêtrage ne fonctionnent que sur des tables temporaires',
-        'GROUP BY ne permet pas de faire de somme (SUM)',
-        'Les fonctions de fenêtrage s’exécutent avant la clause WHERE'
+        "Les fonctions de fenêtrage ne peuvent fonctionner que sur des tables temporaires non persistées en base de données relationnelle",
+        "La fonction de fenêtrage conserve chaque ligne individuelle tout en effectuant des calculs sur une partition, alors que GROUP BY fusionne et aplatit les lignes du groupe",
+        "GROUP BY ne permet absolument pas de calculer une quelconque somme agrégée (SUM) sur les colonnes numériques de la table",
+        "Les fonctions de fenêtrage s’exécutent systématiquement avant l’évaluation complète de la clause WHERE de la requête"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Une fonction de fenêtrage calcule des métriques sur une partition définie par OVER(...) sans jamais agréger ni réduire le nombre de lignes initialement sélectionnées.'
     },
     {
       stem: 'Dans quelle clause SQL est-il strictement interdit d’utiliser une fonction d’agrégation comme SUM() ou COUNT() ?',
       opts: [
-        'Dans la clause WHERE',
-        'Dans la clause HAVING',
         'Dans la clause SELECT',
+        'Dans la clause HAVING',
+        'Dans la clause WHERE',
         'Dans la clause ORDER BY'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La clause WHERE s’exécute ligne par ligne avant tout regroupement : les fonctions d’agrégation n’y ont aucun sens et déclenchent une erreur de syntaxe SQL. Il faut utiliser HAVING pour filtrer sur les agrégats.'
     },
     {
       stem: 'Soit trois employés ayant le même salaire le plus élevé de leur entreprise. Quels rangs respectifs attribue la fonction DENSE_RANK() OVER (ORDER BY salaire DESC) à ces trois employés et à l’employé suivant ?',
       opts: [
-        '1, 1, 1 puis 2 pour le suivant',
+        '0, 0, 0 puis 1 pour le suivant',
         '1, 1, 1 puis 4 pour le suivant',
         '1, 2, 3 puis 4 pour le suivant',
-        '0, 0, 0 puis 1 pour le suivant'
+        '1, 1, 1 puis 2 pour le suivant'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'DENSE_RANK attribue le même rang 1 aux trois ex aequo, puis continue la séquence au rang 2 sans interruption. En revanche, RANK() aurait attribué 1, 1, 1 puis 4.'
     },
     {
@@ -162,12 +162,12 @@ module.exports = {
     {
       stem: 'À quoi sert la fonction analytique LAG(chiffre_affaires, 1) OVER (ORDER BY mois ASC) ?',
       opts: [
-        'À récupérer le chiffre d’affaires du mois précédent pour comparer l’évolution mensuelle sur chaque ligne',
-        'À calculer le retard de paiement moyen des clients',
-        'À ralentir volontairement l’exécution de la requête',
-        'À afficher le chiffre d’affaires du mois suivant'
+        "À calculer le retard de paiement moyen constaté chez les clients de l’entreprise",
+        "À récupérer le chiffre d’affaires du mois précédent pour comparer l’évolution mensuelle sur chaque ligne",
+        "À ralentir volontairement l’exécution de la requête à des fins de test de charge",
+        "À afficher le chiffre d’affaires du mois suivant sur chacune des lignes"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'LAG(col, 1) permet d’accéder à la valeur de la colonne de la ligne immédiatement antérieure selon le tri défini, ce qui permet de calculer des deltas ou taux de croissance temporels.'
     }
   ],

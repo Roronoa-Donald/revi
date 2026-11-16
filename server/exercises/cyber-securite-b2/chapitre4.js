@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c4-e1) — Détecteur de motifs d’injection SQL (SQLi)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : jean.dupont@entreprise.fr\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 1 UNION SELECT username, password FROM users\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 1; DROP TABLE clients; -- commentaire\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : '='\nA_COMPLETER\n",
     "hints": [
       "Identifiez les caractères syntaxiques d’échappement SQL (guillemets, double tiret de commentaire, clauses OR 1=1).",
-      "La parade absolue contre l’injection SQL est l’utilisation exclusive de requêtes préparées paramétrées."
+      "La parade absolue contre l’injection SQL est l’utilisation exclusive de requêtes préparées paramétrées.",
+      "Pour chaque saisie : la normaliser sans tenir compte de la casse, rechercher chaque signature interdite, et valider seulement si aucune n apparaît."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "INJECTION SQL DETECTEE (motif: '=')"
       }
     ],
-    "solution": "[Exemple]\nINJECTION SQL DETECTEE (motif: ' or )\n\n[Cas 1 — Test de validation 1]\nENTREE VALIDEE\n\n[Cas 2 — Test de validation 2]\nINJECTION SQL DETECTEE (motif:  union select )\n\n[Cas 3 — Test de validation 3]\nINJECTION SQL DETECTEE (motif: --)\n\n[Cas 4 — Test de validation 4]\nINJECTION SQL DETECTEE (motif: '=')"
+    "solution": "[Exemple]\nINJECTION SQL DETECTEE (motif: ' or )\n\n[Cas 1 — Test de validation 1]\nENTREE VALIDEE\n\n[Cas 2 — Test de validation 2]\nINJECTION SQL DETECTEE (motif:  union select )\n\n[Cas 3 — Test de validation 3]\nINJECTION SQL DETECTEE (motif: --)\n\n[Cas 4 — Test de validation 4]\nINJECTION SQL DETECTEE (motif: '=')",
+    "takeaway": "La détection par signature repère les motifs SQLi (OR 1=1, UNION SELECT, --), mais seules les requêtes préparées corrigent la faille."
   },
   {
     "id": "cs2-c4-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c4-e2) — Encodage pédagogique de texte HTML\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : Bonjour & bienvenue !\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : <img src=x onerror='alert(1)'>\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : Texte normal sans caracteres speciaux 123\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : \"A & B\" < \"C & D\"\nA_COMPLETER\n",
     "hints": [
       "Le modèle concerne uniquement une insertion en texte HTML, pas l'évaluation d'une URL ni l'exécution de JavaScript.",
-      "Encodez le perluète en premier, puis les quatre autres caractères ; l'assainissement de HTML autorisé est une autre opération."
+      "Encodez le perluète en premier, puis les quatre autres caractères ; l'assainissement de HTML autorisé est une autre opération.",
+      "Pour chaque chaîne : remplacer d abord le perluète, puis les chevrons, guillemets et apostrophes par leurs entités, sans rien changer au reste du texte."
     ],
     "examples": [
       {
@@ -87,7 +90,8 @@ module.exports = [
         "expected": "&quot;A &amp; B&quot; &lt; &quot;C &amp; D&quot;"
       }
     ],
-    "solution": "[Exemple]\n&lt;script&gt;alert(&quot;XSS &amp; Pwned&quot;);&lt;/script&gt;\n\n[Cas 1 — Test de validation 1]\nBonjour &amp; bienvenue !\n\n[Cas 2 — Test de validation 2]\n&lt;img src=x onerror=&#x27;alert(1)&#x27;&gt;\n\n[Cas 3 — Test de validation 3]\nTexte normal sans caracteres speciaux 123\n\n[Cas 4 — Test de validation 4]\n&quot;A &amp; B&quot; &lt; &quot;C &amp; D&quot;"
+    "solution": "[Exemple]\n&lt;script&gt;alert(&quot;XSS &amp; Pwned&quot;);&lt;/script&gt;\n\n[Cas 1 — Test de validation 1]\nBonjour &amp; bienvenue !\n\n[Cas 2 — Test de validation 2]\n&lt;img src=x onerror=&#x27;alert(1)&#x27;&gt;\n\n[Cas 3 — Test de validation 3]\nTexte normal sans caracteres speciaux 123\n\n[Cas 4 — Test de validation 4]\n&quot;A &amp; B&quot; &lt; &quot;C &amp; D&quot;",
+    "takeaway": "Encoder les caractères spéciaux HTML (<, >, &, \", ') en entités neutralise l injection XSS dans un contexte texte."
   },
   {
     "id": "cs2-c4-e3",
@@ -100,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c4-e3) — Contrôleur d’accès contre les failles IDOR (Broken Object Level Auth)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : u101;client;doc42;u101\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : u999;admin;doc42;u101\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : u202;client;facture_88;u303\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : u505;user;profil_505;u505\nA_COMPLETER\n",
     "hints": [
       "La vulnérabilité IDOR survient lorsqu’un contrôle d’autorisation omet de vérifier le propriétaire légitime de l’objet.",
-      "Validez que le jeton de session de l’utilisateur correspond formellement au compte propriétaire de la ressource."
+      "Validez que le jeton de session de l’utilisateur correspond formellement au compte propriétaire de la ressource.",
+      "Pour chaque requête : accorder l accès si l utilisateur est admin ou propriétaire du document, sinon le refuser en citant le motif correspondant."
     ],
     "examples": [
       {
@@ -131,6 +136,7 @@ module.exports = [
         "expected": "ACCES AUTORISE (proprietaire)"
       }
     ],
-    "solution": "[Exemple]\nALERTE IDOR: utilisateur u101 non autorise sur document doc42 de doc42_owner_u101\n\n[Cas 1 — Test de validation 1]\nACCES AUTORISE (proprietaire)\n\n[Cas 2 — Test de validation 2]\nACCES AUTORISE (admin override)\n\n[Cas 3 — Test de validation 3]\nALERTE IDOR: utilisateur u202 non autorise sur document facture_88 de u303\n\n[Cas 4 — Test de validation 4]\nACCES AUTORISE (proprietaire)"
+    "solution": "[Exemple]\nALERTE IDOR: utilisateur u101 non autorise sur document doc42 de doc42_owner_u101\n\n[Cas 1 — Test de validation 1]\nACCES AUTORISE (proprietaire)\n\n[Cas 2 — Test de validation 2]\nACCES AUTORISE (admin override)\n\n[Cas 3 — Test de validation 3]\nALERTE IDOR: utilisateur u202 non autorise sur document facture_88 de u303\n\n[Cas 4 — Test de validation 4]\nACCES AUTORISE (proprietaire)",
+    "takeaway": "Contrer les failles IDOR impose de vérifier côté serveur que l utilisateur authentifié possède bien l objet ciblé par l ID."
   }
 ];

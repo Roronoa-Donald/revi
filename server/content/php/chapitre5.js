@@ -78,14 +78,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Comment lance-t-on une exception ?', opts: ['raise', 'throw', 'catch'], correct: 1, exp: 'On lance avec throw new Exception(…).' },
+    { stem: 'Comment lance-t-on une exception ?', opts: ['throw', 'raise', 'catch'], correct: 0, exp: "En PHP on lance avec throw new Exception(…) ; raise n’existe pas en PHP et catch ne fait qu’attraper une exception déjà lancée." },
     { stem: 'Que fait un bloc catch ?', opts: ['Il exécute toujours', 'Il reçoit l’exception lancée', 'Il lève l’exception'], correct: 1, exp: 'catch intercepte une exception du type indiqué.' },
-    { stem: 'Une exception personnalisée…', opts: ['est indépendante', 'étend Exception', 'est une interface'], correct: 1, exp: 'Elle hérite d’Exception pour être attrapable précisément.' },
-    { stem: 'Quand s’exécute finally ?', opts: ['Seulement en cas d’erreur', 'Dans tous les cas', 'Jamais'], correct: 1, exp: 'finally s’exécute après le try ou le catch, quoi qu’il arrive.' },
+    { stem: 'Une exception personnalisée…', opts: ['est indépendante', 'est une interface', 'étend Exception'], correct: 2, exp: 'Elle hérite d’Exception pour être attrapable précisément.' },
+    { stem: 'Quand s’exécute finally ?', opts: ['Dans tous les cas', 'Seulement en cas d’erreur', 'Jamais'], correct: 0, exp: 'finally s’exécute après le try ou le catch, quoi qu’il arrive.' },
     { stem: 'Que fait `catch (A | B $e)` ?', opts: ['Attrape A ou B', 'Attrape seulement A', 'Lève A et B'], correct: 0, exp: 'Le tube regroupe plusieurs types dans un même catch.' },
     { stem: 'Comment lire le message d’une exception ?', opts: ['$e->message', '$e->getMessage()', '$e.message'], correct: 1, exp: 'On appelle la méthode getMessage() de l’objet exception.' },
-    { stem: 'Attraper (Exception $e) attrape…', opts: ['seulement Exception', 'tous les types du langage', 'rien'], correct: 1, exp: 'Exception est la racine : elle attrape très large, parfois trop.' },
-    { stem: 'Que fait une exception non attrapée ?', opts: ['Elle est ignorée', 'Elle termine le script avec une erreur', 'Elle devient un warning'], correct: 1, exp: 'Sans catch, PHP affiche une erreur fatale "Uncaught".' }
+    { stem: 'Attraper (Exception $e) attrape…', opts: ['seulement Exception', 'rien', 'tous les types du langage'], correct: 2, exp: 'Exception est la racine : elle attrape très large, parfois trop.' },
+    { stem: 'Que fait une exception non attrapée ?', opts: ["Elle est ignorée et le script se poursuit","Elle est rétrogradée en simple warning PHP","Elle termine le script avec une erreur"], correct: 2, exp: "Sans catch, PHP affiche une erreur fatale \"Uncaught\" : l’exécution s’arrête, rien n’est ignoré ni rétrogradé en warning." }
   ],
 
   pitfalls: [

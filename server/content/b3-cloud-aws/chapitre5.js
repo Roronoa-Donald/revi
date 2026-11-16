@@ -184,50 +184,50 @@ module.exports = {
   questions: [
     {
       stem: 'Quelle durabilité théorique des données Amazon S3 garantit-il en répliquant automatiquement chaque objet sur au moins 3 Availability Zones ?',
-      opts: ['99.9%', '99.99%', '99.999999999% (11 neuf)', '100% sans exception'],
-      correct: 2,
+      opts: ['99.9%', '99.999999999% (11 neuf)', '99.99%', '100% sans exception'],
+      correct: 1,
       exp: 'Amazon S3 Standard est conçu pour offrir une durabilité de 99.999999999% (11 neuf) sur un an en distribuant les copies d\'objets sur plusieurs centres de données indépendants.'
     },
     {
       stem: 'Quelle classe de stockage Amazon S3 offre le tarif au Go le plus bas pour des archives légales à long terme nécessitant un délai de récupération de 12 à 48 heures ?',
-      opts: ['S3 Standard', 'S3 Standard-IA', 'S3 Glacier Flexible Retrieval', 'S3 Glacier Deep Archive'],
-      correct: 3,
+      opts: ['S3 Glacier Deep Archive', 'S3 Standard-IA', 'S3 Glacier Flexible Retrieval', 'S3 Standard'],
+      correct: 0,
       exp: 'S3 Glacier Deep Archive est la classe de stockage la plus économique du cloud (~0.00099 $/Go/mois), idéale pour la conformité et la rétention réglementaire sur 7 à 10 ans.'
     },
     {
       stem: 'Quelle technologie de stockage AWS permet à des dizaines d\'instances EC2 réparties dans plusieurs Availability Zones d\'accéder simultanément au même système de fichiers partagé en NFS v4 ?',
-      opts: ['Amazon EBS gp3', 'Amazon EFS (Elastic File System)', 'Instance Store local', 'Amazon S3 Glacier'],
-      correct: 1,
+      opts: ['Amazon EBS gp3', 'Amazon S3 Glacier', 'Instance Store local', 'Amazon EFS (Elastic File System)'],
+      correct: 3,
       exp: 'Amazon EFS est un système de fichiers partagé basé sur le protocole NFS v4 qui peut être monté simultanément sur des centaines d\'instances réparties sur plusieurs AZs.'
     },
     {
       stem: 'Dans une architecture de base de données Amazon RDS PostgreSQL, quelle est la fonction principale d\'un déploiement Multi-AZ ?',
-      opts: ['Doubler la vitesse d\'exécution des requêtes de lecture', 'Assurer la haute disponibilité et la reprise automatique après sinistre via une réplique synchrone Standby', 'Fournir un accès gratuit pour les développeurs', 'Compresser les tables volumineuses'],
-      correct: 1,
+      opts: ["Répartir les requêtes de lecture entre le primaire et la réplique pour en doubler le débit","Fournir un accès gratuit et illimité pour les développeurs de l'entreprise pendant les phases de test","Assurer la haute disponibilité et la reprise automatique après sinistre via une réplique synchrone Standby","Compresser automatiquement les tables volumineuses pour économiser de l'espace de stockage"],
+      correct: 2,
       exp: 'Le déploiement Multi-AZ assure la haute disponibilité en maintenant une réplique synchrone passive dans une autre zone. En cas de panne de l\'instance primaire, le basculement est automatique.'
     },
     {
       stem: 'Combien de Read Capacity Units (RCU) sont nécessaires dans Amazon DynamoDB pour réaliser 100 lectures fortement cohérentes (Strongly Consistent) par seconde sur des éléments de 3.5 KB ?',
-      opts: ['25 RCU', '50 RCU', '100 RCU', '200 RCU'],
-      correct: 2,
+      opts: ['25 RCU', '100 RCU', '50 RCU', '200 RCU'],
+      correct: 1,
       exp: 'Un élément de 3.5 KB tient dans un bloc de 4 KB (math.ceil(3.5/4) = 1). Pour une lecture fortement cohérente, 1 lecture = 1 RCU. Donc 100 lectures/sec * 1 RCU = 100 RCU.'
     },
     {
       stem: 'Quel mécanisme de sécurité Amazon S3 neutralise formellement toute tentative de rendre un bucket ou des objets publics, même si une politique permissive est appliquée ?',
-      opts: ['AWS Shield', 'S3 Block Public Access', 'Amazon Inspector', 'AWS WAF'],
-      correct: 1,
+      opts: ['S3 Block Public Access', 'AWS Shield', 'Amazon Inspector', 'AWS WAF'],
+      correct: 0,
       exp: 'S3 Block Public Access fournit des paramètres centralisés appliqués au niveau du compte ou du bucket qui écrasent et ignorent toute règle permissive publique (ACL ou Bucket Policy).'
     },
     {
       stem: 'Quelle caractéristique distingue Amazon Aurora par rapport aux moteurs de bases de données RDS traditionnels (MySQL standard) ?',
-      opts: ['Aurora stocke les données sur des disques magnétiques lents', 'Aurora réplique automatiquement 6 copies des données sur 3 Availability Zones et offre jusqu\'à 5 fois les performances de MySQL', 'Aurora ne supporte pas le langage SQL', 'Aurora n\'est disponible que dans une seule région'],
-      correct: 1,
+      opts: ["Aurora stocke les données sur des disques magnétiques lents, bien moins coûteux que les volumes SSD","Aurora ne supporte pas le langage SQL et impose un langage de requêtes propriétaire spécifique","Aurora n'est disponible que dans une seule région à la fois, sans réplication inter-régions possible","Aurora réplique automatiquement 6 copies des données sur 3 Availability Zones et offre jusqu'à 5 fois les performances de MySQL"],
+      correct: 3,
       exp: 'Amazon Aurora est un moteur cloud natif qui sépare le calcul et le stockage. Son système de stockage distribué réplique 6 copies des blocs sur 3 AZs avec un basculement ultra-rapide.'
     },
     {
       stem: 'Pour protéger les objets S3 contre les suppressions accidentelles et les ransomwares en conservant l\'historique des modifications, quelle fonctionnalité doit être activée ?',
-      opts: ['S3 Transfer Acceleration', 'S3 Versioning', 'S3 Intelligent-Tiering', 'S3 Cross-Origin Resource Sharing (CORS)'],
-      correct: 1,
+      opts: ['S3 Transfer Acceleration', 'S3 Intelligent-Tiering', 'S3 Versioning', 'S3 Cross-Origin Resource Sharing (CORS)'],
+      correct: 2,
       exp: 'Le versioning S3 conserve toutes les variantes d\'un objet (création, écrasement, suppression). Une suppression place simplement un Delete Marker, permettant de restaurer la version antérieure.'
     }
   ],

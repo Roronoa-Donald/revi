@@ -78,12 +78,15 @@ test('les grilles CIA distinguent somme fictive et décompte de composantes', ()
     assert.equal(risk.tests.find(candidate => candidate.stdin === `cas:${item.number}`).expected, expected);
   }
   const inventory = catalogue.getExercise('cy-c1-e2');
+  const ciaByThreat = { ecoute: 'C', vol: 'C', divulgation: 'C', 'altération': 'I', modification: 'I', panne: 'D', ransomware: 'D', coupure: 'D' };
   for (const item of cases(inventory)) {
     const count = Number(item.data[0]);
-    const incidents = item.data.slice(1).map(line => line.split(' '));
-    assert.equal(incidents.length, count);
-    const lines = incidents.map(([category, threat]) => `${category} : ${threat}`);
-    lines.push(`bilan : composantes=${new Set(incidents.map(([category]) => category)).size} incidents=${count}`);
+    const threats = item.data.slice(1);
+    assert.equal(threats.length, count);
+    assert.equal(threats.every(line => !/^[CID]\s+/i.test(line)), true, 'cy-c1-e2 ne doit pas révéler C/I/D dans # Données');
+    const categories = threats.map(threat => ciaByThreat[threat]);
+    const lines = threats.map((threat, idx) => `${categories[idx]} : ${threat}`);
+    lines.push(`bilan : composantes=${new Set(categories).size} incidents=${count}`);
     assert.equal(inventory.tests.find(candidate => candidate.stdin === `cas:${item.number}`).expected, lines.join('\n'));
   }
   assert.match(inventory.brief, /ne démontre pas/);

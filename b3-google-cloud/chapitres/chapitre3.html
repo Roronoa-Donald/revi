@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -219,24 +217,28 @@
      data-exercise="gcp3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="GCE_SIZE machine_type=e2-standard-4&#10;GCE_SLA multi_zone=true">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c3-e1) — Dimensionneur d'Instances Compute Engine et Calcul de SLA Composite
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Vertigo Studio, tournages de drone dans les Alpes, exploite trois VM 24 h/24 (mois de 730 heures) :&#10;- vm-montage : 0,20 $/h ;&#10;- vm-tests : 0,10 $/h ;&#10;- vm-mini : 0,05 $/h.&#10;&#10;1) vm-montage : 730 × 0,20 = 146,00 $/mois.&#10;2) vm-tests : 730 × 0,10 = 73,00 $/mois.&#10;3) vm-mini : 730 × 0,05 = 36,50 $/mois.&#10;4) Remplacer vm-montage par une machine à 0,10 $/h économise 146,00 − 73,00 = 73,00 $/mois.">
+  <script type="text/plain" data-lab-starter># Exercice — Dimensionner et chiffrer les VM de Bistronomie
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses sont des nombres : vCPU, puis dollars (arrondis au centime).
 
-[Cas 1 — Machine optimisée pour le calcul intensif c2]
-# Données : GCE_SIZE machine_type=c2-standard-16
+[Question 1 — vCPU d'une e2-standard-4]
 A_COMPLETER
 
-[Cas 2 — Machine inconnue]
-# Données : GCE_SIZE machine_type=quantum-turbo-99
+[Question 2 — Coût mensuel de l'API de production (e2-standard-4)]
 A_COMPLETER
 
-[Cas 3 — SLA mono-zone standard]
-# Données : GCE_SLA multi_zone=false
+[Question 3 — Coût mensuel du serveur de démonstration (e2-standard-2)]
+A_COMPLETER
+
+[Question 4 — Coût mensuel de la VM de veille (e2-medium)]
+A_COMPLETER
+
+[Question 5 — Économie mensuelle du repli e2-standard-4 vers e2-standard-2]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Dimensionneur d'Instances Compute Engine et Calcul de SLA Composite</h3>
+    <h3 class="lab__title">Exercice 1 — Dimensionner et chiffrer les VM de Bistronomie</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -245,31 +247,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier les caractéristiques des séries de VM Compute Engine et calculer le SLA de disponibilité.</p>
-    <div class="lab__brief"><p>Google Compute Engine (GCE) propose différentes familles de machines virtuelles :<br>
-Catalogue des séries standard :<br>
-- <code>e2-micro</code> : vcpu=2, ram_gb=1, family=COST_OPTIMIZED<br>
-- <code>e2-medium</code> : vcpu=2, ram_gb=4, family=COST_OPTIMIZED<br>
-- <code>e2-standard-4</code> : vcpu=4, ram_gb=16, family=GENERAL_PURPOSE<br>
-- <code>n2-standard-8</code> : vcpu=8, ram_gb=32, family=GENERAL_PURPOSE<br>
-- <code>c2-standard-16</code> : vcpu=16, ram_gb=64, family=COMPUTE_OPTIMIZED<br><br>
-SLA de disponibilité mensuel Compute Engine :<br>
-- Déploiement mono-zone (Single-Zone VM) : <code>sla=99.5% max_downtime_monthly=216m</code><br>
-- Déploiement multi-zones (Multi-Zone MIG / HA) : <code>sla=99.99% max_downtime_monthly=4.32m</code><br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>GCE_SIZE machine_type=&lt;type&gt;</code> :<br>
-   <code>GCE: type=&lt;type&gt; vcpu=&lt;v&gt; ram_gb=&lt;r&gt; family=&lt;fam&gt;</code> (ou <code>GCE: type=&lt;type&gt; status=UNKNOWN</code>).<br>
-2. <code>GCE_SLA multi_zone=&lt;true|false&gt;</code> :<br>
-   <code>GCE_SLA: multi_zone=&lt;bool&gt; sla=&lt;sla&gt; max_downtime=&lt;time&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire les caractéristiques des familles de machines Compute Engine et calculer un coût mensuel à partir du prix horaire.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Bistronomie, plateforme tourangelle de click &amp; collect pour restaurants, héberge son API de commandes sur <strong>Google Compute Engine (GCE)</strong> dans un projet GCP en région <code>europe-west9</code> (Paris). Les machines tournent 24 h/24 ; le mois de référence compte <strong>730 heures</strong>. Les types de machines retenus et les tarifs horaires fournis par le service financier sont :</p><table><tr><th>Type de machine</th><th>vCPU</th><th>RAM (Go)</th><th>Prix horaire</th></tr><tr><th>e2-medium</th><td>2</td><td>4</td><td>0,034 $</td></tr><tr><th>e2-standard-2</th><td>2</td><td>8</td><td>0,067 $</td></tr><tr><th>e2-standard-4</th><td>4</td><td>16</td><td>0,134 $</td></tr></table><p>L'API de production exige une e2-standard-4 ; le serveur de démonstration peut se contenter d'une e2-standard-2 ; la VM de veille technologique tourne sur une e2-medium.</p><ol><li>Combien de vCPU possède une e2-standard-4 ?</li><li>Quel est le coût mensuel, en dollars, de l'API de production (e2-standard-4 en continu) ?</li><li>Quel est le coût mensuel du serveur de démonstration (e2-standard-2 en continu) ?</li><li>Quel est le coût mensuel de la VM de veille (e2-medium en continu) ?</li><li>Le serveur de démonstration passe d'une e2-standard-4 à une e2-standard-2 : quelle économie mensuelle, en dollars, ce repli procure-t-il ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GCE_SIZE machine_type=e2-standard-4
-GCE_SLA multi_zone=true</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Vertigo Studio, tournages de drone dans les Alpes, exploite trois VM 24 h/24 (mois de 730 heures) :
+- vm-montage : 0,20 $/h ;
+- vm-tests : 0,10 $/h ;
+- vm-mini : 0,05 $/h.
+
+1) vm-montage : 730 × 0,20 = 146,00 $/mois.
+2) vm-tests : 730 × 0,10 = 73,00 $/mois.
+3) vm-mini : 730 × 0,05 = 36,50 $/mois.
+4) Remplacer vm-montage par une machine à 0,10 $/h économise 146,00 − 73,00 = 73,00 $/mois.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Structurez les machines dans un dictionnaire type -&gt; (vcpu, ram, family).</li>
-        <li>Branchez multi_zone == "true" vs "false" pour le calcul de SLA.</li>
+        <li>Le coût mensuel d'une machine en continu s'obtient en multipliant le prix horaire par le nombre d'heures du mois.</li>
+        <li>L'économie d'un repli de gamme se calcule par différence entre les deux coûts mensuels.</li>
+        <li>1. Lisez la colonne vCPU du tableau. 2. 730 × 0,134. 3. 730 × 0,067. 4. 730 × 0,034. 5. Soustrayez le coût de la petite machine à celui de la grande.</li>
       </ol>
     </details>
   </div>
@@ -279,24 +275,28 @@ GCE_SLA multi_zone=true</pre></div>
      data-exercise="gcp3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="MIG_AUTOSCALE min=2 max=10 target_cpu=0.60 current_instances=3 current_cpu=0.85">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c3-e2) — Moteur d'Auto-scaling pour Groupes d'Instances Gérés (MIG)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="TalentBridge, plateforme de recrutement, exploite un MIG avec CPU cible 50 %,&#10;bornes min 4 et max 10.&#10;- Montée : 6 instances à 75 % → 6 × 75 ÷ 50 = 9 instances.&#10;- Pointe : 10 instances à 80 % → 10 × 80 ÷ 50 = 16 demandées, plafonnées à 10.&#10;- Détente : 4 instances à 25 % → 4 × 25 ÷ 50 = 2, mais la borne minimum impose 4.&#10;- Une instance défaillante est recréée automatiquement (auto-healing).&#10;&#10;1) Montée : 9 instances.&#10;2) Pointe : 10 instances (plafond max).&#10;3) Détente : le calcul donne 2, la borne min impose 4.&#10;4) Non, jamais sous 4 instances.&#10;5) Le MIG la recrée automatiquement.">
+  <script type="text/plain" data-lab-starter># Exercice — L'auto-scaling du MIG de Festilia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nombre d'instances. Question 4 : oui ou non. Question 5 : réponse courte.
 
-[Cas 1 — Diminution de charge entraînant un Scale-down]
-# Données : MIG_AUTOSCALE min=2 max=10 target_cpu=0.60 current_instances=6 current_cpu=0.25
+[Question 1 — Capacité cible en montée]
 A_COMPLETER
 
-[Cas 2 — Plafonnement au maximum d instances autorisées]
-# Données : MIG_AUTOSCALE min=2 max=8 target_cpu=0.50 current_instances=6 current_cpu=0.95
+[Question 2 — Capacité plafonnée en pointe]
 A_COMPLETER
 
-[Cas 3 — Charge stable sans changement d échelle]
-# Données : MIG_AUTOSCALE min=2 max=10 target_cpu=0.70 current_instances=4 current_cpu=0.70
+[Question 3 — Capacité cible en détente]
+A_COMPLETER
+
+[Question 4 — Descente sous 3 instances possible ?]
+A_COMPLETER
+
+[Question 5 — Réaction du MIG à une instance défaillante]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur d'Auto-scaling pour Groupes d'Instances Gérés (MIG)</h3>
+    <h3 class="lab__title">Exercice 2 — L'auto-scaling du MIG de Festilia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -305,28 +305,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la taille cible d'un Managed Instance Group (MIG) selon la charge CPU cible et les limites d'échelle.</p>
-    <div class="lab__brief"><p>Un groupe d'instances géré (MIG) ajuste automatiquement le nombre d'instances selon la formule :<br>
-<code>desired = math.ceil(current_instances * (current_cpu / target_cpu))</code>.<br>
-La valeur calculée doit être bornée :<br>
-- Si <code>desired &gt; max_instances</code> : <code>desired = max_instances</code>.<br>
-- Si <code>desired &lt; min_instances</code> : <code>desired = min_instances</code>.<br><br>
-Actions :<br>
-- Si <code>desired &gt; current_instances</code> : <code>action=SCALE_UP</code><br>
-- Si <code>desired &lt; current_instances</code> : <code>action=SCALE_DOWN</code><br>
-- Si <code>desired == current_instances</code> : <code>action=NO_CHANGE</code><br><br>
-Paramètres soumis à l’analyse :<br>
-<code>MIG_AUTOSCALE min=&lt;min&gt; max=&lt;max&gt; target_cpu=&lt;t&gt; current_instances=&lt;c&gt; current_cpu=&lt;cur_cpu&gt;</code>.<br>
-Résultat d’analyse attendu :<br>
-<code>MIG: current=&lt;c&gt; target_cpu=&lt;t&gt; current_cpu=&lt;cur_cpu&gt; desired=&lt;d&gt; action=&lt;action&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la capacité cible d'un groupe d'instances géré avec auto-scaling CPU et respecter les bornes min et max.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Festilia, billetterie toulousaine de festivals, absorbe les mises en vente avec un groupe d'instances géré (MIG) doté d'un auto-scaling basé sur une <strong>CPU cible de 60 %</strong>, avec les bornes <strong>minimum 3</strong> et <strong>maximum 15</strong> instances. Rappel du cours : la capacité cible se calcule ainsi : capacité actuelle × CPU observée ÷ CPU cible, arrondie à l'entier supérieur.</p><p>Trois situations sont observées :</p><ul><li><strong>Montée :</strong> 8 instances tournent à 75 % de CPU moyenne ;</li><li><strong>Pointe d'ouverture :</strong> 12 instances tournent à 80 % de CPU moyenne ;</li><li><strong>Détente :</strong> 10 instances retombent à 45 % de CPU moyenne.</li></ul><ol><li>Quelle capacité cible l'auto-scaler calcule-t-il en montée (8 instances à 75 %) ?</li><li>En pointe, la formule demande 16 instances : combien le MIG peut-il en exécuter au maximum ?</li><li>Quelle capacité cible la formule donne-t-elle en détente (10 instances à 45 %), arrondie à l'entier supérieur ?</li><li>La charge s'effondre à 5 % : le MIG peut-il descendre sous 3 instances ?</li><li>Que fait automatiquement le MIG lorsqu'une de ses instances ne répond plus au health check ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MIG_AUTOSCALE min=2 max=10 target_cpu=0.60 current_instances=3 current_cpu=0.85</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TalentBridge, plateforme de recrutement, exploite un MIG avec CPU cible 50 %,
+bornes min 4 et max 10.
+- Montée : 6 instances à 75 % → 6 × 75 ÷ 50 = 9 instances.
+- Pointe : 10 instances à 80 % → 10 × 80 ÷ 50 = 16 demandées, plafonnées à 10.
+- Détente : 4 instances à 25 % → 4 × 25 ÷ 50 = 2, mais la borne minimum impose 4.
+- Une instance défaillante est recréée automatiquement (auto-healing).
+
+1) Montée : 9 instances.
+2) Pointe : 10 instances (plafond max).
+3) Détente : le calcul donne 2, la borne min impose 4.
+4) Non, jamais sous 4 instances.
+5) Le MIG la recrée automatiquement.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Convertissez target_cpu et current_cpu en float.</li>
-        <li>Utilisez math.ceil(cur * (cur_cpu / target_cpu)) puis appliquez max(min_val, min(max_val, desired)).</li>
+        <li>Appliquez la formule capacité actuelle × CPU observée ÷ CPU cible, puis arrondissez à l'entier supérieur.</li>
+        <li>La capacité calculée ne sort jamais de l'intervalle [minimum ; maximum] : confrontez toujours le résultat aux bornes.</li>
+        <li>1. 8 × 75 ÷ 60. 2. La formule demande 16, mais la borne maximum est 15. 3. 10 × 45 ÷ 60 = 7,5. 4. La borne minimum protège un socle d'instances. 5. L'auto-healing fait vivre le MIG, pas seulement l'auto-scaling.</li>
       </ol>
     </details>
   </div>
@@ -336,25 +336,31 @@ Résultat d’analyse attendu :<br>
      data-exercise="gcp3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="VALIDATE_SPLIT revs=v1:80,v2:20&#10;ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c3-e3) — Déployeur Serverless Cloud Run et Répartition de Trafic Multi-Révisions
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="AquaQuiz, jeux quiz en ligne, expose un service conteneurisé sur Cloud Run :&#10;30 requêtes simultanées par instance, 3 instances minimum. Pic : 900 requêtes/s.&#10;&#10;1) Instances au pic : 900 ÷ 30 = 30.&#10;2) Avec 90 requêtes par instance : 900 ÷ 90 = 10 instances.&#10;3) 3 instances restent garanties en permanence.&#10;4) Le conteneur s'exécute sur Cloud Run.&#10;5) Le code sans conteneur avec app.yaml, c'est App Engine.&#10;6) Oui, sans minimum, Cloud Run peut descendre à zéro instance.">
+  <script type="text/plain" data-lab-starter># Exercice — Serverless : Cloud Run et App Engine pour SnapPhoto
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nombre seul. Questions 4 et 5 : le nom du service. Question 6 : oui ou non.
 
-[Cas 1 — Rejet somme de pourcentages différente de 100]
-# Données : VALIDATE_SPLIT revs=v1:70,v2:20
+[Question 1 — Instances nécessaires au pic (40 requêtes par instance)]
 A_COMPLETER
 
-[Cas 2 — Routage tombant dans la seconde révision canary]
-# Données : ROUTE_REQUEST req_id=REQ-CANARY-XYZ revs=v1:10,v2:90
+[Question 2 — Instances nécessaires au pic (80 requêtes par instance)]
 A_COMPLETER
 
-[Cas 3 — Répartition multi-révisions à 3 versions]
-# Données : VALIDATE_SPLIT revs=v1:50,v2:30,v3:20
-# Données : ROUTE_REQUEST req_id=USER-ABC revs=v1:50,v2:30,v3:20
+[Question 3 — Instances garanties en permanence]
+A_COMPLETER
+
+[Question 4 — Service exécutant le conteneur Docker]
+A_COMPLETER
+
+[Question 5 — Service déployant du code via app.yaml]
+A_COMPLETER
+
+[Question 6 — Réduction à zéro instance hors trafic possible ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Déployeur Serverless Cloud Run et Répartition de Trafic Multi-Révisions</h3>
+    <h3 class="lab__title">Exercice 3 — Serverless : Cloud Run et App Engine pour SnapPhoto</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -363,26 +369,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider la répartition de trafic entre révisions Cloud Run et simuler le routage d'une requête client.</p>
-    <div class="lab__brief"><p>Google Cloud Run permet de répartir le trafic HTTP entre plusieurs révisions (Canary Release / Blue-Green) :<br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>VALIDATE_SPLIT revs=&lt;r1:p1,r2:p2,...&gt;</code> :<br>
-   - Vérifie que la somme des pourcentages vaut exactement 100.<br>
-   - Si valide : <code>SPLIT: status=VALID revs_count=&lt;N&gt; allocation=&lt;revs&gt;</code><br>
-   - Si somme != 100 : <code>SPLIT: status=INVALID reason=SUM_MUST_BE_100 current_sum=&lt;S&gt;</code><br>
-2. <code>ROUTE_REQUEST req_id=&lt;id&gt; revs=&lt;r1:p1,r2:p2,...&gt;</code> :<br>
-   - Calcule <code>hash_val = sum(ord(c) for c in req_id) % 100</code>.<br>
-   - Parcourt les révisions dans l'ordre de gauche à droite. La requête est attribuée à la première révision dont le cumul des pourcentages dépasse strictement <code>hash_val</code>.<br>
-   - <code>ROUTE: req_id=&lt;id&gt; bucket=&lt;hash_val&gt; target_revision=&lt;rev&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dimensionner le nombre d'instances d'un service Cloud Run selon la simultanéité et choisir le bon service serverless.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> SnapPhoto, imprimeur photo lillois, a conteneurisé son service de retouche avec Docker et prépare le Black Friday. Le service Cloud Run est configuré avec <strong>40 requêtes simultanées par instance</strong> (concurrency) et <strong>2 instances minimum</strong> pour éviter les démarrages à froid. Les prévisions de trafic : un pic de <strong>600 requêtes par seconde</strong> le jour de l'événement, et environ 80 requêtes par seconde en trafic habituel.</p><p>L'équipe hésite aussi entre Cloud Run, qui exécute directement un conteneur, et App Engine, qui déploie du code avec un fichier <code>app.yaml</code> et des versions nommées.</p><ol><li>Combien d'instances faut-il au pic pour absorber 600 requêtes/s avec 40 requêtes simultanées par instance ?</li><li>La concurrency est portée à 80 requêtes simultanées par instance : combien d'instances suffisent alors au pic ?</li><li>Combien d'instances restent garanties en permanence grâce au paramètre minimum ?</li><li>Quel service managé exécute directement le conteneur Docker de SnapPhoto ?</li><li>Quel service serverless historique déploie du code sans conteneur, piloté par un fichier app.yaml ?</li><li>Cloud Run peut-il réduire le service à zéro instance hors trafic, pour n'être presque plus facturé ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VALIDATE_SPLIT revs=v1:80,v2:20
-ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AquaQuiz, jeux quiz en ligne, expose un service conteneurisé sur Cloud Run :
+30 requêtes simultanées par instance, 3 instances minimum. Pic : 900 requêtes/s.
+
+1) Instances au pic : 900 ÷ 30 = 30.
+2) Avec 90 requêtes par instance : 900 ÷ 90 = 10 instances.
+3) 3 instances restent garanties en permanence.
+4) Le conteneur s'exécute sur Cloud Run.
+5) Le code sans conteneur avec app.yaml, c'est App Engine.
+6) Oui, sans minimum, Cloud Run peut descendre à zéro instance.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>La répartition de trafic Cloud Run Traffic Split affecte des pourcentages stricts entre les différentes révisions du conteneur.</li>
-        <li>Vérifiez que la somme des quotas de trafic alloués aux révisions déployées atteint exactement 100%.</li>
+        <li>Le nombre d'instances nécessaires est le débit total divisé par la capacité d'une instance, arrondi à l'entier supérieur.</li>
+        <li>Augmenter la concurrency réduit le nombre d'instances nécessaires pour un même débit : c'est l'avantage de Cloud Run face à une machine par requête.</li>
+        <li>1. 600 ÷ 40. 2. 600 ÷ 80 = 7,5. 3. Relisez le paramètre minimum. 4. L'un des deux services est spécialisé dans les conteneurs. 5. L'autre est le service serverless originel de Google Cloud. 6. Sans minimum, Cloud Run supprime les instances inactives.</li>
       </ol>
     </details>
   </div>
@@ -396,8 +401,8 @@ ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
       <p class="q__stem">Quel est le SLA de disponibilité mensuel garanti par Google pour des instances Compute Engine réparties sur plusieurs zones de disponibilité (MIG Régional) ?</p>
       <div class="opts">
         <button class="opt">99.0%</button>
-        <button class="opt">99.5%</button>
         <button class="opt" data-correct="1">99.99%</button>
+        <button class="opt">99.5%</button>
         <button class="opt">99.999%</button>
       </div>
       <div class="q__exp">Google garantit un SLA de 99.99% pour les déploiements multi-zones d'instances Compute Engine (contre 99.5% pour une VM isolée dans une seule zone).</div>
@@ -405,8 +410,8 @@ ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
     <div class="q">
       <p class="q__stem">Dans un groupe d'instances géré (MIG), quel mécanisme recrée automatiquement une VM dont l'application ne répond plus aux requêtes de la sonde de santé ?</p>
       <div class="opts">
-        <button class="opt">L'Auto-scaling</button>
         <button class="opt" data-correct="1">L'Auto-healing (Auto-guérison)</button>
+        <button class="opt">L'Auto-scaling</button>
         <button class="opt">Le Rolling Update</button>
         <button class="opt">Le Load Balancing</button>
       </div>
@@ -415,10 +420,10 @@ ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
     <div class="q">
       <p class="q__stem">Quelle est la principale différence de facturation entre GKE Standard et GKE Autopilot ?</p>
       <div class="opts">
-        <button class="opt">GKE Autopilot facture au nombre de requêtes HTTP</button>
+        <button class="opt">GKE Autopilot facture chaque requête HTTP traitée par les services exposés du cluster</button>
+        <button class="opt">GKE Standard est entièrement gratuit sans frais de gestion ni de nœuds sous-jacents</button>
+        <button class="opt">GKE Autopilot ne supporte pas les charges de travail conteneurisées sous Linux</button>
         <button class="opt" data-correct="1">GKE Autopilot facture uniquement les ressources de vCPU/RAM allouées aux Pods et non les VMs sous-jacentes</button>
-        <button class="opt">GKE Standard est gratuit</button>
-        <button class="opt">GKE Autopilot ne supporte pas Linux</button>
       </div>
       <div class="q__exp">En mode Autopilot, l'utilisateur ne paie pas pour la capacité inutilisée des nœuds workers, mais uniquement pour les ressources CPU et mémoire déclarées par ses Pods.</div>
     </div>
@@ -426,8 +431,8 @@ ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
       <p class="q__stem">Quel service Google Cloud permet d'exécuter n'importe quel conteneur Docker répondant sur un port HTTP avec passage à l'échelle à zéro (Scale-to-Zero) sans gérer d'infrastructure ?</p>
       <div class="opts">
         <button class="opt">Google Compute Engine</button>
-        <button class="opt" data-correct="1">Cloud Run</button>
         <button class="opt">Cloud SQL</button>
+        <button class="opt" data-correct="1">Cloud Run</button>
         <button class="opt">Cloud Storage</button>
       </div>
       <div class="q__exp">Cloud Run est la plateforme Serverless conteneurisée de référence de Google, capable de démarrer en quelques millisecondes et de passer à zéro instance en l'absence de requêtes.</div>
@@ -436,8 +441,8 @@ ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
       <p class="q__stem">Quel pourcentage maximal d'économie les instances Spot de Compute Engine peuvent-elles offrir par rapport au tarif à la demande standard ?</p>
       <div class="opts">
         <button class="opt">10%</button>
-        <button class="opt">30%</button>
         <button class="opt" data-correct="1">jusqu'à 60% à 91%</button>
+        <button class="opt">30%</button>
         <button class="opt">5%</button>
       </div>
       <div class="q__exp">Les instances Spot (qui remplacent les anciennes VMs préemptibles) permettent d'obtenir jusqu'à 60% à 91% d'économie sur les tarifs de calcul Compute Engine.</div>
@@ -560,7 +565,7 @@ ROUTE_REQUEST req_id=REQ-1001 revs=v1:80,v2:20</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

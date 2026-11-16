@@ -20,17 +20,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { COURSES } = require('../courses');
-const { getUser, quotaKey } = require('../utils/auth');
+const { resolveActiveUser, requireActiveUser, requireCourseAccess } = require('../utils/auth');
+const db = require('../db');
 
-// Caches en mémoire
+// Caches en mémoire (contenu statique des chapitres et questions d'examen)
 const chapterCache = new Map();
 const examQuestionCache = new Map();
-
-// Stockage des sessions d'examen sommatif : Map<sessionId, sessionObject>
-const examSessions = new Map();
-
-// Index des sessions d'examen actives par utilisateur/IP et cours : Map<`${userKey}:${courseId}`, sessionId>
-const activeExamByUserCourse = new Map();
 
 function getCourseDirs(courseId) {
   return [
@@ -42,9 +37,9 @@ function getCourseDirs(courseId) {
   ];
 }
 
-function getClientUserKey(req) {
-  const user = getUser(req);
-  if (user && user.userId) return `user:${user.userId}`;
+async function getClientUserKey(req) {
+  const user = await resolveActiveUser(req);
+  if (user && user.userId != null) return `user:${user.userId}`;
   return `ip:${req.ip || 'unknown'}`;
 }
 
@@ -96,12 +91,18 @@ function loadCourseChapters(courseId) {
   return null;
 }
 
+const handwrittenExamQcm = require('../exercises/handwritten-exam-qcm');
+
 function loadCourseExamQuestions(courseId) {
   if (examQuestionCache.has(courseId)) {
     return examQuestionCache.get(courseId);
   }
   if (!Object.prototype.hasOwnProperty.call(COURSES, courseId)) {
     return null;
+  }
+  if (Object.prototype.hasOwnProperty.call(handwrittenExamQcm, courseId)) {
+    examQuestionCache.set(courseId, handwrittenExamQcm[courseId]);
+    return handwrittenExamQcm[courseId];
   }
 
   const contentDir = path.resolve(__dirname, '..', 'content');
@@ -162,7 +163,7 @@ async function qcmRoutes(fastify) {
   // 1. Démarrer une session d'examen sommatif sécurisé
   // ==========================================================================
   const startExamHandler = async (req, reply) => {
-    const { courseId, chapter, durationMinutes = 60, userId } = req.body || {};
+    const { courseId, chapter, durationMinutes = 60 } = req.body || {};
 
     if (!courseId || typeof courseId !== 'string') {
       return reply.code(400).send({ error: 'Identifiant de cours invalide ou manquant' });
@@ -170,6 +171,10 @@ async function qcmRoutes(fastify) {
     if (chapter == null) {
       return reply.code(400).send({ error: 'Numéro de chapitre ou mention examen manquant' });
     }
+
+    const access = await requireCourseAccess(req, reply, { courseId, chapter });
+    if (!access) return;
+    const authUser = access.free ? access.user : access;
 
     const questions = resolveQuestions(courseId, chapter);
     if (!questions || questions.length === 0) {
@@ -180,13 +185,13 @@ async function qcmRoutes(fastify) {
     const duration = Math.min(Math.max(Number(durationMinutes) || 60, 5), 240); // 5 min à 4h
     const now = Date.now();
     const expiresAt = now + duration * 60 * 1000;
-    const userKey = getClientUserKey(req);
-    const resolvedUserId = userId || (getUser(req)?.userId) || userKey;
+    const resolvedUserId = authUser && authUser.userId != null ? authUser.userId : null;
+    const userKey = resolvedUserId != null ? `user:${resolvedUserId}` : `ip:${req.ip || 'unknown'}`;
 
     const session = {
       sessionId,
       userKey,
-      userId: resolvedUserId,
+      userId: resolvedUserId != null ? resolvedUserId : userKey,
       courseId,
       chapter,
       mode: 'exam',
@@ -201,8 +206,7 @@ async function qcmRoutes(fastify) {
       answers: null
     };
 
-    examSessions.set(sessionId, session);
-    activeExamByUserCourse.set(`${userKey}:${courseId}`, sessionId);
+    await db.saveExamSession(session);
 
     return {
       sessionId,
@@ -247,10 +251,14 @@ async function qcmRoutes(fastify) {
       });
     }
 
+    // Contrôle d'accès cours / chapitre (chapitres 2+ exigent session active + niveau + abonnement)
+    const access = await requireCourseAccess(req, reply, { courseId, chapter });
+    if (!access) return;
+
     // RÈGLE DE SÉCURITÉ 2 :
     // Si un sessionId est fourni et correspond à une session active, verify est bloqué.
     if (sessionId) {
-      const session = examSessions.get(sessionId);
+      const session = await db.getExamSession(sessionId);
       if (session && session.status === 'in_progress') {
         return reply.code(403).send({
           error: "Oracle interdit : la vérification unitaire immédiate est désactivée pendant une session d'examen sommatif."
@@ -261,15 +269,13 @@ async function qcmRoutes(fastify) {
     // RÈGLE DE SÉCURITÉ 3 :
     // Même si l'apprenant omet intentionnellement sessionId dans sa requête,
     // si le serveur sait qu'il a une session d'examen active sur ce cours, verify est bloqué.
-    const userKey = getClientUserKey(req);
-    const activeSessionId = activeExamByUserCourse.get(`${userKey}:${courseId}`);
-    if (activeSessionId) {
-      const activeSession = examSessions.get(activeSessionId);
-      if (activeSession && activeSession.status === 'in_progress' && Date.now() <= activeSession.expiresAt + 30000) {
-        return reply.code(403).send({
-          error: "Oracle interdit : vous avez une session d'examen sommatif active en cours sur ce cours."
-        });
-      }
+    const authUser = access.free ? access.user : access;
+    const userKey = authUser && authUser.userId != null ? `user:${authUser.userId}` : `ip:${req.ip || 'unknown'}`;
+    const activeSession = await db.findActiveExamSession(userKey, courseId);
+    if (activeSession && activeSession.status === 'in_progress' && Date.now() <= activeSession.expiresAt + 30000) {
+      return reply.code(403).send({
+        error: "Oracle interdit : vous avez une session d'examen sommatif active en cours sur ce cours."
+      });
     }
 
     const questions = resolveQuestions(courseId, chapter);
@@ -296,18 +302,17 @@ async function qcmRoutes(fastify) {
   // ==========================================================================
   const submitHandler = async (req, reply) => {
     const { courseId, chapter, answers, mode, sessionId } = req.body || {};
-    const userKey = getClientUserKey(req);
 
     // CAS A : Soumission avec session d'examen déclarée
     if (sessionId) {
-      const session = examSessions.get(sessionId);
+      const session = await db.getExamSession(sessionId);
       if (!session) {
         return reply.code(404).send({ error: "Session d'examen introuvable ou expirée" });
       }
 
-      // Contrôle d'isolation utilisateur : une session ne peut être soumise par un autre utilisateur
-      const authUser = getUser(req);
-      if (authUser && session.userKey && session.userKey.startsWith('user:') && session.userKey !== `user:${authUser.userId}`) {
+      // Contrôle d'isolation strict : session liée à son créateur uniquement
+      const callerKey = await getClientUserKey(req);
+      if (!session.userKey || session.userKey !== callerKey) {
         return reply.code(403).send({ error: "Accès refusé : cette session appartient à un autre utilisateur." });
       }
 
@@ -328,8 +333,7 @@ async function qcmRoutes(fastify) {
       // Vérification d'expiration de session (tolérance réseau de 30 secondes)
       const now = Date.now();
       if (now > session.expiresAt + 30000) {
-        session.status = 'expired';
-        activeExamByUserCourse.delete(`${session.userKey}:${session.courseId}`);
+        await db.updateExamSession(sessionId, { status: 'expired' });
         return reply.code(400).send({ error: "Session d'examen expirée : le délai imparti est dépassé." });
       }
 
@@ -368,16 +372,28 @@ async function qcmRoutes(fastify) {
       const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
       const passed = percentage >= 70;
 
-      // Verrouillage définitif de la session côté serveur
-      session.status = 'submitted';
-      session.submittedAt = now;
-      session.score = score;
-      session.percentage = percentage;
-      session.passed = passed;
-      session.answers = answers;
+      // Verrouillage définitif de la session côté serveur via db.js
+      const updated = await db.updateExamSession(sessionId, {
+        status: 'submitted',
+        submittedAt: now,
+        score,
+        percentage,
+        passed,
+        answers
+      });
 
-      // Libérer l'index actif pour cet utilisateur
-      activeExamByUserCourse.delete(`${session.userKey}:${session.courseId}`);
+      if (updated && updated.alreadySubmitted) {
+        return {
+          sessionId: updated.sessionId,
+          alreadySubmitted: true,
+          total: updated.totalQuestions,
+          score: updated.score,
+          percentage: updated.percentage,
+          passed: updated.passed,
+          submittedAt: updated.submittedAt,
+          status: 'submitted'
+        };
+      }
 
       return {
         sessionId: session.sessionId,
@@ -407,6 +423,9 @@ async function qcmRoutes(fastify) {
         error: "Évaluation sommative : une session d'examen active est obligatoire pour soumettre cette épreuve."
       });
     }
+
+    const access = await requireCourseAccess(req, reply, { courseId, chapter });
+    if (!access) return;
 
     if (!Array.isArray(answers)) {
       return reply.code(400).send({ error: 'Le champ answers doit être un tableau' });
@@ -459,16 +478,20 @@ async function qcmRoutes(fastify) {
   // ==========================================================================
   const getSessionHandler = async (req, reply) => {
     const { sessionId } = req.params || {};
-    const session = examSessions.get(sessionId);
+    let session = await db.getExamSession(sessionId);
     if (!session) {
       return reply.code(404).send({ error: "Session introuvable" });
+    }
+
+    const callerKey = await getClientUserKey(req);
+    if (session.userKey && session.userKey !== callerKey) {
+      return reply.code(403).send({ error: "Accès refusé : cette session appartient à un autre utilisateur." });
     }
 
     const now = Date.now();
     const isExpired = session.status === 'in_progress' && (now > session.expiresAt + 30000);
     if (isExpired) {
-      session.status = 'expired';
-      activeExamByUserCourse.delete(`${session.userKey}:${session.courseId}`);
+      session = await db.updateExamSession(sessionId, { status: 'expired' });
     }
 
     return {
@@ -494,12 +517,18 @@ async function qcmRoutes(fastify) {
   // 5. Consultation de la correction après clôture définitive
   // ==========================================================================
   fastify.get('/exam/review/:sessionId', async (req, reply) => {
+    const user = await requireActiveUser(req, reply);
+    if (!user) return;
+
     const { sessionId } = req.params || {};
-    const session = examSessions.get(sessionId);
+    const session = await db.getExamSession(sessionId);
     if (!session) {
       return reply.code(404).send({ error: "Session introuvable" });
     }
-    if (session.status !== 'submitted') {
+    if (session.userKey !== `user:${user.userId}`) {
+      return reply.code(403).send({ error: "Accès refusé : cette session appartient à un autre utilisateur." });
+    }
+    if (session.status !== 'submitted' || !session.submittedAt) {
       return reply.code(403).send({
         error: "Examen non clôturé : la consultation de la correction est interdite avant soumission définitive."
       });

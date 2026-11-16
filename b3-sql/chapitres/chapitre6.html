@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -177,10 +175,13 @@ CREATE TABLE mesures_defaut PARTITION OF mesures_capteurs DEFAULT;</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="sql3-c6-e1" data-lab
      data-exercise="sql3-c6-e1"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 2, 100), (2, 3, 150), (3, 5, 200), (4, 11, 300);&#10;-- exemple">
@@ -190,13 +191,11 @@ SELECT mois, valeur FROM mesures_iot;</script>
     <h3 class="lab__title">Exercice 1 — Routage de partitions par intervalles de dates (Range Partitioning)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Affecter et agréger les enregistrements par partition trimestrielle.</p>
-    <p class="lab__note" id="sql3-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>mesures_iot(id INT, mois INT, valeur INT)</code> où <code>mois</code> va de <code>1</code> à <code>12</code>, affichez le nom de la partition trimestrielle (<code>CASE WHEN mois &lt;= 3 THEN 'p_q1' WHEN mois &lt;= 6 THEN 'p_q2' WHEN mois &lt;= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible</code>), le nombre de lignes (<code>COUNT(*) AS nb_lignes</code>) et la somme des valeurs (<code>SUM(valeur) AS total_valeurs</code>), regroupés et triés par <code>partition_cible</code> croissante.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE mesures_iot (id INT, mois INT, valeur INT); INSERT INTO mesures_iot VALUES (1, 2, 100), (2, 3, 150), (3, 5, 200), (4, 11, 300);
@@ -212,10 +211,11 @@ SELECT mois, valeur FROM mesures_iot;</script>
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez l’expression CASE WHEN pour calculer partition_cible.</li>
         <li>Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC.</li>
+        <li>1. Mapper chaque mois vers son trimestre avec des bornes cumulatives. 2. Grouper par partition cible. 3. Compter les lignes, sommer les valeurs, trier par partition.</li>
       </ol>
     </details>
   </div>
@@ -223,7 +223,6 @@ SELECT mois, valeur FROM mesures_iot;</script>
 
 <div class="lab" id="sql3-c6-e2" data-lab
      data-exercise="sql3-c6-e2"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('replica_dc1', 5000, 5000, 'sync'), ('replica_dc2', 5000, 4850, 'async');&#10;-- exemple">
@@ -233,13 +232,11 @@ SELECT application_name FROM pg_stat_replication_sim;</script>
     <h3 class="lab__title">Exercice 2 — Surveillance du retard de réplication (Replication Lag LSN)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer le retard d’application WAL des réplicas et identifier les nœuds en alerte.</p>
-    <p class="lab__note" id="sql3-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la vue <code>pg_stat_replication_sim(application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT)</code>, calculez le retard de réplication <code>sent_lsn_mb - replay_lsn_mb AS lag_mb</code> et affichez <code>application_name</code>, <code>sync_state</code> et <code>lag_mb</code> pour tous les réplicas, triés par <code>lag_mb</code> décroissant puis <code>application_name</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE pg_stat_replication_sim (application_name TEXT, sent_lsn_mb INT, replay_lsn_mb INT, sync_state TEXT); INSERT INTO pg_stat_replication_sim VALUES ('replica_dc1', 5000, 5000, 'sync'), ('replica_dc2', 5000, 4850, 'async');
@@ -254,10 +251,11 @@ SELECT application_name FROM pg_stat_replication_sim;</script>
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Soustrayez replay_lsn_mb de sent_lsn_mb et renommez la colonne AS lag_mb.</li>
         <li>Triez par lag_mb DESC, application_name ASC.</li>
+        <li>1. Soustraire le LSN rejoué du LSN envoyé pour chaque réplique. 2. Renommer le résultat lag_mb. 3. Trier par retard décroissant puis nom d’application croissant.</li>
       </ol>
     </details>
   </div>
@@ -265,7 +263,6 @@ SELECT application_name FROM pg_stat_replication_sim;</script>
 
 <div class="lab" id="sql3-c6-e3" data-lab
      data-exercise="sql3-c6-e3"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-1', 'PRIMARY', 0, 9000, 100), ('pg-2', 'REPLICA', 1, 8990, 90), ('pg-3', 'REPLICA', 1, 9000, 80);&#10;-- exemple">
@@ -275,13 +272,11 @@ SELECT node_name, received_lsn, priority FROM cluster_nodes;</script>
     <h3 class="lab__title">Exercice 3 — Élection du candidat de basculement automatique (Failover Patroni / HA)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Sélectionner le meilleur réplica candidat à la promotion Primary selon santé et LSN.</p>
-    <p class="lab__note" id="sql3-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Lors d’une panne du serveur primaire, Patroni élit parmi la table <code>cluster_nodes(node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT)</code> le nœud qui vérifie <code>role = 'REPLICA' AND healthy = 1</code> ayant le plus grand <code>received_lsn</code> (et en cas d’égalité la plus grande <code>priority</code>). Écrivez la requête SQL qui retourne <code>node_name</code>, <code>received_lsn</code> et <code>priority</code> du seul meilleur candidat (<code>LIMIT 1</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE cluster_nodes (node_name TEXT, role TEXT, healthy INT, received_lsn INT, priority INT); INSERT INTO cluster_nodes VALUES ('pg-1', 'PRIMARY', 0, 9000, 100), ('pg-2', 'REPLICA', 1, 8990, 90), ('pg-3', 'REPLICA', 1, 9000, 80);
@@ -295,10 +290,11 @@ SELECT node_name, received_lsn, priority FROM cluster_nodes;</script>
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Filtrez avec WHERE role = 'REPLICA' AND healthy = 1.</li>
         <li>Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1.</li>
+        <li>1. Ne garder que les réplicas sains. 2. Ordonner par LSN reçu décroissant puis priorité décroissante. 3. Ne retourner que la première ligne.</li>
       </ol>
     </details>
   </div>
@@ -312,69 +308,69 @@ SELECT node_name, received_lsn, priority FROM cluster_nodes;</script>
       <p class="q__stem">Quelle stratégie de partitionnement convient le mieux à une table de transactions bancaires conservant 10 ans d’historique ?</p>
       <div class="opts">
         <button class="opt">PARTITION BY HASH sur le montant</button>
-        <button class="opt" data-correct="1">PARTITION BY RANGE sur la date de transaction (ex: mensuel)</button>
-        <button class="opt">PARTITION BY LIST sur le nom du client</button>
         <button class="opt">Aucun partitionnement n’est possible sur des dates</button>
+        <button class="opt">PARTITION BY LIST sur le nom du client</button>
+        <button class="opt" data-correct="1">PARTITION BY RANGE sur la date de transaction (ex: mensuel)</button>
       </div>
       <div class="q__exp">Le partitionnement par intervalle (RANGE) sur la date permet un élagage massif sur les requêtes temporelles et un archivage facile des vieux mois.</div>
     </div>
     <div class="q">
       <p class="q__stem">Qu’est-ce que le Partition Pruning dans PostgreSQL ?</p>
       <div class="opts">
-        <button class="opt">La suppression définitive des anciennes partitions sur disque</button>
+        <button class="opt">La suppression définitive et automatique des anciennes partitions jugées obsolètes sur le disque</button>
+        <button class="opt">Le compactage régulier des blocs mémoire résidents dans le buffer pool partagé</button>
         <button class="opt" data-correct="1">La capacité de l’optimiseur à exclure les partitions physiques hors périmètre lors de l’exécution d’une requête</button>
-        <button class="opt">Le compactage des blocs mémoire dans le buffer pool</button>
-        <button class="opt">La défragmentation automatique des index B-Tree</button>
+        <button class="opt">La défragmentation automatique et périodique des index B-Tree des tables</button>
       </div>
       <div class="q__exp">Le Partition Pruning ignore les partitions dont les contraintes contredisent les critères de la clause WHERE de la requête.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi PostgreSQL écrit-il dans le WAL avant d’écrire dans les pages de table sur disque ?</p>
       <div class="opts">
-        <button class="opt">Parce que le WAL compresse les données</button>
+        <button class="opt">Parce que le journal WAL compresse fortement les données avant de les écrire sur les pages des tables sur disque</button>
         <button class="opt" data-correct="1">Pour assurer la durabilité ACID grâce à des écritures séquentielles rapides, tout en différant les écritures aléatoires sur les tables</button>
-        <button class="opt">Parce que les tables n’existent pas sur disque</button>
-        <button class="opt">Pour chiffrer les données à la volée</button>
+        <button class="opt">Parce que les tables n’existent physiquement pas sur le disque, mais uniquement en mémoire vive</button>
+        <button class="opt">Pour chiffrer les données à la volée lors de chaque écriture sur le stockage persistant du serveur</button>
       </div>
       <div class="q__exp">Le WAL doit être synchronisé avant l’écriture des pages de données correspondantes. Avec fsync et synchronous_commit activés, le COMMIT attend la synchronisation locale ; avec synchronous_commit = off, il peut être acquitté avant.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il lors d’un Checkpoint dans PostgreSQL ?</p>
       <div class="opts">
-        <button class="opt">Toutes les connexions clientes sont déconnectées</button>
         <button class="opt" data-correct="1">Les pages modifiées en mémoire (dirty buffers) sont écrites sur disque et synchronisées par fsync</button>
-        <button class="opt">La base de données est basculée en lecture seule</button>
-        <button class="opt">Toutes les tables sont vidées</button>
+        <button class="opt">Toutes les connexions clientes actives sont brutalement déconnectées du serveur</button>
+        <button class="opt">La base de données entière est basculée temporairement en mode lecture seule</button>
+        <button class="opt">Toutes les tables de la base de données sont intégralement vidées de leur contenu</button>
       </div>
       <div class="q__exp">Le Checkpoint synchronise toutes les données modifiées en RAM avec les fichiers disque, bornant la durée de récupération en cas de crash.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle fonction PostgreSQL permet de calculer l’écart en octets entre deux Log Sequence Numbers (LSN) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">pg_wal_lsn_diff(lsn1, lsn2)</button>
+        <button class="opt">SUBTRACT_WAL(lsn1, lsn2)</button>
         <button class="opt">pg_calculate_bytes(lsn1, lsn2)</button>
         <button class="opt">DIFF_LSN(lsn1, lsn2)</button>
-        <button class="opt">SUBTRACT_WAL(lsn1, lsn2)</button>
+        <button class="opt" data-correct="1">pg_wal_lsn_diff(lsn1, lsn2)</button>
       </div>
       <div class="q__exp">pg_wal_lsn_diff() calcule la différence numérique exacte en octets entre deux positions LSN fournies au format hexadécimal.</div>
     </div>
     <div class="q">
       <p class="q__stem">Avec synchronous_standby_names configuré et synchronous_commit = on, quand PostgreSQL acquitte-t-il un COMMIT synchrone ?</p>
       <div class="opts">
-        <button class="opt">Immédiatement après le calcul en RAM</button>
+        <button class="opt">Immédiatement après le calcul et la mise à jour des pages en mémoire vive du serveur</button>
+        <button class="opt">Exactement cinq minutes après la réception de la requête transactionnelle par le serveur primaire</button>
         <button class="opt" data-correct="1">Après synchronisation locale du WAL et confirmation durable du nombre ou quorum de standbys synchrones configuré</button>
-        <button class="opt">Exactement 5 minutes après la requête</button>
-        <button class="opt">Une fois par heure lors du checkpoint</button>
+        <button class="opt">Une seule fois par heure, à l’occasion du checkpoint automatique planifié suivant</button>
       </div>
       <div class="q__exp">PostgreSQL attend la synchronisation locale puis la confirmation des standbys synchrones configurés. La protection au basculement dépend notamment de la survie et du choix d’une réplique ayant confirmé le WAL ; ce n’est pas une sauvegarde.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel risque majeur présente un physical replication slot laissé actif alors que le serveur standby associé est éteint ?</p>
       <div class="opts">
-        <button class="opt">Le serveur primaire redémarre en boucle</button>
+        <button class="opt">Le serveur primaire entre dans une boucle infinie de redémarrages inopinés et répétés</button>
         <button class="opt" data-correct="1">Le primaire conserve tous les fichiers WAL sans jamais les recycler, provoquant une saturation critique du disque</button>
-        <button class="opt">Les données de la table deviennent corrompues</button>
-        <button class="opt">Les requêtes SELECT sont refusées</button>
+        <button class="opt">Les données des tables répliquées deviennent progressivement corrompues et incohérentes</button>
+        <button class="opt">Toutes les requêtes SELECT de lecture sont désormais refusées aux clients connectés</button>
       </div>
       <div class="q__exp">Un replication slot orphelin empêche le primaire de nettoyer ses WAL, saturant l’espace disque jusqu’au blocage total de la base.</div>
     </div>
@@ -510,7 +506,7 @@ SELECT node_name, received_lsn, priority FROM cluster_nodes;</script>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

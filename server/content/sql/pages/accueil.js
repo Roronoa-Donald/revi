@@ -151,16 +151,15 @@ function atelier(course) {
     '  <p class="lead">Zone libre d’expérimentation : créez des tables temporaires en mémoire, exécutez des requêtes d’agrégation, testez des jointures et simulez des transactions sans contrainte.</p>',
     '',
     box('standard', 'Environnement interactif de code', [
-      '<p>Utilisez cet éditeur pour tester du code Python manipulant des bases relationnelles SQLite en mémoire (<code>:memory:</code>), ' +
-      'ou implémenter des algorithmes de filtrage et d’analyse relationnelle. ' +
-      'Les sorties s’affichent directement dans la console inférieure.</p>'
+      '<p>Utilisez cet éditeur pour exécuter directement vos requêtes SQL sur une base relationnelle SQLite en mémoire (DDL, insertions, jointures, agrégations). ' +
+      'Les résultats tabulaires s’affichent directement dans la console inférieure.</p>'
     ].join('\n')),
     '',
     '  <div class="lab" data-lab',
     '       data-language="sql"',
     '       data-height="420"',
-    '       data-stdin="PARIS,LYON,MARSEILLE">',
-    '    <script type="text/plain" data-lab-starter># Grille d’analyse libre — sql\n# Zone d’étude et d’application méthodologique\n\n[Cas 1 — Étude préliminaire]\nANALYSE: CONFORME\nNOTE: Validation des prérequis et des critères méthodologiques.\n</script>',
+    '       data-stdin="">',
+    '    <script type="text/plain" data-lab-starter>-- Zone libre : simulez vos schémas et requêtes SQL sur SQLite en mémoire.\nCREATE TABLE villes (id INTEGER PRIMARY KEY, nom TEXT NOT NULL);\nINSERT INTO villes (nom) VALUES (\'PARIS\'), (\'LYON\'), (\'MARSEILLE\');\nSELECT id, nom FROM villes ORDER BY nom;\n</script>',
     '  </div>',
     '',
     chnav({ href: 'sommaire.html', label: 'Retour au sommaire' }, { href: 'chapitres/chapitre1.html', label: 'Accéder au chapitre 1' }),

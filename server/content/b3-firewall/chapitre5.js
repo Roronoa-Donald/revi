@@ -134,32 +134,32 @@ module.exports = {
     {
       stem: 'Pourquoi le filtrage basé uniquement sur les numéros de ports TCP/UDP (L4) est-il devenu insuffisant aujourd’hui ?',
       opts: [
-        'Parce que la quasi-totalité du trafic web et des applications modernes passe par le port 443 chiffré en HTTPS pour contourner les blocages',
-        'Parce que les routeurs ne savent plus lire les en-têtes TCP',
-        'Parce que le protocole IPv4 a été totalement désactivé sur Internet',
-        'Parce que les câbles Ethernet bloquent les numéros de ports supérieurs à 80'
+        "Parce que les routeurs et commutateurs modernes ne savent plus lire les en-têtes TCP des paquets en transit",
+        "Parce que le protocole IPv4 a été totalement désactivé sur l’ensemble du réseau Internet mondial actuel",
+        "Parce que la quasi-totalité du trafic web et des applications modernes passe par le port 443 chiffré en HTTPS pour contourner les blocages",
+        "Parce que les câbles Ethernet de catégorie 6 bloquent physiquement les numéros de ports supérieurs à 80"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Presque toutes les applications utilisent le port 443, rendant impossible la distinction entre un trafic légitime et une menace sur la seule base du port.'
     },
     {
       stem: 'Dans quel paquet de la négociation TLS le nom de domaine complet du serveur est-il transmis en clair via l’extension SNI ?',
       opts: [
-        'Dans le message Client Hello envoyé par le navigateur client au tout début du handshake',
+        'Dans les paquets de données TCP ACK de fermeture',
         'Dans le message Server Hello envoyé par le serveur à la fin',
         'Uniquement après l’échange complet des clés asymétriques',
-        'Dans les paquets de données TCP ACK de fermeture'
+        'Dans le message Client Hello envoyé par le navigateur client au tout début du handshake'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le champ SNI (Server Name Indication) est transmis en clair dans le Client Hello avant que le chiffrement de la session ne soit activé.'
     },
     {
       stem: 'Quel est l’avantage majeur de l’inspection SNI par rapport au déchiffrement SSL Man-in-the-Middle complet ?',
       opts: [
-        'Elle ne nécessite aucun déploiement de certificat racine d’autorité sur les postes clients et préserve les performances du pare-feu',
-        'Elle permet de modifier le contenu des pages web à la volée',
-        'Elle empêche totalement les utilisateurs d’utiliser le protocole DNS',
-        'Elle fonctionne même si le câble réseau est débranché'
+        "Elle ne nécessite aucun déploiement de certificat racine d’autorité sur les postes clients et préserve les performances du pare-feu",
+        "Elle permet de modifier à la volée le contenu des pages web consultées par les utilisateurs internes",
+        "Elle empêche totalement les utilisateurs internes d’utiliser le protocole DNS pour résoudre les noms de domaine",
+        "Elle continue de fonctionner correctement même si le câble réseau du pare-feu est physiquement débranché"
       ],
       correct: 0,
       exp: 'L’inspection SNI lit simplement le nom de domaine en clair dans le handshake sans casser la chaîne cryptographique ni poser de contraintes de conformité RGPD.'
@@ -167,34 +167,34 @@ module.exports = {
     {
       stem: 'Quel type d’attaque applicative est caractérisé par la présence de motifs comme "UNION SELECT" ou "\' OR \'1\'=\'1" dans les requêtes HTTP ?',
       opts: [
-        'Une injection SQL (SQLi)',
         'Une attaque par rebond ICMP Smurf',
+        'Une injection SQL (SQLi)',
         'Un empoisonnement de cache DNS',
         'Une attaque de force brute sur le protocole ARP'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Ces motifs exploitent des formulaires ou paramètres web mal échappés pour manipuler directement la base de données SQL sous-jacente.'
     },
     {
       stem: 'Quel mécanisme permet de neutraliser les attaques par inondation de requêtes en limitant le nombre d’appels par seconde pour chaque adresse IP ?',
       opts: [
-        'Le Rate Limiting par fenêtre glissante (ou algorithme du seau à jetons / Token Bucket)',
-        'L’augmentation indéfinie de la mémoire vive du serveur',
         'La réinitialisation quotidienne de la passerelle par défaut',
+        'L’augmentation indéfinie de la mémoire vive du serveur',
+        'Le Rate Limiting par fenêtre glissante (ou algorithme du seau à jetons / Token Bucket)',
         'Le passage en mode duplex intégral sur le commutateur'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le Rate Limiting plafonne le débit de requêtes autorisé par émetteur sur une période glissante pour contrer les dénis de service et attaques par force brute.'
     },
     {
       stem: 'Comment appelle-t-on la technologie NGFW capable d’associer les règles de sécurité à des identités nominatives d’utilisateurs plutôt qu’à des adresses IP ?',
       opts: [
-        'User-ID',
+        'Content-ID',
         'App-ID',
         'MAC-Filtering',
-        'Content-ID'
+        'User-ID'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'User-ID (Palo Alto / Fortinet) fait le lien dynamique entre l’adresse IP d’un terminal et le compte utilisateur authentifié dans l’annuaire d’entreprise.'
     },
     {
@@ -211,12 +211,12 @@ module.exports = {
     {
       stem: 'Qu’est-ce que l’App-ID dans l’architecture d’un pare-feu de nouvelle génération ?',
       opts: [
-        'La capacité à identifier la nature exacte de l’application logicielle (ex: Facebook, Dropbox, BitTorrent) quel que soit le port utilisé',
-        'Un numéro de série gravé sur la carte mère du pare-feu',
-        'L’adresse IP publique allouée au serveur de messagerie',
-        'Un protocole de routage dynamique propriétaire'
+        "Un simple numéro de série unique gravé en usine sur la carte mère électronique du boîtier du pare-feu",
+        "La capacité à identifier la nature exacte de l’application logicielle (ex: Facebook, Dropbox, BitTorrent) quel que soit le port utilisé",
+        "L’adresse IP publique statique officiellement allouée par le fournisseur d’accès au serveur de messagerie",
+        "Un protocole de routage dynamique propriétaire, dédié à l’échange des tables de flux entre boîtiers pare-feu"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'App-ID classe le flux selon l’application réelle sous-jacente par analyse de signature et décodage protocolaire de couche 7.'
     }
   ],

@@ -135,45 +135,45 @@ module.exports = {
     {
       stem: 'Dans une requête SQL reliant Clients c et Commandes cmd avec un LEFT JOIN, comment filtrer pour n’obtenir QUE les clients qui n’ont AUCUNE commande ?',
       opts: [
-        'En ajoutant la clause WHERE cmd.id IS NULL',
-        'En utilisant un INNER JOIN avec WHERE cmd.id = 0',
         'En écrivant WHERE c.id = NULL',
+        'En utilisant un INNER JOIN avec WHERE cmd.id = 0',
+        'En ajoutant la clause WHERE cmd.id IS NULL',
         'En remplaçant le LEFT JOIN par un CROSS JOIN'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Dans un LEFT JOIN, les clients sans commande ont leurs attributs de commande remplis avec NULL. La clause WHERE cmd.id IS NULL isole exactement cette population sans commande (technique de l’anti-jointure).'
     },
     {
       stem: 'Pourquoi l’utilisation de NOT IN avec une sous-requête est-elle considérée comme un piège majeur en SQL ?',
       opts: [
-        'Si la sous-requête renvoie ne serait-ce qu’une seule valeur NULL, l’expression NOT IN renvoie UNKNOWN pour toutes les lignes et le résultat final est vide',
-        'NOT IN n’est pas supporté par le standard SQL ANSI',
-        'NOT IN modifie automatiquement les données de la table',
-        'NOT IN empêche l’utilisation de clés primaires'
+        "NOT IN n’est tout simplement pas supporté par le standard SQL ANSI officiel publié par l’organisme ISO",
+        "NOT IN modifie automatiquement et silencieusement les données de la table interrogée, sans transaction ni COMMIT préalable",
+        "NOT IN empêche définitivement l’utilisation de clés primaires sur toutes les tables concernées par la sous-requête",
+        "Si la sous-requête renvoie ne serait-ce qu’une seule valeur NULL, l’expression NOT IN renvoie UNKNOWN pour toutes les lignes et le résultat final est vide"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'En logique tri-valuée, \'valeur NOT IN (1, 2, NULL)\' équivaut à \'valeur != 1 AND valeur != 2 AND valeur != NULL\'. Comme toute comparaison avec NULL vaut UNKNOWN, le résultat de la conjonction devient UNKNOWN et aucune ligne n’est sélectionnée.'
     },
     {
       stem: 'Quel type de jointure associe chaque ligne de la table A à absolument toutes les lignes de la table B sans condition de correspondance ?',
       opts: [
-        'CROSS JOIN (Produit cartésien)',
-        'INNER JOIN',
         'NATURAL JOIN',
+        'INNER JOIN',
+        'CROSS JOIN (Produit cartésien)',
         'SELF JOIN'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le CROSS JOIN génère le produit cartésien complet : si la table A contient 10 lignes et la table B 50 lignes, le résultat comprend exactement 500 lignes associant chaque élément de A à chaque élément de B.'
     },
     {
       stem: 'Quelle est la particularité d’une auto-jointure (SELF JOIN) ?',
       opts: [
-        'Elle joint une table avec elle-même en utilisant deux alias différents pour distinguer les rôles',
-        'Elle s’exécute sans passer par le moteur de base de données',
-        'Elle ne fonctionne qu’avec des tables temporaires en mémoire',
-        'Elle interdit l’usage de la clause WHERE'
+        "Elle s’exécute entièrement sans passer par le moteur de base de données",
+        "Elle ne fonctionne qu’avec des tables temporaires stockées en mémoire vive",
+        "Elle interdit formellement l’usage de la clause WHERE dans la requête",
+        "Elle joint une table avec elle-même en utilisant deux alias différents pour distinguer les rôles"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Une auto-jointure applique le mécanisme relationnel classique sur une seule et même table physique (ex: Employes e LEFT JOIN Employes m ON e.manager_id = m.id), ce qui exige impérativement des alias distincts.'
     },
     {

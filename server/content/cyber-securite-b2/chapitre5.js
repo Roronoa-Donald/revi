@@ -139,45 +139,45 @@ module.exports = {
     {
       stem: 'Quel est le rôle fondamental du sel cryptographique (Salt) lors du stockage des mots de passe ?',
       opts: [
-        'Rendre inopérantes les tables arc-en-ciel (rainbow tables) précalculées et garantir que deux mots de passe identiques produisent des empreintes distinctes',
-        'Chiffrer le mot de passe pour qu’il puisse être relu en clair par l’administrateur',
-        'Réduire la taille de l’empreinte stockée sur le disque dur',
-        'Permettre la réinitialisation automatique du mot de passe par SMS'
+        "Chiffrer le mot de passe de manière réversible pour qu’il puisse ensuite être relu en clair par l’administrateur du système",
+        "Réduire sensiblement la taille de l’empreinte cryptographique finale stockée sur le disque dur du serveur d’authentification",
+        "Permettre la réinitialisation entièrement automatique du mot de passe oublié par simple envoi d’un SMS",
+        "Rendre inopérantes les tables arc-en-ciel (rainbow tables) précalculées et garantir que deux mots de passe identiques produisent des empreintes distinctes"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le sel est une valeur aléatoire unique par compte qui modifie l’entrée de la fonction de hachage. Les dictionnaires et tables de correspondance précalculées deviennent inutilisables car chaque utilisateur nécessite son propre calcul dédié.'
     },
     {
       stem: 'Pourquoi l’algorithme de hachage de mot de passe Argon2id est-il aujourd’hui recommandé plutôt qu’un simple SHA-256 ?',
       opts: [
-        'Parce que ses paramètres de temps et de mémoire augmentent le coût des essais, y compris sur GPU et ASIC, sans rendre une attaque impossible',
-        'Parce que le SHA-256 a été mathématiquement cassé et ne produit plus d’empreintes',
-        'Parce qu’Argon2id fonctionne sans aucun processeur physique',
-        'Parce qu’il permet de se connecter sans avoir besoin de taper de mot de passe'
+        "Parce que le SHA-256 a été mathématiquement cassé et ne produit plus aucune empreinte cryptographique fiable",
+        "Parce qu’Argon2id fonctionne sans avoir besoin d’aucun processeur physique ni aucune ressource matérielle",
+        "Parce que ses paramètres de temps et de mémoire augmentent le coût des essais, y compris sur GPU et ASIC, sans rendre une attaque impossible",
+        "Parce qu’il permet à l’utilisateur de se connecter sans avoir besoin de taper le moindre mot de passe"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'SHA-256 est rapide et peut aider à vérifier l’intégrité d’un fichier si son empreinte de référence est fiable. Argon2id associe un sel et des paramètres de temps, mémoire et parallélisme afin d’augmenter le coût des essais ; aucune valeur ne rend toutes les attaques impossibles.'
     },
     {
       stem: 'Dans un jeton JWT valide, que garantit la troisième partie (la signature cryptographique) ?',
       opts: [
-        'Que le contenu du payload n’a pas été falsifié ni altéré depuis son émission par le serveur',
-        'Que les données du payload sont chiffrées et illisibles par le client',
         'Que le jeton sera éternellement valide sans jamais expirer',
+        'Que les données du payload sont chiffrées et illisibles par le client',
+        'Que le contenu du payload n’a pas été falsifié ni altéré depuis son émission par le serveur',
         'Que la connexion réseau est protégée par un pare-feu matériel'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Un JWT standard n’est pas chiffré (le payload en Base64URL est lisible en clair). En revanche, la signature prouve l’intégrité et l’authenticité : toute altération d’un claim (comme le rôle) invalidera la signature.'
     },
     {
       stem: 'Quel modèle de contrôle d’accès permet d’autoriser un accès en évaluant des règles dynamiques telles que « autoriser si heure entre 8h et 18h ET connexion depuis la France » ?',
       opts: [
-        'ABAC (Attribute-Based Access Control)',
+        'MAC (Mandatory Access Control)',
         'DAC (Discretionary Access Control)',
         'RBAC (Role-Based Access Control)',
-        'MAC (Mandatory Access Control)'
+        'ABAC (Attribute-Based Access Control)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le modèle ABAC évalue les attributs contextuels du sujet, de la ressource, de l’action et de l’environnement pour autoriser ou refuser dynamiquement l’accès.'
     }
   ],

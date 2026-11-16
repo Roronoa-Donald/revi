@@ -257,21 +257,21 @@ module.exports = {
     {
       stem: 'Pourquoi est-il crucial de copier le fichier « package.json » et de lancer « npm install » AVANT de copier le reste du code source applicatif ?',
       opts: [
-        'Parce que le langage JavaScript l’exige obligatoirement',
-        'Pour bénéficier du cache de build Docker : les dépendances ne seront pas réinstallées tant que package.json ne change pas, même si le code source change',
-        'Pour empêcher les autres développeurs de lire le code',
-        'Parce que npm refuse de fonctionner dans un répertoire contenant du code'
+        "Pour bénéficier du cache de build Docker : les dépendances ne seront pas réinstallées tant que package.json ne change pas, même si le code source change",
+        "Parce que l’écosystème JavaScript exige obligatoirement cet ordre très précis de copie des fichiers du projet",
+        "Pour empêcher les autres développeurs de l’équipe de lire le contenu intégral du code source applicatif du projet",
+        "Parce que npm refuse catégoriquement de fonctionner dans un répertoire contenant le moindre code applicatif"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Si vous copiez tout le code en premier, la moindre retouche de code invalide le cache et force une réinstallation lente des paquets npm à chaque build.'
     },
     {
       stem: 'Quelle est la conséquence critique de l’utilisation de la forme shell « CMD node server.js » par rapport à la forme exec « CMD ["node", "server.js"] » ?',
       opts: [
-        'Le serveur démarre deux fois plus vite',
-        'Le processus est encapsulé dans /bin/sh -c et ne reçoit pas le signal d’arrêt SIGTERM lors d’un « docker stop », entraînant un arrêt brutal après 10 secondes par SIGKILL',
-        'La mémoire vive est automatiquement doublée',
-        'La directive est ignorée par le démon Docker'
+        "Le serveur démarre deux fois plus vite, car le shell /bin/sh -c optimise nativement le lancement de tout processus applicatif",
+        "Le processus est encapsulé dans /bin/sh -c et ne reçoit pas le signal d’arrêt SIGTERM lors d’un « docker stop », entraînant un arrêt brutal après 10 secondes par SIGKILL",
+        "La mémoire vive allouée au conteneur est automatiquement doublée par le démon Docker au moment du démarrage du conteneur applicatif",
+        "La directive est purement et simplement ignorée par le démon Docker lors de la construction de l’image finale de production"
       ],
       correct: 1,
       exp: 'En forme shell, /bin/sh est le PID 1 et n’achemine pas les signaux système à ses processus fils, empêchant l’application de fermer proprement ses connexions et fichiers.'
@@ -279,45 +279,45 @@ module.exports = {
     {
       stem: 'À quoi sert le pattern du Multi-Stage Build dans un Dockerfile moderne ?',
       opts: [
-        'À compiler du code sur plusieurs serveurs physiques en réseau',
-        'À utiliser une première étape lourde pour compiler les sources, puis à copier uniquement le binaire produit dans une image finale minimale et épurée',
-        'À faire tourner plusieurs systèmes d’exploitation simultanément dans un même conteneur',
-        'À crypter le Dockerfile pour le rendre illisible'
+        "À compiler le code source de l’application sur plusieurs serveurs physiques en réseau afin d’accélérer les builds",
+        "À faire tourner plusieurs systèmes d’exploitation simultanément dans un même et unique conteneur",
+        "À utiliser une première étape lourde pour compiler les sources, puis à copier uniquement le binaire produit dans une image finale minimale et épurée",
+        "À crypter l’intégralité du Dockerfile pour le rendre totalement illisible aux yeux des développeurs"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Multi-Stage Build isole les outils de build volumineux (compilateurs, SDK) dans un stage temporaire et ne conserve que le résultat compilé dans l’image finale de production.'
     },
     {
       stem: 'Quelle directive Dockerfile doit-on privilégier pour copier un fichier simple du disque hôte vers le conteneur sans comportement magique inattendu ?',
       opts: [
         'ADD',
-        'COPY',
+        'FETCH',
         'IMPORT',
-        'FETCH'
+        'COPY'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'COPY est explicite, transparente et sans surprise. ADD réalise des décompressions automatiques d’archives tar et accepte des URL distantes, ce qui est souvent source d’erreurs.'
     },
     {
       stem: 'Quelle instruction permet de définir l’utilisateur sous lequel toutes les commandes suivantes du Dockerfile et le conteneur lui-même s’exécuteront ?',
       opts: [
         'AUTH',
-        'USER',
+        'ACCOUNT',
         'GROUP',
-        'ACCOUNT'
+        'USER'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’instruction USER spécifie le nom d’utilisateur (ou l’UID) pour l’exécution des instructions RUN, CMD et ENTRYPOINT restantes.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre les instructions ARG et ENV dans un Dockerfile ?',
       opts: [
-        'ARG n’est disponible que lors de la phase de construction (docker build), alors que ENV persiste dans l’image finale et au runtime du conteneur',
-        'ARG est réservé aux chiffres et ENV aux chaînes de caractères',
-        'ENV ne fonctionne que sous Windows',
-        'Il n’y a aucune différence technique'
+        "ARG est strictement réservé aux valeurs numériques, tandis qu’ENV n’accepte que des chaînes de caractères",
+        "ENV ne fonctionne que sous les conteneurs Windows, ARG étant exclusif aux images Linux",
+        "ARG n’est disponible que lors de la phase de construction (docker build), alors que ENV persiste dans l’image finale et au runtime du conteneur",
+        "Il n’y a aucune différence technique réelle, les deux instructions étant strictement équivalentes"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'ARG définit des variables d’étape de build non transmises au conteneur au runtime. ENV inscrit des variables d’environnement persistantes dans l’image.'
     },
     {
@@ -334,10 +334,10 @@ module.exports = {
     {
       stem: 'Si un Dockerfile définit ENTRYPOINT ["nginx"] et CMD ["-g", "daemon off;"], que se passe-t-il si l’utilisateur exécute « docker run mon-nginx -v » ?',
       opts: [
-        'Le conteneur exécute la commande « nginx -v » car l’argument CLI « -v » a écrasé l’instruction CMD par défaut',
-        'Le conteneur refuse de démarrer',
-        'Le conteneur exécute « -v nginx -g daemon off; »',
-        'L’argument « -v » est totalement ignoré'
+        "Le conteneur exécute la commande « nginx -v » car l’argument CLI « -v » a écrasé l’instruction CMD par défaut",
+        "Le conteneur refuse catégoriquement de démarrer en signalant une erreur de syntaxe",
+        "Le conteneur exécute « -v nginx -g daemon off; » car l’argument précède l’entrypoint",
+        "L’argument « -v » est totalement ignoré et la commande CMD initiale s’exécute telle quelle"
       ],
       correct: 0,
       exp: 'ENTRYPOINT reste le préfixe fixe de la commande, et tout argument fourni en CLI vient écraser les arguments de CMD.'

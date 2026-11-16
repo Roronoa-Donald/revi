@@ -152,26 +152,26 @@ module.exports = {
   questions: [
     {
       stem: 'Quel protocole est responsable de la description des paramètres multimédias (codecs audio, adresses IP et ports) échangés dans le corps d\'un message SIP INVITE ?',
-      opts: ['RTP', 'RTCP', 'SDP', 'DNS'],
-      correct: 2,
+      opts: ['RTP', 'SDP', 'RTCP', 'DNS'],
+      correct: 1,
       exp: 'SDP (Session Description Protocol, RFC 4566) transporte la négociation des capacités médias dans le corps des requêtes et réponses SIP.'
     },
     {
       stem: 'Quelle méthode SIP est utilisée par un terminal pour notifier périodiquement le serveur Registrar de son adresse IP et de son port d\'écoute ?',
-      opts: ['INVITE', 'REGISTER', 'SUBSCRIBE', 'NOTIFY'],
-      correct: 1,
+      opts: ['REGISTER', 'INVITE', 'SUBSCRIBE', 'NOTIFY'],
+      correct: 0,
       exp: 'La méthode REGISTER permet à l\'User Agent d\'enregistrer son adresse de contact dynamique auprès de la table de localisation du Registrar.'
     },
     {
       stem: 'Dans le protocole SIP, à quelle catégorie de réponse appartient le code d\'état 180 Ringing ?',
-      opts: ['Réponse définitive de succès', 'Réponse provisoire', 'Erreur client', 'Redirection'],
-      correct: 1,
+      opts: ['Réponse définitive de succès', 'Erreur client', 'Réponse provisoire', 'Redirection'],
+      correct: 2,
       exp: 'Les codes 1xx sont des réponses informatives provisoires indiquant que le traitement est en cours (ici, le poste distant sonne).'
     },
     {
       stem: 'Quelle information contenue dans l\'en-tête fixe de 12 octets du protocole RTP permet au récepteur de reconstituer l\'ordre exact des paquets audio arrivés désordonnés ?',
-      opts: ['Le champ Version', 'Le champ Payload Type', 'Le champ Sequence Number', 'Le champ SSRC'],
-      correct: 2,
+      opts: ['Le champ Version', 'Le champ Payload Type', 'Le champ SSRC', 'Le champ Sequence Number'],
+      correct: 3,
       exp: 'Le numéro de séquence (Sequence Number sur 16 bits), incrémenté de 1 par paquet, permet au récepteur de réordonner les trames audio et de détecter les pertes.'
     },
     {
@@ -182,14 +182,14 @@ module.exports = {
     },
     {
       stem: 'Dans une négociation SDP, que signifie la directive m=audio 16384 RTP/AVP 8 ?',
-      opts: ['L\'audio est diffusé en multicast', 'Le terminal recevra le flux voix sur le port 16384/UDP avec le codec PCMA (G.711 A-law)', 'L\'audio est chiffré avec une clé RSA 16384 bits', 'Le fichier audio pèse 16 384 octets'],
-      correct: 1,
+      opts: ["L'audio est diffusé en multicast sur l'adresse de groupe 224.0.0.56 du réseau local","L'audio est chiffré avec une clé RSA de 16384 bits négociée par la session TLS","Le fichier audio annoncé pèse exactement 16 384 octets sur le serveur de médias","Le terminal recevra le flux voix sur le port 16384/UDP avec le codec PCMA (G.711 A-law)"],
+      correct: 3,
       exp: 'La ligne m=audio spécifie le port UDP de réception (16384), le profil de transport RTP/AVP et le type de charge utile 8 (correspondant à PCMA / G.711 A-law).'
     },
     {
       stem: 'Quelle méthode SIP permet à un appelant d\'annuler une tentative d\'appel en cours alors que le destinataire n\'a pas encore décroché (avant l\'émission du 200 OK) ?',
-      opts: ['BYE', 'CANCEL', 'HANGUP', 'DISCONNECT'],
-      correct: 1,
+      opts: ['CANCEL', 'BYE', 'HANGUP', 'DISCONNECT'],
+      correct: 0,
       exp: 'La méthode CANCEL interrompt un appel en cours d\'établissement. La méthode BYE ne peut être émise que pour terminer une session déjà établie après 200 OK.'
     },
     {

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -171,15 +169,60 @@ curl -i -X POST http://localhost:5000/api/v1/articles \
 
 </section>
 
+<section class="sec">
+
+<h2>5. Implémentation complète : Whitelisting, validation 400/422, @app.errorhandler et suite test_client()</h2>
+
+<p>Assemblons la validation stricte des entrées, la protection contre le <em>Mass Assignment</em> et les gestionnaires globaux <code>@app.errorhandler</code> avec une suite complète de tests <code>app.test_client()</code> :</p>
+<pre><code class="language-python">from flask import Flask, request, jsonify, abort
+from werkzeug.exceptions import HTTPException
+
+app = Flask(__name__)
+CHAMPS_AUTORISES = {"nom", "email", "age"}
+COMPTES = {}
+
+@app.errorhandler(HTTPException)
+def gerer_exception_http(err):
+    return jsonify({"code": err.code, "error": err.name, "message": err.description}), err.code
+
+@app.route("/api/v1/comptes", methods=["POST"])
+def inscrire_compte():
+    brut = request.get_json(silent=True)
+    if not isinstance(brut, dict):
+        abort(400, description="Le corps de la requête doit être un objet JSON valide.")
+    # Filtrage Whitelisting anti-Mass Assignment (ignore is_admin, role, etc.)
+    propre = {k: brut[k] for k in CHAMPS_AUTORISES if k in brut}
+    if "nom" not in propre or "email" not in propre:
+        abort(422, description="Les attributs nom et email sont obligatoires.")
+    if not isinstance(propre.get("age", 18), int) or propre.get("age", 18) &lt; 0:
+        abort(422, description="L’âge doit être un entier positif.")
+    cid = len(COMPTES) + 1
+    COMPTES[cid] = {"id": cid, **propre, "is_admin": False}
+    return jsonify(COMPTES[cid]), 201
+
+def executer_tests_validation():
+    client = app.test_client()
+    # Tentative de Mass Assignment avec is_admin=True
+    r1 = client.post("/api/v1/comptes", json={"nom": "Ines", "email": "ines@ecole.fr", "is_admin": True})
+    assert r1.status_code == 201 and r1.get_json()["is_admin"] is False
+    # Payload incomplet -&gt; 422 Unprocessable Entity
+    r2 = client.post("/api/v1/comptes", json={"nom": "Ines"})
+    assert r2.status_code == 422</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="fl2-c5-e1" data-lab
      data-exercise="fl2-c5-e1"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="titre,prix,auteur&#10;{&quot;titre&quot;: &quot;Guide&quot;, &quot;prix&quot;: 25}">
@@ -194,13 +237,11 @@ payload = json.loads(input().strip())
     <h3 class="lab__title">Exercice 1 — Validation des champs obligatoires</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la présence de tous les champs obligatoires dans un payload JSON.</p>
-    <p class="lab__note" id="fl2-c5-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Avant de traiter une création ou une modification, l’API doit s’assurer que les attributs requis sont présents dans le corps JSON.</p><p>Lit deux lignes sur l’entrée standard :<br>1. La liste des champs obligatoires séparés par des virgules (ex: <code>titre,prix,auteur</code>)<br>2. Le payload JSON brut reçu (ex: <code>{"titre": "Guide", "prix": 25}</code>)<br>Si tous les champs requis sont présents dans l’objet JSON, affiche :<br><code>200 OK: Payload valide</code><br>Sinon, affichez les champs manquants <strong>triés alphabétiquement</strong> au format :<br><code>400 Bad Request: Champs manquants: &lt;champs séparés par des virgules&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>titre,prix,auteur
@@ -209,10 +250,11 @@ payload = json.loads(input().strip())
     </div>
     <p class="lab__note">Le champ auteur est manquant.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Identifiez les clés manquantes avec [c for c in requis if c not in payload].</li>
         <li>Triez la liste des clés manquantes avec sorted() avant de la joindre avec ",".</li>
+        <li>Étapes : lire la liste des requis puis le payload ; relever les champs absents, triés ; aucun manquant → « 200 OK: Payload valide » ; sinon « 400 Bad Request: Champs manquants: » suivie de la liste.</li>
       </ol>
     </details>
   </div>
@@ -220,7 +262,6 @@ payload = json.loads(input().strip())
 
 <div class="lab" id="fl2-c5-e2" data-lab
      data-exercise="fl2-c5-e2"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="nom:str,age:int,actif:bool&#10;{&quot;nom&quot;: &quot;Alice&quot;, &quot;age&quot;: &quot;vingt&quot;, &quot;actif&quot;: true}">
@@ -235,13 +276,11 @@ payload = json.loads(input().strip())
     <h3 class="lab__title">Exercice 2 — Validation des types JSON</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité des types de données reçus face à un schéma typé.</p>
-    <p class="lab__note" id="fl2-c5-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une API robuste ne se contente pas de vérifier la présence des champs : elle contrôle leur type de données (par exemple <code>int</code>, <code>str</code>, <code>bool</code> ou <code>float</code>).</p><p>Lit deux lignes sur l’entrée standard :<br>1. Les spécifications de schéma séparées par des virgules (ex: <code>nom:str,age:int,actif:bool</code>)<br>2. Le payload JSON reçu (ex: <code>{"nom": "Alice", "age": "vingt", "actif": true}</code>)<br>Vérifiez chaque champ spécifié. Si le type correspond exactement (en Python, attention : <code>bool</code> dérive de <code>int</code>, donc vérifier <code>isinstance(val, bool)</code> en premier pour <code>bool</code>, et <code>type(val) is int</code> pour <code>int</code>).<br>Si un champ a un type erroné, affiche la première erreur rencontrée (selon l’ordre du schéma) :<br><code>Erreur type: champ &lt;nom&gt; attendu &lt;type&gt;</code>.<br>Si tous les types sont valides, affiche : <code>Validation reussie</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>nom:str,age:int,actif:bool
@@ -250,12 +289,11 @@ payload = json.loads(input().strip())
     </div>
     <p class="lab__note">age est une chaîne au lieu d’un entier.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Quatre indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Pour str : type(v) is str.</li>
-        <li>Pour bool : type(v) is bool.</li>
-        <li>Pour int : type(v) is int (et pas bool).</li>
-        <li>Pour float : type(v) in (float, int) (ou type(v) is float).</li>
+        <li>Chaque type JSON possède son propre test ; en Python un bool dérive de int, donc chaque vérification doit distinguer les types exacts.</li>
+        <li>Un test par type : str → type is str ; bool → type is bool ; int → type is int ; float → type in (float, int) en excluant bool.</li>
+        <li>Étapes : découper le schéma sur les virgules ; séparer champ et type au premier deux-points ; tester la valeur du payload ; première anomalie → « Erreur type: champ X attendu T » ; sinon « Validation reussie ».</li>
       </ol>
     </details>
   </div>
@@ -263,7 +301,6 @@ payload = json.loads(input().strip())
 
 <div class="lab" id="fl2-c5-e3" data-lab
      data-exercise="fl2-c5-e3"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="titre,prix&#10;{&quot;titre&quot;: &quot;Livre Flask&quot;, &quot;prix&quot;: 29, &quot;is_admin&quot;: true, &quot;role&quot;: &quot;root&quot;}">
@@ -278,13 +315,11 @@ payload = json.loads(input().strip())
     <h3 class="lab__title">Exercice 3 — Filtrage de propriétés (Whitelisting)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Supprimer d’un objet JSON toute propriété qui ne figure pas dans la liste blanche autorisée.</p>
-    <p class="lab__note" id="fl2-c5-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>La vulnérabilité de <em>Mass Assignment</em> survient lorsqu’une API accepte sans filtrage des champs sensibles soumis par le client (ex: <code>is_admin: true</code>, <code>role: superuser</code>).</p><p>Lit deux lignes sur l’entrée standard :<br>1. La liste blanche des clés autorisées séparées par des virgules (ex: <code>titre,description,prix</code>)<br>2. Le payload JSON reçu pouvant contenir des clés non autorisées.<br>Ne conserve dans le résultat que les clés autorisées qui sont présentes dans le payload. Affichez le dictionnaire assaini sérialisé en JSON avec les clés triées (<code>json.dumps(..., sort_keys=True)</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>titre,prix
@@ -293,24 +328,25 @@ payload = json.loads(input().strip())
     </div>
     <p class="lab__note">Les champs is_admin et role ont été éliminés.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Construisez un nouveau dictionnaire : {k: payload[k] for k in autorisees if k in payload}.</li>
         <li>Utilisez json.dumps(..., sort_keys=True) pour l’affichage.</li>
+        <li>Étapes : lire la liste blanche puis le payload ; ne garder que les clés autorisées présentes ; afficher le dictionnaire filtré en JSON trié.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quel code de statut doit être renvoyé si un champ obligatoire est absent du corps ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">400 Bad Request</button>
         <button class="opt">404 Not Found</button>
+        <button class="opt" data-correct="1">400 Bad Request</button>
         <button class="opt">500 Server Error</button>
       </div>
       <div class="q__exp">400 Bad Request signale que la charge utile soumise par le client est incomplète ou malformée.</div>
@@ -319,25 +355,25 @@ payload = json.loads(input().strip())
       <p class="q__stem">À quoi sert la fonction abort() dans Flask ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">À interrompre immédiatement la requête et déclencher un code d’erreur HTTP</button>
-        <button class="opt">À fermer le serveur Flask</button>
-        <button class="opt">À réinitialiser la base de données</button>
+        <button class="opt">À arrêter complètement le serveur de développement Flask</button>
+        <button class="opt">À réinitialiser la base de données entre deux requêtes</button>
       </div>
-      <div class="q__exp">abort() lève une exception HTTPException interrompant instantanément la vue courante.</div>
+      <div class="q__exp">abort() lève une HTTPException qui interrompt la vue courante ; le serveur tourne toujours et la base reste intacte.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel décorateur intercepte globalement une erreur pour formater sa réponse ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">@app.errorhandler()</button>
-        <button class="opt">@app.catch()</button>
         <button class="opt">@app.interceptor()</button>
+        <button class="opt">@app.catch()</button>
+        <button class="opt" data-correct="1">@app.errorhandler()</button>
       </div>
       <div class="q__exp">@app.errorhandler(code) enregistre un gestionnaire d’erreur global pour le code spécifié.</div>
     </div>
     <div class="q">
       <p class="q__stem">Qu’est-ce que la vulnérabilité de Mass Assignment ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">L’injection d’attributs sensibles non autorisés dans le payload par le client</button>
         <button class="opt">Le blocage du serveur par trop de requêtes simultanées</button>
+        <button class="opt" data-correct="1">L’injection d’attributs sensibles non autorisés dans le payload par le client</button>
         <button class="opt">Le vol du mot de passe administrateur par force brute</button>
       </div>
       <div class="q__exp">Le Mass Assignment survient lorsqu’une application persiste sans filtre les données d’un objet JSON.</div>
@@ -345,8 +381,8 @@ payload = json.loads(input().strip())
     <div class="q">
       <p class="q__stem">Quelle option de cURL permet d’afficher les en-têtes HTTP de la réponse ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">-i (ou --include)</button>
         <button class="opt">-v uniquement</button>
+        <button class="opt" data-correct="1">-i (ou --include)</button>
         <button class="opt">-s</button>
       </div>
       <div class="q__exp">L’option -i affiche la ligne de statut et les en-têtes de réponse avant le corps.</div>
@@ -363,18 +399,18 @@ payload = json.loads(input().strip())
     <div class="q">
       <p class="q__stem">Comment passer un payload JSON avec le test_client de Flask ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">client.post("/route", json={...})</button>
-        <button class="opt">client.post("/route", data_json=...)</button>
         <button class="opt">client.send_raw(...)</button>
+        <button class="opt">client.post("/route", data_json=...)</button>
+        <button class="opt" data-correct="1">client.post("/route", json={...})</button>
       </div>
       <div class="q__exp">Le paramètre json={...} sérialise automatiquement l’objet et positionne le Content-Type.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que contient l’attribut description d’une exception levée par abort(404, description="...") ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le message personnalisé d’explication</button>
-        <button class="opt">La pile d’appels Python complète</button>
         <button class="opt">L’adresse IP du client</button>
+        <button class="opt">La pile d’appels Python complète</button>
+        <button class="opt" data-correct="1">Le message personnalisé d’explication</button>
       </div>
       <div class="q__exp">description transporte le message explicatif passé lors de l’appel à abort().</div>
     </div>
@@ -384,7 +420,7 @@ payload = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -401,7 +437,7 @@ payload = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Sécuriser et valider un point d’entrée POST/PUT</div>
@@ -418,7 +454,7 @@ payload = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -449,7 +485,7 @@ payload = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -498,7 +534,7 @@ payload = json.loads(input().strip())
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -167,10 +165,11 @@ autre 192.0.2.1 192.0.3.1 /24
 </pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquez le masque à chaque adresse pour obtenir son préfixe réseau.</li>
         <li>Comparez les deux préfixes calculés avant de compter les cas identiques.</li>
+        <li>Appliquez le ET logique bit à bit entre chaque IP et le masque (/24 ou autre) : deux hôtes communiquent directement s ils partagent la même adresse réseau.</li>
       </ol>
     </details>
   </div>
@@ -180,33 +179,31 @@ autre 192.0.2.1 192.0.3.1 /24
      data-exercise="cc-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;1 fcs&#10;2 desencapsule&#10;4 encapsule&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c4-e2) — Les quatre étapes du routage
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Une imprimante réseau envoie un document vers un site distant.&#10;1) Le routeur vérifie d'abord le FCS : si la trame est fautive, il la jette — le routage ne commence même pas.&#10;2) Il désencapsule : l'en-tête de liaison part, le paquet IP reste.&#10;3) Il consulte sa table de routage : meilleure route, interface sortante, saut suivant.&#10;4) Il réencapsule le paquet dans une trame adaptée à la liaison sortante ; le TTL a baissé d'une unité.">
+  <script type="text/plain" data-lab-starter># Exercice — Un paquet dans le routeur
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par un mot ou une expression très courte.
 
-[Cas 1 — Ordre parfait]
-# Données : 4
-# Données : 1 fcs
-# Données : 2 desencapsule
-# Données : 3 table
-# Données : 4 encapsule
+[Question 1 — Première vérification à l'arrivée d'une trame]
 A_COMPLETER
 
-[Cas 2 — Permutation]
-# Données : 3
-# Données : 1 table
-# Données : 2 desencapsule
-# Données : 3 fcs
+[Question 2 — Sort d'une trame au FCS erroné]
 A_COMPLETER
 
-[Cas 3 — Milieu juste]
-# Données : 2
-# Données : 2 desencapsule
-# Données : 3 table
+[Question 3 — Couche dont l'en-tête est supprimé]
+A_COMPLETER
+
+[Question 4 — Table consultée pour la meilleure route]
+A_COMPLETER
+
+[Question 5 — Champ IPv4 qui diminue à chaque saut]
+A_COMPLETER
+
+[Question 6 — Première destination d'un paquet hors du sous-réseau]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Les quatre étapes du routage</h3>
+    <h3 class="lab__title">Exercice 2 — Un paquet dans le routeur</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -215,20 +212,21 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="cc-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Dérouler la logique interne du routeur : FCS, désencapsulation, table de routage, réencapsulation.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « etape action » : etape est un numéro de 1 à 4 et action un code parmi <code>fcs</code>, <code>desencapsule</code>, <code>table</code> ou <code>encapsule</code>. Les quatre étapes du support : 1 vérifier le FCS (jeter si erreur), 2 supprimer l'ancien en-tête de liaison de données, 3 chercher la meilleure route pour l'IP de destination, 4 encapsuler dans un nouvel en-tête et transmettre. Pour chaque ligne, indiquez <code>etape N : OUI</code> quand le couple est juste, sinon <code>etape N : NON</code>, puis <code>justes : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dérouler les quatre étapes du routage interne d'un routeur et la logique de transfert de l'hôte.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Un client du cybercafé charge une page chez son fournisseur de jeux : le paquet traverse le routeur R1 de l'établissement. Le cours déroule la logique de routage interne d'un routeur en quatre étapes : <strong>1.</strong> vérifier le FCS de la trame arrivée (erreur → jeter) ; <strong>2.</strong> supprimer l'ancien en-tête et la fin de liaison de données ; <strong>3.</strong> chercher la meilleure route pour l'IP de destination dans la table ; <strong>4.</strong> encapsuler le paquet dans un nouvel en-tête de liaison et transmettre. Lors du transfert IPv4, le TTL diminue et la somme de contrôle de l'en-tête est actualisée.</p><ol><li>Quelle est la toute première vérification du routeur à l'arrivée d'une trame ? (un sigle de trois lettres)</li><li>Que fait le routeur d'une trame dont le FCS révèle une erreur ? Répondez par un seul verbe.</li><li>À l'étape 2, le routeur supprime l'en-tête de quelle couche ?</li><li>Dans quelle table le routeur cherche-t-il la meilleure route ?</li><li>Quel champ de l'en-tête IPv4 diminue à chaque saut ?</li><li>Un hôte du cybercafé envoie un paquet hors de son sous-réseau : à quel équipement le remet-il en premier ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-1 fcs
-2 desencapsule
-4 encapsule
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Une imprimante réseau envoie un document vers un site distant.
+1) Le routeur vérifie d'abord le FCS : si la trame est fautive, il la jette — le routage ne commence même pas.
+2) Il désencapsule : l'en-tête de liaison part, le paquet IP reste.
+3) Il consulte sa table de routage : meilleure route, interface sortante, saut suivant.
+4) Il réencapsule le paquet dans une trame adaptée à la liaison sortante ; le TTL a baissé d'une unité.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>1-fcs, 2-desencapsule, 3-table, 4-encapsule : l'ordre du support.</li>
-        <li>Le numéro affiché est celui de l'étape.</li>
+        <li>L'ordre du cours est immuable : contrôle d'intégrité, retrait de l'ancien habillage de liaison, recherche de route, nouvel habillage.</li>
+        <li>Une trame dont le contrôle échoue ne va pas plus loin ; à chaque saut, un champ de l'en-tête IPv4 décrémente et la somme de contrôle est recalculée.</li>
+        <li>Pour la dernière question, rappelez-vous la logique de transfert de l'hôte : tout paquet destiné à un autre sous-réseau part vers l'équipement qui mène ailleurs.</li>
       </ol>
     </details>
   </div>
@@ -238,32 +236,31 @@ A_COMPLETER
      data-exercise="cc-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;R1 150.150.4.0&#10;R2 150.150.4.0&#10;R3 150.150.4.0&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cc-c4-e3) — Les trois protocoles de routage apprennent
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Une société relie deux sites par une ligne louée, puis la migre.&#10;1) Sur la ligne louée, le routeur encapsule le paquet IP dans une trame HDLC.&#10;2) L'Ethernet WAN (EoMPLS) se comporte comme un gigantesque commutateur entre les sites.&#10;3) L'en-tête IPv4 : 20 octets sans options, 60 au maximum.&#10;4) Sans NAT ni tunnel, les adresses IP restent généralement les mêmes de bout en bout.">
+  <script type="text/plain" data-lab-starter># Exercice — Trois agences sur un WAN
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par un mot, un sigle ou un nombre.
 
-[Cas 1 — Deux routeurs]
-# Données : 2
-# Données : R1 10.0.0.0
-# Données : R2 10.0.0.0
+[Question 1 — Protocole de liaison des lignes louées]
 A_COMPLETER
 
-[Cas 2 — Cinq routeurs]
-# Données : 5
-# Données : R1 172.16.0.0
-# Données : R2 172.16.0.0
-# Données : R3 172.16.0.0
-# Données : R4 172.16.0.0
-# Données : R5 172.16.0.0
+[Question 2 — L'Ethernet WAN, plus d'actualité]
 A_COMPLETER
 
-[Cas 3 — Un seul]
-# Données : 1
-# Données : R1 192.168.1.0
+[Question 3 — Taille minimale de l'en-tête IPv4]
+A_COMPLETER
+
+[Question 4 — Taille maximale de l'en-tête IPv4]
+A_COMPLETER
+
+[Question 5 — Routes ajoutées sans protocole de routage]
+A_COMPLETER
+
+[Question 6 — Critère de choix de la meilleure route]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Les trois protocoles de routage apprennent</h3>
+    <h3 class="lab__title">Exercice 3 — Trois agences sur un WAN</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -272,20 +269,21 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="cc-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'apprentissage des routes par protocole de routage : connexes, annonces, métrique.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas..Rn), puis <strong>n lignes</strong> « routeur sousreseau » annoncés dans l'ordre de propagation (le dernier routeur est connecté au sous-réseau, les annonces remontent vers le premier). Le protocole de routage suit trois étapes du support : chaque routeur ajoute d'abord ses routes <em>connectées</em>, les voisins s'annoncent leurs routes, la meilleure route (métrique) entre dans la table. Indiquez pour chaque routeur (du dernier vers le premier) <code>routeur : apprend sousreseau</code>, puis <code>routes apprises : n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Décrire les deux WAN du cours, la taille de l'en-tête IPv4 et l'apprentissage des routes par protocole de routage.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La PME de Nadia interconnecte ses trois agences. La première version du WAN relie les routeurs par des lignes louées ; la direction migre ensuite vers l'Ethernet WAN. Sur chaque routeur, un protocole de routage est activé : chaque routeur ajoute d'abord ses routes connectées, reçoit ensuite les annonces de ses voisins (mises à jour de routage), puis installe la meilleure route selon sa métrique. L'en-tête IPv4 mesure 20 octets au minimum, jusqu'à 60 octets avec les options ; les adresses source et destination occupent chacune 32 bits.</p><ol><li>Quel protocole de liaison de données le cours associe-t-il aux lignes louées ?</li><li>Comment s'appelle l'Ethernet WAN du cours, « plus d'actualité » ? (un sigle)</li><li>Quelle est la taille minimale de l'en-tête IPv4, en octets ?</li><li>Quelle est sa taille maximale, options comprises, en octets ?</li><li>Comment s'appellent les routes que chaque routeur ajoute sans protocole de routage, dès la configuration de ses interfaces ?</li><li>Quand plusieurs routes vers le même réseau sont apprises, quel critère départage la meilleure ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-R1 150.150.4.0
-R2 150.150.4.0
-R3 150.150.4.0
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Une société relie deux sites par une ligne louée, puis la migre.
+1) Sur la ligne louée, le routeur encapsule le paquet IP dans une trame HDLC.
+2) L'Ethernet WAN (EoMPLS) se comporte comme un gigantesque commutateur entre les sites.
+3) L'en-tête IPv4 : 20 octets sans options, 60 au maximum.
+4) Sans NAT ni tunnel, les adresses IP restent généralement les mêmes de bout en bout.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Les annonces remontent du routeur connecté (dernier lu) vers le premier.</li>
-        <li>Chaque routeur du chemin apprend exactement une route.</li>
+        <li>Deux manières de bâtir le WAN : la liaison louée avec son protocole de liaison, et l'Ethernet WAN cité comme plus d'actualité.</li>
+        <li>L'en-tête IPv4 a une taille de base et un plafond avec les options ; TTL et somme de contrôle s'ajustent à chaque transfert.</li>
+        <li>L'apprentissage d'un protocole de routage suit trois temps : ce qui est directement raccordé, ce que les voisins annoncent, puis le critère de choix.</li>
       </ol>
     </details>
   </div>
@@ -298,8 +296,8 @@ R3 150.150.4.0
     <div class="q">
       <p class="q__stem">Le WAN de lignes louées utilise comme protocole de liaison…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">HDLC</button>
         <button class="opt">EoMPLS</button>
+        <button class="opt" data-correct="1">HDLC</button>
         <button class="opt">ARP</button>
       </div>
       <div class="q__exp">HDLC (ou PPP) ; EoMPLS est le WAN Ethernet, plus récent.</div>
@@ -307,36 +305,36 @@ R3 150.150.4.0
     <div class="q">
       <p class="q__stem">Première étape du routage interne :</p>
       <div class="opts">
-        <button class="opt">chercher la route</button>
         <button class="opt" data-correct="1">vérifier le FCS</button>
+        <button class="opt">chercher la route</button>
         <button class="opt">encapsuler</button>
       </div>
-      <div class="q__exp">FCS d'abord : trame erronée jetée.</div>
+      <div class="q__exp">Le routeur vérifie d’abord le FCS : une trame erronée est jetée avant toute recherche de route ou réencapsulation.</div>
     </div>
     <div class="q">
       <p class="q__stem">Deux adresses sont sur le même segment : comment comparer leurs sous-réseaux ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Comparer les adresses et leurs masques ou préfixes</button>
-        <button class="opt">Supposer qu'elles sont toujours dans le même sous-réseau</button>
         <button class="opt">Vérifier uniquement leur adresse MAC</button>
+        <button class="opt">Supposer qu'elles sont toujours dans le même sous-réseau</button>
+        <button class="opt" data-correct="1">Comparer les adresses et leurs masques ou préfixes</button>
       </div>
       <div class="q__exp">Un segment peut porter plusieurs préfixes ; la MAC seule ne détermine pas le sous-réseau IP.</div>
     </div>
     <div class="q">
       <p class="q__stem">L'en-tête IPv4 fait…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">20 à 60 octets selon les options</button>
-        <button class="opt">toujours 20 octets</button>
         <button class="opt">toujours 64 octets</button>
+        <button class="opt">toujours 20 octets</button>
+        <button class="opt" data-correct="1">20 à 60 octets selon les options</button>
       </div>
       <div class="q__exp">Le minimum est 20 octets ; des options peuvent porter la taille à 60 octets.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pendant le routage IPv4, que devient l'en-tête du paquet transmis ?</p>
       <div class="opts">
+        <button class="opt">L'en-tête reste intégralement inchangé d'un saut à l'autre</button>
         <button class="opt" data-correct="1">Le TTL diminue et la somme de contrôle est recalculée</button>
-        <button class="opt">Il reste intégralement inchangé</button>
-        <button class="opt">Il est toujours supprimé</button>
+        <button class="opt">L'en-tête est entièrement supprimé à chaque saut du trajet</button>
       </div>
       <div class="q__exp">La trame change, et le routeur actualise aussi des champs de l'en-tête IPv4.</div>
     </div>
@@ -352,18 +350,18 @@ R3 150.150.4.0
     <div class="q">
       <p class="q__stem">Un hôte envoie les paquets distants à…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">son routeur par défaut</button>
-        <button class="opt">son switch</button>
         <button class="opt">le serveur DNS</button>
+        <button class="opt">son switch</button>
+        <button class="opt" data-correct="1">son routeur par défaut</button>
       </div>
       <div class="q__exp">Logique de transfert de l'hôte : envoyer au routeur par défaut.</div>
     </div>
     <div class="q">
       <p class="q__stem">ARP sert à…</p>
       <div class="opts">
+        <button class="opt">router les paquets entre sous-réseaux IP</button>
         <button class="opt" data-correct="1">apprendre la MAC d'un hôte IP du LAN</button>
-        <button class="opt">router entre sous-réseaux</button>
-        <button class="opt">chiffrer SSH</button>
+        <button class="opt">chiffrer les sessions SSH distantes</button>
       </div>
       <div class="q__exp">Résolution d'adresse : IP → MAC sur le segment local.</div>
     </div>
@@ -482,7 +480,7 @@ R3 150.150.4.0
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

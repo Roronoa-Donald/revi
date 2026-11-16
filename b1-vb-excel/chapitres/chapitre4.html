@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 4 — Variables, Types de données (Integer, Long, Double, String, Boolean, Variant, Option Explicit), Opérateurs et Fonctions (Sub vs Function) | VB Excel B1</title>
+<meta name="description" content="Chapitre 4 du cours de Programmation VBA sous Excel B1 : Déclarer avec Dim et imposer Option Explicit ; tableau des types VBA (Byte, Integer, Long, Single, Double, Currency, String, Boolean, Date, Object avec Set, Variant) ; portée (locale, module, Public, Const) ; opérateurs (&amp;, Mod, And/Or/Not) ; procédures Sub vs fonctions personnalisées Function. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-vb-excel/chapitres/chapitre4.html">
+<meta property="og:title" content="Chapitre 4 — Variables, Types de données (Integer, Long, Double, String, Boolean, Variant, Option Explicit), Opérateurs et Fonctions (Sub vs Function) | VB Excel B1">
+<meta property="og:description" content="Chapitre 4 du cours de Programmation VBA sous Excel B1 : Déclarer avec Dim et imposer Option Explicit ; tableau des types VBA (Byte, Integer, Long, Single, Double, Currency, String, Boolean, Date, Object avec Set, Variant) ; portée (locale, module, Public, Const) ; opérateurs (&amp;, Mod, And/Or/Not) ; procédures Sub vs fonctions personnalisées Function. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="4" class="page page--chapter">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<header class="vbanav"><div class="vbanav__in">
+  <a class="vbanav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
+    <span class="vbanav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
+    <span class="vbanav__word">cours.interactifs</span>
+  </a>
+  <div class="vbanav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="vbanav__chip" href="../index.html">VB Excel B1</a></div>
+  <nav class="vbanav__links" aria-label="Navigation du cours">
+      <a href="../sommaire.html">Sommaire</a>
+      <a href="../chapitres/chapitre1.html">Ch. 1</a>
+      <a href="../chapitres/chapitre2.html">Ch. 2</a>
+      <a href="../chapitres/chapitre3.html">Ch. 3</a>
+      <a href="../chapitres/chapitre4.html" class="is-active">Ch. 4</a>
+      <a href="../chapitres/chapitre5.html">Ch. 5</a>
+      <a href="../chapitres/chapitre6.html">Ch. 6</a>
+      <a href="../chapitres/cartes.html">Cartes</a>
+      <a href="../chapitres/formules.html">Mémo</a>
+      <a href="../exercices/exercices.html">Exercices</a>
+      <a href="../atelier.html">Atelier</a>
+      <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </nav>
+  <div class="vbanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></header>
+
+<main id="content" class="vbawrap">
+<p class="crumb"><a href="../index.html">VB Excel B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 4</p>
+
+<div class="chapmeta">
+    <span class="tag tag--module">Module 4</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--lock">Réservé B1 et plus</span>
+  </div>
+
+<h1>Chapitre 4 — Variables, Types de données (Integer, Long, Double, String, Boolean, Variant, Option Explicit), Opérateurs et Fonctions (Sub vs Function)</h1>
+
+<div class="lead">  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Lire et écrire directement dans les cellules de la feuille à chaque étape d’un calcul ralentit les macros et rend le code illisible. Le support du Dr TCHAZINO Tchamiè introduit alors les variables — zones nommées en mémoire vive (RAM) dotées d’un type précis — ainsi que les fonctions personnalisées (Function) capables d’enrichir Excel avec vos propres formules métier.</p>
+  </div></div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
+    <ol>
+      <li>déclarer des variables typées avec Dim ... As Type et comprendre pourquoi Option Explicit est indispensable ;</li>
+      <li>choisir le bon type de données (Integer vs Long pour les lignes Excel, Double/Currency, String, Boolean, Date, Object avec Set, Variant) ;</li>
+      <li>distinguer la portée locale (Dim dans une procédure), module (Private/Dim en tête de module), publique (Public) et les constantes (Const) ;</li>
+      <li>utiliser les opérateurs arithmétiques (dont \ et Mod), de concaténation (&amp;), de comparaison (&lt;&gt;) et logiques (And, Or, Not, Xor) ;</li>
+      <li>différencier une procédure Sub d’une fonction Function et écrire une fonction personnalisable utilisable dans une cellule Excel.</li>
+    </ol>
+  </div>
+
+<section class="sec">
+
+<h2>1. Déclaration des variables (Dim), règles de nommage et Option Explicit</h2>
+
+<p>Une <strong>variable</strong> est un emplacement de la mémoire vive désigné par un identifiant (son nom) qui conserve une valeur modifiable au cours de l’exécution de la macro. En VBA, un nom de variable doit commencer par une <strong>lettre</strong>, compter au maximum 255 caractères, ne contenir <strong>ni espace, ni point, ni opérateur</strong> (le caractère souligné <code>_</code> est permis) et ne pas être un mot réservé (<code>Sub</code>, <code>Dim</code>, <code>For</code>, <code>Then</code>…). VBA ne distingue pas les majuscules des minuscules dans les noms.</p>
+<p>On déclare une variable avec le mot-clé <strong><code>Dim</code></strong> suivi de son type : <code>Dim compteur As Long</code>. Si l’on n’impose rien, VBA autorise l’utilisation de variables non déclarées en leur attribuant automatiquement le type universel <strong><code>Variant</code></strong>. C’est un piège redoutable : la moindre faute de frappe dans un nom de variable (par ex. <code>tauxTva</code> puis <code>tauxTav</code>) crée silencieusement une seconde variable vide valant <code>0</code> ! Pour l’interdire, on place toujours en première ligne du module l’directive :</p>
+<pre><code>Option Explicit</code></pre>
+<p>Avec <strong><code>Option Explicit</code></strong> (activable automatiquement dans VBE via <em>Outils → Options → onglet Éditeur → cocher Déclaration des variables obligatoire</em>), toute variable non déclarée déclenche immédiatement une erreur de compilation signalée avant même l’exécution.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Le piège de la déclaration multiple sur une seule ligne</div>
+    <p>En VBA, écrire <code>Dim a, b As Integer</code> ne déclare <strong>que <code>b</code></strong> en <code>Integer</code> : <code>a</code> (sans <code>As Type</code> explicite) devient un <strong><code>Variant</code></strong> ! Il faut toujours préciser le type de chaque variable : <strong><code>Dim a As Integer, b As Integer</code></strong>.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Les types de données VBA, le mot-clé Set (Object) et la portée des variables</h2>
+
+<p>Le support de cours dresse le tableau des types fondamentaux de VBA selon la nature des données et la mémoire occupée :</p>
+<table>
+  <thead><tr><th>Type VBA</th><th>Taille mémoire</th><th>Plage de valeurs / Nature</th><th>Usage typique sous Excel</th></tr></thead>
+  <tbody>
+    <tr><td><code>Byte</code></td><td>1 octet</td><td>Entier de <code>0</code> à <code>255</code></td><td>Petits codes positifs, composantes RGB</td></tr>
+    <tr><td><code>Integer</code></td><td>2 octets</td><td>Entier signé de <code>-32 768</code> à <code>32 767</code></td><td>Petits compteurs (attention : dépassement de capacité au-delà de la ligne 32 767 !)</td></tr>
+    <tr><td><code>Long</code></td><td>4 octets</td><td>Entier signé de <code>-2 147 483 648</code> à <code>2 147 483 647</code></td><td><strong>Type recommandé pour tous les numéros de lignes Excel</strong> (une feuille moderne compte 1 048 576 lignes)</td></tr>
+    <tr><td><code>Single</code> / <code>Double</code></td><td>4 / 8 octets</td><td>Nombres décimaux à virgule flottante (simple / double précision)</td><td>Calculs scientifiques, moyennes, taux, pourcentages (<code>Double</code> par défaut)</td></tr>
+    <tr><td><code>Currency</code></td><td>8 octets</td><td>Décimal à virgule fixe (4 décimales exactes)</td><td>Montants comptables et financiers sans erreur d’arrondi binaire</td></tr>
+    <tr><td><code>String</code></td><td>Longueur variable</td><td>Chaîne de caractères entre guillemets <code>"..."</code></td><td>Noms, codes clients, messages texte</td></tr>
+    <tr><td><code>Boolean</code></td><td>2 octets</td><td>Valeur logique <code>True</code> (vrai) ou <code>False</code> (faux)</td><td>Drapeaux d’état, tests de validation</td></tr>
+    <tr><td><code>Date</code></td><td>8 octets</td><td>Dates et heures (littéraux entourés de <code>#</code>)</td><td>Échéances, calculs d’ancienneté</td></tr>
+    <tr><td><code>Object</code> (ou <code>Range</code>, <code>Worksheet</code>)</td><td>4 octets</td><td>Référence vers un objet Excel</td><td>S’affecte <strong>obligatoirement avec <code>Set</code></strong> : <code>Set plg = Range("A1:A10")</code></td></tr>
+    <tr><td><code>Variant</code></td><td>16 octets min.</td><td>Type générique par défaut pouvant contenir tout type</td><td>À réserver aux cas où le type est inconnu à l’avance (plus lourd et plus lent)</td></tr>
+  </tbody>
+</table>
+<p>La <strong>portée (visibilité)</strong> d’une variable dépend de l’endroit où elle est déclarée : déclarée avec <code>Dim</code> à l’intérieur d’une procédure <code>Sub</code> ou <code>Function</code>, elle est <strong>locale</strong> (créée à l’entrée de la procédure et détruite à sa sortie) ; déclarée avec <code>Dim</code> ou <code>Private</code> tout en haut d’un module (avant la première procédure), elle est partagée par <strong>toutes les procédures de ce module</strong> ; déclarée avec <strong><code>Public</code></strong> en tête d’un module standard, elle est accessible depuis <strong>tous les modules du projet</strong>. Enfin, une valeur fixe se déclare avec <strong><code>Const</code></strong> (ex. <code>Const TAUX_TVA As Double = 0.18</code>).</p>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Opérateurs (&amp;, Mod, logiques) et distinction Procédure Sub vs Fonction Function</h2>
+
+<p>En VBA, les nombres décimaux s’écrivent toujours avec un <strong>point (<code>.</code>)</strong> comme séparateur décimal (<code>0.18</code>), jamais avec une virgule. Les opérateurs se répartissent en quatre familles :</p>
+<ul>
+  <li><strong>Arithmétiques</strong> : <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> (division décimale), <code>\</code> (division entière : <code>7 \ 2</code> vaut <code>3</code>), <code>Mod</code> (reste de la division entière : <code>7 Mod 2</code> vaut <code>1</code>) et <code>^</code> (puissance).</li>
+  <li><strong>Concaténation de texte</strong> : l’esperluette <strong><code>&amp;</code></strong> assemble deux chaînes ou du texte et un nombre (ex. <code>"Client " &amp; code &amp; " : " &amp; montant &amp; " FCFA"</code>). Toujours entourer <code>&amp;</code> d’espaces et l’utiliser de préférence à <code>+</code>.</li>
+  <li><strong>Comparaison</strong> : <code>=</code>, <code>&lt;&gt;</code> (différent de), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</li>
+  <li><strong>Logiques</strong> : <code>And</code> (ET), <code>Or</code> (OU), <code>Not</code> (NON), <code>Xor</code> (OU exclusif).</li>
+</ul>
+<p>Le support établit enfin la distinction fondamentale entre une procédure <strong><code>Sub</code></strong> et une fonction <strong><code>Function</code></strong> :</p>
+<ul>
+  <li>Une procédure <strong><code>Sub</code></strong> réalise des actions (modifier des cellules, colorier, afficher un message) et <strong>ne renvoie pas de valeur</strong>.</li>
+  <li>Une fonction <strong><code>Function</code></strong> reçoit des arguments entre parenthèses, effectue un calcul et <strong>renvoie une valeur typée</strong>. En VBA, pour renvoyer le résultat, on l’affecte au <strong>nom même de la fonction</strong> (<code>NomFonction = resultat</code>) avant <code>End Function</code>.</li>
+</ul>
+<pre><code>Option Explicit
+
+' Fonction personnalisée (UDF) utilisable en VBA ET comme formule dans Excel :
+Function MontantTTC(prixHT As Double, tauxTVA As Double) As Double
+    MontantTTC = prixHT * (1 + tauxTVA)
+End Function
+
+Sub TesterCalcul()
+    Dim ht As Double, ttc As Double
+    ht = Range("B2").Value
+    ttc = MontantTTC(ht, 0.18)  ' En VBA : séparateur virgule (,) et point décimal (.)
+    Range("C2").Value = ttc
+End Sub</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Utiliser sa Function directement dans une cellule Excel</div>
+    <p>Toute <code>Function</code> publique placée dans un module standard (<code>Module1</code>) apparaît dans la catégorie <em>Fonctions personnalisées</em> d’Excel. Dans une feuille Excel francophone, on l’appelle avec le <strong>point-virgule</strong> et la <strong>virgule décimale</strong> : <code>=MontantTTC(B2; 0,18)</code>, tandis que dans le code VBA on écrit <code>MontantTTC(ht, 0.18)</code>.</p>
+  </div>
+
+</section>
+
+  <section class="sec">
+
+<!-- code-labs:start -->
+  <div id="exercices">
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
+<div class="lab" id="vba-c4-e1" data-lab
+     data-exercise="vba-c4-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Déclaration correcte de deux entiers longs et d'une feuille :&#10;Dim i As Long, j As Long&#10;Dim f As Worksheet&#10;Set f = ThisWorkbook.Worksheets(&quot;Ventes&quot;)">
+  <script type="text/plain" data-lab-starter># Exercice — Typage des variables et Option Explicit au service comptable
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Directive imposant la déclaration des variables]
+A_COMPLETER
+
+[Question 2 — Valeur maximale positive du type Integer]
+A_COMPLETER
+
+[Question 3 — Type entier recommandé pour les numéros de lignes Excel]
+A_COMPLETER
+
+[Question 4 — Type réel de codeClient dans Dim codeClient, nomClient As String]
+A_COMPLETER
+
+[Question 5 — Mot-clé obligatoire pour affecter une variable objet]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Typage des variables et Option Explicit au service comptable</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir les bons types VBA (Long, Double, String, Boolean, Variant, Object avec Set) et appliquer Option Explicit.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Akouvi révise une macro qui plante avec l’erreur <em>« Dépassement de capacité (Overflow) »</em> lorsqu’elle parcourt un grand fichier de 50 000 lignes clients. En tête du module, elle examine les déclarations suivantes :</p><pre><code>Option Explicit
+
+Sub AnalyserClients()
+    Dim numLigne As Long
+    Dim ancienCompteur As Integer
+    Dim codeClient, nomClient As String
+    Dim estActif As Boolean
+    Dim plageClients As Range
+    Set plageClients = Range("A2:D50000")
+End Sub</code></pre><ol>  <li>Quelle directive de deux mots placée en première ligne oblige à déclarer toutes les variables du module ?</li>  <li>Pourquoi <code>ancienCompteur As Integer</code> plante-t-il sur 50 000 lignes : quelle est la valeur maximale d’un <code>Integer</code> en VBA ?</li>  <li>Quel type entier sur 4 octets (utilisé pour <code>numLigne</code>) faut-il toujours privilégier pour les numéros de lignes Excel ?</li>  <li>Dans la ligne <code>Dim codeClient, nomClient As String</code>, quel est le type réel attribué par VBA à <code>codeClient</code> ?</li>  <li>Quel mot-clé de 3 lettres est obligatoire au début de la ligne qui affecte la référence d’objet à <code>plageClients</code> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Déclaration correcte de deux entiers longs et d'une feuille :
+Dim i As Long, j As Long
+Dim f As Worksheet
+Set f = ThisWorkbook.Worksheets("Ventes")</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>La directive figure tout en haut du code ; un Integer signé sur 2 octets va de -32 768 à +32 767.</li>
+        <li>En VBA, toute variable qui n’est pas immédiatement suivie de sa propre clause As Type reçoit le type générique par défaut.</li>
+        <li>Étapes : relever Option Explicit ; indiquer 32767 (32 767) comme plafond d’Integer ; citer Long pour les lignes Excel ; répondre Variant pour codeClient ; noter le mot-clé Set pour l’objet Range.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c4-e2" data-lab
+     data-exercise="vba-c4-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Conversion de 135 minutes en heures et minutes :&#10;- heures = 135 \ 60 -&gt; 2&#10;- minutes = 135 Mod 60 -&gt; 15&#10;- texte = heures &amp; &quot;h&quot; &amp; minutes -&gt; &quot;2h15&quot;">
+  <script type="text/plain" data-lab-starter># Exercice — Opérateurs VBA (&, \, Mod) et portée des variables
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Valeur de cartons (47 \ 10)]
+A_COMPLETER
+
+[Question 2 — Valeur de reste (47 Mod 10)]
+A_COMPLETER
+
+[Question 3 — Opérateur de concaténation de chaînes]
+A_COMPLETER
+
+[Question 4 — Portée de la variable stock (locale ou publique)]
+A_COMPLETER
+
+[Question 5 — Mot-clé déclarant une constante]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Opérateurs VBA (&amp;, \, Mod) et portée des variables</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer les opérateurs VBA de division entière, de reste (Mod) et de concaténation (&amp;) ainsi que la portée des déclarations.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Un entrepôt conditionne ses articles par cartons de <strong>10 unités</strong>. Pour <strong>47 articles</strong> en stock, la macro exécute les calculs suivants :</p><pre><code>Public Const TAILLE_CARTON As Long = 10
+
+Sub CalculerColisage()
+    Dim stock As Long, cartons As Long, reste As Long
+    Dim message As String
+    stock = 47
+    cartons = stock \ TAILLE_CARTON
+    reste = stock Mod TAILLE_CARTON
+    message = "Cartons : " &amp; cartons &amp; " / Reste : " &amp; reste
+End Sub</code></pre><ol>  <li>Que vaut la variable <code>cartons</code> après la division entière <code>47 \ 10</code> ?</li>  <li>Que vaut la variable <code>reste</code> après l’opération modulo <code>47 Mod 10</code> ?</li>  <li>Quel symbole d’opérateur est utilisé à la dernière ligne pour concaténer le texte et les nombres dans <code>message</code> ?</li>  <li>La variable <code>stock</code>, déclarée avec <code>Dim</code> à l’intérieur de <code>Sub CalculerColisage()</code>, a-t-elle une portée <code>locale</code> ou <code>publique</code> ?</li>  <li>Quel mot-clé placé devant <code>TAILLE_CARTON</code> garantit que la valeur <code>10</code> ne pourra jamais être modifiée par le programme ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Conversion de 135 minutes en heures et minutes :
+- heures = 135 \ 60 -&gt; 2
+- minutes = 135 Mod 60 -&gt; 15
+- texte = heures &amp; "h" &amp; minutes -&gt; "2h15"</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>L’antislash \ donne le quotient entier (combien de fois 10 rentre dans 47) et Mod donne le reste de cette division.</li>
+        <li>Une variable déclarée à l’intérieur d’un Sub n’existe que pendant l’exécution de ce Sub.</li>
+        <li>Étapes : calculer 47 \ 10 = 4 ; calculer 47 Mod 10 = 7 ; relever l’esperluette &amp; pour la concaténation ; qualifier la portée de locale ; noter le mot-clé Const.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c4-e3" data-lab
+     data-exercise="vba-c4-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Function DoubleValeur(x As Double) As Double&#10;    DoubleValeur = x * 2&#10;End Function&#10;- En VBA : y = DoubleValeur(12.5) -&gt; 25&#10;- Dans une cellule Excel : =DoubleValeur(A1)">
+  <script type="text/plain" data-lab-starter># Exercice — Créer et appeler une fonction personnalisée Function (UDF)
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Mot-clé déclarant une fonction qui renvoie une valeur]
+A_COMPLETER
+
+[Question 2 — Identifiant auquel on affecte la valeur de retour]
+A_COMPLETER
+
+[Question 3 — Résultat de PrixNet(20000, 0.1)]
+A_COMPLETER
+
+[Question 4 — Séparateur décimal dans le code VBA (point ou virgule)]
+A_COMPLETER
+
+[Question 5 — Séparateur d'arguments dans une formule Excel française]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Créer et appeler une fonction personnalisée Function (UDF)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Comprendre la syntaxe d’une Function VBA, son mécanisme de retour et les différences de séparateurs entre VBA et Excel.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le responsable commercial veut disposer dans Excel d’une fonction personnalisée <code>PrixNet(montantHT, tauxRemise)</code> utilisable comme une formule native. Vous écrivez dans <code>Module1</code> :</p><pre><code>Option Explicit
+
+Function PrixNet(montantHT As Double, tauxRemise As Double) As Double
+    PrixNet = montantHT * (1 - tauxRemise)
+End Function</code></pre><ol>  <li>Quel mot-clé déclare une procédure qui calcule et renvoie une valeur (par opposition à <code>Sub</code>) ?</li>  <li>À quelle cible affecte-t-on le résultat <code>montantHT * (1 - tauxRemise)</code> pour que la fonction le renvoie ? (écrivez l’identifiant placé à gauche du signe <code>=</code>)</li>  <li>Que renvoie l’appel VBA <code>PrixNet(20000, 0.1)</code> ?</li>  <li>Dans le code VBA, quel caractère sépare le chiffre des unités des décimales dans <code>0.1</code> : le <code>point</code> ou la <code>virgule</code> ?</li>  <li>Dans une feuille de calcul Excel en français, quel caractère sépare les deux arguments lorsqu’on tape la formule <code>=PrixNet(A2 ; 0,1)</code> : le <code>point-virgule</code> ou la <code>virgule</code> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Function DoubleValeur(x As Double) As Double
+    DoubleValeur = x * 2
+End Function
+- En VBA : y = DoubleValeur(12.5) -&gt; 25
+- Dans une cellule Excel : =DoubleValeur(A1)</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>En VBA, il n’y a pas de mot-clé return : regardez ce qui se trouve à gauche du signe = à l’intérieur de la fonction.</li>
+        <li>Une remise de 0.1 correspond à 10 % de 20 000 FCFA (soit 2 000 FCFA déduits).</li>
+        <li>Étapes : noter Function ; indiquer PrixNet (le nom de la fonction) ; calculer 20000 * 0.9 = 18000 ; répondre point pour le décimal en VBA ; répondre point-virgule (;) pour séparer les arguments dans Excel français.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  </div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle instruction placée tout en haut d’un module VBA oblige le programmeur à déclarer explicitement toutes ses variables avec Dim ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Option Explicit</button>
+        <button class="opt">Option Base 1</button>
+        <button class="opt">Dim Strict</button>
+        <button class="opt">Public Module</button>
+      </div>
+      <div class="q__exp">Option Explicit impose la déclaration préalable de chaque variable et bloque à la compilation toute variable non déclarée ou mal orthographiée.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel type de données VBA prend automatiquement une variable déclarée sans précision de type (par exemple Dim x) ?</p>
+      <div class="opts">
+        <button class="opt">String</button>
+        <button class="opt" data-correct="1">Variant</button>
+        <button class="opt">Integer</button>
+        <button class="opt">Object</button>
+      </div>
+      <div class="q__exp">En l’absence de clause As Type, VBA attribue par défaut le type générique Variant (au moins 16 octets en mémoire).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi recommande-t-on le type Long plutôt que Integer pour une variable stockant un numéro de ligne Excel ?</p>
+      <div class="opts">
+        <button class="opt">Parce que Integer n’accepte que des nombres à virgule</button>
+        <button class="opt">Parce que Long consomme moins de mémoire vive que Integer</button>
+        <button class="opt" data-correct="1">Parce que Integer est limité à 32 767 et provoque une erreur de dépassement de capacité (Overflow) sur les feuilles dépassant 32 767 lignes</button>
+        <button class="opt">Parce que la propriété Row renvoie une chaîne de caractères</button>
+      </div>
+      <div class="q__exp">Le type Integer (2 octets) plafonne à 32 767, alors qu’une feuille Excel comporte jusqu’à 1 048 576 lignes. Le type Long (4 octets, jusqu’à plus de 2 milliards) évite l’erreur d’exécution 6 (Dépassement de capacité).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment affecte-t-on une référence d’objet (comme Range("A1:B10")) à une variable objet déclarée par Dim maPlage As Range ?</p>
+      <div class="opts">
+        <button class="opt">maPlage = "A1:B10"</button>
+        <button class="opt">Let maPlage = Range("A1:B10")</button>
+        <button class="opt">Dim maPlage = Cells(1, 1)</button>
+        <button class="opt" data-correct="1">Set maPlage = Range("A1:B10")</button>
+      </div>
+      <div class="q__exp">En VBA, toute affectation d’une référence d’objet (Range, Worksheet, Workbook, Object) exige obligatoirement le mot-clé Set devant le nom de la variable.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment une fonction personnalisée Function CalculPrime(ca As Double) As Double renvoie-t-elle son résultat en VBA ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">En affectant le résultat au nom de la fonction : CalculPrime = ca * 0.05</button>
+        <button class="opt">Avec l’instruction return ca * 0.05</button>
+        <button class="opt">Avec l’instruction Exit Sub(ca * 0.05)</button>
+        <button class="opt">En écrivant Result.Value = ca * 0.05</button>
+      </div>
+      <div class="q__exp">VBA n’utilise pas return pour renvoyer la valeur d’une Function : on affecte la valeur de retour directement à l’identifiant de la fonction (CalculPrime = ca * 0.05).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel opérateur est recommandé en VBA pour concaténer (assembler) deux chaînes de caractères ou une chaîne et un nombre ?</p>
+      <div class="opts">
+        <button class="opt">L’opérateur point .</button>
+        <button class="opt" data-correct="1">L’opérateur esperluette &amp;</button>
+        <button class="opt">L’opérateur double barre ||</button>
+        <button class="opt">Le mot-clé Join</button>
+      </div>
+      <div class="q__exp">L’opérateur &amp; (entouré d’espaces) convertit automatiquement les nombres en texte et concatène sans risque d’ambiguïté avec l’addition arithmétique +.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la déclaration VBA Dim montantHT, montantTTC As Double, quel est le type réel de la variable montantHT ?</p>
+      <div class="opts">
+        <button class="opt">Double</button>
+        <button class="opt">Single</button>
+        <button class="opt" data-correct="1">Variant</button>
+        <button class="opt">Integer</button>
+      </div>
+      <div class="q__exp">En VBA, chaque variable doit avoir son propre As Type. Dans Dim montantHT, montantTTC As Double, seule montantTTC est de type Double ; montantHT est de type Variant.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mot-clé permet de déclarer en tête d’un module standard une variable globale accessible depuis tous les modules du projet VBA ?</p>
+      <div class="opts">
+        <button class="opt">Local</button>
+        <button class="opt">Static</button>
+        <button class="opt">Const</button>
+        <button class="opt" data-correct="1">Public</button>
+      </div>
+      <div class="q__exp">Le mot-clé Public placé en tête d’un module standard rend la variable visible dans l’ensemble des modules du projet VBA.</div>
+    </div>
+  </div>
+
+  </section>
+
+<section class="sec">
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier Option Explicit et perdre une heure sur une variable mal orthographiée valant 0.</li>
+      <li>Écrire Dim i, j As Long en croyant que i est de type Long (i est en réalité Variant !).</li>
+      <li>Oublier le mot-clé Set lors de l’affectation d’une variable objet (Set f = Worksheets("Ventes")).</li>
+      <li>Écrire un nombre décimal avec une virgule (0,18) dans l’éditeur VBE au lieu du point (0.18).</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — choisir ses variables et structurer ses fonctions</div>
+    <ol>
+      <li>Activer systématiquement Option Explicit en première ligne de chaque module.</li>
+      <li>Déclarer les compteurs de lignes en Long, les montants en Double ou Currency, les textes en String et les plages en Range (avec Set).</li>
+      <li>Utiliser une Function dès qu’un calcul doit renvoyer une valeur (ou être appelé comme formule dans une cellule Excel) et une Sub pour les actions sur l’interface.</li>
+      <li>Tester la Function dans la feuille Excel avec le séparateur point-virgule (;).</li>
+    </ol>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Option Explicit oblige à déclarer toutes les variables (Dim nom As Type) et élimine les bugs de faute de frappe.</li>
+      <li>Types clés : Long (lignes Excel), Integer (≤ 32 767), Double/Currency (décimaux), String (texte), Boolean (True/False), Date, Object (affecté avec Set), Variant (défaut).</li>
+      <li>L’opérateur &amp; concatène les chaînes ; Mod donne le reste entier ; le point . est le séparateur décimal en code VBA.</li>
+      <li>Une Sub exécute des actions sans retour ; une Function renvoie un résultat en l’affectant à son propre nom (NomFonction = resultat).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais pourquoi Option Explicit et le type Long (au lieu de Integer) protègent mes macros.</li>
+      <li>Je sais déclarer correctement plusieurs variables typées et utiliser Set pour les objets.</li>
+      <li>Je sais écrire une Function VBA et l’appeler aussi bien dans un Sub que dans une cellule Excel.</li>
+      <li>Je maîtrise la différence de portée entre Dim (procédure), Private (module) et Public (projet).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong><code>Option Explicit</code></strong> : directive imposant la déclaration préalable de toutes les variables.</li><li><strong><code>Dim ... As Type</code></strong> : instruction de déclaration d’une variable typée en mémoire.</li><li><strong><code>Long</code> vs <code>Integer</code></strong> : entier 4 octets (±2 milliards, adapté aux lignes Excel) vs 2 octets (±32 767).</li><li><strong><code>Double</code> &amp; <code>Currency</code></strong> : nombres décimaux en virgule flottante double précision et en virgule fixe monétaire.</li><li><strong><code>Variant</code></strong> : type générique par défaut (16 octets min.) attribué aux variables non typées.</li><li><strong><code>Set</code></strong> : mot-clé obligatoire pour affecter une référence à une variable objet (<code>Range</code>, <code>Worksheet</code>).</li><li><strong>Opérateur <code>&amp;</code></strong> : opérateur de concaténation de chaînes de caractères en VBA.</li><li><strong><code>Function</code> (UDF)</strong> : procédure renvoyant une valeur par affectation à son nom, utilisable dans les formules Excel.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>revoyez le tableau des types VBA, Option Explicit et la syntaxe de retour d’une Function.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>attention aux pièges Dim a, b As Integer et à l’obligation du mot-clé Set.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, vérifiez la portée des variables et les opérateurs Mod et &amp;.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise complète des variables, types et fonctions VBA.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+</section>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre5.html">Chapitre 5 — Structures de contrôle (If...Then...ElseIf...End If, Select Case, boucles For...Next, For Each...In, Do While/Until...Loop) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
+  Sources : Programmation VBA sous Excel (Dr TCHAZINO Tchamiè, 47 pages, support1.pdf — programme officiel B1 IT).</p>
+</main>
+
+<footer class="cfoot">
+  <div class="cfoot__in">
+    <a class="cfoot__brand" href="/">cours.interactifs</a>
+    <p class="cfoot__copy">© 2025-2026 Cours Interactifs — RD4SLOQ · VB Excel B1</p>
+    <nav class="cfoot__links" aria-label="Liens utiles">
+      <a href="/">Tous les cours</a>
+      <a href="/epreuves/index.html">Épreuves</a>
+      <a href="/preparation-web/index.html">Atelier Web</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

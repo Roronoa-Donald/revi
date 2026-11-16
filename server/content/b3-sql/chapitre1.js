@@ -23,6 +23,17 @@ module.exports = {
   ],
   sections: [
     {
+      title: 'Progression spiralaire B1 → B2 → B3 &amp; Périmètre DBA de SQL Avancé B3',
+      html: [
+        box('tech', 'Articulation avec SQL B1 (/b1-sql/) et SQL B2 (/sql/) — Focus DBA &amp; Moteur Interne en B3', 'compass',
+          '    <p>Ce cursus <strong>SQL Avancé B3</strong> prolonge les acquis de <a href="/b1-sql/index.html"><strong>SQL B1 (<code>/b1-sql/</code>)</strong></a> et de <a href="/sql/index.html"><strong>SQL B2 (<code>/sql/</code>)</strong></a> en basculant du point de vue <em>développeur applicatif</em> vers l’ingénierie interne <strong>DBA (Database Administrator)</strong> :</p>\n' +
+          '    <ul>\n' +
+          '      <li><strong>Acquis consolidés en B2 (<a href="/sql/">/sql/</a>) :</strong> conception de schémas relationnels 3NF, vues standard et matérialisées, procédures stockées, triggers événementiels et usage applicatif des transactions ACID.</li>\n' +
+          '      <li><strong>Périmètre exclusif de ce cours B3 (<code>/b3-sql/</code> — Internals SGBD) :</strong> lecture fine du planificateur de requêtes CBO (<code>EXPLAIN ANALYZE</code>, arbitrage entre <code>Seq Scan</code>, <code>Index Scan</code> et <code>Bitmap Heap Scan</code>), stratégies d’indexation physique avancées (<code>B-Tree</code> couvrants, index inversés <code>GIN</code> pour JSONB/Full-Text, index <code>BRIN</code> pour séries temporelles massives), concurrence multi-versions <strong>MVCC</strong> et anomalies d’isolation (<em>Phantom Read</em>, <em>Write Skew</em>), journalisation physique <strong>WAL (Write-Ahead Logging)</strong> et haute disponibilité par <strong>streaming replication</strong> (réplication en streaming synchrone/asynchrone).</li>\n' +
+          '    </ul>')
+      ].join('\n')
+    },
+    {
       title: 'Les Fondations ACID & Le Mécanisme de Journalisation WAL (Write-Ahead Logging)',
       html: [
         '<p>Une transaction est une unité logique de traitement composée d’une ou plusieurs instructions SQL exécutées de manière atomique (entre <code>BEGIN</code> et <code>COMMIT</code> ou <code>ROLLBACK</code>). Le standard relationnel repose sur quatre propriétés incontournables :</p>',
@@ -151,10 +162,10 @@ module.exports = {
     {
       stem: 'Quel principe fondamental régit le mécanisme de Write-Ahead Logging (WAL) dans un moteur SGBD relationnel ?',
       opts: [
-        'Écrire les données sur bande magnétique avant le disque dur',
-        'Enregistrer et synchroniser toute modification dans le journal séquentiel avant d’écrire les pages de données sur disque',
-        'Supprimer les tables temporaires toutes les 10 minutes',
-        'Chiffrer les requêtes SQL avec une clé symétrique'
+        "Écrire d’abord les données sur une bande magnétique de sauvegarde avant de les copier sur le disque dur",
+        "Enregistrer et synchroniser toute modification dans le journal séquentiel avant d’écrire les pages de données sur disque",
+        "Supprimer automatiquement les tables temporaires inactives toutes les dix minutes de fonctionnement",
+        "Chiffrer systématiquement les requêtes SQL des utilisateurs avec une clé symétrique rotative"
       ],
       correct: 1,
       exp: 'La règle d’or du WAL garantit qu’aucun bloc de données de table n’est écrit sur disque avant que l’enregistrement de journal WAL associé n’ait été persisté.'
@@ -162,43 +173,43 @@ module.exports = {
     {
       stem: 'Quelle anomalie de concurrence se produit lorsqu’une transaction lit des modifications effectuées par une autre transaction qui n’a pas encore commité ?',
       opts: [
-        'Phantom Read (Lecture Fantôme)',
         'Dirty Read (Lecture Sale)',
+        'Phantom Read (Lecture Fantôme)',
         'Non-Repeatable Read (Lecture Non Répétable)',
         'Serialization Failure'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Dirty Read désigne la lecture de données non validées susceptibles d’être annulées par un ROLLBACK ultérieur.'
     },
     {
       stem: 'Quel est le niveau d’isolation par défaut de PostgreSQL pour chaque nouvelle session transactionnelle ?',
       opts: [
         'READ UNCOMMITTED',
-        'READ COMMITTED',
+        'SERIALIZABLE',
         'REPEATABLE READ',
-        'SERIALIZABLE'
+        'READ COMMITTED'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'PostgreSQL utilise par défaut READ COMMITTED, empêchant toute lecture sale grâce à des instantanés (snapshots) de requêtes.'
     },
     {
       stem: 'Dans la matrice de compatibilité des verrous 2PL, quelle affirmation est rigoureusement exacte ?',
       opts: [
         'Un verrou exclusif (X) est compatible avec un verrou partagé (S)',
-        'Plusieurs transactions peuvent détenir simultanément un verrou partagé (S) sur la même ressource',
         'Deux verrous exclusifs (X) peuvent coexister sur la même ligne',
+        'Plusieurs transactions peuvent détenir simultanément un verrou partagé (S) sur la même ressource',
         'Un verrou partagé empêche toute autre lecture'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Les verrous partagés (S) sont conçus pour les lectures concurrentes : ils sont compatibles entre eux, mais bloquent toute demande de verrou exclusif (X).'
     },
     {
       stem: 'Comment le moteur de base de données modélise-t-il les blocages mutuels pour détecter un interblocage (Deadlock) ?',
       opts: [
-        'Sous la forme d’un arbre binaire de recherche',
-        'Sous la forme d’un graphe orienté d’attente (Wait-For Graph) où les cycles représentent les interblocages',
-        'Par un comptage de mémoire RAM consommée',
-        'Par une file d’attente FIFO sans priorité'
+        "Sous la forme d’un arbre binaire de recherche équilibré parcouru périodiquement",
+        "Sous la forme d’un graphe orienté d’attente (Wait-For Graph) où les cycles représentent les interblocages",
+        "Par un simple comptage de la mémoire vive consommée par les transactions actives",
+        "Par une file d’attente FIFO traversée sans aucune notion de priorité entre requêtes"
       ],
       correct: 1,
       exp: 'Le Wait-For Graph relie les transactions en attente de ressources. Un cycle orienté (ex: T1 attend T2 qui attend T1) signe un deadlock irréversible.'
@@ -206,34 +217,34 @@ module.exports = {
     {
       stem: 'Quel niveau d’isolation ANSI SQL garantit l’absence totale de toute anomalie de concurrence au prix d’échecs de sérialisation possibles ?',
       opts: [
-        'READ UNCOMMITTED',
+        'SERIALIZABLE',
         'READ COMMITTED',
         'REPEATABLE READ',
-        'SERIALIZABLE'
+        'READ UNCOMMITTED'
       ],
-      correct: 3,
+      correct: 0,
       exp: 'Le niveau SERIALIZABLE émule une exécution séquentielle stricte des transactions sans aucune anomalie de concurrence.'
     },
     {
       stem: 'Quelle instruction SQL permet d’acquérir un verrou exclusif pessimiste sur des lignes sélectionnées dès la lecture ?',
       opts: [
         'SELECT ... LOCK ALL',
-        'SELECT ... FOR UPDATE',
+        'SELECT ... ISOLATE',
         'SELECT ... WITH NO WAIT',
-        'SELECT ... ISOLATE'
+        'SELECT ... FOR UPDATE'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Dans PostgreSQL, FOR UPDATE verrouille les lignes et bloque les modifications ou verrous de ligne conflictuels. Un SELECT ordinaire peut néanmoins lire une version visible grâce à MVCC.'
     },
     {
       stem: 'Que signifie l’acronyme MVCC dans les moteurs transactionnels comme PostgreSQL ?',
       opts: [
-        'Maximum Virtual Core Control',
-        'Multi-Version Concurrency Control (Contrôle de Concurrence Multiversion)',
-        'Master Volume Cache Check',
-        'Minimal Value Commit Clause'
+        "Maximum Virtual Core Control, la régulation des cœurs virtuels du serveur",
+        "Master Volume Cache Check, la vérification du cache du volume maître",
+        "Multi-Version Concurrency Control (Contrôle de Concurrence Multiversion)",
+        "Minimal Value Commit Clause, la clause de validation à valeur minimale"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'MVCC maintient plusieurs versions de ligne : dans PostgreSQL, un SELECT ordinaire lit une version visible de son instantané sans attendre un verrou de ligne ; les lectures verrouillantes ont d’autres règles.'
     }
   ],

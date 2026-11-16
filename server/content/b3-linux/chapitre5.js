@@ -139,45 +139,45 @@ module.exports = {
     {
       stem: 'Quel composant réseau virtuel Linux fonctionne comme un câble Ethernet virtuel reliant deux namespaces ?',
       opts: [
-        'Une interface loopback lo',
-        'Une paire d’interfaces virtuelles veth (veth pair)',
-        'Un disque LVM',
-        'Un socket Unix'
+        "Une interface loopback lo partagée entre les deux namespaces",
+        "Un disque LVM utilisé comme pont de stockage réseau",
+        "Une paire d’interfaces virtuelles veth (veth pair)",
+        "Un socket Unix écoutant sur les deux piles réseau"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Une paire veth est constituée de deux interfaces liées : tout paquet entrant par une extrémité ressort instantanément par l’autre, reliant physiquement deux namespaces distincts.'
     },
     {
       stem: 'Quelle commande moderne de la suite iproute2 remplace la commande obsolète « ifconfig eth0 192.168.1.10 netmask 255.255.255.0 » ?',
       opts: [
         'ip netmask set 192.168.1.10/24 dev eth0',
-        'ip addr add 192.168.1.10/24 dev eth0',
+        'route add 192.168.1.10/24 dev eth0',
         'ip link ip 192.168.1.10/24 dev eth0',
-        'route add 192.168.1.10/24 dev eth0'
+        'ip addr add 192.168.1.10/24 dev eth0'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'ip addr add <IP/CIDR> dev <interface> est la syntaxe standard et universelle de la suite iproute2 pour configurer une adresse IP.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre le routage IP classique et le Policy-Based Routing (PBR) ?',
       opts: [
-        'Le routage classique utilise le Wi-Fi et PBR utilise la fibre',
-        'Le routage classique ne regarde que l’IP destination, alors que le PBR peut aiguiller les paquets selon l’IP source, le port ou l’interface vers des tables multiples',
-        'Le PBR ne fonctionne que sur les conteneurs Docker',
-        'Le routage classique nécessite obligatoirement BGP'
+        "Le routage classique ne regarde que l’IP destination, alors que le PBR peut aiguiller les paquets selon l’IP source, le port ou l’interface vers des tables multiples",
+        "Le routage classique utilise exclusivement les liaisons Wi-Fi tandis que le PBR utilise uniquement les liaisons fibre optique",
+        "Le PBR ne fonctionne que sur les conteneurs Docker et les machines virtuelles exécutées sur l’hôte physique",
+        "Le routage classique nécessite obligatoirement l’activation du protocole BGP entre tous les routeurs du réseau local"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Policy-Based Routing (PBR) permet de choisir la table de routage et la passerelle en fonction de critères multiples (adresse source, port, protocole), surpassant le routage traditionnel basé sur la seule destination.'
     },
     {
       stem: 'Quelle commande permet de consulter les règles de politiques de routage ordonnées par priorité sous Linux ?',
       opts: [
-        'ip rule show',
         'iptables -L',
+        'ip rule show',
         'route print',
         'cat /proc/net/routes'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'ip rule show (ou ip rule list) affiche la table RPDB avec les priorités numériques et les tables de routage associées.'
     },
     {
@@ -194,34 +194,34 @@ module.exports = {
     {
       stem: 'À quelle couche du modèle OSI un pont logiciel Linux (Linux Bridge) opère-t-il ?',
       opts: [
-        'Couche 1 (Physique)',
-        'Couche 2 (Liaison de données / Ethernet)',
-        'Couche 3 (Réseau / IP)',
-        'Couche 7 (Application)'
+        "Couche 1 (Physique, signaux et câbles)",
+        "Couche 3 (Réseau, adressage IP)",
+        "Couche 7 (Application, protocoles logiciels)",
+        "Couche 2 (Liaison de données / Ethernet)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un pont Linux fonctionne comme un switch Ethernet en couche 2 (Liaison) : il commute les trames d’après leur adresse MAC.'
     },
     {
       stem: 'Pourquoi est-il nécessaire d’exécuter « ip route flush cache » après avoir modifié des règles de routage sous Linux ?',
       opts: [
-        'Pour vider la mémoire tampon du disque dur',
-        'Pour purger le cache de routage du noyau et forcer la réévaluation immédiate des nouvelles politiques',
-        'Pour redémarrer le démon DNS',
-        'Pour supprimer les adresses IP statiques'
+        "Pour purger le cache de routage du noyau et forcer la réévaluation immédiate des nouvelles politiques",
+        "Pour vider la mémoire tampon du disque dur avant de relancer les services système",
+        "Pour redémarrer le démon DNS et recharger la configuration des noms de domaine",
+        "Pour supprimer les adresses IP statiques configurées sur les interfaces physiques"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le noyau met en cache les décisions de routage pour accélérer le débit. Purger le cache garantit que les nouveaux flux empruntent immédiatement les règles modifiées.'
     },
     {
       stem: 'Comment déplacer une interface réseau virtuelle « veth1 » dans le namespace réseau d’un processus ayant le PID 4200 ?',
       opts: [
-        'ip link set veth1 netns 4200',
         'mv /sys/class/net/veth1 /proc/4200/',
+        'ip link set veth1 netns 4200',
         'nsenter -t 4200 move veth1',
         'ip route move veth1 to 4200'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'ip link set <iface> netns <PID> transfère immédiatement l’interface dans le namespace réseau du processus spécifié.'
     }
   ],

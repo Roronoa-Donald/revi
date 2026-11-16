@@ -4,128 +4,162 @@ module.exports = [
   {
     "id": "cr3-c2-e1",
     "chapter": 2,
-    "title": "Générateur Pseudo-Aléatoire LFSR et Chiffrement de Flux (Stream Cipher)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Implémenter un registre à décalage à rétroaction linéaire (LFSR) et effectuer un chiffrement de flux par XOR.",
-    "brief": "<p>Un LFSR (Linear Feedback Shift Register) est la brique de base des chiffrements par flux matériels (A5/1, E0).<br><br>\nFonctionnement :<br>\n- À chaque cycle : le bit le plus à droite est émis (retiré du registre).<br>\n- Le bit injecté à gauche (position 0) est le XOR des bits situés aux indices <code>taps</code> (0-indexés). Si un tap dépasse la longueur restante, il est XORé avec le bit émis.<br>\n- Chaque octet du texte clair est chiffré par XOR avec 8 bits consécutifs du LFSR assemblés selon <code>(byte &lt;&lt; 1) | bit</code>.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>LFSR ENC seed=&lt;bits&gt; taps=&lt;t1,t2,...&gt; text=&lt;texte&gt;</code> : produit <code>HEX: &lt;hex_str&gt;</code>.<br>\n2. <code>LFSR DEC seed=&lt;bits&gt; taps=&lt;t1,t2,...&gt; hex=&lt;hex_str&gt;</code> : produit <code>PLAIN: &lt;texte&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c2-e1) — Générateur Pseudo-Aléatoire LFSR et Chiffrement de Flux (Stream Cipher)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déchiffrement de flux LFSR symétrique]\n# Données : LFSR DEC seed=1011 taps=0,3 hex=9515F5DF0D51\nA_COMPLETER\n\n[Cas 2 — Chiffrement de flux avec seed 5 bits]\n# Données : LFSR ENC seed=11001 taps=1,4 text=SECRET_KEY\nA_COMPLETER\n\n[Cas 3 — Déchiffrement de flux seed 5 bits]\n# Données : LFSR DEC seed=11001 taps=1,4 hex=C907F84D71D129752C53\nA_COMPLETER\n",
+    "title": "La liaison radio du drone de surveillance",
+    "exampleTitle": "Exemple résolu — la balise météo du club alpin",
+    "goal": "Chiffrer et déchiffrer des octets par XOR avec une clé d'un octet, et expliquer les propriétés et les limites de ce chiffrement.",
+    "brief": "<p><strong>Énoncé.</strong> Le club de robotique chiffre les commandes de son drone de surveillance par <strong>OU exclusif (XOR)</strong> bit à bit avec la clé d'un octet <code>0x2A</code> (0010 1010 en binaire). Chaque caractère ASCII de la commande est converti en octet, puis XORé avec la clé. Rappels : la lettre « A » vaut <code>0x41</code> (0100 0001) et le XOR de deux bits vaut 1 exactement lorsque les deux bits diffèrent.</p><ol><li>Chiffrez la commande « A » (0x41) avec la clé 0x2A. Donnez l'octet chiffré en hexadécimal.</li><li>Chiffrez la commande « GO » (octets 0x47 et 0x4F). Donnez les deux octets chiffrés en hexadécimal, séparés par un espace.</li><li>Le drone reçoit l'octet 0x19. Quel octet clair obtient-on en appliquant la même clé 0x2A ? Donnez la valeur hexadécimale.</li><li>Quelle propriété du XOR autorise le chiffrement et le déchiffrement avec la même opération et la même clé ?</li><li>Quel risque majeur présente ce dispositif si la même clé d'un octet sert à chiffrer des messages longs ?</li></ol>",
+    "starter": "# Exercice — La liaison radio du drone de surveillance\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : la valeur hexadécimale (avec ou sans préfixe 0x). Questions 4 et 5 : quelques mots.\n\n[Question 1 — Octet chiffré de la commande A]\nA_COMPLETER\n\n[Question 2 — Octets chiffrés de la commande GO]\nA_COMPLETER\n\n[Question 3 — Octet clair correspondant à 0x19]\nA_COMPLETER\n\n[Question 4 — Propriété du XOR qui permet de déchiffrer avec la même clé]\nA_COMPLETER\n\n[Question 5 — Risque d'une clé d'un octet sur de longs messages]\nA_COMPLETER\n",
     "hints": [
-      "Générez 8 bits par octet en décalant bit_val = (bit_val << 1) | bit pour former chaque octet de clé.",
-      "Le chiffrement et le déchiffrement de flux utilisent la même opération bit à bit XOR : p ^ k et c ^ k."
+      "Posez les octets en binaire et appliquez le XOR bit à bit : 1 si les deux bits diffèrent, 0 sinon.",
+      "Chiffrer puis déchiffrer revient au même calcul : (m XOR k) XOR k = m, car chaque bit subit deux fois la même transformation.",
+      "1. 0100 0001 XOR 0010 1010. 2. Traitez 0x47 puis 0x4F de la même façon. 3. 0001 1001 XOR 0010 1010. 4. Que retrouve-t-on quand on XOR deux fois par la même valeur ? 5. Avec une clé d'un octet, chaque octet du message subit le même masque."
     ],
     "examples": [
       {
-        "stdin": "LFSR ENC seed=1011 taps=0,3 text=CRYPTO",
-        "expected": "HEX: 9515F5DF0D51",
-        "note": "Génération de 6 octets de flux à partir de la seed 1011 et XOR avec CRYPTO."
+        "stdin": "La balise météo du club alpin chiffre ses relevés par XOR avec la clé 0x1F (0001 1111).\n1) Lettre « H » (0x48) : 0100 1000 XOR 0001 1111 = 0101 0111 : 0x57.\n2) Message « OK » (0x4F, 0x4B) : 0101 0000 et 0101 0100 : 0x50 0x54.\n3) Octet reçu 0x4D : 0100 1101 XOR 0001 1111 = 0101 0010 : 0x52, la lettre R.\n4) Le XOR est involutif : (m XOR k) XOR k = m.\n5) Une clé plus courte que le message se répète : risque de réutilisation (attaque à texte clair connu).",
+        "expected": "0x57 — 0x50 0x54 — 0x52 (R) — involutif — clé répétée",
+        "note": "Le XOR bit à bit se vérifie en binaire : chaque bit du résultat dépend uniquement des deux bits de même rang."
       }
     ],
     "tests": [
       {
-        "label": "Déchiffrement de flux LFSR symétrique",
-        "stdin": "cas:1",
-        "expected": "PLAIN: CRYPTO"
+        "label": "Question 1 — Octet chiffré de la commande A",
+        "stdin": "q:1",
+        "expected": "6B||0x6B||6b||0x6b"
       },
       {
-        "label": "Chiffrement de flux avec seed 5 bits",
-        "stdin": "cas:2",
-        "expected": "HEX: C907F84D71D129752C53"
+        "label": "Question 2 — Octets chiffrés de la commande GO",
+        "stdin": "q:2",
+        "expected": "6D 65||0x6D 0x65||6d 65"
       },
       {
-        "label": "Déchiffrement de flux seed 5 bits",
-        "stdin": "cas:3",
-        "expected": "PLAIN: SECRET_KEY"
+        "label": "Question 3 — Octet clair correspondant à 0x19",
+        "stdin": "q:3",
+        "expected": "33||0x33"
+      },
+      {
+        "label": "Question 4 — Propriété du XOR qui permet de déchiffrer avec la même clé",
+        "stdin": "q:4",
+        "expected": "involutif||le xor est involutif||involution||la propriété d'involution"
+      },
+      {
+        "label": "Question 5 — Risque d'une clé d'un octet sur de longs messages",
+        "stdin": "q:5",
+        "expected": "la clé se répète||réutilisation de la clé||la réutilisation de la clé||clé répétée||two-time pad"
       }
     ],
-    "solution": "[Exemple]\nHEX: 9515F5DF0D51\n\n[Cas 1 — Déchiffrement de flux LFSR symétrique]\nPLAIN: CRYPTO\n\n[Cas 2 — Chiffrement de flux avec seed 5 bits]\nHEX: C907F84D71D129752C53\n\n[Cas 3 — Déchiffrement de flux seed 5 bits]\nPLAIN: SECRET_KEY"
+    "solution": "[Question 1 — Octet chiffré de la commande A]\n6B\n\n[Question 2 — Octets chiffrés de la commande GO]\n6D 65\n\n[Question 3 — Octet clair correspondant à 0x19]\n33\n\n[Question 4 — Propriété du XOR qui permet de déchiffrer avec la même clé]\ninvolutif\n\n[Question 5 — Risque d'une clé d'un octet sur de longs messages]\nla clé se répète",
+    "takeaway": "1) 0x41 = 0100 0001 ; 0x2A = 0010 1010 ; XOR = 0110 1011 = 0x6B.\n2) 0x47 = 0100 0111 ; XOR 0x2A = 0110 1101 = 0x6D. 0x4F = 0100 1111 ; XOR 0x2A = 0110 0101 = 0x65. Chiffré : 6D 65.\n3) 0x19 = 0001 1001 ; XOR 0x2A = 0011 0011 = 0x33.\n4) Le XOR est involutif : (m XOR k) XOR k = m, donc la même opération et la même clé chiffrent et déchiffrent.\n5) Avec une clé d'un octet, chaque octet du message subit le même masque : la clé se répète en permanence, et un attaquant qui connaît un seul octet clair retrouve la clé et déchiffre tout (il n'existe d'ailleurs que 256 clés possibles).\nContrôle : 0x6B XOR 0x2A = 0x41 (la lettre A) et 0x33 XOR 0x2A = 0x19 : les déchiffrements retombent exactement sur les valeurs de départ."
   },
   {
     "id": "cr3-c2-e2",
     "chapter": 2,
-    "title": "Validateur et Applicateur de Bourrage PKCS#7 (Padding & Unpadding)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Implémenter le bourrage et débourrage PKCS#7 selon la RFC 5652 avec détection des blocs corrompus ou mal alignés.",
-    "brief": "<p>La norme PKCS#7 (RFC 5652) complète un message pour que sa taille en octets soit un multiple exact du bloc <code>B</code>.<br>\n- Nombre d'octets ajoutés : <code>p = B - (len(M) mod B)</code> (si multiple exact, <code>p = B</code>).<br>\n- Chaque octet de padding a pour valeur <code>p</code>.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>PAD block_size=&lt;B&gt; text=&lt;texte&gt;</code> :<br>\n   <code>PADDED: len=&lt;L&gt; pad=&lt;p&gt; hex=&lt;hex&gt;</code><br>\n2. <code>UNPAD block_size=&lt;B&gt; hex=&lt;hex&gt;</code> :<br>\n   - Si taille non multiple de B : <code>ERROR: INVALID_BLOCK_ALIGNMENT</code><br>\n   - Si les p derniers octets ne valent pas tous p : <code>ERROR: INVALID_PADDING</code><br>\n   - Sinon : <code>UNPADDED: len=&lt;L&gt; text=&lt;texte&gt;</code></p>",
-    "starter": "# Grille d'analyse (cr3-c2-e2) — Validateur et Applicateur de Bourrage PKCS#7 (Padding & Unpadding)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Débourrage PKCS#7 valide]\n# Données : UNPAD block_size=16 hex=434F4E464944454E5449414C04040404\nA_COMPLETER\n\n[Cas 2 — Bourrage bloc complet quand longueur multiple de B]\n# Données : PAD block_size=16 text=EXACT16BYTESMSG!\nA_COMPLETER\n\n[Cas 3 — Rejet octet de bourrage corrompu]\n# Données : UNPAD block_size=16 hex=434F4E464944454E5449414C04040405\nA_COMPLETER\n\n[Cas 4 — Rejet bloc non aligné sur la taille de bloc]\n# Données : UNPAD block_size=16 hex=434F4E4649\nA_COMPLETER\n",
+    "title": "Le choix d'AES ou de RSA à la banque NordFinance",
+    "exampleTitle": "Exemple résolu — le stockage chiffré de la chaîne télé",
+    "goal": "Choisir entre un algorithme symétrique et un algorithme asymétrique selon l'usage, et calculer le nombre de blocs et le bourrage d'un chiffrement par bloc.",
+    "brief": "<p><strong>Énoncé.</strong> La banque NordFinance doit déployer deux mécanismes : le <strong>chiffrement de ses archives quotidiennes</strong> (fichiers volumineux) et la <strong>distribution des clés de session</strong> aux clients de sa plateforme en ligne. Le service sécurité compare les deux candidats :</p><table><tr><th>Critère</th><th>AES-256 (symétrique)</th><th>RSA-2048 (asymétrique)</th></tr><tr><th>Type de clé</th><td>une clé partagée secrète</td><td>paire clé publique / clé privée</td></tr><tr><th>Taille de clé usuelle</th><td>256 bits</td><td>2048 bits</td></tr><tr><th>Grain de traitement</th><td>blocs de 16 octets</td><td>blocs de moins de 256 octets</td></tr><tr><th>Vitesse</th><td>très rapide, accéléré par le matériel</td><td>environ mille fois plus lent</td></tr><tr><th>Usage principal</th><td>confidentialité de gros volumes</td><td>échange de clés, signature</td></tr></table><p>Le fichier d'archives du jour pèse exactement <strong>64 Ko, soit 65 536 octets</strong>, multiple exact de la taille de bloc d'AES.</p><ol><li>Quel algorithme la banque doit-elle retenir pour chiffrer ses archives quotidiennes ?</li><li>Quel algorithme doit-elle retenir pour distribuer la clé de session à chaque client ?</li><li>Combien de blocs de 16 octets l'algorithme retenu devra-t-il traiter pour ce fichier de 65 536 octets ?</li><li>Pourquoi l'autre algorithme est-il écarté pour le chiffrement des archives ? Répondez en quelques mots.</li><li>Le fichier étant un multiple exact de 16 octets, combien d'octets de bourrage PKCS#7 le chiffrement par blocs ajouterait-il ?</li></ol>",
+    "starter": "# Exercice — Le choix d'AES ou de RSA à la banque NordFinance\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : le nom de l'algorithme. Question 3 : le nombre. Questions 4 et 5 : quelques mots ou le nombre.\n\n[Question 1 — Algorithme pour chiffrer les archives]\nA_COMPLETER\n\n[Question 2 — Algorithme pour distribuer les clés de session]\nA_COMPLETER\n\n[Question 3 — Nombre de blocs de 16 octets pour 65 536 octets]\nA_COMPLETER\n\n[Question 4 — Raison d'écarter l'autre algorithme pour les archives]\nA_COMPLETER\n\n[Question 5 — Octets de bourrage PKCS#7 pour un multiple exact de 16]\nA_COMPLETER\n",
     "hints": [
-      "Le bourrage PKCS#7 complète un bloc de taille B en ajoutant P octets valant chacun la valeur numérique P.",
-      "Pour valider le débourrage, vérifiez que tous les P derniers octets correspondent bien à la valeur P."
+      "Le chiffrement symétrique est rapide mais suppose que les deux parties partagent déjà la même clé ; l'asymétrique résout la distribution de clé, pas la vitesse.",
+      "Nombre de blocs = taille du fichier divisée par la taille d'un bloc.",
+      "1. Gros volumes : vitesse et accélération matérielle. 2. Distribution : aucun canal préalable partagé. 3. 65 536 / 16. 4. Comparez les vitesses du tableau. 5. PKCS#7 ajoute un bloc complet de bourrage quand le message est déjà aligné."
     ],
     "examples": [
       {
-        "stdin": "PAD block_size=16 text=CONFIDENTIAL",
-        "expected": "PADDED: len=16 pad=4 hex=434F4E464944454E5449414C04040404",
-        "note": "Texte de 12 octets bourré avec 4 octets 0x04 pour atteindre 16 octets."
+        "stdin": "Une chaîne télé chiffre ses rushes du jour : fichier de 32 Ko (32 768 octets), multiple exact de 16.\n1) Pour les rushes : AES (symétrique, rapide).\n2) Pour envoyer la clé de session à ses correspondants : RSA.\n3) Nombre de blocs : 32 768 / 16 = 2 048.\n4) RSA est écarté pour les volumes : environ mille fois plus lent.\n5) Fichier aligné : PKCS#7 ajoute un bloc complet, soit 16 octets.",
+        "expected": "AES — RSA — 2 048 blocs — trop lent — 16 octets de bourrage",
+        "note": "Symétrique pour les volumes, asymétrique pour la distribution : c'est le partage du travail des protocoles réels comme TLS."
       }
     ],
     "tests": [
       {
-        "label": "Débourrage PKCS#7 valide",
-        "stdin": "cas:1",
-        "expected": "UNPADDED: len=12 text=CONFIDENTIAL"
+        "label": "Question 1 — Algorithme pour chiffrer les archives",
+        "stdin": "q:1",
+        "expected": "AES-256||AES 256||AES||aes-256||aes 256||le symétrique AES"
       },
       {
-        "label": "Bourrage bloc complet quand longueur multiple de B",
-        "stdin": "cas:2",
-        "expected": "PADDED: len=32 pad=16 hex=4558414354313642595445534D53472110101010101010101010101010101010"
+        "label": "Question 2 — Algorithme pour distribuer les clés de session",
+        "stdin": "q:2",
+        "expected": "RSA-2048||RSA 2048||RSA||rsa-2048||rsa 2048||l'asymétrique RSA"
       },
       {
-        "label": "Rejet octet de bourrage corrompu",
-        "stdin": "cas:3",
-        "expected": "ERROR: INVALID_PADDING"
+        "label": "Question 3 — Nombre de blocs de 16 octets pour 65 536 octets",
+        "stdin": "q:3",
+        "expected": "4096||4 096||4096 blocs"
       },
       {
-        "label": "Rejet bloc non aligné sur la taille de bloc",
-        "stdin": "cas:4",
-        "expected": "ERROR: INVALID_BLOCK_ALIGNMENT"
+        "label": "Question 4 — Raison d'écarter l'autre algorithme pour les archives",
+        "stdin": "q:4",
+        "expected": "trop lent||il est trop lent||environ mille fois plus lent||mille fois plus lent||lent||sa lenteur"
+      },
+      {
+        "label": "Question 5 — Octets de bourrage PKCS#7 pour un multiple exact de 16",
+        "stdin": "q:5",
+        "expected": "16||16 octets"
       }
     ],
-    "solution": "[Exemple]\nPADDED: len=16 pad=4 hex=434F4E464944454E5449414C04040404\n\n[Cas 1 — Débourrage PKCS#7 valide]\nUNPADDED: len=12 text=CONFIDENTIAL\n\n[Cas 2 — Bourrage bloc complet quand longueur multiple de B]\nPADDED: len=32 pad=16 hex=4558414354313642595445534D53472110101010101010101010101010101010\n\n[Cas 3 — Rejet octet de bourrage corrompu]\nERROR: INVALID_PADDING\n\n[Cas 4 — Rejet bloc non aligné sur la taille de bloc]\nERROR: INVALID_BLOCK_ALIGNMENT"
+    "solution": "[Question 1 — Algorithme pour chiffrer les archives]\nAES-256\n\n[Question 2 — Algorithme pour distribuer les clés de session]\nRSA-2048\n\n[Question 3 — Nombre de blocs de 16 octets pour 65 536 octets]\n4096\n\n[Question 4 — Raison d'écarter l'autre algorithme pour les archives]\ntrop lent\n\n[Question 5 — Octets de bourrage PKCS#7 pour un multiple exact de 16]\n16",
+    "takeaway": "1) Les archives quotidiennes sont volumineuses : AES-256, symétrique et accéléré par le matériel, s'impose.\n2) La distribution des clés de session profite de la paire publique/privée : RSA-2048.\n3) 65 536 / 16 = 4 096 blocs.\n4) RSA-2048 est environ mille fois plus lent qu'AES : chiffrer les archives avec lui serait impraticable.\n5) Un multiple exact de 16 reçoit un bloc complet de bourrage : 16 octets (valeur 0x10 répétée 16 fois).\nContrôle : 4 096 blocs de 16 octets = 65 536 octets, et avec le bourrage le chiffré ferait 65 552 octets (4 097 blocs)."
   },
   {
     "id": "cr3-c2-e3",
     "chapter": 2,
-    "title": "Simulateur de Mode Opératoire CBC (Cipher Block Chaining)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler le chiffrement et déchiffrement en mode Cipher Block Chaining (CBC) avec vecteur d'initialisation IV et padding PKCS#7 sur des blocs de 4 octets.",
-    "brief": "<p>En mode CBC, chaque bloc clair est XORé avec le bloc chiffré précédent avant d'entrer dans la fonction de bloc :<br>\n<code>C_0 = E_K(P_0 ^ IV)</code>, puis <code>C_i = E_K(P_i ^ C_{i-1})</code>.<br>\nFonction de bloc pédagogique sur 4 octets :<br>\n<code>E_K([x0, x1, x2, x3]) = [(x1 ^ k0), (x2 ^ k1), (x3 ^ k2), (x0 ^ k3)]</code>.<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>CBC ENC key=&lt;key_hex&gt; iv=&lt;iv_hex&gt; text=&lt;texte&gt;</code> :<br>\n   <code>CBC_ENC: blocks=&lt;N&gt; hex=&lt;cipher_hex&gt;</code><br>\n2. <code>CBC DEC key=&lt;key_hex&gt; iv=&lt;iv_hex&gt; hex=&lt;cipher_hex&gt;</code> :<br>\n   <code>CBC_DEC: blocks=&lt;N&gt; text=&lt;plain_text&gt;</code></p>",
-    "starter": "# Grille d'analyse (cr3-c2-e3) — Simulateur de Mode Opératoire CBC (Cipher Block Chaining)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déchiffrement CBC et débourrage réussi]\n# Données : CBC DEC key=A1B2C3D4 iv=10203040 hex=D3DBD387353E0B539CBA93AA\nA_COMPLETER\n\n[Cas 2 — Chiffrement CBC avec message multiple exact de 4]\n# Données : CBC ENC key=FF00AA55 iv=01020304 text=TEST\nA_COMPLETER\n\n[Cas 3 — Déchiffrement CBC message multiple exact de 4]\n# Données : CBC DEC key=FF00AA55 iv=01020304 hex=B850FA00ABFEAEE9\nA_COMPLETER\n\n[Cas 4 — Rejet données non alignées sur 4 octets]\n# Données : CBC DEC key=A1B2C3D4 iv=10203040 hex=D3DB\nA_COMPLETER\n",
+    "title": "Le logo visible : audit des modes d'opération d'ArchivePlus",
+    "exampleTitle": "Exemple résolu — les radiographies du cabinet dentaire",
+    "goal": "Distinguer ECB, CBC et GCM, et appliquer le bourrage PKCS#7 à des fichiers de tailles variées.",
+    "brief": "<p><strong>Énoncé.</strong> La société ArchivePlus chiffre les documents de ses clients avec AES-128. Le stagiaire a chiffré le logo de l'entreprise (une grande image aux zones uniformes) en mode <strong>ECB</strong> : sur l'aperçu du fichier chiffré, on distingue encore vaguement le logo. L'entreprise chiffre aussi un <strong>fichier client de 100 octets</strong> et un <strong>fichier comptable de 96 octets</strong>, avec bourrage PKCS#7 et blocs de 16 octets.</p><ol><li>Pourquoi le logo reste-t-il reconnaissable dans le chiffré ECB ? Répondez en une phrase.</li><li>Quel mode chaîne chaque bloc clair avec le bloc chiffré précédent, à l'aide d'un vecteur d'initialisation ?</li><li>Quel mode fournit à la fois la confidentialité et l'authentification (chiffrement authentifié) ?</li><li>Combien d'octets de bourrage PKCS#7 ajoute le fichier client de 100 octets ?</li><li>Combien d'octets de bourrage ajoute le fichier comptable de 96 octets, multiple exact de 16 ?</li><li>Quelle sera la taille finale chiffrée du fichier comptable, bourrage compris ?</li></ol>",
+    "starter": "# Exercice — Le logo visible : audit des modes d'opération d'ArchivePlus\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : une phrase. Questions 2 et 3 : le nom du mode. Questions 4 à 6 : les nombres.\n\n[Question 1 — Pourquoi le logo reste visible en ECB]\nA_COMPLETER\n\n[Question 2 — Mode chaîné avec vecteur d'initialisation]\nA_COMPLETER\n\n[Question 3 — Mode de chiffrement authentifié]\nA_COMPLETER\n\n[Question 4 — Octets de bourrage pour 100 octets]\nA_COMPLETER\n\n[Question 5 — Octets de bourrage pour 96 octets]\nA_COMPLETER\n\n[Question 6 — Taille finale chiffrée du fichier de 96 octets]\nA_COMPLETER\n",
     "hints": [
-      "Implémentez block_enc et block_dec puis chaînez avec le bloc précédent prev initialized à iv.",
-      "En déchiffrement, souvenez-vous que P_i = D_K(C_i) ^ prev, et mettez à jour prev = C_i après."
+      "ECB chiffre chaque bloc indépendamment, sans aucune liaison avec les blocs voisins.",
+      "Le bourrage PKCS#7 ajoute p octets de valeur p, avec p = 16 − (taille mod 16) ; si la taille est déjà un multiple de 16, p = 16.",
+      "1. Deux blocs clairs identiques donnent deux blocs chiffrés identiques en ECB. 2. CBC : XOR avec le chiffré précédent, IV pour le premier bloc. 3. GCM ajoute un tag d'authentification. 4. 100 = 6 × 16 + 4. 5. 96 = 6 × 16 exactement. 6. Ajoutez le bourrage au message."
     ],
     "examples": [
       {
-        "stdin": "CBC ENC key=A1B2C3D4 iv=10203040 text=CRYPTO_OK",
-        "expected": "CBC_ENC: blocks=3 hex=D3DBD387353E0B539CBA93AA",
-        "note": "Texte de 9 octets bourré à 12 octets et chiffré en mode CBC."
+        "stdin": "Un cabinet dentaire chiffre ses radiographies numériques avec AES-128 et des blocs de 16 octets.\n1) Une zone uniforme donne des blocs clairs identiques : en ECB, les blocs chiffrés se répètent et la forme transparaît.\n2) Mode chaîné avec IV : CBC.\n3) Mode authentifié : GCM.\n4) Une radio de 50 octets : 50 = 3 × 16 + 2, donc p = 16 − 2 = 14 octets de bourrage.\n5) Un compte rendu de 80 octets (5 × 16) : p = 16.\n6) Taille finale : 80 + 16 = 96 octets.",
+        "expected": "blocs identiques — CBC — GCM — 14 octets — 16 octets — 96 octets",
+        "note": "ECB ne doit jamais protéger des données structurées : le chaînement (CBC) ou le chiffrement authentifié (GCM) s'imposent."
       }
     ],
     "tests": [
       {
-        "label": "Déchiffrement CBC et débourrage réussi",
-        "stdin": "cas:1",
-        "expected": "CBC_DEC: blocks=3 text=CRYPTO_OK"
+        "label": "Question 1 — Pourquoi le logo reste visible en ECB",
+        "stdin": "q:1",
+        "expected": "des blocs identiques donnent des blocs chiffrés identiques||blocs identiques, chiffrés identiques||deux blocs clairs identiques donnent le même chiffré||les blocs identiques restent identiques||chaque bloc est chiffré indépendamment"
       },
       {
-        "label": "Chiffrement CBC avec message multiple exact de 4",
-        "stdin": "cas:2",
-        "expected": "CBC_ENC: blocks=2 hex=B850FA00ABFEAEE9"
+        "label": "Question 2 — Mode chaîné avec vecteur d'initialisation",
+        "stdin": "q:2",
+        "expected": "CBC||cbc||le mode CBC"
       },
       {
-        "label": "Déchiffrement CBC message multiple exact de 4",
-        "stdin": "cas:3",
-        "expected": "CBC_DEC: blocks=2 text=TEST"
+        "label": "Question 3 — Mode de chiffrement authentifié",
+        "stdin": "q:3",
+        "expected": "GCM||gcm||le mode GCM"
       },
       {
-        "label": "Rejet données non alignées sur 4 octets",
-        "stdin": "cas:4",
-        "expected": "ERROR: INVALID_BLOCK_ALIGNMENT"
+        "label": "Question 4 — Octets de bourrage pour 100 octets",
+        "stdin": "q:4",
+        "expected": "12||12 octets"
+      },
+      {
+        "label": "Question 5 — Octets de bourrage pour 96 octets",
+        "stdin": "q:5",
+        "expected": "16||16 octets"
+      },
+      {
+        "label": "Question 6 — Taille finale chiffrée du fichier de 96 octets",
+        "stdin": "q:6",
+        "expected": "112||112 octets"
       }
     ],
-    "solution": "[Exemple]\nCBC_ENC: blocks=3 hex=D3DBD387353E0B539CBA93AA\n\n[Cas 1 — Déchiffrement CBC et débourrage réussi]\nCBC_DEC: blocks=3 text=CRYPTO_OK\n\n[Cas 2 — Chiffrement CBC avec message multiple exact de 4]\nCBC_ENC: blocks=2 hex=B850FA00ABFEAEE9\n\n[Cas 3 — Déchiffrement CBC message multiple exact de 4]\nCBC_DEC: blocks=2 text=TEST\n\n[Cas 4 — Rejet données non alignées sur 4 octets]\nERROR: INVALID_BLOCK_ALIGNMENT"
+    "solution": "[Question 1 — Pourquoi le logo reste visible en ECB]\ndes blocs identiques donnent des blocs chiffrés identiques\n\n[Question 2 — Mode chaîné avec vecteur d'initialisation]\nCBC\n\n[Question 3 — Mode de chiffrement authentifié]\nGCM\n\n[Question 4 — Octets de bourrage pour 100 octets]\n12\n\n[Question 5 — Octets de bourrage pour 96 octets]\n16\n\n[Question 6 — Taille finale chiffrée du fichier de 96 octets]\n112",
+    "takeaway": "1) ECB chiffre chaque bloc indépendamment : les zones uniformes du logo produisent des blocs clairs identiques, donc des blocs chiffrés identiques, et la forme transparaît.\n2) CBC (Cipher Block Chaining) : chaque bloc clair est XORé avec le bloc chiffré précédent, le premier avec l'IV.\n3) GCM : chiffrement authentifié, confidentialité et tag d'intégrité.\n4) 100 = 6 × 16 + 4 : il manque 4 octets pour compléter le bloc, donc p = 16 − 4 = 12 octets de bourrage.\n5) 96 = 6 × 16 : multiple exact, donc p = 16 (un bloc complet de bourrage).\n6) Taille finale : 96 + 16 = 112 octets, soit 7 blocs.\nContrôle : 100 + 12 = 112 octets pour le fichier client également — les deux fichiers chiffrés font la même taille après bourrage."
   }
 ];

@@ -94,14 +94,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que permet la virtualisation ?', opts: ['Exécuter plusieurs VM sur un serveur', 'Compresser des fichiers', 'Chiffrer le réseau'], correct: 0, exp: 'Plusieurs machines virtuelles sur un seul matériel.' },
-    { stem: 'Un hyperviseur de type 1 s’installe…', opts: ['Directement sur le matériel', 'Sur un OS existant', 'Dans une VM'], correct: 0, exp: 'C’est un hyperviseur bare-metal.' },
+    { stem: 'Que permet la virtualisation ?', opts: ['Chiffrer le réseau', 'Compresser des fichiers', 'Exécuter plusieurs VM sur un serveur'], correct: 2, exp: 'Plusieurs machines virtuelles sur un seul matériel.' },
+    { stem: 'Un hyperviseur de type 1 s’installe…', opts: ['Sur un OS existant', 'Directement sur le matériel', 'Dans une VM'], correct: 1, exp: "L’hyperviseur de type 1 s’installe directement sur le matériel, sans OS intermédiaire : c’est le bare-metal. Sur un OS existant, ce serait un type 2." },
     { stem: 'Exemple de type 2 ?', opts: ['VirtualBox', 'ESXi', 'Proxmox VE'], correct: 0, exp: 'Les hyperviseurs hébergés s’installent sur un OS.' },
-    { stem: 'Quel type pour la production ?', opts: ['Type 1', 'Type 2', 'Aucun des deux'], correct: 0, exp: 'Le bare-metal vise la production.' },
-    { stem: 'Que désigne le « host » ?', opts: ['Le serveur physique', 'L’OS de la VM', 'Le disque virtuel'], correct: 0, exp: 'Le host héberge les invités (guests).' },
+    { stem: 'Quel type pour la production ?', opts: ['Type 2', 'Type 1', 'Aucun des deux'], correct: 1, exp: "Le type 1, bare-metal, vise la production : sans OS hôte, la couche est plus légère. Le type 2 reste un outil de poste de travail." },
+    { stem: 'Que désigne le « host » ?', opts: ['Le disque virtuel', 'L’OS de la VM', 'Le serveur physique'], correct: 2, exp: "Le host est le serveur physique qui héberge les invités (guests). L’OS de la VM, c’est le guest ; le disque virtuel n’est qu’un fichier." },
     { stem: 'Que désigne le « guest » ?', opts: ['L’OS installé dans la VM', 'Le serveur physique', 'Le switch virtuel'], correct: 0, exp: 'L’invité s’exécute dans la machine virtuelle.' },
-    { stem: 'Que fait la consolidation ?', opts: ['Regrouper plusieurs serveurs sur un seul', 'Supprimer des VM', 'Chiffrer les sauvegardes'], correct: 0, exp: 'Moins de machines physiques, plus de VM.' },
-    { stem: 'Quel est un type de virtualisation ?', opts: ['Stockage', 'Compilation', 'Impression'], correct: 0, exp: 'Serveur, poste, stockage et réseau.' }
+    { stem: 'Que fait la consolidation ?', opts: ["Regrouper plusieurs serveurs sur un seul","Supprimer des VM inutiles à chaud","Chiffrer les sauvegardes de la ferme"], correct: 0, exp: "La consolidation regroupe plusieurs serveurs sur une même machine : moins de serveurs physiques, plus de VM. Il ne s’agit ni de suppression ni de chiffrement." },
+    { stem: 'Quel est un type de virtualisation ?', opts: ['Compilation', 'Stockage', 'Impression'], correct: 1, exp: "La virtualisation porte sur les serveurs, les postes, le stockage et le réseau. Compilation et impression sont des opérations, pas des ressources virtualisables." }
   ],
 
   pitfalls: [

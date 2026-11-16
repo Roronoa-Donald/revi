@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -203,10 +201,13 @@ SELECT * FROM hierarchie ORDER BY niveau, id;</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>4. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="sql3-c4-e1" data-lab
      data-exercise="sql3-c4-e1"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);&#10;-- exemple">
@@ -216,13 +217,11 @@ SELECT mois, ca FROM chiffre_affaires;</script>
     <h3 class="lab__title">Exercice 1 — Comparaison temporelle ligne à ligne avec LAG() OVER</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Utiliser la fonction de fenêtrage LAG() pour calculer l’écart avec la période précédente.</p>
-    <p class="lab__note" id="sql3-c4-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>chiffre_affaires(mois INT, ca INT)</code>, affichez <code>mois</code>, <code>ca</code>, le CA du mois précédent (<code>LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent</code>) et la variation (<code>ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation</code>), triés par <code>mois</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE chiffre_affaires (mois INT, ca INT); INSERT INTO chiffre_affaires VALUES (1, 100000), (2, 130000), (3, 115000);
@@ -238,10 +237,11 @@ SELECT mois, ca FROM chiffre_affaires;</script>
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>LAG(ca, 1, 0) renvoie la valeur de ca 1 ligne plus haut, ou 0 sur la toute première ligne.</li>
         <li>Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation.</li>
+        <li>1. Ordonner les lignes par mois croissant. 2. Récupérer le CA de la ligne précédente, 0 par défaut. 3. Soustraire pour obtenir la variation.</li>
       </ol>
     </details>
   </div>
@@ -249,7 +249,6 @@ SELECT mois, ca FROM chiffre_affaires;</script>
 
 <div class="lab" id="sql3-c4-e2" data-lab
      data-exercise="sql3-c4-e2"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);&#10;-- exemple">
@@ -259,13 +258,11 @@ SELECT departement, nom, salaire FROM employes;</script>
     <h3 class="lab__title">Exercice 2 — Top-N par département avec DENSE_RANK() dans une CTE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Extraire les 2 meilleurs salaires de chaque département sans trou de classement.</p>
-    <p class="lab__note" id="sql3-c4-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans la table <code>employes(nom, departement, salaire)</code>, utilisez une CTE calculant <code>DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang</code> pour afficher <code>departement</code>, <code>nom</code>, <code>salaire</code> et <code>rang</code> uniquement pour les employés classés aux rangs <code>1</code> ou <code>2</code> (<code>WHERE rang &lt;= 2</code>), triés par <code>departement</code> croissant, <code>rang</code> croissant et <code>nom</code> croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE employes (nom TEXT, departement TEXT, salaire INT); INSERT INTO employes VALUES ('Amina', 'IT', 500000), ('Koffi', 'IT', 400000), ('Yao', 'IT', 300000), ('Sena', 'RH', 450000);
@@ -281,10 +278,11 @@ SELECT departement, nom, salaire FROM employes;</script>
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Une fonction de fenêtrage ne peut pas figurer directement dans WHERE : calculez-la dans une CTE WITH classement AS (...).</li>
         <li>Filtrez ensuite avec WHERE rang &lt;= 2.</li>
+        <li>1. Calculer le rang dense par département et salaire décroissant dans une CTE. 2. Filtrer la CTE sur les rangs 1 et 2. 3. Trier par département, rang puis nom.</li>
       </ol>
     </details>
   </div>
@@ -292,7 +290,6 @@ SELECT departement, nom, salaire FROM employes;</script>
 
 <div class="lab" id="sql3-c4-e3" data-lab
      data-exercise="sql3-c4-e3"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);&#10;-- exemple">
@@ -302,13 +299,11 @@ SELECT id, nom FROM organigramme;</script>
     <h3 class="lab__title">Exercice 3 — Parcours d’arbre hiérarchique avec WITH RECURSIVE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire une CTE récursive pour calculer la profondeur hiérarchique d’un organigramme.</p>
-    <p class="lab__note" id="sql3-c4-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans cet atelier SQLite, la table <code>organigramme(id INT, nom TEXT, manager_id INT)</code> représente une hiérarchie dont les racines ont <code>manager_id IS NULL</code>. Les identifiants sont uniques et les liens forment une forêt sans cycle. Écrivez une requête <code>WITH RECURSIVE hierarchie AS (...)</code> qui calcule pour chaque employé son <code>id</code>, son <code>nom</code> et son niveau hiérarchique <code>niveau</code> (<code>1</code> pour une racine, puis <code>h.niveau + 1</code> pour chaque subordonné), triée par <code>niveau</code> croissant puis <code>id</code> croissant. Si ces hypothèses ne sont pas garanties, une garde anti-cycle est nécessaire : UNION seul ne suffit pas lorsque le niveau change.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CREATE TABLE organigramme (id INT, nom TEXT, manager_id INT); INSERT INTO organigramme VALUES (1, 'DG', NULL), (2, 'DSI', 1), (3, 'Admin Réseau', 2);
@@ -324,10 +319,11 @@ SELECT id, nom FROM organigramme;</script>
     </div>
     <p class="lab__note">Résultat de la requête SQL sur la base d’exemple.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.</li>
         <li>Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1.</li>
+        <li>1. Ancrage : sélectionner les racines (manager NULL) au niveau 1. 2. Joindre les employés sur leur manager en incrémentant le niveau. 3. Trier par niveau puis identifiant.</li>
       </ol>
     </details>
   </div>
@@ -341,8 +337,8 @@ SELECT id, nom FROM organigramme;</script>
       <p class="q__stem">Quelle fonction de classement attribue la suite (1, 2, 2, 3) pour quatre éléments dont le 2e et le 3e sont ex-æquo ?</p>
       <div class="opts">
         <button class="opt">ROW_NUMBER()</button>
-        <button class="opt">RANK()</button>
         <button class="opt" data-correct="1">DENSE_RANK()</button>
+        <button class="opt">RANK()</button>
         <button class="opt">NTILE(4)</button>
       </div>
       <div class="q__exp">DENSE_RANK() attribue le même rang aux éléments ex-æquo sans sauter de valeur dans la suite des entiers consécutifs.</div>
@@ -350,8 +346,8 @@ SELECT id, nom FROM organigramme;</script>
     <div class="q">
       <p class="q__stem">Que produit la requête SELECT SUM(montant) OVER (ORDER BY date_vente) FROM ventes ?</p>
       <div class="opts">
-        <button class="opt">La somme totale globale répétée sur chaque ligne</button>
         <button class="opt" data-correct="1">Une somme cumulative progressive au fur et à mesure des dates</button>
+        <button class="opt">La somme totale globale répétée sur chaque ligne</button>
         <button class="opt">Une erreur de syntaxe car PARTITION BY est obligatoire</button>
         <button class="opt">La moyenne arithmétique des ventes</button>
       </div>
@@ -360,28 +356,28 @@ SELECT id, nom FROM organigramme;</script>
     <div class="q">
       <p class="q__stem">Quelle clause permet de calculer une moyenne glissante sur la ligne courante et les 2 lignes physiques précédentes ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</button>
+        <button class="opt">PARTITION BY 2 ROWS</button>
         <button class="opt">RANGE BETWEEN 2 PRECEDING AND CURRENT ROW</button>
         <button class="opt">ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING</button>
-        <button class="opt">PARTITION BY 2 ROWS</button>
+        <button class="opt" data-correct="1">ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</button>
       </div>
       <div class="q__exp">ROWS BETWEEN 2 PRECEDING AND CURRENT ROW sélectionne exactement les 2 tuples physiques précédents et le tuple courant.</div>
     </div>
     <div class="q">
       <p class="q__stem">À quoi sert le troisième paramètre de la fonction LAG(colonne, décalage, valeur_defaut) ?</p>
       <div class="opts">
-        <button class="opt">À spécifier le nom de la partition</button>
+        <button class="opt">À spécifier le nom de la partition de fenêtrage concernée par la fonction</button>
+        <button class="opt">À définir le pas d’incrémentation appliqué entre chaque valeur successives</button>
         <button class="opt" data-correct="1">À fournir une valeur de substitution si la ligne précédente n’existe pas (à la place de NULL)</button>
-        <button class="opt">À définir le pas d’incrémentation</button>
-        <button class="opt">À indiquer le type de données de sortie</button>
+        <button class="opt">À indiquer explicitement le type de données attendu en sortie de la fonction</button>
       </div>
       <div class="q__exp">Le troisième paramètre de LAG permet de remplacer la valeur NULL retournée pour la toute première ligne de la partition.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une CTE WITH RECURSIVE, quel opérateur relie l’ancre au terme récursif en conservant les doublons ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">UNION ALL</button>
         <button class="opt">INTERSECT</button>
+        <button class="opt" data-correct="1">UNION ALL</button>
         <button class="opt">CROSS JOIN</button>
         <button class="opt">MERGE</button>
       </div>
@@ -390,30 +386,30 @@ SELECT id, nom FROM organigramme;</script>
     <div class="q">
       <p class="q__stem">Dans PostgreSQL, comment éviter qu’une requête WITH RECURSIVE contenant une colonne niveau qui augmente ne boucle sur un cycle ?</p>
       <div class="opts">
-        <button class="opt">En désactivant le cache PostgreSQL</button>
         <button class="opt" data-correct="1">En traçant les identifiants visités dans un tableau et en vérifiant WHERE NOT (id = ANY(chemin))</button>
-        <button class="opt">En remplaçant UNION ALL par UNION, qui suffit toujours</button>
-        <button class="opt">En augmentant la variable work_mem</button>
+        <button class="opt">En désactivant complètement le cache mémoire partagé du serveur PostgreSQL</button>
+        <button class="opt">En remplaçant simplement UNION ALL par UNION, ce qui suffirait toujours à casser les cycles</button>
+        <button class="opt">En augmentant fortement la valeur de la variable de configuration work_mem</button>
       </div>
       <div class="q__exp">Dans PostgreSQL, le tableau ARRAY permet d’exclure les identifiants déjà visités. UNION élimine les doublons sur toutes les colonnes : il peut arrêter un cycle si la ligne entière se répète, mais pas si le niveau augmente à chaque passage.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre une fonction d’agrégation ordinaire et une fonction de fenêtrage ?</p>
       <div class="opts">
-        <button class="opt">La fonction de fenêtrage ne peut s’exécuter que la nuit</button>
+        <button class="opt">La fonction de fenêtrage ne peut s’exécuter que pendant les plages horaires nocturnes</button>
+        <button class="opt">La fonction de fenêtrage ne fonctionne que sur des colonnes de type chaîne de caractères</button>
         <button class="opt" data-correct="1">La fonction d’agrégation compresse les lignes en une seule, la fonction de fenêtrage conserve chaque ligne</button>
-        <button class="opt">La fonction de fenêtrage ne fonctionne que sur des chaînes de caractères</button>
-        <button class="opt">Aucune différence, ce sont de purs synonymes</button>
+        <button class="opt">Aucune différence réelle, ces deux termes étant de parfaits synonymes interchangeables</button>
       </div>
       <div class="q__exp">Une fonction de fenêtrage calcule une valeur pour chaque ligne sans réduire le nombre total de lignes renvoyées par la requête.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que renvoie la fonction NTILE(4) appliquée sur une partition de 100 lignes ?</p>
       <div class="opts">
-        <button class="opt">4 lignes au hasard</button>
+        <button class="opt">Un échantillon de quatre lignes tirées au hasard dans la partition</button>
+        <button class="opt">Le pourcentage d’avancement du parcours associé à chaque ligne</button>
+        <button class="opt">Le quotient de la division entière du rang par quatre</button>
         <button class="opt" data-correct="1">Un numéro de quartile (1, 2, 3 ou 4) affecté à chaque tranche de 25 lignes</button>
-        <button class="opt">Le pourcentage d’avancement de chaque ligne</button>
-        <button class="opt">Le quotient de la division entière par 4</button>
       </div>
       <div class="q__exp">NTILE(4) répartit les 100 lignes ordonnées en 4 tranches égales (quartiles) numérotées de 1 à 4.</div>
     </div>
@@ -539,7 +535,7 @@ SELECT id, nom FROM organigramme;</script>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

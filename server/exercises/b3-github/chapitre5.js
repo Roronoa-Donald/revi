@@ -7,12 +7,13 @@ module.exports = [
     "title": "Validateur de structure de workflow GitHub Actions",
     "level": "n1",
     "language": "shell",
-    "goal": "Analyser la spécification d’un pipeline GitHub Actions et valider la présence des blocs obligatoires.",
-    "brief": "<p>Un workflow GitHub Actions (fichier <code>.github/workflows/*.yml</code>) doit respecter une arborescence minimale :<br><br>\nCritères de conformité :<br>\n1. <code>name</code> : doit être renseigné (chaîne non vide).<br>\n2. Déclencheurs <code>on:</code> : au moins un événement déclencheur parmi <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code>, <code>schedule</code>.<br>\n3. <code>jobs</code> : au moins un job déclaré. Chaque job doit obligatoirement comporter :<br>\n   - Une cible d'exécution <code>runs-on</code> (ex: <code>ubuntu-latest</code>, <code>windows-latest</code>).<br>\n   - Au moins une étape <code>step</code> déclarée.<br><br>\nLe script Bash lit les données sur l’entrée standard (stdin)...&gt;</code><br>\n<code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>.<br><br>\nPour le workflow, afficher :<br>\n<code>WORKFLOW_AUDIT name=\"{nom}\" status={VALID | ERREUR} triggers_count={n} jobs_count={m}</code><br>\nErreurs possibles : <code>MISSING_NAME</code>, <code>MISSING_TRIGGERS</code>, <code>NO_JOBS</code>, <code>JOB_MISSING_RUNS_ON</code>, <code>JOB_ZERO_STEPS</code>.</p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c5-e1) — Validateur de structure de workflow GitHub Actions\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "goal": "Vérifier un profil pédagogique simplifié de workflow GitHub Actions représenté sous forme de lignes.",
+    "brief": "<p>Vérifiez un <strong>profil simplifié</strong> de workflow, et non un fichier YAML réel. Dans ce profil, le nom doit être non vide, au moins un déclencheur reconnu doit être présent et chaque job doit avoir un runner et au moins une étape. Ce ne sont pas des obligations universelles de GitHub Actions : le nom du workflow est facultatif, et un job peut appeler un workflow réutilisable avec une structure différente.<br><br>L'entrée contient <code>NAME=&lt;nom&gt;</code>, <code>TRIGGERS=&lt;événements séparés par des virgules&gt;</code> et zéro ou plusieurs lignes <code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>. Les événements sont distincts et sans espaces ; seuls <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code> et <code>schedule</code> sont reconnus par ce profil. Le nom peut contenir des espaces, mais pas de guillemet double ; les autres champs ne contiennent pas d'espaces. Les nombres sont des entiers de 0 à 2 147 483 647.<br><br>Vérifiez dans l'ordre le nom, les déclencheurs, l'existence de jobs, puis chaque job dans l'ordre d'entrée (runner avant étapes). Affichez <code>WORKFLOW_AUDIT name=\"{nom}\" status={VALID|MISSING_NAME|MISSING_TRIGGERS|NO_JOBS|JOB_MISSING_RUNS_ON|JOB_ZERO_STEPS} triggers_count={n} jobs_count={m}</code>. Comptez uniquement les déclencheurs reconnus et tous les jobs déclarés.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c5-e1) — Validateur de structure de workflow GitHub Actions\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Valider les prérequis dans l’ordre : name, triggers, jobs, puis les contraintes par job.",
-      "S’arrêter au premier défaut identifié."
+      "Vérifiez d’abord les conditions globales, puis les jobs dans l’ordre de déclaration.",
+      "Retournez uniquement le premier motif d’échec tout en comptant tous les jobs.",
+      "1. Compter les déclencheurs reconnus. 2. Compter les jobs et noter la première anomalie (runner NONE ou zéro étape). 3. Statut : nom manquant, puis déclencheurs, puis jobs, puis anomalie ; sinon VALID."
     ],
     "examples": [
       {
@@ -22,6 +23,21 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Nom vide prioritaire sur les autres erreurs",
+        "stdin": "NAME=\nTRIGGERS=\nJOB id=test runs_on=NONE steps_count=0",
+        "expected": "WORKFLOW_AUDIT name=\"\" status=MISSING_NAME triggers_count=0 jobs_count=1"
+      },
+      {
+        "label": "Aucun job avec un événement reconnu",
+        "stdin": "NAME=Minimum\nTRIGGERS=push",
+        "expected": "WORKFLOW_AUDIT name=\"Minimum\" status=NO_JOBS triggers_count=1 jobs_count=0"
+      },
+      {
+        "label": "Premier job sans étape avant un second sans runner",
+        "stdin": "NAME=Priorité\nTRIGGERS=push\nJOB id=a runs_on=linux steps_count=0\nJOB id=b runs_on=NONE steps_count=1",
+        "expected": "WORKFLOW_AUDIT name=\"Priorité\" status=JOB_ZERO_STEPS triggers_count=1 jobs_count=2"
+      },
       {
         "label": "Job sans runner runs_on spécifié",
         "stdin": "NAME=Test-Suite\nTRIGGERS=push\nJOB id=unit-tests runs_on=NONE steps_count=2",
@@ -38,7 +54,8 @@ module.exports = [
         "expected": "WORKFLOW_AUDIT name=\"Deploy-Prod\" status=JOB_ZERO_STEPS triggers_count=1 jobs_count=2"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c5-e1 : Validateur de structure de workflow GitHub Actions\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"TkFNRT1DSS1QaXBlbGluZQpUUklHR0VSUz1wdXNoLHB1bGxfcmVxdWVzdApKT0IgaWQ9YnVpbGQgcnVuc19vbj11YnVudHUtbGF0ZXN0IHN0ZXBzX2NvdW50PTM=\")\n    printf '%s\\n' \"V09SS0ZMT1dfQVVESVQgbmFtZT0iQ0ktUGlwZWxpbmUiIHN0YXR1cz1WQUxJRCB0cmlnZ2Vyc19jb3VudD0yIGpvYnNfY291bnQ9MQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"TkFNRT1UZXN0LVN1aXRlClRSSUdHRVJTPXB1c2gKSk9CIGlkPXVuaXQtdGVzdHMgcnVuc19vbj1OT05FIHN0ZXBzX2NvdW50PTI=\")\n    printf '%s\\n' \"V09SS0ZMT1dfQVVESVQgbmFtZT0iVGVzdC1TdWl0ZSIgc3RhdHVzPUpPQl9NSVNTSU5HX1JVTlNfT04gdHJpZ2dlcnNfY291bnQ9MSBqb2JzX2NvdW50PTE=\" | base64 -d\n    echo \"\"\n    ;;\n  \"TkFNRT1OaWdodGx5LVJlbGVhc2UKVFJJR0dFUlM9CkpPQiBpZD1yZWxlYXNlIHJ1bnNfb249dWJ1bnR1LWxhdGVzdCBzdGVwc19jb3VudD0x\")\n    printf '%s\\n' \"V09SS0ZMT1dfQVVESVQgbmFtZT0iTmlnaHRseS1SZWxlYXNlIiBzdGF0dXM9TUlTU0lOR19UUklHR0VSUyB0cmlnZ2Vyc19jb3VudD0wIGpvYnNfY291bnQ9MQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"TkFNRT1EZXBsb3ktUHJvZApUUklHR0VSUz13b3JrZmxvd19kaXNwYXRjaApKT0IgaWQ9bGludCBydW5zX29uPXVidW50dS1sYXRlc3Qgc3RlcHNfY291bnQ9MgpKT0IgaWQ9ZGVwbG95IHJ1bnNfb249dWJ1bnR1LWxhdGVzdCBzdGVwc19jb3VudD0w\")\n    printf '%s\\n' \"V09SS0ZMT1dfQVVESVQgbmFtZT0iRGVwbG95LVByb2QiIHN0YXR1cz1KT0JfWkVST19TVEVQUyB0cmlnZ2Vyc19jb3VudD0xIGpvYnNfY291bnQ9Mg==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nname=\ntriggers_count=0\njobs_count=0\njob_error=\njob_pattern='^JOB id=([^[:space:]]+) runs_on=([^[:space:]]+) steps_count=([0-9]+)$'\nwhile IFS= read -r line || [[ -n $line ]]; do\n  case $line in\n    NAME=*) name=${line#NAME=} ;;\n    TRIGGERS=*)\n      IFS=, read -r -a triggers <<< \"${line#TRIGGERS=}\"\n      triggers_count=0\n      for trigger in \"${triggers[@]}\"; do\n        case $trigger in\n          push|pull_request|workflow_dispatch|schedule) ((triggers_count += 1)) ;;\n        esac\n      done\n      ;;\n    JOB\\ *)\n      if [[ $line =~ $job_pattern ]]; then\n        runner=${BASH_REMATCH[2]}\n        steps=${BASH_REMATCH[3]}\n        ((jobs_count += 1))\n        if [[ -z $job_error ]]; then\n          if [[ $runner == NONE ]]; then\n            job_error=JOB_MISSING_RUNS_ON\n          elif ((10#$steps == 0)); then\n            job_error=JOB_ZERO_STEPS\n          fi\n        fi\n      fi\n      ;;\n  esac\ndone\nif [[ ! $name =~ [^[:space:]] ]]; then\n  status=MISSING_NAME\nelif ((triggers_count == 0)); then\n  status=MISSING_TRIGGERS\nelif ((jobs_count == 0)); then\n  status=NO_JOBS\nelif [[ -n $job_error ]]; then\n  status=$job_error\nelse\n  status=VALID\nfi\nprintf 'WORKFLOW_AUDIT name=\"%s\" status=%s triggers_count=%s jobs_count=%s\\n' \"$name\" \"$status\" \"$triggers_count\" \"$jobs_count\"\n",
+    "takeaway": "Un workflow GitHub Actions fiable déclare déclencheurs explicites, permissions minimales et enchaînement clair des jobs et étapes."
   },
   {
     "id": "gh3-c5-e2",
@@ -47,11 +64,12 @@ module.exports = [
     "level": "n2",
     "language": "shell",
     "goal": "Calculer le produit cartésien des axes d’une matrice de test GitHub Actions et gérer les exclusions.",
-    "brief": "<p>La directive <code>strategy: matrix</code> permet d'exécuter un job en parallèle sur de multiples combinaisons d'environnements (OS x Version de langage).<br><br>\nSpécification :<br>\n- Liste d'OS : <code>os=&lt;os1,os2...&gt;</code>.<br>\n- Liste de versions de runtime : <code>version=&lt;v1,v2...&gt;</code>.<br>\n- Exclusions optionnelles (<code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>).<br><br>\nLe script Bash lit les données sur l’entrée standard (stdin).<br><br>\nLe script doit calculer la liste des combinaisons valides (produit cartésien moins exclusions), triée par OS puis par version, et afficher :<br>\nChaque combinaison :<br>\n<code>JOB_INSTANCE os={os} version={v} tag=\"{os}-{v}\"</code><br>\nEt la ligne récapitulative :<br>\n<code>MATRIX_TOTAL instances={n} excluded={nb_exclus}</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c5-e2) — Générateur et évaluateur de matrice de build (strategy: matrix)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Simulez une matrice GitHub Actions avec deux axes. L'entrée commence par <code>MATRIX_DEF os=&lt;os1,os2,...&gt; version=&lt;v1,v2,...&gt;</code>, suivie de zéro ou plusieurs exclusions <code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>. Chaque valeur d'axe est distincte, non vide et composée de lettres, chiffres, points, tirets ou soulignés ; un axe peut être entièrement vide.<br><br>Parcourez les OS dans leur ordre de déclaration et, pour chacun, les versions dans leur ordre de déclaration ; ce n'est pas un tri alphabétique. Retirez chaque paire exclue, sans compter plusieurs fois une exclusion répétée et sans compter les exclusions hors matrice. Pour chaque paire restante, affichez <code>JOB_INSTANCE os={os} version={v} tag=\"{os}-{v}\"</code>, puis <code>MATRIX_TOTAL instances={n} excluded={nb_paires_retirées}</code>. Cet ordre de génération ne garantit pas l'ordre réel d'exécution des jobs parallèles.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c5-e2) — Générateur et évaluateur de matrice de build (strategy: matrix)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Générer toutes les paires (o, v) via deux boucles imbriquées.",
-      "Filtrer les paires présentes dans l’ensemble des exclusions."
+      "Parcourez les valeurs des deux axes avec deux boucles imbriquées, dans leur ordre d’entrée.",
+      "Stockez les exclusions comme ensemble de paires ; comptez uniquement les paires effectivement retirées.",
+      "1. Mémoriser les deux axes et les exclusions en paires. 2. Double boucle dans l’ordre de déclaration. 3. Paire exclue : compter l’exclusion ; sinon émettre une instance avec son tag. 4. Afficher instances et excluded."
     ],
     "examples": [
       {
@@ -61,6 +79,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Axe vide",
+        "stdin": "MATRIX_DEF os= version=1,2",
+        "expected": "MATRIX_TOTAL instances=0 excluded=0"
+      },
+      {
+        "label": "Ordre déclaré et exclusions répétées ou hors matrice",
+        "stdin": "MATRIX_DEF os=z,a version=2,1\nEXCLUDE os=z version=2\nEXCLUDE os=z version=2\nEXCLUDE os=autre version=7",
+        "expected": "JOB_INSTANCE os=z version=1 tag=\"z-1\"\nJOB_INSTANCE os=a version=2 tag=\"a-2\"\nJOB_INSTANCE os=a version=1 tag=\"a-1\"\nMATRIX_TOTAL instances=3 excluded=1"
+      },
       {
         "label": "Matrice 3x2 complète sans aucune exclusion",
         "stdin": "MATRIX_DEF os=ubuntu,windows,macos version=18,20",
@@ -77,7 +105,8 @@ module.exports = [
         "expected": "JOB_INSTANCE os=linux version=1.0 tag=\"linux-1.0\"\nMATRIX_TOTAL instances=1 excluded=1"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c5-e2 : Générateur et évaluateur de matrice de build (strategy: matrix)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"TUFUUklYX0RFRiBvcz11YnVudHUsbWFjb3MgdmVyc2lvbj0zLjExLDMuMTIKRVhDTFVERSBvcz1tYWNvcyB2ZXJzaW9uPTMuMTE=\")\n    printf '%s\\n' \"Sk9CX0lOU1RBTkNFIG9zPXVidW50dSB2ZXJzaW9uPTMuMTEgdGFnPSJ1YnVudHUtMy4xMSIKSk9CX0lOU1RBTkNFIG9zPXVidW50dSB2ZXJzaW9uPTMuMTIgdGFnPSJ1YnVudHUtMy4xMiIKSk9CX0lOU1RBTkNFIG9zPW1hY29zIHZlcnNpb249My4xMiB0YWc9Im1hY29zLTMuMTIiCk1BVFJJWF9UT1RBTCBpbnN0YW5jZXM9MyBleGNsdWRlZD0x\" | base64 -d\n    echo \"\"\n    ;;\n  \"TUFUUklYX0RFRiBvcz11YnVudHUsd2luZG93cyxtYWNvcyB2ZXJzaW9uPTE4LDIw\")\n    printf '%s\\n' \"Sk9CX0lOU1RBTkNFIG9zPXVidW50dSB2ZXJzaW9uPTE4IHRhZz0idWJ1bnR1LTE4IgpKT0JfSU5TVEFOQ0Ugb3M9dWJ1bnR1IHZlcnNpb249MjAgdGFnPSJ1YnVudHUtMjAiCkpPQl9JTlNUQU5DRSBvcz13aW5kb3dzIHZlcnNpb249MTggdGFnPSJ3aW5kb3dzLTE4IgpKT0JfSU5TVEFOQ0Ugb3M9d2luZG93cyB2ZXJzaW9uPTIwIHRhZz0id2luZG93cy0yMCIKSk9CX0lOU1RBTkNFIG9zPW1hY29zIHZlcnNpb249MTggdGFnPSJtYWNvcy0xOCIKSk9CX0lOU1RBTkNFIG9zPW1hY29zIHZlcnNpb249MjAgdGFnPSJtYWNvcy0yMCIKTUFUUklYX1RPVEFMIGluc3RhbmNlcz02IGV4Y2x1ZGVkPTA=\" | base64 -d\n    echo \"\"\n    ;;\n  \"TUFUUklYX0RFRiBvcz11YnVudHUsd2luZG93cyB2ZXJzaW9uPTEwLDExLDEyCkVYQ0xVREUgb3M9d2luZG93cyB2ZXJzaW9uPTEwCkVYQ0xVREUgb3M9d2luZG93cyB2ZXJzaW9uPTEx\")\n    printf '%s\\n' \"Sk9CX0lOU1RBTkNFIG9zPXVidW50dSB2ZXJzaW9uPTEwIHRhZz0idWJ1bnR1LTEwIgpKT0JfSU5TVEFOQ0Ugb3M9dWJ1bnR1IHZlcnNpb249MTEgdGFnPSJ1YnVudHUtMTEiCkpPQl9JTlNUQU5DRSBvcz11YnVudHUgdmVyc2lvbj0xMiB0YWc9InVidW50dS0xMiIKSk9CX0lOU1RBTkNFIG9zPXdpbmRvd3MgdmVyc2lvbj0xMiB0YWc9IndpbmRvd3MtMTIiCk1BVFJJWF9UT1RBTCBpbnN0YW5jZXM9NCBleGNsdWRlZD0y\" | base64 -d\n    echo \"\"\n    ;;\n  \"TUFUUklYX0RFRiBvcz1saW51eCxic2QgdmVyc2lvbj0xLjAKRVhDTFVERSBvcz1ic2QgdmVyc2lvbj0xLjA=\")\n    printf '%s\\n' \"Sk9CX0lOU1RBTkNFIG9zPWxpbnV4IHZlcnNpb249MS4wIHRhZz0ibGludXgtMS4wIgpNQVRSSVhfVE9UQUwgaW5zdGFuY2VzPTEgZXhjbHVkZWQ9MQ==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\ndeclare -A excluded_pairs=()\noperating_systems=()\nversions=()\ndefinition_pattern='^MATRIX_DEF os=([^[:space:]]*) version=([^[:space:]]*)$'\nexclude_pattern='^EXCLUDE os=([^[:space:]]+) version=([^[:space:]]+)$'\nwhile IFS= read -r line || [[ -n $line ]]; do\n  if [[ $line =~ $definition_pattern ]]; then\n    IFS=, read -r -a operating_systems <<< \"${BASH_REMATCH[1]}\"\n    IFS=, read -r -a versions <<< \"${BASH_REMATCH[2]}\"\n  elif [[ $line =~ $exclude_pattern ]]; then\n    excluded_pairs[${BASH_REMATCH[1]}/${BASH_REMATCH[2]}]=1\n  fi\ndone\ninstances=0\nexcluded=0\nfor operating_system in \"${operating_systems[@]}\"; do\n  for version in \"${versions[@]}\"; do\n    key=$operating_system/$version\n    if [[ ${excluded_pairs[$key]+present} ]]; then\n      ((excluded += 1))\n    else\n      printf 'JOB_INSTANCE os=%s version=%s tag=\"%s-%s\"\\n' \"$operating_system\" \"$version\" \"$operating_system\" \"$version\"\n      ((instances += 1))\n    fi\n  done\ndone\nprintf 'MATRIX_TOTAL instances=%s excluded=%s\\n' \"$instances\" \"$excluded\"\n",
+    "takeaway": "La stratégie matrix exécute un même job en parallèle sur plusieurs combinaisons OS/runtime sans dupliquer la configuration YAML."
   },
   {
     "id": "gh3-c5-e3",
@@ -85,12 +114,13 @@ module.exports = [
     "title": "Détecteur d’injections de commandes et fuites de secrets dans les Actions",
     "level": "n3",
     "language": "shell",
-    "goal": "Auditer les étapes de scripts GitHub Actions pour détecter les failles d’injection de commande et divulgation de secrets.",
-    "brief": "<p>Dans GitHub Actions, l’utilisation imprudente d’expressions de contexte dans la directive <code>run:</code> expose le runner à une exécution de code arbitraire (RCE) ou à l'exfiltration de jetons secrets.<br><br>\nVulnérabilités à détecter :<br>\n1. <strong>Fuite de secret (Secret Leak)</strong> : présence de <code>secrets.</code> ou <code>GITHUB_TOKEN</code> à l'intérieur d'une commande <code>echo</code> ou <code>print</code>.<br>\n   -> Verdict : <code>VULN_EXPOSED_SECRET</code>.<br>\n2. <strong>Injection de commande shell</strong> : concaténation directe d'entrées utilisateur non fiables au sein de la ligne de commande <code>run:</code>, telles que <code>${{ github.event.issue.title }}</code>, <code>${{ github.event.issue.body }}</code>, <code>${{ github.event.comment.body }}</code>, <code>${{ github.head_ref }}</code>.<br>\n   (La bonne pratique est de passer par des variables d'environnement <code>env:</code>).<br>\n   -> Verdict : <code>VULN_COMMAND_INJECTION</code>.<br>\n3. Sinon : étape conforme (<code>SECURE</code>).<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nPour chaque étape, afficher :<br>\n<code>ACTION_AUDIT step={id} status={SECURE|VULN_EXPOSED_SECRET|VULN_COMMAND_INJECTION}</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c5-e3) — Détecteur d’injections de commandes et fuites de secrets dans les Actions\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "goal": "Repérer quelques motifs explicites de divulgation et d’injection dans des commandes GitHub Actions.",
+    "brief": "<p>Analysez chaque ligne <code>STEP_INSPECT id=&lt;id&gt; cmd=&lt;commande&gt;</code> avec les règles lexicales suivantes, dans cet ordre :<br>1. Si la commande contient le mot <code>echo</code> ou <code>print</code> et contient aussi <code>secrets.</code> ou <code>GITHUB_TOKEN</code>, affichez <code>VULN_EXPOSED_SECRET</code>.<br>2. Sinon, si elle contient une interpolation directe <code>${{ github.event.issue.title }}</code>, <code>${{ github.event.issue.body }}</code>, <code>${{ github.event.comment.body }}</code> ou <code>${{ github.head_ref }}</code>, affichez <code>VULN_COMMAND_INJECTION</code>. Les espaces autour du nom dans <code>${{ ... }}</code> sont facultatifs.<br>3. Sinon, affichez <code>SECURE</code>.<br><br>La sortie est <code>ACTION_AUDIT step={id} status={statut}</code>. Les identifiants sont sans espaces ; la commande peut en contenir. Ce détecteur est une heuristique limitée : <code>SECURE</code> signifie seulement qu'aucun des motifs indiqués n'a été trouvé, pas que la commande est sûre. Transmettre une valeur non fiable par une variable d'environnement évite son interpolation directe dans le script, mais il faut encore la citer et la valider selon son usage.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c5-e3) — Détecteur d’injections de commandes et fuites de secrets dans les Actions\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Vérifier d’abord si echo affiche un secret.",
-      "Vérifier la présence d’expressions de contexte non assainies dans la commande."
+      "Cherchez d’abord les mots echo ou print associés à un marqueur de secret.",
+      "Cherchez ensuite les quatre interpolations explicites ; l’absence de ces motifs ne prouve pas la sécurité.",
+      "1. echo ou print combiné à un secret : VULN_EXPOSED_SECRET. 2. Sinon, interpolation github.issue, github.comment ou github.head_ref : VULN_COMMAND_INJECTION. 3. Sinon : SECURE."
     ],
     "examples": [
       {
@@ -100,6 +130,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Priorité du secret et mot distinct de echo",
+        "stdin": "STEP_INSPECT id=both cmd=echo \"${{ github.event.issue.title }} ${{ secrets.TEST }}\"\nSTEP_INSPECT id=word cmd=echoer secrets.TEST",
+        "expected": "ACTION_AUDIT step=both status=VULN_EXPOSED_SECRET\nACTION_AUDIT step=word status=SECURE"
+      },
+      {
+        "label": "Interpolations avec et sans espaces",
+        "stdin": "STEP_INSPECT id=a cmd=run ${{github.head_ref}}\nSTEP_INSPECT id=b cmd=run ${{  github.event.issue.body  }}\nSTEP_INSPECT id=c cmd=printf \"%s\" \"$TITLE\"",
+        "expected": "ACTION_AUDIT step=a status=VULN_COMMAND_INJECTION\nACTION_AUDIT step=b status=VULN_COMMAND_INJECTION\nACTION_AUDIT step=c status=SECURE"
+      },
       {
         "label": "Commande saine avec variable d’environnement sécurisée",
         "stdin": "STEP_INSPECT id=OK1 cmd=pytest tests/\nSTEP_INSPECT id=OK2 cmd=echo \"Build version $BUILD_NUM\"",
@@ -116,6 +156,7 @@ module.exports = [
         "expected": "ACTION_AUDIT step=L1 status=VULN_EXPOSED_SECRET"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c5-e3 : Détecteur d’injections de commandes et fuites de secrets dans les Actions\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"U1RFUF9JTlNQRUNUIGlkPTEgY21kPWVjaG8gIkxlIHRpdHJlIGVzdCAke3sgZ2l0aHViLmV2ZW50Lmlzc3VlLnRpdGxlIH19IgpTVEVQX0lOU1BFQ1QgaWQ9MiBjbWQ9ZWNobyAke3sgc2VjcmV0cy5BV1NfS0VZIH19\")\n    printf '%s\\n' \"QUNUSU9OX0FVRElUIHN0ZXA9MSBzdGF0dXM9VlVMTl9DT01NQU5EX0lOSkVDVElPTgpBQ1RJT05fQVVESVQgc3RlcD0yIHN0YXR1cz1WVUxOX0VYUE9TRURfU0VDUkVU\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1RFUF9JTlNQRUNUIGlkPU9LMSBjbWQ9cHl0ZXN0IHRlc3RzLwpTVEVQX0lOU1BFQ1QgaWQ9T0syIGNtZD1lY2hvICJCdWlsZCB2ZXJzaW9uICRCVUlMRF9OVU0i\")\n    printf '%s\\n' \"QUNUSU9OX0FVRElUIHN0ZXA9T0sxIHN0YXR1cz1TRUNVUkUKQUNUSU9OX0FVRElUIHN0ZXA9T0syIHN0YXR1cz1TRUNVUkU=\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1RFUF9JTlNQRUNUIGlkPUlOSjEgY21kPWdpdCBjaGVja291dCAke3sgZ2l0aHViLmhlYWRfcmVmIH19ClNURVBfSU5TUEVDVCBpZD1JTkoyIGNtZD1weXRob24gcHJvY2Vzcy5weSAiJHt7IGdpdGh1Yi5ldmVudC5jb21tZW50LmJvZHkgfX0i\")\n    printf '%s\\n' \"QUNUSU9OX0FVRElUIHN0ZXA9SU5KMSBzdGF0dXM9VlVMTl9DT01NQU5EX0lOSkVDVElPTgpBQ1RJT05fQVVESVQgc3RlcD1JTkoyIHN0YXR1cz1WVUxOX0NPTU1BTkRfSU5KRUNUSU9O\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1RFUF9JTlNQRUNUIGlkPUwxIGNtZD1lY2hvICJUb2tlbiBpcyAke3sgc2VjcmV0cy5HSVRIVUJfVE9LRU4gfX0i\")\n    printf '%s\\n' \"QUNUSU9OX0FVRElUIHN0ZXA9TDEgc3RhdHVzPVZVTE5fRVhQT1NFRF9TRUNSRVQ=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nline_pattern='^STEP_INSPECT id=([^[:space:]]+) cmd=(.*)$'\noutput_pattern='(^|[^[:alnum:]_])(echo|print)([^[:alnum:]_]|$)'\ninjection_pattern='\\$\\{\\{[[:space:]]*github\\.(event\\.issue\\.(title|body)|event\\.comment\\.body|head_ref)[[:space:]]*\\}\\}'\nwhile IFS= read -r line || [[ -n $line ]]; do\n  [[ $line =~ $line_pattern ]] || continue\n  id=${BASH_REMATCH[1]}\n  command=${BASH_REMATCH[2]}\n  if [[ $command =~ $output_pattern ]] && [[ $command == *secrets.* || $command == *GITHUB_TOKEN* ]]; then\n    status=VULN_EXPOSED_SECRET\n  elif [[ $command =~ $injection_pattern ]]; then\n    status=VULN_COMMAND_INJECTION\n  else\n    status=SECURE\n  fi\n  printf 'ACTION_AUDIT step=%s status=%s\\n' \"$id\" \"$status\"\ndone\n",
+    "takeaway": "Interpoler directement des titres de PR ou entrées non fiables dans un bloc run: crée une faille d’injection de commandes shell en CI."
   }
 ];

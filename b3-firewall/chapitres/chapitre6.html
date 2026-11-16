@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -280,10 +278,11 @@ firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.10 DST=10.0.0.2 PROTO=TCP SPT=
 firewall: [DROP] IN=eth0 OUT= SRC=203.0.113.5 DST=10.0.0.1 PROTO=TCP SPT=45001 DPT=22</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utiliser des dictionnaires pour compter les occurrences de SRC et DPT pour les lignes DROP.</li>
         <li>Trier par fréquence décroissante puis par la clé secondaire pour départager les égalités.</li>
+        <li>1. Compter le total des lignes et les DROP. 2. Agréger par IP source et par port destination les paquets rejetés. 3. Élire le port le plus bloqué et l’IP la plus attaquante.</li>
       </ol>
     </details>
   </div>
@@ -349,10 +348,11 @@ AUTH_FAIL ts=120 ip=203.0.113.50 service=ssh
 AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Garder la trace des IPs déjà bannies dans un ensemble (set).</li>
         <li>Pour les IPs non bannies, filtrer les échecs récents où t &gt;= ts - 59.</li>
+        <li>Pour chaque ligne : si l’IP est déjà bannie, afficher ALREADY_BANNED ; sinon compter ses échecs dans les 60 dernières secondes ; au troisième, bannir, sinon surveiller.</li>
       </ol>
     </details>
   </div>
@@ -365,8 +365,8 @@ AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
     <div class="q">
       <p class="q__stem">Quelle chaîne netfilter intercepte les paquets qui traversent la machine pare-feu pour aller d’un réseau vers un autre ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">La chaîne FORWARD</button>
         <button class="opt">La chaîne INPUT</button>
+        <button class="opt" data-correct="1">La chaîne FORWARD</button>
         <button class="opt">La chaîne OUTPUT</button>
         <button class="opt">La chaîne PREROUTING</button>
       </div>
@@ -375,20 +375,20 @@ AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le principal avantage de nftables par rapport à iptables ?</p>
       <div class="opts">
+        <button class="opt">Il supprime totalement le besoin de configurer des adresses IP sur les interfaces réseau du serveur</button>
+        <button class="opt">Il remplace intégralement le protocole TCP par un protocole de transport plus rapide et plus léger</button>
         <button class="opt" data-correct="1">Une syntaxe unifiée pour IPv4/IPv6, des opérations atomiques et une exécution par bytecode optimisé avec ensembles natifs</button>
-        <button class="opt">Il supprime totalement le besoin de configurer des adresses IP</button>
-        <button class="opt">Il remplace le protocole TCP par un protocole plus rapide</button>
-        <button class="opt">Il fonctionne uniquement sans connexion réseau</button>
+        <button class="opt">Il fonctionne uniquement sur des machines dépourvues de toute connexion réseau active</button>
       </div>
       <div class="q__exp">nftables unifie la gestion de tous les protocoles, offre des performances nettement supérieures et permet des rechargements de configuration atomiques.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il impératif d’autoriser l’interface "lo" (Loopback) dans les règles d’un pare-feu Linux ?</p>
       <div class="opts">
+        <button class="opt">Pour permettre aux utilisateurs externes non authentifiés de télécharger librement les journaux du serveur</button>
+        <button class="opt">Pour éviter que la carte réseau physique du serveur ne chauffe excessivement en production</button>
+        <button class="opt">Pour activer automatiquement le mode Wi-Fi sur l’ensemble des interfaces sans fil du système</button>
         <button class="opt" data-correct="1">Parce que de nombreux démons locaux (ex: communication serveur web vers BDD locale) utilisent cette interface pour fonctionner</button>
-        <button class="opt">Pour permettre aux utilisateurs extérieurs de télécharger les logs</button>
-        <button class="opt">Pour éviter que la carte réseau physique ne chauffe trop</button>
-        <button class="opt">Pour activer automatiquement le mode Wi-Fi</button>
       </div>
       <div class="q__exp">Si le trafic local (127.0.0.1 / lo) est bloqué, les composants internes du système d’exploitation ne peuvent plus communiquer entre eux.</div>
     </div>
@@ -405,10 +405,10 @@ AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
     <div class="q">
       <p class="q__stem">Comment l’outil Fail2ban neutralise-t-il les attaques par force brute sur un serveur SSH ?</p>
       <div class="opts">
+        <button class="opt">Il change automatiquement le mot de passe du compte administrateur à chaque nouvelle tentative d’attaque détectée sur le serveur</button>
         <button class="opt" data-correct="1">Il surveille les logs d’authentification et ajoute dynamiquement l’adresse IP de l’attaquant dans une règle de blocage du pare-feu après un seuil d’échecs</button>
-        <button class="opt">Il change automatiquement le mot de passe de l’administrateur à chaque attaque</button>
-        <button class="opt">Il redémarre le serveur Linux à chaque tentative de connexion échouée</button>
-        <button class="opt">Il envoie un message texte d’avertissement au pirate</button>
+        <button class="opt">Il redémarre intégralement le serveur Linux hôte dès qu’une nouvelle tentative de connexion SSH authentifiée échoue</button>
+        <button class="opt">Il envoie automatiquement un message texte d’avertissement au pirate préalablement identifié comme attaquant par SMS</button>
       </div>
       <div class="q__exp">Fail2ban analyse les journaux en continu et ordonne à netfilter (iptables ou nftables) de DROP les paquets de l’IP assaillante pendant une durée déterminée.</div>
     </div>
@@ -425,20 +425,20 @@ AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
     <div class="q">
       <p class="q__stem">Quelle commande nftables permet d’ajouter une adresse IP à une liste noire (blacklist) dynamique de manière instantanée ?</p>
       <div class="opts">
+        <button class="opt">nft remove table inet filter (efface toute la table)</button>
+        <button class="opt">nft delete rule all (supprime toutes les règles)</button>
+        <button class="opt">nft shutdown network (coupe le réseau brutalement)</button>
         <button class="opt" data-correct="1">nft add element inet filter blacklist { IP }</button>
-        <button class="opt">nft remove table inet filter</button>
-        <button class="opt">nft delete rule all</button>
-        <button class="opt">nft shutdown network</button>
       </div>
       <div class="q__exp">La gestion native des éléments d’ensembles (Sets) permet d’ajouter ou de retirer des IPs de listes de blocage de façon atomique et instantanée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il dangereux d’exécuter "iptables -P INPUT DROP" sans avoir au préalable inséré de règle autorisant la connexion SSH courante ?</p>
       <div class="opts">
+        <button class="opt">Le serveur formate automatiquement l’intégralité de ses disques durs sans confirmation</button>
+        <button class="opt">La carte mère du serveur subit immédiatement une surtension électrique destructrice</button>
         <button class="opt" data-correct="1">La session SSH de l’administrateur est immédiatement coupée et il perd l’accès à distance au serveur</button>
-        <button class="opt">Le serveur formate automatiquement ses disques durs</button>
-        <button class="opt">La carte mère subit une surtension électrique</button>
-        <button class="opt">Le processeur refuse de traiter les paquets pendant 24 heures</button>
+        <button class="opt">Le processeur du serveur refuse de traiter tout nouveau paquet pendant les 24 prochaines heures</button>
       </div>
       <div class="q__exp">Si la politique par défaut devient DROP sans règle autorisant la connexion active (ou le port 22), l’administrateur se verrouille lui-même hors du système.</div>
     </div>
@@ -564,7 +564,7 @@ AUTH_FAIL ts=140 ip=203.0.113.50 service=ssh</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

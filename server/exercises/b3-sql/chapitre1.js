@@ -11,8 +11,9 @@ module.exports = [
     "brief": "<p>Dans ce journal fictif, la table pédagogique <code>wal_journal(lsn INT, tx_id INT, op TEXT)</code> consigne des événements <code>BEGIN</code>, <code>UPDATE</code>, <code>COMMIT</code> et <code>ROLLBACK</code> ; ce n’est pas le format du WAL réel de PostgreSQL ni une description de sa récupération. Écrivez une requête SQL qui retourne les <code>tx_id</code> distincts des transactions encore en vol (qui ne possèdent aucune ligne avec <code>op IN ('COMMIT', 'ROLLBACK')</code>), triés par <code>tx_id</code> croissant.</p>",
     "starter": "-- Sélectionnez les tx_id distincts n’ayant ni COMMIT ni ROLLBACK\nSELECT DISTINCT tx_id FROM wal_journal;",
     "hints": [
-      "Utilisez une sous-requête : WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')).",
-      "Ajoutez DISTINCT et ORDER BY tx_id ASC."
+      "Pour chaque identifiant non nul, cherchez s’il existe une ligne de fin pour la même transaction ; attention aux valeurs NULL avec NOT IN.",
+      "Ajoutez DISTINCT et ORDER BY tx_id ASC.",
+      "1. Prendre chaque tx_id non nul. 2. Vérifier l’absence de ligne COMMIT ou ROLLBACK pour ce même identifiant. 3. Dédoublonner puis trier par tx_id croissant."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+-------+\n| tx_id |\n+-------+\n| 500   |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT DISTINCT tx_id FROM wal_journal WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')) ORDER BY tx_id ASC;"
+    "solution": "SELECT DISTINCT tx_id FROM wal_journal WHERE tx_id NOT IN (SELECT tx_id FROM wal_journal WHERE op IN ('COMMIT', 'ROLLBACK')) ORDER BY tx_id ASC;",
+    "takeaway": "Dans un journal WAL, les transactions VALIDÉES (COMMIT) doivent être rejouées (REDO) tandis que les transactions non terminées sont annulées (UNDO)."
   },
   {
     "id": "sql3-c1-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Filtrez les tuples visibles au snapshot_tx = 50\nSELECT tuple_id, valeur FROM mvcc_tuples;",
     "hints": [
       "Dans ce modèle fictif, un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
-      "Triez par tuple_id ASC."
+      "Triez par tuple_id ASC.",
+      "1. Ne garder que les tuples créés avant le snapshot (xmin inférieur à 50). 2. Écarter ceux supprimés avant lui (xmax non nul et inférieur à 50). 3. Ordonner par tuple_id croissant."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+----------+--------+\n| tuple_id | valeur |\n+----------+--------+\n| 1        | A      |\n| 2        | B      |\n+----------+--------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT tuple_id, valeur FROM mvcc_tuples WHERE xmin < 50 AND (xmax = 0 OR xmax >= 50) ORDER BY tuple_id ASC;"
+    "solution": "SELECT tuple_id, valeur FROM mvcc_tuples WHERE xmin < 50 AND (xmax = 0 OR xmax >= 50) ORDER BY tuple_id ASC;",
+    "takeaway": "Sous MVCC, chaque snapshot ne voit que les versions de tuples dont xmin est validé avant le cliché et dont xmax est absent ou postérieur."
   },
   {
     "id": "sql3-c1-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Identifiez pid_bloque, pid_bloqueur et ressource par auto-jointure\nSELECT pid, ressource FROM pg_locks_sim;",
     "hints": [
       "Faites une jointure de pg_locks_sim a (en attente, a.accorde = 0) avec pg_locks_sim d (détenteur, d.accorde = 1) sur a.ressource = d.ressource.",
-      "Renommez les colonnes AS pid_bloque, AS pid_bloqueur."
+      "Renommez les colonnes AS pid_bloque, AS pid_bloqueur.",
+      "1. Croiser la table des verrous avec elle-même sur la ressource. 2. Conserver les couples attente (accorde = 0) et détenteur (accorde = 1). 3. Renommer puis trier par pid bloqué croissant."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 501        | 500          | compte_1  |\n| 502        | 500          | compte_1  |\n+------------+--------------+-----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT a.pid AS pid_bloque, d.pid AS pid_bloqueur, a.ressource FROM pg_locks_sim a INNER JOIN pg_locks_sim d ON a.ressource = d.ressource WHERE a.accorde = 0 AND d.accorde = 1 ORDER BY pid_bloque ASC;"
+    "solution": "SELECT a.pid AS pid_bloque, d.pid AS pid_bloqueur, a.ressource FROM pg_locks_sim a INNER JOIN pg_locks_sim d ON a.ressource = d.ressource WHERE a.accorde = 0 AND d.accorde = 1 ORDER BY pid_bloque ASC;",
+    "takeaway": "Un interblocage (deadlock) survient dès qu’un cycle apparaît dans le graphe d’attente des verrous entre transactions concurrentes."
   }
 ];

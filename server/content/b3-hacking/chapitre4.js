@@ -93,23 +93,23 @@ module.exports = {
     {
       "stem": "Quelle vulnérabilité occupe la 1ère place du classement de l'OWASP Top 10 (A01:2021) ?",
       "opts": [
-        "Broken Access Control (Défaillances du contrôle d'accès / IDOR)",
-        "Cryptographic Failures (Faiblesses cryptographiques)",
         "Injection (Injections SQL, commande)",
+        "Cryptographic Failures (Faiblesses cryptographiques)",
+        "Broken Access Control (Défaillances du contrôle d'accès / IDOR)",
         "Security Misconfiguration (Mauvaise configuration de sécurité)"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Broken Access Control est classé n°1 de l'OWASP Top 10 : il permet à un utilisateur non autorisé d'agir sur des ressources d'autres utilisateurs en modifiant simplement des paramètres (IDOR)."
     },
     {
       "stem": "Dans une injection SQL de type UNION-based, quelle condition technique impérative doit être respectée pour que la requête UNION s'exécute avec succès ?",
       "opts": [
-        "La requête injectée doit retourner exactement le même nombre de colonnes que la requête originelle avec des types de données compatibles",
+        "La table cible doit comporter au moins 10 000 enregistrements",
         "Le serveur de base de données doit obligatoirement tourner sous le système d'exploitation Linux",
         "Le mot de passe de l'administrateur SQL doit être transmis en clair dans la chaîne injectée",
-        "La table cible doit comporter au moins 10 000 enregistrements"
+        "La requête injectée doit retourner exactement le même nombre de colonnes que la requête originelle avec des types de données compatibles"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "L'opérateur SQL UNION exige strictement que les deux requêtes combinées comportent le même nombre de colonnes et que les types de données correspondants soient compatibles."
     },
     {
@@ -126,54 +126,54 @@ module.exports = {
     {
       "stem": "Quel attribut de cookie HTTP empêche formellement un script malveillant injecté via XSS d'accéder à la valeur du cookie de session via document.cookie ?",
       "opts": [
-        "HttpOnly",
         "Secure",
+        "HttpOnly",
         "SameSite=Lax",
         "Domain=.local"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "L'attribut HttpOnly indique au navigateur de refuser tout accès au cookie depuis les scripts JavaScript côté client (document.cookie), protégeant ainsi le jeton de session du vol par XSS."
     },
     {
       "stem": "Dans quel scénario une attaque XSS est-elle qualifiée de \"Stockée\" (Stored ou Persistante) ?",
       "opts": [
-        "Lorsque la charge utile malveillante est enregistrée durablement dans la base de données du serveur et réaffichée à tous les visiteurs",
-        "Lorsque le script est exécuté uniquement sur la machine de l'attaquant sans jamais quitter son navigateur",
         "Lorsque la faille nécessite la modification manuelle du fichier hosts de la victime",
+        "Lorsque le script est exécuté uniquement sur la machine de l'attaquant sans jamais quitter son navigateur",
+        "Lorsque la charge utile malveillante est enregistrée durablement dans la base de données du serveur et réaffichée à tous les visiteurs",
         "Lorsque l'attaque cible exclusivement des cookies expirés"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Une XSS stockée (Stored) réside de manière permanente dans la base de données (ex: commentaire de forum) et infecte automatiquement chaque utilisateur légitime consultant la page."
     },
     {
       "stem": "Quelle est la cible classique d'une attaque SSRF (Server-Side Request Forgery) exécutée contre une application hébergée dans le Cloud (AWS/GCP) ?",
       "opts": [
-        "L'adresse IP de l'API de métadonnées interne 169.254.169.254 pour extraire les jetons d'accès et clés IAM temporaires",
-        "Le serveur DNS racine mondial situé sur Internet",
-        "L'imprimante réseau de l'auditeur de sécurité",
-        "Le registre des brevets de l'entreprise"
+        "Le serveur DNS racine mondial situé sur Internet afin d'altérer la résolution mondiale",
+        "L'imprimante réseau locale de l'auditeur de sécurité pour exfiltrer les rapports papier",
+        "Le registre public des brevets de l'entreprise pour identifier les technologies déposées",
+        "L'adresse IP de l'API de métadonnées interne 169.254.169.254 pour extraire les jetons d'accès et clés IAM temporaires"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Dans le Cloud (AWS, GCP, Azure), l'adresse locale 169.254.169.254 expose un service interne de métadonnées non authentifié qui divulgue les identifiants temporaires du rôle IAM de la machine."
     },
     {
       "stem": "Quel composant de Burp Suite est spécialement conçu pour rejouer, modifier manuellement et analyser pas à pas des requêtes HTTP unitaires ?",
       "opts": [
-        "Burp Repeater",
         "Burp Intruder",
+        "Burp Repeater",
         "Burp Sequencer",
         "Burp Decoder"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Burp Repeater permet de renvoyer une requête HTTP capturée, de modifier ses paramètres ou en-têtes et d'observer immédiatement la réponse du serveur cible."
     },
     {
       "stem": "Comment une vulnérabilité de traversée de répertoire (Path Traversal) peut-elle être exploitée même si l'application filtre les deux points successifs \"..//\" de façon basique ?",
       "opts": [
         "En utilisant des encodages URL alternatifs comme %2e%2e%2f ou des séquences imbriquées comme ....//",
-        "En augmentant la taille de la mémoire vive du navigateur",
-        "En forçant le protocole FTP au lieu de HTTP",
-        "En modifiant l'adresse MAC de la carte réseau"
+        "En augmentant fortement la taille de la mémoire vive du navigateur web côté client",
+        "En forçant l'utilisation du protocole FTP à la place de HTTP pour contourner le filtre",
+        "En modifiant l'adresse MAC de la carte réseau de la machine de l'attaquant distant"
       ],
       "correct": 0,
       "exp": "Si le filtre supprime \"..//\" en une seule passe non récursive, la chaîne \"....//\" devient \"../\". De même, l'encodage URL (%2e%2e%2f) contourne les filtres qui vérifient la chaîne brute avant décodage."

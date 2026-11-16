@@ -39,7 +39,7 @@ const course = {
     'et partitionnement déclaratif horizontal (stratégies RANGE, LIST, HASH, élagage Partition Pruning statique et dynamique, journalisation WAL Write-Ahead Logging, checkpoints, réplication en streaming synchrone/asynchrone, audit du lag LSN et haute disponibilité).',
   lead:
     'Maîtrisez l’ingénierie des bases de données de production : isolation ACID, indexation avancée B-Tree/GIN/BRIN, tuning EXPLAIN CBO, fenêtrage analytique, sécurité RLS et partitionnement scalable. ' +
-    'Six modules combinent théorie, 18 exercices SQL et des QCM. La correction automatique des exercices est temporairement suspendue.',
+    'Six modules combinent théorie, 18 exercices SQL évalués automatiquement et des QCM.',
 
   sources: 'Standards ANSI/ISO SQL:2016, Documentation officielle PostgreSQL 16, RFC et Guides d’optimisation DBA PostgreSQL',
 

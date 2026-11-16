@@ -157,7 +157,7 @@ function atelier(course) {
     '       data-language="shell"',
     '       data-height="420"',
     '       data-stdin="PROC_INFO pid=1\nname=systemd">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
+    '    <script type="text/plain" data-lab-starter>#!/usr/bin/env bash\nset -euo pipefail\n\nanalyser_processus() {\n  local pid="?" nom="?"\n  while IFS= read -r ligne; do\n    case "$ligne" in\n      PROC_INFO*)\n        pid="${ligne#*pid=}"\n        pid="${pid%% *}"\n        ;;\n      name=*)\n        nom="${ligne#name=}"\n        ;;\n    esac\n  done\n  printf "PROCESSUS pid=%s nom=%s\\n" "$pid" "$nom"\n}\n\nanalyser_processus\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',

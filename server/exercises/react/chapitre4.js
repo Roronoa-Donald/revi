@@ -22,8 +22,9 @@ const elements = (lignes[0] || '').split(',');
 // À compléter : générer les balises li avec l'attribut key
 `,
     hints: [
-      'Découpez la chaîne sur la virgule, puis chaque couple sur les deux-points.',
-      'Affichez chaque élément avec console.log(\`<li key="\${id}">\${label}</li>\`).'
+      "Découpez la chaîne sur la virgule, puis chaque couple sur les deux-points.",
+      "Affichez chaque élément avec console.log(`<li key=\"${id}\">${label}</li>`).",
+      "Découper sur la virgule puis sur les deux-points ; pour chaque couple, afficher la balise li avec la prop key égale à l identifiant."
     ],
     examples: [
       { stdin: '1:Accueil,2:Profil,3:Contact\n', expected: '<li key="1">Accueil</li>\n<li key="2">Profil</li>\n<li key="3">Contact</li>', note: 'Trois éléments avec clés numériques.' }
@@ -41,7 +42,8 @@ items.forEach(item => {
   const [id, label] = item.split(':');
   console.log(\`<li key="\${id}">\${label}</li>\`);
 });
-`
+`,
+    takeaway: "Fournir une prop key stable (ID métier plutôt que index) permet au réconciliateur React de suivre les ajouts/retraits."
   },
   {
     id: 'rx2-c4-e2',
@@ -60,8 +62,9 @@ const mots = (lignes[1] || '').split(',').map(m => m.trim()).filter(Boolean);
 // À compléter : filtrer la liste et afficher le résultat
 `,
     hints: [
-      'Utilisez .filter(m => m.toLowerCase().includes(query)).',
-      'Testez si le tableau filtré est vide pour afficher "Aucun resultat".'
+      "Utilisez .filter(m => m.toLowerCase().includes(query)).",
+      "Testez si le tableau filtré est vide pour afficher \"Aucun resultat\".",
+      "Lire le mot-clé et la liste ; retenir les mots contenant la requête sans tenir compte de la casse ; liste vide donne Aucun resultat, sinon joindre par des virgules."
     ],
     examples: [
       { stdin: 'rea\nReact,Angular,Vue,Preact\n', expected: 'React,Preact', note: 'Recherche insensible à la casse.' }
@@ -83,7 +86,8 @@ if (filtered.length > 0) {
 } else {
   console.log('Aucun resultat');
 }
-`
+`,
+    takeaway: "Un état dérivé comme une liste filtrée se recalcule directement pendant le rendu plutôt que d être dupliqué en state."
   },
   {
     id: 'rx2-c4-e3',
@@ -102,8 +106,9 @@ const nb = parseInt(rawNb, 10);
 // À compléter : appliquer la condition de court-circuit
 `,
     hints: [
-      'Vérifiez la double condition : actif === "1" et nb > 0.',
-      'Si faux, affichez la chaîne littérale "(aucun)".'
+      "Vérifiez la double condition : actif === \"1\" et nb > 0.",
+      "Si faux, affichez la chaîne littérale \"(aucun)\".",
+      "Lire actif et nb ; si actif vaut 1 et nb dépasse zéro, afficher le badge avec le nombre, sinon afficher la chaîne de repli."
     ],
     examples: [
       { stdin: '1 3\n', expected: '<span class="badge">3</span>', note: 'Actif avec 3 alertes.' }
@@ -124,6 +129,7 @@ if (actif === '1' && nb > 0) {
 } else {
   console.log('(aucun)');
 }
-`
+`,
+    takeaway: "Attention avec && en JSX : 0 && <Comp /> affiche « 0 », utilisez une comparaison explicite (count > 0 && ...)."
   }
 ];

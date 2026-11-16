@@ -118,14 +118,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Qu’est-ce que l’image netinst ?', opts: ['Une image complète hors ligne', 'Une image légère qui complète l’installation depuis les dépôts réseau', 'Un outil de gravure'], correct: 1, exp: 'netinst installe un système de base puis télécharge le reste depuis les dépôts.' },
+      { stem: 'Qu’est-ce que l’image netinst ?', opts: ["Une image complète installant tout sans connexion réseau","Une image légère qui complète l’installation depuis les dépôts réseau","Un simple outil de gravure pour créer un DVD amorçable"], correct: 1, exp: 'netinst installe un système de base puis télécharge le reste depuis les dépôts.' },
       { stem: 'Quel répertoire décrit les dépôts de paquets ?', opts: ['/etc/apt/sources.list', '/var/apt', '/home/sources'], correct: 0, exp: '/etc/apt/sources.list liste les dépôts : adresse, version, composantes.' },
       { stem: 'Quels comptes crée l’installateur ?', opts: ['Root seulement', 'Un utilisateur ordinaire seulement', 'Root et un utilisateur ordinaire'], correct: 2, exp: 'Root pour l’administration (maison /root) et un utilisateur ordinaire pour le quotidien (/home/login).' },
-      { stem: 'Quel intérêt peut avoir une partition /home séparée ?', opts: ['Rendre une sauvegarde inutile', 'Faciliter une réinstallation sans reformater les données personnelles', 'Rendre le swap inutile'], correct: 1, exp: 'À condition de ne pas reformater /home, la séparation peut faciliter la réinstallation ; une sauvegarde reste nécessaire.' },
-      { stem: 'À quoi sert le swap ?', opts: ['À stocker les journaux', 'D’espace d’échange pour certaines pages mémoire', 'À accélérer le réseau'], correct: 1, exp: 'Le noyau peut utiliser le swap selon ses besoins ; sa taille dépend du système et de l’usage.' },
-      { stem: 'Que fait apt update ?', opts: ['Il installe les mises à jour', 'Il rafraîchit la liste des paquets disponibles', 'Il nettoie le cache'], correct: 1, exp: 'update actualise la liste ; upgrade applique les mises à jour des paquets installés.' },
-      { stem: 'Que signifie le nom de code Bookworm ?', opts: ['La version stable de Debian 12', 'Un outil de partitionnement', 'Le noyau Linux de Debian'], correct: 0, exp: 'Chaque version stable de Debian porte un nom de code ; Debian 12 est Bookworm.' },
-      { stem: 'Pourquoi ne faut-il pas travailler en root en permanence ?', opts: ['C’est plus lent', 'Chaque erreur de frappe devient une faute système aux droits complets', 'Le réseau est désactivé'], correct: 1, exp: 'Root a tous les droits : la moindre commande mal ciblée est irréversible ; on travaille en utilisateur ordinaire et on passe root ponctuellement.' }
+      { stem: 'Quel intérêt peut avoir une partition /home séparée ?', opts: ["Rendre les sauvegardes de données totalement inutiles","Faciliter une réinstallation sans reformater les données personnelles","Rendre inutile toute partition d’échange sur le disque"], correct: 1, exp: 'À condition de ne pas reformater /home, la séparation peut faciliter la réinstallation ; une sauvegarde reste nécessaire.' },
+      { stem: 'À quoi sert le swap ?', opts: ["D’espace d’échange pour certaines pages mémoire","À stocker les journaux système et noyau","À accélérer les connexions réseau"], correct: 0, exp: 'Le noyau peut utiliser le swap selon ses besoins ; sa taille dépend du système et de l’usage.' },
+      { stem: 'Que fait apt update ?', opts: ["Il installe les mises à jour des paquets","Il rafraîchit la liste des paquets disponibles","Il nettoie le cache des paquets téléchargés"], correct: 1, exp: 'update actualise la liste ; upgrade applique les mises à jour des paquets installés.' },
+      { stem: 'Que signifie le nom de code Bookworm ?', opts: ['Le noyau Linux de Debian', 'Un outil de partitionnement', 'La version stable de Debian 12'], correct: 2, exp: 'Chaque version stable de Debian porte un nom de code ; Debian 12 est Bookworm.' },
+      { stem: 'Pourquoi ne faut-il pas travailler en root en permanence ?', opts: ["Chaque erreur de frappe devient une faute système aux droits complets","Travailler en root rend toutes les commandes plus lentes","Le réseau est désactivé dès qu’on utilise le compte root"], correct: 0, exp: 'Root a tous les droits : la moindre commande mal ciblée est irréversible ; on travaille en utilisateur ordinaire et on passe root ponctuellement.' }
     ],
 
     pitfalls: [
@@ -301,16 +301,16 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Combien de champs dans une ligne /etc/passwd ?', opts: ['5', '7', '9'], correct: 1, exp: 'Sept champs : login, mot-de-passe, UID, GID, info, répertoire principal, shell.' },
-      { stem: 'Que signifie le champ x dans /etc/passwd ?', opts: ['Compte désactivé', 'Le vérificateur de mot de passe se trouve dans /etc/shadow', 'Pas de mot de passe'], correct: 1, exp: 'x renvoie au champ correspondant de /etc/shadow ; les marqueurs ! ou * peuvent empêcher l’authentification par mot de passe sans bloquer tous les autres moyens.' },
-      { stem: 'Quel UID possède root ?', opts: ['1', '0', '1000'], correct: 1, exp: 'root a l’UID 0 ; les autres plages d’UID dépendent de la configuration.' },
-      { stem: 'Quel fichier stocke généralement les vérificateurs de mots de passe ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow est à accès restreint et contient généralement des vérificateurs hachés.' },
-      { stem: 'Que fait usermod -d /home/toto -m tutu ?', opts: ['Renomme tutu en toto', 'Change la maison de tutu en /home/toto en recopiant le contenu', 'Supprime tutu'], correct: 1, exp: '-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.' },
-      { stem: 'Que fait userdel toto, et que faut-il pour supprimer sa maison ?', opts: ['Tout est supprimé', 'Le compte est supprimé ; ajouter -r pour retirer aussi le répertoire', 'Rien, il faut usermod'], correct: 1, exp: 'userdel ne supprime pas le répertoire personnel ; l’option -r l’ajoute à la suppression.' },
-      { stem: 'Quelle commande crée un groupe ?', opts: ['groupadd', 'usermod', 'passwd'], correct: 0, exp: 'groupadd groupe (ex. groupadd modem) ; suppression avec groupdel.' },
-      { stem: 'Quand groupdel échoue-t-il ?', opts: ['Si le groupe contient des fichiers', 'Si le groupe est le groupe principal d’un utilisateur', 'Jamais'], correct: 1, exp: 'On ne peut pas supprimer un groupe qui sert de groupe principal à un utilisateur.' },
-      { stem: 'Quelle commande affiche l’utilisateur courant ?', opts: ['whoami', 'w', 'users'], correct: 0, exp: 'whoami affiche l’identité de l’utilisateur courant ; who, users et w listent les connectés.' },
-      { stem: 'Format d’une ligne /etc/group ?', opts: ['groupe:*:GID:utilisateurs', 'groupe:GID:utilisateurs:*', 'GID:groupe:*:utilisateurs'], correct: 0, exp: 'Nom, champ historique, GID numérique, liste des membres séparés par des virgules.' }
+      { stem: 'Combien de champs dans une ligne /etc/passwd ?', opts: ['7', '5', '9'], correct: 0, exp: 'Sept champs : login, mot-de-passe, UID, GID, info, répertoire principal, shell.' },
+      { stem: 'Que signifie le champ x dans /etc/passwd ?', opts: ["Le compte est provisoirement désactivé par l’administrateur","Le vérificateur de mot de passe se trouve dans /etc/shadow","L’utilisateur n’a pas encore de mot de passe"], correct: 1, exp: 'x renvoie au champ correspondant de /etc/shadow ; les marqueurs ! ou * peuvent empêcher l’authentification par mot de passe sans bloquer tous les autres moyens.' },
+      { stem: 'Quel UID possède root ?', opts: ['1', '1000', '0'], correct: 2, exp: 'root a l’UID 0 ; les autres plages d’UID dépendent de la configuration.' },
+      { stem: 'Quel fichier stocke généralement les vérificateurs de mots de passe ?', opts: ['/etc/passwd', '/etc/group', '/etc/shadow'], correct: 2, exp: '/etc/shadow est à accès restreint et contient généralement des vérificateurs hachés.' },
+      { stem: 'Que fait usermod -d /home/toto -m tutu ?', opts: ["Renomme simplement le compte tutu en compte toto","Change la maison de tutu en /home/toto en recopiant le contenu","Supprime le compte tutu ainsi que son répertoire personnel"], correct: 1, exp: '-d fixe la nouvelle maison et -m y recopie le contenu de l’ancienne en ajustant les droits.' },
+      { stem: 'Que fait userdel toto, et que faut-il pour supprimer sa maison ?', opts: ["Le compte est supprimé ; ajouter -r pour retirer aussi le répertoire","Tout est supprimé, compte et répertoire personnel","Rien : seule la commande usermod peut supprimer un compte"], correct: 0, exp: 'userdel ne supprime pas le répertoire personnel ; l’option -r l’ajoute à la suppression.' },
+      { stem: 'Quelle commande crée un groupe ?', opts: ['usermod', 'groupadd', 'passwd'], correct: 1, exp: 'groupadd groupe (ex. groupadd modem) ; suppression avec groupdel.' },
+      { stem: 'Quand groupdel échoue-t-il ?', opts: ["Si le groupe est le groupe principal d’un utilisateur","Si le groupe possède encore des fichiers sur le disque","Jamais : la suppression réussit toujours sans condition"], correct: 0, exp: 'On ne peut pas supprimer un groupe qui sert de groupe principal à un utilisateur.' },
+      { stem: 'Quelle commande affiche l’utilisateur courant ?', opts: ['users', 'w', 'whoami'], correct: 2, exp: 'whoami affiche l’identité de l’utilisateur courant ; who, users et w listent les connectés.' },
+      { stem: 'Format d’une ligne /etc/group ?', opts: ['GID:groupe:*:utilisateurs', 'groupe:GID:utilisateurs:*', 'groupe:*:GID:utilisateurs'], correct: 2, exp: 'Nom, champ historique, GID numérique, liste des membres séparés par des virgules.' }
     ],
 
     pitfalls: [
@@ -482,14 +482,14 @@ module.exports = [
 
     questions: [
       { stem: 'Dans -rwxr-x---, que peut faire le groupe ?', opts: ['Tout', 'Lire et exécuter', 'Rien'], correct: 1, exp: 'Le triplet du groupe est r-x : lecture et exécution, pas d’écriture.' },
-      { stem: 'Que vaut rwxr-x--- en octal ?', opts: ['754', '750', '740'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750.' },
-      { stem: 'Que fait chmod o-r toto ?', opts: ['Ajoute la lecture aux autres', 'Retire la lecture aux autres', 'Retire la lecture au propriétaire'], correct: 1, exp: 'o = autres (others), - = retirer, r = lecture.' },
+      { stem: 'Que vaut rwxr-x--- en octal ?', opts: ['750', '754', '740'], correct: 0, exp: "Chaque triplet se convertit : rwx = 7, r-x = 5, --- = 0, d’où 750. 754 laisserait aux autres un droit de lecture inexistant, et 740 priverait le groupe d’exécuter." },
+      { stem: 'Que fait chmod o-r toto ?', opts: ['Ajoute la lecture aux autres', 'Retire la lecture au propriétaire', 'Retire la lecture aux autres'], correct: 2, exp: 'o = autres (others), - = retirer, r = lecture.' },
       { stem: 'Que fixe chmod 770 toto ?', opts: ['rwxrwx---', 'rwx------', 'rwxr-xr-x'], correct: 0, exp: '7=rwx pour u, 7=rwx pour g, 0=--- pour o.' },
-      { stem: 'Quelle différence entre ug=rwx et ug+x ?', opts: ['Aucune', '= fixe exactement (retire le reste), + ajoute seulement', '+ fixe, = ajoute'], correct: 1, exp: 'Avec =, tout droit non listé disparaît ; + ne fait qu’ajouter au droit existant.' },
-      { stem: 'Que fait chown tpsysteme:root dossier ?', opts: ['Change le propriétaire seulement', 'Change propriétaire et groupe en une commande', 'C’est une erreur'], correct: 1, exp: 'La syntaxe utilisateur:groupe change les deux à la fois.' },
-      { stem: 'À quoi sert l’option -R de chmod ou chown ?', opts: ['À rendre le fichier exécutable', 'À appliquer récursivement au dossier et à son contenu', 'À rien ici'], correct: 1, exp: '-R descend dans l’arborescence : dossier, sous-dossiers, fichiers.' },
-      { stem: 'Que fait chgrp tpsysteme toto ?', opts: ['Change le propriétaire de toto', 'Change le groupe propriétaire de toto', 'Crée le groupe tpsysteme'], correct: 1, exp: 'chgrp (change group) ne touche que le groupe ; chown change le propriétaire.' },
-      { stem: 'À quoi sert la ligne #!/bin/bash ?', opts: ['À commenter le script', 'À indiquer l’interpréteur qui exécute le script', 'À définir une variable'], correct: 1, exp: 'Le shebang désigne l’interpréteur : bash ici.' },
+      { stem: 'Quelle différence entre ug=rwx et ug+x ?', opts: ["Aucune : les deux notations ajoutent les mêmes droits","= fixe exactement (retire le reste), + ajoute seulement","+ fixe les droits, tandis que = se contente d’ajouter"], correct: 1, exp: 'Avec =, tout droit non listé disparaît ; + ne fait qu’ajouter au droit existant.' },
+      { stem: 'Que fait chown tpsysteme:root dossier ?', opts: ["Change seulement le propriétaire du dossier","Change propriétaire et groupe en une commande","C’est une erreur de syntaxe refusée par le shell"], correct: 1, exp: 'La syntaxe utilisateur:groupe change les deux à la fois.' },
+      { stem: 'À quoi sert l’option -R de chmod ou chown ?', opts: ["À rendre le fichier exécutable par tous","À rien : l’option est ignorée sur un dossier","À appliquer récursivement au dossier et à son contenu"], correct: 2, exp: '-R descend dans l’arborescence : dossier, sous-dossiers, fichiers.' },
+      { stem: 'Que fait chgrp tpsysteme toto ?', opts: ['Change le groupe propriétaire de toto', 'Change le propriétaire de toto', 'Crée le groupe tpsysteme'], correct: 0, exp: 'chgrp (change group) ne touche que le groupe ; chown change le propriétaire.' },
+      { stem: 'À quoi sert la ligne #!/bin/bash ?', opts: ["À indiquer l’interpréteur qui exécute le script","À commenter la première ligne du script","À définir une variable d’environnement"], correct: 0, exp: 'Le shebang désigne l’interpréteur : bash ici.' },
       { stem: 'Où initialiser un compteur utilisé dans une boucle Bash ?', opts: ['Dans la boucle', 'Avant la boucle', 'Après la boucle'], correct: 1, exp: 'Avant, sinon il repart à zéro à chaque tour ; le bilan s’affiche après la boucle.' }
     ],
 

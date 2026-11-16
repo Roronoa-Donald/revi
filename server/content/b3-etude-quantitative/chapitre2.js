@@ -155,54 +155,54 @@ module.exports = {
     {
       stem: 'Dans la formule de Cochran n0 = (z² * p * (1-p)) / e², pourquoi utilise-t-on couramment la valeur p = 0.5 lorsque la proportion réelle est inconnue ?',
       opts: [
-        'Parce que 0.5 est le chiffre porte-bonheur des statisticiens',
-        'Parce que la valeur p = 0.5 maximise le produit p(1-p) à 0.25, garantissant la taille d’échantillon la plus prudente et la plus sécurisante',
-        'Parce que la loi interdit d’utiliser une autre valeur que 0.5',
-        'Parce que cela divise automatiquement le temps de calcul par deux'
+        "Parce que la valeur p = 0.5 maximise le produit p(1-p) à 0.25, garantissant la taille d’échantillon la plus prudente et la plus sécurisante",
+        "Parce que 0.5 est le chiffre porte-bonheur traditionnellement utilisé par les statisticiens du monde entier",
+        "Parce que la réglementation interdit d’utiliser une autre valeur que 0.5 dans les calculs d’échantillons",
+        "Parce que cette valeur divise automatiquement par deux le temps de calcul des logiciels de statistique"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La variance de Bernoulli p(1-p) est maximale en p = 0.5. Cette valeur donne une taille prudente dans le cadre du modèle, sans corriger les biais de sélection ou de non-réponse.'
     },
     {
       stem: 'Quelle taille d’échantillon minimale brute n0 obtient-on pour une population infinie avec un niveau de confiance de 95% (z = 1.96), une marge d’erreur de 5% (e = 0.05) et p = 0.5 ?',
       opts: [
         '50 répondants',
-        '100 répondants',
         '385 répondants',
+        '100 répondants',
         '10 000 répondants'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'n0 = (1.96² * 0.25) / 0.05² = 0.9604 / 0.0025 = 384.16, arrondi à l’entier supérieur = 385 répondants.'
     },
     {
       stem: 'Quand est-il impératif d’appliquer la correction de Cochran pour population finie n = n0 / [1 + (n0 - 1) / N] ?',
       opts: [
-        'Uniquement lorsque la population totale est infinie',
-        'Lorsque la taille de la population mère N est connue et restreinte (généralement inférieure à 100 000 individus)',
-        'Quand l’ordinateur n’a plus de batterie',
-        'Uniquement pour les enquêtes réalisées à l’étranger'
+        "Uniquement lorsque la population totale étudiée est strictement infinie, sans aucune borne connue",
+        "Uniquement lorsque les données sont collectées par des enquêteurs opérant à l’étranger plutôt qu’en France",
+        "Uniquement pour les échantillons très petits, en dessous de 30 individus interrogés au total",
+        "Lorsque la taille de la population mère N est connue et restreinte (généralement inférieure à 100 000 individus)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La formule FPC réduit la taille requise lorsque la population totale N est finie et connue, évitant de surdimensionner inutilement l’effort de collecte.'
     },
     {
       stem: 'Pour n = 1 et trois strates de taille 1, quelle répartition donnent les plus forts restes, avec départage dans l’ordre ?',
       opts: [
         '0, 0, 0',
-        '1, 0, 0',
         '1, 1, 1',
+        '1, 0, 0',
         '1, 1, 0'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Chaque part vaut 1/3 : les planchers valent 0. L’unité restante va à la première strate à égalité ; la somme vaut 1.'
     },
     {
       stem: 'Quelle est la caractéristique fondamentale d’un échantillonnage probabiliste par rapport à une méthode empirique (non probabiliste) ?',
       opts: [
-        'L’échantillonnage probabiliste est toujours gratuit',
-        'Chaque unité de la population possède une probabilité mathématique connue et non nulle d’être tirée au sort',
-        'L’échantillonnage probabiliste ne concerne que les données textuelles',
-        'Il interdit l’utilisation de formulaires en ligne'
+        "L’échantillonnage probabiliste est une méthode toujours gratuite, contrairement aux panels payants",
+        "Chaque unité de la population possède une probabilité mathématique connue et non nulle d’être tirée au sort",
+        "L’échantillonnage probabiliste ne s’applique qu’aux données textuelles issues d’entretiens qualitatifs",
+        "Il interdit strictement l’utilisation de formulaires d’enquête administrés en ligne"
       ],
       correct: 1,
       exp: 'Dans une méthode probabiliste, le tirage au sort garantit que chaque membre de la base a une chance probabiliste calculable d’être sélectionné.'
@@ -210,34 +210,34 @@ module.exports = {
     {
       stem: 'Quelle technique d’échantillonnage non probabiliste consiste à demander à chaque personne interrogée de désigner d’autres répondants potentiels ?',
       opts: [
-        'L’échantillonnage par tirage au chapeau',
         'L’échantillonnage par boule de neige (Snowball sampling)',
+        'L’échantillonnage par tirage au chapeau',
         'L’échantillonnage stratifié automatique',
         'L’échantillonnage par grappes concentriques'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La méthode boule de neige (snowball) s’appuie sur les réseaux de pairs, indispensable pour atteindre des populations confidentielles ou difficiles d’accès.'
     },
     {
       stem: 'Des quotas A/B sont parfaitement respectés. Quelle conclusion est justifiée ?',
       opts: [
         'Toutes les caractéristiques sont représentatives',
-        'Les proportions A/B sont conformes, mais d’autres biais peuvent subsister',
+        'Aucune autre information sur la population n’est utile',
         'La sélection est forcément aléatoire',
-        'Aucune autre information sur la population n’est utile'
+        'Les proportions A/B sont conformes, mais d’autres biais peuvent subsister'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La conformité concerne uniquement les quotas contrôlés : dans le contre-exemple, le revenu élevé passe de 20% dans la population à 100% dans l’échantillon.'
     },
     {
       stem: 'Pourquoi l’échantillonnage « de convenance » (interroger ses amis ou ses voisins de bureau) présente-t-il un risque méthodologique majeur ?',
       opts: [
-        'Parce qu’il coûte trop cher à mettre en place',
-        'Parce qu’il introduit des biais de sélection massifs d’homogénéité et de complaisance, interdisant toute généralisation scientifique des résultats',
-        'Parce qu’il prend deux ans de plus à réaliser',
-        'Parce que le logiciel Excel refuse d’ouvrir les fichiers de convenance'
+        "Parce qu’il coûte beaucoup trop cher à mettre en place par rapport aux méthodes par quotas ou probabilistes",
+        "Parce qu’il demande environ deux années supplémentaires de collecte de terrain avant de pouvoir être exploité",
+        "Parce qu’il introduit des biais de sélection massifs d’homogénéité et de complaisance, interdisant toute généralisation scientifique des résultats",
+        "Parce que les logiciels statistiques refusent d’ouvrir les fichiers de données issus d’un échantillon de convenance"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’échantillon de convenance n’est représentatif que du cercle immédiat de l’enquêteur, entraînant des biais d’autosélection qui invalident la portée générale de l’étude.'
     }
   ],

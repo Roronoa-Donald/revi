@@ -137,44 +137,44 @@ module.exports = {
       stem: 'Quel algorithme mathématique est exécuté par OSPF pour déterminer le plus court chemin vers chaque destination ?',
       opts: [
         'L’algorithme de Bellman-Ford',
-        'L’algorithme SPF de Dijkstra',
         'L’algorithme de Floyd-Warshall',
+        'L’algorithme SPF de Dijkstra',
         'L’algorithme de cryptographie RSA'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'OSPF s’appuie sur l’algorithme de Dijkstra (Shortest Path First) pour calculer l’arbre des chemins de coût minimal.'
     },
     {
       stem: 'Quelle commande Cisco IOS permet d’ajuster la bande passante de référence pour distinguer les liens 1G et 10G ?',
       opts: [
-        'bandwidth 10000000',
-        'auto-cost reference-bandwidth 100000',
-        'metric-type 1',
-        'ospf cost 100'
+        "bandwidth 10000000 en interface",
+        "metric-type 1 en redistribution",
+        "ip ospf cost 100 par interface",
+        "auto-cost reference-bandwidth 100000"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La directive auto-cost reference-bandwidth permet de rehausser la référence (ex: 100000 pour 100 Gbps) pour discriminer les débits supérieurs à 100 Mbps.'
     },
     {
       stem: 'Sur un segment Ethernet multi-accès, avec qui les routeurs DROTHER établissent-ils une adjacence pleine (FULL) ?',
       opts: [
-        'Avec tous les routeurs du segment indifféremment',
         'Uniquement avec le DR (Designated Router) et le BDR (Backup Designated Router)',
+        'Avec tous les routeurs du segment indifféremment',
         'Uniquement avec la passerelle par défaut DHCP',
         'Avec aucun routeur (état 2-Way permanent)'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les DROTHER ne s’adjugent en état FULL qu’avec le DR et le BDR. Entre deux DROTHER, l’état reste stabilisé en 2-Way.'
     },
     {
       stem: 'Quel type de paquet LSA est généré par un routeur ABR pour annoncer des réseaux d’une aire vers une autre aire ?',
       opts: [
         'LSA Type 1 (Router LSA)',
-        'LSA Type 2 (Network LSA)',
         'LSA Type 3 (Summary LSA)',
+        'LSA Type 2 (Network LSA)',
         'LSA Type 5 (AS External LSA)'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Le LSA Type 3 (Summary LSA) résume et propage les préfixes inter-aires à travers l’Area Border Router (ABR).'
     },
     {
@@ -191,34 +191,34 @@ module.exports = {
     {
       stem: 'Quelle est la particularité exclusive d’une aire « Totally Stubby » par rapport à une aire « Stub » standard ?',
       opts: [
-        'Elle bloque également les LSA Type 3 inter-aires en ne conservant qu’une unique route par défaut vers l’ABR',
-        'Elle désactive totalement le protocole OSPF',
-        'Elle autorise les annonces BGP directes',
-        'Elle ne permet pas d’avoir de switchs de niveau 3'
+        "Elle désactive totalement le protocole OSPF sur l’ensemble des routeurs de l’aire",
+        "Elle autorise les annonces BGP directes à pénétrer dans l’aire sans filtrage",
+        "Elle ne permet pas d’avoir de switchs de niveau 3 au sein de l’aire concernée",
+        "Elle bloque également les LSA Type 3 inter-aires en ne conservant qu’une unique route par défaut vers l’ABR"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'L’aire Totally Stubby (Cisco) bloque les Type 5 ET les Type 3 inter-aires : seule une route par défaut injectée par l’ABR subsiste.'
     },
     {
       stem: 'Quel type de LSA est utilisé pour transporter des routes externes à l’intérieur d’une aire NSSA (Not-So-Stubby Area) ?',
       opts: [
         'LSA Type 1',
-        'LSA Type 5',
         'LSA Type 7',
+        'LSA Type 5',
         'LSA Type 9'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'L’aire NSSA utilise des LSA Type 7 générés par son ASBR local. L’ABR traduit ensuite ces Type 7 en Type 5 vers l’Aire 0.'
     },
     {
       stem: 'À quelle adresse IPv4 multicast réservée les routeurs OSPF envoient-ils leurs paquets Hello pour découvrir leurs voisins ?',
       opts: [
-        '224.0.0.1',
         '224.0.0.5',
+        '224.0.0.1',
         '224.0.0.6',
         '239.255.255.250'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’adresse multicast 224.0.0.5 (All OSPF Routers) est utilisée par tous les routeurs OSPF pour échanger leurs paquets Hello.'
     }
   ],

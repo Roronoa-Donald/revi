@@ -6,14 +6,17 @@
  * si c'était illimité : chaque exécution est comptée et refusée au-delà d'un
  * budget quotidien.
  *
- * LIMITE ASSUMÉE : le compteur vit en mémoire du processus. Sur un
- * déploiement serverless multi-instances il n'est pas global ; il protège
- * contre l'emballement d'un élève, pas contre un usage coordonné. Le vrai
- * filet reste le HTTP 429 du fournisseur, correctement relayé à l'élève.
+ * Lot 3A : le compteur en mémoire reste synchrone pour le chemin critique, et
+ * se synchronise de manière asynchrone avec la table `execution_quota_daily`
+ * via `server/db.js` afin de consolider les quotas entre instances serverless
+ * lorsque PostgreSQL est disponible.
  */
+
+const db = require('../../db');
 
 const STATE = new Map(); // clé de quota → { day, count }
 let globalState = { day: '', count: 0 };
+const GLOBAL_QUOTA_KEY = '__global__';
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -39,15 +42,69 @@ function rollover() {
 }
 
 /**
+ * Synchronise en tâche de fond ou à la demande la consommation vers `execution_quota_daily`.
+ */
+async function persistQuotaIncrement(key, day, n) {
+  if (!db || typeof db.incrementExecutionQuota !== 'function') return;
+  try {
+    const [userDbCount, globalDbCount] = await Promise.all([
+      db.incrementExecutionQuota(key, day, n),
+      db.incrementExecutionQuota(GLOBAL_QUOTA_KEY, day, n)
+    ]);
+    const currentEntry = STATE.get(key);
+    if (currentEntry && currentEntry.day === day && Number.isFinite(userDbCount)) {
+      currentEntry.count = Math.max(currentEntry.count, userDbCount);
+    }
+    if (globalState.day === day && Number.isFinite(globalDbCount)) {
+      globalState.count = Math.max(globalState.count, globalDbCount);
+    }
+  } catch {
+    // Repli silencieux sur le compteur mémoire si la base est indisponible
+  }
+}
+
+/**
+ * Recharge l'état d'une clé et du compteur global depuis `execution_quota_daily`.
+ * @param {string} key clé de quota
+ */
+async function syncFromDb(key) {
+  const day = rollover();
+  if (!db || typeof db.getExecutionQuota !== 'function') {
+    return snapshot(key);
+  }
+  try {
+    const [userDbCount, globalDbCount] = await Promise.all([
+      key ? db.getExecutionQuota(key, day) : Promise.resolve(0),
+      db.getExecutionQuota(GLOBAL_QUOTA_KEY, day)
+    ]);
+    if (key && Number.isFinite(userDbCount) && userDbCount > 0) {
+      const entry = STATE.get(key) || { day, count: 0 };
+      entry.count = Math.max(entry.count, userDbCount);
+      STATE.set(key, entry);
+    }
+    if (Number.isFinite(globalDbCount) && globalDbCount > 0) {
+      globalState.count = Math.max(globalState.count, globalDbCount);
+    }
+  } catch {
+    // Repli silencieux en mémoire
+  }
+  return snapshot(key);
+}
+
+/**
  * @param {string} key clé de quota (compte ou IP)
  * @param {number} n nombre d'exécutions consommées
  */
 function consume(key, n = 1) {
-  rollover();
-  const entry = STATE.get(key) || { day: today(), count: 0 };
+  const day = rollover();
+  const entry = STATE.get(key) || { day, count: 0 };
   entry.count += n;
   STATE.set(key, entry);
   globalState.count += n;
+
+  // Synchronisation asynchrone non bloquante vers execution_quota_daily
+  persistQuotaIncrement(key, day, n);
+
   return entry.count;
 }
 
@@ -80,6 +137,9 @@ function snapshot(key) {
 function reset() {
   STATE.clear();
   globalState = { day: '', count: 0 };
+  if (db && typeof db.clearMemoryStoresForTest === 'function') {
+    db.clearMemoryStoresForTest();
+  }
 }
 
-module.exports = { consume, canExecute, snapshot, limits: LIMITS, reset };
+module.exports = { consume, canExecute, snapshot, syncFromDb, limits: LIMITS, reset };

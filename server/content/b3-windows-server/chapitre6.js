@@ -185,12 +185,12 @@ module.exports = {
     {
       stem: 'Quel protocole réseau sous-jacent est utilisé par PowerShell Remoting pour la communication distante ?',
       opts: [
-        'SSH uniquement',
-        'WS-Management (WS-Man) via le service WinRM',
-        'Telnet sur le port 23',
-        'SNMPv1'
+        "SSH uniquement, via le sous-système OpenSSH de Windows",
+        "Telnet sur le port 23, sans aucun chiffrement",
+        "WS-Management (WS-Man) via le service WinRM",
+        "SNMPv1, le protocole classique de supervision réseau"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'PowerShell Remoting repose sur le protocole standardisé WS-Management implémenté par le service système WinRM.'
     },
     {
@@ -198,65 +198,65 @@ module.exports = {
       opts: [
         'Port 80',
         'Port 443',
-        'Port 5985',
-        'Port 3389'
+        'Port 3389',
+        'Port 5985'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Le port TCP 5985 est le port standard de WinRM HTTP (le port 5986 étant réservé à HTTPS avec certificat SSL dédié).'
     },
     {
       stem: 'Dans l’architecture VSS, quel rôle remplit le composant « VSS Writer » ?',
       opts: [
-        'Il écrit les données sur la bande magnétique',
-        'Il suspend brièvement les transactions de l’application et vide les caches pour assurer la cohérence des données',
-        'Il facture les licences de sauvegarde à l’entreprise',
-        'Il chiffre le disque avec BitLocker'
+        "Il suspend brièvement les transactions de l’application et vide les caches pour assurer la cohérence des données",
+        "Il écrit physiquement les données de sauvegarde sur la bande magnétique de la bibliothèque externe",
+        "Il facture les licences de sauvegarde à l’entreprise en fonction du volume de données protégé",
+        "Il chiffre l’intégralité du disque système avec la solution de chiffrement BitLocker"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le VSS Writer appartient à l’application (AD DS, SQL Server) et prépare celle-ci en figeant temporairement les écritures pendant la création du cliché.'
     },
     {
       stem: 'Dans un cluster à 3 nœuds physiques sans témoin, combien de voix composent le quorum et quelle est la majorité requise ?',
       opts: [
-        '3 voix au total, majorité de 2 voix',
         '3 voix au total, majorité de 3 voix',
+        '3 voix au total, majorité de 2 voix',
         '2 voix au total, majorité de 1 voix',
         '4 voix au total, majorité de 3 voix'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Chaque nœud a 1 voix (total = 3). La majorité absolue est égale à $\\lfloor 3 / 2 \\rfloor + 1 = 2$ voix.'
     },
     {
       stem: 'Quel risque critique le mécanisme de quorum empêche-t-il formellement dans un cluster de basculement ?',
       opts: [
-        'Le dépassement de la mémoire vive',
-        'Le phénomène de Split-Brain et la corruption des données sur le stockage partagé',
-        'La surchauffe des ventilateurs du serveur',
-        'L’expiration des licences Windows'
+        "Le dépassement accidentel de la mémoire vive allouée aux nœuds du cluster",
+        "La surchauffe des ventilateurs du serveur et le déclenchement d’un arrêt thermique",
+        "Le phénomène de Split-Brain et la corruption des données sur le stockage partagé",
+        "L’expiration soudaine des licences Windows sur l’ensemble des nœuds du cluster"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le quorum évite qu’une partition réseau n’entraîne l’exécution concurrente de deux instances du même service écrivant sur le même disque (Split-Brain).'
     },
     {
       stem: 'Quel type de témoin de quorum est recommandé pour un cluster sans baie SAN partagée ou réparti sur plusieurs sites géographiques ?',
       opts: [
-        'Témoin disquette 3.5 pouces',
-        'Témoin Cloud (Cloud Witness) sur stockage Blob Azure',
-        'Témoin imprimante réseau',
-        'Témoin câble série RS-232'
+        "Témoin disquette 3.5 pouces branchée sur le contrôleur principal",
+        "Témoin imprimante réseau partagée dans le domaine Active Directory",
+        "Témoin câble série RS-232 reliant physiquement les nœuds",
+        "Témoin Cloud (Cloud Witness) sur stockage Blob Azure"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le Cloud Witness exploite un compte Azure Blob léger et économique comme arbitre tiers, idéal pour les clusters multi-sites ou sans SAN.'
     },
     {
       stem: 'Quelle commande PowerShell permet d’exécuter un bloc de script en parallèle sur une liste de serveurs distants ?',
       opts: [
-        'Enter-PSSession',
         'Invoke-Command',
+        'Enter-PSSession',
         'Start-Process',
         'Set-ExecutionPolicy'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Invoke-Command permet l’exécution distribuée 1:N en envoyant le ScriptBlock à travers des sessions WinRM parallèles.'
     },
     {

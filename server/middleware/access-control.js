@@ -8,6 +8,7 @@
  *    `node scripts/sync-courses.js` propage les listes dupliquées.
  */
 
+const path = require('path');
 const registry = require('../courses');
 
 const {
@@ -24,13 +25,36 @@ const {
   coursesForLevel
 } = registry;
 
+function normalizeUrlPath(urlPath) {
+  let raw = String(urlPath || '/').split('?')[0].split('#')[0];
+  let malformed = false;
+  for (let i = 0; i < 4; i++) {
+    if (!raw.includes('%')) break;
+    try {
+      const decoded = decodeURIComponent(raw);
+      if (decoded === raw) break;
+      raw = decoded;
+    } catch {
+      malformed = true;
+      break;
+    }
+  }
+  if (/%[0-9a-fA-F]{2}/.test(raw) || /%[^0-9a-fA-F]|%$/.test(raw) || raw.includes('\0')) {
+    malformed = true;
+  }
+  if (malformed) return null;
+  const slashPath = raw.replace(/\\/g, '/');
+  return path.posix.normalize('/' + slashPath).replace(/^\/+/, '/');
+}
+
 /**
  * Détermine si une URL pointe vers du contenu protégé
  * Seul le chapitre 1 et l'index de chaque cours sont gratuits
  */
 function isProtected(urlPath) {
-  // Nettoyer l'URL
-  const cleanUrl = urlPath.split('?')[0].split('#')[0];
+  // Nettoyer et normaliser l'URL
+  const cleanUrl = normalizeUrlPath(urlPath);
+  if (cleanUrl === null) return true; // Fail-closed sur encodage malformé ou sur-encodé
   const parts = cleanUrl.split('/').filter(Boolean);
 
   // Pas assez de segments → fichier racine → libre
@@ -55,11 +79,11 @@ function isProtected(urlPath) {
   }
 
   const filename = parts[parts.length - 1] || '';
-  const isQcmData = /qcm/i.test(filename) && (filename.endsWith('.js') || filename.endsWith('.json'));
+  const isQcmData = /qcm/i.test(filename) && (filename.toLowerCase().endsWith('.js') || filename.toLowerCase().endsWith('.json'));
   if (isQcmData) return true;
 
   // Assets toujours libres (CSS, JS, images) sauf PDF
-  if (parts[1] === 'assets') return cleanUrl.endsWith('.pdf');
+  if (parts[1] === 'assets') return cleanUrl.toLowerCase().endsWith('.pdf');
 
   // index.html ou sommaire.html du cours → libre
   if (parts.length === 2 && (parts[1] === 'index.html' || parts[1] === 'sommaire.html' || parts[1] === '')) return false;
@@ -69,7 +93,7 @@ function isProtected(urlPath) {
   if (parts[1] === 'chapitres' && parts.length >= 3 && parts[2] === 'chapitre1.html') return false;
 
   // Seuls les fichiers HTML et PDF sont protégés (pas les images, etc. dans les sous-dossiers)
-  if (!cleanUrl.endsWith('.html') && !cleanUrl.endsWith('.pdf')) return false;
+  if (!cleanUrl.toLowerCase().endsWith('.html') && !cleanUrl.toLowerCase().endsWith('.pdf')) return false;
 
   // Tout le reste dans un cours est protégé :
   // - chapitres 2+
@@ -83,7 +107,9 @@ function isProtected(urlPath) {
  * Extrait le nom du cours depuis l'URL
  */
 function getCourseFromUrl(urlPath) {
-  const parts = urlPath.split('/').filter(Boolean);
+  const cleanUrl = normalizeUrlPath(urlPath);
+  if (!cleanUrl) return null;
+  const parts = cleanUrl.split('/').filter(Boolean);
   if (parts.length >= 1 && COURSE_DIRS.includes(parts[0])) {
     return parts[0];
   }

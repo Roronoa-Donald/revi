@@ -140,14 +140,14 @@ module.exports = {
   questions: [
     {
       stem: 'Quel principe fondamental affirme que la sécurité d\'un cryptosystème ne doit dépendre que du secret de la clé et pas de celui de l\'algorithme ?',
-      opts: ['Le principe de Kerckhoffs', 'Le rasoir d\'Ockham', 'Le théorème de Shannon', 'La loi de Moore'],
-      correct: 0,
+      opts: ['Le théorème de Shannon', 'Le rasoir d\'Ockham', 'Le principe de Kerckhoffs', 'La loi de Moore'],
+      correct: 2,
       exp: 'Auguste Kerckhoffs a énoncé en 1883 que la sécurité d\'un système cryptographique doit résider entièrement dans la clé, l\'algorithme pouvant être public sans compromettre la sécurité.'
     },
     {
       stem: 'Combien de clés multiplicatives \'a\' sont valides pour un chiffrement affine dans un alphabet de 26 lettres ?',
-      opts: ['26', '13', '12', '25'],
-      correct: 2,
+      opts: ['26', '13', '25', '12'],
+      correct: 3,
       exp: 'La clé a doit être première avec 26 (pgcd(a, 26) = 1). Les entiers impairs non multiples de 13 sont 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25, soit exactement 12 valeurs.'
     },
     {
@@ -158,20 +158,20 @@ module.exports = {
     },
     {
       stem: 'Quelle est la valeur approximative de l\'Indice de Coïncidence (IC) pour un texte rédigé en français naturel ?',
-      opts: ['0.0385', '0.0500', '0.0778', '0.1250'],
-      correct: 2,
+      opts: ['0.0385', '0.0778', '0.0500', '0.1250'],
+      correct: 1,
       exp: 'En langue française, l\'hétérogénéité des fréquences de lettres (dominance de E, A, S, I) produit un Indice de Coïncidence théorique d\'environ 0.0778 (contre 0.0385 pour un texte uniforme/aléatoire).'
     },
     {
       stem: 'Quel type d\'attaque cryptanalytique désigne le scénario où l\'attaquant ne dispose que d\'interceptions de messages chiffrés ?',
-      opts: ['Known-Plaintext Attack (KPA)', 'Ciphertext-Only Attack (COA)', 'Chosen-Plaintext Attack (CPA)', 'Man-in-the-Middle (MITM)'],
-      correct: 1,
+      opts: ['Known-Plaintext Attack (KPA)', 'Chosen-Plaintext Attack (CPA)', 'Ciphertext-Only Attack (COA)', 'Man-in-the-Middle (MITM)'],
+      correct: 2,
       exp: 'L\'attaque à texte chiffré seul (Ciphertext-Only Attack - COA) est le modèle d\'attaque le plus contraignant pour l\'attaquant, qui ne possède aucun extrait en clair du message.'
     },
     {
       stem: 'Que se passe-t-il si un attaquant intercepte deux textes C1 et C2 chiffrés avec le même masque jetable K (Two-Time Pad) ?',
-      opts: ['L\'attaquant ne peut rien déduire car le masque est aléatoire', 'L\'opération C1 ^ C2 annule le masque et révèle P1 ^ P2', 'La clé K est automatiquement détruite', 'Les textes clairs sont effacés du réseau'],
-      correct: 1,
+      opts: ['L\'attaquant ne peut rien déduire car le masque est aléatoire', 'Les textes clairs sont effacés du réseau', 'La clé K est automatiquement détruite', 'L\'opération C1 ^ C2 annule le masque et révèle P1 ^ P2'],
+      correct: 3,
       exp: 'Comme C1 = P1 ^ K et C2 = P2 ^ K, le XOR des chiffrés donne C1 ^ C2 = P1 ^ P2. Cette relation peut aider à retrouver les clairs, sans garantir leur récupération immédiate.'
     }
   ],

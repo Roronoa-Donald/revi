@@ -111,6 +111,47 @@
       }
     });
 
+  // Tarification officielle certifiée serveur (fallback cohérent si hors ligne)
+  var payConfig = {
+    monthly: 5000,
+    annual: 45000,
+    currency: 'FCFA',
+    monthlyLabel: '5 000 FCFA / mois'
+  };
+
+  function formatPriceLabel(amount, currency) {
+    var cur = currency === 'XOF' ? 'FCFA' : (currency || 'FCFA');
+    return new Intl.NumberFormat('fr-FR').format(amount) + ' ' + cur + ' / mois';
+  }
+
+  // Chargement dynamique de la configuration tarifaire FedaPay
+  fetch('/api/fedapay/config')
+    .then(function (res) { return res.json(); })
+    .then(function (cfg) {
+      if (!cfg) return;
+      if (cfg.currency) payConfig.currency = cfg.currency === 'XOF' ? 'FCFA' : cfg.currency;
+      if (cfg.amounts) {
+        if (cfg.amounts.monthly) payConfig.monthly = Number(cfg.amounts.monthly);
+        if (cfg.amounts.annual) payConfig.annual = Number(cfg.amounts.annual);
+      } else if (cfg.amount) {
+        payConfig.monthly = Number(cfg.amount);
+      }
+      payConfig.monthlyLabel = formatPriceLabel(payConfig.monthly, payConfig.currency);
+      updatePaywallText();
+    })
+    .catch(function () {});
+
+  function updatePaywallText() {
+    var priceEls = document.querySelectorAll('.auth-paywall-price');
+    priceEls.forEach(function (el) {
+      el.textContent = payConfig.monthlyLabel;
+    });
+    var btn = document.getElementById('auth-paywall-sub-btn');
+    if (btn) {
+      btn.textContent = 'S\'abonner — ' + payConfig.monthlyLabel;
+    }
+  }
+
   /**
    * Overlay paiement / connexion.
    */
@@ -123,11 +164,11 @@
     if (reason === 'subscription') {
       title = 'Contenu réservé aux abonnés';
       message = 'Ton compte est créé mais l\'abonnement n\'est pas actif. ' +
-        'Abonnement <strong>1 000 F / mois</strong> pour accéder à tout le contenu.';
+        'Abonnement <strong class="auth-paywall-price">' + payConfig.monthlyLabel + '</strong> pour accéder à tout le contenu.';
     } else {
       title = 'Connexion requise';
       message = 'Ce contenu est réservé aux abonnés. Connecte-toi ou crée un compte, ' +
-        'puis souscris l\'abonnement <strong>1 000 F / mois</strong> pour y accéder.';
+        'puis souscris l\'abonnement <strong class="auth-paywall-price">' + payConfig.monthlyLabel + '</strong> pour y accéder.';
     }
 
     var overlay = document.createElement('div');
@@ -143,7 +184,7 @@
           (reason === 'auth'
             ? '<a href="/_auth/login.html?redirect=' + redirectParam + '" class="auth-block-btn auth-block-btn-primary">Se connecter</a>' +
               '<a href="/_auth/login.html?mode=register&redirect=' + redirectParam + '" class="auth-block-btn auth-block-btn-secondary">Créer un compte</a>'
-            : '<a href="/_auth/account.html?payment=required&redirect=' + redirectParam + '" class="auth-block-btn auth-block-btn-primary">S\'abonner — 1 000 F / mois</a>' +
+            : '<a href="/_auth/account.html?payment=required&redirect=' + redirectParam + '" class="auth-block-btn auth-block-btn-primary" id="auth-paywall-sub-btn">S\'abonner — ' + payConfig.monthlyLabel + '</a>' +
               '<a href="/' + (currentCourse || '') + '/index.html" class="auth-block-btn auth-block-btn-secondary">' + svgIcon('arrow-left', 16) + ' Retour au sommaire</a>') +
         '</div>' +
       '</div>';
@@ -187,17 +228,21 @@
    * Badge discret utilisateur connecté.
    */
   function showAuthBadge(account, level) {
-    var badge = document.createElement('a');
-    badge.href = '/_auth/account.html';
+    var badge = document.createElement('div');
     badge.id = 'auth-badge';
-    badge.title = 'Accéder à mon espace personnel';
+
+    var link = document.createElement('a');
+    link.href = '/_auth/account.html';
+    link.className = 'auth-badge-link';
+    link.title = 'Accéder à mon espace personnel';
 
     var name = account && account.email ? account.email : 'Compte';
     var lvl = level ? String(level).toUpperCase() : '';
-    badge.innerHTML =
+    link.innerHTML =
       '<span class="auth-badge-dot"></span>' +
       (lvl ? '<span class="auth-badge-level">' + lvl + '</span>' : '') +
       '<span class="auth-badge-email">' + String(name).replace(/[<>&"]/g, '') + '</span>';
+    badge.appendChild(link);
     document.body.appendChild(badge);
   }
 
@@ -206,9 +251,11 @@
     if (!badge) return;
 
     var logoutBtn = document.createElement('button');
+    logoutBtn.type = 'button';
     logoutBtn.id = 'auth-logout-btn';
     logoutBtn.innerHTML = svgIcon('x', 14);
     logoutBtn.title = 'Se déconnecter';
+    logoutBtn.setAttribute('aria-label', 'Se déconnecter');
     logoutBtn.addEventListener('click', function () {
       if (confirm('Voulez-vous vous déconnecter ?')) {
         fetch('/api/logout', { method: 'POST', credentials: 'include' })

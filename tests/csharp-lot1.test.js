@@ -362,7 +362,9 @@ if (process.env.CSHARP_LOT1_ISOLATED !== '1') {
     const interfaces = fs.readFileSync('/proc/net/dev', 'utf8').split('\n').slice(2)
       .map(line => line.trim().split(':')[0]).filter(Boolean);
     assert.deepEqual(interfaces, ['lo']);
-    for (const course of ['csharp', 'docker', 'b3-linux', 'b3-github']) assert.ok(isGradingSuspended(course));
+    for (const course of ['csharp', 'docker', 'b3-linux', 'b3-github']) {
+      assert.equal(isGradingSuspended(course), false, course);
+    }
     assert.ok(MAX_TESTS >= 5);
   });
 

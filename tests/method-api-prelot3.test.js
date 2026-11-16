@@ -1,26 +1,25 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const { spawnSync } = require('node:child_process');
 const test = require('node:test');
 const jwt = require('jsonwebtoken');
 const { buildApp } = require('../server/app');
 const catalogue = require('../server/exercises');
 const execution = require('../server/services/execution');
 const budget = require('../server/services/execution/budget');
+const localRunner = require('../server/services/execution/local-runner');
 const { methodExercises } = require('../server/exercises/method-check');
 
-function isolatedProvider(payload) {
-  const child = spawnSync('/usr/bin/bwrap', [
-    '--die-with-parent', '--unshare-all', '--new-session', '--clearenv', '--cap-drop', 'ALL',
-    '--ro-bind', '/usr', '/usr', '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib',
-    '--symlink', 'usr/lib', '/lib64', '--dir', '/etc', '--ro-bind', '/etc/ld.so.cache', '/etc/ld.so.cache',
-    '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--chdir', '/tmp',
-    '/usr/bin/python3', '-I', '-B', '-c', payload.code
-  ], { input: payload.stdin, encoding: 'utf8', timeout: 10000, maxBuffer: 1024 * 1024 });
-  if (child.error) throw child.error;
-  return { ok: child.status === 0, status: child.status === 0 ? 'success' : 'runtime_error',
-    stdout: child.stdout || '', stderr: child.stderr || '', exitCode: child.status };
+async function isolatedProvider(payload) {
+  const res = await localRunner.runPseudoCode(payload.code, payload.stdin);
+  return {
+    ok: res.ok,
+    status: res.ok ? 'success' : 'runtime_error',
+    stdout: res.data?.stdout || '',
+    stderr: res.data?.stderr || '',
+    compileError: res.data?.compile_error || '',
+    exitCode: res.data?.exit_code ?? (res.ok ? 0 : 1)
+  };
 }
 
 test('les quatre corrigés réussissent par l’API isolée et les échecs ne reçoivent pas de note', async () => {

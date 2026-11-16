@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -256,10 +254,11 @@ Comparer notamment deux messages distincts avec la même signature dans les cas 
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SIGN n=3233 d=2753 text=CONTRAT_OFFICIEL</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez h = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16) % n.</li>
         <li>Vérifiez d’abord 0 &lt;= sig &lt; n, puis comparez pow(sig, e, n) à h : une égalité ne prouve pas la sécurité.</li>
+        <li>Pour signer sur le modèle jouet, élevez le condensat réduit (h % n) à la puissance d modulo n, puis vérifiez sig^e % n == digest_mod en précisant la limite sans bourrage PSS.</li>
       </ol>
     </details>
   </div>
@@ -325,10 +324,11 @@ Paramètres : <code>CERT_VALIDATE fqdn=&lt;fqdn&gt; date=&lt;date&gt; cn=&lt;cn&
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CERT_VALIDATE fqdn=api.cloud.corp date=2026-10-15 cn=api.cloud.corp san=*.cloud.corp,cloud.corp not_before=2026-01-01 not_after=2027-01-01 is_ca=false</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparez les dates ISO YYYY-MM-DD avec bornes incluses, puis ignorez le CN pour la correspondance du nom.</li>
         <li>Un wildcard complet dans le label le plus à gauche couvre exactement un label ; même si les contrôles passent, la chaîne reste non contrôlée.</li>
+        <li>Comparez le FQDN cible aux entrées SAN exactes ou wildcard autorisées, et vérifiez que la date courante se situe bien entre NotBefore et NotAfter.</li>
       </ol>
     </details>
   </div>
@@ -405,10 +405,11 @@ CERT subject=DigiTrust_Intermediate_CA issuer=DigiTrust_Root_CA serial=SN-2001 i
 CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=true</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparez les numéros de série à la liste fictive avant de vérifier les noms et les indicateurs CA.</li>
         <li>Des noms cohérents ne vérifient pas les signatures ni l’ancre de confiance : le verdict positif reste partiel.</li>
+        <li>Parcourez la chaîne du certificat feuille jusqu à la racine, vérifiez le lien issuer/subject et contrôlez l absence du numéro de série dans la CRL fictive.</li>
       </ol>
     </details>
   </div>
@@ -422,8 +423,8 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
       <p class="q__stem">Dans une signature numérique RSA, quelle clé est utilisée pour créer la signature et quelle clé est utilisée pour la vérifier ?</p>
       <div class="opts">
         <button class="opt">Création avec la clé publique, vérification avec la clé privée</button>
-        <button class="opt" data-correct="1">Création avec la clé privée de l'émetteur, vérification avec la clé publique de l'émetteur</button>
         <button class="opt">Création avec la clé symétrique AES, vérification avec le mot de passe</button>
+        <button class="opt" data-correct="1">Création avec la clé privée de l'émetteur, vérification avec la clé publique de l'émetteur</button>
         <button class="opt">Création avec la clé privée du destinataire, vérification avec sa clé publique</button>
       </div>
       <div class="q__exp">Un schéma standard comme RSA-PSS utilise la clé privée pour signer et la clé publique correspondante pour vérifier. L'identité dépend aussi du lien de confiance entre cette clé et le signataire.</div>
@@ -432,29 +433,29 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
       <p class="q__stem">Quel champ d'extension X.509 v3 est aujourd'hui obligatoire pour valider la correspondance d'un nom d'hôte dans les navigateurs web ?</p>
       <div class="opts">
         <button class="opt">Common Name (CN)</button>
-        <button class="opt" data-correct="1">Subject Alternative Name (SAN)</button>
-        <button class="opt">Organizational Unit (OU)</button>
         <button class="opt">Locality Name (L)</button>
+        <button class="opt">Organizational Unit (OU)</button>
+        <button class="opt" data-correct="1">Subject Alternative Name (SAN)</button>
       </div>
       <div class="q__exp">La RFC 9525 vérifie un nom DNS de service dans une entrée dNSName du SAN ; le Common Name ne doit pas servir à identifier le service. La chaîne et les autres contraintes doivent aussi être vérifiées.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que signifie l'extension « Basic Constraints: CA:FALSE » dans un certificat X.509 ?</p>
       <div class="opts">
-        <button class="opt">Le certificat est révoqué immédiatement</button>
         <button class="opt" data-correct="1">Le certificat appartient à une entité finale et ne peut en aucun cas signer d'autres certificats</button>
-        <button class="opt">Le certificat est exempté de date d'expiration</button>
-        <button class="opt">Le certificat ne fonctionne que sur le protocole HTTP</button>
+        <button class="opt">Le certificat est révoqué immédiatement par l'autorité de certification émettrice</button>
+        <button class="opt">Le certificat est exempté de date d'expiration et reste valable indéfiniment</button>
+        <button class="opt">Le certificat ne fonctionne que sur le protocole HTTP sans chiffrement TLS</button>
       </div>
       <div class="q__exp">La contrainte CA:FALSE garantit que le certificat est un certificat feuille (serveur web ou utilisateur) et interdit strictement son utilisation pour émettre ou signer d'autres certificats.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l'avantage majeur de l'agrafage OCSP (OCSP Stapling) par rapport à une requête OCSP classique ?</p>
       <div class="opts">
-        <button class="opt">Il rend les certificats gratuits</button>
+        <button class="opt">Il rend les certificats gratuits et accessibles à tous les domaines publiés</button>
         <button class="opt" data-correct="1">Il évite au client de contacter la CA, préservant la vie privée et réduisant la latence de connexion</button>
-        <button class="opt">Il remplace le chiffrement AES par RSA</button>
-        <button class="opt">Il supprime le besoin d'une autorité racine</button>
+        <button class="opt">Il remplace le chiffrement symétrique AES par RSA dans le tunnel TLS établi</button>
+        <button class="opt">Il supprime le besoin d'une autorité de certification racine dans la chaîne</button>
       </div>
       <div class="q__exp">Avec l'OCSP Stapling, le serveur web envoie lui-même la réponse OCSP signée et en cache lors du handshake TLS, ce qui évite au client d'interroger la CA (zéro fuite d'historique de navigation et connexion plus rapide).</div>
     </div>
@@ -463,8 +464,8 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
       <div class="opts">
         <button class="opt">www.domaine.fr</button>
         <button class="opt">api.domaine.fr</button>
-        <button class="opt">mail.domaine.fr</button>
         <button class="opt" data-correct="1">espace.client.domaine.fr</button>
+        <button class="opt">mail.domaine.fr</button>
       </div>
       <div class="q__exp">Le caractère générique wildcard « * » ne remplace qu'un seul sous-niveau DNS. Il ne couvre pas « espace.client.domaine.fr » (qui comporte deux sous-niveaux) ni le domaine racine « domaine.fr ».</div>
     </div>
@@ -586,7 +587,7 @@ CERT subject=DigiTrust_Root_CA issuer=DigiTrust_Root_CA serial=SN-3001 is_ca=tru
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

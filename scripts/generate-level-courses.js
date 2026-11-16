@@ -146,9 +146,7 @@ ${MARKER}
 <title>${esc(name)} — ${level.toUpperCase()} | Cours Interactif</title>
 <meta name="description" content="Module ${esc(name)} (niveau ${level.toUpperCase()}) : programme, supports et progression.">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <style>
   :root { --course-accent: ${accent}; }

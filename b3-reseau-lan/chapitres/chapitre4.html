@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -233,26 +231,28 @@ PATH id=PATH_C hops=10000,10000</pre></div>
      data-exercise="lan3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="LSA id=L1 type=1 adv_router=1.1.1.1 area=0&#10;LSA id=L2 type=2 adv_router=2.2.2.2 area=0&#10;LSA id=L3 type=3 adv_router=10.0.0.1 area=1&#10;LSA id=L4 type=5 adv_router=192.168.1.1 area=0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c4-e2) — Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La mairie de Tréville exploite un domaine OSPF à deux aires.&#10;LSA-x : les liens de R-Mairie dans l'aire 1.&#10;LSA-y : les routeurs du segment 10.9.9.0/24, émis par le DR.&#10;LSA-z : le réseau 10.8.0.0/16 de l'aire 0, annoncé dans l'aire 1 par R-ABR.&#10;LSA-w : la route vers l'ASBR du siège, annoncée dans l'aire 1 par R-ABR.&#10;LSA-v : la route externe du réseau des écoles, redistribuée par l'ASBR.&#10;&#10;1) LSA-x : type 1 (Router LSA).&#10;2) LSA-y : type 2 (Network LSA du DR).&#10;3) LSA-z : type 3 (résumé de réseau par l'ABR).&#10;4) LSA-w : type 4 (résumé vers l'ASBR).&#10;5) LSA-v : type 5 (route externe).">
+  <script type="text/plain" data-lab-starter># Exercice — La lecture des LSAs du siège de Calorix
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Chaque réponse est le numéro du type de LSA (1 à 5).
 
-[Cas 1 — Annonces de Type 4 et Type 7 NSSA]
-# Données : LSA id=L_ASBR type=4 adv_router=10.0.0.254 area=2
-# Données : LSA id=L_NSSA type=7 adv_router=172.16.50.1 area=10
+[Question 1 — Type du LSA-a]
 A_COMPLETER
 
-[Cas 2 — Plusieurs LSAs Type 1 dans différentes aires]
-# Données : LSA id=R_BB type=1 adv_router=1.1.1.1 area=0
-# Données : LSA id=R_A1 type=1 adv_router=2.2.2.2 area=1
+[Question 2 — Type du LSA-b]
 A_COMPLETER
 
-[Cas 3 — LSA Type 5 traversant le backbone]
-# Données : LSA id=EXT_ROUTE type=5 adv_router=198.51.100.1 area=0
+[Question 3 — Type du LSA-c]
+A_COMPLETER
+
+[Question 4 — Type du LSA-d]
+A_COMPLETER
+
+[Question 5 — Type du LSA-e]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)</h3>
+    <h3 class="lab__title">Exercice 2 — La lecture des LSAs du siège de Calorix</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -261,30 +261,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="lan3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Classer les annonces d'état de liens (LSA) selon leur type, leur portée de diffusion et leur rôle émetteur.</p>
-    <div class="lab__brief"><p>Dans une architecture OSPF multi-aires, différents types de <strong>Link-State Advertisements (LSA)</strong> circulent pour construire la base de données topologique (LSDB) :<br><br>
-Classification officielle des LSAs :<br>
-- <strong>Type 1 (Router LSA) :</strong> Émis par <em>chaque routeur interne</em>, portée <code>INTRA_AREA</code>.<br>
-- <strong>Type 2 (Network LSA) :</strong> Émis par le <em>Designated Router (DR)</em> sur réseau multi-accès broadcast, portée <code>INTRA_AREA</code>.<br>
-- <strong>Type 3 (Summary LSA) :</strong> Émis par un <em>ABR (Area Border Router)</em> pour annoncer des réseaux d'autres aires, portée <code>INTER_AREA</code>.<br>
-- <strong>Type 4 (ASBR Summary LSA) :</strong> Émis par un <em>ABR</em> pour indiquer la route vers un ASBR, portée <code>INTER_AREA</code>.<br>
-- <strong>Type 5 (AS External LSA) :</strong> Émis par un <em>ASBR (Autonomous System Boundary Router)</em> pour injecter des routes redistribuées (BGP, RIP, statique), portée <code>EXTERNAL_AS</code>.<br>
-- <strong>Type 7 (NSSA External LSA) :</strong> Émis par un <em>ASBR</em> dans une aire NSSA, portée <code>NSSA_LOCAL</code>.<br><br>
-l’étude de cas comporte dans l’énoncé du cas des annonces LSA capturées :<br>
-<code>LSA id=&lt;nom&gt; type=&lt;1|2|3|4|5|7&gt; adv_router=&lt;ip&gt; area=&lt;int&gt;</code><br><br>
-Pour chaque LSA, afficher :<br>
-<code>LSA_REPORT id={id} type={type} name={lsa_name} emitter={emitter_role} scope={scope}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Classer les LSAs d'une base d'états de liens par type (1 à 5) à partir de leur contenu et de leur émetteur.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Calorix, fabricant de matériel de chauffage, exploite un domaine OSPF à deux aires : l'aire 0 (cœur, siège) et l'aire 1 (usine). Le routeur interne R-INT1, situé dans l'aire 1, affiche sa base d'états de liens. L'ingénieur relève les cinq entrées suivantes :</p><table><tr><th>Entrée</th><th>Contenu</th><th>Émise par</th></tr><tr><th>LSA-a</th><td>Les liens de R-INT1 dans l'aire 1</td><td>R-INT1</td></tr><tr><th>LSA-b</th><td>Les routeurs raccordés au réseau multi-accès 10.1.1.0/24 (segment dont R-ABR1 est le DR)</td><td>R-ABR1</td></tr><tr><th>LSA-c</th><td>Le réseau 10.20.0.0/16 de l'aire 0, annoncé à l'aire 1</td><td>R-ABR1</td></tr><tr><th>LSA-d</th><td>La localisation de l'ASBR R-ASBR (situé dans l'aire 0) pour les routeurs de l'aire 1</td><td>R-ABR1</td></tr><tr><th>LSA-e</th><td>La route externe 0.0.0.0/0 vers le fournisseur Internet, redistribuée</td><td>R-ASBR</td></tr></table><p>Rappel du cours : type 1 (Router LSA, un routeur décrit ses liens dans son aire) ; type 2 (Network LSA, le DR décrit un segment multi-accès) ; type 3 (Network Summary, un ABR annonce un réseau d'une autre aire) ; type 4 (ASBR Summary, un ABR annonce la route vers un ASBR) ; type 5 (AS External, un ASBR annonce une route externe). Les types 1 et 2 ne quittent jamais leur aire de départ.</p><p>Répondez par le numéro du type (un chiffre entre 1 et 5).</p><ol><li>Quel est le type du LSA-a ?</li><li>Quel est le type du LSA-b ?</li><li>Quel est le type du LSA-c ?</li><li>Quel est le type du LSA-d ?</li><li>Quel est le type du LSA-e ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LSA id=L1 type=1 adv_router=1.1.1.1 area=0
-LSA id=L2 type=2 adv_router=2.2.2.2 area=0
-LSA id=L3 type=3 adv_router=10.0.0.1 area=1
-LSA id=L4 type=5 adv_router=192.168.1.1 area=0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La mairie de Tréville exploite un domaine OSPF à deux aires.
+LSA-x : les liens de R-Mairie dans l'aire 1.
+LSA-y : les routeurs du segment 10.9.9.0/24, émis par le DR.
+LSA-z : le réseau 10.8.0.0/16 de l'aire 0, annoncé dans l'aire 1 par R-ABR.
+LSA-w : la route vers l'ASBR du siège, annoncée dans l'aire 1 par R-ABR.
+LSA-v : la route externe du réseau des écoles, redistribuée par l'ASBR.
+
+1) LSA-x : type 1 (Router LSA).
+2) LSA-y : type 2 (Network LSA du DR).
+3) LSA-z : type 3 (résumé de réseau par l'ABR).
+4) LSA-w : type 4 (résumé vers l'ASBR).
+5) LSA-v : type 5 (route externe).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Gérer un dictionnaire de mapping pour les types 1, 2, 3, 4, 5, 7.</li>
-        <li>Exemple: 1 -&gt; ("Router LSA", "INTERNAL_ROUTER", "INTRA_AREA").</li>
+        <li>Identifiez l'émetteur : un routeur ordinaire, un DR, un ABR ou un ASBR n'émettent pas les mêmes types.</li>
+        <li>Un LSA dont le contenu est un réseau situé dans une autre aire est un résumé d'ABR ; s'il décrit un segment local multi-accès, c'est le DR qui parle.</li>
+        <li>1. LSA-a : un routeur décrit ses propres liens dans son aire. 2. LSA-b : un DR décrit son segment. 3. LSA-c : un ABR résume un réseau d'une autre aire. 4. LSA-d : un ABR indique où trouver un ASBR. 5. LSA-e : un ASBR redistribue une route externe.</li>
       </ol>
     </details>
   </div>
@@ -294,32 +292,29 @@ LSA id=L4 type=5 adv_router=192.168.1.1 area=0</pre></div>
      data-exercise="lan3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="AREA_CONFIG area_id=10 type=STUB&#10;INCOMING_LSA id=L1 lsa_type=1 prefix=10.10.0.0/16&#10;INCOMING_LSA id=L2 lsa_type=3 prefix=192.168.0.0/24&#10;INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c4-e3) — Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby & NSSA
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le groupement Verchant exploite une aire distante 60.&#10;Besoins : supprimer les routes externes (LSA type 5) tout en gardant les réseaux&#10;intersites (type 3), puis annoncer une route externe d'un partenaire local.&#10;&#10;1) Supprimer les types 5 seulement : aire stub.&#10;2) Supprimer aussi les types 3 et 4 : aire totalement stub.&#10;3) Annoncer une externe locale : aire NSSA (LSA type 7 converti en type 5 par l'ABR).&#10;4) En aire totalement stub, aucun LSA de type 3 de réseau distant ne reste.&#10;5) L'ABR injecte une route par défaut (0.0.0.0/0).">
+  <script type="text/plain" data-lab-starter># Exercice — Les aires spéciales de l'agence de Montferand
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nom de l'aire. Question 4 : le nombre seul.
+# Question 5 : un court libellé.
 
-[Cas 1 — Zone Totally Stubby bloquant même les Summary Type 3]
-# Données : AREA_CONFIG area_id=20 type=TOTALLY_STUBBY
-# Données : INCOMING_LSA id=T1 lsa_type=1 prefix=10.20.0.0/16
-# Données : INCOMING_LSA id=T3 lsa_type=3 prefix=172.16.0.0/16
-# Données : INCOMING_LSA id=T5 lsa_type=5 prefix=8.8.8.8/32
+[Question 1 — Aire spéciale supprimant les types 5 seulement]
 A_COMPLETER
 
-[Cas 2 — Zone NSSA autorisant le Type 7 et bloquant le Type 5]
-# Données : AREA_CONFIG area_id=30 type=NSSA
-# Données : INCOMING_LSA id=N7 lsa_type=7 prefix=198.51.100.0/24
-# Données : INCOMING_LSA id=N5 lsa_type=5 prefix=203.0.113.0/24
+[Question 2 — Aire supprimant aussi les types 3 et 4]
 A_COMPLETER
 
-[Cas 3 — Zone standard acceptant tout]
-# Données : AREA_CONFIG area_id=0 type=STANDARD
-# Données : INCOMING_LSA id=S3 lsa_type=3 prefix=10.0.0.0/8
-# Données : INCOMING_LSA id=S4 lsa_type=4 prefix=1.1.1.1/32
-# Données : INCOMING_LSA id=S5 lsa_type=5 prefix=100.64.0.0/10
+[Question 3 — Aire autorisant un ASBR interne]
+A_COMPLETER
+
+[Question 4 — LSAs de type 3 restants en aire totalement stub]
+A_COMPLETER
+
+[Question 5 — Route injectée par l'ABR dans une aire totalement stub]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby &amp; NSSA</h3>
+    <h3 class="lab__title">Exercice 3 — Les aires spéciales de l'agence de Montferand</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -328,31 +323,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="lan3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'acceptation ou le filtrage des LSAs selon la politique de zone OSPF configurée sur l'ABR.</p>
-    <div class="lab__brief"><p>Pour alléger la table de routage et préserver la mémoire des routeurs de succursales, OSPF définit des types de zones spéciales :<br><br>
-Règles de filtrage des LSAs selon le type de zone :<br>
-- <strong>STANDARD (Zone normale) :</strong> Accepte tous les types de LSA (1, 2, 3, 4, 5).<br>
-- <strong>STUB :</strong> Bloque les routes externes (Type 4 et 5 rejetés) ; accepte Type 1, 2, 3.<br>
-- <strong>TOTALLY_STUBBY (Spécifique Cisco) :</strong> Bloque les routes externes (Type 4 et 5) ET les routes inter-zones (Type 3 rejetés) ; n'accepte que Type 1 et 2.<br>
-- <strong>NSSA (Not-So-Stubby Area) :</strong> Bloque les routes externes Type 4 et 5 classiques, mais accepte les Type 7 générés localement ; accepte Type 1, 2, 3, 7.<br><br>
-Analysez les paramètres du problème pour chaque cas.<br>
-- Si bloqué : <code>action=DROP result=BLOCKED_BY_AREA_POLICY</code>.<br><br>
-Afficher :<br>
-<code>OSPF_FILTER id={id} area={area_id} lsa_type={lsa_type} action={action} result={result}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir une aire OSPF spéciale (stub, totally stubby, NSSA) selon les besoins d'une agence et compter les LSAs restants.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Montferand est une agence bancaire reliée au siège par un lien de 20 Mbit/s. Son aire OSPF 51 reçoit aujourd'hui : 12 LSAs de type 3 (réseaux des autres aires), 4 LSAs de type 4 (localisations d'ASBR) et 6 LSAs de type 5 (routes externes), en plus des LSAs internes de l'agence. Le responsable réseau veut alléger la table de routage des routeurs de l'agence, avec deux contraintes : les postes de l'agence ne consomment aucune route externe, mais l'agence doit pouvoir annoncer une route externe vers un partenaire de sauvegarde qui y est raccordé.</p><p>Rappel du cours : une aire stub supprime les LSAs de type 5 (routes externes) et conserve les types 3 ; une aire totalement stub (totally stubby) supprime aussi les types 3 et 4, ne laissant qu'une route par défaut injectée par l'ABR ; une aire NSSA autorise un ASBR interne : les routes externes y entrent sous forme de LSAs de type 7, que l'ABR convertit en type 5 vers le reste du domaine.</p><p>Répondez par le nom de l'aire (questions 1 à 3), le nombre seul (question 4) ou un court libellé (question 5).</p><ol><li>L'agence n'a besoin d'aucune route externe mais souhaite garder les routes inter-aires : quelle aire spéciale suffit ?</li><li>Pour supprimer aussi les LSAs de type 3 et 4, quel type d'aire l'administrateur configure-t-il ?</li><li>L'agence doit annoncer sa route externe vers le partenaire : quelle aire spéciale le permet ?</li><li>Après passage en aire totalement stub, combien de LSAs de type 3 décrivant les réseaux des autres aires restent-ils dans l'aire 51 ?</li><li>Quelle route l'ABR injecte-t-il dans une aire totalement stub pour assurer la sortie vers le reste du domaine ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AREA_CONFIG area_id=10 type=STUB
-INCOMING_LSA id=L1 lsa_type=1 prefix=10.10.0.0/16
-INCOMING_LSA id=L2 lsa_type=3 prefix=192.168.0.0/24
-INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le groupement Verchant exploite une aire distante 60.
+Besoins : supprimer les routes externes (LSA type 5) tout en gardant les réseaux
+intersites (type 3), puis annoncer une route externe d'un partenaire local.
+
+1) Supprimer les types 5 seulement : aire stub.
+2) Supprimer aussi les types 3 et 4 : aire totalement stub.
+3) Annoncer une externe locale : aire NSSA (LSA type 7 converti en type 5 par l'ABR).
+4) En aire totalement stub, aucun LSA de type 3 de réseau distant ne reste.
+5) L'ABR injecte une route par défaut (0.0.0.0/0).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Cinq indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Créer un set de types LSA autorisés selon le type d'aire.</li>
-        <li>STANDARD: {1, 2, 3, 4, 5}.</li>
-        <li>STUB: {1, 2, 3}.</li>
-        <li>TOTALLY_STUBBY: {1, 2}.</li>
-        <li>NSSA: {1, 2, 3, 7}.</li>
+        <li>Classez les besoins : supprimer les externes (stub), supprimer aussi les inter-aires (totally stubby), ou injecter des externes locales (NSSA).</li>
+        <li>L'aire totalement stub remplace tous les résumés par une unique route vers l'ABR.</li>
+        <li>1. L'agence garde les types 3 : l'aire stub suffit. 2. Totally stubby chasse aussi les types 3 et 4. 3. Le type 7 est propre aux NSSA. 4. Aucun résumé de réseau distant ne survit. 5. Une seule route suffit à sortir de l'aire.</li>
       </ol>
     </details>
   </div>
@@ -366,8 +355,8 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
       <p class="q__stem">Quel algorithme mathématique est exécuté par OSPF pour déterminer le plus court chemin vers chaque destination ?</p>
       <div class="opts">
         <button class="opt">L’algorithme de Bellman-Ford</button>
-        <button class="opt" data-correct="1">L’algorithme SPF de Dijkstra</button>
         <button class="opt">L’algorithme de Floyd-Warshall</button>
+        <button class="opt" data-correct="1">L’algorithme SPF de Dijkstra</button>
         <button class="opt">L’algorithme de cryptographie RSA</button>
       </div>
       <div class="q__exp">OSPF s’appuie sur l’algorithme de Dijkstra (Shortest Path First) pour calculer l’arbre des chemins de coût minimal.</div>
@@ -375,18 +364,18 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
     <div class="q">
       <p class="q__stem">Quelle commande Cisco IOS permet d’ajuster la bande passante de référence pour distinguer les liens 1G et 10G ?</p>
       <div class="opts">
-        <button class="opt">bandwidth 10000000</button>
+        <button class="opt">bandwidth 10000000 en interface</button>
+        <button class="opt">metric-type 1 en redistribution</button>
+        <button class="opt">ip ospf cost 100 par interface</button>
         <button class="opt" data-correct="1">auto-cost reference-bandwidth 100000</button>
-        <button class="opt">metric-type 1</button>
-        <button class="opt">ospf cost 100</button>
       </div>
       <div class="q__exp">La directive auto-cost reference-bandwidth permet de rehausser la référence (ex: 100000 pour 100 Gbps) pour discriminer les débits supérieurs à 100 Mbps.</div>
     </div>
     <div class="q">
       <p class="q__stem">Sur un segment Ethernet multi-accès, avec qui les routeurs DROTHER établissent-ils une adjacence pleine (FULL) ?</p>
       <div class="opts">
-        <button class="opt">Avec tous les routeurs du segment indifféremment</button>
         <button class="opt" data-correct="1">Uniquement avec le DR (Designated Router) et le BDR (Backup Designated Router)</button>
+        <button class="opt">Avec tous les routeurs du segment indifféremment</button>
         <button class="opt">Uniquement avec la passerelle par défaut DHCP</button>
         <button class="opt">Avec aucun routeur (état 2-Way permanent)</button>
       </div>
@@ -396,8 +385,8 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
       <p class="q__stem">Quel type de paquet LSA est généré par un routeur ABR pour annoncer des réseaux d’une aire vers une autre aire ?</p>
       <div class="opts">
         <button class="opt">LSA Type 1 (Router LSA)</button>
-        <button class="opt">LSA Type 2 (Network LSA)</button>
         <button class="opt" data-correct="1">LSA Type 3 (Summary LSA)</button>
+        <button class="opt">LSA Type 2 (Network LSA)</button>
         <button class="opt">LSA Type 5 (AS External LSA)</button>
       </div>
       <div class="q__exp">Le LSA Type 3 (Summary LSA) résume et propage les préfixes inter-aires à travers l’Area Border Router (ABR).</div>
@@ -415,10 +404,10 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
     <div class="q">
       <p class="q__stem">Quelle est la particularité exclusive d’une aire « Totally Stubby » par rapport à une aire « Stub » standard ?</p>
       <div class="opts">
+        <button class="opt">Elle désactive totalement le protocole OSPF sur l’ensemble des routeurs de l’aire</button>
+        <button class="opt">Elle autorise les annonces BGP directes à pénétrer dans l’aire sans filtrage</button>
+        <button class="opt">Elle ne permet pas d’avoir de switchs de niveau 3 au sein de l’aire concernée</button>
         <button class="opt" data-correct="1">Elle bloque également les LSA Type 3 inter-aires en ne conservant qu’une unique route par défaut vers l’ABR</button>
-        <button class="opt">Elle désactive totalement le protocole OSPF</button>
-        <button class="opt">Elle autorise les annonces BGP directes</button>
-        <button class="opt">Elle ne permet pas d’avoir de switchs de niveau 3</button>
       </div>
       <div class="q__exp">L’aire Totally Stubby (Cisco) bloque les Type 5 ET les Type 3 inter-aires : seule une route par défaut injectée par l’ABR subsiste.</div>
     </div>
@@ -426,8 +415,8 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
       <p class="q__stem">Quel type de LSA est utilisé pour transporter des routes externes à l’intérieur d’une aire NSSA (Not-So-Stubby Area) ?</p>
       <div class="opts">
         <button class="opt">LSA Type 1</button>
-        <button class="opt">LSA Type 5</button>
         <button class="opt" data-correct="1">LSA Type 7</button>
+        <button class="opt">LSA Type 5</button>
         <button class="opt">LSA Type 9</button>
       </div>
       <div class="q__exp">L’aire NSSA utilise des LSA Type 7 générés par son ASBR local. L’ABR traduit ensuite ces Type 7 en Type 5 vers l’Aire 0.</div>
@@ -435,8 +424,8 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
     <div class="q">
       <p class="q__stem">À quelle adresse IPv4 multicast réservée les routeurs OSPF envoient-ils leurs paquets Hello pour découvrir leurs voisins ?</p>
       <div class="opts">
-        <button class="opt">224.0.0.1</button>
         <button class="opt" data-correct="1">224.0.0.5</button>
+        <button class="opt">224.0.0.1</button>
         <button class="opt">224.0.0.6</button>
         <button class="opt">239.255.255.250</button>
       </div>
@@ -564,7 +553,7 @@ INCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

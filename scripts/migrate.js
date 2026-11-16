@@ -25,7 +25,7 @@ const path = require('path');
 const { Pool } = require('pg');
 
 const MIGRATIONS_DIR = path.resolve(__dirname, '..', 'server', 'migrations');
-const FAIL_OPEN = process.env.MIGRATE_FAIL_OPEN === '1';
+const FAIL_OPEN = process.env.MIGRATE_FAIL_OPEN === '1' && process.env.VERCEL_ENV !== 'production';
 
 function log(msg) { console.log(`  ${msg}`); }
 

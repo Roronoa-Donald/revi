@@ -14,6 +14,206 @@ const SPRITE = '/assets/img/ui-icons.svg';
 const TEMPLATES = path.join(__dirname, 'templates');
 const ROOT_DIR = path.resolve(__dirname, '..');
 
+/**
+ * Cartographie canonique des prérequis recommandés (B1/B2/B3) pour chaque
+ * cours de niveau B2 et B3. Utilisée automatiquement sur la page `index.html`.
+ */
+const COURSE_PREREQS = {
+  // ======================= Cours Bachelor 2 (24) =======================
+  linux: [
+    { slug: 'b1-linux', title: 'Linux & Shell B1', level: 'B1', href: '/b1-linux/index.html' },
+    { slug: 'b1-architecture', title: 'Architecture des Ordinateurs B1', level: 'B1', href: '/b1-architecture/index.html' }
+  ],
+  php: [
+    { slug: 'b1-php', title: 'Développement PHP B1', level: 'B1', href: '/b1-php/index.html' },
+    { slug: 'b1-prog-web', title: 'Programmation Web HTML/CSS/JS B1', level: 'B1', href: '/b1-prog-web/index.html' }
+  ],
+  probabilites: [
+    { slug: 'b1-stats', title: 'Statistiques Descriptives B1', level: 'B1', href: '/b1-stats/index.html' },
+    { slug: 'b1-algebre', title: 'Algèbre Linéaire B1', level: 'B1', href: '/b1-algebre/index.html' }
+  ],
+  rd_java: [
+    { slug: 'b1-algo', title: 'Algorithmique & Structures de Données B1', level: 'B1', href: '/b1-algo/index.html' },
+    { slug: 'b1-c-cpp', title: 'Programmation C & C++ B1', level: 'B1', href: '/b1-c-cpp/index.html' }
+  ],
+  rd_winserver: [
+    { slug: 'b1-admin-windows', title: 'Administration Windows Server B1', level: 'B1', href: '/b1-admin-windows/index.html' },
+    { slug: 'b1-reseaux', title: 'Réseaux Informatiques B1', level: 'B1', href: '/b1-reseaux/index.html' }
+  ],
+  'admin-vm': [
+    { slug: 'b1-virtualisation', title: 'Introduction à la Virtualisation B1', level: 'B1', href: '/b1-virtualisation/index.html' },
+    { slug: 'b1-linux', title: 'Linux & Shell B1', level: 'B1', href: '/b1-linux/index.html' }
+  ],
+  droit: [
+    { slug: 'b1-droit', title: 'Droit du Numérique & RGPD B1', level: 'B1', href: '/b1-droit/index.html' },
+    { slug: 'b1-cyber', title: 'Cybersécurité Fondamentale B1', level: 'B1', href: '/b1-cyber/index.html' }
+  ],
+  react: [
+    { slug: 'b1-prog-web', title: 'Programmation Web HTML/CSS/JS B1', level: 'B1', href: '/b1-prog-web/index.html' },
+    { slug: 'b1-git', title: 'Git & Gestion de Versions B1', level: 'B1', href: '/b1-git/index.html' }
+  ],
+  'api-rest-flask': [
+    { slug: 'b1-python', title: 'Programmation Python B1', level: 'B1', href: '/b1-python/index.html' },
+    { slug: 'b1-prog-web', title: 'Programmation Web HTML/CSS/JS B1', level: 'B1', href: '/b1-prog-web/index.html' }
+  ],
+  'erp-si': [
+    { slug: 'b1-merise', title: 'Modélisation Merise & SI B1', level: 'B1', href: '/b1-merise/index.html' },
+    { slug: 'b1-projet', title: 'Gestion de Projet IT B1', level: 'B1', href: '/b1-projet/index.html' }
+  ],
+  'ingenierie-besoin': [
+    { slug: 'b1-projet', title: 'Gestion de Projet IT B1', level: 'B1', href: '/b1-projet/index.html' },
+    { slug: 'b1-fr-pro', title: 'Expression & Communication Pro B1', level: 'B1', href: '/b1-fr-pro/index.html' }
+  ],
+  'masterclass-apprendre': [
+    { slug: 'b1-projet', title: 'Gestion de Projet IT B1', level: 'B1', href: '/b1-projet/index.html' },
+    { slug: 'b1-bureautique', title: 'Bureautique & Productivité B1', level: 'B1', href: '/b1-bureautique/index.html' }
+  ],
+  'RD-RO': [
+    { slug: 'b1-algebre', title: 'Algèbre Linéaire B1', level: 'B1', href: '/b1-algebre/index.html' },
+    { slug: 'b1-algo', title: 'Algorithmique & Structures de Données B1', level: 'B1', href: '/b1-algo/index.html' }
+  ],
+  assembleur: [
+    { slug: 'b1-architecture', title: 'Architecture des Ordinateurs B1', level: 'B1', href: '/b1-architecture/index.html' },
+    { slug: 'b1-c-cpp', title: 'Programmation C & C++ B1', level: 'B1', href: '/b1-c-cpp/index.html' }
+  ],
+  'Cyber securite B2': [
+    { slug: 'b1-cyber', title: 'Cybersécurité Fondamentale B1', level: 'B1', href: '/b1-cyber/index.html' },
+    { slug: 'b1-reseaux', title: 'Réseaux Informatiques B1', level: 'B1', href: '/b1-reseaux/index.html' }
+  ],
+  sql: [
+    { slug: 'b1-sql', title: 'Bases de Données & SQL B1', level: 'B1', href: '/b1-sql/index.html' },
+    { slug: 'b1-merise', title: 'Modélisation Merise & SI B1', level: 'B1', href: '/b1-merise/index.html' }
+  ],
+  csharp: [
+    { slug: 'b1-c-cpp', title: 'Programmation C & C++ B1', level: 'B1', href: '/b1-c-cpp/index.html' },
+    { slug: 'b1-algo', title: 'Algorithmique & Structures de Données B1', level: 'B1', href: '/b1-algo/index.html' }
+  ],
+  ccna: [
+    { slug: 'b1-ccna1', title: 'Réseaux CCNA 1 B1', level: 'B1', href: '/b1-ccna1/index.html' },
+    { slug: 'b1-reseaux', title: 'Réseaux Informatiques B1', level: 'B1', href: '/b1-reseaux/index.html' }
+  ],
+  uml: [
+    { slug: 'b1-merise', title: 'Modélisation Merise & SI B1', level: 'B1', href: '/b1-merise/index.html' },
+    { slug: 'b1-projet', title: 'Gestion de Projet IT B1', level: 'B1', href: '/b1-projet/index.html' }
+  ],
+  uiux: [
+    { slug: 'b1-prog-web', title: 'Programmation Web HTML/CSS/JS B1', level: 'B1', href: '/b1-prog-web/index.html' },
+    { slug: 'b1-projet', title: 'Gestion de Projet IT B1', level: 'B1', href: '/b1-projet/index.html' }
+  ],
+  docker: [
+    { slug: 'b1-linux', title: 'Linux & Shell B1', level: 'B1', href: '/b1-linux/index.html' },
+    { slug: 'b1-virtualisation', title: 'Introduction à la Virtualisation B1', level: 'B1', href: '/b1-virtualisation/index.html' }
+  ],
+  infographie: [
+    { slug: 'b1-prog-web', title: 'Programmation Web HTML/CSS/JS B1', level: 'B1', href: '/b1-prog-web/index.html' },
+    { slug: 'b1-bureautique', title: 'Bureautique & Productivité B1', level: 'B1', href: '/b1-bureautique/index.html' }
+  ],
+  'preparation-web': [
+    { slug: 'b1-prog-web', title: 'Programmation Web HTML/CSS/JS B1', level: 'B1', href: '/b1-prog-web/index.html' },
+    { slug: 'b1-php', title: 'Développement PHP B1', level: 'B1', href: '/b1-php/index.html' }
+  ],
+  epreuves: [
+    { slug: 'b1-algo', title: 'Algorithmique & Structures de Données B1', level: 'B1', href: '/b1-algo/index.html' },
+    { slug: 'b1-sql', title: 'Bases de Données & SQL B1', level: 'B1', href: '/b1-sql/index.html' }
+  ],
+
+  // ======================= Cours Bachelor 3 (23) =======================
+  'b3-algo': [
+    { slug: 'b1-algo', title: 'Algorithmique & Structures de Données B1', level: 'B1', href: '/b1-algo/index.html' },
+    { slug: 'RD-RO', title: 'Recherche Opérationnelle B2', level: 'B2', href: '/RD-RO/index.html' }
+  ],
+  'b3-cloud-computing': [
+    { slug: 'admin-vm', title: 'Administration des Machines Virtuelles B2', level: 'B2', href: '/admin-vm/index.html' },
+    { slug: 'docker', title: 'Conteneurisation Docker B2', level: 'B2', href: '/docker/index.html' }
+  ],
+  'b3-devops': [
+    { slug: 'docker', title: 'Conteneurisation Docker B2', level: 'B2', href: '/docker/index.html' },
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' },
+    { slug: 'b1-git', title: 'Git & Gestion de Versions B1', level: 'B1', href: '/b1-git/index.html' }
+  ],
+  'b3-document-technique': [
+    { slug: 'ingenierie-besoin', title: 'Ingénierie du Besoin B2', level: 'B2', href: '/ingenierie-besoin/index.html' },
+    { slug: 'uml', title: 'Modélisation UML B2', level: 'B2', href: '/uml/index.html' }
+  ],
+  'b3-etude-quantitative': [
+    { slug: 'probabilites', title: 'Probabilités & Modélisation B2', level: 'B2', href: '/probabilites/index.html' },
+    { slug: 'b1-stats', title: 'Statistiques Descriptives B1', level: 'B1', href: '/b1-stats/index.html' }
+  ],
+  'b3-firewall': [
+    { slug: 'ccna', title: 'CCNA Réseau & Routage B2', level: 'B2', href: '/ccna/index.html' },
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' },
+    { slug: 'Cyber securite B2', title: 'Cybersécurité B2', level: 'B2', href: '/Cyber%20securite%20B2/index.html' }
+  ],
+  'b3-github': [
+    { slug: 'b1-git', title: 'Git & Gestion de Versions B1', level: 'B1', href: '/b1-git/index.html' },
+    { slug: 'docker', title: 'Conteneurisation Docker B2', level: 'B2', href: '/docker/index.html' }
+  ],
+  'b3-linux': [
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' },
+    { slug: 'b1-linux', title: 'Linux & Shell B1', level: 'B1', href: '/b1-linux/index.html' }
+  ],
+  'b3-agile': [
+    { slug: 'ingenierie-besoin', title: 'Ingénierie du Besoin B2', level: 'B2', href: '/ingenierie-besoin/index.html' },
+    { slug: 'b1-projet', title: 'Gestion de Projet IT B1', level: 'B1', href: '/b1-projet/index.html' }
+  ],
+  'b3-pfsense': [
+    { slug: 'ccna', title: 'CCNA Réseau & Routage B2', level: 'B2', href: '/ccna/index.html' },
+    { slug: 'b3-firewall', title: 'Firewall & Sécurité Réseau B3', level: 'B3', href: '/b3-firewall/index.html' }
+  ],
+  'b3-reseau-lan': [
+    { slug: 'ccna', title: 'CCNA Réseau & Routage B2', level: 'B2', href: '/ccna/index.html' },
+    { slug: 'b1-ccna1', title: 'Réseaux CCNA 1 B1', level: 'B1', href: '/b1-ccna1/index.html' }
+  ],
+  'b3-sql': [
+    { slug: 'sql', title: 'SQL & Modélisation Relationnelle B2', level: 'B2', href: '/sql/index.html' },
+    { slug: 'b1-sql', title: 'Bases de Données & SQL B1', level: 'B1', href: '/b1-sql/index.html' }
+  ],
+  'b3-veille': [
+    { slug: 'masterclass-apprendre', title: 'Masterclass Apprendre à Apprendre B2', level: 'B2', href: '/masterclass-apprendre/index.html' },
+    { slug: 'Cyber securite B2', title: 'Cybersécurité B2', level: 'B2', href: '/Cyber%20securite%20B2/index.html' }
+  ],
+  'b3-windows-server': [
+    { slug: 'rd_winserver', title: 'Administration Windows Server B2', level: 'B2', href: '/rd_winserver/index.html' },
+    { slug: 'b1-admin-windows', title: 'Administration Windows Server B1', level: 'B1', href: '/b1-admin-windows/index.html' }
+  ],
+  'b3-anglais': [
+    { slug: 'b1-anglais', title: 'Anglais Technique IT B1', level: 'B1', href: '/b1-anglais/index.html' },
+    { slug: 'ingenierie-besoin', title: 'Ingénierie du Besoin B2', level: 'B2', href: '/ingenierie-besoin/index.html' }
+  ],
+  'b3-cloud-azure': [
+    { slug: 'b3-cloud-computing', title: 'Architecture Cloud Computing B3', level: 'B3', href: '/b3-cloud-computing/index.html' },
+    { slug: 'rd_winserver', title: 'Administration Windows Server B2', level: 'B2', href: '/rd_winserver/index.html' }
+  ],
+  'b3-cryptographie': [
+    { slug: 'Cyber securite B2', title: 'Cybersécurité B2', level: 'B2', href: '/Cyber%20securite%20B2/index.html' },
+    { slug: 'b1-algebre', title: 'Algèbre Linéaire B1', level: 'B1', href: '/b1-algebre/index.html' }
+  ],
+  'b3-google-cloud': [
+    { slug: 'b3-cloud-computing', title: 'Architecture Cloud Computing B3', level: 'B3', href: '/b3-cloud-computing/index.html' },
+    { slug: 'docker', title: 'Conteneurisation Docker B2', level: 'B2', href: '/docker/index.html' }
+  ],
+  'b3-hacking': [
+    { slug: 'Cyber securite B2', title: 'Cybersécurité B2', level: 'B2', href: '/Cyber%20securite%20B2/index.html' },
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' }
+  ],
+  'b3-cloud-aws': [
+    { slug: 'b3-cloud-computing', title: 'Architecture Cloud Computing B3', level: 'B3', href: '/b3-cloud-computing/index.html' },
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' }
+  ],
+  'b3-supervision': [
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' },
+    { slug: 'ccna', title: 'CCNA Réseau & Routage B2', level: 'B2', href: '/ccna/index.html' }
+  ],
+  'b3-voip': [
+    { slug: 'ccna', title: 'CCNA Réseau & Routage B2', level: 'B2', href: '/ccna/index.html' },
+    { slug: 'linux', title: 'Administration Linux B2', level: 'B2', href: '/linux/index.html' }
+  ],
+  'b3-virtualisation': [
+    { slug: 'admin-vm', title: 'Administration des Machines Virtuelles B2', level: 'B2', href: '/admin-vm/index.html' },
+    { slug: 'b1-virtualisation', title: 'Introduction à la Virtualisation B1', level: 'B1', href: '/b1-virtualisation/index.html' }
+  ]
+};
+
 /* ======================== Utilitaires ======================== */
 
 function esc(value) {
@@ -25,7 +225,8 @@ function esc(value) {
 }
 
 const INLINE_TAGS = new Set(['b', 'code', 'em', 'i', 'kbd', 'mark', 's', 'strong', 'sub', 'sup', 'u']);
-const RICH_TAGS = new Set([...INLINE_TAGS, 'a', 'div', 'li', 'ol', 'p', 'pre', 'ul']);
+const TABLE_TAGS = new Set(['table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption']);
+const RICH_TAGS = new Set([...INLINE_TAGS, ...TABLE_TAGS, 'a', 'div', 'li', 'ol', 'p', 'pre', 'ul']);
 
 function markupHtml(value, allowedTags) {
   const text = String(value === undefined || value === null ? '' : value);
@@ -43,9 +244,19 @@ function markupHtml(value, allowedTags) {
     const tag = closing ? raw.slice(1) : raw;
     const parts = tag.split(' ');
     const name = parts[0];
-    const validAttributes = name === 'a'
-      ? (closing && parts.length === 1) || (!closing && /^a href="https:\/\/[a-z0-9.-]+(?:\/[a-z0-9._~%/-]*)?"$/i.test(tag))
-      : parts.length === 1 || (!closing && name === 'div' && /^div class="[a-z0-9 _-]+"$/.test(tag));
+    let validAttributes = false;
+    if (name === 'a') {
+      validAttributes = (closing && parts.length === 1) || (!closing && /^a href="https:\/\/[a-z0-9.-]+(?:\/[a-z0-9._~%/-]*)?"$/i.test(tag));
+    } else if (parts.length === 1) {
+      validAttributes = true;
+    } else if (!closing && name === 'div') {
+      validAttributes = /^div class="[a-z0-9 _-]+"$/.test(tag);
+    } else if (!closing && TABLE_TAGS.has(name)) {
+      const attrs = parts.slice(1);
+      validAttributes = attrs.every((a) =>
+        /^(?:class="[a-z0-9 _-]+"|scope="(?:col|row|colgroup|rowgroup)"|colspan="\d{1,2}"|rowspan="\d{1,2}")$/.test(a)
+      );
+    }
     if (name === 'br' && !closing && parts.length === 1) {
       tokens.push({ start: offset, end, valid: true });
     } else if (allowedTags.has(name) && validAttributes) {
@@ -93,7 +304,8 @@ function richHtml(value) {
 
 /** Icône du sprite SVG commun (voir /assets/img/ui-icons.svg). */
 function ic(name) {
-  return '<svg class="ic" aria-hidden="true" focusable="false"><use href="' + SPRITE + '#i-' + name + '"></use></svg>';
+  const clean = String(name || '').replace(/^(?:i-)+/, '') || 'book';
+  return '<svg class="ic" aria-hidden="true" focusable="false"><use href="' + SPRITE + '#i-' + clean + '"></use></svg>';
 }
 
 /** Préfixe relatif (« » ou « ../ ») pour une page située à `pagePath`. */
@@ -130,9 +342,7 @@ function renderJs(course) {
 /* ======================== Coquille de page ======================== */
 
 const FONTS = [
-  '<link rel="preconnect" href="https://fonts.googleapis.com">',
-  '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">'
+  '<link rel="stylesheet" href="/assets/css/fonts.css">'
 ];
 
 /** Entrées de navigation, dans l'ordre, pour un cours donné. */
@@ -217,7 +427,37 @@ function normalizePageBody(course, pagePath, rawBody) {
     .replace(/félicitations,\s*tu domines/gi, 'maîtrise complète de')
     .replace(/et assure-toi de pouvoir/gi, 'pour valider chaque étape et');
 
-  return upgradeLists(body);
+  // Répétition espacée Leitner sous la carte active sur cartes.html
+  if (pagePath === 'chapitres/cartes.html' && !body.includes('data-leitner=')) {
+    const leitnerBar = [
+      '<div class="leitner-bar" data-leitner-bar role="group" aria-label="Répétition espacée Leitner">',
+      '  <button type="button" class="btn leitner-btn leitner-btn--again" data-leitner="again">À revoir · 1j</button>',
+      '  <button type="button" class="btn leitner-btn leitner-btn--hard" data-leitner="hard">Moyen · 3j</button>',
+      '  <button type="button" class="btn leitner-btn leitner-btn--easy" data-leitner="easy">Acquis · 7j</button>',
+      '</div>'
+    ].join('\n');
+    if (body.includes('</p>')) {
+      body = body.replace('</p>', '</p>\n' + leitnerBar);
+    } else {
+      body = leitnerBar + '\n' + body;
+    }
+  }
+
+  body = upgradeLists(body);
+
+  if (pagePath === 'index.html' && !body.includes('class="course-prereqs"')) {
+    const prereqsHtml = renderPrereqs(course);
+    if (prereqsHtml) {
+      const secheadIdx = body.indexOf('<div class="sechead">');
+      if (secheadIdx !== -1) {
+        body = body.slice(0, secheadIdx) + prereqsHtml + '\n\n' + body.slice(secheadIdx);
+      } else {
+        body = body + '\n\n' + prereqsHtml;
+      }
+    }
+  }
+
+  return body;
 }
 
 /**
@@ -273,6 +513,57 @@ function upgradeLists(html) {
       '  <span class="rescard__go"><span>Ouvrir</span><span aria-hidden="true">→</span></span>',
       '</a>'
     ].filter(Boolean).join('\n')).join('\n') + '\n</div>';
+  });
+}
+
+/**
+ * Génère le bloc HTML `<section class="course-prereqs" ...>` pour un cours B2 ou B3
+ * (ou tout cours déclarant `course.prereqs`).
+ */
+function renderPrereqs(course) {
+  if (!course) return '';
+  const slug = course.slug || course.id || '';
+  const list = Array.isArray(course.prereqs) && course.prereqs.length > 0
+    ? course.prereqs
+    : COURSE_PREREQS[slug];
+  if (!Array.isArray(list) || list.length === 0) return '';
+
+  const itemsHtml = list.map(item => {
+    const href = esc(item.href || ('/' + encodeURIComponent(item.slug || '') + '/index.html'));
+    const title = esc(item.title || item.slug || '');
+    const levelBadge = item.level ? ' <span class="tag tag--module">' + esc(item.level) + '</span>' : '';
+    return '      <li><a href="' + href + '"><strong>' + title + '</strong></a>' + levelBadge + '</li>';
+  }).join('\n');
+
+  return [
+    '  <section class="course-prereqs" aria-label="Prérequis recommandés">',
+    '    <div class="box box--tech">',
+    '      <div class="box__title">' + ic('compass') + ' Prérequis recommandés</div>',
+    '      <p>Pour aborder ce cours dans les meilleures conditions, il est recommandé d’avoir validé les acquis suivants :</p>',
+    '      <ul class="course-prereqs__list">',
+    itemsHtml,
+    '      </ul>',
+    '    </div>',
+    '  </section>'
+  ].join('\n');
+}
+
+/**
+ * Raccourci de rendu pour la page d'accueil `index.html` d'un cours, incluant
+ * automatiquement le bloc « Prérequis recommandés » pour les cours B2 et B3.
+ */
+function index(course, opts = {}) {
+  const body = opts.body || [
+    '<h1>' + esc(course.title || course.brand || '') + '</h1>',
+    course.lead ? '<p class="lead">' + esc(course.lead) + '</p>' : '',
+    renderPrereqs(course)
+  ].filter(Boolean).join('\n\n');
+
+  return page(course, 'index.html', {
+    title: opts.title || course.title || course.brand || 'Accueil',
+    description: opts.description || course.description || '',
+    active: opts.active || 'home',
+    body
   });
 }
 
@@ -364,7 +655,7 @@ function page(course, pagePath, opts) {
     '            {left: "$$", right: "$$", display: true},',
     '            {left: "\\\\[", right: "\\\\]", display: true},',
     '            {left: "$", right: "$", display: false},',
-    '            {left: "\\\\)", right: "\\\\)", display: false}',
+    '            {left: "\\\\(", right: "\\\\)", display: false}',
     '          ],',
     '          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],',
     '          throwOnError: false',
@@ -875,12 +1166,15 @@ function math(tex, isBlock = true) {
 
 module.exports = {
   SPRITE,
+  COURSE_PREREQS,
   escapeUnknownTags,
   esc,
   richHtml,
   ic,
   prefix,
   resolveCoursePath,
+  renderPrereqs,
+  index,
   page,
   crumb,
   tags,

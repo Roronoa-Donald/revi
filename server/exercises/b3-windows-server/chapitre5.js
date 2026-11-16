@@ -4,121 +4,172 @@ module.exports = [
   {
     "id": "ws3-c5-e1",
     "chapter": 5,
-    "title": "Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Déterminer l’accessibilité réseau entre VMs, hôte physique et réseau externe selon le type de commutateur virtuel (vSwitch).",
-    "brief": "Dans Microsoft Hyper-V, les règles de connectivité pour chaque type de commutateur virtuel sont les suivantes :\n- `EXTERNAL` : permet la communication entre les VMs rattachées, vers le réseau physique extérieur (`EXTERNAL_NET`), et vers l’hôte (`HOST`) si et seulement si `allow_host=TRUE`.\n- `INTERNAL` : permet la communication entre les VMs rattachées et avec l’hôte (`HOST`). Bloqué vers `EXTERNAL_NET`.\n- `PRIVATE` : permet la communication STRICTEMENT entre les VMs rattachées au même vSwitch. Bloqué vers `HOST` et vers `EXTERNAL_NET`.\n- Deux VMs sur deux vSwitchs distincts ne peuvent jamais communiquer directement.\n\nEntrée :\n`VSWITCH name=<NOM> type=<EXTERNAL|INTERNAL|PRIVATE> allow_host=<TRUE|FALSE>`\n`ATTACH vm=<VM> vswitch=<NOM>`\n`PING from=<SRC> to=<DST>` (SRC et DST peuvent être un nom de VM, `HOST` ou `EXTERNAL_NET`)\n\nRésultat d’analyse attendu :\n- Pour chaque test PING :\n  `PING_RESULT from=<SRC> to=<DST> status=<REUSSI|BLOQUE> motif=<OK|COMMUTATEURS_DIFFERENTS|TYPE_INTERNAL|TYPE_PRIVATE|HOST_ISOLE>`\n- Bilan :\n  `SUMMARY total_pings=<N> reussis=<R> bloques=<B>`",
-    "starter": "# Grille d'analyse (ws3-c5-e1) — Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Commutateur Privé bloquant l’accès vers l’hôte et l’extérieur]\n# Données : VSWITCH name=vSwitch-Isole type=PRIVATE allow_host=FALSE\n# Données : ATTACH vm=VM-DB vswitch=vSwitch-Isole\n# Données : PING from=VM-DB to=HOST\n# Données : PING from=VM-DB to=EXTERNAL_NET\nA_COMPLETER\n\n[Cas 2 — Deux VMs rattachées à des vSwitchs différents]\n# Données : VSWITCH name=SW1 type=INTERNAL allow_host=TRUE\n# Données : VSWITCH name=SW2 type=INTERNAL allow_host=TRUE\n# Données : ATTACH vm=VM-A vswitch=SW1\n# Données : ATTACH vm=VM-B vswitch=SW2\n# Données : PING from=VM-A to=VM-B\nA_COMPLETER\n\n[Cas 3 — Commutateur Externe avec allow_host désactivé]\n# Données : VSWITCH name=SW-Ext type=EXTERNAL allow_host=FALSE\n# Données : ATTACH vm=VM-Web vswitch=SW-Ext\n# Données : PING from=VM-Web to=HOST\n# Données : PING from=VM-Web to=EXTERNAL_NET\nA_COMPLETER\n",
+    "title": "Les commutateurs virtuels de l'hôte HYP-01",
+    "exampleTitle": "Exemple résolu — les commutateurs virtuels de l'hôte HYP-02",
+    "goal": "Déduire l'accessibilité réseau des VM selon le type de commutateur virtuel Hyper-V.",
+    "brief": "<p><strong>Énoncé.</strong> Amina exploite l'hôte Hyper-V <strong>HYP-01</strong> avec trois commutateurs virtuels :</p><ul><li><strong>vSwitch-Ext</strong> (Externe, relié au réseau physique, gestion de l'hôte autorisée) : VM SRV-Web et SRV-Messagerie ;</li><li><strong>vSwitch-Int</strong> (Interne) : VM SRV-Test, serveur de recette ;</li><li><strong>vSwitch-Priv</strong> (Privé) : VM SRV-Lab et SRV-Lab2, banc d'essai isolé.</li></ul><p>Rappel du cours : un commutateur Externe relie les VM au réseau physique et à l'hôte ; un commutateur Interne relie les VM entre elles et à l'hôte, jamais au réseau physique ; un commutateur Privé relie les VM entre elles uniquement. Deux VM sur deux commutateurs différents ne communiquent pas directement. Répondez par « Oui » ou « Non » aux questions 2 à 6 ; la question 1 appelle des noms de VM.</p><ol><li>Quelles VM sont raccordées au réseau physique ?</li><li>SRV-Test peut-elle joindre l'hôte HYP-01 ?</li><li>SRV-Test peut-elle joindre le réseau physique ?</li><li>SRV-Lab peut-elle joindre l'hôte HYP-01 ?</li><li>SRV-Lab peut-elle joindre SRV-Lab2 ?</li><li>SRV-Web peut-elle joindre SRV-Test ?</li></ol>",
+    "starter": "# Exercice — Les commutateurs virtuels de l'hôte HYP-01\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 2 à 6 : Oui ou Non. Question 1 : les noms des VM.\n\n[Question 1 — VM raccordées au réseau physique]\nA_COMPLETER\n\n[Question 2 — SRV-Test joint l'hôte ?]\nA_COMPLETER\n\n[Question 3 — SRV-Test joint le réseau physique ?]\nA_COMPLETER\n\n[Question 4 — SRV-Lab joint l'hôte ?]\nA_COMPLETER\n\n[Question 5 — SRV-Lab joint SRV-Lab2 ?]\nA_COMPLETER\n\n[Question 6 — SRV-Web joint SRV-Test ?]\nA_COMPLETER\n",
     "hints": [
-      "Associer chaque VM à son commutateur virtuel et stocker les propriétés du vSwitch.",
-      "Identifier si la source et la destination sont sur le même vSwitch.",
-      "Vérifier les règles spécifiques pour HOST et EXTERNAL_NET."
+      "Classez chaque commutateur : Externe va jusqu'au réseau physique, Interne s'arrête à l'hôte, Privé s'arrête aux VM.",
+      "SRV-Test est sur le commutateur Interne : elle atteint l'hôte et les VM du même commutateur, rien de plus.",
+      "SRV-Web et SRV-Test sont sur deux commutateurs distincts : aucune communication directe entre elles."
     ],
     "examples": [
       {
-        "stdin": "VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE\nATTACH vm=VM1 vswitch=vSwitch-LAN\nATTACH vm=VM2 vswitch=vSwitch-LAN\nPING from=VM1 to=VM2\nPING from=VM1 to=EXTERNAL_NET",
-        "expected": "PING_RESULT from=VM1 to=VM2 status=REUSSI motif=OK\nPING_RESULT from=VM1 to=EXTERNAL_NET status=REUSSI motif=OK\nSUMMARY total_pings=2 reussis=2 bloques=0",
-        "note": "Le vSwitch externe avec allow_host permet la communication inter-VM et vers le réseau extérieur."
+        "stdin": "L'hôte HYP-02 porte deux commutateurs :\nvSwitch-LAN (Externe, gestion de l'hôte autorisée) : VM PORTAIL et VM BACKUP ;\nvSwitch-Banc (Privé) : VM TEST1 et VM TEST2.\n\n1) Raccordées au réseau physique : PORTAIL et BACKUP.\n2) BACKUP joint l'hôte ? Oui (Externe avec gestion autorisée).\n3) TEST1 joint le réseau physique ? Non (Privé).\n4) TEST1 joint l'hôte ? Non (Privé).\n5) TEST1 joint TEST2 ? Oui (même commutateur Privé).\n6) PORTAIL joint TEST1 ? Non (commutateurs différents).",
+        "expected": "PORTAIL et BACKUP — Oui — Non — Non — Oui — Non",
+        "note": "Le type du commutateur fixe la frontière : Privé coupe l'hôte et le réseau physique, Interne coupe seulement le réseau physique."
       }
     ],
     "tests": [
       {
-        "label": "Commutateur Privé bloquant l’accès vers l’hôte et l’extérieur",
-        "stdin": "cas:1",
-        "expected": "PING_RESULT from=VM-DB to=HOST status=BLOQUE motif=TYPE_PRIVATE\nPING_RESULT from=VM-DB to=EXTERNAL_NET status=BLOQUE motif=TYPE_PRIVATE\nSUMMARY total_pings=2 reussis=0 bloques=2"
+        "label": "Question 1 — VM raccordées au réseau physique",
+        "stdin": "q:1",
+        "expected": "SRV-Web et SRV-Messagerie||SRV-Web, SRV-Messagerie||srv-web et srv-messagerie"
       },
       {
-        "label": "Deux VMs rattachées à des vSwitchs différents",
-        "stdin": "cas:2",
-        "expected": "PING_RESULT from=VM-A to=VM-B status=BLOQUE motif=COMMUTATEURS_DIFFERENTS\nSUMMARY total_pings=1 reussis=0 bloques=1"
+        "label": "Question 2 — SRV-Test joint l'hôte ?",
+        "stdin": "q:2",
+        "expected": "Oui||oui"
       },
       {
-        "label": "Commutateur Externe avec allow_host désactivé",
-        "stdin": "cas:3",
-        "expected": "PING_RESULT from=VM-Web to=HOST status=BLOQUE motif=HOST_ISOLE\nPING_RESULT from=VM-Web to=EXTERNAL_NET status=REUSSI motif=OK\nSUMMARY total_pings=2 reussis=1 bloques=1"
+        "label": "Question 3 — SRV-Test joint le réseau physique ?",
+        "stdin": "q:3",
+        "expected": "Non||non"
+      },
+      {
+        "label": "Question 4 — SRV-Lab joint l'hôte ?",
+        "stdin": "q:4",
+        "expected": "Non||non"
+      },
+      {
+        "label": "Question 5 — SRV-Lab joint SRV-Lab2 ?",
+        "stdin": "q:5",
+        "expected": "Oui||oui"
+      },
+      {
+        "label": "Question 6 — SRV-Web joint SRV-Test ?",
+        "stdin": "q:6",
+        "expected": "Non||non"
       }
     ],
-    "solution": "[Exemple]\nPING_RESULT from=VM1 to=VM2 status=REUSSI motif=OK\nPING_RESULT from=VM1 to=EXTERNAL_NET status=REUSSI motif=OK\nSUMMARY total_pings=2 reussis=2 bloques=0\n\n[Cas 1 — Commutateur Privé bloquant l’accès vers l’hôte et l’extérieur]\nPING_RESULT from=VM-DB to=HOST status=BLOQUE motif=TYPE_PRIVATE\nPING_RESULT from=VM-DB to=EXTERNAL_NET status=BLOQUE motif=TYPE_PRIVATE\nSUMMARY total_pings=2 reussis=0 bloques=2\n\n[Cas 2 — Deux VMs rattachées à des vSwitchs différents]\nPING_RESULT from=VM-A to=VM-B status=BLOQUE motif=COMMUTATEURS_DIFFERENTS\nSUMMARY total_pings=1 reussis=0 bloques=1\n\n[Cas 3 — Commutateur Externe avec allow_host désactivé]\nPING_RESULT from=VM-Web to=HOST status=BLOQUE motif=HOST_ISOLE\nPING_RESULT from=VM-Web to=EXTERNAL_NET status=REUSSI motif=OK\nSUMMARY total_pings=2 reussis=1 bloques=1"
+    "solution": "[Question 1 — VM raccordées au réseau physique]\nSRV-Web et SRV-Messagerie\n\n[Question 2 — SRV-Test joint l'hôte ?]\nOui\n\n[Question 3 — SRV-Test joint le réseau physique ?]\nNon\n\n[Question 4 — SRV-Lab joint l'hôte ?]\nNon\n\n[Question 5 — SRV-Lab joint SRV-Lab2 ?]\nOui\n\n[Question 6 — SRV-Web joint SRV-Test ?]\nNon",
+    "takeaway": "1) SRV-Web et SRV-Messagerie sont sur le commutateur Externe : elles seules atteignent le réseau physique.\n2) Oui : SRV-Test est sur le commutateur Interne, qui relie les VM à l'hôte.\n3) Non : un commutateur Interne n'atteint jamais le réseau physique.\n4) Non : un commutateur Privé isole les VM de l'hôte.\n5) Oui : SRV-Lab et SRV-Lab2 partagent le même commutateur Privé.\n6) Non : SRV-Web (Externe) et SRV-Test (Interne) sont sur deux commutateurs distincts.\nContrôle : chaque question se tranche par deux identifications — le type de commutateur, puis la position (même commutateur ou non) de la source et de la cible."
   },
   {
     "id": "ws3-c5-e2",
     "chapter": 5,
-    "title": "Calculateur d’allocation de Mémoire Dynamique Hyper-V",
     "level": "n2",
     "language": "analyse",
-    "goal": "Calculer l’allocation de RAM par machine virtuelle en intégrant la demande courante, le tampon mémoire et la capacité physique de l’hôte.",
-    "brief": "Dans Hyper-V, la mémoire dynamique ajuste la RAM de chaque VM selon la formule officielle Microsoft :\n- `target_ram = round(demand_mb * (1 + buffer_pct / 100))`\n- Bornage contractuel : `allocated_mb = max(min_ram_mb, min(max_ram_mb, target_ram))`\n\nStatuts de bornage de la VM :\n- Si `target_ram > max_ram_mb` : `statut=PLAFOND_MAX`\n- Si `target_ram < min_ram_mb` : `statut=SEUIL_MIN`\n- Sinon : `statut=OPTIMAL`\n\nEntrée :\n`HOST ram_mb=<H>`\n`VM name=<NOM> min_ram_mb=<MIN> max_ram_mb=<MAX> buffer_pct=<B> demand_mb=<D>` (1 ou plusieurs)\n\nRésultat d’analyse attendu :\n- Pour chaque VM (triée par nom alphabétique) :\n  `VM_ALLOC name=<NOM> target_mb=<TARGET> allocated_mb=<ALLOC> status=<STATUT>`\n- Bilan de l’hôte :\n  `SUMMARY host_ram_mb=<H> total_allocated_mb=<TOT> pression_pct=<PCT>% statut=<SOUS_CONTROLE|SURALLOCATION>`\n  (où pression_pct = round((total_allocated_mb / host_ram_mb) * 100, 1) ; statut=SOUS_CONTROLE si total <= host_ram_mb sinon SURALLOCATION).",
-    "starter": "# Grille d'analyse (ws3-c5-e2) — Calculateur d’allocation de Mémoire Dynamique Hyper-V\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — VM atteignant le plafond maximal configuré]\n# Données : HOST ram_mb=32768\n# Données : VM name=VM-App min_ram_mb=2048 max_ram_mb=4096 buffer_pct=25 demand_mb=5000\nA_COMPLETER\n\n[Cas 2 — Surallocation mémoire totale au-delà de la capacité physique hôte]\n# Données : HOST ram_mb=8192\n# Données : VM name=VM1 min_ram_mb=2048 max_ram_mb=8192 buffer_pct=10 demand_mb=5000\n# Données : VM name=VM2 min_ram_mb=2048 max_ram_mb=8192 buffer_pct=10 demand_mb=5000\nA_COMPLETER\n\n[Cas 3 — Plusieurs VMs avec buffers à 0%]\n# Données : HOST ram_mb=16384\n# Données : VM name=VM-DC min_ram_mb=1024 max_ram_mb=2048 buffer_pct=0 demand_mb=1500\nA_COMPLETER\n",
+    "title": "La mémoire dynamique des VM de l'hôte HYP-01",
+    "exampleTitle": "Exemple résolu — la mémoire dynamique de l'hôte HYP-02",
+    "goal": "Calculer la cible mémoire, borner entre minimum et maximum, puis contrôler la pression sur l'hôte.",
+    "brief": "<p><strong>Énoncé.</strong> L'hôte HYP-01 dispose de <strong>32 768 Mo</strong> de RAM physique. Amina active la mémoire dynamique sur trois VM :</p><table><tr><th>VM</th><th>Minimum (Mo)</th><th>Maximum (Mo)</th><th>Tampon</th><th>Demande (Mo)</th></tr><tr><th>VM-ERP</th><td>4096</td><td>16384</td><td>25 %</td><td>8192</td></tr><tr><th>VM-BI</th><td>8192</td><td>16384</td><td>25 %</td><td>14000</td></tr><tr><th>VM-DHCP</th><td>2048</td><td>4096</td><td>20 %</td><td>1200</td></tr></table><p>Rappel du cours : cible = demande × (1 + tampon) ; l'allocation est bornée entre le minimum et le maximum de la VM. Si la cible dépasse le maximum, la VM est « au plafond maximal » ; si elle descend sous le minimum, la VM est « au seuil minimal ». Répondez par le nombre seul en Mo pour les questions 1, 2 et 4 ; les questions 3 et 5 appellent le statut, la question 6 « Oui » ou « Non ».</p><ol><li>Quelle est la cible calculée pour VM-ERP ?</li><li>Quelle est la mémoire allouée à VM-BI ?</li><li>Quel est le statut de VM-BI ?</li><li>Quelle est la mémoire allouée à VM-DHCP ?</li><li>Quel est le statut de VM-DHCP ?</li><li>La somme des allocations dépasse-t-elle la RAM physique de l'hôte ?</li></ol>",
+    "starter": "# Exercice — La mémoire dynamique des VM de l'hôte HYP-01\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 4 : le nombre seul en Mo. Questions 3 et 5 : le statut.\n\n[Question 1 — Cible de VM-ERP (Mo)]\nA_COMPLETER\n\n[Question 2 — Allocation de VM-BI (Mo)]\nA_COMPLETER\n\n[Question 3 — Statut de VM-BI]\nA_COMPLETER\n\n[Question 4 — Allocation de VM-DHCP (Mo)]\nA_COMPLETER\n\n[Question 5 — Statut de VM-DHCP]\nA_COMPLETER\n\n[Question 6 — Dépassement de la RAM de l'hôte ?]\nA_COMPLETER\n",
     "hints": [
-      "Calculer target = round(demand * (1 + buffer / 100)).",
-      "Appliquer max(min, min(max, target)).",
-      "Cumuler la mémoire allouée et comparer à la RAM hôte."
+      "Calculez d'abord la cible : demande × (1 + tampon/100), puis bornez-la entre minimum et maximum.",
+      "VM-BI : 14000 × 1,25 = 17 500 Mo, au-delà du maximum 16 384 : l'allocation est coupée au plafond.",
+      "Additionnez enfin les trois allocations et comparez à 32 768 Mo : la pression se lit en un seul total."
     ],
     "examples": [
       {
-        "stdin": "HOST ram_mb=16384\nVM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000\nVM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000",
-        "expected": "VM_ALLOC name=VM-SQL target_mb=2400 allocated_mb=4096 status=SEUIL_MIN\nVM_ALLOC name=VM-Web target_mb=3600 allocated_mb=3600 status=OPTIMAL\nSUMMARY host_ram_mb=16384 total_allocated_mb=7696 pression_pct=47.0% statut=SOUS_CONTROLE",
-        "note": "VM-SQL demande 2000 Mo + 20% = 2400 Mo, mais son minimum garanti est 4096 Mo (SEUIL_MIN). Total alloué = 7696 Mo sur 16384 Mo (47.0%, sous contrôle)."
+        "stdin": "L'hôte HYP-02 dispose de 16 384 Mo. Trois VM :\nVM-Web : min 2048, max 8192, tampon 20 %, demande 3000 ;\nVM-SQL : min 4096, max 12288, tampon 20 %, demande 2000 ;\nVM-DC : min 1024, max 2048, tampon 0 %, demande 1500.\n\n1) VM-Web : cible 3000 × 1,2 = 3600 Mo, allouée 3600 (optimale).\n2) VM-SQL : cible 2400 Mo < 4096, allouée 4096 (seuil minimal).\n3) VM-DC : cible 1500 Mo, allouée 1500 (optimale).\nTotal : 3600 + 4096 + 1500 = 9196 Mo, sous contrôle.",
+        "expected": "VM-Web 3600 — VM-SQL 4096 (seuil minimal) — VM-DC 1500 — total 9196, sous contrôle",
+        "note": "Le tampon se calcule sur la demande courante, jamais sur le minimum : la borne n'intervient qu'après."
       }
     ],
     "tests": [
       {
-        "label": "VM atteignant le plafond maximal configuré",
-        "stdin": "cas:1",
-        "expected": "VM_ALLOC name=VM-App target_mb=6250 allocated_mb=4096 status=PLAFOND_MAX\nSUMMARY host_ram_mb=32768 total_allocated_mb=4096 pression_pct=12.5% statut=SOUS_CONTROLE"
+        "label": "Question 1 — Cible de VM-ERP (Mo)",
+        "stdin": "q:1",
+        "expected": "10240||10 240"
       },
       {
-        "label": "Surallocation mémoire totale au-delà de la capacité physique hôte",
-        "stdin": "cas:2",
-        "expected": "VM_ALLOC name=VM1 target_mb=5500 allocated_mb=5500 status=OPTIMAL\nVM_ALLOC name=VM2 target_mb=5500 allocated_mb=5500 status=OPTIMAL\nSUMMARY host_ram_mb=8192 total_allocated_mb=11000 pression_pct=134.3% statut=SURALLOCATION"
+        "label": "Question 2 — Allocation de VM-BI (Mo)",
+        "stdin": "q:2",
+        "expected": "16384||16 384"
       },
       {
-        "label": "Plusieurs VMs avec buffers à 0%",
-        "stdin": "cas:3",
-        "expected": "VM_ALLOC name=VM-DC target_mb=1500 allocated_mb=1500 status=OPTIMAL\nSUMMARY host_ram_mb=16384 total_allocated_mb=1500 pression_pct=9.2% statut=SOUS_CONTROLE"
+        "label": "Question 3 — Statut de VM-BI",
+        "stdin": "q:3",
+        "expected": "au plafond maximal||plafond maximal||PLAFOND_MAX||plafond"
+      },
+      {
+        "label": "Question 4 — Allocation de VM-DHCP (Mo)",
+        "stdin": "q:4",
+        "expected": "2048"
+      },
+      {
+        "label": "Question 5 — Statut de VM-DHCP",
+        "stdin": "q:5",
+        "expected": "au seuil minimal||seuil minimal||SEUIL_MIN||seuil"
+      },
+      {
+        "label": "Question 6 — Dépassement de la RAM de l'hôte ?",
+        "stdin": "q:6",
+        "expected": "Non||non"
       }
     ],
-    "solution": "[Exemple]\nVM_ALLOC name=VM-SQL target_mb=2400 allocated_mb=4096 status=SEUIL_MIN\nVM_ALLOC name=VM-Web target_mb=3600 allocated_mb=3600 status=OPTIMAL\nSUMMARY host_ram_mb=16384 total_allocated_mb=7696 pression_pct=47.0% statut=SOUS_CONTROLE\n\n[Cas 1 — VM atteignant le plafond maximal configuré]\nVM_ALLOC name=VM-App target_mb=6250 allocated_mb=4096 status=PLAFOND_MAX\nSUMMARY host_ram_mb=32768 total_allocated_mb=4096 pression_pct=12.5% statut=SOUS_CONTROLE\n\n[Cas 2 — Surallocation mémoire totale au-delà de la capacité physique hôte]\nVM_ALLOC name=VM1 target_mb=5500 allocated_mb=5500 status=OPTIMAL\nVM_ALLOC name=VM2 target_mb=5500 allocated_mb=5500 status=OPTIMAL\nSUMMARY host_ram_mb=8192 total_allocated_mb=11000 pression_pct=134.3% statut=SURALLOCATION\n\n[Cas 3 — Plusieurs VMs avec buffers à 0%]\nVM_ALLOC name=VM-DC target_mb=1500 allocated_mb=1500 status=OPTIMAL\nSUMMARY host_ram_mb=16384 total_allocated_mb=1500 pression_pct=9.2% statut=SOUS_CONTROLE"
+    "solution": "[Question 1 — Cible de VM-ERP (Mo)]\n10240\n\n[Question 2 — Allocation de VM-BI (Mo)]\n16384\n\n[Question 3 — Statut de VM-BI]\nau plafond maximal\n\n[Question 4 — Allocation de VM-DHCP (Mo)]\n2048\n\n[Question 5 — Statut de VM-DHCP]\nau seuil minimal\n\n[Question 6 — Dépassement de la RAM de l'hôte ?]\nNon",
+    "takeaway": "1) VM-ERP : cible = 8192 × 1,25 = 10 240 Mo, dans les bornes ; allocation 10 240 Mo.\n2) VM-BI : cible = 14000 × 1,25 = 17 500 Mo, au-delà du maximum : l'allocation est coupée à 16 384 Mo.\n3) VM-BI est au plafond maximal.\n4) VM-DHCP : cible = 1200 × 1,2 = 1440 Mo, sous le minimum : l'allocation est relevée à 2048 Mo.\n5) VM-DHCP est au seuil minimal.\n6) Total = 10 240 + 16 384 + 2048 = 28 672 Mo, contre 32 768 Mo disponibles : Non, l'hôte tient la charge.\nContrôle : la pression vaut 28 672 / 32 768 = 87,5 % de la RAM physique."
   },
   {
     "id": "ws3-c5-e3",
     "chapter": 5,
-    "title": "Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer la taille cumulée d’une chaîne de disques virtuels différentiels (.avhdx) et simuler la fusion (Merge) d’un checkpoint.",
-    "brief": "Dans Hyper-V, les points de contrôle créent des disques différentiels dépendants du disque parent :\n- `VHDX id=<ID> type=<BASE|DIFF> parent=<PARENT_ID|NONE> size_mb=<S>`\n- `MERGE child=<CHILD_ID>` : opération de fusion d’un checkpoint différentiel dans son parent immédiat.\n\nRègles lors d’une opération de fusion (`MERGE child=C`) :\n1. Les données du disque différentiel `C` sont écrites dans son parent `P` : `parent.size_mb += child.size_mb`.\n2. Le disque différentiel `C` est supprimé de la chaîne.\n3. Tout éventuel disque sous-jacent qui avait `C` comme parent est rebranché pour pointer directement vers `P`.\n\nEntrée :\n`VHDX id=<ID> type=<BASE|DIFF> parent=<P|NONE> size_mb=<S>` (1 ou plusieurs)\n`MERGE child=<ID>` (0 ou plusieurs)\n\nRésultat d’analyse attendu :\n- Pour chaque commande MERGE exécutée :\n  `MERGE_EVENT child=<C> merged_into=<P> new_parent_size_mb=<S>`\n- État final de tous les disques restants (ordonnés par ID croissant) :\n  `DISK_STATE id=<ID> type=<BASE|DIFF> parent=<P|NONE> size_mb=<S>`\n- Bilan :\n  `SUMMARY total_disks=<N> total_chain_size_mb=<TOTAL>`",
-    "starter": "# Grille d'analyse (ws3-c5-e3) — Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Fusion du dernier checkpoint de la chaîne]\n# Données : VHDX id=OS.vhdx type=BASE parent=NONE size_mb=15000\n# Données : VHDX id=Patch.avhdx type=DIFF parent=OS.vhdx size_mb=3000\n# Données : MERGE child=Patch.avhdx\nA_COMPLETER\n\n[Cas 2 — Aucune opération de fusion (chaîne intacte)]\n# Données : VHDX id=Disk0.vhdx type=BASE parent=NONE size_mb=10000\n# Données : VHDX id=DiffA.avhdx type=DIFF parent=Disk0.vhdx size_mb=1200\n# Données : VHDX id=DiffB.avhdx type=DIFF parent=Disk0.vhdx size_mb=1800\nA_COMPLETER\n\n[Cas 3 — Deux fusions successives sur une même arborescence]\n# Données : VHDX id=Base.vhdx type=BASE parent=NONE size_mb=10000\n# Données : VHDX id=C1.avhdx type=DIFF parent=Base.vhdx size_mb=2000\n# Données : VHDX id=C2.avhdx type=DIFF parent=C1.avhdx size_mb=1000\n# Données : MERGE child=C2.avhdx\n# Données : MERGE child=C1.avhdx\nA_COMPLETER\n",
+    "title": "La chaîne de disques de la VM de formation",
+    "exampleTitle": "Exemple résolu — la chaîne de disques de la VM de test",
+    "goal": "Suivre une chaîne de disques VHDX et points de contrôle, fusionner un checkpoint et vérifier la taille cumulée.",
+    "brief": "<p><strong>Énoncé.</strong> La VM de formation FORM-VM s'appuie sur une chaîne de disques gérée par points de contrôle Hyper-V :</p><ul><li><strong>Base.vhdx</strong> (disque de base) : 40 000 Mo ;</li><li><strong>Snap1.avhdx</strong> (différentiel, parent Base.vhdx) : 6000 Mo ;</li><li><strong>Snap2.avhdx</strong> (différentiel, parent Snap1.avhdx) : 2500 Mo.</li></ul><p>Rappel du cours : fusionner un point de contrôle revient à écrire son disque différentiel dans son parent immédiat — la taille du parent augmente d'autant, le disque différentiel disparaît, et tout petit-fils est rattaché directement au parent. Amina fusionne Snap1 dans Base.vhdx. Répondez par le nombre seul en Mo pour les questions 1, 2 et 5.</p><ol><li>Quelle est la taille cumulée de la chaîne avant la fusion ?</li><li>Après la fusion, quelle est la taille de Base.vhdx ?</li><li>Après la fusion, quel est le parent de Snap2.avhdx ?</li><li>Combien de disques reste-t-il dans la chaîne après la fusion ?</li><li>Quelle est la taille cumulée de la chaîne après la fusion ?</li><li>Que constate-t-on en comparant les réponses 1 et 5 ?</li></ol>",
+    "starter": "# Exercice — La chaîne de disques de la VM de formation\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 5 : le nombre seul en Mo.\n\n[Question 1 — Taille cumulée avant fusion (Mo)]\nA_COMPLETER\n\n[Question 2 — Taille de Base.vhdx après fusion (Mo)]\nA_COMPLETER\n\n[Question 3 — Parent de Snap2.avhdx après fusion]\nA_COMPLETER\n\n[Question 4 — Nombre de disques restants]\nA_COMPLETER\n\n[Question 5 — Taille cumulée après fusion (Mo)]\nA_COMPLETER\n\n[Question 6 — Constat sur la taille cumulée]\nA_COMPLETER\n",
     "hints": [
-      "Modéliser chaque disque avec un dictionnaire {type, parent, size_mb}.",
-      "Lors de MERGE, trouver le parent, ajouter la taille de l’enfant, supprimer l’enfant.",
-      "Rebrancher les enfants du disque supprimé sur le parent."
+      "Avant fusion, la chaîne vaut la somme des trois disques : 40 000 + 6000 + 2500.",
+      "La fusion de Snap1 écrit 6000 Mo dans Base.vhdx ; Snap2 perd son parent et se rattache à Base.vhdx.",
+      "Recalculez la somme après fusion : 46 000 + 2500 ; comparez à la somme d'avant."
     ],
     "examples": [
       {
-        "stdin": "VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000\nVHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000\nVHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000\nMERGE child=Snap1.avhdx",
-        "expected": "MERGE_EVENT child=Snap1.avhdx merged_into=Base.vhdx new_parent_size_mb=25000\nDISK_STATE id=Base.vhdx type=BASE parent=NONE size_mb=25000\nDISK_STATE id=Snap2.avhdx type=DIFF parent=Base.vhdx size_mb=2000\nSUMMARY total_disks=2 total_chain_size_mb=27000",
-        "note": "Snap1 fusionne dans Base.vhdx (20000 + 5000 = 25000 Mo). Snap2 est maintenant rattaché directement à Base.vhdx."
+        "stdin": "La VM de test possède : Base.vhdx (20 000 Mo), Snap1.avhdx (5000 Mo, parent Base.vhdx),\nSnap2.avhdx (2000 Mo, parent Snap1.avhdx). L'administrateur fusionne Snap1 dans Base.vhdx.\n\n1) Avant fusion : 20 000 + 5000 + 2000 = 27 000 Mo.\n2) Base.vhdx passe à 25 000 Mo.\n3) Snap2.avhdx a pour parent Base.vhdx.\n4) Il reste 2 disques.\n5) Après fusion : 25 000 + 2000 = 27 000 Mo.\n6) La taille cumulée est inchangée.",
+        "expected": "27 000 — 25 000 — parent Base.vhdx — 2 disques — 27 000 — inchangée",
+        "note": "Une fusion déplace des données le long de la chaîne : elle ne crée ni ne détruit d'espace."
       }
     ],
     "tests": [
       {
-        "label": "Fusion du dernier checkpoint de la chaîne",
-        "stdin": "cas:1",
-        "expected": "MERGE_EVENT child=Patch.avhdx merged_into=OS.vhdx new_parent_size_mb=18000\nDISK_STATE id=OS.vhdx type=BASE parent=NONE size_mb=18000\nSUMMARY total_disks=1 total_chain_size_mb=18000"
+        "label": "Question 1 — Taille cumulée avant fusion (Mo)",
+        "stdin": "q:1",
+        "expected": "48500||48 500"
       },
       {
-        "label": "Aucune opération de fusion (chaîne intacte)",
-        "stdin": "cas:2",
-        "expected": "DISK_STATE id=DiffA.avhdx type=DIFF parent=Disk0.vhdx size_mb=1200\nDISK_STATE id=DiffB.avhdx type=DIFF parent=Disk0.vhdx size_mb=1800\nDISK_STATE id=Disk0.vhdx type=BASE parent=NONE size_mb=10000\nSUMMARY total_disks=3 total_chain_size_mb=13000"
+        "label": "Question 2 — Taille de Base.vhdx après fusion (Mo)",
+        "stdin": "q:2",
+        "expected": "46000||46 000"
       },
       {
-        "label": "Deux fusions successives sur une même arborescence",
-        "stdin": "cas:3",
-        "expected": "MERGE_EVENT child=C2.avhdx merged_into=C1.avhdx new_parent_size_mb=3000\nMERGE_EVENT child=C1.avhdx merged_into=Base.vhdx new_parent_size_mb=13000\nDISK_STATE id=Base.vhdx type=BASE parent=NONE size_mb=13000\nSUMMARY total_disks=1 total_chain_size_mb=13000"
+        "label": "Question 3 — Parent de Snap2.avhdx après fusion",
+        "stdin": "q:3",
+        "expected": "Base.vhdx||le parent Base.vhdx"
+      },
+      {
+        "label": "Question 4 — Nombre de disques restants",
+        "stdin": "q:4",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 5 — Taille cumulée après fusion (Mo)",
+        "stdin": "q:5",
+        "expected": "48500||48 500"
+      },
+      {
+        "label": "Question 6 — Constat sur la taille cumulée",
+        "stdin": "q:6",
+        "expected": "la taille cumulée est inchangée||elle est inchangée||inchangée||elle ne change pas"
       }
     ],
-    "solution": "[Exemple]\nMERGE_EVENT child=Snap1.avhdx merged_into=Base.vhdx new_parent_size_mb=25000\nDISK_STATE id=Base.vhdx type=BASE parent=NONE size_mb=25000\nDISK_STATE id=Snap2.avhdx type=DIFF parent=Base.vhdx size_mb=2000\nSUMMARY total_disks=2 total_chain_size_mb=27000\n\n[Cas 1 — Fusion du dernier checkpoint de la chaîne]\nMERGE_EVENT child=Patch.avhdx merged_into=OS.vhdx new_parent_size_mb=18000\nDISK_STATE id=OS.vhdx type=BASE parent=NONE size_mb=18000\nSUMMARY total_disks=1 total_chain_size_mb=18000\n\n[Cas 2 — Aucune opération de fusion (chaîne intacte)]\nDISK_STATE id=DiffA.avhdx type=DIFF parent=Disk0.vhdx size_mb=1200\nDISK_STATE id=DiffB.avhdx type=DIFF parent=Disk0.vhdx size_mb=1800\nDISK_STATE id=Disk0.vhdx type=BASE parent=NONE size_mb=10000\nSUMMARY total_disks=3 total_chain_size_mb=13000\n\n[Cas 3 — Deux fusions successives sur une même arborescence]\nMERGE_EVENT child=C2.avhdx merged_into=C1.avhdx new_parent_size_mb=3000\nMERGE_EVENT child=C1.avhdx merged_into=Base.vhdx new_parent_size_mb=13000\nDISK_STATE id=Base.vhdx type=BASE parent=NONE size_mb=13000\nSUMMARY total_disks=1 total_chain_size_mb=13000"
+    "solution": "[Question 1 — Taille cumulée avant fusion (Mo)]\n48500\n\n[Question 2 — Taille de Base.vhdx après fusion (Mo)]\n46000\n\n[Question 3 — Parent de Snap2.avhdx après fusion]\nBase.vhdx\n\n[Question 4 — Nombre de disques restants]\n2\n\n[Question 5 — Taille cumulée après fusion (Mo)]\n48500\n\n[Question 6 — Constat sur la taille cumulée]\nla taille cumulée est inchangée",
+    "takeaway": "1) Avant fusion : 40 000 + 6000 + 2500 = 48 500 Mo.\n2) Snap1 fusionne dans Base.vhdx : 40 000 + 6000 = 46 000 Mo.\n3) Snap2.avhdx, orphelin de parent, se rattache directement à Base.vhdx.\n4) Il reste 2 disques : Base.vhdx et Snap2.avhdx.\n5) Après fusion : 46 000 + 2500 = 48 500 Mo.\n6) La taille cumulée est inchangée : la fusion déplace les blocs de Snap1 dans Base, elle ne crée ni ne détruit d'espace.\nContrôle : 48 500 avant = 48 500 après ; seule la répartition entre disques change."
   }
 ];

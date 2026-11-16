@@ -154,20 +154,20 @@ module.exports = {
     },
     {
       stem: 'Que désigne le méta-caractère N dans un motif de numérotation Asterisk (ex: _NXX) ?',
-      opts: ['N\'importe quel chiffre de 0 à 9', 'N\'importe quel chiffre de 1 à 9', 'N\'importe quel chiffre de 2 à 9', 'N\'importe quelle lettre de l\'alphabet'],
-      correct: 2,
+      opts: ['N\'importe quel chiffre de 2 à 9', 'N\'importe quel chiffre de 1 à 9', 'N\'importe quel chiffre de 0 à 9', 'N\'importe quelle lettre de l\'alphabet'],
+      correct: 0,
       exp: 'Dans la convention Asterisk, X correspond à 0-9, Z à 1-9, et N correspond aux chiffres compris entre 2 et 9.'
     },
     {
       stem: 'Quelle variable de canal contient la valeur exacte de l\'extension ou du numéro de téléphone composé par l\'appelant ?',
-      opts: ['${CALLERID(num)}', '${EXTEN}', '${CHANNEL}', '${DIALSTATUS}'],
-      correct: 1,
+      opts: ['${CALLERID(num)}', '${DIALSTATUS}', '${CHANNEL}', '${EXTEN}'],
+      correct: 3,
       exp: '${EXTEN} est la variable interne qui stocke la chaîne de caractères de l\'extension appelée (ex: 706438029).'
     },
     {
       stem: 'Dans un Serveur Vocal Interactif (SVI), quelle extension spéciale est automatiquement déclenchée lorsqu\'un appelant n\'appuie sur aucune touche pendant le délai d\'attente imparti ?',
-      opts: ['Extension s', 'Extension t', 'Extension i', 'Extension h'],
-      correct: 1,
+      opts: ['Extension s', 'Extension i', 'Extension t', 'Extension h'],
+      correct: 2,
       exp: 'L\'extension t (Timeout) est exécutée lorsque le délai d\'attente de saisie fixé par WaitExten() expire sans action de l\'appelant.'
     },
     {
@@ -178,20 +178,20 @@ module.exports = {
     },
     {
       stem: 'Que se passe-t-il si un motif de numérotation est écrit sans le caractère souligné initial _ dans extensions.conf (ex: 7XXXXXXXX) ?',
-      opts: ['Asterisk génère une erreur de syntaxe fatale', 'Asterisk considère le motif comme une extension littérale exacte "7XXXXXXXX" et non comme un masque générique', 'Asterisk ajoute automatiquement le souligné', 'L\'appel est redirigé vers la messagerie vocale'],
-      correct: 1,
+      opts: ["Asterisk considère le motif comme une extension littérale exacte \"7XXXXXXXX\" et non comme un masque générique","Asterisk génère une erreur de syntaxe fatale au moment du rechargement du dialplan","Asterisk ajoute automatiquement le souligné manquant devant le motif déclaré","L'appel composé est automatiquement redirigé vers la messagerie vocale du poste"],
+      correct: 0,
       exp: 'Sans le souligné _ au début, Asterisk interprète la chaîne comme le nom littéral exact de l\'extension, et le pattern matching ne s\'applique pas.'
     },
     {
       stem: 'Quelle extension spéciale est appelée par Asterisk dès qu\'une communication est terminée ou qu\'un correspondant raccroche la ligne ?',
-      opts: ['Extension h', 'Extension e', 'Extension b', 'Extension q'],
-      correct: 0,
+      opts: ['Extension b', 'Extension e', 'Extension h', 'Extension q'],
+      correct: 2,
       exp: 'L\'extension h (Hangup) est systématiquement exécutée lors de la libération du canal pour effectuer des opérations de clôture ou d\'audit.'
     },
     {
       stem: 'Quelle directive permet d\'intégrer l\'intégralité des extensions d\'un contexte nommé [interne] à l\'intérieur d\'un autre contexte [direction] ?',
-      opts: ['import => interne', 'include => interne', 'inherit => interne', 'link => interne'],
-      correct: 1,
+      opts: ['import => interne', 'link => interne', 'inherit => interne', 'include => interne'],
+      correct: 3,
       exp: 'La directive include => nom_contexte permet d\'inclure un contexte dans un autre, facilitant la composition modulaire des droits.'
     }
   ],

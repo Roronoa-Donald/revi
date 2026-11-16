@@ -21,8 +21,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : calculer les opérations selon la classe de complexité
 `,
     hints: [
-      'Utiliser math.log2 pour les logarithmes en base 2.',
-      'Pour O(2n), calculer 2 ** N.'
+      "Utiliser math.log2 pour les logarithmes en base 2.",
+      "Pour O(2n), calculer 2 ** N.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (calculer le nombre d’opérations théoriques et classifier le comportement asymptotique d’un algorithme selon sa taille d’entrée n), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -82,7 +83,8 @@ for lig in lignes:
         ops = 2 ** N
 
     print(f"COMPLEXITE: {nom} | ASYMPTOTE: {classe} | N={N} -> OPERATIONS: {ops}")
-`
+`,
+    takeaway: "Comparer les ordres de grandeur asymptotiques (Grand O) consiste à ne conserver que le terme dominant lorsque n tend vers l’infini."
   },
   {
     id: 'al3-c1-e2',
@@ -100,8 +102,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : appliquer le théorème maître
 `,
     hints: [
-      'log_b(a) = math.log(a) / math.log(b).',
-      'Le tri fusion a=2, b=2, d=1 donne c=1.00 == d=1 (Cas 2).'
+      "log_b(a) = math.log(a) / math.log(b).",
+      "Le tri fusion a=2, b=2, d=1 donne c=1.00 == d=1 (Cas 2).",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (déterminer la classe de complexité asymptotique globale d’une relation de récurrence diviser-pour-régner T(n) = a*T(n/b) + Theta(n^d)), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -167,7 +170,8 @@ for lig in lignes:
             res = f"Theta(n^{d})"
 
     print(f"MASTER: {nom} | a={a} b={b} d={d} (c={c:.2f}) -> CAS {cas} : COMPLEXITE = {res}")
-`
+`,
+    takeaway: "Le théorème maître compare log_b(a) à la croissance de f(n) pour déterminer directement le coût d’une récurrence diviser-pour-régner."
   },
   {
     id: 'al3-c1-e3',
@@ -184,8 +188,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : simuler la pile récursive et détecter le dépassement
 `,
     hints: [
-      'Pour une récursion arborescente type Fibonacci, f(n) compte les appels récursifs réels.',
-      'Si N > MAX_DEPTH, court-circuiter et signaler le Stack Overflow.'
+      "Pour une récursion arborescente type Fibonacci, f(n) compte les appels récursifs réels.",
+      "Si N > MAX_DEPTH, court-circuiter et signaler le Stack Overflow.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (simuler l’empilement des cadres d’appels d’une fonction récursive f(n) = f(n-1) + f(n-2) et détecter les risques de débordement de pile), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -246,6 +251,7 @@ for lig in lignes:
         else:
             appels, valeur = fib_count(N)
         print(f"RECURSION: {nom} | SUCCES : Profondeur {N}/{max_d} | APPELS_TOTAUX: {appels} | VALEUR: {valeur}")
-`
+`,
+    takeaway: "Sans condition d’arrêt atteignable ou mémoïsation, la pile d’appels récursifs croît linéairement et provoque un Stack Overflow."
   }
 ];

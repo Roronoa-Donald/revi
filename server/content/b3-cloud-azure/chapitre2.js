@@ -126,12 +126,12 @@ module.exports = {
     {
       stem: 'Quel est l\'avantage principal d\'utiliser une Managed Identity (Identité Managée) pour une machine virtuelle Azure accédant à une base de données ?',
       opts: [
-        'Accélération de la vitesse de la carte réseau virtuelle',
-        'Suppression totale des identifiants et mots de passe stockés en clair dans le code de l\'application',
-        'Gratuité des requêtes SQL exécutées',
-        'Chiffrement automatique des disques physiques du datacenter'
+        "Suppression totale des identifiants et mots de passe stockés en clair dans le code de l'application",
+        "Accélération matérielle de la vitesse de la carte réseau virtuelle attachée à la VM",
+        "Gratuité totale des requêtes SQL exécutées par la base de données managée",
+        "Chiffrement automatique des disques physiques des serveurs du datacenter Microsoft"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une Managed Identity permet à la VM de demander un jeton d\'accès Entra ID directement à la plateforme Azure locale sans qu\'aucun secret ni mot de passe ne soit inscrit dans le code applicatif.'
     },
     {
@@ -147,14 +147,14 @@ module.exports = {
     },
     {
       stem: 'Quel rôle prédéfini (Built-in Role) permet de créer et modifier toutes les ressources Azure sans pouvoir gérer les attributions de droits RBAC à d\'autres utilisateurs ?',
-      opts: ['Owner', 'Contributor', 'Reader', 'User Access Administrator'],
-      correct: 1,
+      opts: ['Owner', 'User Access Administrator', 'Reader', 'Contributor'],
+      correct: 3,
       exp: 'Le rôle Contributor possède Actions: ["*"] avec NotActions excluant les modifications d\'autorisations RBAC (Microsoft.Authorization/*).'
     },
     {
       stem: 'Quel effet Azure Policy devez-vous employer pour empêcher immédiatement le déploiement d\'une machine virtuelle si sa localisation n\'est pas dans la liste autorisée ?',
-      opts: ['Audit', 'Deny', 'Append', 'Disabled'],
-      correct: 1,
+      opts: ['Audit', 'Append', 'Deny', 'Disabled'],
+      correct: 2,
       exp: 'L\'effet Deny bloque la requête de déploiement au niveau d\'ARM et retourne un message d\'erreur explicite à l\'utilisateur avant même que la ressource ne soit créée.'
     },
     {
@@ -166,29 +166,29 @@ module.exports = {
     {
       stem: 'Que se passe-t-il si un utilisateur tente de modifier la configuration d\'une ressource protégée par un verrou ReadOnly ?',
       opts: [
-        'La modification est acceptée mais signalée par email',
-        'La modification est rejetée avec une erreur d\'autorisation, car ReadOnly bloque toute écriture et suppression',
-        'La modification est placée dans une file d\'attente d\'approbation',
-        'Le verrou bascule automatiquement en mode CanNotDelete'
+        "La modification est rejetée avec une erreur d'autorisation, car ReadOnly bloque toute écriture et suppression",
+        "La modification est acceptée par Azure mais un courriel d'avertissement est envoyé à l'administrateur",
+        "La modification est placée dans une file d'attente en attente d'une approbation manuelle",
+        "Le verrou bascule automatiquement en mode CanNotDelete et n'autorise plus que la suppression"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un verrou ReadOnly équivaut à restreindre l\'accès à des droits de pure lecture (Reader) pour tous les utilisateurs, interdisant toute modification ou suppression.'
     },
     {
       stem: 'Dans Azure Key Vault, quel est le rôle de la fonctionnalité Soft-Delete ?',
       opts: [
-        'Supprimer immédiatement les données sans laisser de trace',
-        'Conserver les secrets et clés supprimés dans un état récupérable pendant une période paramétrable de 7 à 90 jours',
-        'Diviser par deux le coût de stockage des secrets',
-        'Chiffrer les secrets avec un algorithme plus léger'
+        "Supprimer immédiatement et définitivement les secrets et clés sans laisser aucune trace récupérable",
+        "Diviser par deux le coût de stockage mensuel des secrets et certificats du coffre",
+        "Chiffrer les secrets avec un algorithme plus léger afin d'accélérer les lectures applicatives",
+        "Conserver les secrets et clés supprimés dans un état récupérable pendant une période paramétrable de 7 à 90 jours"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Soft-Delete empêche la perte définitive immédiate en plaçant les objets supprimés dans une corbeille protégée pendant une durée de 7 à 90 jours (par défaut 90 jours).'
     },
     {
       stem: 'Quelle mesure de sécurité Key Vault empêche un attaquant disposant des droits administrateurs de purger immédiatement un secret placé en Soft-Delete ?',
-      opts: ['Firewall IP', 'Purge Protection', 'Private Endpoint', 'Azure Bastion'],
-      correct: 1,
+      opts: ['Firewall IP', 'Private Endpoint', 'Purge Protection', 'Azure Bastion'],
+      correct: 2,
       exp: 'Purge Protection verrouille l\'objet en corbeille jusqu\'à la fin de la période de rétention Soft-Delete, empêchant toute destruction prématurée même par un compte administrateur.'
     }
   ],

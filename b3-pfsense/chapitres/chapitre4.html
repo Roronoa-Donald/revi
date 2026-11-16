@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -233,10 +231,11 @@ FRAME id=F2 ingress_if=em0 tag=99 payload_bytes=64
 FRAME id=F3 ingress_if=em0 tag=0 payload_bytes=128</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Stocker les VLANs sous une clé composite (parent, tag).</li>
         <li>Traiter tag=0 comme non étiqueté (DROPPED).</li>
+        <li>1. Si tag=0 : rejet immédiat. 2. Chercher la sous-interface (parent, tag). 3. Trouvée : ACCEPTED avec son sous-réseau, sinon DROPPED avec UNKNOWN.</li>
       </ol>
     </details>
   </div>
@@ -297,10 +296,11 @@ FLOW id=F3 src=DMZ dst=LAN port=80 state=ESTABLISHED
 FLOW id=F4 src=DMZ dst=WAN port=22 state=NEW</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifier d'abord si state == "ESTABLISHED".</li>
         <li>Si NEW, chercher la première règle POLICY correspondante ou appliquer DEFAULT_DENY.</li>
+        <li>1. ESTABLISHED : PASS immédiat. 2. NEW : parcourir les politiques dans l'ordre, retenir la première correspondance src, dst et port. 3. Sinon DEFAULT_DENY.</li>
       </ol>
     </details>
   </div>
@@ -369,10 +369,11 @@ PACKET id=PKT3 outer_tag=99 inner_tag=NONE dst_ip=10.0.0.1
 PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertir allowed_vlans en un ensemble d'entiers.</li>
         <li>Comparer outer_tag avec native_vlan lorsque deux tags sont présents.</li>
+        <li>1. Deux tags : externe égal au VLAN natif, attaque, sinon rejet. 2. Un tag : autorisé si présent dans allowed_vlans. 3. Aucun tag : trame native transférée.</li>
       </ol>
     </details>
   </div>
@@ -395,9 +396,9 @@ PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
     <div class="q">
       <p class="q__stem">Combien de VLANs distincts peuvent être théoriquement codés sur le champ VID de 12 bits de la norme 802.1Q ?</p>
       <div class="opts">
-        <button class="opt">256</button>
-        <button class="opt">1024</button>
         <button class="opt" data-correct="1">4096 (dont 4094 utilisables)</button>
+        <button class="opt">1024</button>
+        <button class="opt">256</button>
         <button class="opt">65536</button>
       </div>
       <div class="q__exp">Un champ de 12 bits permet 2^12 = 4096 valeurs (les identifiants 0 et 4095 étant réservés, 4094 VLANs sont exploitables).</div>
@@ -406,9 +407,9 @@ PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
       <p class="q__stem">Comment une sous-interface VLAN est-elle nommée sous le noyau FreeBSD/pfSense pour la carte em0 sur le VLAN 30 ?</p>
       <div class="opts">
         <button class="opt">vlan30@em0</button>
-        <button class="opt" data-correct="1">em0.30</button>
-        <button class="opt">eth0:30</button>
         <button class="opt">trunk0-vlan30</button>
+        <button class="opt">eth0:30</button>
+        <button class="opt" data-correct="1">em0.30</button>
       </div>
       <div class="q__exp">Sous FreeBSD/pfSense, la convention de nommage des sous-interfaces 802.1Q est &lt;nom_interface_parente&gt;.&lt;vlan_id&gt;, soit em0.30.</div>
     </div>
@@ -416,8 +417,8 @@ PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
       <p class="q__stem">Quelle règle de sécurité fondamentale régit l’accès entre une DMZ publique et le réseau interne (LAN) ?</p>
       <div class="opts">
         <button class="opt">Le LAN ne peut jamais communiquer avec la DMZ</button>
-        <button class="opt" data-correct="1">La DMZ ne doit jamais pouvoir initier de nouvelle connexion vers le LAN</button>
         <button class="opt">Tout le trafic entre la DMZ et le LAN doit être non filtré pour la performance</button>
+        <button class="opt" data-correct="1">La DMZ ne doit jamais pouvoir initier de nouvelle connexion vers le LAN</button>
         <button class="opt">La DMZ doit partager le même serveur DHCP que le LAN</button>
       </div>
       <div class="q__exp">Pour éviter qu’un pirate ayant compromis un serveur Web public ne pivote vers le système d’information interne, toute initiation DMZ vers LAN est bloquée.</div>
@@ -427,28 +428,28 @@ PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
       <div class="opts">
         <button class="opt">En créant une règle autorisant tout le trafic de la DMZ vers le LAN</button>
         <button class="opt" data-correct="1">Automatiquement grâce à la table d’états (Stateful Inspection) qui autorise les paquets retour</button>
-        <button class="opt">En désactivant le pare-feu pfSense</button>
-        <button class="opt">En utilisant le protocole RIP</button>
+        <button class="opt">En désactivant le pare-feu pfSense le temps de la transaction HTTP entre les deux zones</button>
+        <button class="opt">En utilisant le protocole de routage RIP pour annoncer le sous-réseau DMZ au LAN</button>
       </div>
       <div class="q__exp">Le pare-feu à état conserve la trace de la session ouverte par le LAN et laisse passer les paquets réponses de la DMZ sans nécessiter de règle d’initiation.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle faille de configuration de commutateur est exploitée lors d’une attaque par Double Tagging (VLAN Hopping) ?</p>
       <div class="opts">
-        <button class="opt">L’absence de mot de passe administrateur</button>
         <button class="opt" data-correct="1">Le stripping (retrait) du tag externe par le switch lorsque celui-ci correspond au VLAN natif non étiqueté du Trunk</button>
-        <button class="opt">L’utilisation de câbles réseau trop longs</button>
-        <button class="opt">Une saturation de la bande passante du pare-feu</button>
+        <button class="opt">L’absence de mot de passe administrateur sur la console de gestion du commutateur Cisco</button>
+        <button class="opt">L’utilisation de câbles réseau cuivre dépassant la longueur maximale recommandée</button>
+        <button class="opt">Une saturation de la bande passante du pare-feu par le trafic de diffusion inter-VLANs</button>
       </div>
       <div class="q__exp">Le switch supprime le tag externe correspondant à son VLAN natif et envoie la trame sur le trunk avec le tag interne cible sans ré-inspection.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la première recommandation pour contrer l’attaque par Double Tagging sur un commutateur ?</p>
       <div class="opts">
-        <button class="opt">Remplacer tous les câbles RJ45 par de la fibre</button>
+        <button class="opt">Remplacer tous les câbles RJ45 du réseau par des liaisons fibre optique monomode</button>
+        <button class="opt">Augmenter le MTU des trames du trunk à 9000 octets pour accélérer les échanges</button>
         <button class="opt" data-correct="1">Définir un VLAN natif dédié et inutilisé (ex: VLAN 999) différent du VLAN 1 par défaut</button>
-        <button class="opt">Augmenter le MTU à 9000 octets</button>
-        <button class="opt">Bloquer les requêtes DNS sur le port 53</button>
+        <button class="opt">Bloquer les requêtes DNS émises sur le port 53 depuis les ports utilisateurs</button>
       </div>
       <div class="q__exp">Attribuer un VLAN natif fictif non affecté aux ports utilisateurs empêche les postes d’émettre des trames avec le tag externe natif requis pour l’attaque.</div>
     </div>
@@ -456,9 +457,9 @@ PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
       <p class="q__stem">Quel protocole propriétaire Cisco de négociation automatique de port Trunk doit être impérativement désactivé sur les ports utilisateurs ?</p>
       <div class="opts">
         <button class="opt">CDP (Cisco Discovery Protocol)</button>
-        <button class="opt" data-correct="1">DTP (Dynamic Trunking Protocol)</button>
-        <button class="opt">VTP (VLAN Trunking Protocol)</button>
         <button class="opt">HSRP</button>
+        <button class="opt">VTP (VLAN Trunking Protocol)</button>
+        <button class="opt" data-correct="1">DTP (Dynamic Trunking Protocol)</button>
       </div>
       <div class="q__exp">DTP permet à un poste malveillant de négocier un lien Trunk avec le switch si le port est en mode dynamic auto/desirable, donnant accès à tous les VLANs.</div>
     </div>
@@ -584,7 +585,7 @@ PACKET id=PKT4 outer_tag=NONE inner_tag=NONE dst_ip=192.168.1.1</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

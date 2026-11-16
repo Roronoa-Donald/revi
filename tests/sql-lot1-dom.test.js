@@ -47,7 +47,7 @@ function sourceText(value) {
   return normalized(text(parse5.parseFragment(value)));
 }
 
-function assertQuestion(question, expected) {
+function assertQuestion(question, expected, isSecure = false) {
   const stem = nodes(question, node => hasClass(node, 'q__stem'));
   const options = nodes(question, node => hasClass(node, 'opt'));
   const explanation = nodes(question, node => hasClass(node, 'q__exp'));
@@ -55,9 +55,14 @@ function assertQuestion(question, expected) {
   assert.equal(explanation.length, 1);
   assert.equal(normalized(text(stem[0])), sourceText(expected.stem));
   assert.deepEqual(options.map(option => normalized(text(option))), expected.opts.map(sourceText));
-  assert.equal(options.filter(option => attribute(option, 'data-correct') === '1').length, 1);
-  assert.equal(attribute(options[expected.correct], 'data-correct'), '1');
-  assert.equal(normalized(text(explanation[0])), sourceText(expected.exp));
+  if (isSecure) {
+    assert.equal(options.filter(option => attribute(option, 'data-correct') === '1').length, 0);
+    assert.equal(attribute(explanation[0], 'data-secure'), '1');
+  } else {
+    assert.equal(options.filter(option => attribute(option, 'data-correct') === '1').length, 1);
+    assert.equal(attribute(options[expected.correct], 'data-correct'), '1');
+    assert.equal(normalized(text(explanation[0])), sourceText(expected.exp));
+  }
 }
 
 test('QCM et cartes du cours restent fidèles aux sources dans le DOM', diagnostic => {
@@ -126,7 +131,7 @@ test('QCM et cartes du cours restent fidèles aux sources dans le DOM', diagnost
   const examQuestions = nodes(examRoot, node => hasClass(node, 'q'));
   assert.equal(examQuestions.length, EXAMEN_QCM.length);
   for (const [index, expected] of EXAMEN_QCM.entries()) {
-    assertQuestion(examQuestions[index], expected);
+    assertQuestion(examQuestions[index], expected, true);
     questionCount++;
   }
   diagnostic.diagnostic(`${questionCount} questions, ${cards.length} cartes et ${exerciseCount} ateliers fidèles au DOM ; ${sourceCards} cartes de chapitre et ${cards.length - sourceCards} cartes complémentaires.`);

@@ -93,14 +93,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que vise la haute disponibilité ?', opts: ['Maintenir le service malgré une panne', 'Restaurer des fichiers', 'Accélérer le réseau'], correct: 0, exp: 'Elle organise la continuité de service.' },
-    { stem: 'Citez un pilier de la HA.', opts: ['La redondance', 'La compression', 'Le chiffrement'], correct: 0, exp: 'Redondance, failover et supervision sont les trois piliers.' },
+    { stem: 'Que vise la haute disponibilité ?', opts: ["Restaurer des fichiers après un incident","Accélérer le débit du réseau local","Maintenir le service malgré une panne"], correct: 2, exp: "La haute disponibilité maintient le service malgré une panne. Restaurer des fichiers relève de la sauvegarde, pas de la continuité ; accélérer le réseau n’y contribue qu’indirectement." },
+    { stem: 'Citez un pilier de la HA.', opts: ['Le chiffrement', 'La compression', 'La redondance'], correct: 2, exp: 'Redondance, failover et supervision sont les trois piliers.' },
     { stem: 'Que supprime la redondance ?', opts: ['Le point unique de défaillance', 'Les sauvegardes', 'Les utilisateurs'], correct: 0, exp: 'On duplique pour qu’aucun composant soit seul.' },
-    { stem: 'Que fait le failover ?', opts: ['Bascule automatiquement l’activité', 'Copie les données', 'Éteint le serveur'], correct: 0, exp: 'L’activité passe au composant redondant, sans intervention.' },
-    { stem: 'À quoi sert la supervision ?', opts: ['Détecter les anomalies et déclencher la bascule', 'Ralentir le système', 'Supprimer les logs'], correct: 0, exp: 'Le monitoring observe l’état et alerte ou agit.' },
-    { stem: 'Que signifie 99,9 % de disponibilité ?', opts: ['≈ 8 h 45 min d’arrêt par an', 'Zéro arrêt', 'Une journée par mois'], correct: 0, exp: 'Le tableau SLA donne l’indisponibilité annuelle.' },
-    { stem: 'Que fait un load balancer ?', opts: ['Répartit les requêtes entre serveurs', 'Compresse les images', 'Sauvegarde les bases'], correct: 0, exp: 'Il distribue la charge et écarte un serveur en panne.' },
-    { stem: 'En virtualisation, que permet la HA ?', opts: ['Redémarrer une VM sur un autre hôte', 'Effacer les snapshots', 'Changer l’adresse IP'], correct: 0, exp: 'Les VM redémarrent automatiquement ailleurs.' }
+    { stem: 'Que fait le failover ?', opts: ['Copie les données', 'Bascule automatiquement l’activité', 'Éteint le serveur'], correct: 1, exp: 'L’activité passe au composant redondant, sans intervention.' },
+    { stem: 'À quoi sert la supervision ?', opts: ["Détecter les anomalies et déclencher la bascule","Ralentir le système pour économiser des ressources","Supprimer les journaux pour gagner de la place"], correct: 0, exp: "Le monitoring observe l’état, détecte les anomalies et déclenche la bascule. Ni ralentir le système ni supprimer des journaux n’assurent la continuité." },
+    { stem: 'Que signifie 99,9 % de disponibilité ?', opts: ['Zéro arrêt', '≈ 8 h 45 min d’arrêt par an', 'Une journée par mois'], correct: 1, exp: 'Le tableau SLA donne l’indisponibilité annuelle.' },
+    { stem: 'Que fait un load balancer ?', opts: ["Compresse les images du site web","Sauvegarde les bases de données","Répartit les requêtes entre serveurs"], correct: 2, exp: "Le répartiteur de charge distribue les requêtes entre serveurs et écarte un serveur en panne. Compresser des images ou sauvegarder des bases n’est pas son office." },
+    { stem: 'En virtualisation, que permet la HA ?', opts: ['Changer l’adresse IP', 'Effacer les snapshots', 'Redémarrer une VM sur un autre hôte'], correct: 2, exp: 'Les VM redémarrent automatiquement ailleurs.' }
   ],
 
   pitfalls: [

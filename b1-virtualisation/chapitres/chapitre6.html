@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -76,6 +74,7 @@
       <li>produire le bilan avant/après d’un parc avec moyennes et réveillés ;</li>
       <li>élaborer le plan de réveil : virtualiser, étudier, garder ;</li>
       <li>rendre un verdict de projet en trois états.</li>
+      <li>réaliser un atelier guidé : créer, démarrer, protéger et exporter une VM Debian avec VirtualBox et la commande VBoxManage.</li>
     </ol>
   </div>
 
@@ -142,11 +141,51 @@
 
 </section>
 
+<section class="sec">
+
+<h2>5. Atelier guidé : une VM Debian avec VirtualBox et VBoxManage</h2>
+
+<p>Passons de la fable à la pratique : la meilleure preuve est une VM qui démarre sous vos yeux. Cet atelier utilise <strong>VirtualBox</strong> (type 2) et l’ISO d’installation « netinst » de <strong>Debian</strong> (téléchargeable gratuitement sur le site officiel du projet). Prévoir 2 Go de RAM, 20 Go de disque libre et la virtualisation activée (chapitre 2).</p>
+<p><strong>Étape 0 — Vérifier l’installation.</strong></p>
+<pre><code>VBoxManage --version
+VBoxManage list ostypes | grep -i "Debian_64"</code></pre>
+<p><strong>Étape 1 — Créer et configurer la machine.</strong> Nom, type de système, mémoire, vCPU et carte réseau en NAT (mode par défaut, chapitre 4).</p>
+<pre><code>VBoxManage createvm --name "debian-lab" --ostype Debian_64 --register
+VBoxManage modifyvm "debian-lab" --memory 2048 --cpus 2 --vram 16 --nic1 nat</code></pre>
+<p><strong>Étape 2 — Créer le disque et les contrôleurs.</strong> Un disque VDI de 20 Go (20480 Mo), alloué dynamiquement, relié à un contrôleur SATA ; l’ISO est placée dans un lecteur optique.</p>
+<pre><code>VBoxManage createmedium disk --filename "$HOME/VirtualBox VMs/debian-lab/debian-lab.vdi" --size 20480 --format VDI
+VBoxManage storagectl "debian-lab" --name "SATA" --add sata --controller IntelAhci
+VBoxManage storageattach "debian-lab" --storagectl "SATA" --port 0 --device 0 --type hdd --medium "$HOME/VirtualBox VMs/debian-lab/debian-lab.vdi"
+VBoxManage storagectl "debian-lab" --name "IDE" --add ide
+VBoxManage storageattach "debian-lab" --storagectl "IDE" --port 0 --device 0 --type dvddrive --medium "$HOME/Telechargements/debian-netinst.iso"</code></pre>
+<p><strong>Étape 3 — Démarrer et installer Debian.</strong> Suivre l’installeur (langue, clavier, utilisateur, partitionnement guidé sur tout le disque, « serveur SSH » et « utilitaires usuels du système » comme seuls logiciels). À la fin, éjecter l’ISO.</p>
+<pre><code>VBoxManage startvm "debian-lab" --type gui
+VBoxManage storageattach "debian-lab" --storagectl "IDE" --port 0 --device 0 --type dvddrive --medium emptydrive</code></pre>
+<p><strong>Étape 4 — Rendre la VM joignable.</strong> Redirection de port NAT pour SSH puis connexion depuis l’hôte (chapitre 4).</p>
+<pre><code>VBoxManage modifyvm "debian-lab" --natpf1 "ssh,tcp,,2222,,22"
+ssh -p 2222 utilisateur@127.0.0.1</code></pre>
+<p><strong>Étape 5 — Protéger puis exporter.</strong> Snapshot avant toute modification, clone pour un second serveur, export OVA pour une copie hors de la machine (chapitre 5).</p>
+<pre><code>VBoxManage snapshot "debian-lab" take "installation-propre"
+VBoxManage clonevm "debian-lab" --name "debian-lab-2" --register
+VBoxManage export "debian-lab" -o "$HOME/debian-lab.ova"
+VBoxManage list vms
+VBoxManage controlvm "debian-lab" acpipowerbutton</code></pre>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Ce que prouve l’atelier</div>
+    <p>Une machine « complète » (système, disque, réseau) tient dans quelques fichiers et se pilote en quelques commandes. Notez le temps de création, la taille du fichier VDI avant et après l’installation, et l’utilisation réelle du processeur : ce sont les trois lignes de preuve du pitch de ce chapitre.</p>
+  </div>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Si quelque chose ne marche pas</div>
+    <p>« VT-x non disponible » : voir le chapitre 2. Écran noir au démarrage : vérifier que l’ISO est bien attachée et le contrôleur graphique par défaut. Pas de réseau : vérifier que --nic1 vaut nat. Les noms d’options peuvent varier légèrement d’une version de VirtualBox à l’autre : la commande <code>VBoxManage --help</code> et le manuel officiel font foi.</p>
+  </div>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -154,33 +193,30 @@
      data-exercise="vt-c6-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="constat gaspillage&#10;idee virtualisation&#10;preuve rentabilisation&#10;verdict plein&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c6-e1) — L’argumentaire en trois arguments
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un stagiaire prépare le pitch du stage de fin d'année pour la direction.&#10;&#10;1) Il ouvre par le constat : 12 serveurs, facture annuelle de 4 millions, taux moyen de 18 %.&#10;2) Il enchaîne sur l'idée : virtualiser, plusieurs machines sur un seul serveur.&#10;3) Il prouve : moyennes avant/après (18 % puis 72 %), 4 serveurs réveillés, économies chiffrées.&#10;4) Il conclut par le verdict : comparer ressources allouées et usages mesurés.&#10;L'ordre est celui de l'histoire — il ne l'inverse jamais.">
+  <script type="text/plain" data-lab-starter># Exercice — Le pitch en quatre étapes
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Deux dernières inversées]
-# Données : constat gaspillage
-# Données : idee virtualisation
-# Données : verdict plein
-# Données : preuve rentabilisation
+[Question 1 — Première étape du pitch]
 A_COMPLETER
 
-[Cas 2 — Arguments échangés]
-# Données : constat virtualisation
-# Données : idee gaspillage
-# Données : preuve rentabilisation
-# Données : verdict plein
+[Question 2 — Deuxième étape du pitch]
 A_COMPLETER
 
-[Cas 3 — Pitch mélangé]
-# Données : idee virtualisation
-# Données : constat gaspillage
-# Données : preuve rentabilisation
-# Données : verdict plein
+[Question 3 — L'étape des taux avant/après]
+A_COMPLETER
+
+[Question 4 — Quatrième et dernière étape]
+A_COMPLETER
+
+[Question 5 — « De l'électricité pour... » (un mot)]
+A_COMPLETER
+
+[Question 6 — Le verdict peut-il venir avant la preuve ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — L’argumentaire en trois arguments</h3>
+    <h3 class="lab__title">Exercice 1 — Le pitch en quatre étapes</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -189,20 +225,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider l’ordre de l’argumentaire : constat, solution, bénéfice.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Pour chaque ligne, indiquez <code>etape N : OK</code> quand l’étape ET son argument sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Restituer l'ordre exact du pitch (constat, idée, preuve, verdict) et le sens de chaque étape.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le responsable informatique reste sceptique : « Pourquoi réveillerais-je mes vieux serveurs ? » L'ingénieur prépare son argumentaire : un pitch qui suit exactement l'ordre de l'histoire. <strong>Étape 1, le constat</strong> : le gaspillage mesuré — 80 % d'inactivité, de l'électricité pour rien. <strong>Étape 2, l'idée</strong> : la virtualisation, plusieurs machines sur un seul serveur. <strong>Étape 3, la preuve</strong> : la rentabilisation, avec des taux avant/après et des économies chiffrées. <strong>Étape 4, le verdict</strong> : comparer les ressources allouées aux usages réellement mesurés. Chaque étape sans la précédente sonne creux : le verdict sans preuve est une promesse, la preuve sans constat ne concerne personne, le constat sans idée laisse le responsable sans réponse.</p><ol><li>Par quelle étape ouvre-t-on le pitch ? (un mot)</li><li>Quelle est la deuxième étape du pitch ? (un mot)</li><li>Quelle étape présente les taux avant/après et les économies chiffrées ? (un mot)</li><li>Quelle est la quatrième et dernière étape ? (un mot)</li><li>Le constat du pitch, c'est le gaspillage : « 80 % d'inactivité, de l'électricité pour... » ? (un mot)</li><li>L'ordre du pitch est l'ordre de l'histoire : le verdict peut-il venir avant la preuve ? (oui ou non)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>constat gaspillage
-idee virtualisation
-preuve rentabilisation
-verdict plein
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un stagiaire prépare le pitch du stage de fin d'année pour la direction.
+
+1) Il ouvre par le constat : 12 serveurs, facture annuelle de 4 millions, taux moyen de 18 %.
+2) Il enchaîne sur l'idée : virtualiser, plusieurs machines sur un seul serveur.
+3) Il prouve : moyennes avant/après (18 % puis 72 %), 4 serveurs réveillés, économies chiffrées.
+4) Il conclut par le verdict : comparer ressources allouées et usages mesurés.
+L'ordre est celui de l'histoire — il ne l'inverse jamais.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur le numéro : 1 → constat/gaspillage, 2 → idee/virtualisation, 3 → preuve/rentabilisation, 4 → verdict/plein.</li>
-        <li>Étape ET argument doivent être justes en même temps.</li>
+        <li>Le pitch suit le récit : d'abord la situation douloureuse chiffrée, puis la réponse technique, puis les chiffres qui prouvent, enfin la décision.</li>
+        <li>Les taux avant/après et les économies appartiennent au moment où l'on démontre, pas à celui où l'on annonce.</li>
+        <li>Pour l'ordre des étapes, rappelez-vous qu'aucune étape ne peut sonner creux : une décision sans démonstration n'est qu'une promesse.</li>
       </ol>
     </details>
   </div>
@@ -212,29 +251,26 @@ verdict plein
      data-exercise="vt-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;srv1 20 90&#10;srv2 30 50&#10;srv3 10 85&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c6-e2) — Le bilan avant/après du parc
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le bilan de l'agence compte 2 serveurs :&#10;x : 5 % avant, 82 % après — y : 35 % avant, 85 % après.&#10;&#10;1) Moyenne avant : (5 + 35)/2 = 20 %.&#10;2) Moyenne après : (82 + 85)/2 = 83,5 %.&#10;3) Hausse : 83,5 - 20 = 63,5 points.&#10;4) x : avant 5 &lt; 30 et après 82 &gt;= 80 : réveillé.&#10;5) y : avant 35 &gt;= 30 : pas réveillé, même s'il finit à 85 %.">
+  <script type="text/plain" data-lab-starter># Exercice — Le bilan avant/après du parc
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Parc du support]
-# Données : 4
-# Données : a 10 95
-# Données : b 20 80
-# Données : c 40 45
-# Données : d 50 55
+[Question 1 — Nombre de serveurs réveillés]
 A_COMPLETER
 
-[Cas 2 — Tout réveillé]
-# Données : 3
-# Données : a 5 90
-# Données : b 10 85
-# Données : c 0 100
+[Question 2 — Moyenne des taux avant (%)]
 A_COMPLETER
 
-[Cas 3 — Rien ne bouge]
-# Données : 2
-# Données : a 60 60
-# Données : b 70 65
+[Question 3 — Moyenne des taux après (%)]
+A_COMPLETER
+
+[Question 4 — Hausse de la moyenne (points)]
+A_COMPLETER
+
+[Question 5 — srv-rh est-il réveillé ?]
+A_COMPLETER
+
+[Question 6 — srv-prod est-il réveillé ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -247,20 +283,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Produire le tableau de bord de l’argumentaire : gaspillage avant, rente après.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « serveur avant apres » (taux d’utilisation %). Indiquez pour chaque serveur <code>serveur : avant=A% apres=B%</code>, puis trois bilans : <code>reveilles : X</code> (passés de moins de 30 % à 80 % ou plus), <code>moyenne avant : Y%</code> et <code>moyenne apres : Z%</code> (moyennes arrondies à l’entier inférieur).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Produire les trois lignes du bilan (réveillés, moyenne avant, moyenne après) et éprouver les conditions du réveil.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La preuve du pitch tient en trois lignes : le nombre de <strong>réveillés</strong>, la <strong>moyenne avant</strong> et la <strong>moyenne après</strong>. Un serveur est « réveillé » quand son taux passe de <strong>moins de 30 %</strong> à <strong>80 % ou plus</strong>. Le parc du responsable compte cinq serveurs :</p><table><tr><th>Serveur</th><th>Taux avant</th><th>Taux après</th></tr><tr><td>srv-compta</td><td>25 %</td><td>85 %</td></tr><tr><td>srv-rh</td><td>10 %</td><td>80 %</td></tr><tr><td>srv-prod</td><td>40 %</td><td>75 %</td></tr><tr><td>srv-log</td><td>20 %</td><td>65 %</td></tr><tr><td>srv-arch</td><td>15 %</td><td>90 %</td></tr></table><ol><li>Combien de serveurs sont réveillés au sens de la grille ?</li><li>Quelle est la moyenne des taux avant, en pourcentage ?</li><li>Quelle est la moyenne des taux après, en pourcentage ?</li><li>De combien de points la moyenne du parc a-t-elle monté ?</li><li>srv-rh passe de 10 % à 80 % : est-il réveillé ? (oui ou non)</li><li>srv-prod passe de 40 % à 75 % : est-il réveillé ? (oui ou non)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-srv1 20 90
-srv2 30 50
-srv3 10 85
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le bilan de l'agence compte 2 serveurs :
+x : 5 % avant, 82 % après — y : 35 % avant, 85 % après.
+
+1) Moyenne avant : (5 + 35)/2 = 20 %.
+2) Moyenne après : (82 + 85)/2 = 83,5 %.
+3) Hausse : 83,5 - 20 = 63,5 points.
+4) x : avant 5 &lt; 30 et après 82 &gt;= 80 : réveillé.
+5) y : avant 35 &gt;= 30 : pas réveillé, même s'il finit à 85 %.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Identifiez les machines virtuelles réveillées dont la charge passe d’un niveau faible (&lt; 30%) à un niveau actif (&gt;= 80%).</li>
-        <li>Comparez la moyenne de consommation avant et après réallocation dynamique des vCPU.</li>
+        <li>Les moyennes s'obtiennent en additionnant chaque colonne puis en divisant par le nombre de serveurs.</li>
+        <li>Pour le réveil, vérifiez les deux conditions séparément : le taux avant doit être strictement inférieur à 30 %, le taux après au moins égal à 80 %.</li>
+        <li>Les cas limites se tranchent avec la règle : 80 % après compte (c'est « 80 ou plus »), et un serveur déjà chargé avant ne peut pas être réveillé.</li>
       </ol>
     </details>
   </div>
@@ -270,38 +310,30 @@ srv3 10 85
      data-exercise="vt-c6-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="2&#10;srv1 ves&#10;srv2 ve&#10;2&#10;vm1 100&#10;vm2 80&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c6-e3) — Le plan de « réveil » des vieux serveurs
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le plan de l'annexe porte sur 2 serveurs (capacité 200) :&#10;a (v, e, s — charge 60) — b (v, e, sans sauvegarde — charge 50).&#10;&#10;1) a : les trois lettres : à virtualiser.&#10;2) b : il manque s (les sauvegardes) : à étudier, prochaine action = mettre en place les sauvegardes.&#10;3) Charge totale : 60 + 50 = 110, qui ne dépasse pas 200.&#10;4) Mais b reste bloqué : le verdict est « plan impossible ».">
+  <script type="text/plain" data-lab-starter># Exercice — Le plan de réveil v/e/s et le verdict
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Plan idéal]
-# Données : 2
-# Données : srv1 ves
-# Données : srv2 vse
-# Données : 2
-# Données : vm1 120
-# Données : vm2 80
+[Question 1 — Serveurs « à virtualiser »]
 A_COMPLETER
 
-[Cas 2 — Charge trop forte]
-# Données : 1
-# Données : srv1 ves
-# Données : 3
-# Données : vm1 100
-# Données : vm2 100
-# Données : vm3 100
+[Question 2 — Lettre manquante de srv-rh]
 A_COMPLETER
 
-[Cas 3 — Rien de virtualisable]
-# Données : 2
-# Données : srv1 -
-# Données : srv2 e
-# Données : 1
-# Données : vm1 50
+[Question 3 — Lettre manquante de srv-log]
+A_COMPLETER
+
+[Question 4 — Charge totale des VM prévues]
+A_COMPLETER
+
+[Question 5 — La charge dépasse-t-elle 200 ?]
+A_COMPLETER
+
+[Question 6 — Le verdict du plan (deux mots)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Le plan de « réveil » des vieux serveurs</h3>
+    <h3 class="lab__title">Exercice 3 — Le plan de réveil v/e/s et le verdict</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -310,36 +342,37 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Élaborer le plan final : quoi virtualiser, quoi garder, verdict du projet.</p>
-    <div class="lab__brief"><p>Dernière question de l’histoire : « comment réveiller les vieux serveurs pour être efficace mais pas surchargé ? ». Analysez les données fournies pour chaque cas. Puis <strong>m lignes</strong> « vm charge » de la charge des VM prévues. Pour chaque serveur : <code>serveur : a virtualiser</code> si les trois lettres sont présentes, sinon <code>serveur : a etudier (manque X)</code> (première lettre manquante dans l’ordre v, e, s). Pour les VM : <code>vm : charge=X</code>. Verdict final : <code>plan pret</code> si tous les serveurs sont virtualisables ET que la charge totale des VM est de 200 au plus, <code>plan a ajuster</code> si les serveurs sont prêts mais la charge dépasse 200, <code>plan impossible</code> sinon.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Classer des serveurs avec les lettres v, e, s, sommer la charge des VM prévues et rendre le verdict en trois états.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dernière étape : le plan d'action. Le plan classe chaque vieux serveur avec trois lettres : <strong>v</strong> (virtualisable : matériel compatible), <strong>e</strong> (économe : moins de 30 % d'utilisation), <strong>s</strong> (sûr : sauvegardes existantes). Les trois lettres présentes : « à virtualiser ». Il en manque une : « à étudier », et la <strong>première lettre manquante dans l'ordre v, e, s</strong> est la prochaine action concrète. Le verdict final a trois états : <strong>plan prêt</strong> (tous les serveurs à virtualiser et la charge totale des VM prévues ne dépasse pas la capacité de <strong>200</strong>) ; <strong>plan à ajuster</strong> (serveurs prêts mais charge qui dépasse) ; <strong>plan impossible</strong> (au moins un serveur reste bloqué). Voici le parc :</p><table><tr><th>Serveur</th><th>v</th><th>e</th><th>s</th><th>Charge des VM prévues</th></tr><tr><td>srv-compta</td><td>oui</td><td>oui (18 %)</td><td>oui</td><td>50</td></tr><tr><td>srv-rh</td><td>oui</td><td>oui (22 %)</td><td>non</td><td>40</td></tr><tr><td>srv-log</td><td>oui</td><td>non (55 %)</td><td>oui</td><td>60</td></tr><tr><td>srv-arch</td><td>oui</td><td>oui (12 %)</td><td>oui</td><td>50</td></tr></table><ol><li>Combien de serveurs sont « à virtualiser » (les trois lettres v, e, s présentes) ?</li><li>Quelle lettre manque-t-il à srv-rh ? (une lettre)</li><li>Quelle lettre manque-t-il à srv-log ? (une lettre)</li><li>Quelle est la charge totale des VM prévues du plan ?</li><li>Cette charge dépasse-t-elle la capacité de 200 ? (oui ou non)</li><li>Sachant qu'au moins un serveur reste bloqué, quel est le verdict du plan ? (deux mots)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
-srv1 ves
-srv2 ve
-2
-vm1 100
-vm2 80
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le plan de l'annexe porte sur 2 serveurs (capacité 200) :
+a (v, e, s — charge 60) — b (v, e, sans sauvegarde — charge 50).
+
+1) a : les trois lettres : à virtualiser.
+2) b : il manque s (les sauvegardes) : à étudier, prochaine action = mettre en place les sauvegardes.
+3) Charge totale : 60 + 50 = 110, qui ne dépasse pas 200.
+4) Mais b reste bloqué : le verdict est « plan impossible ».</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Parsing : boucle sur les caractères de config comme dans le projet b1-projet ; config = "-" → tout manquant.</li>
-        <li>Verdict : tous_prets=1 ET total &lt;= 200 → plan pret ; tous_prets=1 → plan a ajuster ; sinon plan impossible.</li>
+        <li>Pour chaque serveur, lisez les trois colonnes v, e, s : seuls ceux qui cochent les trois sont « à virtualiser ».</li>
+        <li>La lettre manquante se lit dans l'ordre v, puis e, puis s : c'est la première colonne non remplie qui devient la prochaine action.</li>
+        <li>Additionnez la charge des VM prévues de tous les serveurs, comparez à la capacité ; mais souvenez-vous qu'un seul serveur bloqué change le verdict, même si la charge tient.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">L’ordre du pitch est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">constat, idée, preuve, verdict</button>
         <button class="opt">idée, constat, verdict, preuve</button>
+        <button class="opt" data-correct="1">constat, idée, preuve, verdict</button>
         <button class="opt">verdict, preuve, idée, constat</button>
       </div>
       <div class="q__exp">Le gaspillage d’abord, l’idée ensuite, la preuve qui suit, le verdict qui conclut.</div>
@@ -356,8 +389,8 @@ vm2 80
     <div class="q">
       <p class="q__stem">Les trois lignes du bilan ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">réveillés, moyennes avant/après</button>
         <button class="opt">prix, panne, réparation</button>
+        <button class="opt" data-correct="1">réveillés, moyennes avant/après</button>
         <button class="opt">CPU, RAM, disque</button>
       </div>
       <div class="q__exp">Trois lignes qui résument la preuve : le matériel n’a pas changé, l’usage oui.</div>
@@ -374,26 +407,26 @@ vm2 80
     <div class="q">
       <p class="q__stem">Un serveur « à étudier » doit préciser…</p>
       <div class="opts">
+        <button class="opt">son prix d’achat et son coût d’entretien</button>
+        <button class="opt">son âge et sa date de mise en service</button>
         <button class="opt" data-correct="1">la première lettre manquante (v, e, s)</button>
-        <button class="opt">son prix</button>
-        <button class="opt">son âge</button>
       </div>
       <div class="q__exp">La lettre manquante est la prochaine action concrète du plan.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le verdict « plan à ajuster » signifie…</p>
       <div class="opts">
+        <button class="opt">rien n’est possible sans tout réinstaller</button>
+        <button class="opt">le plan est terminé et validé tel quel</button>
         <button class="opt" data-correct="1">les serveurs sont prêts mais la charge dépasse</button>
-        <button class="opt">rien n’est possible</button>
-        <button class="opt">le plan est terminé</button>
       </div>
       <div class="q__exp">Il faut ajouter un hôte ou réduire les VM : le matériel est prêt, la charge non.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le verdict « plan impossible » arrive quand…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">au moins un serveur reste bloqué</button>
         <button class="opt">la charge dépasse 200</button>
+        <button class="opt" data-correct="1">au moins un serveur reste bloqué</button>
         <button class="opt">tous sont réveillés</button>
       </div>
       <div class="q__exp">Un serveur sans ses trois lettres bloque le plan entier.</div>
@@ -407,13 +440,31 @@ vm2 80
       </div>
       <div class="q__exp">« Il se plaignait quand même un peu » : un parc virtualisé se surveille (chapitre 5).</div>
     </div>
+    <div class="q">
+      <p class="q__stem">Quelle commande VBoxManage crée et enregistre une nouvelle machine virtuelle ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">VBoxManage createvm --name "debian-lab" --register</button>
+        <button class="opt">VBoxManage export "debian-lab"</button>
+        <button class="opt">VBoxManage snapshot "debian-lab" take</button>
+      </div>
+      <div class="q__exp">createvm --register déclare une nouvelle VM dans VirtualBox ; export produit une OVA et snapshot take enregistre un instantané.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’atelier, pourquoi crée-t-on une redirection de port 2222 vers 22 ?</p>
+      <div class="opts">
+        <button class="opt">pour accélérer le disque virtuel</button>
+        <button class="opt" data-correct="1">pour joindre en SSH, depuis l’hôte, une VM placée en NAT</button>
+        <button class="opt">pour cloner la VM sans l’éteindre</button>
+      </div>
+      <div class="q__exp">En NAT, la VM n’est pas joignable de l’extérieur ; la redirection du port 2222 de l’hôte vers le port 22 de la VM permet la connexion SSH.</div>
+    </div>
   </div>
 
   </section>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -429,7 +480,7 @@ vm2 80
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Convaincre, pas seulement calculer</div>
@@ -444,7 +495,7 @@ vm2 80
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -461,9 +512,9 @@ vm2 80
       <li>J’élaborer le plan v/e/s et je nomme la première lettre manquante.</li>
       <li>Je rends le verdict en trois états avec la charge des VM.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 9 notions à connaître absolument</h3>
     <ol>
-      <li>pitch</li><li>constat chiffré</li><li>bilan avant/après</li><li>moyenne</li><li>plan de réveil</li><li>virtualisable</li><li>verdict</li><li>vigilance</li>
+      <li>pitch</li><li>constat chiffré</li><li>bilan avant/après</li><li>moyenne</li><li>plan de réveil</li><li>virtualisable</li><li>verdict</li><li>vigilance</li><li><strong>VBoxManage</strong> : interface en ligne de commande de VirtualBox (createvm, modifyvm, startvm, snapshot, export).</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -473,7 +524,7 @@ vm2 80
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -522,7 +573,7 @@ vm2 80
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

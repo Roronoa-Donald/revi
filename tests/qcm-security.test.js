@@ -335,37 +335,66 @@ test('Vecteur 13 : Validation stricte des paramètres et types d’entrée', asy
 });
 
 test('Vecteur 14 : Support de l’examen b1-sql (EXAMEN_QCM)', async () => {
+  const db = require('../server/db');
+  const origGetSession = db.getSessionByJti;
+  const origGetUser = db.getUserById;
+  db.getSessionByJti = async (jti) => ({ jti, user_id: 1401, is_valid: true });
+  db.getUserById = async (id) => ({ id, is_active: true, level: 'b1', subscription_status: 'active' });
+
   const app = buildApp({ logger: false });
+  const cookies = { auth_token: jwt.sign({ userId: 1401, jti: 'jti-v14' }, process.env.JWT_SECRET) };
 
-  const startRes = await app.inject({
-    method: 'POST',
-    url: '/api/qcm/session/start',
-    payload: { courseId: 'b1-sql', chapter: 'exam', durationMinutes: 60 }
-  });
+  try {
+    const startRes = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/session/start',
+      cookies,
+      payload: { courseId: 'b1-sql', chapter: 'exam', durationMinutes: 60 }
+    });
 
-  assert.equal(startRes.statusCode, 200);
-  const data = startRes.json();
-  assert.equal(data.totalQuestions, 10, 'L’examen b1-sql comporte 10 questions EXAMEN_QCM');
+    assert.equal(startRes.statusCode, 200);
+    const data = startRes.json();
+    assert.equal(data.totalQuestions, 10, 'L’examen b1-sql comporte 10 questions EXAMEN_QCM');
+  } finally {
+    db.getSessionByJti = origGetSession;
+    db.getUserById = origGetUser;
+    await app.close();
+  }
 });
 
 test('Vecteur 15 : Interdiction de consultation de correction avant clôture définitive', async () => {
+  const db = require('../server/db');
+  const origGetSession = db.getSessionByJti;
+  const origGetUser = db.getUserById;
+  db.getSessionByJti = async (jti) => ({ jti, user_id: 1501, is_valid: true });
+  db.getUserById = async (id) => ({ id, is_active: true, level: 'b1', subscription_status: 'active' });
+
   const app = buildApp({ logger: false });
+  const cookies = { auth_token: jwt.sign({ userId: 1501, jti: 'jti-v15' }, process.env.JWT_SECRET) };
 
-  const startRes = await app.inject({
-    method: 'POST',
-    url: '/api/qcm/session/start',
-    payload: { courseId: 'b1-git', chapter: 1, durationMinutes: 20 }
-  });
-  const { sessionId } = startRes.json();
+  try {
+    const startRes = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/session/start',
+      cookies,
+      payload: { courseId: 'b1-git', chapter: 1, durationMinutes: 20 }
+    });
+    const { sessionId } = startRes.json();
 
-  // Tentative de consulter le corrigé avant soumission
-  const reviewBefore = await app.inject({
-    method: 'GET',
-    url: `/api/qcm/exam/review/${sessionId}`
-  });
+    // Tentative de consulter le corrigé avant soumission (utilisateur propriétaire connecté)
+    const reviewBefore = await app.inject({
+      method: 'GET',
+      url: `/api/qcm/exam/review/${sessionId}`,
+      cookies
+    });
 
-  assert.equal(reviewBefore.statusCode, 403, 'Interdit de consulter la révision d’un examen en cours');
-  assert.match(reviewBefore.json().error, /Examen non clôturé/i);
+    assert.equal(reviewBefore.statusCode, 403, 'Interdit de consulter la révision d’un examen en cours');
+    assert.match(reviewBefore.json().error, /Examen non clôturé/i);
+  } finally {
+    db.getSessionByJti = origGetSession;
+    db.getUserById = origGetUser;
+    await app.close();
+  }
 });
 
 test('Vecteur 16 : Consultation d’état de session via GET /api/qcm/session/:sessionId', async () => {
@@ -390,30 +419,146 @@ test('Vecteur 16 : Consultation d’état de session via GET /api/qcm/session/:s
 });
 
 test('Vecteur 17 : Consultation autorisée de la correction après clôture définitive', async () => {
+  const db = require('../server/db');
+  const origGetSession = db.getSessionByJti;
+  const origGetUser = db.getUserById;
+  db.getSessionByJti = async (jti) => ({ jti, user_id: 1701, is_valid: true });
+  db.getUserById = async (id) => ({ id, is_active: true, level: 'b1', subscription_status: 'active' });
+
+  const app = buildApp({ logger: false });
+  const cookies = { auth_token: jwt.sign({ userId: 1701, jti: 'jti-v17' }, process.env.JWT_SECRET) };
+
+  try {
+    const startRes = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/session/start',
+      cookies,
+      payload: { courseId: 'b1-git', chapter: 1, durationMinutes: 20 }
+    });
+    const { sessionId } = startRes.json();
+
+    // Soumission
+    await app.inject({
+      method: 'POST',
+      url: '/api/qcm/submit',
+      cookies,
+      payload: { sessionId, answers: [{ index: 0, selected: 0 }] }
+    });
+
+    // Consultation post-clôture
+    const reviewAfter = await app.inject({
+      method: 'GET',
+      url: `/api/qcm/exam/review/${sessionId}`,
+      cookies
+    });
+
+    assert.equal(reviewAfter.statusCode, 200);
+    const data = reviewAfter.json();
+    assert.ok(Array.isArray(data.review));
+    assert.ok(data.review[0].explanation != null);
+  } finally {
+    db.getSessionByJti = origGetSession;
+    db.getUserById = origGetUser;
+    await app.close();
+  }
+});
+
+test('Tâche 1.4a : /session/start et /verify sur chapitre 2+ ou examen exigent auth + abonnement + niveau (ignore body.userId)', async () => {
+  const db = require('../server/db');
+  const origGetSession = db.getSessionByJti;
+  const origGetUser = db.getUserById;
   const app = buildApp({ logger: false });
 
-  const startRes = await app.inject({
-    method: 'POST',
-    url: '/api/qcm/session/start',
-    payload: { courseId: 'b1-git', chapter: 1, durationMinutes: 20 }
-  });
-  const { sessionId } = startRes.json();
+  try {
+    // 1. Démarrer examen sans cookie -> 401 (même si req.body.userId fourni)
+    const startAnon = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/session/start',
+      payload: { courseId: 'b1-sql', chapter: 'exam', userId: 999 }
+    });
+    assert.equal(startAnon.statusCode, 401, 'Examen anonyme doit être rejeté en 401');
 
-  // Soumission
-  await app.inject({
-    method: 'POST',
-    url: '/api/qcm/submit',
-    payload: { sessionId, answers: [{ index: 0, selected: 0 }] }
-  });
+    // 2. Verify pratique sur chapitre 2 sans auth -> 401
+    const verifyAnonCh2 = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/verify',
+      payload: { courseId: 'b1-linux', chapter: 2, questionIndex: 0, selectedOption: 0 }
+    });
+    assert.equal(verifyAnonCh2.statusCode, 401, 'Verify chapitre 2+ anonyme doit être rejeté en 401');
 
-  // Consultation post-clôture
-  const reviewAfter = await app.inject({
-    method: 'GET',
-    url: `/api/qcm/exam/review/${sessionId}`
-  });
+    // 3. Connecté B1 sans abonnement sur examen B3 -> 403
+    db.getSessionByJti = async (jti) => ({ jti, user_id: 501, is_valid: true });
+    db.getUserById = async (id) => ({ id, is_active: true, level: 'b1', subscription_status: 'inactive' });
+    const token = jwt.sign({ userId: 501, jti: 'jti-qcm-501' }, process.env.JWT_SECRET);
 
-  assert.equal(reviewAfter.statusCode, 200);
-  const data = reviewAfter.json();
-  assert.ok(Array.isArray(data.review));
-  assert.ok(data.review[0].explanation != null);
+    const startWrongLevel = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/session/start',
+      cookies: { auth_token: token },
+      payload: { courseId: 'b3-linux', chapter: 2, userId: 1 }
+    });
+    assert.equal(startWrongLevel.statusCode, 403, 'Compte B1 non abonné sur B3 chap 2 doit recevoir 403');
+  } finally {
+    db.getSessionByJti = origGetSession;
+    db.getUserById = origGetUser;
+    await app.close();
+  }
+});
+
+test('Tâche 1.4b : submit anonyme sur session user: et GET /exam/review sans auth ou tiers rejetés (401/403)', async () => {
+  const db = require('../server/db');
+  const origGetSession = db.getSessionByJti;
+  const origGetUser = db.getUserById;
+  const app = buildApp({ logger: false });
+
+  try {
+    db.getSessionByJti = async (jti) => ({ jti, user_id: jti === 'jti-a' ? 601 : 602, is_valid: true });
+    db.getUserById = async (id) => ({ id, is_active: true, level: 'b3', subscription_status: 'active' });
+    const cookieA = { auth_token: jwt.sign({ userId: 601, jti: 'jti-a' }, process.env.JWT_SECRET) };
+    const cookieB = { auth_token: jwt.sign({ userId: 602, jti: 'jti-b' }, process.env.JWT_SECRET) };
+
+    const startA = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/session/start',
+      cookies: cookieA,
+      payload: { courseId: 'b1-git', chapter: 1, durationMinutes: 20 }
+    });
+    const { sessionId } = startA.json();
+
+    // Un anonyme ne peut pas consulter /review même après soumission, ni soumettre la session de A
+    const submitAnon = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/submit',
+      payload: { sessionId, answers: [{ index: 0, selected: 0 }] }
+    });
+    assert.equal(submitAnon.statusCode, 403, 'Un anonyme ne doit pas pouvoir soumettre la session d un autre utilisateur');
+
+    // A soumet sa propre session
+    const submitA = await app.inject({
+      method: 'POST',
+      url: '/api/qcm/submit',
+      cookies: cookieA,
+      payload: { sessionId, answers: [{ index: 0, selected: 0 }] }
+    });
+    assert.equal(submitA.statusCode, 200);
+
+    // Anonyme essaie /exam/review -> 401
+    const reviewAnon = await app.inject({
+      method: 'GET',
+      url: `/api/qcm/exam/review/${sessionId}`
+    });
+    assert.equal(reviewAnon.statusCode, 401, '/exam/review sans auth doit renvoyer 401');
+
+    // Utilisateur B essaie /exam/review sur la session de A -> 403
+    const reviewB = await app.inject({
+      method: 'GET',
+      url: `/api/qcm/exam/review/${sessionId}`,
+      cookies: cookieB
+    });
+    assert.equal(reviewB.statusCode, 403, '/exam/review par un autre utilisateur doit renvoyer 403');
+  } finally {
+    db.getSessionByJti = origGetSession;
+    db.getUserById = origGetUser;
+    await app.close();
+  }
 });

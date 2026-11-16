@@ -35,6 +35,17 @@ module.exports = [
 
     sections: [
       {
+        title: 'Rappel Express des acquis B1 (b1-linux) &amp; progression B2',
+        html: [
+          box('tech', 'Rappel Express des acquis B1 (b1-linux) — Socle supposé maîtrisé', 'compass',
+            '    <p>Ce cours d’<strong>Administration Linux B2</strong> s’inscrit dans la continuité directe du module fondamental <a href="/b1-linux/index.html"><strong>Linux &amp; Shell B1 (<code>/b1-linux/</code>)</strong></a>. Au lieu de réexpliquer pas à pas la découverte du terminal, nous mobilisons directement vos acquis B1 pour passer à l’administration serveur en production :</p>\n' +
+            '    <ul>\n' +
+            '      <li><strong>Acquis B1 consolidés (<a href="/b1-linux/">/b1-linux/</a>) :</strong> hiérarchie FHS (<code>/etc</code>, <code>/var</code>, <code>/proc</code>, <code>/home</code>), commandes de manipulation de fichiers (<code>ls</code>, <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>find</code>, <code>grep</code>), redirections de flux (<code>stdin</code>, <code>stdout</code>, <code>stderr</code>, pipes <code>|</code>) et droits POSIX de base (<code>chmod</code>, <code>chown</code>).</li>\n' +
+            '      <li><strong>Nouveaux approfondissements B2 (ce cours) :</strong> gestion souple des volumes logiques <strong>LVM</strong> (<code>pvcreate</code>, <code>vgcreate</code>, <code>lvcreate</code>, <code>lvextend</code> à chaud), configuration réseau persistante (<code>nmcli</code>, <code>ip route</code>), orchestration d’unités et de planificateurs <strong>systemd</strong> (fichiers <code>.service</code> et <code>.timer</code>), diagnostic filtré via <code>journalctl</code>, et durcissement de bastion <strong>OpenSSH</strong> (<code>PermitRootLogin</code>, <code>PasswordAuthentication</code>) couplé à <strong>fail2ban</strong>.</li>\n' +
+            '    </ul>')
+        ].join('\n')
+      },
+      {
         title: 'La ligne de commande',
         html: [
           '<p>Une commande se lit toujours <strong>COMMANDE OPTIONS ARGUMENTS</strong>. Les options commencent ' +
@@ -120,14 +131,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quelle commande affiche le répertoire courant ?', opts: ['cd', 'pwd', 'ls'], correct: 1, exp: 'pwd (print working directory) affiche le chemin absolu du répertoire courant.' },
-      { stem: 'Un chemin qui commence par / est…', opts: ['relatif', 'absolu', 'un lien'], correct: 1, exp: 'Tout chemin partant de la racine est absolu ; sinon il est relatif au répertoire courant.' },
+      { stem: 'Quelle commande affiche le répertoire courant ?', opts: ['cd', 'ls', 'pwd'], correct: 2, exp: 'pwd (print working directory) affiche le chemin absolu du répertoire courant.' },
+      { stem: 'Un chemin qui commence par / est…', opts: ['absolu', 'relatif', 'un lien'], correct: 0, exp: 'Tout chemin partant de la racine est absolu ; sinon il est relatif au répertoire courant.' },
       { stem: 'Où se trouvent les fichiers de configuration ?', opts: ['/var', '/etc', '/usr'], correct: 1, exp: '/etc contient la configuration du système ; une sauvegarde complète doit aussi couvrir les données et être testée.' },
       { stem: 'Quelle précaution prendre avec /tmp ?', opts: ['Ne pas supposer que ses fichiers persistent', 'Y conserver la seule sauvegarde', 'Supposer un effacement garanti au redémarrage'], correct: 0, exp: 'Les fichiers sont temporaires et peuvent être supprimés selon la politique locale ; leur effacement au démarrage n’est pas garanti.' },
-      { stem: 'Différence entre / et /root ?', opts: ['Aucune', '/ est la racine, /root la maison de root', '/root est un alias de /'], correct: 1, exp: '/ est l’origine de l’arborescence ; /root est le répertoire personnel du super-utilisateur.' },
+      { stem: 'Différence entre / et /root ?', opts: ["« / » est le répertoire personnel du compte root","Aucune : /root est un alias de la racine /","/ est la racine, /root la maison de root"], correct: 2, exp: "/ est l’origine de l’arborescence ; /root est le répertoire personnel du super-utilisateur. Le distracteur « alias » est faux : /root est un répertoire réel et distinct de /." },
       { stem: 'Que fait echo \"x\" >> f ?', opts: ['Écrase f', 'Ajoute x à la fin de f', 'Supprime f'], correct: 1, exp: 'Deux chevrons ajoutent à la fin ; un seul chevron écrase tout le fichier.' },
-      { stem: 'mkdir -p a/b/c sert à…', opts: ['créer les parents manquants', 'copier un dossier', 'protéger un dossier'], correct: 0, exp: 'L’option -p crée toute la chaîne de répertoires intermédiaires.' },
-      { stem: 'Quelle commande renomme un fichier ?', opts: ['cp', 'mv', 'rm'], correct: 1, exp: 'mv déplace et, dans le même dossier, renomme : mv ancien nouveau.' }
+      { stem: 'mkdir -p a/b/c sert à…', opts: ['copier un dossier', 'créer les parents manquants', 'protéger un dossier'], correct: 1, exp: 'L’option -p crée toute la chaîne de répertoires intermédiaires.' },
+      { stem: 'Quelle commande renomme un fichier ?', opts: ['mv', 'cp', 'rm'], correct: 0, exp: 'mv déplace et, dans le même dossier, renomme : mv ancien nouveau.' }
     ],
 
     pitfalls: [
@@ -271,14 +282,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quelle option de cp copie un dossier entier ?', opts: ['-r', '-l', '-a'], correct: 0, exp: '-r rend la copie récursive : dossier, sous-dossiers et fichiers.' },
-      { stem: 'Un lien dur partage…', opts: ['le même chemin', 'le même inode et les mêmes données', 'le même propriétaire seulement'], correct: 1, exp: 'Le lien dur est un second nom pour le même fichier (même inode).' },
-      { stem: 'Que crée ln -s source lien ?', opts: ['un lien dur', 'un lien symbolique', 'une copie'], correct: 1, exp: '-s crée un lien symbolique, un simple raccourci de chemin.' },
+      { stem: 'Quelle option de cp copie un dossier entier ?', opts: ['-a', '-l', '-r'], correct: 2, exp: '-r rend la copie récursive : dossier, sous-dossiers et fichiers.' },
+      { stem: 'Un lien dur partage…', opts: ['le même chemin', 'le même propriétaire seulement', 'le même inode et les mêmes données'], correct: 2, exp: 'Le lien dur est un second nom pour le même fichier (même inode).' },
+      { stem: 'Que crée ln -s source lien ?', opts: ['un lien symbolique', 'un lien dur', 'une copie'], correct: 0, exp: '-s crée un lien symbolique, un simple raccourci de chemin.' },
       { stem: 'Un lien symbolique vers une cible supprimée devient…', opts: ['un lien dur', 'un lien cassé', 'inoffensif'], correct: 1, exp: 'Le symbole pointe vers un chemin absent : le lien est cassé.' },
-      { stem: 'find /var -size +10M cherche…', opts: ['les fichiers de moins de 10 Mo', 'les fichiers de plus de 10 Mo', 'les dossiers de 10 fichiers'], correct: 1, exp: 'Le signe + signifie « supérieur à » ; -10M serait « inférieur ».' },
+      { stem: 'find /var -size +10M cherche…', opts: ['les fichiers de plus de 10 Mo', 'les fichiers de moins de 10 Mo', 'les dossiers de 10 fichiers'], correct: 0, exp: 'Le signe + signifie « supérieur à » ; -10M serait « inférieur ».' },
       { stem: 'grep -c compte…', opts: ['les mots', 'les lignes correspondantes', 'les fichiers'], correct: 1, exp: '-c affiche le nombre de lignes qui correspondent au motif.' },
-      { stem: 'Où lire les traces d’une connexion en échec ?', opts: ['/var/log/auth.log', '/etc/passwd', '/tmp'], correct: 0, exp: 'Les authentifications et échecs de connexion sont journalisés dans auth.log.' },
-      { stem: 'Pourquoi entourer le motif de find de guillemets ?', opts: ['pour la couleur', 'pour empêcher le shell de l’interpréter', 'c’est obligatoire'], correct: 1, exp: 'Sans guillemets, le shell développe le motif (fich*) avant de lancer find.' }
+      { stem: 'Où lire les traces d’une connexion en échec ?', opts: ['/tmp', '/etc/passwd', '/var/log/auth.log'], correct: 2, exp: 'Les authentifications et échecs de connexion sont journalisés dans auth.log.' },
+      { stem: 'Pourquoi entourer le motif de find de guillemets ?', opts: ["pour que find affiche le motif en couleur","pour respecter la syntaxe exigée par find","pour empêcher le shell de l’interpréter"], correct: 2, exp: "Sans guillemets, le shell développe le motif (fich*) avant de lancer find : c’est l’expansion par le shell, pas une exigence de find." }
     ],
 
     pitfalls: [
@@ -433,14 +444,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'rwxr-x--- vaut en octal…', opts: ['754', '750', '705'], correct: 1, exp: 'rwx=7, r-x=5, ---=0 : 750, trio par trio.' },
-      { stem: 'Que fait chmod o-r secret ?', opts: ['retire la lecture aux autres', 'retire la lecture au propriétaire', 'ajoute la lecture'], correct: 0, exp: 'o désigne les autres, - retire : la lecture leur est enlevée.' },
-      { stem: 'Ug=rwx…', opts: ['ajoute rwx', 'fixe u et g exactement à rwx, o inchangé', 'supprime o'], correct: 1, exp: '= fixe exactement les classes visées ; les autres ne bougent pas.' },
+      { stem: 'rwxr-x--- vaut en octal…', opts: ['750', '754', '705'], correct: 0, exp: 'rwx=7, r-x=5, ---=0 : 750, trio par trio.' },
+      { stem: 'Que fait chmod o-r secret ?', opts: ['retire la lecture au propriétaire', 'retire la lecture aux autres', 'ajoute la lecture'], correct: 1, exp: 'o désigne les autres, - retire : la lecture leur est enlevée.' },
+      { stem: 'Ug=rwx…', opts: ["ajoute rwx aux droits déjà présents de u et g","supprime aussi les droits de la classe o","fixe u et g exactement à rwx, o inchangé"], correct: 2, exp: "= fixe exactement les classes visées ; les autres ne bougent pas. Ajouter serait le rôle de +, et o n’est pas effacé par ug=." },
       { stem: 'Quel fichier contient généralement les vérificateurs de mots de passe ?', opts: ['/etc/passwd', '/etc/shadow', '/etc/group'], correct: 1, exp: '/etc/shadow, à accès restreint, contient généralement des vérificateurs hachés.' },
-      { stem: 'Si UID_MIN vaut 1000, que signifie cette configuration ?', opts: ['Tous les UID ≥ 1000 sont humains', 'La plage par défaut des nouveaux comptes ordinaires commence à 1000', 'root a l’UID 1000'], correct: 1, exp: 'UID_MIN définit une borne pour l’allocation ; il ne prouve pas la nature d’un compte particulier.' },
-      { stem: 'Que fait userdel -r ?', opts: ['supprime le compte seul', 'supprime le compte et sa maison', 'désactive le compte'], correct: 1, exp: '-r retire aussi le répertoire personnel et la boîte aux lettres.' },
+      { stem: 'Si UID_MIN vaut 1000, que signifie cette configuration ?', opts: ["La plage par défaut des nouveaux comptes ordinaires commence à 1000","Tout compte dont l’UID dépasse 1000 appartient forcément à un humain","root reçoit l’UID 1000 comme identifiant de super-utilisateur"], correct: 0, exp: "UID_MIN définit une borne pour l’allocation ; il ne prouve pas la nature d’un compte particulier. Un service peut très bien recevoir un UID élevé, et root garde l’UID 0." },
+      { stem: 'Que fait userdel -r ?', opts: ['supprime le compte seul', 'désactive le compte', 'supprime le compte et sa maison'], correct: 2, exp: '-r retire aussi le répertoire personnel et la boîte aux lettres.' },
       { stem: 'chgrp agit sur…', opts: ['le propriétaire', 'le groupe', 'les droits'], correct: 1, exp: 'chgrp change le groupe propriétaire ; chown le propriétaire.' },
-      { stem: 'groupdel échoue quand le groupe…', opts: ['est vide', 'sert de groupe principal à un utilisateur', 'a des fichiers'], correct: 1, exp: 'On ne supprime pas un groupe qui est le groupe principal d’un compte.' }
+      { stem: 'groupdel échoue quand le groupe…', opts: ["sert de groupe principal à un utilisateur","est vide et ne compte plus aucun membre","possède encore des fichiers sur le disque"], correct: 0, exp: "On ne supprime pas un groupe qui est le groupe principal d’un compte. Un groupe vide se supprime, et des fichiers orphelins ne bloquent pas l’opération." }
     ],
 
     pitfalls: [

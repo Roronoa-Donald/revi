@@ -72,7 +72,9 @@ test('le serveur local refuse les dossiers internes d’audit, corrections et te
     '/x/../verification/00-synthese.md', '/x/../corrections/suivi.csv', '/%63orrections/suivi.csv',
     '/tests/csharp-lot1.test.js', '/x/../tests/csharp-lot1.test.js', '/%74ests/csharp-lot1.test.js',
     '/audit/00-cartographie.md', '/x/../audit/00-cartographie.md', '/%61udit/00-cartographie.md',
-    '/.taskstate/evidence.md', '/x/../.taskstate/evidence.md', '/%2etaskstate/evidence.md'
+    '/.taskstate/evidence.md', '/x/../.taskstate/evidence.md', '/%2etaskstate/evidence.md',
+    '//server/exercises/b1-python.js', '/./.env', '/revi-mu-plateforme/package.json',
+    '/docs/design-system/export.md', '/AUDIT_COMPLET_2026-11/00_SYNTHESE_EXECUTIVE_ET_VERDICT_COMMERCIAL.md'
   ]) {
     const reply = {
       statusCode: 200,
@@ -83,6 +85,20 @@ test('le serveur local refuse les dossiers internes d’audit, corrections et te
     await handler({ url, cookies: {} }, reply);
     assert.equal(reply.statusCode, 403, url);
   }
+  const badUrlReply = {
+    statusCode: 200,
+    code(status) { this.statusCode = status; return this; },
+    type() { return this; },
+    send(body) { this.body = body; return this; }
+  };
+  await handler({ url: '/bad%ZZurl', cookies: {} }, badUrlReply);
+  assert.equal(badUrlReply.statusCode, 400);
+});
+
+test('server.js injecte rd-ai-chat.js comme scripts/build.js', () => {
+  const root = path.resolve(__dirname, '..');
+  const serverSource = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+  assert.ok(serverSource.includes('/rd-ai-chat.js'), 'server.js doit injecter /rd-ai-chat.js');
 });
 
 test('les requêtes HTTP Fastify refusent les fichiers de tests sans fermer les pages publiques', async () => {

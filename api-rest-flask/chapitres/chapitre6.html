@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -208,15 +206,77 @@ class Etudiant(db.Model):
 
 </section>
 
+<section class="sec">
+
+<h2>5. Architecture modulaire complète : Blueprint Flask, middleware JWT et CRUD testé</h2>
+
+<p>Voici l’architecture complète d’un module <code>Blueprint</code> Flask combinant routes CRUD (<code>GET</code>, <code>POST</code>, <code>DELETE</code>), codes HTTP (<code>200</code>, <code>201</code>, <code>204</code>, <code>400</code>, <code>404</code>, <code>422</code>), protection JWT et tests d’intégration via <code>app.test_client()</code> :</p>
+<pre><code class="language-python">from functools import wraps
+from flask import Flask, Blueprint, request, jsonify
+
+taches_bp = Blueprint("taches", __name__, url_prefix="/api/v1/taches")
+TACHES = {1: {"id": 1, "titre": "Configurer Gunicorn", "fait": False}}
+
+def require_jwt(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        auth = request.headers.get("Authorization", "")
+        if auth != "Bearer jeton-valide-b2":
+            return jsonify({"error": "Jeton JWT manquant ou invalide"}), 401
+        return fn(*args, **kwargs)
+    return wrapper
+
+@taches_bp.route("", methods=["GET"])
+def lister_taches():
+    return jsonify(list(TACHES.values())), 200
+
+@taches_bp.route("", methods=["POST"])
+@require_jwt
+def ajouter_tache():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Corps JSON invalide"}), 400
+    titre = str(data.get("titre", "")).strip()
+    if not titre:
+        return jsonify({"error": "Le champ titre est obligatoire"}), 422
+    new_id = max(TACHES.keys(), default=0) + 1
+    TACHES[new_id] = {"id": new_id, "titre": titre, "fait": bool(data.get("fait", False))}
+    return jsonify(TACHES[new_id]), 201
+
+@taches_bp.route("/&lt;int:tid&gt;", methods=["DELETE"])
+@require_jwt
+def supprimer_tache(tid):
+    if tid not in TACHES:
+        return jsonify({"error": "Tâche introuvable"}), 404
+    del TACHES[tid]
+    return "", 204
+
+def creer_application():
+    app = Flask(__name__)
+    app.register_blueprint(taches_bp)
+    return app
+
+if __name__ == "__main__":
+    app = creer_application()
+    client = app.test_client()
+    assert client.post("/api/v1/taches", json={"titre": "Test"}).status_code == 401
+    r_post = client.post("/api/v1/taches", json={"titre": "Déployer"}, headers={"Authorization": "Bearer jeton-valide-b2"})
+    assert r_post.status_code == 201</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="fl2-c6-e1" data-lab
      data-exercise="fl2-c6-e1"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="[{&quot;id&quot;: 1, &quot;nom&quot;: &quot;Alice&quot;, &quot;role&quot;: &quot;admin&quot;}, {&quot;id&quot;: 2, &quot;nom&quot;: &quot;Bob&quot;, &quot;role&quot;: &quot;user&quot;}]&#10;role=admin">
@@ -231,13 +291,11 @@ critere = input().strip()
     <h3 class="lab__title">Exercice 1 — Filtrage de collection en mémoire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Filtrer une liste d’objets JSON selon un critère d’égalité (clé=valeur).</p>
-    <p class="lab__note" id="fl2-c6-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une requête <code>GET /ressources?critere=valeur</code> extrait uniquement les éléments correspondants.</p><p>Lit deux lignes sur l’entrée standard :<br>1. La collection JSON initiale (tableau d’objets, ex: <code>[{"id": 1, "role": "admin"}, ...]</code>)<br>2. Le critère au format <code>cle=valeur</code> (ex: <code>role=admin</code>)<br>Filtre les objets dont l’attribut correspond à la valeur (convertis en chaîne pour la comparaison).<br>Affichez d’abord : <code>Trouves: &lt;nombre&gt;</code>.<br>Puis affiche le tableau JSON des éléments filtrés avec <code>json.dumps(..., sort_keys=True)</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>[{"id": 1, "nom": "Alice", "role": "admin"}, {"id": 2, "nom": "Bob", "role": "user"}]
@@ -259,7 +317,6 @@ role=admin</pre></div>
 
 <div class="lab" id="fl2-c6-e2" data-lab
      data-exercise="fl2-c6-e2"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="[{&quot;id&quot;: 10, &quot;nom&quot;: &quot;Alice&quot;}]&#10;{&quot;nom&quot;: &quot;Bob&quot;}">
@@ -274,13 +331,11 @@ nouvel_item = json.loads(input().strip())
     <h3 class="lab__title">Exercice 2 — Création avec ID auto-incrémenté</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Insérer un nouvel objet dans un store mémoire en lui attribuant un identifiant unique (max + 1).</p>
-    <p class="lab__note" id="fl2-c6-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Lors d’une requête <code>POST</code>, le serveur génère l’identifiant unique de la ressource créée avant de la stocker et de renvoyer le code <code>201 Created</code> avec l’objet complet.</p><p>Lit deux lignes sur l’entrée standard :<br>1. La collection actuelle (tableau JSON d’objets ayant chacun un champ entier <code>"id"</code>, peut être vide <code>[]</code>)<br>2. Le nouvel objet reçu sans champ <code>"id"</code> (ex: <code>{"nom": "Bob", "ville": "Nantes"}</code>)<br>Calculez le nouvel ID : s’il n’y a aucun élément, l’ID vaut <code>1</code> ; sinon, il vaut <code>max(id) + 1</code>.<br>Attribue cet <code>id</code> au nouvel objet et affiche :<br><code>201 Created: &lt;objet_json_avec_id_trie&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>[{"id": 10, "nom": "Alice"}]
@@ -301,7 +356,6 @@ nouvel_item = json.loads(input().strip())
 
 <div class="lab" id="fl2-c6-e3" data-lab
      data-exercise="fl2-c6-e3"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="[{&quot;id&quot;: 42, &quot;nom&quot;: &quot;Alice&quot;, &quot;score&quot;: 10}]&#10;DELETE 42">
@@ -316,13 +370,11 @@ commande = input().strip()
     <h3 class="lab__title">Exercice 3 — Gestion des mutations (UPDATE &amp; DELETE)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Traiter une modification partielle (PATCH) ou une suppression (DELETE) sur un store mémoire.</p>
-    <p class="lab__note" id="fl2-c6-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Dans un store mémoire, une opération <code>DELETE</code> retire l’élément et répond <code>204 No Content</code>. Une opération <code>UPDATE</code> fusionne les nouveaux attributs et répond <code>200 OK</code>. Si l’identifiant n’existe pas, le serveur répond <code>404 Not Found</code>.</p><p>Lit deux lignes sur l’entrée standard :<br>1. La collection actuelle (tableau JSON d’objets avec un entier <code>"id"</code>)<br>2. La commande à exécuter :<br>- soit <code>DELETE &lt;id&gt;</code> (ex: <code>DELETE 42</code>)<br>- soit <code>UPDATE &lt;id&gt; &lt;json_modifs&gt;</code> (ex: <code>UPDATE 42 {"prix": 35}</code>)<br>Affichez :<br>- Si l’ID est introuvable : <code>404 Not Found: Ressource &lt;id&gt; inexistante</code><br>- Si DELETE réussi : <code>204 No Content: Ressource &lt;id&gt; supprimee</code><br>- Si UPDATE réussi : <code>200 OK: &lt;objet_mis_a_jour_trie&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>[{"id": 42, "nom": "Alice", "score": 10}]
@@ -342,7 +394,7 @@ DELETE 42</pre></div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -357,8 +409,8 @@ DELETE 42</pre></div>
     <div class="q">
       <p class="q__stem">Quel paramètre d’un Blueprint factorise l’URI racine de toutes ses routes ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">url_prefix</button>
         <button class="opt">base_path</button>
+        <button class="opt" data-correct="1">url_prefix</button>
         <button class="opt">root_uri</button>
       </div>
       <div class="q__exp">url_prefix permet d’appliquer un préfixe commun à toutes les routes d’un Blueprint.</div>
@@ -375,8 +427,8 @@ DELETE 42</pre></div>
     <div class="q">
       <p class="q__stem">Quel code d’état renvoie généralement une route DELETE réussie sans contenu retourné ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">204 No Content</button>
         <button class="opt">200 OK</button>
+        <button class="opt" data-correct="1">204 No Content</button>
         <button class="opt">201 Created</button>
       </div>
       <div class="q__exp">204 No Content confirme la suppression sans avoir à renvoyer de corps.</div>
@@ -384,18 +436,18 @@ DELETE 42</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi ne faut-il JAMAIS utiliser app.run(debug=True) en production ?</p>
       <div class="opts">
+        <button class="opt">Le mode débogage vide la batterie du serveur en production</button>
+        <button class="opt">Chaque requête GET devient payante au-delà d’un certain quota</button>
         <button class="opt" data-correct="1">Le débogueur interactif permet d’exécuter du code à distance sur le serveur</button>
-        <button class="opt">Flask consomme trop de batterie</button>
-        <button class="opt">Les requêtes GET deviennent payantes</button>
       </div>
-      <div class="q__exp">Le debugger web de Werkzeug constitue une faille de sécurité critique s’il est exposé publiquement.</div>
+      <div class="q__exp">Le débogueur Werkzeug exécute du code arbitraire à distance : faille critique s’il est exposé. Ni la batterie ni des GET payants n’entrent en ligne de compte.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel serveur WSGI de production est couramment employé pour faire tourner Flask ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Gunicorn</button>
-        <button class="opt">Webpack</button>
         <button class="opt">Node.js</button>
+        <button class="opt">Webpack</button>
+        <button class="opt" data-correct="1">Gunicorn</button>
       </div>
       <div class="q__exp">Gunicorn (Green Unicorn) est un serveur WSGI Python standard, performant et éprouvé.</div>
     </div>
@@ -411,8 +463,8 @@ DELETE 42</pre></div>
     <div class="q">
       <p class="q__stem">Comment enregistre-t-on un Blueprint nommé users_bp dans l’application app ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">app.register_blueprint(users_bp)</button>
         <button class="opt">app.use(users_bp)</button>
+        <button class="opt" data-correct="1">app.register_blueprint(users_bp)</button>
         <button class="opt">app.add_module(users_bp)</button>
       </div>
       <div class="q__exp">register_blueprint rattache le module et ses routes à l’application principale.</div>
@@ -423,7 +475,7 @@ DELETE 42</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -440,7 +492,7 @@ DELETE 42</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Structurer une API Flask prête pour la production</div>
@@ -457,7 +509,7 @@ DELETE 42</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -488,7 +540,7 @@ DELETE 42</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -537,7 +589,7 @@ DELETE 42</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

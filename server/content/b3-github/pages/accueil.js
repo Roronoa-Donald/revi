@@ -157,7 +157,7 @@ function atelier(course) {
     '       data-language="shell"',
     '       data-height="420"',
     '       data-stdin="GIT_BLOB\nBonjour Git B3!">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
+    '    <script type="text/plain" data-lab-starter>#!/usr/bin/env bash\nset -euo pipefail\n\ngit_hash_object() {\n  local header="" payload=""\n  IFS= read -r header || true\n  payload=$(cat)\n  printf "%s %d\\0%s" "$header" "${#payload}" "$payload" | sha1sum | awk \'{print $1}\'\n}\n\ngit_hash_object\n</script>',
     '  </div>',
     '',
     '  <h2>Suggestions d’expérimentations pratiques</h2>',

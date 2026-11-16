@@ -141,23 +141,23 @@ module.exports = {
     {
       stem: 'Quel est l’effet de la création d’un Port-Channel sur le comportement du protocole Spanning Tree ?',
       opts: [
-        'STP bloque tous les liens physiques du bundle sauf un',
-        'STP traite le faisceau comme un unique lien logique et ne bloque aucun des liens physiques membres',
-        'STP est entièrement désactivé sur l’ensemble du commutateur',
-        'STP convertit toutes les trames en paquets UDP'
+        "STP traite le faisceau comme un unique lien logique et ne bloque aucun des liens physiques membres",
+        "STP bloque tous les liens physiques du bundle à l’exception d’un seul lien actif",
+        "STP est entièrement désactivé sur l’ensemble des commutateurs du réseau local",
+        "STP convertit toutes les trames Ethernet du canal en paquets UDP routés"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Pour STP, le Port-Channel est perçu comme une seule interface logique à haut débit : aucun lien physique membre n’est bloqué.'
     },
     {
       stem: 'Quel standard ouvert international régit le protocole LACP (Link Aggregation Control Protocol) ?',
       opts: [
         'IEEE 802.1D',
-        'IEEE 802.11ax',
         'IEEE 802.3ad / 802.1AX',
+        'IEEE 802.11ax',
         'RFC 1918'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'LACP est défini par la norme IEEE 802.3ad, ultérieurement reprise sous la dénomination IEEE 802.1AX.'
     },
     {
@@ -165,30 +165,30 @@ module.exports = {
       opts: [
         'active et active',
         'active et passive',
-        'passive et passive',
-        'Toutes les combinaisons précédentes aboutissent'
+        'Toutes les combinaisons précédentes aboutissent',
+        'passive et passive'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'En mode passive-passive, les deux extrémités attendent passivement de recevoir un paquet LACP sans jamais en émettre. Le canal ne monte jamais.'
     },
     {
       stem: 'Dans le protocole PAgP de Cisco, quels sont les deux modes configurables ?',
       opts: [
         'active et passive',
-        'desirable et auto',
         'master et backup',
+        'desirable et auto',
         'primary et secondary'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'PAgP utilise les modes desirable (sollicite activement) et auto (répond passivement aux sollicitations).'
     },
     {
       stem: 'Pourquoi l’utilisation du mode forcé « mode on » est-elle risquée en environnement de production ?',
       opts: [
-        'Parce qu’il consomme trop de puissance électrique',
-        'Parce qu’il force l’agrégation sans vérifier la compatibilité ni le bon raccordement des câbles à l’extrémité distante',
-        'Parce qu’il limite la vitesse à 10 Mbps',
-        'Parce qu’il est incompatible avec les commutateurs modernes'
+        "Parce qu’il consomme excessivement la puissance électrique de chaque lien agrégé",
+        "Parce qu’il force l’agrégation sans vérifier la compatibilité ni le bon raccordement des câbles à l’extrémité distante",
+        "Parce qu’il limite artificiellement la vitesse de chaque lien du canal à 10 Mbps",
+        "Parce qu’il est structurellement incompatible avec les commutateurs modernes des fabricants actuels"
       ],
       correct: 1,
       exp: 'Le mode on n’échange aucune trame de contrôle. Si un câble est mal raccordé ou défectueux, il peut engendrer une boucle ou une perte de trafic silencieuse.'
@@ -196,34 +196,34 @@ module.exports = {
     {
       stem: 'Si un port membre d’un bundle présente un VLAN natif différent de celui configuré sur le Port-Channel, quelle est la conséquence ?',
       opts: [
-        'Le Port-Channel adopte immédiatement le nouveau VLAN',
         'Le port membre est suspendu et placé en anomalie (err-disable / suspended)',
+        'Le Port-Channel adopte immédiatement le nouveau VLAN',
         'Le commutateur redémarre automatiquement',
         'Les trames sont encapsulées en IPv6'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La cohérence de configuration est stricte : toute discordance de VLAN natif provoque la suspension du port membre pour éviter les fuites inter-VLANs.'
     },
     {
       stem: 'Un client effectue un transfert de fichier unique vers un serveur à travers un EtherChannel composé de 4 liens à 1 Gbps. Quel débit maximal peut-il atteindre ?',
       opts: [
         '4 Gbps',
-        '1 Gbps',
+        '500 Mbps',
         '2 Gbps',
-        '500 Mbps'
+        '1 Gbps'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un flux réseau unique suit le résultat d’une fonction de hachage et emprunte un seul lien physique physique à la fois : son débit reste borné à 1 Gbps.'
     },
     {
       stem: 'Dans la sortie de la commande « show etherchannel summary », quels drapeaux indiquent un Port-Channel de niveau 2 opérationnel et ses membres actifs ?',
       opts: [
         'D (Down) et S (Suspend)',
-        'SU (Layer 2, In-use) et P (Bundled in port-channel)',
         'RU (Layer 3, Unused) et I (Individual)',
+        'SU (Layer 2, In-use) et P (Bundled in port-channel)',
         'W (Waiting) et M (Master)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le drapeau S indique un canal de niveau 2 (Layer 2), U signifie en cours d’utilisation (In-use), et le drapeau P confirme que le port physique est agrégé dans le bundle.'
     }
   ],

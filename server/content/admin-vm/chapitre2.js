@@ -98,14 +98,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quel prérequis permet l’isolation matérielle ?', opts: ['Les extensions CPU', 'Le clavier', 'Le DNS'], correct: 0, exp: 'VT-x / AMD-V exécutent les instructions privilégiées.' },
-    { stem: 'Quelle ressource est la plus critique ?', opts: ['La RAM', 'La souris', 'Le lecteur CD'], correct: 0, exp: 'La RAM se partage sans élasticité.' },
-    { stem: 'Que fait VT-d / IOMMU ?', opts: ['Isole les accès périphériques', 'Compresse les disques', 'Route le réseau'], correct: 0, exp: 'Il isole les accès matériels directs.' },
+    { stem: 'Quel prérequis permet l’isolation matérielle ?', opts: ['Le DNS', 'Le clavier', 'Les extensions CPU'], correct: 2, exp: 'VT-x / AMD-V exécutent les instructions privilégiées.' },
+    { stem: 'Quelle ressource est la plus critique ?', opts: ['Le lecteur CD', 'La souris', 'La RAM'], correct: 2, exp: "La RAM est la plus critique : elle se partage sans élasticité, et à court de mémoire l’hôte swappe. Souris et lecteur CD ne sont que des périphériques." },
+    { stem: 'Que fait VT-d / IOMMU ?', opts: ['Compresse les disques', 'Isole les accès périphériques', 'Route le réseau'], correct: 1, exp: "VT-d / IOMMU isole les accès directs aux périphériques : chaque VM reçoit son matériel en propre. Ni compression de disques ni routage réseau." },
     { stem: 'La virtualisation imbriquée est…', opts: ['Surtout pédagogique', 'Plus rapide', 'Obligatoire en production'], correct: 0, exp: 'Empiler des couches augmente la latence.' },
-    { stem: 'Quel composant exécute les VM dans KVM ?', opts: ['QEMU', 'Libvirt', 'Le noyau'], correct: 0, exp: 'QEMU crée et exécute les VM.' },
-    { stem: 'Rôle de libvirt ?', opts: ['Pilotage et API', 'Accélération CPU', 'Émulation'], correct: 0, exp: 'Libvirt unifie la gestion.' },
-    { stem: 'Quel plan exécute les VM ?', opts: ['Le plan de données', 'Le plan de gestion', 'Le firmware'], correct: 0, exp: 'Le plan de données traite l’exécution et les I/O.' },
-    { stem: 'Quel est le point de défaillance principal ?', opts: ['Le stockage', 'Le clavier', 'L’écran'], correct: 0, exp: 'Toutes les VM reposent sur le stockage.' }
+    { stem: 'Quel composant exécute les VM dans KVM ?', opts: ['Le noyau', 'Libvirt', 'QEMU'], correct: 2, exp: "Dans la pile KVM, QEMU crée et exécute les VM en émulant les périphériques. Libvirt ne fait que piloter, et le noyau fournit l’accélération." },
+    { stem: 'Rôle de libvirt ?', opts: ['Pilotage et API', 'Accélération CPU', 'Émulation'], correct: 0, exp: "Libvirt offre le pilotage et l’API : une interface unifiée pour créer, démarrer, arrêter les VM. Il n’accélère rien et n’émule aucun périphérique." },
+    { stem: 'Quel plan exécute les VM ?', opts: ['Le plan de gestion', 'Le plan de données', 'Le firmware'], correct: 1, exp: 'Le plan de données traite l’exécution et les I/O.' },
+    { stem: 'Quel est le point de défaillance principal ?', opts: ['Le stockage', 'Le clavier', 'L’écran'], correct: 0, exp: "Le stockage est le point de défaillance principal : toutes les VM reposent sur lui. Clavier et écran ne servent qu’à la console locale." }
   ],
 
   pitfalls: [

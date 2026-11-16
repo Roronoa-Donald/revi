@@ -177,11 +177,11 @@ module.exports = {
       stem: 'Dans quel ordre séquentiel les stratégies de groupe sont-elles évaluées par le client Windows ?',
       opts: [
         'OU -> Domaine -> Site -> Local',
-        'Local -> Site -> Domaine -> Unité Organisationnelle (LSDOU)',
+        'Par ordre alphabétique du nom des stratégies',
         'Domaine -> Local -> OU -> Site',
-        'Par ordre alphabétique du nom des stratégies'
+        'Local -> Site -> Domaine -> Unité Organisationnelle (LSDOU)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’ordre officiel est LSDOU : Local, puis Site, puis Domaine, et enfin Unité Organisationnelle (le dernier niveau appliqué l’emporte).'
     },
     {
@@ -220,21 +220,21 @@ module.exports = {
     {
       stem: 'Quel droit d’accès d’ACL est obligatoire pour qu’une GPO soit exécutée sur un groupe de machines ciblées ?',
       opts: [
-        'Contrôle total (Full Control)',
-        'Appliquer la stratégie de groupe (Apply Group Policy) en plus du droit Lire (Read)',
-        'Écriture seule',
-        'Supprimer l’objet'
+        "Appliquer la stratégie de groupe (Apply Group Policy) en plus du droit Lire (Read)",
+        "Contrôle total (Full Control) sur l’ensemble de l’objet de stratégie",
+        "Écriture seule sur le contenu du dossier SYSVOL de la stratégie",
+        "Le droit de supprimer l’objet de l’annuaire Active Directory"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Pour que le moteur GPO applique la stratégie, la cible doit détenir à la fois les droits Read et Apply Group Policy.'
     },
     {
       stem: 'À quoi sert un filtre WMI sur une stratégie de groupe ?',
       opts: [
-        'À chiffrer le mot de passe de l’administrateur',
-        'À conditionner l’application de la GPO à des critères matériels ou de version d’OS évalués dynamiquement',
-        'À supprimer les fichiers temporaires du poste client',
-        'À bloquer les ports USB du serveur'
+        "À chiffrer automatiquement le mot de passe de l’administrateur du domaine à chaque application",
+        "À conditionner l’application de la GPO à des critères matériels ou de version d’OS évalués dynamiquement",
+        "À supprimer les fichiers temporaires du poste client à chaque ouverture de session utilisateur",
+        "À bloquer physiquement les ports USB du serveur lors de l’application de la stratégie"
       ],
       correct: 1,
       exp: 'Un filtre WMI (requête WQL) vérifie des propriétés du poste (RAM, processeur, version de build d’OS) avant d’autoriser l’application de la GPO.'
@@ -243,11 +243,11 @@ module.exports = {
       stem: 'Où est déployé le Central Store permettant de centraliser les modèles de stratégies ADMX ?',
       opts: [
         'Dans C:\\Program Files\\Microsoft GPO',
-        'Dans \\\\domaine\\SYSVOL\\domaine\\Policies\\PolicyDefinitions',
         'Sur une clé USB connectée au contrôleur principal',
+        'Dans \\\\domaine\\SYSVOL\\domaine\\Policies\\PolicyDefinitions',
         'Dans la base de registre HKEY_LOCAL_MACHINE'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Central Store se place dans \\\\domaine\\SYSVOL\\domaine\\Policies\\PolicyDefinitions pour être partagé par tous les contrôleurs.'
     },
     {
@@ -255,10 +255,10 @@ module.exports = {
       opts: [
         'ping /all',
         'gpupdate /clean',
-        'gpresult /h rapport.html',
-        'ipconfig /release'
+        'ipconfig /release',
+        'gpresult /h rapport.html'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La commande gpresult /h rapport.html génère un rapport visuel exhaustif détaillant toutes les GPOs appliquées et rejetées.'
     }
   ],

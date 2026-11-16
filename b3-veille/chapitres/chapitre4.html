@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -175,25 +173,27 @@ ln P(Bruit|d)     = ln P(Bruit)     + ∑ ln P(w_i|Bruit)</code></pre>
      data-exercise="vt3-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="DOC id=1 text=Le cloud et les micro-services dans le datacenter avec Docker.">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt3-c4-e1) — Tokeniseur et filtre de mots vides (Stopwords & Normalisation)
-# Complétez la réponse attendue sous chaque cas ci-dessous :
+     data-stdin="Le musée régional indexe la phrase : « Le musée régional ouvre une nouvelle aile au public. »&#10;&#10;Résolution :&#10;1) Tokens bruts : Le, musée, régional, ouvre, une, nouvelle, aile, au, public → 9 tokens.&#10;2) Mots vides présents : Le, une, au → 3 tokens.&#10;3) Après filtrage : musée, régional, ouvre, nouvelle, aile, public → 6 tokens.&#10;4) Liste normalisée : « musée régional ouvre nouvelle aile public ».&#10;5) En tête de l'index alphabétique : « aile ».">
+  <script type="text/plain" data-lab-starter># Exercice — L'index de recherche du service communication de la mairie
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Deux documents bilingues avec ponctuation diverse]
-# Données : DOC id=A text=Architecture of zero-trust networks with modern cryptography.
-# Données : DOC id=B text=Déploiement d un cluster Kubernetes sur des serveurs Linux.
+[Question 1 — Nombre de tokens bruts]
 A_COMPLETER
 
-[Cas 2 — Document très bruité avec presque uniquement des stopwords]
-# Données : DOC id=Z text=Dans ce que le pour et avec un...
+[Question 2 — Nombre de mots vides dans la phrase]
 A_COMPLETER
 
-[Cas 3 — Termes techniques et acronymes]
-# Données : DOC id=T1 text=API REST GraphQL gRPC pour les échanges de données.
+[Question 3 — Nombre de tokens après filtrage]
+A_COMPLETER
+
+[Question 4 — Liste normalisée en minuscules]
+A_COMPLETER
+
+[Question 5 — Token en tête de l'index alphabétique]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Tokeniseur et filtre de mots vides (Stopwords &amp; Normalisation)</h3>
+    <h3 class="lab__title">Exercice 1 — L'index de recherche du service communication de la mairie</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -202,33 +202,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Nettoyer un corpus textuel de veille, supprimer la ponctuation, éliminer les mots vides (stopwords) et extraire le vocabulaire technique saillant.</p>
-    <div class="lab__brief">Dans la chaîne de traitement NLP d’un système de veille, le texte brut doit être normalisé avant indexation :
-1. Convertir l’ensemble des caractères en minuscules.
-2. Remplacer la ponctuation et caractères spéciaux par des espaces : `.,;:!?'"()[]{}&lt;&gt;-/\\_`
-3. Extraire tous les tokens (mots) composés de caractères alphanumériques.
-4. Filtrer les mots de longueur $\le 2$ lettres ainsi que les mots vides (stopwords) de la liste de référence :
-   `le, la, les, de, du, des, un, une, et, en, pour, sur, par, dans, avec, ce, qui, que, the, a, an, and, of, in, to, for, on, with, is, at, as`
-5. Trier les tokens uniques conservés par ordre alphabétique.
-6. Calculer le taux de réduction de taille : $\text{reduction} = (1 - \frac{\text{tokens retenus}}{\text{total tokens initiaux}}) \times 100$ (en %, arrondi à 1 décimale).
-
-Entrée :
-`DOC id=&lt;ID&gt; text=&lt;TEXTE&gt;`
-
-Résultat d’analyse attendu :
-- Pour chaque document :
-  `TOKENS id=&lt;ID&gt; count=&lt;N&gt; words=&lt;w1,w2,...&gt; reduction=&lt;R&gt;%`
-- Bilan :
-  `SUMMARY total_docs=&lt;N&gt; total_tokens=&lt;T&gt;` (somme des tokens retenus)</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Tokeniser une phrase, retirer les mots vides et produire la liste normalisée d'un index de recherche.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le service communication de la mairie de Saint-Rémy veut indexer l'actualité suivante, publiée sur le site de la ville :</p><p><code>« La Mairie lance une nouvelle enquête sur les déplacements des habitants du quartier. »</code></p><p>La liste de mots vides de l'index est :</p><table><tr><th colspan="5">Mots vides retenus par l'index</th></tr><tr><td>le</td><td>la</td><td>les</td><td>un</td><td>une</td></tr><tr><td>du</td><td>de</td><td>des</td><td>et</td><td>ou</td></tr><tr><td>en</td><td>sur</td><td>par</td><td>pour</td><td>avec</td></tr><tr><td>au</td><td colspan="4"></td></tr></table><p>Règles : les tokens sont découpés sur les espaces, la ponctuation est retirée ; les mots vides sont ensuite éliminés ; tout est mis en minuscules pour l'index.</p><p>Consignes : la question 4 s'écrit sur une seule ligne, mots séparés par des espaces, dans l'ordre d'apparition ; la question 5 attend un seul mot.</p><ol><li>Combien de tokens bruts compte la phrase ?</li><li>Combien de ces tokens sont des mots vides ?</li><li>Combien de tokens restent après filtrage ?</li><li>Écrivez la liste finale normalisée, en minuscules, dans l'ordre d'apparition.</li><li>Quel token viendra en tête de l'index alphabétique ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DOC id=1 text=Le cloud et les micro-services dans le datacenter avec Docker.</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le musée régional indexe la phrase : « Le musée régional ouvre une nouvelle aile au public. »
+
+Résolution :
+1) Tokens bruts : Le, musée, régional, ouvre, une, nouvelle, aile, au, public → 9 tokens.
+2) Mots vides présents : Le, une, au → 3 tokens.
+3) Après filtrage : musée, régional, ouvre, nouvelle, aile, public → 6 tokens.
+4) Liste normalisée : « musée régional ouvre nouvelle aile public ».
+5) En tête de l'index alphabétique : « aile ».</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utiliser re.sub pour nettoyer la ponctuation avant de faire l’extraction des champs.</li>
-        <li>Créer un ensemble (set) de stopwords pour une vérification en O(1).</li>
-        <li>Attention : le taux de réduction se calcule sur le nombre de tokens retenus divisé par le total des tokens initiaux.</li>
+        <li>Découpez d'abord la phrase sur les espaces : La, Mairie, lance, une, nouvelle… en retirant le point final.</li>
+        <li>Barrez ensuite les tokens présents dans la liste de mots vides : La, une, sur, les, des, du.</li>
+        <li>La liste normalisée conserve l'ordre d'apparition ; l'index alphabétique, lui, trie : déplacements précède enquête, habitants, lance, mairie, nouvelle et quartier.</li>
       </ol>
     </details>
   </div>
@@ -238,30 +229,30 @@ Résultat d’analyse attendu :
      data-exercise="vt3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="QUERY words=quantique,securite&#10;CORPUS_DOC id=D1 text=ordinateur quantique et cryptographie quantique securite absolue&#10;CORPUS_DOC id=D2 text=securite des serveurs cloud linux et pare-feu&#10;CORPUS_DOC id=D3 text=intelligence artificielle et vision par ordinateur">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt3-c4-e2) — Calculateur de score de pertinence TF-IDF sur un corpus de veille
-# Complétez la réponse attendue sous chaque cas ci-dessous :
+     data-stdin="Un centre de documentation interroge son corpus (N = 3) avec la requête « drone parcelle » :&#10;— R1 : drone 4, parcelle 2, total 20 mots.&#10;— R2 : drone 2, parcelle 0, total 20 mots.&#10;— R3 : drone 0, parcelle 4, total 40 mots.&#10;DF(drone) = 2 et DF(parcelle) = 2, donc IDF = 1,29 pour les deux termes.&#10;&#10;Résolution :&#10;1) R1 : TF(drone) = 4/20 = 0,20 ; TF(parcelle) = 2/20 = 0,10 ; score = (0,20 + 0,10) × 1,29 = 0,39.&#10;2) R2 : score = 0,10 × 1,29 = 0,13.&#10;3) R3 : score = 0,10 × 1,29 = 0,13.&#10;4) Classement : R1 (0,39) devant R2 et R3 (0,13).">
+  <script type="text/plain" data-lab-starter># Exercice — Le classement des notices de brevets par TF-IDF
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Deux documents avec termes exclusifs]
-# Données : QUERY words=blockchain,smart
-# Données : CORPUS_DOC id=A text=blockchain et smart contracts pour la finance
-# Données : CORPUS_DOC id=B text=developpement web et design moderne
+[Question 1 — IDF du terme « verre »]
 A_COMPLETER
 
-[Cas 2 — Égalité de score avec tri alphabétique par identifiant]
-# Données : QUERY words=rust
-# Données : CORPUS_DOC id=DOC_B text=langage rust performance
-# Données : CORPUS_DOC id=DOC_A text=langage rust securite
+[Question 2 — IDF du terme « autonome »]
 A_COMPLETER
 
-[Cas 3 — Aucun document ne contenant les termes de requête]
-# Données : QUERY words=inexistant
-# Données : CORPUS_DOC id=D1 text=article un
-# Données : CORPUS_DOC id=D2 text=article deux
+[Question 3 — TF du terme « verre » dans N2]
+A_COMPLETER
+
+[Question 4 — Score de la notice N1]
+A_COMPLETER
+
+[Question 5 — Score de la notice N2]
+A_COMPLETER
+
+[Question 6 — Notice en tête du classement]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Calculateur de score de pertinence TF-IDF sur un corpus de veille</h3>
+    <h3 class="lab__title">Exercice 2 — Le classement des notices de brevets par TF-IDF</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -270,39 +261,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Classer un corpus de documents selon leur score de pertinence TF-IDF pour une requête de veille ciblée.</p>
-    <div class="lab__brief">L’algorithme TF-IDF (Term Frequency - Inverse Document Frequency) quantifie l’importance relative d’un mot par rapport à un corpus documentaire :
-- Pour un document $d$ et un mot-clé $q$ :
-  $$\text{TF}(q, d) = \frac{\text{occurrences de } q \text{ dans } d}{\text{nombre total de mots dans } d}$$
-- Fréquence inverse de document sur le corpus de $N$ documents :
-  $$\text{IDF}(q) = \ln\left(\frac{N + 1}{\text{DF}(q) + 1}\right) + 1$$
-  où $\text{DF}(q)$ est le nombre de documents du corpus contenant au moins une fois le terme $q$.
-- Score total d’un document $d$ pour la requête :
-  $$\text{Score}(d) = \sum_{q \in \text{requête}} \text{TF}(q, d) \times \text{IDF}(q)$$
-(le score est arrondi à 4 décimales)
-
-Entrée :
-`QUERY words=&lt;q1,q2,...&gt;`
-`CORPUS_DOC id=&lt;ID&gt; text=&lt;mots séparés par des espaces&gt;`
-
-Résultat d’analyse attendu :
-- Documents triés par score décroissant (en cas d’égalité de score, trier par id alphabétique croissant) :
-  `RANK id=&lt;ID&gt; score=&lt;SCORE&gt;`
-- Bilan :
-  `SUMMARY top_doc=&lt;ID&gt; top_score=&lt;SCORE&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer IDF et TF, composer un score TF-IDF par document et classer les documents d'un corpus.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La documentaliste de l'équipementier optique LumenOptic cherche, dans un corpus de trois notices de brevets, celles qui répondent à la requête « verre autonome ». Relevés :</p><table><tr><th>Notice</th><th>Occurrences « verre »</th><th>Occurrences « autonome »</th><th>Total de mots</th></tr><tr><td>N1</td><td>6</td><td>3</td><td>30</td></tr><tr><td>N2</td><td>5</td><td>2</td><td>20</td></tr><tr><td>N3</td><td>0</td><td>10</td><td>25</td></tr></table><p>Formules du cours : TF(t, d) = count(t dans d) / total_mots(d) ; IDF(t) = ln((N + 1) / (DF + 1)) + 1, avec N = 3 documents ; Score(d) = somme des TF(q, d) × IDF(q) pour chaque terme q de la requête.</p><p>Valeurs utiles : ln(4/3) ≈ 0,29 ; ln(2) ≈ 0,69.</p><p>Consignes : TF et IDF s'écrivent avec une virgule, arrondis à deux décimales (par exemple 0,25) ; le score s'arrondit à deux décimales.</p><ol><li>Quel est l'IDF du terme « verre » ?</li><li>Quel est l'IDF du terme « autonome » ?</li><li>Quel est le TF du terme « verre » dans la notice N2 ?</li><li>Quel est le score de la notice N1 ?</li><li>Quel est le score de la notice N2 ?</li><li>Quelle notice arrive en tête du classement ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>QUERY words=quantique,securite
-CORPUS_DOC id=D1 text=ordinateur quantique et cryptographie quantique securite absolue
-CORPUS_DOC id=D2 text=securite des serveurs cloud linux et pare-feu
-CORPUS_DOC id=D3 text=intelligence artificielle et vision par ordinateur</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un centre de documentation interroge son corpus (N = 3) avec la requête « drone parcelle » :
+— R1 : drone 4, parcelle 2, total 20 mots.
+— R2 : drone 2, parcelle 0, total 20 mots.
+— R3 : drone 0, parcelle 4, total 40 mots.
+DF(drone) = 2 et DF(parcelle) = 2, donc IDF = 1,29 pour les deux termes.
+
+Résolution :
+1) R1 : TF(drone) = 4/20 = 0,20 ; TF(parcelle) = 2/20 = 0,10 ; score = (0,20 + 0,10) × 1,29 = 0,39.
+2) R2 : score = 0,10 × 1,29 = 0,13.
+3) R3 : score = 0,10 × 1,29 = 0,13.
+4) Classement : R1 (0,39) devant R2 et R3 (0,13).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Quatre indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Extraire d’abord les termes de la requête en minuscules.</li>
-        <li>Parcourir le corpus pour compter le nombre total de documents N et le DF de chaque terme de requête.</li>
-        <li>Calculer pour chaque document la somme des TF * IDF pour les termes de la requête.</li>
-        <li>Utiliser math.log() pour le logarithme népérien.</li>
+        <li>« verre » apparaît dans N1 et N2 (DF = 2) ; « autonome » apparaît dans les trois notices (DF = 3).</li>
+        <li>IDF(verre) = ln(4/3) + 1 ; IDF(autonome) = ln(4/4) + 1 = 1. Puis TF(verre, N2) = 5/20.</li>
+        <li>Score(N1) = 0,20 × 1,29 + 0,10 × 1,00 ; Score(N2) = 0,25 × 1,29 + 0,10 × 1,00 ; arrondissez chaque score final à deux décimales avant de classer.</li>
       </ol>
     </details>
   </div>
@@ -312,32 +291,30 @@ CORPUS_DOC id=D3 text=intelligence artificielle et vision par ordinateur</pre></
      data-exercise="vt3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="PRIOR pertinent=0.5 bruit=0.5&#10;PROB word=faille p_pert=0.20 p_bruit=0.01&#10;PROB word=zero-day p_pert=0.15 p_bruit=0.001&#10;PROB word=promo p_pert=0.005 p_bruit=0.30&#10;PROB word=gratuit p_pert=0.01 p_bruit=0.25&#10;ALERT id=A1 text=decouverte d une faille critique zero-day&#10;ALERT id=A2 text=super promo webinaire gratuit pour tous">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt3-c4-e3) — Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)
-# Complétez la réponse attendue sous chaque cas ci-dessous :
+     data-stdin="Le service documentation d'un constructeur a étiqueté 30 alertes : 18 utiles, 12 bruits.&#10;« urgent » concerne 9 alertes utiles et 9 bruits ; « budget » concerne 6 utiles et 1 bruit.&#10;Alerte X : contient « urgent » et « budget ».&#10;&#10;Résolution :&#10;1) Score utile : 18 × 9 × 6 = 972.&#10;2) Score bruit : 12 × 9 × 1 = 108.&#10;3) 972 &gt; 108 : l'alerte X est UTILE.">
+  <script type="text/plain" data-lab-starter># Exercice — Le filtre anti-bruit de la cellule de veille du laboratoire Galiena
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Alerte avec mots mixtes départagée par le ratio de cotes]
-# Données : PRIOR pertinent=0.6 bruit=0.4
-# Données : PROB word=securite p_pert=0.10 p_bruit=0.05
-# Données : PROB word=sponsorise p_pert=0.01 p_bruit=0.20
-# Données : ALERT id=X1 text=article securite sponsorise par notre partenaire
+[Question 1 — Score PERTINENT de l'alerte A]
 A_COMPLETER
 
-[Cas 2 — Toutes les alertes hautement pertinentes]
-# Données : PRIOR pertinent=0.5 bruit=0.5
-# Données : PROB word=vulnerabilite p_pert=0.25 p_bruit=0.01
-# Données : ALERT id=K1 text=vulnerabilite linux
-# Données : ALERT id=K2 text=nouvelle vulnerabilite windows
+[Question 2 — Score BRUIT de l'alerte A]
 A_COMPLETER
 
-[Cas 3 — Alerte sans aucun mot connu dans le dictionnaire]
-# Données : PRIOR pertinent=0.7 bruit=0.3
-# Données : PROB word=ia p_pert=0.10 p_bruit=0.02
-# Données : ALERT id=EMPTY text=bonjour tout le monde
+[Question 3 — Verdict pour l'alerte A]
+A_COMPLETER
+
+[Question 4 — Verdict pour l'alerte B]
+A_COMPLETER
+
+[Question 5 — Verdict pour l'alerte C]
+A_COMPLETER
+
+[Question 6 — Score BRUIT de l'alerte C]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)</h3>
+    <h3 class="lab__title">Exercice 3 — Le filtre anti-bruit de la cellule de veille du laboratoire Galiena</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -346,44 +323,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer le modèle probabiliste de Naive Bayes pour filtrer automatiquement les alertes entrantes en éliminant le bruit informationnel.</p>
-    <div class="lab__brief">Dans la surveillance temps réel, les flux génèrent une surcharge cognitive de notifications parasites. Un filtre probabiliste Naive Bayes calcule la log-vraisemblance d’appartenance aux classes `PERTINENT` et `BRUIT` :
-
-Pour une alerte composée des mots $w_1, w_2, \dots, w_k$ :
-$$\ln P(\text{Pertinent}|d) = \ln P_0(\text{pertinent}) + \sum_{i=1}^k \ln P(w_i | \text{pertinent})$$
-$$\ln P(\text{Bruit}|d) = \ln P_0(\text{bruit}) + \sum_{i=1}^k \ln P(w_i | \text{bruit})$$
-(les mots inconnus non présents dans la table de probabilités sont ignorés)
-
-Règle de décision :
-- Si $\ln P(\text{Pertinent}|d) \ge \ln P(\text{Bruit}|d)$ : `decision = PERTINENT`
-- Sinon : `decision = BRUIT`
-- Différence logarithmique : $\text{diff} = \ln P(\text{Pertinent}|d) - \ln P(\text{Bruit}|d)$ (arrondie à 2 décimales)
-
-Entrée :
-`PRIOR pertinent=&lt;P1&gt; bruit=&lt;P2&gt;`
-`PROB word=&lt;W&gt; p_pert=&lt;PP&gt; p_bruit=&lt;PB&gt;`
-`ALERT id=&lt;ID&gt; text=&lt;mots séparés par des espaces&gt;`
-
-Résultat d’analyse attendu :
-- Pour chaque alerte :
-  `CLASSIFICATION id=&lt;ID&gt; decision=&lt;DECISION&gt; diff=&lt;DIFF&gt;`
-- Bilan :
-  `SUMMARY total_alertes=&lt;N&gt; retenues=&lt;R&gt; rejetees=&lt;J&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer un classificateur bayésien naïf sur des effectifs d'apprentissage et trancher entre pertinent et bruit.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le laboratoire pharmaceutique Galiena reçoit des alertes par courriel. Son historique d'apprentissage compte 40 alertes étiquetées à la main : 24 pertinentes, 16 bruits. Décompte des deux mots surveillés :</p><table><tr><th>Mot</th><th>Alertes pertinentes concernées (sur 24)</th><th>Alertes bruits concernées (sur 16)</th></tr><tr><td>« essai »</td><td>12</td><td>4</td></tr><tr><td>« promo »</td><td>3</td><td>12</td></tr></table><p>Règle de décision (bayésienne, à facteurs constants près) : le score d'une classe pour une alerte est le produit de l'effectif de la classe par l'effectif du mot dans cette classe, pour chaque mot présent dans l'alerte (un mot absent de l'alerte compte pour 1). La classe au score le plus élevé l'emporte ; les dénominateurs constants se compensent dans la comparaison.</p><p>Trois alertes sont arrivées ce matin : l'alerte A contient « essai » et « promo » ; l'alerte B contient « essai » ; l'alerte C contient « promo ».</p><p>Consignes : les scores s'écrivent en nombres seuls ; les verdicts s'écrivent en majuscules.</p><ol><li>Quel est le score PERTINENT de l'alerte A ?</li><li>Quel est le score BRUIT de l'alerte A ?</li><li>Quel est le verdict pour l'alerte A ?</li><li>Quel est le verdict pour l'alerte B ?</li><li>Quel est le verdict pour l'alerte C ?</li><li>Quel est le score BRUIT de l'alerte C ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PRIOR pertinent=0.5 bruit=0.5
-PROB word=faille p_pert=0.20 p_bruit=0.01
-PROB word=zero-day p_pert=0.15 p_bruit=0.001
-PROB word=promo p_pert=0.005 p_bruit=0.30
-PROB word=gratuit p_pert=0.01 p_bruit=0.25
-ALERT id=A1 text=decouverte d une faille critique zero-day
-ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le service documentation d'un constructeur a étiqueté 30 alertes : 18 utiles, 12 bruits.
+« urgent » concerne 9 alertes utiles et 9 bruits ; « budget » concerne 6 utiles et 1 bruit.
+Alerte X : contient « urgent » et « budget ».
+
+Résolution :
+1) Score utile : 18 × 9 × 6 = 972.
+2) Score bruit : 12 × 9 × 1 = 108.
+3) 972 &gt; 108 : l'alerte X est UTILE.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Convertir les probabilités P_pert et P_bruit avec math.log().</li>
-        <li>Additionner les logs pour chaque mot de l’alerte présent dans la table.</li>
-        <li>Comparer les sommes cumulées pour statuer sur la décision.</li>
+        <li>Pour l'alerte A, les deux mots comptent : score PERTINENT = 24 × 12 × 3 ; score BRUIT = 16 × 4 × 12.</li>
+        <li>Pour l'alerte B, un seul mot compte : 24 × 12 côté pertinent, 16 × 4 côté bruit.</li>
+        <li>Pour l'alerte C : 24 × 3 côté pertinent contre 16 × 12 côté bruit ; comparez toujours les deux scores de la même alerte avant de conclure.</li>
       </ol>
     </details>
   </div>
@@ -396,20 +353,20 @@ ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
     <div class="q">
       <p class="q__stem">Dans la chaîne de traitement NLP, quel est le rôle principal de l’étape de tokenisation ?</p>
       <div class="opts">
-        <button class="opt">Chiffrer le document avec une clé RSA</button>
         <button class="opt" data-correct="1">Découper la chaîne de caractères brute en une séquence d’unités lexicales distinctes (tokens ou mots)</button>
-        <button class="opt">Traduire le texte en espagnol</button>
-        <button class="opt">Compacter le fichier au format ZIP</button>
+        <button class="opt">Chiffrer le document avec une clé RSA afin d’en protéger la confidentialité</button>
+        <button class="opt">Traduire l’intégralité du texte en espagnol vers la langue cible du corpus</button>
+        <button class="opt">Compacter le fichier au format ZIP pour en réduire la taille sur le disque</button>
       </div>
       <div class="q__exp">La tokenisation segmente le flux textuel continu en éléments lexicaux indépendants appelés tokens.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que désigne le terme « stopword » en ingénierie documentaire ?</p>
       <div class="opts">
-        <button class="opt">Un virus informatique bloquant le processeur</button>
+        <button class="opt">Un virus informatique bloquant le processeur pendant toute la durée de l’indexation</button>
         <button class="opt" data-correct="1">Un mot grammatical vide de sens sémantique spécifique (articles, conjonctions) filtré avant analyse</button>
-        <button class="opt">Le mot le plus long du dictionnaire</button>
-        <button class="opt">Une commande d’arrêt du serveur Linux</button>
+        <button class="opt">Le mot le plus long du dictionnaire technique de la langue française du corpus</button>
+        <button class="opt">Une commande d’arrêt d’urgence du serveur Linux hébergeant la base documentaire</button>
       </div>
       <div class="q__exp">Les stopwords sont les mots très fréquents (le, la, de, et, the, with) qui n’apportent aucune information discriminante.</div>
     </div>
@@ -427,19 +384,19 @@ ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
       <p class="q__stem">Quelle formule correspond au calcul du Term Frequency (TF) d’un mot q dans un document d ?</p>
       <div class="opts">
         <button class="opt">TF = nombre de documents dans le corpus</button>
-        <button class="opt" data-correct="1">TF = occurrences(q, d) / nombre total de mots dans d</button>
-        <button class="opt">TF = log(occurrences) * 100</button>
         <button class="opt">TF = longueur du mot en caractères</button>
+        <button class="opt">TF = log(occurrences) * 100</button>
+        <button class="opt" data-correct="1">TF = occurrences(q, d) / nombre total de mots dans d</button>
       </div>
       <div class="q__exp">Le TF normalise le nombre d’occurrences d’un terme par la longueur totale en mots du document.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi utilise-t-on la somme des logarithmes népériens plutôt que le produit direct des probabilités en Naive Bayes ?</p>
       <div class="opts">
-        <button class="opt">Parce que les ordinateurs ne savent pas multiplier</button>
         <button class="opt" data-correct="1">Pour éviter le sous-dépassement arithmétique (underflow) lors de la multiplication de probabilités très proches de zéro</button>
-        <button class="opt">Pour rendre le calcul payant</button>
-        <button class="opt">Pour supprimer la ponctuation</button>
+        <button class="opt">Parce que les ordinateurs ne savent pas multiplier deux nombres décimaux entre eux correctement</button>
+        <button class="opt">Pour rendre le calcul payant auprès du fournisseur de la bibliothèque statistique utilisée</button>
+        <button class="opt">Pour supprimer automatiquement la ponctuation et les chiffres présents dans le corpus analysé</button>
       </div>
       <div class="q__exp">Multiplier des dizaines de probabilités très faibles produit un nombre inférieur à la précision machine (0.0). Sommer leurs logs évite ce problème.</div>
     </div>
@@ -447,8 +404,8 @@ ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
       <p class="q__stem">Dans l’algorithme TF-IDF lissé standard, pourquoi ajoute-t-on 1 au numérateur et au dénominateur de l’IDF ?</p>
       <div class="opts">
         <button class="opt">Pour arrondir le résultat à l’entier supérieur</button>
-        <button class="opt" data-correct="1">Pour éviter la division par zéro si DF=0 et éviter un log nul si N=DF</button>
         <button class="opt">C’est une constante universelle de Planck</button>
+        <button class="opt" data-correct="1">Pour éviter la division par zéro si DF=0 et éviter un log nul si N=DF</button>
         <button class="opt">Pour doubler la vitesse d’exécution</button>
       </div>
       <div class="q__exp">L’ajout de constantes de lissage (+1) empêche les divisions par zéro et garantit la stabilité mathématique du logarithme.</div>
@@ -457,19 +414,19 @@ ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
       <p class="q__stem">Quelle hypothèse fondatrice est qualifiée de « naïve » dans le classificateur Naive Bayes ?</p>
       <div class="opts">
         <button class="opt">L’hypothèse que tous les textes sont écrits en anglais</button>
-        <button class="opt" data-correct="1">L’hypothèse d’indépendance conditionnelle des mots sachant la classe</button>
-        <button class="opt">L’hypothèse que tous les articles sont vrais</button>
         <button class="opt">L’hypothèse que la base de données est vide</button>
+        <button class="opt">L’hypothèse que tous les articles sont vrais</button>
+        <button class="opt" data-correct="1">L’hypothèse d’indépendance conditionnelle des mots sachant la classe</button>
       </div>
       <div class="q__exp">Le modèle est dit « naïf » car il postule que chaque mot apparaît indépendamment des autres dans une classe donnée, ce qui simplifie le calcul.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’impact de la suppression des stopwords sur un corpus d’ingénierie de 10 000 articles ?</p>
       <div class="opts">
-        <button class="opt">Aucun impact mesurable</button>
+        <button class="opt">Aucun impact mesurable sur la taille comme sur la vitesse des requêtes</button>
         <button class="opt" data-correct="1">Une réduction de 40 à 60 % du nombre de tokens sans dégrader la précision de recherche</button>
-        <button class="opt">La destruction irrémédiable de la base de données</button>
-        <button class="opt">Un blocage du réseau local</button>
+        <button class="opt">La destruction irrémédiable de la base de données documentaire du service</button>
+        <button class="opt">Un blocage complet du réseau local pendant toute la durée du traitement</button>
       </div>
       <div class="q__exp">Éliminer les mots vides allège le corpus de 40 à 60 % de sa masse textuelle tout en conservant l’intégralité des concepts techniques.</div>
     </div>
@@ -595,7 +552,7 @@ ALERT id=A2 text=super promo webinaire gratuit pour tous</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

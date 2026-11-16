@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -76,6 +74,7 @@
       <li>comparer le coût du parc physique à celui du parc virtualisé ;</li>
       <li>appliquer le plafond dans un calcul fictif et distinguer ce calcul d’un dimensionnement réel ;</li>
       <li>placer les VM sur les hôtes selon la capacité restante (premier hôte suffisant).</li>
+      <li>comparer les quatre modes réseau d’un hyperviseur de bureau (NAT, pont, interne, privé hôte) et choisir celui qui convient à un besoin donné.</li>
     </ol>
   </div>
 
@@ -131,11 +130,34 @@
 
 </section>
 
+<section class="sec">
+
+<h2>5. Brancher les VM : les modes réseau</h2>
+
+<p>Consolider vingt services sur un seul hôte ne sert à rien si les VM ne peuvent plus se parler ni joindre le monde extérieur. Chaque carte réseau virtuelle d’une VM est branchée sur un <strong>commutateur virtuel</strong> ; le mode choisi détermine qui peut parler à qui. Voici les quatre modes de VirtualBox (les autres hyperviseurs proposent des équivalents sous d’autres noms).</p>
+<table>
+    <tr><th>Mode</th><th>VM → Internet</th><th>VM → hôte</th><th>VM ↔ autres VM</th><th>Extérieur → VM</th><th>Usage typique</th></tr>
+    <tr><td>NAT</td><td>Oui</td><td>Non (sauf redirection de port)</td><td>Non (chaque VM a son propre NAT)</td><td>Non, sauf redirection de port</td><td>Navigation, mises à jour : mode par défaut</td></tr>
+    <tr><td>Accès par pont (bridged)</td><td>Oui</td><td>Oui</td><td>Oui</td><td>Oui : la VM a sa propre adresse sur le réseau local</td><td>Serveur de laboratoire joignable par les autres machines du réseau</td></tr>
+    <tr><td>Réseau interne</td><td>Non</td><td>Non</td><td>Oui (entre VM du même réseau interne)</td><td>Non</td><td>Maquette isolée : serveur et clients</td></tr>
+    <tr><td>Réseau privé hôte (host-only)</td><td>Non</td><td>Oui</td><td>Oui</td><td>Non (hôte seulement)</td><td>Administrer une VM depuis l’hôte (SSH) sans l’exposer</td></tr>
+  </table>
+<p>Repères concrets : en NAT, VirtualBox donne à la VM l’adresse 10.0.2.15 et la passerelle 10.0.2.2, identiques pour toutes les VM puisque chacune est isolée dans son propre NAT. En réseau privé hôte, l’hôte reçoit par défaut 192.168.56.1 et les VM une adresse du même sous-réseau 192.168.56.0/24. En accès par pont, la VM obtient une adresse du réseau local comme un ordinateur physique, ce qui peut poser problème sur certains réseaux Wi-Fi ou d’entreprise qui n’autorisent qu’une adresse par port.</p>
+<p>Pour joindre une VM en NAT, on crée une <strong>redirection de port</strong> : par exemple, le port 2222 de l’hôte vers le port 22 (SSH) de la VM.</p>
+<pre><code>VBoxManage modifyvm "debian-lab" --natpf1 "ssh,tcp,,2222,,22"
+ssh -p 2222 utilisateur@127.0.0.1</code></pre>
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Comment choisir ?</div>
+    <p>Se poser trois questions dans l’ordre : la VM doit-elle sortir sur Internet (NAT ou pont) ? Doit-elle être joignable depuis d’autres machines du réseau (pont) ? Doit-elle rester totalement isolée (interne) ou administrable seulement depuis l’hôte (privé hôte) ? Un mode combinable : la plupart des VM de laboratoire ont deux cartes, une en NAT pour les mises à jour et une en privé hôte pour l’administration.</p>
+  </div>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -143,34 +165,30 @@
      data-exercise="vt-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;srv1 20 90&#10;srv2 40 60&#10;srv3 25 50&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c4-e1) — De 80 % à 100 % : le taux de rentabilisation
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Une salle de formation virtualise 2 serveurs :&#10;x : 10 % avant, 85 % après — y : 45 % avant, 70 % après.&#10;&#10;1) Moyenne avant : (10 + 45)/2 = 27,5 %.&#10;2) Moyenne après : (85 + 70)/2 = 77,5 %.&#10;3) Hausse : 77,5 - 27,5 = 50 points.&#10;4) x : avant 10 &lt; 30 et après 85 &gt;= 80 : réveillé.&#10;5) y : avant 45 &gt;= 30 : pas réveillé (en progrès seulement).">
+  <script type="text/plain" data-lab-starter># Exercice — Le réveil du parc : taux avant, taux après
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Parc virtualisé]
-# Données : 4
-# Données : a 10 95
-# Données : b 15 80
-# Données : c 35 90
-# Données : d 20 30
+[Question 1 — Taux après de M. Fainéant (%)]
 A_COMPLETER
 
-[Cas 2 — Déjà occupé]
-# Données : 3
-# Données : a 50 85
-# Données : b 60 90
-# Données : c 45 50
+[Question 2 — Moyenne des taux avant (%)]
 A_COMPLETER
 
-[Cas 3 — Frontières exactes]
-# Données : 3
-# Données : a 29 80
-# Données : b 30 80
-# Données : c 29 79
+[Question 3 — Moyenne des taux après (%)]
+A_COMPLETER
+
+[Question 4 — Hausse de la moyenne (points)]
+A_COMPLETER
+
+[Question 5 — Nombre de serveurs réveillés]
+A_COMPLETER
+
+[Question 6 — Le serveur intranet est-il réveillé ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — De 80 % à 100 % : le taux de rentabilisation</h3>
+    <h3 class="lab__title">Exercice 1 — Le réveil du parc : taux avant, taux après</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -179,20 +197,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le taux de rentabilisation de chaque serveur avant/après virtualisation.</p>
-    <div class="lab__brief"><p>Le serveur de l’histoire « se retrouva rentabilisé à 100 % » : c’est une image, non une mesure. Analysez chaque ligne « serveur avant apres » (taux d’utilisation en %). Dans cette grille fictive, <code>reveille</code> signifie avant sous 30 % et après au moins 80 % ; <code>en progres</code> si le taux augmente sans remplir les deux conditions ; sinon <code>insuffisant</code>. Ces seuils ne sont pas universels. Indiquez <code>serveur : verdict</code>, puis <code>reveilles : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire un tableau de taux avant/après, calculer les moyennes et compter les serveurs réveillés.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Six mois après la virtualisation, l'ingénieur présente ses mesures au responsable informatique. La grille du cours classe chaque serveur : <strong>« réveillé »</strong> si son taux d'utilisation passe de <strong>moins de 30 %</strong> à <strong>80 % ou plus</strong> ; « en progrès » si son taux monte sans atteindre cette barre ; « insuffisant » s'il ne bouge pas.</p><table><tr><th>Serveur</th><th>Taux avant</th><th>Taux après</th></tr><tr><td>fainéant</td><td>20 %</td><td>85 %</td></tr><tr><td>intranet</td><td>25 %</td><td>40 %</td></tr><tr><td>messagerie</td><td>15 %</td><td>60 %</td></tr><tr><td>sauvegarde</td><td>20 %</td><td>55 %</td></tr></table><ol><li>Quel est le taux d'utilisation de M. Fainéant après la virtualisation, en pourcentage ?</li><li>Quelle est la moyenne des taux avant la virtualisation, en pourcentage ?</li><li>Quelle est la moyenne des taux après la virtualisation, en pourcentage ?</li><li>De combien de points la moyenne du parc a-t-elle monté ?</li><li>Combien de serveurs sont « réveillés » au sens de la grille ?</li><li>Le serveur intranet, passé de 25 % à 40 %, est-il réveillé au sens de la grille ? (oui ou non)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-srv1 20 90
-srv2 40 60
-srv3 25 50
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Une salle de formation virtualise 2 serveurs :
+x : 10 % avant, 85 % après — y : 45 % avant, 70 % après.
+
+1) Moyenne avant : (10 + 45)/2 = 27,5 %.
+2) Moyenne après : (85 + 70)/2 = 77,5 %.
+3) Hausse : 77,5 - 27,5 = 50 points.
+4) x : avant 10 &lt; 30 et après 85 &gt;= 80 : réveillé.
+5) y : avant 45 &gt;= 30 : pas réveillé (en progrès seulement).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Trois cas : avant -lt 30 ET apres -ge 80 → reveille ; apres -gt avant → en progres ; sinon insuffisant.</li>
-        <li>Le compteur ne progresse que pour les reveilles ; bilan après la boucle.</li>
+        <li>Les moyennes se calculent colonne par colonne : somme des taux avant divisée par 4, puis somme des taux après divisée par 4.</li>
+        <li>La hausse de la moyenne est la différence entre les deux moyennes ; le matériel n'a pas changé, seul son usage a changé.</li>
+        <li>Pour la grille du réveil, vérifiez les DEUX conditions : un taux avant strictement sous 30 % ET un taux après au moins égal à 80 %.</li>
       </ol>
     </details>
   </div>
@@ -202,36 +224,30 @@ srv3 25 50
      data-exercise="vt-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;srv1 100000&#10;srv2 80000&#10;srv3 60000&#10;40000&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c4-e2) — Combien de serveurs économisés ?
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Dossier d'un parc satellite : parc physique à 300 000 FCFA, VM à 80 000 FCFA.&#10;&#10;1) 300 000/80 000 = 3,75 : au plafond, 4 VM.&#10;2) Coût des VM : 4 x 80 000 = 320 000 FCFA.&#10;3) Économie : 300 000 - 320 000 = -20 000 FCFA (négative : la consolidation coûte plus cher).&#10;Autre cas : parc à 240 000 FCFA, VM à 80 000 : 240/80 = 3 exact, coût 240 000, économie nulle.">
+  <script type="text/plain" data-lab-starter># Exercice — Le plafond de la division : combien de VM ?
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Consolidation rentable]
-# Données : 4
-# Données : a 200000
-# Données : b 150000
-# Données : c 180000
-# Données : d 120000
-# Données : 50000
+[Question 1 — Nombre de VM au plafond (scénario 1)]
 A_COMPLETER
 
-[Cas 2 — Petites VM]
-# Données : 3
-# Données : a 100000
-# Données : b 100000
-# Données : c 100000
-# Données : 60000
+[Question 2 — Coût mensuel des VM (scénario 1, FCFA)]
 A_COMPLETER
 
-[Cas 3 — Vraie économie]
-# Données : 2
-# Données : a 100000
-# Données : b 100000
-# Données : 80000
+[Question 3 — Économie mensuelle signée (scénario 1, FCFA)]
+A_COMPLETER
+
+[Question 4 — L'économie est-elle positive ?]
+A_COMPLETER
+
+[Question 5 — Nombre de VM (scénario 2)]
+A_COMPLETER
+
+[Question 6 — Économie mensuelle (scénario 2, FCFA)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Combien de serveurs économisés ?</h3>
+    <h3 class="lab__title">Exercice 2 — Le plafond de la division : combien de VM ?</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -240,21 +256,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Comparer le parc physique avant et le parc virtualisé après.</p>
-    <div class="lab__brief"><p>Dans ce modèle fictif, définissez arbitrairement le nombre de VM comme le plafond de (total des coûts / cout_vm). Cette règle sert à pratiquer l’arrondi : le coût seul ne détermine pas le nombre de VM nécessaires en réalité. Indiquez <code>parc actuel : n serveurs — X FCFA</code>, <code>parc virtualise : Y vm — Z FCFA</code> (Y × cout_vm), puis <code>economie : W FCFA (T%)</code> ; l’écart peut être négatif.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer l'arrondi au plafond pour compter les VM d'un parc et interpréter une économie négative.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pour le dossier de consolidation, le responsable veut un ordre de grandeur du parc virtualisé. Le modèle fictif du cours définit le nombre de VM comme le <strong>coût total du parc divisé par le coût d'une VM, arrondi à l'entier supérieur</strong> (le plafond). Règle d'or du cours : 2,5 VM, ça n'existe pas — on arrondit toujours au-dessus. Le parc physique coûte <strong>500 000 FCFA par mois</strong>. Une VM coûte <strong>60 000 FCFA par mois</strong>. Le responsable propose aussi un second scénario avec des VM à <strong>50 000 FCFA</strong>.</p><ol><li>Combien de VM donne la division 500 000 / 60 000, arrondie au plafond ?</li><li>Quel est le coût mensuel total de ces VM, en FCFA ?</li><li>Quelle est l'économie mensuelle du premier scénario (coût du parc moins coût des VM), en FCFA ? Donnez la valeur signée (avec le signe moins si elle est négative).</li><li>Cette économie est-elle positive ? (oui ou non)</li><li>Dans le second scénario (VM à 50 000 FCFA), combien de VM la division donne-t-elle ?</li><li>Dans ce second scénario, quelle est l'économie mensuelle, en FCFA ?</li></ol><p>Pour les montants, écrivez le nombre sans espace (par exemple 12000).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-srv1 100000
-srv2 80000
-srv3 60000
-40000
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Dossier d'un parc satellite : parc physique à 300 000 FCFA, VM à 80 000 FCFA.
+
+1) 300 000/80 000 = 3,75 : au plafond, 4 VM.
+2) Coût des VM : 4 x 80 000 = 320 000 FCFA.
+3) Économie : 300 000 - 320 000 = -20 000 FCFA (négative : la consolidation coûte plus cher).
+Autre cas : parc à 240 000 FCFA, VM à 80 000 : 240/80 = 3 exact, coût 240 000, économie nulle.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Plafond : vm = total / cout_vm ; si total % cout_vm != 0 alors vm = vm + 1.</li>
-        <li>Pourcentage : economie * 100 / total (division entière).</li>
+        <li>Posez d'abord la division du coût du parc par le coût d'une VM ; le résultat n'est pas forcément entier.</li>
+        <li>Le plafond arrondit à l'entier SUPÉRIEUR, jamais au plus proche : un parc sous-dimensionné ne tiendrait pas ses VM. Multipliez ensuite ce nombre par le coût d'une VM.</li>
+        <li>L'économie s'obtient par coût du parc moins coût des VM ; elle peut être négative — l'arithmétique tranche sans complaisance, la consolidation a un coût.</li>
       </ol>
     </details>
   </div>
@@ -264,42 +281,30 @@ srv3 60000
      data-exercise="vt-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="2&#10;srv1 100&#10;srv2 100&#10;2&#10;vm-a 60&#10;vm-b 60&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c4-e3) — Le plan de consolidation
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Plan de la salle B : deux hôtes h1 (20 Go) puis h2 (10 Go).&#10;VM dans l'ordre : a (8 Go), b (6 Go), c (5 Go), d (9 Go).&#10;&#10;1) a : 8 &lt;= 20 : sur h1, reste 12 Go.&#10;2) b : 6 &lt;= 12 : sur h1, reste 6 Go.&#10;3) c : 5 &lt;= 6 : sur h1, reste 1 Go.&#10;4) d : 9 &gt; 1 sur h1 ; 9 &lt;= 10 sur h2 : sur h2, reste 1 Go.&#10;Bilan : h1 reste 1 Go, h2 reste 1 Go, aucune VM sans place.">
+  <script type="text/plain" data-lab-starter># Exercice — Le plan de consolidation : premier hôte suffisant
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Trois VM, deux hôtes]
-# Données : 2
-# Données : srv1 100
-# Données : srv2 100
-# Données : 3
-# Données : vm-a 60
-# Données : vm-b 60
-# Données : vm-c 60
+[Question 1 — RAM restante sur alpha après vm-web et vm-base (Go)]
 A_COMPLETER
 
-[Cas 2 — Remplissage optimal]
-# Données : 2
-# Données : srv1 100
-# Données : srv2 50
-# Données : 4
-# Données : vm-a 50
-# Données : vm-b 50
-# Données : vm-c 50
-# Données : vm-d 50
+[Question 2 — Hôte de vm-test]
 A_COMPLETER
 
-[Cas 3 — Un seul hôte généreux]
-# Données : 1
-# Données : fainéant 200
-# Données : 3
-# Données : vm-bd 80
-# Données : vm-web 40
-# Données : vm-feu 80
+[Question 3 — RAM restante sur beta après vm-test et vm-fichiers (Go)]
+A_COMPLETER
+
+[Question 4 — VM restée sans place]
+A_COMPLETER
+
+[Question 5 — La VM sans place a-t-elle décompté ?]
+A_COMPLETER
+
+[Question 6 — Capacité RAM totale restante (Go)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Le plan de consolidation</h3>
+    <h3 class="lab__title">Exercice 3 — Le plan de consolidation : premier hôte suffisant</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -308,37 +313,39 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Décider quel serveur physique héberger chaque VM selon la capacité restante.</p>
-    <div class="lab__brief"><p>Dans ce modèle de réservation, placez chaque VM sur le <strong>premier hôte</strong> dont la capacité restante suffit, dans l’ordre du fichier. Une capacité réservée à 100 % ne prouve pas une utilisation réelle à 100 %. Indiquez <code>vm : hote</code> ou <code>vm : sans-place</code>, décrémentez la capacité réservée, puis indiquez <code>hote : reste</code> par hôte et <code>non-placees : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Placer des VM sur des hôtes au premier hôte suffisant et reporter les capacités restantes.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dernier calcul avant d'agir : placer les VM sur les hôtes. La règle du cours est le <strong>premier hôte suffisant</strong> : les serveurs physiques sont listés dans un ordre (les fainéants d'abord — ce sont eux qu'on veut réveiller), et chaque VM prend le <strong>premier hôte</strong> dont la capacité restante couvre son besoin. Si aucun hôte ne suffit, la VM reste <strong>sans place</strong> et <strong>rien n'est décompté</strong>. Le plan prévoit deux hôtes à réveiller, dans cet ordre : <strong>alpha</strong> (32 Go de RAM) puis <strong>beta</strong> (24 Go). Les VM à placer, dans l'ordre :</p><table><tr><th>VM</th><th>Besoin en RAM</th></tr><tr><td>vm-web</td><td>12 Go</td></tr><tr><td>vm-base</td><td>16 Go</td></tr><tr><td>vm-test</td><td>8 Go</td></tr><tr><td>vm-fichiers</td><td>10 Go</td></tr><tr><td>vm-intranet</td><td>14 Go</td></tr></table><ol><li>Après le placement de vm-web et de vm-base sur alpha, combien de RAM reste-t-il sur alpha, en Go ?</li><li>Sur quel hôte la VM vm-test est-elle placée ?</li><li>Combien de RAM reste-t-il sur beta après le placement de vm-test et de vm-fichiers, en Go ?</li><li>Quelle VM reste sans place ?</li><li>La VM sans place a-t-elle décompté de la capacité d'un hôte ? (oui ou non)</li><li>Quelle est la capacité RAM totale restante du parc à la fin du plan, en Go ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
-srv1 100
-srv2 100
-2
-vm-a 60
-vm-b 60
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Plan de la salle B : deux hôtes h1 (20 Go) puis h2 (10 Go).
+VM dans l'ordre : a (8 Go), b (6 Go), c (5 Go), d (9 Go).
+
+1) a : 8 &lt;= 20 : sur h1, reste 12 Go.
+2) b : 6 &lt;= 12 : sur h1, reste 6 Go.
+3) c : 5 &lt;= 6 : sur h1, reste 1 Go.
+4) d : 9 &gt; 1 sur h1 ; 9 &lt;= 10 sur h2 : sur h2, reste 1 Go.
+Bilan : h1 reste 1 Go, h2 reste 1 Go, aucune VM sans place.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Premier hôte suffisant : parcourir ordre, prendre le premier avec capacite[hote] -ge besoin.</li>
-        <li>Une VM non placée ne décrémente rien ; les bilans sortent dans l’ordre des hôtes.</li>
+        <li>Suivez l'ordre des VM : pour chacune, essayez alpha d'abord ; si sa capacité restante ne suffit pas, essayez beta.</li>
+        <li>Une VM sans place ne touche à rien : les capacités restantes ne bougent que pour les VM réellement placées.</li>
+        <li>En fin de plan, additionnez les capacités restantes de tous les hôtes : c'est le bilan du plan, à comparer au total de départ moins les besoins placés.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Dans la grille fictive, un serveur est « réveillé » quand…</p>
       <div class="opts">
+        <button class="opt">il s’éteint automatiquement la nuit venue</button>
         <button class="opt" data-correct="1">il passe de moins de 30 % à 80 % ou plus</button>
-        <button class="opt">il s’éteint la nuit</button>
-        <button class="opt">il change de salle</button>
+        <button class="opt">il change de salle pour rejoindre la baie</button>
       </div>
       <div class="q__exp">Ces seuils sont propres à l’exercice ; ils ne constituent pas une norme.</div>
     </div>
@@ -354,26 +361,26 @@ vm-b 60
     <div class="q">
       <p class="q__stem">Une économie négative signifie…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">que la consolidation coûte plus cher</button>
-        <button class="opt">que le calcul est faux</button>
         <button class="opt">qu’il faut arrêter les VM</button>
+        <button class="opt">que le calcul est faux</button>
+        <button class="opt" data-correct="1">que la consolidation coûte plus cher</button>
       </div>
       <div class="q__exp">Le surcoût est possible : l’arithmétique tranche, sans complaisance.</div>
     </div>
     <div class="q">
       <p class="q__stem">La règle de placement des VM est…</p>
       <div class="opts">
+        <button class="opt">l’hôte le plus rapide du parc, selon le benchmark</button>
+        <button class="opt">au hasard parmi les hôtes encore allumés</button>
         <button class="opt" data-correct="1">le premier hôte suffisant, dans l’ordre du fichier</button>
-        <button class="opt">l’hôte le plus rapide</button>
-        <button class="opt">au hasard</button>
       </div>
       <div class="q__exp">Premier hôte dont la capacité restante couvre le besoin — l’ordre fait foi.</div>
     </div>
     <div class="q">
       <p class="q__stem">Une VM sans place…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ne décompte rien</button>
         <button class="opt">décompte quand même</button>
+        <button class="opt" data-correct="1">ne décompte rien</button>
         <button class="opt">détruit le plan</button>
       </div>
       <div class="q__exp">Aucun hôte ne suffit : rien n’est consommé, elle reste à placer.</div>
@@ -390,20 +397,38 @@ vm-b 60
     <div class="q">
       <p class="q__stem">Le taux d’utilisation se mesure…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">avant et après la virtualisation</button>
-        <button class="opt">une seule fois, après</button>
         <button class="opt">jamais, il se devine</button>
+        <button class="opt">une seule fois, après</button>
+        <button class="opt" data-correct="1">avant et après la virtualisation</button>
       </div>
       <div class="q__exp">Le réveil se prouve par deux mesures : le « avant » et le « après ».</div>
     </div>
     <div class="q">
       <p class="q__stem">Le dossier de consolidation se lit…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">en une page chiffrée, reproductible par script</button>
         <button class="opt">en un récit d’ingénieur</button>
+        <button class="opt" data-correct="1">en une page chiffrée, reproductible par script</button>
         <button class="opt">dans le journal des événements</button>
       </div>
       <div class="q__exp">Réveillés, VM, économie, restes : les quatre lignes que le responsable lit.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Une VM doit être joignable depuis les autres ordinateurs du réseau local. Quel mode choisir ?</p>
+      <div class="opts">
+        <button class="opt">NAT sans redirection de port</button>
+        <button class="opt" data-correct="1">Accès par pont (bridged)</button>
+        <button class="opt">Réseau interne</button>
+      </div>
+      <div class="q__exp">En accès par pont, la VM obtient sa propre adresse sur le réseau local et devient joignable comme un ordinateur physique. En NAT ou en réseau interne, elle reste invisible de l’extérieur.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel mode isole totalement les VM d’Internet et de l’hôte, tout en leur permettant de se parler entre elles ?</p>
+      <div class="opts">
+        <button class="opt">Le réseau privé hôte (host-only)</button>
+        <button class="opt">Le NAT</button>
+        <button class="opt" data-correct="1">Le réseau interne</button>
+      </div>
+      <div class="q__exp">Le réseau interne relie seulement les VM entre elles : ni Internet, ni l’hôte. Le réseau privé hôte inclut au contraire l’hôte.</div>
     </div>
   </div>
 
@@ -411,7 +436,7 @@ vm-b 60
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -427,7 +452,7 @@ vm-b 60
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire le plan de consolidation</div>
@@ -442,7 +467,7 @@ vm-b 60
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -459,9 +484,9 @@ vm-b 60
       <li>Je place des VM selon la capacité restante et je reporte les restes.</li>
       <li>Je présente un plan en une page lisible par un responsable.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 9 notions à connaître absolument</h3>
     <ol>
-      <li>taux d’utilisation</li><li>réveil d’un serveur</li><li>consolidation</li><li>plafond de division</li><li>économie</li><li>premier hôte suffisant</li><li>capacité restante</li><li>tableau de bord</li>
+      <li>taux d’utilisation</li><li>réveil d’un serveur</li><li>consolidation</li><li>plafond de division</li><li>économie</li><li>premier hôte suffisant</li><li>capacité restante</li><li>tableau de bord</li><li><strong>NAT</strong>, <strong>accès par pont</strong>, <strong>réseau interne</strong>, <strong>réseau privé hôte</strong> : les quatre modes de connexion d’une VM.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -471,7 +496,7 @@ vm-b 60
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -520,7 +545,7 @@ vm-b 60
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

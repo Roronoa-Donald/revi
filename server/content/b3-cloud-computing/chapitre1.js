@@ -23,6 +23,17 @@ module.exports = {
   ],
   sections: [
     {
+      title: 'Socle Architectural Cloud B3 (/b3-cloud-computing/) &amp; Articulation avec AWS, Azure et Google Cloud',
+      html: [
+        box('tech', 'Référentiel d’architecture transverse : IaaS/PaaS/SaaS, Shared Responsibility, FinOps &amp; Multi-cloud', 'compass',
+          '    <p>Ce module <strong>Cloud Computing B3 (<code>/b3-cloud-computing/</code>)</strong> constitue le <strong>socle architectural agnostique</strong> de la filière Cloud Bachelor 3. Il formalise une seule fois les concepts transverses auxquels renvoient les trois cursus spécialisés par fournisseur :</p>\n' +
+          '    <ul>\n' +
+          '      <li><strong>Fondations communes étudiées ici (<code>/b3-cloud-computing/</code>) :</strong> taxonomie NIST SP 800-145, modèles de service <strong>IaaS / PaaS / SaaS</strong>, matrice de <strong>responsabilité partagée (Shared Responsibility Model)</strong>, gouvernance budgétaire <strong>FinOps</strong> (CapEx vs OpEx, réservations, <em>right-sizing</em>) et architectures hybrides ou <strong>Multi-cloud</strong> (portabilité, prévention du <em>vendor lock-in</em>).</li>\n' +
+          '      <li><strong>Implémentations par hyperscaler :</strong> <a href="/b3-cloud-aws/index.html"><strong>Cloud AWS B3 (<code>/b3-cloud-aws/</code>)</strong></a> (IAM, VPC, EC2/S3/RDS, CLI <code>aws</code>), <a href="/b3-cloud-azure/index.html"><strong>Microsoft Azure B3 (<code>/b3-cloud-azure/</code>)</strong></a> (Entra ID, RBAC, VNet, ARM/Bicep, CLI <code>az</code>) et <a href="/b3-google-cloud/index.html"><strong>Google Cloud B3 (<code>/b3-google-cloud/</code>)</strong></a> (hiérarchie Organization/Folder/Project, VPC global, GKE/BigQuery, CLI <code>gcloud</code>).</li>\n' +
+          '    </ul>')
+      ].join('\n')
+    },
+    {
       title: 'La Définition Fondatrice du NIST et les 5 Caractéristiques Essentielles',
       html: [
         '<p>Selon la publication spéciale <strong>NIST SP 800-145</strong>, le Cloud Computing est un modèle permettant un accès réseau omniprésent, pratique et à la demande à un ensemble partagé de ressources informatiques configurables (réseaux, serveurs, stockage, applications, services) pouvant être rapidement provisionnées et libérées avec un minimum d’effort de gestion ou d’interaction avec le fournisseur de services.</p>',
@@ -129,23 +140,23 @@ module.exports = {
     {
       stem: 'Selon le standard NIST SP 800-145, quelle caractéristique garantit que l’utilisateur peut allouer des machines virtuelles sans intervention humaine du support technique ?',
       opts: [
-        'On-Demand Self-Service',
+        'Measured Service',
         'Broad Network Access',
         'Resource Pooling',
-        'Measured Service'
+        'On-Demand Self-Service'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le libre-service à la demande (On-Demand Self-Service) permet au consommateur de provisionner des capacités informatiques de manière autonome et automatique.'
     },
     {
       stem: 'Dans un modèle de service IaaS (Infrastructure as a Service), à qui incombe la responsabilité d’appliquer les correctifs de sécurité sur le système d’exploitation invité (ex: Ubuntu Server) ?',
       opts: [
         'Au fournisseur Cloud (CSP)',
-        'Au client consommateur',
         'À l’éditeur du système d’exploitation exclusivement',
+        'Au client consommateur',
         'À la communauté open-source'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En IaaS, le fournisseur garantit l’hyperviseur et le matériel physique, mais le système d’exploitation invité installé dans la machine virtuelle relève exclusivement de la responsabilité du client.'
     },
     {
@@ -162,12 +173,12 @@ module.exports = {
     {
       stem: 'Quel modèle de service offre le niveau d’abstraction le plus élevé pour l’utilisateur, éliminant toute gestion du runtime et du serveur ?',
       opts: [
-        'IaaS',
-        'PaaS',
         'SaaS',
+        'PaaS',
+        'IaaS',
         'BaaS'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'En SaaS (Software as a Service), le logiciel est consommé directement sans qu’aucun serveur, système d’exploitation ou runtime ne soit administré par le client.'
     },
     {
@@ -184,10 +195,10 @@ module.exports = {
     {
       stem: 'Quelle couche reste TOUJOURS sous l’entière responsabilité du client, y compris dans le modèle SaaS le plus infogéré ?',
       opts: [
-        'L’hyperviseur physique',
-        'Le système d’exploitation de base',
-        'La gouvernance des données et les droits d’accès utilisateurs',
-        'Le pare-feu réseau de bordure du datacenter'
+        "L’hyperviseur physique et les serveurs d’hébergement sous-jacents",
+        "Le système d’exploitation de base et son cycle de correctifs",
+        "La gouvernance des données et les droits d’accès utilisateurs",
+        "Le pare-feu réseau de bordure du datacenter et son filtrage périmétrique"
       ],
       correct: 2,
       exp: 'Même en SaaS, la protection des données, leur classification et la configuration des autorisations d’accès des utilisateurs (IAM) demeurent sous la stricte responsabilité légale et opérationnelle du client.'
@@ -195,23 +206,23 @@ module.exports = {
     {
       stem: 'Quelle technique aide un fournisseur Cloud à faire cohabiter plusieurs clients sur les mêmes serveurs physiques en limitant les accès entre clients ?',
       opts: [
-        'L’isolation multi-tenant via virtualisation et réseaux logiques cloisonnés',
         'L’attribution d’adresses IP publiques partagées sans filtrage',
+        'L’isolation multi-tenant via virtualisation et réseaux logiques cloisonnés',
         'L’extinction séquentielle des machines virtuelles',
         'Le chiffrement des disques durs sans gestion de clés'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La virtualisation, les contrôles d’accès et les réseaux cloisonnés visent à isoler les locataires. Leur efficacité dépend de leur configuration et de l’absence de vulnérabilités exploitées ; elle ne supprime pas tout risque.'
     },
     {
       stem: 'Quelle architecture combine un datacenter privé d’entreprise et un cloud public pour absorber des pics de charge saisonniers ?',
       opts: [
-        'Un Cloud Privé On-Premise pur',
-        'Un Cloud Hybride avec débordement de charge (Cloud Bursting)',
-        'Un Cloud Communautaire isolé',
-        'Un hébergement mutualisé classique'
+        "Un Cloud Hybride avec débordement de charge (Cloud Bursting)",
+        "Un Cloud Privé On-Premise pur, sans aucune extension externe possible",
+        "Un Cloud Communautaire isolé, mutualisé entre organismes partenaires",
+        "Un hébergement mutualisé classique chez un hébergeur web traditionnel"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Cloud hybride articule ressources privées permanentes et extension élastique vers le Cloud public lors de fortes pointes de trafic (Cloud Bursting).'
     }
   ],

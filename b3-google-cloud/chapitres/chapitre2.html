@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -268,10 +266,11 @@ CHECK_ROLE member=user:alice@cloud.corp role=roles/storage.objectViewer
 AUDIT_PRIMITIVE_ROLES</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Cherchez uniquement la paire membre-rôle dans le registre local ; ne déduisez aucune décision d’accès.</li>
         <li>Pour l’audit, comptez les liaisons aux trois rôles de base et triez les membres concernés.</li>
+        <li>Inspectez chaque binding IAM (member, role) et signalez tout rôle primitif large (roles/owner, editor, viewer) tout en rappelant que les refus/conditions org peuvent primer.</li>
       </ol>
     </details>
   </div>
@@ -281,24 +280,28 @@ AUDIT_PRIMITIVE_ROLES</pre></div>
      data-exercise="gcp3-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c2-e2) — Générateur et Linter de Rôles Personnalisés (Custom Roles)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="AquaRivo, gestionnaire de piscines connectées, recense ses besoins :&#10;- Rose doit consulter l'état des machines virtuelles → roles/compute.viewer ;&#10;- Théo doit gérer tous les objets du bucket de données (lecture, écriture, suppression) → roles/storage.objectAdmin ;&#10;- Inès doit consulter les tableaux de bord de monitoring → roles/monitoring.viewer ;&#10;- Marc, ancien admin, ne gère que les VM → on remplace roles/editor par roles/compute.instanceAdmin.v1 ;&#10;- le rôle primitif en lecture seule est viewer.&#10;&#10;1) Rose : roles/compute.viewer.&#10;2) Théo : roles/storage.objectAdmin.&#10;3) Inès : roles/monitoring.viewer.&#10;4) Marc : roles/compute.instanceAdmin.v1.&#10;5) Rôle primitif en lecture seule : viewer.">
+  <script type="text/plain" data-lab-starter># Exercice — Moindre privilège : les rôles de CargoLys
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : le nom complet du rôle (roles/...). Question 5 : un seul mot anglais.
 
-[Cas 1 — Rejet stage invalide]
-# Données : CUSTOM_ROLE_LINT id=roleDev stage=PRODUCTION perms=compute.instances.get
+[Question 1 — Rôle de Sarah, l'auditrice]
 A_COMPLETER
 
-[Cas 2 — Rejet permission mal formée]
-# Données : CUSTOM_ROLE_LINT id=roleDev stage=GA perms=compute.instances,storage.buckets.get
+[Question 2 — Rôle de Karim, l'intégrateur]
 A_COMPLETER
 
-[Cas 3 — Rejet permission d organisation au niveau projet]
-# Données : CUSTOM_ROLE_LINT id=roleSec stage=BETA perms=compute.instances.list,resourcemanager.organizations.setIamPolicy
+[Question 3 — Rôle de Nadia, l'exploitante]
+A_COMPLETER
+
+[Question 4 — Rôle prédéfini suffisant pour Omar]
+A_COMPLETER
+
+[Question 5 — Rôle primitif en lecture seule]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Générateur et Linter de Rôles Personnalisés (Custom Roles)</h3>
+    <h3 class="lab__title">Exercice 2 — Moindre privilège : les rôles de CargoLys</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -307,27 +310,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider la structure et la liste de permissions atomiques d'un rôle IAM personnalisé Google Cloud.</p>
-    <div class="lab__brief"><p>Un rôle personnalisé (Custom Role) GCP permet d'assembler des permissions atomiques précises.<br><br>
-Règles de conformité :<br>
-- <code>stage</code> doit appartenir à <code>ALPHA</code>, <code>BETA</code>, <code>GA</code>, <code>DEPRECATED</code>.<br>
-- Chaque permission doit respecter le format standard à 3 segments : <code>&lt;service&gt;.&lt;resource&gt;.&lt;action&gt;</code> (ex: <code>compute.instances.create</code>, <code>storage.buckets.get</code>).<br>
-- Les permissions d'administration d'organisation (ex: commençant par <code>resourcemanager.organizations.</code>) sont strictement interdites dans un projet.<br><br>
-Paramètres soumis à l’analyse :<br>
-<code>CUSTOM_ROLE_LINT id=&lt;id&gt; stage=&lt;stage&gt; perms=&lt;p1,p2,...&gt;</code>.<br>
-Résultats d’analyse attendus :<br>
-- Si valide : <code>ROLE_LINT: id=&lt;id&gt; stage=&lt;stage&gt; perms_count=&lt;N&gt; status=VALID</code><br>
-- Si stage invalide : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=INVALID_STAGE</code><br>
-- Si permission mal formée (ne comporte pas exactement 2 points) : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=MALFORMED_PERMISSION perm=&lt;p&gt;</code><br>
-- Si permission d'organisation interdite : <code>ROLE_LINT: id=&lt;id&gt; status=INVALID reason=FORBIDDEN_ORG_PERMISSION perm=&lt;p&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Sélectionner le rôle prédéfini adapté à chaque besoin métier et appliquer le principe du moindre privilège.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> CargoLys, transporteur havrais, refond les accès IAM de son projet <code>prj-cargolys-prod</code>. L'administrateur recense quatre besoins précis et le catalogue des rôles prédéfinis disponibles :</p><table><tr><th>Rôle prédéfini</th><th>Permissions</th></tr><tr><th>roles/storage.objectViewer</th><td>Lire les objets des buckets</td></tr><tr><th>roles/storage.objectCreator</th><td>Créer des objets dans les buckets</td></tr><tr><th>roles/compute.instanceAdmin.v1</th><td>Administrer les instances Compute Engine</td></tr><tr><th>roles/logging.viewer</th><td>Consulter les journaux</td></tr></table><ul><li><strong>Sarah, auditrice :</strong> uniquement consulter les fichiers de factures stockés dans un bucket ;</li><li><strong>Karim, intégrateur :</strong> déposer des fichiers dans le bucket des manifestes, sans jamais pouvoir en supprimer ;</li><li><strong>Nadia, exploitante :</strong> lire les journaux d'exécution des traitements, sans toucher aux ressources ;</li><li><strong>Omar, ancien administrateur :</strong> bénéficie encore du rôle primitif roles/editor alors qu'il ne gère que les machines virtuelles.</li></ul><p>Pour les questions 1 à 4, répondez avec le nom complet du rôle (au format roles/...).</p><ol><li>Quel rôle accorder à Sarah ?</li><li>Quel rôle accorder à Karim ?</li><li>Quel rôle accorder à Nadia ?</li><li>Quel rôle prédéfini suffit à Omar pour remplacer roles/editor ?</li><li>Quel rôle primitif correspond à un accès en lecture seule sur l'ensemble du projet ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CUSTOM_ROLE_LINT id=devCustomStorage stage=GA perms=storage.buckets.get,storage.objects.list,storage.objects.get</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AquaRivo, gestionnaire de piscines connectées, recense ses besoins :
+- Rose doit consulter l'état des machines virtuelles → roles/compute.viewer ;
+- Théo doit gérer tous les objets du bucket de données (lecture, écriture, suppression) → roles/storage.objectAdmin ;
+- Inès doit consulter les tableaux de bord de monitoring → roles/monitoring.viewer ;
+- Marc, ancien admin, ne gère que les VM → on remplace roles/editor par roles/compute.instanceAdmin.v1 ;
+- le rôle primitif en lecture seule est viewer.
+
+1) Rose : roles/compute.viewer.
+2) Théo : roles/storage.objectAdmin.
+3) Inès : roles/monitoring.viewer.
+4) Marc : roles/compute.instanceAdmin.v1.
+5) Rôle primitif en lecture seule : viewer.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Validez d abord le stage dans ("ALPHA", "BETA", "GA", "DEPRECATED").</li>
-        <li>Découpez les permissions sur la virgule et testez p.count(".") == 2 et non p.startswith("resourcemanager.organizations.").</li>
+        <li>Partez du besoin exprimé et cherchez le rôle qui le couvre exactement, sans permission superflue : c'est le principe du moindre privilège.</li>
+        <li>Les noms des rôles prédéfinis décrivent le service puis l'action : objectViewer lit, objectCreator crée, instanceAdmin administre les machines virtuelles.</li>
+        <li>1. Sarah ne lit que des objets. 2. Karim ne crée que des objets. 3. Nadia ne consulte que des journaux. 4. Omar ne gère que des machines. 5. Parmi viewer, editor et owner, lequel ne fait que lire ?</li>
       </ol>
     </details>
   </div>
@@ -337,20 +341,31 @@ Résultats d’analyse attendus :<br>
      data-exercise="gcp3-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY&#10;AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-abc-123 age_days=45">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c2-e3) — Gouvernance des Comptes de Service et Rotation de Clés
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="OndeLibre, webradio, audite le 1er janvier 2026 le compte de service&#10;sa-diffusion@prj-onde.iam.gserviceaccount.com.&#10;Politique de rotation : 24 mois maximum. Trois clés :&#10;key-1 créée le 1er octobre 2023 (jamais utilisée) → 27 mois ;&#10;key-2 créée le 1er novembre 2023 (utilisée hier) → 26 mois ;&#10;key-3 créée le 1er juin 2024 (utilisée hier) → 19 mois.&#10;&#10;1) key-1 : 27 mois.&#10;2) key-2 : 26 mois.&#10;3) key-3 : 19 mois.&#10;4) 2 clés violent la politique (27 et 26 mois dépassent 24).&#10;5) key-1, jamais utilisée, doit être supprimée immédiatement.&#10;6) La VM de diffusion utilise un compte de service attaché, sans clé JSON.">
+  <script type="text/plain" data-lab-starter># Exercice — Comptes de service et clés de Vitalis Santé
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : le nombre seul. Questions 5 et 6 : réponses courtes.
 
-[Cas 1 — Clé de compte de service expirée dépassant 90 jours]
-# Données : AUDIT_SA email=backup-sa@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-xyz-999 age_days=120
+[Question 1 — Âge en mois de la clé key-a]
 A_COMPLETER
 
-[Cas 2 — Clé exactement au seuil de 90 jours]
-# Données : AUDIT_SA email=ci-runner@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-limit-90 age_days=90
+[Question 2 — Âge en mois de la clé key-b]
+A_COMPLETER
+
+[Question 3 — Âge en mois de la clé key-c]
+A_COMPLETER
+
+[Question 4 — Nombre de clés hors politique]
+A_COMPLETER
+
+[Question 5 — Clé à supprimer immédiatement]
+A_COMPLETER
+
+[Question 6 — Compte de service utilisable sans clé JSON sur une VM]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Gouvernance des Comptes de Service et Rotation de Clés</h3>
+    <h3 class="lab__title">Exercice 3 — Comptes de service et clés de Vitalis Santé</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -359,29 +374,29 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'âge des clés de comptes de service Google Cloud et promouvoir les identités sans clé (Workload Identity).</p>
-    <div class="lab__brief"><p>Dans Google Cloud, les comptes de service (Service Accounts - SA) permettent aux applications d'interagir avec les API :<br>
-Nom de compte standard : <code>&lt;nom&gt;@&lt;projet&gt;.iam.gserviceaccount.com</code>.<br><br>
-Types d'authentification :<br>
-1. <code>WORKLOAD_IDENTITY</code> : identité fédérée sans clé JSON stockée (recommandation Google, risque = ZERO).<br>
-2. Clé de compte de service utilisateur (User-Managed Key) : clé au format JSON exportable.<br>
-   Règle de conformité de sécurité CIS GCP : rotation obligatoire tous les 90 jours maximum.<br>
-   - Si <code>age_days &gt; 90</code> : <code>EXPIRED_REQUIRES_ROTATION</code><br>
-   - Si <code>age_days &lt;= 90</code> : <code>ACTIVE_COMPLIANT</code><br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>AUDIT_SA email=&lt;sa_email&gt; auth_mode=WORKLOAD_IDENTITY</code> :<br>
-   <code>SA_AUDIT: email=&lt;email&gt; mode=WORKLOAD_IDENTITY status=HIGHLY_SECURE risk=ZERO</code><br>
-2. <code>AUDIT_SA email=&lt;sa_email&gt; auth_mode=SERVICE_ACCOUNT_KEY key_id=&lt;id&gt; age_days=&lt;N&gt;</code> :<br>
-   <code>SA_AUDIT: email=&lt;email&gt; key_id=&lt;id&gt; age_days=&lt;N&gt; status=&lt;ACTIVE_COMPLIANT|EXPIRED_REQUIRES_ROTATION&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'âge des clés d'un compte de service, statuer sur une politique de rotation et recommander une posture sans clé.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Vitalis Santé, plateforme de télémédecine nantaise, utilise le compte de service <code>sa-export@prj-vitalis-prod.iam.gserviceaccount.com</code> pour exporter chaque nuit des synthèses chiffrées depuis une VM Compute Engine. L'audit de sécurité du <strong>1er mars 2026</strong> relève trois clés JSON actives :</p><table><tr><th>Clé</th><th>Créée le</th><th>Dernière utilisation</th></tr><tr><th>key-a</th><td>1er avril 2024</td><td>jamais détectée</td></tr><tr><th>key-b</th><td>1er mai 2025</td><td>cette semaine</td></tr><tr><th>key-c</th><td>1er septembre 2024</td><td>janvier 2026</td></tr></table><p>La politique de sécurité impose une <strong>rotation des clés à 12 mois maximum</strong>.</p><ol><li>Quel âge, en mois, la clé key-a a-t-elle au jour de l'audit ?</li><li>Quel âge, en mois, la clé key-b a-t-elle ?</li><li>Quel âge, en mois, la clé key-c a-t-elle ?</li><li>Combien de clés violent la politique de rotation ?</li><li>Quelle clé n'a jamais servi et doit être supprimée immédiatement ?</li><li>Comment s'appelle un compte de service directement associé à la VM, utilisable sans aucune clé JSON exportée ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUDIT_SA email=gke-app@proj-prod.iam.gserviceaccount.com auth_mode=WORKLOAD_IDENTITY
-AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_ACCOUNT_KEY key_id=key-abc-123 age_days=45</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OndeLibre, webradio, audite le 1er janvier 2026 le compte de service
+sa-diffusion@prj-onde.iam.gserviceaccount.com.
+Politique de rotation : 24 mois maximum. Trois clés :
+key-1 créée le 1er octobre 2023 (jamais utilisée) → 27 mois ;
+key-2 créée le 1er novembre 2023 (utilisée hier) → 26 mois ;
+key-3 créée le 1er juin 2024 (utilisée hier) → 19 mois.
+
+1) key-1 : 27 mois.
+2) key-2 : 26 mois.
+3) key-3 : 19 mois.
+4) 2 clés violent la politique (27 et 26 mois dépassent 24).
+5) key-1, jamais utilisée, doit être supprimée immédiatement.
+6) La VM de diffusion utilise un compte de service attaché, sans clé JSON.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Branchez selon auth_mode == "WORKLOAD_IDENTITY" ou "SERVICE_ACCOUNT_KEY".</li>
-        <li>Comparez int(age_days) &lt;= 90 pour le statut de conformité.</li>
+        <li>Comptez les mois entiers entre la date de création de chaque clé et le 1er mars 2026, d'anniversaire en anniversaire.</li>
+        <li>Comparez chaque âge au plafond de 12 mois : une clé au-delà viole la politique, même si elle sert encore.</li>
+        <li>1. key-a est née en avril 2024 : elle a plus de deux ans. 2. key-b est née en mai 2025. 3. key-c a dépassé un an et demi. 4. Comptez les clés de plus de 12 mois. 5. La clé jamais utilisée ne dessert aucun service. 6. Une VM peut porter son identité sans fichier de clé : le compte est dit... attaché.</li>
       </ol>
     </details>
   </div>
@@ -394,30 +409,30 @@ AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_AC
     <div class="q">
       <p class="q__stem">Pourquoi l'attribution de rôles primitifs (comme roles/editor) est-elle proscrite dans un environnement de production ?</p>
       <div class="opts">
-        <button class="opt">Parce qu'ils sont payants</button>
+        <button class="opt">Parce qu'ils sont payants et facturés à l'usage sur chaque service du projet consommé</button>
+        <button class="opt">Parce qu'ils ne fonctionnent pas avec les instances de machines virtuelles sous Linux</button>
+        <button class="opt">Parce qu'ils empêchent définitivement l'accès à la console web du projet Cloud</button>
         <button class="opt" data-correct="1">Parce qu'ils accordent des privilèges excessifs sur tous les services du projet et violent le moindre privilège</button>
-        <button class="opt">Parce qu'ils ne fonctionnent pas avec Linux</button>
-        <button class="opt">Parce qu'ils empêchent l'accès à la console</button>
       </div>
       <div class="q__exp">Les rôles primitifs accordent des permissions très larges sur l'ensemble des services GCP, ce qui expose l'entreprise à des erreurs catastrophiques ou à des failles de sécurité majeures.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la recommandation de sécurité officielle de Google Cloud pour authentifier des conteneurs GKE auprès des API GCP sans manipuler de clés statiques ?</p>
       <div class="opts">
-        <button class="opt">Télécharger une clé JSON sur chaque conteneur</button>
         <button class="opt" data-correct="1">Utiliser GKE Workload Identity pour lier le compte Kubernetes au compte IAM</button>
-        <button class="opt">Donner le rôle Owner au cluster</button>
-        <button class="opt">Désactiver l'authentification sur les API</button>
+        <button class="opt">Télécharger une clé JSON de compte de service et la monter sur chaque conteneur du pod</button>
+        <button class="opt">Donner le rôle primitif Owner au cluster sur l'ensemble du projet sans restriction</button>
+        <button class="opt">Désactiver l'authentification sur les API afin de simplifier les appels internes</button>
       </div>
       <div class="q__exp">GKE Workload Identity associe directement le ServiceAccount Kubernetes au compte de service GCP, éliminant totalement le besoin de générer ou de stocker des clés JSON privées.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est le format standard d'une permission atomique dans Google Cloud ?</p>
       <div class="opts">
-        <button class="opt">action:resource:service</button>
+        <button class="opt">action:resource:service, avec l'action en tête de la permission</button>
         <button class="opt" data-correct="1">service.resource.action (ex: compute.instances.create)</button>
-        <button class="opt">service/action/resource</button>
-        <button class="opt">permission_service_action</button>
+        <button class="opt">service/action/resource, séparés par des barres obliques</button>
+        <button class="opt">permission_service_action, préfixée par le mot permission</button>
       </div>
       <div class="q__exp">Les permissions atomiques GCP respectent rigoureusement la convention à trois segments « service.resource.action » (ex: storage.buckets.list ou compute.instances.start).</div>
     </div>
@@ -425,8 +440,8 @@ AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_AC
       <p class="q__stem">Selon le référentiel de conformité CIS Google Cloud Benchmark, quel est l'âge maximal autorisé pour une clé de compte de service avant rotation obligatoire ?</p>
       <div class="opts">
         <button class="opt">30 jours</button>
-        <button class="opt" data-correct="1">90 jours</button>
         <button class="opt">180 jours</button>
+        <button class="opt" data-correct="1">90 jours</button>
         <button class="opt">365 jours</button>
       </div>
       <div class="q__exp">Le benchmark CIS GCP impose une rotation obligatoire des clés gérées par l'utilisateur au minimum tous les 90 jours pour limiter la durée d'exposition en cas de fuite discrète.</div>
@@ -436,8 +451,8 @@ AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_AC
       <div class="opts">
         <button class="opt">SQL</button>
         <button class="opt">JavaScript</button>
-        <button class="opt" data-correct="1">CEL (Common Expression Language)</button>
         <button class="opt">Bash</button>
+        <button class="opt" data-correct="1">CEL (Common Expression Language)</button>
       </div>
       <div class="q__exp">Google Cloud utilise CEL (Common Expression Language), un langage d'expression rapide et sûr développé par Google, pour évaluer les conditions logiques et temporelles d'activation des rôles.</div>
     </div>
@@ -559,7 +574,7 @@ AUDIT_SA email=legacy-app@proj-prod.iam.gserviceaccount.com auth_mode=SERVICE_AC
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

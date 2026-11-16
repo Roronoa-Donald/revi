@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -237,10 +235,11 @@ Résultat d’analyse attendu :
 tcp 10.0.0.5 45892 192.168.1.10 80 GET /admin.php HTTP/1.1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Une signature NIDS inspecte simultanément l’en-tête IP/port et le motif binaire ou textuel du payload.</li>
         <li>Déclenchez l’alerte de sécurité dès que tous les prédicats de la règle de détection sont satisfaits.</li>
+        <li>Pour chaque paquet : vérifier le protocole, la destination et le port, puis chercher le motif dans la charge utile ; si tout correspond, déclencher l alerte.</li>
       </ol>
     </details>
   </div>
@@ -296,10 +295,11 @@ Résultat d’analyse attendu :
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>100 192.168.1.50 FAIL|110 192.168.1.50 FAIL|120 192.168.1.50 FAIL|130 192.168.1.50 FAIL|140 192.168.1.50 FAIL</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Analysez la fréquence temporelle des échecs d’authentification provenant d’une même source IP.</li>
         <li>Dépassement du seuil de tentatives infructueuses = suspicion avérée d’attaque par force brute ou dictionnaire.</li>
+        <li>Pour chaque journal : regrouper les échecs par adresse IP, compter les tentatives, puis signaler la force brute dès que le seuil est atteint.</li>
       </ol>
     </details>
   </div>
@@ -360,10 +360,11 @@ Résultat d’analyse attendu :
 /usr/bin/bash:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,/tmp/updater.exe:ed01ebfbc9eb5bbea545af4d01bf5f1071661840480439c6e5babe8e080e41aa</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un IoC (Indicateur de Compromission) fournit la preuve technique d’une infection ou intrusion sur le système.</li>
         <li>Confrontez les empreintes collectées aux signatures connues de menaces pour qualifier la compromission.</li>
+        <li>Pour chaque fichier : comparer son empreinte à la base des signatures malveillantes ; une correspondance qualifie la compromission, sinon le système reste sain.</li>
       </ol>
     </details>
   </div>
@@ -386,30 +387,30 @@ Résultat d’analyse attendu :
     <div class="q">
       <p class="q__stem">Quelle est la principale différence opérationnelle entre un NIDS (ex. Snort en écoute passive) et un NIPS ?</p>
       <div class="opts">
+        <button class="opt">Le NIDS déchiffre automatiquement l’intégralité du trafic HTTPS entrant, contrairement au NIPS qui en est incapable</button>
         <button class="opt" data-correct="1">Le NIDS analyse les flux en copie sans bloquer le trafic, alors que le NIPS est placé en coupure (in-line) et peut rejeter les paquets malveillants</button>
-        <button class="opt">Le NIDS déchiffre automatiquement le trafic HTTPS, contrairement au NIPS</button>
-        <button class="opt">Le NIDS ne fonctionne que sur le réseau local, alors que le NIPS ne protège que le cloud</button>
-        <button class="opt">Le NIDS remplace un pare-feu matériel, alors que le NIPS ne surveille que les emails</button>
+        <button class="opt">Le NIDS ne fonctionne que sur le réseau local physique, alors que le NIPS ne protège que les environnements cloud</button>
+        <button class="opt">Le NIDS remplace intégralement un pare-feu matériel, alors que le NIPS ne surveille que les seuls emails entrants</button>
       </div>
       <div class="q__exp">Le NIDS écoute passivement le trafic (via un port miroir SPAN ou un TAP) pour alerter sans impacter la latence réseau, tandis que le NIPS intercepte le trafic en coupure directe et neutralise les attaques en temps réel.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment la contre-mesure « SYN Cookies » protège-t-elle un serveur contre une attaque DDoS par SYN Flood ?</p>
       <div class="opts">
+        <button class="opt">En bloquant automatiquement toutes les adresses IP d’origine asiatique ou américaine jugées dangereuses pour le serveur</button>
+        <button class="opt">En forçant le client navigateur à présenter un cookie HTTP valide avant d’autoriser la moindre négociation TCP</button>
         <button class="opt" data-correct="1">En encodant les informations de connexion dans le numéro de séquence initial TCP (ISN) sans allouer de mémoire noyau tant que le ACK final n’est pas reçu</button>
-        <button class="opt">En bloquant automatiquement toutes les adresses IP d’origine asiatique ou américaine</button>
-        <button class="opt">En forçant le client à utiliser un cookie HTTP avant d’autoriser la négociation TCP</button>
-        <button class="opt">En augmentant la taille de la mémoire vive allouée au pare-feu d’entreprise</button>
+        <button class="opt">En augmentant massivement la taille de la mémoire vive allouée au pare-feu périmétrique d’entreprise</button>
       </div>
       <div class="q__exp">Les SYN Cookies évitent la saturation de la table des demi-connexions : le serveur calcule un ISN cryptographique contenant les paramètres de la connexion. La structure mémoire n’est allouée que si le client renvoie un paquet ACK valide contenant ce cookie.</div>
     </div>
     <div class="q">
       <p class="q__stem">Lors du confinement d’un incident, quelle action vise à limiter sa propagation tout en tenant compte des preuves ?</p>
       <div class="opts">
+        <button class="opt">Réinstaller immédiatement le système d’exploitation de la machine infectée à neuf, sans conservation de sauvegarde</button>
+        <button class="opt">Rédiger immédiatement le rapport de leçons apprises pour la direction générale de l’entreprise</button>
+        <button class="opt">Contacter directement les attaquants pour négocier le montant de la rançon demandée</button>
         <button class="opt" data-correct="1">Limiter la propagation de l’attaque à d’autres machines du système d’information sans altérer les preuves numériques volatiles</button>
-        <button class="opt">Réinstaller immédiatement le système d’exploitation de la machine infectée à neuf</button>
-        <button class="opt">Rédiger le rapport de leçons apprises pour la direction générale</button>
-        <button class="opt">Contacter les attaquants pour négocier le montant de la rançon</button>
       </div>
       <div class="q__exp">Le confinement vise à circonscrire l’incident (ex. isolement réseau d’une machine ou coupure d’un VLAN) pour empêcher la contamination latérale, tout en préservant l’état mémoire pour l’analyse médico-légale.</div>
     </div>
@@ -417,9 +418,9 @@ Résultat d’analyse attendu :
       <p class="q__stem">Quelle caractéristique distingue une attaque DDoS par amplification DNS d’une inondation classique ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">L’attaquant usurpe l’adresse IP de la victime dans des requêtes UDP vers des serveurs récursifs ouverts qui renvoient des réponses beaucoup plus massives à la cible</button>
-        <button class="opt">L’attaquant prend le contrôle physique du routeur frontière de la victime</button>
-        <button class="opt">Le trafic est entièrement encapsulé dans un tunnel SSH sécurisé</button>
-        <button class="opt">L’attaque s’arrête automatiquement dès que la victime redémarre son serveur DNS</button>
+        <button class="opt">L’attaquant parvient à prendre physiquement le contrôle du routeur frontière de la victime pour en dévier l’intégralité du trafic</button>
+        <button class="opt">L’intégralité du trafic de l’attaque est encapsulée dans un tunnel SSH chiffré, et reste donc totalement indétectable</button>
+        <button class="opt">L’attaque cesse automatiquement et définitivement dès que la victime redémarre l’intégralité de son serveur DNS local</button>
       </div>
       <div class="q__exp">L’amplification UDP tire parti de l’absence de connexion en UDP : en forgeant l’IP source (spoofing) et en envoyant des requêtes provoquant de très grosses réponses DNS, le volume de trafic reçu par la victime est multiplié par un facteur de 50 à 70.</div>
     </div>
@@ -543,7 +544,7 @@ Résultat d’analyse attendu :
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

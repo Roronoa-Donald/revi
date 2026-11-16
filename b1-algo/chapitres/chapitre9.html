@@ -6,30 +6,35 @@
 <title>Chapitre 9 — Algorithmes classiques | Algorithmique B1</title>
 <meta name="description" content="Chapitre 9 du cours d'algorithmique B1 : tri à bulles optimisé, recherche dichotomique et récursivité (cas de base, Euclide). Théorie, exemples, exercices exécutables, QCM corrigés.">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
-  <link rel="stylesheet" href="/assets/css/code-lab.css">
+  <link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<script src="/assets/js/theme.js"></script>
 </head>
 <body data-chapter="9">
 
-<nav class="alnav"><div class="alnav__in">
+<header class="alnav" role="banner"><div class="alnav__in">
   <a class="alnav__home" href="/" title="Accueil — Tous les portails" aria-label="Accueil — Tous les portails"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg> <span>Portail</span></a>
   <span class="alnav__sep" aria-hidden="true">/</span>
   <a class="alnav__brand" href="../index.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-code"></use></svg> Algo B1</a>
-  <div class="alnav__links">
+  <nav class="alnav__links" aria-label="Navigation du cours">
     <a href="../sommaire.html">Sommaire</a>
-    <a href="chapitre8.html">Ch. 8</a>
-    <a href="chapitre9.html" class="is-active">Ch. 9</a>
+    <a href="chapitre1.html" class="is-active">Chapitres</a>
     <a href="cartes.html">Cartes</a>
-    <a href="formules.html">Mémo</a>
+    <a href="formules.html">Formules</a>
     <a href="../exercices/exercices.html">Exercices</a>
     <a href="../atelier.html">Atelier</a>
-    <a href="simulateur-examen.html">Examen</a>
+    <a href="simulateur-examen.html">Simulateur</a>
+  </nav>
+  <div class="alnav__actions">
+    <button type="button" id="themeToggle" class="theme-toggle" aria-label="Basculer le thème clair ou sombre" title="Changer de thème">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
   </div>
-</div></nav>
+</div></header>
 
 <main class="alwrap">
   <p class="crumb"><a href="../index.html">Algo B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 9</p>
@@ -146,6 +151,21 @@ fin = n - 1
     <tr><td>pgcd(0, 0)</td><td>convention</td><td>0</td></tr>
   </table>
 
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Schéma de la pile d'appels (Call Stack) — Exemple de <code>Fact(3)</code></div>
+    <p>Pour bien visualiser comment l'ordinateur exécute une fonction récursive comme la factorielle (<code>Fact(n) = 1</code> si <code>n &lt;= 1</code>, sinon <code>n * Fact(n - 1)</code>), suivez l'aller-retour dans la pile d'appels :</p>
+    <pre><code>Descente des appels : Fact(3) → 3 * Fact(2) → 3 * (2 * Fact(1))
+  ├─ Niveau 1 : Fact(3) attend le résultat de Fact(2)   [n = 3]
+  ├─ Niveau 2 : Fact(2) attend le résultat de Fact(1)   [n = 2]
+  └─ Niveau 3 : Fact(1) atteint le cas de base (n &lt;= 1) et renvoie 1
+
+Remontée des résultats : Fact(1)=1 → Fact(2)=2 → Fact(3)=6
+  ├─ Niveau 3 renvoie 1
+  ├─ Niveau 2 calcule 2 * 1 = 2 et renvoie 2
+  └─ Niveau 1 calcule 3 * 2 = 6 et renvoie 6</code></pre>
+    <p><strong>Pourquoi ce n'est pas une définition circulaire :</strong> un débutant a souvent l'impression qu'une fonction qui s'appelle elle-même tourne en rond à l'infini. Il n'y a <em>aucune</em> définition circulaire car <code>n</code> décroît strictement à chaque étape (<code>n - 1</code> : de <code>3</code> à <code>2</code>, puis à <code>1</code>) jusqu'à atteindre obligatoirement le cas de base (<code>n &lt;= 1</code>), qui répond immédiatement sans faire de nouvel appel.</p>
+  </div>
+
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique</div>
     <p>« D'abord la base, ensuite la baisse » : le cas de base s'écrit avant tout, et chaque appel doit faire
@@ -161,29 +181,32 @@ fin = n - 1
   réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
   <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
   s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
-  <p>La validation est suspendue pour les exercices signalés ci-dessous.</p>
 <div class="lab" id="algo-c9-e1" data-lab
      data-exercise="algo-c9-e1"
-     data-language="python"
+     data-language="algo"
      data-height="300"
      data-stdin="5&#10;5&#10;2&#10;8&#10;1&#10;9">
-  <script type="text/plain" data-lab-starter>n = int(input())
-tableau = []
-for i in range(n):
-    tableau.append(int(input()))
+  <script type="text/plain" data-lab-starter>Début
+  Lire n
+  Tableau t[n] : Entiers
+  Pour i De 0 A n - 1 Faire
+    Lire t[i]
+  FinPour
 
-# À compléter : tri à bulles avec arrêt anticipé.
+  // À compléter : tri à bulles avec arrêt anticipé (un passage sans
+  // échange suffit), puis affichage des valeurs et du nombre de passages.
+Fin
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Tri à bulles</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Pseudo-code</span>
       <span class="badge badge--n4">Niveau 4 — Examen</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Implémenter le tri à bulles avec arrêt anticipé.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Après chaque passage, réduisez d’une case la partie encore à comparer. Arrêtez dès qu’un passage n’échange rien ou que cette partie compte au plus une case. Interdits : <code>sort()</code>, <code>sorted()</code>. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p><p>La validation vérifie la méthode sur des cas limités et analyse une forme simple de Python : pas d’import ni d’appel indirect ; seules les méthodes <code>append</code> et <code>join</code> sont prises en charge. Une solution hors de ce cadre ou dont la méthode ne peut pas être établie ne reçoit pas de note : demandez une relecture. Ces contrôles ne prouvent pas tous les cas.</p></div>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers. Triez-les par la méthode des bulles : répétez des passages qui échangent les paires voisines mal ordonnées. Après chaque passage, réduisez d’une case la partie encore à comparer. Arrêtez dès qu’un passage n’échange rien ou que cette partie compte au plus une case. Affichez les valeurs triées sur une ligne, séparées par des espaces, suivies du nombre de passages effectués sur la ligne suivante.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
 5
@@ -196,10 +219,11 @@ for i in range(n):
     </div>
     <p class="lab__note">Quatre passages pour trier cinq valeurs.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Chaque passage remonte la plus grande valeur non classée vers sa place définitive : la partie à parcourir rétrécit d’une case à chaque passage.</li>
-        <li>Un indicateur booléen, remis à faux au début de chaque passage et relevé dès qu’un échange a lieu, dit quand s’arrêter.</li>
+        <li>Un passage compare chaque paire voisine de la partie non triée et échange quand l’ordre est mauvais.</li>
+        <li>Deux conditions d’arrêt se combinent : soit un passage complet n’a fait aucun échange, soit la partie à comparer est réduite à une case.</li>
+        <li>Étapes : passages = 0, a_trier = VRAI, limite = n ; TantQue a_trier ET limite &gt; 1 Faire : a_trier = FAUX ; comparer et échanger les voisins jusqu’à limite - 2 ; limite = limite - 1 ; passages = passages + 1 ; afficher la ligne triée puis passages.</li>
       </ol>
     </details>
   </div>
@@ -207,30 +231,32 @@ for i in range(n):
 
 <div class="lab" id="algo-c9-e2" data-lab
      data-exercise="algo-c9-e2"
-     data-grading-suspended="1"
-     data-language="python"
+     data-language="algo"
      data-height="300"
      data-stdin="5&#10;2&#10;5&#10;8&#10;12&#10;20&#10;12">
-  <script type="text/plain" data-lab-starter>n = int(input())
-tableau = []
-for i in range(n):
-    tableau.append(int(input()))
-cible = int(input())
+  <script type="text/plain" data-lab-starter>Début
+  Lire n
+  Tableau t[n] : Entiers
+  Pour i De 0 A n - 1 Faire
+    Lire t[i]
+  FinPour
+  Lire cible
 
-# À compléter : recherche dichotomique.
+  // À compléter : recherche dichotomique avec bornes gauche et droite,
+  // milieu recalculé à chaque tour ; afficher la position (à partir
+  // de 1) ou "absent".
+Fin
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Recherche dichotomique</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Pseudo-code</span>
       <span class="badge badge--n4">Niveau 4 — Examen</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Diviser l’espace de recherche à chaque étape.</p>
-    <p class="lab__note" id="algo-c9-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : elle ne vérifie pas la méthode demandée.</p>
-    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers <strong>triés en ordre croissant</strong>, puis une valeur cible. Implémentez la recherche dichotomique (interdits : <code>index()</code>, <code>in</code>) et affichez la position de la cible (positions numérotées à partir de 1), ou <code>absent</code>.</p></div>
+    <div class="lab__brief"><p>Le programme reçoit un entier n, puis n entiers <strong>triés en ordre croissant</strong>, puis une valeur cible. Implémentez la recherche dichotomique (comparer la cible à l’élément médian et éliminer la moitié exclue) et affichez la position de la cible (positions numérotées à partir de 1), ou <code>absent</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
 2
@@ -241,12 +267,13 @@ cible = int(input())
 12</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>4</pre></div>
     </div>
-    <p class="lab__note">12 se trouve à la position 4.</p>
+    <p class="lab__note">Douze se trouve en position 4.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Comparez la cible au milieu de la zone de recherche : le résultat de la comparaison élimine la moitié restante.</li>
-        <li>Déplacez les bornes de la zone, jamais le tableau ; comptez les positions à partir de un à l’affichage.</li>
+        <li>Maintenez deux bornes délimitant la zone où la cible peut encore se trouver.</li>
+        <li>Comparez la cible à l’élément du milieu : égale (trouvé), plus petite (chercher à gauche), plus grande (chercher à droite).</li>
+        <li>Étapes : gauche = 0, droite = n - 1 ; TantQue gauche &lt;= droite : milieu = (gauche + droite) DIV 2 ; Si t[milieu] = cible Alors afficher milieu + 1 et SortirDeBoucle ; Sinon Si t[milieu] &lt; cible Alors gauche = milieu + 1 Sinon droite = milieu - 1 ; si la boucle finit sans succès, afficher absent.</li>
       </ol>
     </details>
   </div>
@@ -254,36 +281,39 @@ cible = int(input())
 
 <div class="lab" id="algo-c9-e3" data-lab
      data-exercise="algo-c9-e3"
-     data-language="python"
+     data-language="algo"
      data-height="300"
      data-stdin="2&#10;10&#10;48&#10;36">
-  <script type="text/plain" data-lab-starter>def puissance(base, exposant):
-    # À compléter : version récursive, sans boucle.
-    pass
+  <script type="text/plain" data-lab-starter>Fonction puissance(base : Entier, exposant : Entier) : Entier
+Début
+  // À compléter : cas de base (exposant nul), puis appel récursif
+  // avec un exposant réduit d'une unité.
+  Retourner 0
+FinFonction
 
+Fonction pgcd(a : Entier, b : Entier) : Entier
+Début
+  // À compléter : algorithme d'Euclide (le reste remplace le diviseur) ;
+  // le résultat est positif ou nul même pour des entrées négatives.
+  Retourner 0
+FinFonction
 
-def pgcd(a, b):
-    # À compléter : algorithme d'Euclide récursif.
-    pass
-
-
-base = int(input())
-exposant = int(input())
-a = int(input())
-b = int(input())
-print(puissance(base, exposant))
-print(pgcd(a, b))
+Début
+  Lire base, exposant, a, b
+  Afficher(puissance(base, exposant))
+  Afficher(pgcd(a, b))
+Fin
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Récursivité — puissance et PGCD</h3>
     <div class="lab__meta">
-      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Pseudo-code</span>
       <span class="badge badge--n5">Niveau 5 — Challenge</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Écrire deux fonctions récursives et les combiner.</p>
-    <div class="lab__brief"><p>Écrivez deux fonctions récursives (aucune boucle) : <code>puissance(base, exposant)</code> renvoie base élevé à l’exposant, et <code>pgcd(a, b)</code> applique l’algorithme d’Euclide. Les quatre entrées sont des entiers garantis dans les bornes <code>|base| ≤ 100</code>, <code>0 ≤ exposant ≤ 200</code> et <code>|a|, |b| ≤ 1000000000000</code>. Le PGCD est positif ou nul, y compris pour les entiers négatifs ; on adopte <code>0 ** 0 == 1</code> et <code>pgcd(0, 0) = 0</code>. Dans le corrigé proposé, la puissance nécessite au plus 201 appels imbriqués, le PGCD au plus 81, et le résultat de la puissance au plus 401 chiffres. Avec une limite de récursion Python usuelle de 1000, ces bornes laissent une marge ; la limite effective dépend de l’environnement. Le programme lit base, exposant, puis a et b, et affiche les deux résultats sur deux lignes.</p><p>La validation vérifie la méthode sur des cas limités et analyse une forme simple de Python : pas d’import ni d’appel indirect ; seules les méthodes <code>append</code> et <code>join</code> sont prises en charge. Une solution hors de ce cadre ou dont la méthode ne peut pas être établie ne reçoit pas de note : demandez une relecture. Ces contrôles ne prouvent pas tous les cas.</p></div>
+    <div class="lab__brief"><p>Écrivez deux fonctions récursives (aucune boucle dans leur corps) : <code>puissance(base, exposant)</code> renvoie base élevée à l’exposant, et <code>pgcd(a, b)</code> applique l’algorithme d’Euclide. Les quatre entrées sont des entiers garantis dans les bornes <code>|base| ≤ 10</code>, <code>0 ≤ exposant ≤ 15</code> et <code>|a|, |b| ≤ 1000000000000</code> : ces bornes assurent des résultats exacts et une profondeur de récursion modérée. Le PGCD est positif ou nul, y compris pour les entiers négatifs ; on adopte <code>puissance(0, 0) = 1</code> et <code>pgcd(0, 0) = 0</code>. Le programme lit base, exposant, puis a et b, et affiche les deux résultats sur deux lignes.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
 10
@@ -292,12 +322,13 @@ print(pgcd(a, b))
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>1024
 12</pre></div>
     </div>
-    <p class="lab__note">2 puissance 10 = 1024 ; PGCD(48, 36) = 12.</p>
+    <p class="lab__note">2 puissance 10 = 1024 ; PGCD de 48 et 36 = 12.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Toute fonction récursive a un cas de base qui répond sans rappel : identifiez-le d’abord pour chaque fonction.</li>
-        <li>La puissance se ramène à la puissance d’exposant inférieur multipliée par la base ; le PGCD de a et b est celui de b et du reste de la division.</li>
+        <li>Chaque fonction récursive écrit d’abord son cas de base : exposant nul pour la puissance, second opérande nul pour le PGCD.</li>
+        <li>Le cas récursif réduit le problème vers le cas de base : l’exposant baisse de un ; pour le PGCD, le reste de la division remplace le diviseur.</li>
+        <li>Étapes : puissance : Si exposant = 0 Alors Retourner 1 Sinon Retourner base × puissance(base, exposant - 1). pgcd : Si b = 0 Alors Retourner Abs(a) Sinon Retourner pgcd(b, a MOD b).</li>
       </ol>
     </details>
   </div>
@@ -319,17 +350,17 @@ print(pgcd(a, b))
       <p class="q__stem">À quoi sert l'indicateur d'échange du tri à bulles ?</p>
       <div class="opts">
         <button class="opt">À compter les valeurs triées</button>
-        <button class="opt" data-correct="1">À détecter un passage sans échange pour s'arrêter</button>
         <button class="opt">À éviter les doublons</button>
+        <button class="opt" data-correct="1">À détecter un passage sans échange pour s'arrêter</button>
       </div>
       <div class="q__exp">Un passage sans échange signifie que le tableau est trié.</div>
     </div>
     <div class="q">
       <p class="q__stem">Condition indispensable pour utiliser la recherche dichotomique ?</p>
       <div class="opts">
-        <button class="opt">Le tableau doit contenir des entiers</button>
-        <button class="opt">Le tableau doit être de taille paire</button>
         <button class="opt" data-correct="1">Le tableau doit être trié</button>
+        <button class="opt">Le tableau doit être de taille paire</button>
+        <button class="opt">Le tableau doit contenir des entiers</button>
       </div>
       <div class="q__exp">Sans tri, la comparaison au milieu n'élimine rien.</div>
     </div>
@@ -346,16 +377,16 @@ print(pgcd(a, b))
       <p class="q__stem">Tout algorithme récursif comporte obligatoirement…</p>
       <div class="opts">
         <button class="opt">Une boucle TantQue</button>
-        <button class="opt" data-correct="1">Un cas de base qui s'arrête sans rappel</button>
         <button class="opt">Deux fonctions</button>
+        <button class="opt" data-correct="1">Un cas de base qui s'arrête sans rappel</button>
       </div>
       <div class="q__exp">Sans cas de base, la récursion ne s'arrête jamais.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que renvoie pgcd(a, 0) pour tout entier a ?</p>
       <div class="opts">
-        <button class="opt">Toujours 0</button>
         <button class="opt" data-correct="1">abs(a)</button>
+        <button class="opt">Toujours 0</button>
         <button class="opt">Toujours a</button>
       </div>
       <div class="q__exp">Le cas de base renvoie la valeur absolue : pour a = -8, c'est 8, donc ni 0 ni a.
@@ -435,6 +466,29 @@ print(pgcd(a, b))
   Sources : supports B1 (INF-1002) et sujets d'examen 2024-2025.</p>
 </main>
 
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
 <script src="../assets/js/cours.js"></script>
 <script src="/assets/js/code-lab.js" defer></script>
 </body>

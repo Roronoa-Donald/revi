@@ -88,7 +88,8 @@ async function simulatedQuery(text, params = []) {
 
   // Migration bookkeeping queries during initDB()
   if (
-    sql.startsWith('CREATE TABLE IF NOT EXISTS schema_migrations') ||
+    sql.startsWith('CREATE TABLE IF NOT EXISTS') ||
+    sql.startsWith('CREATE INDEX IF NOT EXISTS') ||
     sql.startsWith('BEGIN') ||
     sql.startsWith('COMMIT') ||
     sql.startsWith('ROLLBACK') ||
@@ -103,7 +104,9 @@ async function simulatedQuery(text, params = []) {
         { name: '002_users.sql' },
         { name: '003_user_level.sql' },
         { name: '004_ai_config.sql' },
-        { name: '005_fedapay_webhook_events.sql' }
+        { name: '005_fedapay_webhook_events.sql' },
+        { name: '006_student_progress_and_exams.sql' },
+        { name: '007_fedapay_and_progress_integrity.sql' }
       ]
     };
   }

@@ -87,7 +87,7 @@ async function harness(testContext, url = chapter) {
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-background-networking']
   });
   const context = await browser.newContext({ serviceWorkers: 'block' });
-  const token = jwt.sign({ userId }, secret);
+  const token = jwt.sign({ userId, level: 'b3', subscribed: true }, secret);
   await context.addCookies([{ name: 'auth_token', value: token, url: origin, httpOnly: true, sameSite: 'Lax' }]);
   const page = await context.newPage();
   page.on('pageerror', error => state.errors.push(error.message));
@@ -480,9 +480,11 @@ test('Chromium : la route réelle masque un cas caché et propose un exemple pou
     assert.doesNotMatch(JSON.stringify(result.body), /SORTIE_PRIVEE_UNIQUE|ERREUR_PRIVEE_UNIQUE/);
     const reportRegion = lab.getByRole('region', { name: 'Résultat de la correction' });
     const report = await reportRegion.innerText();
-    assert.match(report, /données.+cachées/i);
-    assert.match(report, /exemple/i);
-    assert.doesNotMatch(report, /Sortie attendue|Votre sortie|SORTIE_PRIVEE_UNIQUE|ERREUR_PRIVEE_UNIQUE/i);
+    assert.match(report, /données.+cach[eé](?:es|s)/i);
+    assert.match(report, /Indice d’écart/i);
+    assert.match(report, /masquée car identique aux données secrètes/i);
+    assert.match(report, /sortie attendue des tests cachés restent confidentielles/i);
+    assert.doesNotMatch(report, /SORTIE_PRIVEE_UNIQUE|ERREUR_PRIVEE_UNIQUE/i);
     await environment.page.route('**/api/code-help', route => route.fulfill({
       status: 200, contentType: 'application/json',
       body: JSON.stringify({ explanation: 'Vérifiez votre raisonnement.' })
@@ -516,9 +518,18 @@ test('le compte rendu explique les tests cachés sans afficher de diagnostic vid
     });
   });
   for (const report of reports) {
-    assert.match(report.text, /données.+cachées/i, report.reason);
-    assert.match(report.text, /exemple/i, report.reason);
-    assert.doesNotMatch(report.text, /Sortie attendue|Votre sortie|\(aucune\)|\(vide\)/i, report.reason);
+    if (report.reason === 'wrong_output') {
+      assert.match(report.text, /données.+cach[eé](?:es|s)/i, report.reason);
+      assert.match(report.text, /Indice d’écart/i, report.reason);
+      assert.match(report.text, /sortie attendue des tests cachés restent confidentielles/i, report.reason);
+      assert.doesNotMatch(report.text, /Votre sortie|\(aucune\)|\(vide\)/i, report.reason);
+    } else if (report.reason === 'compile_error') {
+      assert.match(report.text, /Le programme ne compile pas/i, report.reason);
+      assert.doesNotMatch(report.text, /Sortie attendue|Votre sortie|\(aucune\)|\(vide\)/i, report.reason);
+    } else {
+      assert.match(report.text, /erreur/i, report.reason);
+      assert.doesNotMatch(report.text, /Sortie attendue|Votre sortie|\(aucune\)|\(vide\)/i, report.reason);
+    }
     assert.equal(report.helpEnabled, true, report.reason);
   }
   assert.deepEqual(environment.state.errors, []);
@@ -540,7 +551,12 @@ test('le compte rendu distingue un exemple affiché d’un test caché', { timeo
   });
   for (const report of reports) {
     assert.match(report.text, /exemple/i, report.reason);
-    assert.doesNotMatch(report.text, /données.+cachées|Sortie attendue|Votre sortie|\(aucune\)|\(vide\)/i, report.reason);
+    assert.doesNotMatch(report.text, /données.+cachées/i, report.reason);
+    if (report.reason === 'wrong_output') {
+      assert.match(report.text, /L’exemple affiché n’est pas validé/i, report.reason);
+    } else {
+      assert.doesNotMatch(report.text, /Sortie attendue|Votre sortie|\(aucune\)|\(vide\)/i, report.reason);
+    }
     assert.equal(report.helpEnabled, true, report.reason);
   }
   assert.deepEqual(environment.state.errors, []);
@@ -598,9 +614,13 @@ test('contrôles occupés et suspension restent fail-closed', { timeout: 60000 }
   assert.deepEqual(environment.state.errors, []);
 
   const originalExecute = execution.execute;
+  const sqExercise = catalogue.getExercise('sq-c1-e1');
+  const originalSqSolution = sqExercise.solution;
   let calls = 0;
   execution.execute = async () => { calls++; throw new Error('exécution interdite'); };
   try {
+    // Lot 2D : 0 exercice suspendu par défaut ; on simule une mutation de fiche pour vérifier le blocage fail-closed.
+    sqExercise.solution = `${originalSqSolution}\n-- mutation`;
     const response = await environment.app.inject({
       method: 'POST',
       url: '/api/exercise/submit',
@@ -611,8 +631,9 @@ test('contrôles occupés et suspension restent fail-closed', { timeout: 60000 }
     assert.equal(response.json().status, 'grading_suspended');
     assert.equal(calls, 0);
     assert.equal(budget.snapshot(`u:${userId}`).used, 0);
-    testContext.diagnostic('suspension SQL : HTTP 503, aucune exécution ni consommation de quota ; aucun POST depuis les contrôles suspendus');
+    testContext.diagnostic('suspension SQL sur mutation : HTTP 503, aucune exécution ni consommation de quota ; aucun POST depuis les contrôles suspendus');
   } finally {
+    sqExercise.solution = originalSqSolution;
     execution.execute = originalExecute;
   }
 });

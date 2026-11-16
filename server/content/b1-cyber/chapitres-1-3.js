@@ -126,14 +126,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'La sécurité informatique est…', opts: ['un synonyme de cybersécurité', 'un sous-ensemble de la cybersécurité', 'un domaine rival'], correct: 1, exp: 'Elle en est le cœur technique ; la cybersécurité englobe en plus l\'organisationnel et l\'humain.' },
+      { stem: 'La sécurité informatique est…', opts: ['un sous-ensemble de la cybersécurité', 'un synonyme de cybersécurité', 'un domaine rival'], correct: 0, exp: 'Elle en est le cœur technique ; la cybersécurité englobe en plus l\'organisationnel et l\'humain.' },
       { stem: 'Un logiciel non mis à jour est…', opts: ['une menace', 'une vulnérabilité', 'un risque'], correct: 1, exp: 'C\'est une faiblesse exploitable : une vulnérabilité. La menace est l\'attaquant qui l\'exploite.' },
-      { stem: 'Risque = Menace × Vulnérabilité × …', opts: ['Probabilité', 'Impact', 'Coût'], correct: 1, exp: 'La formule du cours combine la menace, la vulnérabilité et l\'impact.' },
-      { stem: 'Un dossier médical rendu public viole…', opts: ['la confidentialité', 'l\'intégrité', 'la disponibilité'], correct: 0, exp: 'Des informations réservées sont accessibles à des personnes non autorisées : confidentialité.' },
-      { stem: 'Un ransomware qui chiffre les fichiers viole d\'abord…', opts: ['la confidentialité', 'l\'intégrité', 'la disponibilité'], correct: 2, exp: 'Les données ne sont plus accessibles : c\'est l\'atteinte à la disponibilité.' },
+      { stem: 'Risque = Menace × Vulnérabilité × …', opts: ['Probabilité', 'Coût', 'Impact'], correct: 2, exp: 'La formule du cours combine la menace, la vulnérabilité et l\'impact.' },
+      { stem: 'Un dossier médical rendu public viole…', opts: ['la disponibilité', 'l\'intégrité', 'la confidentialité'], correct: 2, exp: 'Des informations réservées sont accessibles à des personnes non autorisées : confidentialité.' },
+      { stem: 'Un ransomware qui chiffre les fichiers viole d\'abord…', opts: ['la disponibilité', 'l\'intégrité', 'la confidentialité'], correct: 0, exp: 'Les données ne sont plus accessibles : c\'est l\'atteinte à la disponibilité.' },
       { stem: 'Une erreur de manipulation supprimant une base est…', opts: ['une menace naturelle', 'une menace humaine accidentelle', 'une vulnérabilité technique'], correct: 1, exp: 'Menace humaine, mais non intentionnelle : elle se traite par procédures et sauvegardes.' },
-      { stem: 'WannaCry (2017) a exploité…', opts: ['un mot de passe faible', 'une faille Windows non corrigée', 'une pièce jointe de courriel'], correct: 1, exp: 'Le ver a propagé EternalBlue sur des systèmes sans le correctif de mars 2017.' },
-      { stem: 'Le premier bilan d\'un analyste devant un incident est…', opts: ['la triade CIA', 'le budget', 'l\'organigramme'], correct: 0, exp: 'Confidentialité, intégrité, disponibilité : quelle composante est violee ?' }
+      { stem: 'WannaCry (2017) a exploité…', opts: ['un mot de passe faible', 'une pièce jointe de courriel', 'une faille Windows non corrigée'], correct: 2, exp: 'Le ver a propagé EternalBlue sur des systèmes sans le correctif de mars 2017.' },
+      { stem: 'Le premier bilan d\'un analyste devant un incident est…', opts: ['le budget', 'la triade CIA', 'l\'organigramme'], correct: 1, exp: 'Confidentialité, intégrité, disponibilité : quelle composante est violee ?' }
     ],
 
     pitfalls: [
@@ -299,14 +299,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quel malware se propage seul par le réseau ?', opts: ['virus', 'ver', 'spyware'], correct: 1, exp: 'Le ver se réplique sans action humaine ; le virus attend l\'exécution d\'un fichier infecté.' },
+      { stem: 'Quel malware se propage seul par le réseau ?', opts: ['ver', 'virus', 'spyware'], correct: 0, exp: 'Le ver se réplique sans action humaine ; le virus attend l\'exécution d\'un fichier infecté.' },
       { stem: 'WannaCry est avant tout…', opts: ['un virus de macro', 'un ver ransomware', 'un spyware'], correct: 1, exp: 'Il combine propagation de ver et chiffrement à rançon.' },
-      { stem: 'Une URL en adresse IP sur une page de connexion est…', opts: ['normal pour un intranet', 'un indice de phishing', 'un signe de HTTPS'], correct: 1, exp: 'Un service de confiance n\'utilise pas une IP nue pour réclamer des identifiants.' },
-      { stem: 'Une écoute passive…', opts: ['modifie les ressources', 'n\'affecte pas les ressources', 'sature le service'], correct: 1, exp: 'L\'attaque passive observe sans altérer ; l\'active modifie ou perturbe.' },
-      { stem: 'Un DDoS vise…', opts: ['la confidentialité', 'l\'intégrité', 'la disponibilité'], correct: 2, exp: 'Saturer le service le rend indisponible — c\'est le but du déni de service.' },
-      { stem: 'Le MAC spoofing consiste à…', opts: ['casser le chiffrement WPA', 'falsifier l\'adresse MAC d\'une interface', 'installer un AP'], correct: 1, exp: 'Les pilotes permettent de falsifier la MAC et d\'usurper l\'identité d\'une machine autorisée.' },
-      { stem: 'Un employé qui exfiltre des fichiers abuse de…', opts: ['un accès autorisé', 'une faille zero-day', 'un botnet'], correct: 0, exp: 'C\'est une attaque interne : l\'entité autorisée utilise ses accès de façon non approuvée.' },
-      { stem: 'Le MITM viole principalement…', opts: ['la confidentialité', 'la disponibilité', 'le contrôle d\'accès'], correct: 0, exp: 'L\'attaquant intercepte secrètement des messages censés rester privés.' }
+      { stem: 'Une URL en adresse IP sur une page de connexion est…', opts: ['normal pour un intranet', 'un signe de HTTPS', 'un indice de phishing'], correct: 2, exp: 'Un service de confiance n\'utilise pas une IP nue pour réclamer des identifiants.' },
+      { stem: 'Une écoute passive…', opts: ['n\'affecte pas les ressources', 'modifie les ressources', 'sature le service'], correct: 0, exp: 'L\'attaque passive observe sans altérer ; l\'active modifie ou perturbe.' },
+      { stem: 'Un DDoS vise…', opts: ['la confidentialité', 'la disponibilité', 'l\'intégrité'], correct: 1, exp: 'Saturer le service le rend indisponible — c\'est le but du déni de service.' },
+      { stem: 'Le MAC spoofing consiste à…', opts: ["falsifier l'adresse MAC d'une interface","casser le chiffrement WPA du réseau","installer un point d'accès pirate"], correct: 0, exp: 'Les pilotes permettent de falsifier la MAC et d\'usurper l\'identité d\'une machine autorisée.' },
+      { stem: 'Un employé qui exfiltre des fichiers abuse de…', opts: ['un botnet', 'une faille zero-day', 'un accès autorisé'], correct: 2, exp: 'C\'est une attaque interne : l\'entité autorisée utilise ses accès de façon non approuvée.' },
+      { stem: 'Le MITM viole principalement…', opts: ['le contrôle d\'accès', 'la disponibilité', 'la confidentialité'], correct: 2, exp: 'L\'attaquant intercepte secrètement des messages censés rester privés.' }
     ],
 
     pitfalls: [
@@ -465,12 +465,12 @@ module.exports = [
     questions: [
       { stem: 'Code PIN + mot de passe, c\'est…', opts: ['de la 2FA', 'du même facteur', 'de l\'inhérence'], correct: 1, exp: 'Deux preuves de connaissance : la 2FA exige deux catégories différentes.' },
       { stem: 'Le code TOTP change…', opts: ['toutes les 30 secondes', 'chaque jour', 'à chaque connexion'], correct: 0, exp: 'Time-based One-Time Password : le code tourne toutes les 30 secondes.' },
-      { stem: 'L\'empreinte digitale est un facteur de…', opts: ['connaissance', 'possession', 'inhérence'], correct: 2, exp: 'Ce que l\'on est : biométrie.' },
-      { stem: 'Pour 4 machines en symétrique, il faut…', opts: ['4 clés', '6 clés', '8 clés'], correct: 1, exp: 'k(k-1)/2 = 4×3/2 = 6 clés secrètes.' },
+      { stem: 'L\'empreinte digitale est un facteur de…', opts: ['connaissance', 'possession', 'inhérence'], correct: 2, exp: "L'empreinte digitale relève de l'inhérence : ce que l'on est ; la connaissance est ce que l'on sait et la possession ce que l'on détient." },
+      { stem: 'Pour 4 machines en symétrique, il faut…', opts: ['6 clés', '4 clés', '8 clés'], correct: 0, exp: "En symétrique, chaque paire partage une clé : k(k−1)/2, soit 4×3/2 = 6 clés ; 4 et 8 clés ne correspondent à aucune formule." },
       { stem: 'L\'avantage de l\'asymétrique est…', opts: ['la vitesse', 'la distribution des clés', 'la taille des clés'], correct: 1, exp: 'Chacun publie sa clé publique : plus besoin d\'échanger des secrets pour chaque paire.' },
-      { stem: 'Le hachage sert à…', opts: ['garder un secret', 'vérifier l\'intégrité', 'accélérer le réseau'], correct: 1, exp: 'Empreinte fixe et irréversible : elle prouve que la donnée n\'a pas changé.' },
+      { stem: 'Le hachage sert à…', opts: ['garder un secret', 'accélérer le réseau', 'vérifier l\'intégrité'], correct: 2, exp: 'Empreinte fixe et irréversible : elle prouve que la donnée n\'a pas changé.' },
       { stem: 'Le certificat numérique lie…', opts: ['une clé publique à une identité', 'un mot de passe à un compte', 'un port à un protocole'], correct: 0, exp: 'La PKI signe cette liaison : c\'est le rôle de l\'autorité de certification.' },
-      { stem: 'Sur un Wi-Fi public, la mesure attendue est…', opts: ['un VPN', 'un pare-feu local seul', 'changer de navigateur'], correct: 0, exp: 'La politique de mobilité impose le VPN sur les réseaux publics.' }
+      { stem: 'Sur un Wi-Fi public, la mesure attendue est…', opts: ['un pare-feu local seul', 'un VPN', 'changer de navigateur'], correct: 1, exp: 'La politique de mobilité impose le VPN sur les réseaux publics.' }
     ],
 
     pitfalls: [

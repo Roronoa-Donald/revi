@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Calculez total_lignes, card_pays et card_email\nSELECT COUNT(*) FROM commandes;",
     "hints": [
       "Utilisez COUNT(DISTINCT colonne) pour obtenir le nombre de valeurs uniques.",
-      "Nommez les trois colonnes total_lignes, card_pays et card_email."
+      "Nommez les trois colonnes total_lignes, card_pays et card_email.",
+      "1. Compter toutes les lignes de la table. 2. Compter les valeurs distinctes de chaque colonne ciblée. 3. Nommer les trois colonnes exactement comme exigé."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 2            | 1         | 1          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT COUNT(*) AS total_lignes, COUNT(DISTINCT code_pays) AS card_pays, COUNT(DISTINCT email_client) AS card_email FROM commandes;"
+    "solution": "SELECT COUNT(*) AS total_lignes, COUNT(DISTINCT code_pays) AS card_pays, COUNT(DISTINCT email_client) AS card_email FROM commandes;",
+    "takeaway": "Un index B-Tree n’est rentable que lorsque la sélectivité (ratio de valeurs distinctes / lignes) filtre fortement la table cible."
   },
   {
     "id": "sql3-c2-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Créez l’index partiel idx_cmd_en_cours puis interrogez la table\nSELECT id, montant FROM commandes;",
     "hints": [
       "SQLite et PostgreSQL supportent CREATE INDEX nom ON table(col) WHERE condition;",
-      "Ajoutez ensuite la requête SELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
+      "Ajoutez ensuite la requête SELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;",
+      "1. Créer l’index nommé sur la colonne client. 2. Restreindre sa portée aux lignes EN_COURS. 3. Écrire la requête de lecture filtrée et triée par id croissant."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 5  | 45000   |\n+----+---------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "CREATE INDEX idx_cmd_en_cours ON commandes(client_id) WHERE statut = 'EN_COURS';\nSELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
+    "solution": "CREATE INDEX idx_cmd_en_cours ON commandes(client_id) WHERE statut = 'EN_COURS';\nSELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;",
+    "takeaway": "Un index partiel (WHERE actif) réduit drastiquement la taille sur disque et le coût de mise à jour en n’indexant que le sous-ensemble chaud."
   },
   {
     "id": "sql3-c2-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Sélectionnez les tables où n_dead_tup > 50 + 0.20 * n_live_tup\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;",
     "hints": [
       "Écrivez directement la formule dans WHERE : n_dead_tup > 50 + 0.20 * n_live_tup.",
-      "Triez par n_dead_tup DESC."
+      "Triez par n_dead_tup DESC.",
+      "1. Appliquer le seuil autovacuum à chaque table. 2. Ne conserver que les dépassements stricts. 3. Ordonner par nombre de tuples morts décroissant."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+-----------+------------+------------+\n| relname   | n_live_tup | n_dead_tup |\n+-----------+------------+------------+\n| t_depasse | 100        | 71         |\n+-----------+------------+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim WHERE n_dead_tup > 50 + 0.20 * n_live_tup ORDER BY n_dead_tup DESC;"
+    "solution": "SELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim WHERE n_dead_tup > 50 + 0.20 * n_live_tup ORDER BY n_dead_tup DESC;",
+    "takeaway": "Surveiller le ratio de tuples morts déclenche VACUUM à temps pour recycler l’espace libre et éviter le grossissement excessif (bloat)."
   }
 ];

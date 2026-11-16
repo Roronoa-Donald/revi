@@ -147,7 +147,13 @@ test('F89 : la division plancher et ses types sont nuancés dans le cours et les
   assert.doesNotMatch(chapter, /\/\/\s+tronque le résultat/);
   const question = findByClassAndText(page('simulateur-examen.html'), 'q', '10 / 2');
   assert.match(text(question), /types/i);
-  assert.match(correctAnswer(question), /5\.0\s*\(float\).*5\s*\(int\)/i);
+  const clientLeaks = descendants(question).filter(node => node.tagName === 'button' &&
+    (node.attrs || []).some(attribute => attribute.name === 'data-correct' && attribute.value === '1'));
+  assert.equal(clientLeaks.length, 0, 'Le simulateur examen sécurisé ne doit exposer aucun data-correct');
+  const serverExam = require('../server/exercises/handwritten-exam-qcm')['b1-python'] || [];
+  const serverQ = serverExam.find(q => q.stem.includes('10 / 2'));
+  assert.ok(serverQ, 'Question 10 / 2 présente dans le barème serveur');
+  assert.match(serverQ.opts[serverQ.correct], /5\.0\s*\(float\).*5\s*\(int\)/i);
   assert.equal(python('print(-3 // 2)\nprint(7.0 // 2)\nprint(type(7 // 2).__name__)\nprint(type(7.0 // 2).__name__)'), '-2\n3.0\nint\nfloat');
 });
 
@@ -164,13 +170,13 @@ test('F90 : une liste vide fournie est conservée et les défauts ne sont pas pa
 
 test('F32 : les cartes définissent les opérateurs et expliquent l’ordre des branches', testOptions, () => {
   const document = page('cartes.html');
-  const operators = text(findByClassAndText(document, 'fc', 'and / or / not'));
-  const order = text(findByClassAndText(document, 'fc', 'ordre des tests'));
-  assert.match(operators, /deux conditions/);
-  assert.match(operators, /au moins une/);
+  const operators = text(findByClassAndText(document, 'fc', 'and, or et not'));
+  const order = text(findByClassAndText(document, 'fc', 'ordre des conditions'));
+  assert.match(operators, /deux op[eé]randes vrais/);
+  assert.match(operators, /au moins un vrai/);
   assert.match(operators, /inverse/);
-  assert.match(order, /premi[eè]re.*vraie/i);
-  assert.match(order, /100/);
+  assert.match(order, /premier test vrai/i);
+  assert.match(order, /plus restrictif au plus g[eé]n[eé]ral/i);
   assert.doesNotMatch(exercise('py-c2-e2').hints.join(' '), /toujours.*plus exigeant/i);
   assert.equal(python('print(True and False, True or False, not True)'), 'False True False');
 });

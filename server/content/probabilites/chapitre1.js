@@ -85,14 +85,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que décrit l’univers d’une expérience aléatoire ?', opts: ['Ses résultats possibles', 'Sa durée', 'Sa probabilité'], correct: 0, exp: 'L’univers Ω rassemble toutes les issues possibles.' },
-    { stem: 'Que vaut P(Ω) ?', opts: ['0', '1', '1/2'], correct: 1, exp: 'Le premier axiome de Kolmogorov impose P(Ω) = 1.' },
+    { stem: 'Que décrit l’univers d’une expérience aléatoire ?', opts: ['Sa probabilité', 'Sa durée', 'Ses résultats possibles'], correct: 2, exp: 'L’univers Ω rassemble toutes les issues possibles.' },
+    { stem: 'Que vaut P(Ω) ?', opts: ['1', '0', '1/2'], correct: 0, exp: 'Le premier axiome de Kolmogorov impose P(Ω) = 1.' },
     { stem: 'Formule du complément ?', opts: ['P(Ā) = P(A)', 'P(Ā) = 1 − P(A)', 'P(Ā) = 1 + P(A)'], correct: 1, exp: 'A et Ā partitionnent Ω : leurs probabilités somment à 1.' },
-    { stem: 'Formule de la réunion ?', opts: ['P(A) + P(B)', 'P(A) + P(B) − P(A∩B)', 'P(A)·P(B)'], correct: 1, exp: 'Il faut retirer une fois l’intersection comptée deux fois.' },
-    { stem: 'Définition de P(A|B) ?', opts: ['P(A∩B)/P(B)', 'P(A)/P(B)', 'P(A)·P(B)'], correct: 0, exp: 'Conditionner par B réduit l’univers à B.' },
+    { stem: 'Formule de la réunion ?', opts: ['P(A) + P(B) − P(A∩B)', 'P(A) + P(B)', 'P(A)·P(B)'], correct: 0, exp: 'Il faut retirer une fois l’intersection comptée deux fois.' },
+    { stem: 'Définition de P(A|B) ?', opts: ['P(A)·P(B)', 'P(A)/P(B)', 'P(A∩B)/P(B)'], correct: 2, exp: 'Conditionner par B réduit l’univers à B.' },
     { stem: 'Deux événements indépendants vérifient…', opts: ['P(A∩B) = 0', 'P(A∩B) = P(A)·P(B)', 'P(A) = P(B)'], correct: 1, exp: 'L’indépendance équivaut à la factorisation de l’intersection.' },
-    { stem: 'Deux événements incompatibles vérifient…', opts: ['P(A∩B) = 0', 'P(A∩B) = P(A)·P(B)', 'P(A∪B) = 1'], correct: 0, exp: 'Incompatibles = disjoints : l’intersection est vide.' },
-    { stem: 'Sur un univers équiprobable, P(A) vaut…', opts: ['card(A)/card(Ω)', 'card(Ω)/card(A)', 'card(A)'], correct: 0, exp: 'Cas favorables sur cas possibles.' }
+    { stem: 'Deux événements incompatibles vérifient…', opts: ['P(A∩B) = P(A)·P(B)', 'P(A∩B) = 0', 'P(A∪B) = 1'], correct: 1, exp: 'Incompatibles = disjoints : l’intersection est vide.' },
+    { stem: 'Sur un univers équiprobable, P(A) vaut…', opts: ['card(A)/card(Ω)', 'card(Ω)/card(A)', 'card(A)'], correct: 0, exp: "Chaque issue pèse autant : P(A) est le rapport des cas favorables aux cas possibles. Le distracteur card(Ω)/card(A) inverse le rapport et peut dépasser 1, ce qu’une probabilité ne peut jamais faire." }
   ],
 
   pitfalls: [

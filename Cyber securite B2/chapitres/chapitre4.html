@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -233,10 +231,11 @@ Résultat d’analyse attendu :
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>admin' OR '1'='1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Identifiez les caractères syntaxiques d’échappement SQL (guillemets, double tiret de commentaire, clauses OR 1=1).</li>
         <li>La parade absolue contre l’injection SQL est l’utilisation exclusive de requêtes préparées paramétrées.</li>
+        <li>Pour chaque saisie : la normaliser sans tenir compte de la casse, rechercher chaque signature interdite, et valider seulement si aucune n apparaît.</li>
       </ol>
     </details>
   </div>
@@ -289,10 +288,11 @@ Entrée : une chaîne quelconque. Résultat : la chaîne encodée selon ce modè
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>&lt;script&gt;alert("XSS &amp; Pwned");&lt;/script&gt;</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le modèle concerne uniquement une insertion en texte HTML, pas l'évaluation d'une URL ni l'exécution de JavaScript.</li>
         <li>Encodez le perluète en premier, puis les quatre autres caractères ; l'assainissement de HTML autorisé est une autre opération.</li>
+        <li>Pour chaque chaîne : remplacer d abord le perluète, puis les chevrons, guillemets et apostrophes par leurs entités, sans rien changer au reste du texte.</li>
       </ol>
     </details>
   </div>
@@ -344,10 +344,11 @@ Règles d’autorisation :
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>u101;client;doc42;doc42_owner_u101</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La vulnérabilité IDOR survient lorsqu’un contrôle d’autorisation omet de vérifier le propriétaire légitime de l’objet.</li>
         <li>Validez que le jeton de session de l’utilisateur correspond formellement au compte propriétaire de la ressource.</li>
+        <li>Pour chaque requête : accorder l accès si l utilisateur est admin ou propriétaire du document, sinon le refuser en citant le motif correspondant.</li>
       </ol>
     </details>
   </div>
@@ -360,19 +361,19 @@ Règles d’autorisation :
     <div class="q">
       <p class="q__stem">Pourquoi l’utilisation de requêtes préparées (Prepared Statements) élimine-t-elle définitivement le risque d’injection SQL ?</p>
       <div class="opts">
+        <button class="opt">Parce que les requêtes préparées chiffrent automatiquement et intégralement la base de données en AES-256 côté serveur</button>
+        <button class="opt">Parce qu’elles refusent systématiquement toute saisie utilisateur contenant le moindre caractère espace, apostrophe ou guillemet</button>
+        <button class="opt">Parce qu’elles déportent l’intégralité de l’exécution de la requête SQL vers le navigateur web du client distant, hors du serveur</button>
         <button class="opt" data-correct="1">Parce que le moteur SQL sépare rigoureusement la phase de compilation syntaxique de la transmission des données, traitant les paramètres comme de simples valeurs scalaires</button>
-        <button class="opt">Parce que les requêtes préparées chiffrent automatiquement la base de données en AES-256</button>
-        <button class="opt">Parce qu’elles refusent automatiquement toute saisie contenant le caractère espace</button>
-        <button class="opt">Parce qu’elles transfèrent l’exécution de la requête sur le navigateur du client</button>
       </div>
       <div class="q__exp">En séparant la grammaire SQL des données littérales, le moteur de base de données ne réévalue jamais le contenu des paramètres comme une instruction exécutable, ce qui rend l’injection impossible.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel attribut de cookie HTTP empêche formellement un script malveillant injecté par XSS de dérober le cookie de session via document.cookie ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">HttpOnly</button>
-        <button class="opt">Secure</button>
         <button class="opt">SameSite</button>
+        <button class="opt">Secure</button>
+        <button class="opt" data-correct="1">HttpOnly</button>
         <button class="opt">Domain</button>
       </div>
       <div class="q__exp">L’attribut HttpOnly indique au navigateur que le cookie ne doit jamais être accessible via les APIs JavaScript du DOM (document.cookie), neutralisant ainsi le vol de session direct par XSS.</div>
@@ -380,8 +381,8 @@ Règles d’autorisation :
     <div class="q">
       <p class="q__stem">Quelle variante d’attaque XSS consiste à enregistrer définitivement la charge utile malveillante dans la base de données du site visé ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">XSS Stockée (Stored XSS)</button>
         <button class="opt">XSS Réfléchie (Reflected XSS)</button>
+        <button class="opt" data-correct="1">XSS Stockée (Stored XSS)</button>
         <button class="opt">XSS basée sur le DOM (DOM XSS)</button>
         <button class="opt">XSS Aveugle (Blind XSS)</button>
       </div>
@@ -391,9 +392,9 @@ Règles d’autorisation :
       <p class="q__stem">Comment caractérise-t-on une vulnérabilité IDOR (Insecure Direct Object Reference) ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Le serveur autorise l’accès à un objet privé simplement en modifiant son identifiant dans la requête, sans vérifier que l’utilisateur connecté en est le propriétaire</button>
-        <button class="opt">Le serveur utilise un algorithme de hachage cassé comme MD5</button>
-        <button class="opt">Le port SSH 22 est exposé sur Internet sans mot de passe</button>
-        <button class="opt">L’application ne dispose pas de certificat SSL/TLS valide</button>
+        <button class="opt">Le serveur utilise un algorithme de hachage cryptographique cassé comme MD5 pour signer l’ensemble de ses sessions utilisateurs</button>
+        <button class="opt">Le port SSH 22 du serveur applicatif est exposé directement sur l’Internet public sans aucun mot de passe configuré</button>
+        <button class="opt">L’application web ne dispose d’aucun certificat SSL/TLS valide pour chiffrer l’intégralité de ses échanges réseau sortants</button>
       </div>
       <div class="q__exp">L’IDOR survient lorsque l’application expose une référence directe à un objet interne (clé primaire en base) et omet de valider si l’identité authentifiée a le droit légitime de lire ou modifier cet objet.</div>
     </div>
@@ -516,7 +517,7 @@ Règles d’autorisation :
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

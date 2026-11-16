@@ -146,88 +146,88 @@ module.exports = {
       stem: 'Quelle typologie de veille surveille spécifiquement les dépôts de brevets, les nouveaux frameworks et les vulnérabilités CVE ?',
       opts: [
         'Veille sociétale',
-        'Veille technologique',
         'Veille commerciale',
+        'Veille technologique',
         'Veille concurrentielle'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La veille technologique observe l’information scientifique, technique, les protocoles, brevets et failles de sécurité.'
     },
     {
       stem: 'Quelle est la caractéristique fondamentale de la méthode Push en veille d’information ?',
       opts: [
         'Le veilleur doit naviguer manuellement sur chaque site chaque matin',
-        'L’information est poussée automatiquement vers le veilleur selon des critères préétablis (alertes, flux RSS)',
+        'Elle ne fonctionne qu’avec des courriers postaux papier',
         'L’information est conservée secrète sur disque sans être lue',
-        'Elle ne fonctionne qu’avec des courriers postaux papier'
+        'L’information est poussée automatiquement vers le veilleur selon des critères préétablis (alertes, flux RSS)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'En mode Push, des systèmes d’alertes automatisés signalent immédiatement au veilleur la parution de nouveaux contenus.'
     },
     {
       stem: 'Une entreprise qui découvre la sortie d’un produit concurrent six mois après son lancement et tente d’adapter ses tarifs en catastrophe adopte une posture :',
       opts: [
-        'Proactive',
         'Réactive',
+        'Proactive',
         'Prospective',
         'Prédictive'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La posture réactive subit les évolutions de l’environnement a posteriori et s’adapte sous la contrainte dans l’urgence.'
     },
     {
       stem: 'Quel type de fréquence de veille permet d’intercepter en continu les alertes zero-day et les signaux faibles ?',
       opts: [
         'Veille ponctuelle',
-        'Veille annuelle',
         'Veille permanente',
+        'Veille annuelle',
         'Veille rétrospective'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'La veille permanente opère en continu et en temps réel pour capter immédiatement les événements critiques.'
     },
     {
       stem: 'Quelle norme française de référence encadre les prestations et le système de management de veille ?',
       opts: [
         'ISO 9001',
-        'AFNOR XP X50-053',
         'RFC 793',
+        'AFNOR XP X50-053',
         'IEEE 802.3'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La norme AFNOR XP X50-053 définit les prestations et exigences méthodologiques pour la gestion de la veille en entreprise.'
     },
     {
       stem: 'Que désigne le « coût d’inaction » dans l’analyse économique de la veille stratégique ?',
       opts: [
-        'Le coût des abonnements aux revues',
-        'Les pertes financières subies ou les litiges encourus faute d’avoir anticipé une information clé',
-        'Le salaire de l’ingénieur veilleur',
-        'Le coût de l’électricité consommée par les serveurs'
+        "Le coût des abonnements aux revues spécialisées et aux bases de données techniques",
+        "Le salaire de l’ingénieur veilleur et le temps passé à collecter l’information",
+        "Le coût de l’électricité consommée par les serveurs hébergeant la plateforme",
+        "Les pertes financières subies ou les litiges encourus faute d’avoir anticipé une information clé"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le coût d’inaction mesure les pertes matérielles, amendes ou déclassements subis par l’entreprise par manque d’anticipation.'
     },
     {
       stem: 'Quel type de veille analyse les sanctions prononcées par la CNIL et les décrets d’application du RGPD ?',
       opts: [
-        'Veille technologique',
-        'Veille sociétale',
         'Veille juridique & réglementaire',
+        'Veille sociétale',
+        'Veille technologique',
         'Veille commerciale'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'La veille juridique et réglementaire assure le suivi de la législation, des décrets, des normes et des jurisprudences.'
     },
     {
       stem: 'Comment qualifie-t-on une veille réalisée à un instant T précis pour réaliser un état des lieux avant de lancer un projet ?',
       opts: [
-        'Veille ponctuelle',
         'Veille permanente',
+        'Veille ponctuelle',
         'Veille perpétuelle',
         'Veille récursive'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La veille ponctuelle est déclenchée pour répondre à une question spécifique ou réaliser un état de l’art à un moment précis.'
     }
   ],

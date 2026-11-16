@@ -137,10 +137,10 @@ module.exports = {
     {
       stem: 'Quel est le rôle fondamental d’un protocole FHRP sur un réseau local ?',
       opts: [
-        'Attribuer dynamiquement des adresses IP par DHCP',
-        'Fournir une passerelle par défaut redondante et hautement disponible pour les postes clients',
-        'Chiffrer les trames Ethernet avec WPA3',
-        'Accélérer la vitesse des ventilateurs des commutateurs'
+        "Attribuer dynamiquement des adresses IP aux postes clients par DHCP",
+        "Fournir une passerelle par défaut redondante et hautement disponible pour les postes clients",
+        "Chiffrer les trames Ethernet du réseau local avec le protocole WPA3",
+        "Accélérer la vitesse des ventilateurs des commutateurs en cas de surchauffe"
       ],
       correct: 1,
       exp: 'Les FHRP éliminent le point unique de défaillance de la passerelle en partageant une IP virtuelle entre plusieurs routeurs physiques.'
@@ -148,67 +148,67 @@ module.exports = {
     {
       stem: 'Quelle est la norme standard internationale ouverte régissant le protocole VRRP ?',
       opts: [
-        'IEEE 802.1Q',
         'RFC 5798',
+        'IEEE 802.1Q',
         'RFC 1918',
         'IEEE 802.3ad'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'VRRP v3 (supportant IPv4 et IPv6) est spécifié par la RFC 5798 de l’IETF (succédant à la RFC 3768 pour VRRP v2).'
     },
     {
       stem: 'Quelle est l’adresse MAC virtuelle IPv4 générée par un groupe VRRP ayant le Virtual Router ID (VRID) 10 ?',
       opts: [
-        '00:00:5E:00:01:0A',
+        '00:00:5E:00:02:10',
         '00:00:0C:07:AC:0A',
         'FF:FF:FF:00:01:10',
-        '00:00:5E:00:02:10'
+        '00:00:5E:00:01:0A'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le préfixe standard VRRP IPv4 est 00:00:5E:00:01:XX où XX est le VRID en hexadécimal (10 en décimal = 0A en hexadécimal).'
     },
     {
       stem: 'Dans un groupe VRRP, que se produit-il si un routeur de priorité 120 redémarre alors qu’un routeur de priorité 100 est actuellement Master ?',
       opts: [
-        'Le routeur 120 reste en veille car la préemption est désactivée par défaut dans VRRP',
-        'Le routeur 120 reprend immédiatement le rôle de Master car la préemption est activée par défaut dans VRRP',
-        'Le routeur 120 s’éteint automatiquement',
-        'Le réseau est bloqué pendant 10 minutes'
+        "Le routeur 120 reste en veille car la préemption est désactivée par défaut dans VRRP",
+        "Le routeur 120 s’éteint automatiquement pour éviter tout conflit d’adresses IP virtuelles",
+        "Le routeur 120 reprend immédiatement le rôle de Master car la préemption est activée par défaut dans VRRP",
+        "Le réseau local est bloqué pendant 10 minutes le temps de la resynchronisation complète"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Contrairement à HSRP, VRRP active la préemption par défaut : le routeur ayant la priorité la plus élevée redevient Master dès qu’il est en ligne.'
     },
     {
       stem: 'Quel est l’objectif principal de l’Object Tracking associé à un protocole FHRP ?',
       opts: [
-        'Compter le nombre de paquets vidéo en transit',
-        'Surveiller l’état d’une interface amont ou d’une sonde IP SLA pour décrémenter la priorité en cas de coupure externe',
-        'Synchroniser les mots de passe des utilisateurs',
-        'Enregistrer les adresses MAC dans une base SQL'
+        "Compter précisément le nombre de paquets vidéo en transit sur le réseau local",
+        "Synchroniser automatiquement les mots de passe des utilisateurs sur l’ensemble des routeurs du groupe",
+        "Surveiller l’état d’une interface amont ou d’une sonde IP SLA pour décrémenter la priorité en cas de coupure externe",
+        "Enregistrer les adresses MAC des clients dans une base de données SQL centralisée"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’Object Tracking surveille les liaisons externes pour abaisser dynamiquement la priorité locale et transférer le rôle Master au routeur de secours.'
     },
     {
       stem: 'Quelle trame spéciale le nouveau routeur Master émet-il sur le LAN lors d’un basculement pour actualiser les tables CAM des commutateurs ?',
       opts: [
         'Une trame BPDU RSTP',
-        'Une trame Gratuitous ARP (GARP)',
+        'Une trame LLDP',
         'Un paquet ICMP Redirect',
-        'Une trame LLDP'
+        'Une trame Gratuitous ARP (GARP)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le Gratuitous ARP permet à tous les commutateurs d’apprendre immédiatement que la MAC virtuelle est désormais joignable sur le nouveau port.'
     },
     {
       stem: 'Dans le protocole GLBP de Cisco, quel rôle est chargé de répondre aux requêtes ARP des clients pour répartir la charge ?',
       opts: [
-        'L’Active Virtual Forwarder (AVF)',
         'L’Active Virtual Gateway (AVG)',
+        'L’Active Virtual Forwarder (AVF)',
         'Le Root Bridge Spanning Tree',
         'Le serveur DHCP local'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’AVG (Active Virtual Gateway) intercepte les requêtes ARP des clients et distribue à tour de rôle les adresses MAC virtuelles des différents AVF.'
     },
     {

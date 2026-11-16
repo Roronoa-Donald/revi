@@ -14,8 +14,9 @@ module.exports = [
     "brief": "<p>La recherche cognitive (Roediger, Karpicke) prouve que la simple relecture procure un sentiment trompeur de maîtrise sans ancrer l’information. Seul le <strong>rappel actif</strong> (l’effort d’extraction mnésique) renforce la trace synaptique.</p><p>Examine un intitulé de méthode en minuscules dans les données du cas et affiche son efficacité :<br>- <code>relecture_surlignee</code>, <code>feuilletage_notes</code>, <code>recopie_de_cours</code>, <code>ecoute_passive_cours</code> &rarr; <code>Methode: Passive (Faible retention)</code><br>- <code>flashcard_recto_verso</code>, <code>feuille_blanche_feynman</code>, <code>qcm_sans_aide</code>, <code>restitution_a_voix_haute</code> &rarr; <code>Methode: Active (Forte retention)</code><br>Pour toute autre valeur : <code>Methode: Inconnue</code>.</p>",
     "starter": "# Grille d'analyse (mc2-c2-e1) — Rappel actif vs Révision passive\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Relecture surlignée]\n# Données : relecture_surlignee\nA_COMPLETER\n\n[Cas 2 — Technique Feynman feuille blanche]\n# Données : feuille_blanche_feynman\nA_COMPLETER\n\n[Cas 3 — Pratique inconnue]\n# Données : dormir_sur_son_livre\nA_COMPLETER\n",
     "hints": [
-      "Créez deux ensembles (sets) pour les méthodes passives et actives.",
-      "Utilisez les structures if/elif/else pour router la réponse."
+      "Le rappel actif exige d’extraire l’information de mémoire, sans support visible.",
+      "Rangez les pratiques connues dans deux familles, puis routez la réponse vers le bon libellé.",
+      "1. Lisez la pratique. 2. Extraction sans support : Active (Forte retention). 3. Lecture ou surlignage : Passive (Faible retention). 4. Pratique non identifiée : Inconnue. 5. Affichez « Methode: <classification> »."
     ],
     "examples": [
       {
@@ -41,7 +42,8 @@ module.exports = [
         "expected": "Methode: Inconnue"
       }
     ],
-    "solution": "[Exemple]\nMethode: Active (Forte retention)\n\n[Cas 1 — Relecture surlignée]\nMethode: Passive (Faible retention)\n\n[Cas 2 — Technique Feynman feuille blanche]\nMethode: Active (Forte retention)\n\n[Cas 3 — Pratique inconnue]\nMethode: Inconnue\n"
+    "solution": "[Exemple]\nMethode: Active (Forte retention)\n\n[Cas 1 — Relecture surlignée]\nMethode: Passive (Faible retention)\n\n[Cas 2 — Technique Feynman feuille blanche]\nMethode: Active (Forte retention)\n\n[Cas 3 — Pratique inconnue]\nMethode: Inconnue\n",
+    "takeaway": "Relire ou surligner crée une illusion de maîtrise ; seul le rappel actif sans support renforce la trace mnésique."
   },
   {
     "id": "mc2-c2-e2",
@@ -53,8 +55,9 @@ module.exports = [
     "brief": "<p>L’illusion de compétence (effet Dunning-Kruger) conduit les étudiants à surestimer leur niveau de préparation après une simple relecture. L’écart de calibration se mesure par $\\Delta = \\text{Note\\_Prédite} - \\text{Note\\_Réelle}$ (notes sur 20).</p><p>Lit une ligne au format <code>Note_Predite;Note_Reelle</code> et affiche :<br>- Si $\\Delta \\ge 4$ : <code>Illusion forte (+&lt;delta&gt; pts) : risque eleve d echec</code><br>- Si $1 \\le \\Delta &lt; 4$ : <code>Sur-optimisme modere (+&lt;delta&gt; pts)</code><br>- Si $-1 \\le \\Delta \\le 0$ : <code>Calibration fidele (&lt;delta&gt; pts)</code><br>- Si $\\Delta &lt; -1$ : <code>Sous-estimation (&lt;delta&gt; pts) : manque d assurance</code>.</p>",
     "starter": "# Grille d'analyse (mc2-c2-e2) — Mesure de l’illusion de compétence\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Sur-optimisme modéré]\n# Données : 14;12\nA_COMPLETER\n\n[Cas 2 — Calibration fidèle exacte]\n# Données : 15;15\nA_COMPLETER\n\n[Cas 3 — Sous-estimation de l apprenant]\n# Données : 10;14\nA_COMPLETER\n",
     "hints": [
-      "Convertissez les deux notes en float ou int avec l’extraction des champs.",
-      "Attention au formatage du signe + pour les deltas positifs."
+      "Rappelez-vous que l’écart de calibration est la différence entre la note prédite et la note réelle.",
+      "Lisez les deux notes, calculez leur différence, puis appliquez les paliers de l’énoncé.",
+      "1. delta = Note_Predite - Note_Reelle. 2. delta >= 4 : Illusion forte. 3. delta entre 1 et 3 : Sur-optimisme modere. 4. delta <= -1 : Sous-estimation. 5. Sinon : Calibration fidele. 6. Affichez le delta avec son signe."
     ],
     "examples": [
       {
@@ -80,7 +83,8 @@ module.exports = [
         "expected": "Sous-estimation (-4 pts) : manque d assurance"
       }
     ],
-    "solution": "[Exemple]\nIllusion forte (+5 pts) : risque eleve d echec\n\n[Cas 1 — Sur-optimisme modéré]\nSur-optimisme modere (+2 pts)\n\n[Cas 2 — Calibration fidèle exacte]\nCalibration fidele (0 pts)\n\n[Cas 3 — Sous-estimation de l apprenant]\nSous-estimation (-4 pts) : manque d assurance\n"
+    "solution": "[Exemple]\nIllusion forte (+5 pts) : risque eleve d echec\n\n[Cas 1 — Sur-optimisme modéré]\nSur-optimisme modere (+2 pts)\n\n[Cas 2 — Calibration fidèle exacte]\nCalibration fidele (0 pts)\n\n[Cas 3 — Sous-estimation de l apprenant]\nSous-estimation (-4 pts) : manque d assurance\n",
+    "takeaway": "Comparer son estimation confiante au score objectif mesure l illusion de compétence pour ajuster ses révisions."
   },
   {
     "id": "mc2-c2-e3",
@@ -92,8 +96,9 @@ module.exports = [
     "brief": "<p>La <strong>technique de Richard Feynman</strong> stipule que l’on ne maîtrise un sujet que si l’on peut l’expliquer en termes simples à un novice de 12 ans. Un texte contenant plus de 20 % de mots complexes (définis comme des mots de <strong>strictement plus de 8 lettres</strong>) traduit souvent un jargon compensatoire.</p><p>Analyse une phrase ou paragraphe fourni(e) dans les données du cas.<br>Nettoie la ponctuation (<code>, . ! ? ; : ' \" ( )</code>), découpe en mots et calcule le ratio de mots complexes.<br>- Affiche le ratio sous forme : <code>Mots complexes: &lt;pourcentage&gt;% (&lt;nb_complexes&gt;/&lt;total&gt;)</code> (arrondi à 1 décimale).<br>- Si le ratio $&gt; 20{,}0\\,\\%$, affiche à la ligne : <code>Verdict: A vulgariser (Jargon excessif)</code>.<br>- Sinon, affiche à la ligne : <code>Verdict: Feynman valide (Explication claire)</code>.</p>",
     "starter": "# Grille d'analyse (mc2-c2-e3) — Audit de clarté Feynman\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Explication simple et claire]\n# Données : Le coeur pompe le sang pour nourrir tous les organes du corps humain.\nA_COMPLETER\n\n[Cas 2 — Texte équilibré sous le seuil]\n# Données : Un ordinateur utilise des bits binaires pour faire des calculs tres vite.\nA_COMPLETER\n\n[Cas 3 — Texte chargé de termes techniques]\n# Données : La neuroplasticite synaptique consolide durablement l information cerebrale.\nA_COMPLETER\n",
     "hints": [
-      "Isolez les mots-clés conceptuels porteurs de sens dans le texte en écartant les mots de liaison.",
-      "Qualifiez les termes techniques nécessitant un ancrage en mémoire à long terme."
+      "Rappelez-vous le critère de Feynman : un texte clair contient peu de mots de plus de huit lettres.",
+      "Nettoyez la ponctuation, découpez en mots, puis comptez ceux qui dépassent strictement huit lettres.",
+      "1. Comptez les mots totaux puis ceux de plus de 8 lettres. 2. ratio = round(complexes / total * 100, 1). 3. Ratio au-delà de 20 % : « A vulgariser (Jargon excessif) ». 4. Sinon : « Feynman valide (Explication claire) »."
     ],
     "examples": [
       {
@@ -119,6 +124,7 @@ module.exports = [
         "expected": "Mots complexes: 75.0% (6/8)\nVerdict: A vulgariser (Jargon excessif)"
       }
     ],
-    "solution": "[Exemple]\nMots complexes: 50.0% (4/8)\nVerdict: A vulgariser (Jargon excessif)\n\n[Cas 1 — Explication simple et claire]\nMots complexes: 0.0% (0/13)\nVerdict: Feynman valide (Explication claire)\n\n[Cas 2 — Texte équilibré sous le seuil]\nMots complexes: 8.3% (1/12)\nVerdict: Feynman valide (Explication claire)\n\n[Cas 3 — Texte chargé de termes techniques]\nMots complexes: 75.0% (6/8)\nVerdict: A vulgariser (Jargon excessif)\n"
+    "solution": "[Exemple]\nMots complexes: 50.0% (4/8)\nVerdict: A vulgariser (Jargon excessif)\n\n[Cas 1 — Explication simple et claire]\nMots complexes: 0.0% (0/13)\nVerdict: Feynman valide (Explication claire)\n\n[Cas 2 — Texte équilibré sous le seuil]\nMots complexes: 8.3% (1/12)\nVerdict: Feynman valide (Explication claire)\n\n[Cas 3 — Texte chargé de termes techniques]\nMots complexes: 75.0% (6/8)\nVerdict: A vulgariser (Jargon excessif)\n",
+    "takeaway": "La méthode Feynman exige d expliquer un concept simplement sans jargon opaque afin d exposer ses zones floues."
   }
 ];

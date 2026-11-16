@@ -17,15 +17,16 @@ const attr = (node, name) => (node.attrs || []).find(attribute => attribute.name
 const visible = page => walk(parse5.parseFragment(page.body)).filter(node => node.nodeName === '#text')
   .map(node => node.value).join(' ').replace(/\s+/g, ' ');
 
-test('l’accueil décrit les véritables ateliers SQL et annonce la suspension', () => {
+test('l’accueil décrit les véritables ateliers SQL sans bandeau de suspension', () => {
   const exercises = catalogue.listExercises().filter(exercise => exercise.course === course.id);
   assert.equal(exercises.length, 18);
   assert.ok(exercises.every(exercise => exercise.language === 'sql'));
-  assert.equal(isGradingSuspended(course.id), true);
+  assert.equal(isGradingSuspended(course.id), false);
+  assert.equal(isGradingSuspended(course.id, 'exercice-inconnu'), true);
   const home = visible(pages['index.html']);
   assert.doesNotMatch(home, /ateliers[^.]{0,60}Python|défense absolue|intégralité des standards/i);
   assert.match(home, /18[^.]{0,60}SQL/i);
-  assert.match(home, /correction automatique[^.]*suspendue/i);
+  assert.doesNotMatch(home, /correction automatique[^.]*suspendue/i);
   assert.doesNotMatch(course.description, /défense absolue/i);
 });
 
@@ -43,7 +44,7 @@ test('le catalogue affiche les titres et objectifs actuels des 18 fiches', () =>
     assert.equal(text(description).trim(), exercise.goal, exercise.id);
     assert.ok(nodes.some(node => node.tagName === 'a' && attr(node, 'href')?.endsWith(`#${exercise.id}`)));
   }
-  assert.match(visible(pages['chapitres/exercices.html']), /correction automatique[^.]*suspendue/i);
+  assert.doesNotMatch(visible(pages['chapitres/exercices.html']), /correction automatique[^.]*suspendue/i);
 });
 
 test('l’éditeur libre propose une requête SQLite minimale au lieu d’une grille non SQL', async () => {
@@ -63,5 +64,5 @@ test('l’éditeur libre propose une requête SQLite minimale au lieu d’une gr
   const atelier = visible(pages['atelier.html']);
   assert.doesNotMatch(atelier, /Python 3|simulateur d.arbre B.Tree/i);
   assert.match(atelier, /service[^.]*configur/i);
-  assert.match(atelier, /correction automatique[^.]*suspendue/i);
+  assert.doesNotMatch(atelier, /correction automatique[^.]*suspendue/i);
 });

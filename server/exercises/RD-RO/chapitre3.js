@@ -16,7 +16,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e1) — Critère de Dantzig (Choix de la variable entrante)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux variables candidates positives]\n# Données : x1:3.5,x2:2.0,x3:5.8,s1:0.0\nA_COMPLETER\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\n# Données : x1:0.0,x2:-2.5,s1:-1.2,s2:0.0\nA_COMPLETER\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\n# Données : x1:4.0,x2:4.0,s1:0.0\nA_COMPLETER\n",
     "hints": [
       "Découpez par virgule puis chaque couple par deux-points.",
-      "Cherchez le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
+      "Cherchez le maximum strictement positif. S’il n’y en a aucun, c’est optimal.",
+      "En maximisation avec coûts réduits c_j - z_j en ligne Z, choisissez la variable hors-base ayant le coût réduit positif le plus élevé."
     ],
     "examples": [
       {
@@ -42,7 +43,8 @@ module.exports = [
         "expected": "ENTRANTE: x1 COUT_REDUIT=4.00"
       }
     ],
-    "solution": "[Exemple]\nENTRANTE: x2 COUT_REDUIT=6.00\n\n[Cas 1 — Deux variables candidates positives]\nENTRANTE: x3 COUT_REDUIT=5.80\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\nOPTIMALITE_ATTEINTE\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\nENTRANTE: x1 COUT_REDUIT=4.00\n"
+    "solution": "[Exemple]\nENTRANTE: x2 COUT_REDUIT=6.00\n\n[Cas 1 — Deux variables candidates positives]\nENTRANTE: x3 COUT_REDUIT=5.80\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\nOPTIMALITE_ATTEINTE\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\nENTRANTE: x1 COUT_REDUIT=4.00\n",
+    "takeaway": "À retenir : Identifier la variable hors-base entrante selon la règle du plus grand coût réduit.\nRepère : x2 a le plus fort coût réduit positif (+6.0)."
   },
   {
     "id": "ro2-c3-e2",
@@ -55,7 +57,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e2) — Règle du ratio minimum & variable sortante\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Minimum en première ligne]\n# Données : 10,20,30;5,2,1\nA_COMPLETER\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\n# Données : 15,25;0,-2\nA_COMPLETER\n\n[Cas 3 — Un seul coefficient strictement positif]\n# Données : 12,8,20;-3,4,-1\nA_COMPLETER\n",
     "hints": [
       "Ignore les lignes où aik <= 0.",
-      "Parcourez les ratios et retiens le minimum strictement positif."
+      "Parcourez les ratios et retiens le minimum strictement positif.",
+      "Ne divisez le membre de droite b_i que par les coefficients STRICTEMENT positifs (> 0) de la colonne entrante, et retenez la ligne au ratio minimum."
     ],
     "examples": [
       {
@@ -81,7 +84,8 @@ module.exports = [
         "expected": "SORTANTE: LIGNE_2 MIN_RATIO=2.00"
       }
     ],
-    "solution": "[Exemple]\nSORTANTE: LIGNE_3 MIN_RATIO=6.00\n\n[Cas 1 — Minimum en première ligne]\nSORTANTE: LIGNE_1 MIN_RATIO=2.00\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\nPROBLEME_NON_BORNE\n\n[Cas 3 — Un seul coefficient strictement positif]\nSORTANTE: LIGNE_2 MIN_RATIO=2.00\n"
+    "solution": "[Exemple]\nSORTANTE: LIGNE_3 MIN_RATIO=6.00\n\n[Cas 1 — Minimum en première ligne]\nSORTANTE: LIGNE_1 MIN_RATIO=2.00\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\nPROBLEME_NON_BORNE\n\n[Cas 3 — Un seul coefficient strictement positif]\nSORTANTE: LIGNE_2 MIN_RATIO=2.00\n",
+    "takeaway": "À retenir : Déterminer la variable de base sortante par le test du ratio minimum de Dantzig.\nRepère : Ratios : L1=18/2=9.0, L2=42/3=14.0, L3=24/4=6.0. Le minimum est en Ligne 3."
   },
   {
     "id": "ro2-c3-e3",
@@ -94,7 +98,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e3) — Opération de pivotage de Gauss-Jordan\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n# Données : 1,2;1,3,9|2,1,8\nA_COMPLETER\n\n[Cas 2 — Pivot en deuxième ligne]\n# Données : 2,1;3,2,12|2,4,16\nA_COMPLETER\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n# Données : 2,2;1,2,5|0,4,8|2,1,6\nA_COMPLETER\n",
     "hints": [
       "Convertissez r et c en indices 0-indexés (r-1, c-1).",
-      "Sauvegarde bien la ligne pivot normalisée avant de modifier les autres lignes."
+      "Sauvegarde bien la ligne pivot normalisée avant de modifier les autres lignes.",
+      "Normalisez d abord la ligne du pivot en la divisant par l élément pivot, puis annulez toute la colonne du pivot dans les autres lignes (y compris Z)."
     ],
     "examples": [
       {
@@ -120,6 +125,7 @@ module.exports = [
         "expected": "1.00,0.00,1.00 | 0.00,1.00,2.00 | 2.00,0.00,4.00"
       }
     ],
-    "solution": "[Exemple]\n1.00,2.00,5.00 | 0.00,-1.00,-1.00\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n0.33,1.00,3.00 | 1.67,0.00,5.00\n\n[Cas 2 — Pivot en deuxième ligne]\n0.00,-4.00,-12.00 | 1.00,2.00,8.00\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n1.00,0.00,1.00 | 0.00,1.00,2.00 | 2.00,0.00,4.00\n"
+    "solution": "[Exemple]\n1.00,2.00,5.00 | 0.00,-1.00,-1.00\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n0.33,1.00,3.00 | 1.67,0.00,5.00\n\n[Cas 2 — Pivot en deuxième ligne]\n0.00,-4.00,-12.00 | 1.00,2.00,8.00\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n1.00,0.00,1.00 | 0.00,1.00,2.00 | 2.00,0.00,4.00\n",
+    "takeaway": "À retenir : Effectuer un pivot complet de Gauss-Jordan sur une matrice de simplexe.\nRepère : Pivot à la ligne 1, colonne 1 (valeur 2). L1 devient L1/2 = [1, 2, 5]. L2 devient L2 - 1*L1 = [0, -1, -1]."
   }
 ];

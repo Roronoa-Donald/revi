@@ -80,13 +80,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Les couches du modèle TCP/IP sont…', opts: ['7, comme OSI', '4 : accès, internet, transport, application', '3 : réseau, transport, application'], correct: 1, exp: 'AITA : accès réseau, internet, transport, application.' },
-      { q: 'La couche internet de TCP/IP correspond à OSI…', opts: ['couche 2', 'couche 3', 'couche 7'], correct: 1, exp: 'La couche réseau d\'OSI : IP, routage.' },
-      { q: 'La première étape du handshake est…', opts: ['ACK', 'SYN', 'SYN-ACK'], correct: 1, exp: 'SYN avec numéro de séquence aléatoire A.' },
-      { q: 'Le SYN-ACK porte…', opts: ['A + 1 comme ACK et un séquence B', 'seulement B', 'seulement A + 1'], correct: 0, exp: 'Acquittement A + 1, nouveau numéro de séquence B.' },
-      { q: 'Après le handshake, la communication est…', opts: ['half-duplex', 'full-duplex', 'fermée'], correct: 1, exp: 'Séquences définies dans les deux sens.' },
-      { q: 'La voix sur IP utilise plutôt…', opts: ['TCP', 'UDP', 'FTP'], correct: 1, exp: 'UDP : rapidité, tolérance aux pertes.' },
-      { q: 'Un courriel voyage en…', opts: ['UDP', 'TCP', 'ICMP'], correct: 1, exp: 'Fiabilité exigée : TCP avec accusés.' },
+      { q: 'Les couches du modèle TCP/IP sont…', opts: ["7 couches, comme le modèle OSI de référence","3 couches : réseau, transport et application","4 : accès, internet, transport, application"], correct: 2, exp: "TCP/IP empile quatre couches — accès réseau, internet, transport, application (AITA) — quand OSI en décrit sept ; la réponse à trois couches confond accès réseau et internet." },
+      { q: 'La couche internet de TCP/IP correspond à OSI…', opts: ['couche 2', 'couche 3', 'couche 7'], correct: 1, exp: "La couche internet assume le routage des paquets : elle correspond à la couche 3 OSI, réseau, celle des adresses IP et des routeurs." },
+      { q: 'La première étape du handshake est…', opts: ['SYN', 'ACK', 'SYN-ACK'], correct: 0, exp: 'SYN avec numéro de séquence aléatoire A.' },
+      { q: 'Le SYN-ACK porte…', opts: ['seulement B', 'A + 1 comme ACK et un séquence B', 'seulement A + 1'], correct: 1, exp: 'Acquittement A + 1, nouveau numéro de séquence B.' },
+      { q: 'Après le handshake, la communication est…', opts: ['half-duplex', 'fermée', 'full-duplex'], correct: 2, exp: "Le three-way handshake fixe des numéros de séquence dans les deux sens : la communication devient full-duplex, chaque partie émettant et recevant simultanément." },
+      { q: 'La voix sur IP utilise plutôt…', opts: ['UDP', 'TCP', 'FTP'], correct: 0, exp: "La voix en direct privilégie la rapidité : UDP transmet sans acquittement, une perte occasionnelle étant préférable à un délai ; TCP réémettrait trop lentement." },
+      { q: 'Un courriel voyage en…', opts: ['UDP', 'TCP', 'ICMP'], correct: 1, exp: "Un courriel exige l'intégrité : TCP, avec ses accusés de réception et ses réémissions, garantit un message complet ; ICMP ne transporte que des messages de contrôle." },
       { q: 'En Ethernet full-duplex, que devient CSMA/CD ?', opts: ['La détection de collision est désactivée', 'Les collisions sont systématiques', 'CSMA/CA devient obligatoire'], correct: 0, exp: 'CSMA/CD s’applique au half-duplex partagé ; le full-duplex ne nécessite pas la détection de collisions.' }
     ],
 
@@ -218,13 +218,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Une adresse MAC Ethernet courante compte…', opts: ['32 bits', '48 bits (12 chiffres hexadécimaux)', '128 bits'], correct: 1, exp: 'Une adresse Ethernet de ce format comporte 12 chiffres hexadécimaux ; sa syntaxe ne prouve pas son origine.' },
+      { q: 'Une adresse MAC Ethernet courante compte…', opts: ['32 bits', '128 bits', '48 bits (12 chiffres hexadécimaux)'], correct: 2, exp: 'Une adresse Ethernet de ce format comporte 12 chiffres hexadécimaux ; sa syntaxe ne prouve pas son origine.' },
       { q: 'Dans un bloc MA-L, l\'OUI attribué désigne…', opts: ['le nom de l\'utilisateur', 'l\'organisation ayant reçu le bloc', 'le débit du réseau'], correct: 1, exp: 'L\'OUI de 24 bits identifie l\'organisation attributaire, pas nécessairement le fabricant de l\'appareil ni son utilisateur.' },
-      { q: 'Une MAC est routée…', opts: ['sur Internet', 'jamais au-delà d\'un routeur', 'dans toute l\'entreprise'], correct: 1, exp: 'Portée : le segment local uniquement.' },
+      { q: 'Une MAC est routée…', opts: ['jamais au-delà d\'un routeur', 'sur Internet', 'dans toute l\'entreprise'], correct: 0, exp: "L'adresse MAC n'a qu'une portée locale : elle circule sur le segment et n'est jamais routée au-delà d'un routeur, contrairement à l'IP qui voyage de réseau en réseau." },
       { q: 'IPv4 fait 32 bits, IPv6 fait…', opts: ['48 bits', '64 bits', '128 bits'], correct: 2, exp: 'Huit groupes hexadécimaux, contre la pénurie IPv4.' },
-      { q: 'ARP sert à…', opts: ['router les paquets', 'traduire une IP en MAC locale', 'attribuer des IP'], correct: 1, exp: 'Address Resolution Protocol, sur le même réseau.' },
-      { q: 'Dans 255.255.255.0, les bits à 0 marquent…', opts: ['le réseau', 'l\'hôte', 'la diffusion'], correct: 1, exp: '1 = réseau, 0 = hôte : ici le dernier octet.' },
-      { q: 'L\'adresse 172.16.0.1 est de classe…', opts: ['A', 'B', 'C'], correct: 1, exp: 'Premier octet 172 : classe B (128-191).' },
+      { q: 'ARP sert à…', opts: ['router les paquets', 'attribuer des IP', 'traduire une IP en MAC locale'], correct: 2, exp: 'Address Resolution Protocol, sur le même réseau.' },
+      { q: 'Dans 255.255.255.0, les bits à 0 marquent…', opts: ['l\'hôte', 'le réseau', 'la diffusion'], correct: 0, exp: '1 = réseau, 0 = hôte : ici le dernier octet.' },
+      { q: 'L\'adresse 172.16.0.1 est de classe…', opts: ['A', 'B', 'C'], correct: 1, exp: "Le premier octet 172 appartient à la plage 128-191, caractéristique de la classe B (masque 255.255.0.0) ; la classe A s'arrête à 126 et la C commence à 192." },
       { q: 'La classe C offre environ…', opts: ['254 hôtes', '65 000 hôtes', '16 millions d\'hôtes'], correct: 0, exp: '255.255.255.0 : un octet d\'hôte, moins réseau et diffusion.' }
     ],
 
@@ -310,9 +310,9 @@ module.exports = [
         html: [
           '<p>Créer des sous-réseaux, c\'est <strong>emprunter des bits à la partie hôte</strong> en les mettant ' +
           'à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : ' +
-          '2^emprunt (3 bits = 8 sous-réseaux). Les <strong>bits restants</strong> déterminent les hôtes valides ' +
-          'de chaque sous-réseau IPv4 ordinaire jusqu’à /30 : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l\'adresse réseau ' +
-          'et l\'adresse de diffusion sont retirées). Une liaison /31 point-à-point fait exception.</p>',
+          '2^emprunt (3 bits = 8 sous-réseaux). Selon la formule générale $2^h - 2$ (où $h$ désigne les <strong>bits restants</strong> pour la partie hôte), ' +
+          'chaque sous-réseau IPv4 ordinaire jusqu’à /30 offre 2^(bits restants) - 2 hôtes valides (5 bits restants = 30 hôtes valides — l\'adresse réseau ' +
+          'et l\'adresse de diffusion sont retirées).</p>',
           '<p>Le <strong>nouveau masque</strong> se lit sur le dernier octet : 3 bits empruntés donnent ' +
           '11100000, soit 128 + 64 + 32 = <strong>224</strong> — masque 255.255.255.224, ou <strong>/27</strong> ' +
           'en notation CIDR. Deux bits donnent 192 (/26), un bit 128 (/25), quatre bits 240 (/28).</p>',
@@ -327,14 +327,18 @@ module.exports = [
           '<p>Avec le découpage classique, tous les sous-réseaux d\'un réseau portaient le même masque : ' +
           'inefficace quand un bureau n\'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> ' +
           '(Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau ' +
-          'principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux. ' +
-          'Sur une liaison <strong>/31 point-à-point</strong> compatible avec la RFC 3021, les deux adresses ' +
-          'sont utilisables comme adresses d’interface. Un /32 désigne une adresse unique, souvent une route d’hôte. ' +
-          'Source : <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a>, consultée le 30 octobre 2026.</p>',
+          'principal</strong> : /30 pour les liaisons point-à-point classiques ($2^2 - 2 = 2$ hôtes), /26 pour les gros bureaux.</p>',
           '<p>Le <strong>CIDR</strong> (Classless Inter-Domain Routing), adopté au début des années 90, rend ' +
           'obsolète le système de classes et standardise le VLSM. La <strong>notation CIDR</strong> écrit le ' +
           'nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 ' +
           '— liaison point-à-point. Le choix de la taille exacte optimise l\'espace d\'adressage global.</p>',
+          '<h3>Pour aller plus loin — Cas particuliers avancés (/31 RFC 3021 et /32)</h3>',
+          box('tech', 'Pour aller plus loin — Cas particuliers avancés (/31 RFC 3021 et /32)', 'compass',
+            '    <p>Une fois la règle générale $2^h - 2$ maîtrisée jusqu’à /30, deux préfixes spéciaux d’ingénierie réseau font exception :</p>\n' +
+            '    <p>Sur une liaison <strong>/31 point-à-point</strong> compatible avec la RFC 3021, les deux adresses ' +
+            'sont utilisables comme adresses d’interface (une liaison /31 point-à-point fait exception au retrait réseau/diffusion). ' +
+            'Un <strong>/32</strong> désigne une adresse unique, souvent une route d’hôte ou une interface de bouclage (loopback). ' +
+            'Source : <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a>, consultée le 30 octobre 2026.</p>'),
           box('pitfall', 'Confusions d\'examen', 'warning',
             '    <ul>\n' +
             '      <li>Dans le cas ordinaire, on retire réseau et diffusion ; /31 point-à-point fait exception.</li>\n' +
@@ -347,13 +351,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Emprunter 3 bits à un /24 crée…', opts: ['3 sous-réseaux', '8 sous-réseaux', '30 sous-réseaux'], correct: 1, exp: '2^3 = 8 sous-réseaux possibles.' },
-      { q: 'Avec 5 bits d\'hôte restants, un sous-réseau offre…', opts: ['32 hôtes', '30 hôtes', '5 hôtes'], correct: 1, exp: '2^5 - 2 : réseau et diffusion retirés.' },
-      { q: 'Le masque 255.255.255.224 correspond à…', opts: ['/26', '/27', '/28'], correct: 1, exp: '11100000 = 224 : 3 bits empruntés, /27.' },
-      { q: 'Emprunter 2 bits donne un dernier octet de…', opts: ['192', '224', '240'], correct: 0, exp: '11000000 = 128 + 64 = 192.' },
-      { q: 'Le VLSM permet…', opts: ['un masque unique par réseau', 'des masques différents dans un même réseau', 'd\'ignorer le routage'], correct: 1, exp: 'Tailles variées : /30 pour les liaisons, /26 pour les bureaux.' },
+      { q: 'Emprunter 3 bits à un /24 crée…', opts: ['3 sous-réseaux', '8 sous-réseaux', '30 sous-réseaux'], correct: 1, exp: "Chaque bit emprunté double le nombre de sous-réseaux : 2^3 = 8 sous-réseaux possibles ; répondre 3 confond bits empruntés et sous-réseaux créés." },
+      { q: 'Avec 5 bits d\'hôte restants, un sous-réseau offre…', opts: ['32 hôtes', '5 hôtes', '30 hôtes'], correct: 2, exp: "Cinq bits d'hôte donnent 2^5 = 32 adresses, moins l'adresse de réseau et celle de diffusion : 30 hôtes valides." },
+      { q: 'Le masque 255.255.255.224 correspond à…', opts: ['/26', '/28', '/27'], correct: 2, exp: "224 s'écrit 11100000 en binaire : 3 bits à 1 empruntés au-delà des 24 du /24, donc 24 + 3 = 27, soit /27." },
+      { q: 'Emprunter 2 bits donne un dernier octet de…', opts: ['224', '192', '240'], correct: 1, exp: "Deux bits empruntés à gauche du dernier octet valent 11000000 en binaire, soit 128 + 64 = 192 ; le masque devient 255.255.255.192." },
+      { q: 'Le VLSM permet…', opts: ['des masques différents dans un même réseau', 'un masque unique par réseau', 'd\'ignorer le routage'], correct: 0, exp: 'Tailles variées : /30 pour les liaisons, /26 pour les bureaux.' },
       { q: 'Le CIDR a remplacé…', opts: ['le VLSM', 'le système de classes', 'DHCP'], correct: 1, exp: 'Routage sans classe : notation /n, fin des classes A-B-C.' },
-      { q: 'Une liaison /31 point-à-point compatible RFC 3021 utilise…', opts: ['ses deux adresses pour les interfaces', 'aucune adresse utilisable', 'une adresse pour diffusion obligatoire'], correct: 0, exp: 'La RFC 3021 autorise les deux adresses sur une liaison point-à-point compatible ; /30 reste une option classique.' },
+      { q: 'Une liaison /31 point-à-point compatible RFC 3021 utilise…', opts: ['une adresse pour diffusion obligatoire', 'aucune adresse utilisable', 'ses deux adresses pour les interfaces'], correct: 2, exp: 'La RFC 3021 autorise les deux adresses sur une liaison point-à-point compatible ; /30 reste une option classique.' },
       { q: '192.168.1.0/27 offre par sous-réseau…', opts: ['30 hôtes', '62 hôtes', '126 hôtes'], correct: 0, exp: '27 bits réseau, 5 bits hôte : 2^5 - 2 = 30.' }
     ],
 

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -187,24 +185,28 @@
      data-exercise="sup3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="NAGIOS_PLUGIN CODE=1 OUTPUT=DISK WARNING - free space: / 15% (15GB/100GB)|/=85GB;80;90;0;100 /var=40GB;70;85;0;100">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c3-e1) — Analyseur de Sortie Plugin Nagios et Métriques Perfdata
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le serveur de messagerie MailRelais est vérifié par Nagios.&#10;check_smtp répond en 2.5 secondes (WARNING), check_disk affiche 45 % d'espace libre (OK),&#10;check_procs trouve 0 processus smtpd (CRITICAL) et une sonde a dépassé son délai d'exécution.&#10;&#10;1) Codes : 0 OK, 1 WARNING, 2 CRITICAL, 3 UNKNOWN.&#10;2) Une seule vérification est critique (les processus smtpd).&#10;3) La sonde SMTP est en WARNING pour lenteur de réponse.&#10;4) La sonde en timeout remonte UNKNOWN : elle n'a pas pu conclure.">
+  <script type="text/plain" data-lab-starter># Exercice — Lire les plugins Nagios du serveur web d'Aquaparc
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nombre seul. Question 4 : le nom de la vérification. Question 5 : un mot.
 
-[Cas 1 — Ping nominal OK avec deux métriques]
-# Données : NAGIOS_PLUGIN CODE=0 OUTPUT=PING OK - Packet loss = 0%, RTA = 1.25 ms|rta=1.25ms;200.00;500.00;0; pl=0%;40;80;0;100
+[Question 1 — Code de retour de l'état WARNING]
 A_COMPLETER
 
-[Cas 2 — Erreur critique sans perfdata]
-# Données : NAGIOS_PLUGIN CODE=2 OUTPUT=CRITICAL - Socket connection timeout after 10 seconds
+[Question 2 — Code de retour de l'état CRITICAL]
 A_COMPLETER
 
-[Cas 3 — Service inconnu UNKNOWN avec code 3]
-# Données : NAGIOS_PLUGIN CODE=3 OUTPUT=UNKNOWN - Invalid command line arguments
+[Question 3 — Nombre de vérifications critiques]
+A_COMPLETER
+
+[Question 4 — Vérification en état WARNING]
+A_COMPLETER
+
+[Question 5 — État d'un plugin qui ne sait pas conclure]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Analyseur de Sortie Plugin Nagios et Métriques Perfdata</h3>
+    <h3 class="lab__title">Exercice 1 — Lire les plugins Nagios du serveur web d'Aquaparc</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -213,26 +215,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Interpréter le code de retour d'un plugin Nagios et extraire les données de performance (perfdata) normalisées.</p>
-    <div class="lab__brief"><p>L'architecture de supervision Nagios/Centreon standardise la communication des plugins :<br><br>
-1. <strong>Code de retour</strong> :<br>
-- <code>0</code> : <code>OK</code><br>
-- <code>1</code> : <code>WARNING</code><br>
-- <code>2</code> : <code>CRITICAL</code><br>
-- <code>3</code> : <code>UNKNOWN</code><br><br>
-2. <strong>Structure de la sortie</strong> :<br>
-<code>MESSAGE_TEXT | PERFDATA</code> (le caractère tube sépare le message humain des métriques machine).<br>
-Dans la section Perfdata, chaque métrique suit le format : <code>label=valeur[uom];[warn];[crit];[min];[max]</code>.<br><br>
-Données du cas : <code>NAGIOS_PLUGIN CODE=&lt;0..3&gt; OUTPUT=&lt;texte|perfdata&gt;</code>.<br>
-Résultat d’analyse attendu : <code>NAGIOS: status=&lt;OK|WARNING|CRITICAL|UNKNOWN&gt; message=&lt;msg&gt; metrics=&lt;label1=valeur1,label2=valeur2...|NONE&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Interpréter les états OK, WARNING, CRITICAL et UNKNOWN d'un plugin Nagios et leurs codes de retour.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Nagios Core supervise le serveur web du parc aquatique Aquaparc. Convention du cours : chaque plugin renvoie un code de retour, 0 pour OK, 1 pour WARNING, 2 pour CRITICAL et 3 pour UNKNOWN. Résultats du dernier passage de vérification :</p><table><tr><th>Vérification</th><th>Sortie du plugin</th></tr><tr><th>Charge système</th><td>OK — load average : 1.2, 1.8, 2.1</td></tr><tr><th>Espace disque /</th><td>DISK CRITICAL — espace libre : 2 % (420 Mo)</td></tr><tr><th>Service HTTP</th><td>HTTP WARNING : HTTP/1.1 200 OK — réponse en 1.8 seconde</td></tr><tr><th>Processus httpd</th><td>PROCS CRITICAL : 0 processus avec le nom httpd</td></tr><tr><th>Latence ping</th><td>PING OK — perte de paquets = 0 %, RTA = 12 ms</td></tr></table><ol><li>Quel code de retour un plugin Nagios renvoie-t-il pour un état WARNING ?</li><li>Quel code de retour correspond à l'état CRITICAL ?</li><li>Combien de vérifications sont en état critique ?</li><li>Quelle vérification est en état WARNING ?</li><li>Quel état Nagios affiche-t-il lorsque le plugin ne sait pas conclure, par exemple au terme d'un délai d'exécution dépassé (code 3) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NAGIOS_PLUGIN CODE=1 OUTPUT=DISK WARNING - free space: / 15% (15GB/100GB)|/=85GB;80;90;0;100 /var=40GB;70;85;0;100</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le serveur de messagerie MailRelais est vérifié par Nagios.
+check_smtp répond en 2.5 secondes (WARNING), check_disk affiche 45 % d'espace libre (OK),
+check_procs trouve 0 processus smtpd (CRITICAL) et une sonde a dépassé son délai d'exécution.
+
+1) Codes : 0 OK, 1 WARNING, 2 CRITICAL, 3 UNKNOWN.
+2) Une seule vérification est critique (les processus smtpd).
+3) La sonde SMTP est en WARNING pour lenteur de réponse.
+4) La sonde en timeout remonte UNKNOWN : elle n'a pas pu conclure.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez la section message et la section perfdata autour du caractère '|'.</li>
-        <li>Pour chaque élément perfdata, extrayez la partie label=valeur (avant le premier point-virgule).</li>
+        <li>Les codes de retour suivent la gravité croissante : 0 pour OK, 1 pour WARNING, 2 pour CRITICAL, puis 3 pour l'indéterminé.</li>
+        <li>Comptez les lignes marquées CRITICAL dans le tableau : deux vérifications y figurent, une seule porte WARNING.</li>
+        <li>1. WARNING porte le code 1. 2. CRITICAL porte le code 2. 3. Disque et processus httpd sont critiques. 4. Le HTTP répond 200 mais lentement : c'est lui qui est en WARNING. 5. Le code 3 correspond à UNKNOWN.</li>
       </ol>
     </details>
   </div>
@@ -242,24 +242,28 @@ Résultat d’analyse attendu : <code>NAGIOS: status=&lt;OK|WARNING|CRITICAL|UNK
      data-exercise="sup3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="ZABBIX_TRIGGER ITEM=system.cpu.load FN=avg OP=GT THRESHOLD=75.0 VALUES=65.0,72.5,80.0,85.5,92.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c3-e2) — Moteur d’Évaluation des Déclencheurs Zabbix (Triggers)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le serveur d'intégration ContinueCI est supervisé sur la mémoire :&#10;warning à 85 % pendant 4 minutes, critique à 95 % pendant 2 minutes, résolution sous 80 %.&#10;Série RAM (%) : 96, 97, 94, 96, 74, 82.&#10;&#10;1) Seuil critique : 95 %.&#10;2) Les minutes 1 et 2 (96 et 97) déclenchent l'alerte critique à la minute 2.&#10;3) Sans hystérésis, la minute 3 (94 %) éteindrait l'alerte et la minute 4 (96 %) la rallumerait : du flapping.&#10;4) Avec hystérésis, la résolution n'arrive qu'à la minute 5 (74 % sous 80 %).&#10;5) Le warning exige 4 minutes consécutives à 85 % ou plus.">
+  <script type="text/plain" data-lab-starter># Exercice — Le trigger Zabbix à hystérésis du serveur de calcul NovaGrid
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2, 4 et 5 : le nombre seul. Question 3 : le nom du phénomène.
 
-[Cas 1 — Alerte DISASTER sur pic mémoire last >= 90]
-# Données : ZABBIX_TRIGGER ITEM=vm.memory.util FN=last OP=GTE THRESHOLD=90.0 VALUES=70.0,82.0,94.5
+[Question 1 — Seuil de l'alerte critique (en %)]
 A_COMPLETER
 
-[Cas 2 — Aucune alerte car min inférieur au seuil]
-# Données : ZABBIX_TRIGGER ITEM=net.if.in FN=min OP=GT THRESHOLD=50.0 VALUES=45.0,60.0,75.0
+[Question 2 — Minute de déclenchement de l'alerte critique]
 A_COMPLETER
 
-[Cas 3 — Alerte WARNING modérée sous 75%]
-# Données : ZABBIX_TRIGGER ITEM=disk.space.used FN=max OP=GTE THRESHOLD=60.0 VALUES=55.0,65.0,70.0
+[Question 3 — Phénomène produit par les allers-retours autour du seuil]
+A_COMPLETER
+
+[Question 4 — Minute de résolution de l'alerte (hystérésis)]
+A_COMPLETER
+
+[Question 5 — Durée de maintien du seuil warning (en minutes)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur d’Évaluation des Déclencheurs Zabbix (Triggers)</h3>
+    <h3 class="lab__title">Exercice 2 — Le trigger Zabbix à hystérésis du serveur de calcul NovaGrid</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -268,30 +272,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer une fonction temporelle de trigger Zabbix (avg, last, min, max) et calculer l'état d'alarme et son niveau de sévérité.</p>
-    <div class="lab__brief"><p>Dans Zabbix, un déclencheur calcule dynamiquement l'état d'un équipement à partir d'une suite de valeurs collectées :<br><br>
-Fonctions supportées :<br>
-- <code>avg</code> : Moyenne arithmétique de la liste.<br>
-- <code>last</code> : Dernière valeur observée (dernier élément de la liste).<br>
-- <code>min</code> : Valeur minimale observée.<br>
-- <code>max</code> : Valeur maximale observée.<br><br>
-Opérateurs : <code>GT</code> (&gt;), <code>GTE</code> (&gt;=), <code>LT</code> (&lt;), <code>LTE</code> (&lt;=), <code>EQ</code> (==).<br><br>
-Sévérité :<br>
-- Si l'alarme se déclenche (<code>fired=YES</code>) :<br>
-  - Si <code>computed &gt;= 90.0</code> : <code>DISASTER</code><br>
-  - Sinon si <code>computed &gt;= 75.0</code> : <code>HIGH</code><br>
-  - Sinon : <code>WARNING</code><br>
-- Si l'alarme ne se déclenche pas : <code>fired=NO</code> et <code>severity=OK</code>.<br><br>
-Données du cas : <code>ZABBIX_TRIGGER ITEM=&lt;clef&gt; FN=&lt;avg|last|min|max&gt; OP=&lt;GT|GTE|LT|LTE|EQ&gt; THRESHOLD=&lt;seuil&gt; VALUES=&lt;v1,v2,...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>ZABBIX: item=&lt;ITEM&gt; computed=&lt;val:.2f&gt; fired=&lt;YES|NO&gt; severity=&lt;DISASTER|HIGH|WARNING|OK&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer des seuils warning et critique avec durée de maintien et hystérésis sur une série de mesures CPU.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le serveur de calcul NovaGrid exécute des simulations pour un bureau d'études. L'équipe Zabbix configure le trigger d'utilisation CPU ainsi : alerte <strong>warning</strong> si la CPU reste à <strong>80 % ou plus pendant 5 minutes consécutives</strong> ; alerte <strong>critique</strong> si elle reste à <strong>90 % ou plus pendant 3 minutes consécutives</strong> ; avec hystérésis, l'alerte ne se résout que lorsque la CPU repasse <strong>sous 75 %</strong>. Mesures minute par minute :</p><table><tr><th>Minute</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th></tr><tr><th>CPU (%)</th><td>91</td><td>92</td><td>93</td><td>88</td><td>90</td><td>74</td><td>72</td><td>68</td><td>71</td><td>74</td><td>79</td><td>82</td></tr></table><ol><li>Quel est le seuil de déclenchement de l'alerte critique, en pourcentage ?</li><li>À quelle minute l'alerte critique se déclenche-t-elle ?</li><li>À la minute 4, la CPU retombe à 88 %, puis remonte à 90 % à la minute 5 : sans hystérésis, que produiraient ces allers-retours autour du seuil ?</li><li>Avec l'hystérésis (résolution sous 75 %), à quelle minute l'alerte critique se résout-elle ?</li><li>Combien de minutes consécutives à 80 % ou plus faut-il pour déclencher l'alerte warning ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ZABBIX_TRIGGER ITEM=system.cpu.load FN=avg OP=GT THRESHOLD=75.0 VALUES=65.0,72.5,80.0,85.5,92.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le serveur d'intégration ContinueCI est supervisé sur la mémoire :
+warning à 85 % pendant 4 minutes, critique à 95 % pendant 2 minutes, résolution sous 80 %.
+Série RAM (%) : 96, 97, 94, 96, 74, 82.
+
+1) Seuil critique : 95 %.
+2) Les minutes 1 et 2 (96 et 97) déclenchent l'alerte critique à la minute 2.
+3) Sans hystérésis, la minute 3 (94 %) éteindrait l'alerte et la minute 4 (96 %) la rallumerait : du flapping.
+4) Avec hystérésis, la résolution n'arrive qu'à la minute 5 (74 % sous 80 %).
+5) Le warning exige 4 minutes consécutives à 85 % ou plus.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Convertissez les valeurs d'historique en liste de floats.</li>
-        <li>Calculez la métrique selon la fonction demandée puis appliquez l'opérateur de comparaison.</li>
+        <li>Parcourez la série en repérant les suites consécutives au-dessus de chaque seuil : les minutes 1, 2 et 3 forment trois relevés à 90 % ou plus.</li>
+        <li>Sans hystérésis, un seuil résolu puis redépassé aussitôt allume et éteint l'alerte à chaque minute : c'est le flapping.</li>
+        <li>1. Le seuil critique est donné dans l'énoncé. 2. Trois minutes consécutives à 90 % ou plus : comptez 91, 92, 93. 3. Nommez l'oscillation. 4. La résolution exige un relevé strictement sous 75 %. 5. Relisez la règle du warning.</li>
       </ol>
     </details>
   </div>
@@ -301,24 +300,29 @@ Résultat d’analyse attendu : <code>ZABBIX: item=&lt;ITEM&gt; computed=&lt;val
      data-exercise="sup3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ALERT_ESCALATE INCIDENT=INC-8902 DURATION_MIN=20 ACK=NO">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c3-e3) — Moteur d’Escalade et Traitement des Acquittements d’Incidents
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le service d'impression PrintCenter tombe en panne à 14 h 05.&#10;Le technicien acquitte à 14 h 12 ; l'incident n'est résolu qu'à 15 h 10.&#10;Même politique : niveau 2 à 15 minutes sans acquittement, niveau 3 à 45 minutes sans résolution.&#10;&#10;1) Niveau 2 théorique : 14 h 05 + 15 min = 14 h 20.&#10;2) Acquitté à 14 h 12, avant 14 h 20 : le niveau 2 n'est pas envoyé.&#10;3) À 14 h 50, l'incident dure déjà 45 minutes : le niveau 3 est notifié.&#10;4) Durée totale : de 14 h 05 à 15 h 10 = 65 minutes.&#10;5) Le lendemain, l'équipe rédige le post-mortem.">
+  <script type="text/plain" data-lab-starter># Exercice — Escalade et acquittement : la nuit du NAS de StudioSon
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 1 : l'heure au format 02 h 25. Questions 2 et 3 : oui ou non.
+# Question 4 : le nombre de minutes. Question 5 : un court libellé.
 
-[Cas 1 — Escalade maximale vers manager après 45 minutes sans réponse]
-# Données : ALERT_ESCALATE INCIDENT=INC-8903 DURATION_MIN=45 ACK=NO
+[Question 1 — Heure théorique de l'escalade niveau 2]
 A_COMPLETER
 
-[Cas 2 — Notification initiale niveau 1 dans les premières minutes]
-# Données : ALERT_ESCALATE INCIDENT=INC-8901 DURATION_MIN=5 ACK=NO
+[Question 2 — Le niveau 2 a-t-il été notifié ?]
 A_COMPLETER
 
-[Cas 3 — Incident acquitté par l exploitant suspension des alertes]
-# Données : ALERT_ESCALATE INCIDENT=INC-8904 DURATION_MIN=25 ACK=YES
+[Question 3 — Le niveau 3 a-t-il été notifié ?]
+A_COMPLETER
+
+[Question 4 — Durée de l'incident (en minutes)]
+A_COMPLETER
+
+[Question 5 — Document d'analyse rédigé après l'incident]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Moteur d’Escalade et Traitement des Acquittements d’Incidents</h3>
+    <h3 class="lab__title">Exercice 3 — Escalade et acquittement : la nuit du NAS de StudioSon</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -327,25 +331,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Ordonnancer les paliers d'escalade de notifications selon le temps d'indisponibilité non acquitté.</p>
-    <div class="lab__brief"><p>Pour garantir la prise en charge rapide des pannes, les systèmes de supervision automatisent l'escalade :<br><br>
-Règles temporelles d'escalade (si <code>ACK=NO</code>) :<br>
-- <code>DURATION_MIN &gt;= 30</code> : <code>STAGE=3 CHANNEL=SMS TARGET=manager-on-call</code>.<br>
-- <code>DURATION_MIN &gt;= 15</code> : <code>STAGE=2 CHANNEL=SLACK TARGET=#astreinte-infra</code>.<br>
-- Sinon (<code>DURATION_MIN &lt; 15</code>) : <code>STAGE=1 CHANNEL=EMAIL TARGET=noc-team@corp.local</code>.<br>
-- Dans ces cas, le statut vaut <code>ESCALATING</code>.<br><br>
-Si l'incident est acquitté (<code>ACK=YES</code>) :<br>
-- Les notifications automatiques sont immédiatement suspendues : <code>STAGE=0 CHANNEL=NONE TARGET=NONE status=PAUSED_ACKNOWLEDGED</code>.<br><br>
-Données du cas : <code>ALERT_ESCALATE INCIDENT=&lt;id&gt; DURATION_MIN=&lt;min&gt; ACK=&lt;YES|NO&gt;</code>.<br>
-Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;STAGE&gt; channel=&lt;CHANNEL&gt; target=&lt;TARGET&gt; status=&lt;ESCALATING|PAUSED_ACKNOWLEDGED&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer une politique d'escalade en escalier (prise en charge, résolution) et mesurer la durée d'un incident.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le dimanche 12 avril à <strong>02 h 10</strong>, Zabbix déclenche une alerte critique sur le NAS de StudioSon, le stockage des sessions audio. Politique d'escalade de l'entreprise : notification <strong>niveau 1</strong> (technicien d'astreinte) dès le déclenchement ; escalade <strong>niveau 2</strong> (chef d'astreinte) si l'alerte n'est pas acquittée dans les <strong>15 minutes</strong> ; escalade <strong>niveau 3</strong> (direction technique) si l'incident n'est pas résolu dans les <strong>45 minutes</strong> suivant le déclenchement. L'acquittement suspend les escalades de non-prise en charge, mais pas celles liées à la non-résolution. Journal de la nuit :</p><table><tr><th>Heure</th><th>Événement</th></tr><tr><th>02 h 10</th><td>alerte critique déclenchée, niveau 1 notifié</td></tr><tr><th>02 h 19</th><td>acquittement par le technicien d'astreinte</td></tr><tr><th>02 h 47</th><td>incident résolu, état OK rétabli</td></tr></table><ol><li>À quelle heure l'escalade niveau 2 aurait-elle été envoyée si personne n'avait acquitté l'alerte ?</li><li>Le niveau 2 a-t-il été notifié, compte tenu de l'acquittement à 02 h 19 ?</li><li>Le niveau 3 a-t-il été notifié ?</li><li>Combien de temps l'incident a-t-il duré, du déclenchement à la résolution ?</li><li>Comment se nomme le document rédigé après l'incident pour analyser les causes profondes sans rechercher de coupable ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALERT_ESCALATE INCIDENT=INC-8902 DURATION_MIN=20 ACK=NO</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le service d'impression PrintCenter tombe en panne à 14 h 05.
+Le technicien acquitte à 14 h 12 ; l'incident n'est résolu qu'à 15 h 10.
+Même politique : niveau 2 à 15 minutes sans acquittement, niveau 3 à 45 minutes sans résolution.
+
+1) Niveau 2 théorique : 14 h 05 + 15 min = 14 h 20.
+2) Acquitté à 14 h 12, avant 14 h 20 : le niveau 2 n'est pas envoyé.
+3) À 14 h 50, l'incident dure déjà 45 minutes : le niveau 3 est notifié.
+4) Durée totale : de 14 h 05 à 15 h 10 = 65 minutes.
+5) Le lendemain, l'équipe rédige le post-mortem.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez d'abord si l'incident est acquitté (ACK=YES).</li>
-        <li>Si non acquitté, testez les seuils de 30 minutes, puis 15 minutes, puis le palier initial.</li>
+        <li>Datez chaque étape en ajoutant les délais de la politique au déclenchement de 02 h 10.</li>
+        <li>Comparez l'heure d'acquittement (02 h 19) à l'heure théorique d'escalade (02 h 10 + 15 minutes) : l'acquittement arrive avant.</li>
+        <li>1. Niveau 2 théorique = 02 h 10 + 15 min. 2. L'acquittement suspend cette escalade. 3. Le niveau 3 dépend de la résolution : comparez 37 minutes à 45 minutes. 4. De 02 h 10 à 02 h 47. 5. Le document sans blâme du SRE.</li>
       </ol>
     </details>
   </div>
@@ -358,9 +362,9 @@ Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;
     <div class="q">
       <p class="q__stem">Quel code de sortie un plugin Nagios doit-il renvoyer pour signaler un état CRITICAL au moteur de supervision ?</p>
       <div class="opts">
-        <button class="opt">Code 0</button>
-        <button class="opt">Code 1</button>
         <button class="opt" data-correct="1">Code 2</button>
+        <button class="opt">Code 1</button>
+        <button class="opt">Code 0</button>
         <button class="opt">Code 3</button>
       </div>
       <div class="q__exp">Selon la spécification officielle Nagios : 0=OK, 1=WARNING, 2=CRITICAL, et 3=UNKNOWN.</div>
@@ -369,18 +373,18 @@ Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;
       <p class="q__stem">Quel caractère sépare le message lisible par l'opérateur des métriques Perfdata dans la sortie d'un plugin Nagios ?</p>
       <div class="opts">
         <button class="opt">Le point-virgule (;)</button>
-        <button class="opt" data-correct="1">Le caractère tube (|)</button>
-        <button class="opt">Le double point (:)</button>
         <button class="opt">Le dièse (#)</button>
+        <button class="opt">Le double point (:)</button>
+        <button class="opt" data-correct="1">Le caractère tube (|)</button>
       </div>
       <div class="q__exp">Le caractère tube "|" sépare la ligne de texte humain des données de performance Perfdata destinées au traçage de graphiques.</div>
     </div>
     <div class="q">
       <p class="q__stem">Sur quel port TCP un agent Zabbix configuré en mode passif écoute-t-il les requêtes du serveur Zabbix ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Port 10050</button>
-        <button class="opt">Port 10051</button>
         <button class="opt">Port 5666</button>
+        <button class="opt">Port 10051</button>
+        <button class="opt" data-correct="1">Port 10050</button>
         <button class="opt">Port 161</button>
       </div>
       <div class="q__exp">En mode passif, le Zabbix Agent écoute sur le port 10050/TCP. En mode actif, c'est l'agent qui initie la connexion vers le serveur sur le port 10051/TCP.</div>
@@ -389,8 +393,8 @@ Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;
       <p class="q__stem">Dans Zabbix, quelle fonction de trigger permet de calculer la moyenne des mesures sur une fenêtre de 5 minutes ?</p>
       <div class="opts">
         <button class="opt">last(5m)</button>
-        <button class="opt" data-correct="1">avg(5m)</button>
         <button class="opt">sum(5m)</button>
+        <button class="opt" data-correct="1">avg(5m)</button>
         <button class="opt">count(5m)</button>
       </div>
       <div class="q__exp">La fonction avg(5m) calcule la moyenne arithmétique de la métrique sur les 5 dernières minutes, ce qui permet de lisser les pics temporaires.</div>
@@ -398,30 +402,30 @@ Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;
     <div class="q">
       <p class="q__stem">Quel est l'effet immédiat de l'action « Acquitter » (Acknowledge) d'un incident par un exploitant dans la console de supervision ?</p>
       <div class="opts">
-        <button class="opt">Le redémarrage immédiat du serveur en panne</button>
+        <button class="opt">Le redémarrage automatique et immédiat du serveur signalé en panne</button>
+        <button class="opt">La suppression définitive de l'hôte de la configuration du système de supervision</button>
+        <button class="opt">La réinitialisation complète de la base de données de supervision</button>
         <button class="opt" data-correct="1">Le gel de l'escalade automatique et la suspension des notifications répétées aux astreintes</button>
-        <button class="opt">La suppression définitive de l'hôte du système de supervision</button>
-        <button class="opt">La réinitialisation de la base de données</button>
       </div>
       <div class="q__exp">L'acquittement signale au système qu'un opérateur humain a pris en charge le problème, ce qui stoppe les paliers d'escalade vers les échelons supérieurs.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel démon permet au serveur Nagios d'exécuter des plugins locaux sur des serveurs distants Linux ?</p>
       <div class="opts">
-        <button class="opt">Zabbix Proxy</button>
         <button class="opt" data-correct="1">NRPE (Nagios Remote Plugin Executor)</button>
-        <button class="opt">Filebeat</button>
-        <button class="opt">Node Exporter</button>
+        <button class="opt">Zabbix Proxy, le relais de collecte</button>
+        <button class="opt">Filebeat, l'agent de journaux</button>
+        <button class="opt">Node Exporter, l'exporteur de métriques</button>
       </div>
       <div class="q__exp">NRPE écoute sur le port 5666/TCP des hôtes Linux et exécute les plugins de supervision locaux à la demande du serveur Nagios.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi le mode agent actif de Zabbix est-il particulièrement avantageux pour surveiller des postes nomades ou des serveurs en cloud privé ?</p>
       <div class="opts">
-        <button class="opt">Parce qu'il ne nécessite aucune installation logicielle</button>
+        <button class="opt">Parce qu'il ne nécessite l'installation d'aucun logiciel supplémentaire sur la machine supervisée</button>
         <button class="opt" data-correct="1">Parce que l'agent initie la connexion sortante vers le serveur, évitant d'avoir à ouvrir des ports entrants derrière un NAT</button>
-        <button class="opt">Parce qu'il n'utilise pas de mémoire vive</button>
-        <button class="opt">Parce qu'il remplace le système d'exploitation</button>
+        <button class="opt">Parce qu'il ne consomme strictement aucune mémoire vive sur la machine supervisée, contrairement aux agents classiques</button>
+        <button class="opt">Parce qu'il remplace intégralement le système d'exploitation de la machine supervisée</button>
       </div>
       <div class="q__exp">En mode actif, l'agent initie une connexion sortante standard vers le port 10051 du Zabbix Server, ce qui traverse sans difficulté les passerelles NAT et pare-feux.</div>
     </div>
@@ -429,8 +433,8 @@ Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;
       <p class="q__stem">Dans la syntaxe Perfdata « disk_free=15GB;20;10;0;100 », que représente la valeur 20 ?</p>
       <div class="opts">
         <button class="opt">La valeur maximale du disque</button>
-        <button class="opt" data-correct="1">Le seuil d'alerte WARNING</button>
         <button class="opt">Le seuil d'alerte CRITICAL</button>
+        <button class="opt" data-correct="1">Le seuil d'alerte WARNING</button>
         <button class="opt">Le temps de réponse en millisecondes</button>
       </div>
       <div class="q__exp">Dans la structure label=value;warn;crit;min;max, le premier paramètre après la valeur mesurée est le seuil de WARNING (ici 20).</div>
@@ -553,7 +557,7 @@ Résultat d’analyse attendu : <code>ESCALATION: incident=&lt;id&gt; stage=&lt;
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -44,7 +44,8 @@ module.exports = [
         "expected": "RAX=0x1234567890ABCDEF EAX=0x90ABCDEF AX=0xCDEF AH=0xCD AL=0xEF"
       }
     ],
-    "solution": "[Exemple]\nRAX=0x1122334455667788 EAX=0x55667788 AX=0x7788 AH=0x77 AL=0x88\n\n[Cas 1 — Sous-registres nuls sur poids fort]\nRAX=0x00000000AABBCCDD EAX=0xAABBCCDD AX=0xCCDD AH=0xCC AL=0xDD\n\n[Cas 2 — Valeur maximale F]\nRAX=0xFFFFFFFFFFFFFFFF EAX=0xFFFFFFFF AX=0xFFFF AH=0xFF AL=0xFF\n\n[Cas 3 — Seulement AH et AL alimentés]\nRAX=0x0000000000001234 EAX=0x00001234 AX=0x1234 AH=0x12 AL=0x34\n\n[Cas 4 — Registre AL seul à 1]\nRAX=0x1234567890ABCDEF EAX=0x90ABCDEF AX=0xCDEF AH=0xCD AL=0xEF"
+    "solution": "[Exemple]\nRAX=0x1122334455667788 EAX=0x55667788 AX=0x7788 AH=0x77 AL=0x88\n\n[Cas 1 — Sous-registres nuls sur poids fort]\nRAX=0x00000000AABBCCDD EAX=0xAABBCCDD AX=0xCCDD AH=0xCC AL=0xDD\n\n[Cas 2 — Valeur maximale F]\nRAX=0xFFFFFFFFFFFFFFFF EAX=0xFFFFFFFF AX=0xFFFF AH=0xFF AL=0xFF\n\n[Cas 3 — Seulement AH et AL alimentés]\nRAX=0x0000000000001234 EAX=0x00001234 AX=0x1234 AH=0x12 AL=0x34\n\n[Cas 4 — Registre AL seul à 1]\nRAX=0x1234567890ABCDEF EAX=0x90ABCDEF AX=0xCDEF AH=0xCD AL=0xEF",
+    "takeaway": "Sur x86_64, AL/AH recouvrent les 16 bits AX, lui-même partie basse de EAX et RAX (écrire EAX remet à zéro les 32 bits hauts)."
   },
   {
     "id": "asm2-c2-e2",
@@ -89,7 +90,8 @@ module.exports = [
         "expected": "RES=0x82 ZF=0 CF=0 SF=1"
       }
     ],
-    "solution": "[Exemple]\nRES=0x04 ZF=0 CF=1 SF=0\n\n[Cas 1 — Soustraction donnant zéro (ZF=1)]\nRES=0x00 ZF=1 CF=0 SF=0\n\n[Cas 2 — Soustraction avec emprunt et signe négatif (CF=1, SF=1)]\nRES=0xFB ZF=0 CF=1 SF=1\n\n[Cas 3 — Addition normale sans retenue]\nRES=0x32 ZF=0 CF=0 SF=0\n\n[Cas 4 — Addition produisant un résultat négatif 8 bits (SF=1)]\nRES=0x82 ZF=0 CF=0 SF=1"
+    "solution": "[Exemple]\nRES=0x04 ZF=0 CF=1 SF=0\n\n[Cas 1 — Soustraction donnant zéro (ZF=1)]\nRES=0x00 ZF=1 CF=0 SF=0\n\n[Cas 2 — Soustraction avec emprunt et signe négatif (CF=1, SF=1)]\nRES=0xFB ZF=0 CF=1 SF=1\n\n[Cas 3 — Addition normale sans retenue]\nRES=0x32 ZF=0 CF=0 SF=0\n\n[Cas 4 — Addition produisant un résultat négatif 8 bits (SF=1)]\nRES=0x82 ZF=0 CF=0 SF=1",
+    "takeaway": "Le registre de drapeaux reflète le dernier calcul ALU : ZF=1 si résultat nul, SF=bit de signe, CF=retenue non signée."
   },
   {
     "id": "asm2-c2-e3",
@@ -134,6 +136,7 @@ module.exports = [
         "expected": "VAL=-120 OF=0 DIAG=NORMAL"
       }
     ],
-    "solution": "[Exemple]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 1 — Addition de négatifs avec dépassement (-70 + -60)]\nVAL=126 OF=1 DIAG=OVERFLOW\n\n[Cas 2 — Addition normale sans dépassement]\nVAL=70 OF=0 DIAG=NORMAL\n\n[Cas 3 — Soustraction avec dépassement (100 - -50)]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 4 — Soustraction normale aux bornes (-100 - 20 = -120)]\nVAL=-120 OF=0 DIAG=NORMAL"
+    "solution": "[Exemple]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 1 — Addition de négatifs avec dépassement (-70 + -60)]\nVAL=126 OF=1 DIAG=OVERFLOW\n\n[Cas 2 — Addition normale sans dépassement]\nVAL=70 OF=0 DIAG=NORMAL\n\n[Cas 3 — Soustraction avec dépassement (100 - -50)]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 4 — Soustraction normale aux bornes (-100 - 20 = -120)]\nVAL=-120 OF=0 DIAG=NORMAL",
+    "takeaway": "Le drapeau de débordement OF=1 indique qu une addition signée a inversé le signe attendu (ex. deux positifs donnant un négatif)."
   }
 ];

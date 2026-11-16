@@ -4,126 +4,172 @@ module.exports = [
   {
     "id": "hk3-c5-e1",
     "chapter": 5,
-    "title": "Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser les permissions octales de fichiers système pour détecter les binaires SUID exploitables (GTFOBins).",
-    "brief": "<p>Le bit SUID (Set User ID) permet d'exécuter un binaire avec les privilèges de son propriétaire (généralement root).<br><br>\nBinaires connus du catalogue GTFOBins permettant une évasion directe vers un shell root :<br>\n<code>bash</code>, <code>find</code>, <code>vim</code>, <code>nano</code>, <code>cp</code>, <code>awk</code>, <code>python</code>, <code>nmap</code>, <code>pkexec</code>.<br><br>\nRègles d'évaluation :<br>\n1. Vérifier si le mode octal comporte le bit SUID (chiffre des milliers &gt;= 4, ex: <code>4755</code>, <code>4750</code>) :<br>\n   - Si le bit SUID est absent : <code>exploit=NO_SUID_BIT</code>, <code>risk=NONE</code>.<br>\n2. Si le bit SUID est présent et <code>owner == 'root'</code> :<br>\n   - Si le nom du binaire est dans GTFOBins : <code>exploit=GTFOBINS_PRIVILEGE_ESCALATION</code>, <code>risk=CRITICAL</code>.<br>\n   - Sinon (binaire standard comme <code>passwd</code>, <code>ping</code>) : <code>exploit=STANDARD_SYSTEM_BINARY</code>, <code>risk=LOW</code>.<br>\n3. Si le bit SUID est présent mais <code>owner != 'root'</code> :<br>\n   - <code>exploit=NON_ROOT_SUID</code>, <code>risk=MEDIUM</code>.<br><br>\nDonnées du cas : <code>SUID_CHECK path=&lt;chemin&gt; owner=&lt;user&gt; mode=&lt;octal&gt;</code>.<br>\nRésultat d’analyse attendu : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;user&gt; mode=&lt;octal&gt; exploit=&lt;exploit&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c5-e1) — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Binaire système passwd avec SUID légitime et restreint]\n# Données : SUID_CHECK path=/usr/bin/passwd owner=root mode=4755\nA_COMPLETER\n\n[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]\n# Données : SUID_CHECK path=/bin/vim owner=root mode=4750\nA_COMPLETER\n\n[Cas 3 — Binaire normal sans aucun bit SUID]\n# Données : SUID_CHECK path=/usr/bin/ls owner=root mode=0755\nA_COMPLETER\n\n[Cas 4 — Binaire SUID appartenant à un utilisateur non root]\n# Données : SUID_CHECK path=/opt/app/worker owner=deploy mode=4755\nA_COMPLETER\n",
+    "title": "L'audit des binaires SUID du serveur de la coopérative Solvigne",
+    "exampleTitle": "Exemple résolu — les binaires SUID de l'école de musique Harmonia",
+    "goal": "Interpréter la sortie d'une recherche de binaires SUID et repérer ceux qui ouvrent un shell root.",
+    "brief": "<p><strong>Énoncé.</strong> La coopérative agricole Solvigne mandate un test d'intrusion de son serveur web. Après avoir obtenu un accès limité au compte <code>www-data</code>, l'auditeur recherche des chemins d'élévation de privilèges et lance <code>find / -perm -4000 -type f 2&gt;/dev/null</code>. Le serveur renvoie :</p><table><tr><th>Binaire</th><th>Permissions</th></tr><tr><th>/usr/bin/passwd</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/find</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/vim</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/less</th><td>-rwsr-xr-x root root</td></tr><tr><th>/bin/mount</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/chsh</th><td>-rwsr-xr-x root root</td></tr></table><p>Au passage, la base GTFOBins indique que <code>find</code>, <code>vim</code> et <code>less</code> permettent d'ouvrir un shell lorsque leur bit SUID est positionné.</p><ol><li>Combien de binaires SUID l'audit a-t-il listés ?</li><li>Quelle lettre minuscule, à la place du « x » du propriétaire dans la chaîne de permissions, signale le bit SUID ?</li><li>Combien de ces binaires GTFOBins considère-t-elle comme permettant un shell root ?</li><li>Quel binaire est légitimement SUID sur tout système Linux car il modifie les mots de passe ?</li><li>Quelle valeur octale, présente dans l'option -perm de la commande, correspond au bit SUID ?</li><li>Sous quelle identité ces binaires s'exécutent-ils grâce au bit SUID ?</li></ol>",
+    "starter": "# Exercice — L'audit des binaires SUID du serveur de la coopérative Solvigne\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 3 et 5 : un nombre. Question 2 : une lettre. Questions 4 et 6 : un nom.\n\n[Question 1 — Binaires SUID listés]\nA_COMPLETER\n\n[Question 2 — Lettre signalant le bit SUID]\nA_COMPLETER\n\n[Question 3 — Binaires ouvrant un shell selon GTFOBins]\nA_COMPLETER\n\n[Question 4 — Binaire SUID légitime]\nA_COMPLETER\n\n[Question 5 — Valeur octale du bit SUID]\nA_COMPLETER\n\n[Question 6 — Identité d'exécution des binaires SUID]\nA_COMPLETER\n",
     "hints": [
-      "Extrayez le nom de base du fichier (ex: /usr/bin/find -> find).",
-      "Vérifiez si le premier chiffre du mode octal (mode >= 4000) active le bit SUID.",
-      "Comparez avec la liste GTFOBins si owner == root."
+      "Comptez les lignes du tableau : chaque binaire listé porte le bit SUID dans ses permissions.",
+      "Dans -rwsr-xr-x, le « s » remplace le « x » du propriétaire : c'est lui qui indique le SUID ; la commande le cherche avec -perm -4000.",
+      "GTFOBins classe find, vim et less comme permettant un shell ; passwd est SUID par conception, pour que tout utilisateur change son mot de passe."
     ],
     "examples": [
       {
-        "stdin": "SUID_CHECK path=/usr/bin/find owner=root mode=4755",
-        "expected": "SUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL",
-        "note": "Binaire find SUID root exploitable directement via la commande find . -exec /bin/sh -p ;"
+        "stdin": "Le serveur de l'école de musique Harmonia renvoie quatre binaires SUID :\npasswd (légitime), nano, awk, env.\nGTFOBins classe nano, awk et env comme permettant d'ouvrir un shell.\n\n1) 4 binaires listés. 2) Le bit SUID se lit « s » à la place du x du propriétaire.\n3) 3 binaires exploitables. 4) passwd est le SUID légitime. 5) Valeur octale : 4000. 6) Les binaires s'exécutent en root.",
+        "expected": "4 binaires — s — 3 exploitables — passwd — 4000 — root",
+        "note": "Un SUID légitime comme passwd ne doit jamais être supprimé : l'audit ne retient que les SUID injustifiés."
       }
     ],
     "tests": [
       {
-        "label": "Binaire système passwd avec SUID légitime et restreint",
-        "stdin": "cas:1",
-        "expected": "SUID_AUDIT: binary=passwd owner=root mode=4755 exploit=STANDARD_SYSTEM_BINARY risk=LOW"
+        "label": "Question 1 — Binaires SUID listés",
+        "stdin": "q:1",
+        "expected": "6||six"
       },
       {
-        "label": "Éditeur vim mis en SUID par erreur d'administration",
-        "stdin": "cas:2",
-        "expected": "SUID_AUDIT: binary=vim owner=root mode=4750 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL"
+        "label": "Question 2 — Lettre du bit SUID",
+        "stdin": "q:2",
+        "expected": "s||la lettre s"
       },
       {
-        "label": "Binaire normal sans aucun bit SUID",
-        "stdin": "cas:3",
-        "expected": "SUID_AUDIT: binary=ls owner=root mode=0755 exploit=NO_SUID_BIT risk=NONE"
+        "label": "Question 3 — Binaires ouvrant un shell",
+        "stdin": "q:3",
+        "expected": "3||trois"
       },
       {
-        "label": "Binaire SUID appartenant à un utilisateur non root",
-        "stdin": "cas:4",
-        "expected": "SUID_AUDIT: binary=worker owner=deploy mode=4755 exploit=NON_ROOT_SUID risk=MEDIUM"
+        "label": "Question 4 — Binaire SUID légitime",
+        "stdin": "q:4",
+        "expected": "passwd||le passwd||/usr/bin/passwd"
+      },
+      {
+        "label": "Question 5 — Valeur octale du SUID",
+        "stdin": "q:5",
+        "expected": "4000"
+      },
+      {
+        "label": "Question 6 — Identité d'exécution",
+        "stdin": "q:6",
+        "expected": "root||le root||l'utilisateur root"
       }
     ],
-    "solution": "[Exemple]\nSUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL\n\n[Cas 1 — Binaire système passwd avec SUID légitime et restreint]\nSUID_AUDIT: binary=passwd owner=root mode=4755 exploit=STANDARD_SYSTEM_BINARY risk=LOW\n\n[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]\nSUID_AUDIT: binary=vim owner=root mode=4750 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL\n\n[Cas 3 — Binaire normal sans aucun bit SUID]\nSUID_AUDIT: binary=ls owner=root mode=0755 exploit=NO_SUID_BIT risk=NONE\n\n[Cas 4 — Binaire SUID appartenant à un utilisateur non root]\nSUID_AUDIT: binary=worker owner=deploy mode=4755 exploit=NON_ROOT_SUID risk=MEDIUM"
+    "solution": "[Question 1 — Binaires SUID listés]\n6\n\n[Question 2 — Lettre signalant le bit SUID]\ns\n\n[Question 3 — Binaires ouvrant un shell selon GTFOBins]\n3\n\n[Question 4 — Binaire SUID légitime]\npasswd\n\n[Question 5 — Valeur octale du bit SUID]\n4000\n\n[Question 6 — Identité d'exécution des binaires SUID]\nroot",
+    "takeaway": "1) La commande a listé 6 binaires SUID : passwd, find, vim, less, mount et chsh.\n2) La lettre « s » remplace le « x » du propriétaire dans -rwsr-xr-x : c'est le signe du bit SUID.\n3) GTFOBins classe 3 de ces binaires comme permettant un shell root : find, vim et less.\n4) passwd est légitimement SUID sur tout système Linux : il doit modifier les mots de passe pour tous les utilisateurs.\n5) Le bit SUID correspond à la valeur octale 4000, d'où l'option -perm -4000 de la commande.\n6) Grâce au bit SUID, ces binaires s'exécutent sous l'identité de root, quel que soit l'utilisateur qui les lance.\nContrôle : 6 binaires listés − 3 exploitables (find, vim, less) − 2 légitimes (passwd, chsh) = 1 binaire à instruire (mount), le tri de l'auditeur est complet."
   },
   {
     "id": "hk3-c5-e2",
     "chapter": 5,
-    "title": "Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Analyser une directive sudoers pour détecter des privilèges excessifs permettant l'élévation directe vers root.",
-    "brief": "<p>Une mauvaise configuration dans <code>/etc/sudoers</code> constitue le vecteur d'élévation de privilèges le plus fréquent en environnement Linux.<br><br>\nCommandes dangereuses permettant l'échappement vers un shell (Shell Escape) :<br>\n<code>ALL</code>, <code>find</code>, <code>vim</code>, <code>vi</code>, <code>less</code>, <code>more</code>, <code>bash</code>, <code>sh</code>, <code>python</code>, <code>perl</code>, <code>awk</code>.<br><br>\nRègles d'analyse :<br>\n1. Déterminer si <code>NOPASSWD:</code> est présent dans la règle :<br>\n   - Si absent : <code>nopasswd=FALSE</code>, <code>vector=PASSWORD_PROTECTED</code>, <code>risk=LOW</code>.<br>\n2. Si <code>NOPASSWD:</code> est présent (<code>nopasswd=TRUE</code>) :<br>\n   - Extraire la commande autorisée située après <code>NOPASSWD:</code> (ex: <code>/usr/bin/find</code>).<br>\n   - Extraire le nom du binaire de base.<br>\n   - Si le binaire est <code>ALL</code> ou appartient à la liste de shell escape :<br>\n     <code>vector=INSTANT_ROOT_SHELL</code>, <code>risk=CRITICAL</code>.<br>\n   - Sinon (binaire d'administration restreint, ex: <code>systemctl restart nginx</code>) :<br>\n     <code>vector=RESTRICTED_SUDO_EXECUTION</code>, <code>risk=MEDIUM</code>.<br><br>\nDonnées du cas : <code>SUDO_PARSE rule=&lt;texte_complet_de_la_regle_sudoers&gt;</code>.<br>\nRésultat d’analyse attendu : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt;TRUE|FALSE&gt; command=&lt;cmd_name&gt; vector=&lt;vector&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c5-e2) — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]\n# Données : SUDO_PARSE rule=john ALL=(ALL:ALL) NOPASSWD: ALL\nA_COMPLETER\n\n[Cas 2 — Commande restreinte d'administration sans échappement de shell]\n# Données : SUDO_PARSE rule=backup_svc ALL=(root) NOPASSWD: /usr/bin/rsync\nA_COMPLETER\n\n[Cas 3 — Règle classique exigeant l'authentification par mot de passe]\n# Données : SUDO_PARSE rule=alice ALL=(ALL) /bin/bash\nA_COMPLETER\n",
+    "title": "Le fichier sudoers du serveur de l'agence Weblane",
+    "exampleTitle": "Exemple résolu — le sudoers de la clinique Bonne-Fontaine",
+    "goal": "Auditer un extrait de fichier sudoers et compter les règles qui mènent à un shell root.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence web Weblane fait tester son serveur de préproduction. Disposant du compte <code>dev</code>, l'auditeur lance <code>sudo -l</code> et obtient l'extrait de configuration suivant :</p><table><tr><th>Ligne du fichier sudoers</th><th>Portée</th></tr><tr><th>webmaster ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart apache2</th><td>Redémarrer le service web</td></tr><tr><th>dev ALL=(ALL:ALL) NOPASSWD: /usr/bin/vim /etc/apache2/apache2.conf</td><td>Éditer la configuration Apache</td></tr><tr><th>stagiaire ALL=(ALL) NOPASSWD: /usr/bin/less /var/log/syslog</td><td>Consulter le journal système</td></tr><tr><th>admin ALL=(ALL:ALL) ALL</th><td>Toutes les commandes, avec mot de passe</td></tr></table><p>La base GTFOBins rappelle que <code>vim</code> et <code>less</code> savent lancer un shell.</p><ol><li>Combien d'utilisateurs ces quatre lignes concernent-elles ?</li><li>Combien de lignes autorisent des commandes sans mot de passe (NOPASSWD) ?</li><li>Quel utilisateur peut sortir de vim avec un shell root ?</li><li>Quel pagineur du stagiaire exécute une commande via le séquenceur « !sh » ?</li><li>Combien de règles mènent à un shell root ?</li><li>Quel utilisateur garde le droit le plus large tout en restant protégé par la demande de mot de passe ?</li></ol>",
+    "starter": "# Exercice — Le fichier sudoers du serveur de l'agence Weblane\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 5 : un nombre. Questions 3, 4 et 6 : un nom d'utilisateur ou de binaire.\n\n[Question 1 — Utilisateurs concernés]\nA_COMPLETER\n\n[Question 2 — Lignes NOPASSWD]\nA_COMPLETER\n\n[Question 3 — Utilisateur pouvant sortir de vim en shell root]\nA_COMPLETER\n\n[Question 4 — Pagineur du stagiaire exécutant !sh]\nA_COMPLETER\n\n[Question 5 — Règles menant à un shell root]\nA_COMPLETER\n\n[Question 6 — Utilisateur au droit large protégé par mot de passe]\nA_COMPLETER\n",
     "hints": [
-      "Isolez le texte de la règle avec l’extraction des champs[1].",
-      "Le premier mot de la règle correspond à l'utilisateur ou au groupe.",
-      "Vérifiez la présence de NOPASSWD: et extrayez la commande qui suit."
+      "Listez les utilisateurs en tête de chaque ligne : chaque ligne du tableau en concerne un ; NOPASSWD se compte ensuite dans les trois premières.",
+      "GTFOBins signale vim et less : identifiez qui a le droit de lancer chacun d'eux via sudo.",
+      "La dernière ligne donne tous les droits mais exige le mot de passe : c'est le seul garde-fou qui reste."
     ],
     "examples": [
       {
-        "stdin": "SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find",
-        "expected": "SUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL",
-        "note": "find exécutable sans mot de passe permettant l'échappement shell immédiat."
+        "stdin": "Le serveur de la clinique Bonne-Fontaine expose via sudo -l :\ndeploy NOPASSWD: /usr/bin/systemctl restart app ;\nchef NOPASSWD: /usr/bin/awk /etc/app.conf ;\nop NOPASSWD: /usr/bin/man ;\nbackup ALL=(ALL:ALL) ALL.\nGTFOBins : awk et man savent lancer un shell.\n\n1) 4 utilisateurs. 2) 3 lignes NOPASSWD. 3) L'utilisateur chef obtient un shell via awk.\n4) Le pagineur man sert à op. 5) 2 règles mènent à un shell. 6) L'utilisateur backup garde le droit le plus large protégé par mot de passe.",
+        "expected": "4 utilisateurs — 3 NOPASSWD — chef via awk — man pour op — 2 règles — backup",
+        "note": "Même un outil d'administration anodin (man, less) devient une porte dérobée dès qu'il s'exécute via sudo."
       }
     ],
     "tests": [
       {
-        "label": "Règle accordant tous les privilèges sans mot de passe (ALL)",
-        "stdin": "cas:1",
-        "expected": "SUDO_AUDIT: user=john nopasswd=TRUE command=ALL vector=INSTANT_ROOT_SHELL risk=CRITICAL"
+        "label": "Question 1 — Utilisateurs concernés",
+        "stdin": "q:1",
+        "expected": "4||quatre"
       },
       {
-        "label": "Commande restreinte d'administration sans échappement de shell",
-        "stdin": "cas:2",
-        "expected": "SUDO_AUDIT: user=backup_svc nopasswd=TRUE command=rsync vector=RESTRICTED_SUDO_EXECUTION risk=MEDIUM"
+        "label": "Question 2 — Lignes NOPASSWD",
+        "stdin": "q:2",
+        "expected": "3||trois"
       },
       {
-        "label": "Règle classique exigeant l'authentification par mot de passe",
-        "stdin": "cas:3",
-        "expected": "SUDO_AUDIT: user=alice nopasswd=FALSE command=bash vector=PASSWORD_PROTECTED risk=LOW"
+        "label": "Question 3 — Utilisateur du vim",
+        "stdin": "q:3",
+        "expected": "dev||l'utilisateur dev||le compte dev"
+      },
+      {
+        "label": "Question 4 — Pagineur du stagiaire",
+        "stdin": "q:4",
+        "expected": "less||le less"
+      },
+      {
+        "label": "Question 5 — Règles menant à un shell root",
+        "stdin": "q:5",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 6 — Utilisateur protégé par mot de passe",
+        "stdin": "q:6",
+        "expected": "admin||l'utilisateur admin||le compte admin"
       }
     ],
-    "solution": "[Exemple]\nSUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL\n\n[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]\nSUDO_AUDIT: user=john nopasswd=TRUE command=ALL vector=INSTANT_ROOT_SHELL risk=CRITICAL\n\n[Cas 2 — Commande restreinte d'administration sans échappement de shell]\nSUDO_AUDIT: user=backup_svc nopasswd=TRUE command=rsync vector=RESTRICTED_SUDO_EXECUTION risk=MEDIUM\n\n[Cas 3 — Règle classique exigeant l'authentification par mot de passe]\nSUDO_AUDIT: user=alice nopasswd=FALSE command=bash vector=PASSWORD_PROTECTED risk=LOW"
+    "solution": "[Question 1 — Utilisateurs concernés]\n4\n\n[Question 2 — Lignes NOPASSWD]\n3\n\n[Question 3 — Utilisateur pouvant sortir de vim en shell root]\ndev\n\n[Question 4 — Pagineur du stagiaire exécutant !sh]\nless\n\n[Question 5 — Règles menant à un shell root]\n2\n\n[Question 6 — Utilisateur au droit large protégé par mot de passe]\nadmin",
+    "takeaway": "1) Les quatre lignes concernent 4 utilisateurs : webmaster, dev, stagiaire et admin.\n2) Trois lignes portent NOPASSWD : celles de webmaster, dev et stagiaire.\n3) L'utilisateur dev peut lancer vim via sudo, et vim sait ouvrir un shell root (:!sh).\n4) Le stagiaire a le droit de lancer less, qui exécute une commande via le séquenceur « !sh ».\n5) Deux règles mènent à un shell root : celle de dev (vim) et celle du stagiaire (less).\n6) L'utilisateur admin conserve toutes les commandes mais avec demande de mot de passe : c'est le seul droit large encore protégé.\nContrôle : 4 utilisateurs, 3 sans mot de passe, dont 2 via des outils shell-capables selon GTFOBins : la configuration cumule les facteurs de risque."
   },
   {
     "id": "hk3-c5-e3",
     "chapter": 5,
-    "title": "Calculateur d'Offset de Buffer Overflow et Agencement de Payload",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer la structure et la taille globale d'un exploit de dépassement de tampon de pile (Stack Buffer Overflow).",
-    "brief": "<p>Dans l'exploitation de binaires compilés (x86/x64 sans canary), un dépassement de tampon permet de réécrire le pointeur d'instruction de retour (EIP/RIP).<br><br>\nStructure du payload dans la pile :<br>\n1. <code>PADDING</code> : <code>offset</code> octets (remplissage jusqu'au pointeur de retour).<br>\n2. <code>RET_ADDR</code> : taille de l'adresse de retour (4 octets en <code>x86</code>, 8 octets en <code>x64</code>).<br>\n3. <code>NOP_SLED</code> : <code>sled_len</code> octets de NOP (<code>\\x90</code>).<br>\n4. <code>SHELLCODE</code> : <code>shellcode_len</code> octets du code exécutable injecté.<br><br>\nCalcul de la taille totale du payload :<br>\n<code>total_size = offset + ret_bytes + sled_len + shellcode_len</code>.<br><br>\nDonnées du cas : <code>BOF_LAYOUT arch=&lt;x86|x64&gt; offset=&lt;N&gt; sled_len=&lt;S&gt; shellcode_len=&lt;L&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&lt;N&gt; ret_bytes=&lt;4|8&gt; sled=&lt;S&gt; shellcode=&lt;L&gt; total_size=&lt;total&gt; status=READY_FOR_INJECTION</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c5-e3) — Calculateur d'Offset de Buffer Overflow et Agencement de Payload\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]\n# Données : BOF_LAYOUT arch=x64 offset=264 sled_len=64 shellcode_len=85\nA_COMPLETER\n\n[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]\n# Données : BOF_LAYOUT arch=x86 offset=40 sled_len=0 shellcode_len=28\nA_COMPLETER\n\n[Cas 3 — Tampon volumineux sous architecture x64]\n# Données : BOF_LAYOUT arch=x64 offset=1024 sled_len=128 shellcode_len=120\nA_COMPLETER\n",
+    "title": "L'écrasement de l'adresse de retour du service borne de Navik",
+    "exampleTitle": "Exemple résolu — l'offset du service chat_v1",
+    "goal": "Calculer les offsets d'un dépassement de tampon sur pile : tampon, EBP, adresse de retour et place restante.",
+    "brief": "<p><strong>Énoncé.</strong> Au CTF inter-écoles de Navik, l'épreuve « borne » fournit le binaire d'un service qui lit une chaîne saisie au clavier. L'analyse du code désassemblé montre un tampon de <strong>250 octets</strong>, suivi de l'adresse de retour de la fonction : les 4 octets de l'EBP sauvegardé précèdent immédiatement cette adresse. L'équipe étudiante prépare son exploit :</p><ol><li>Quelle est la taille du tampon vulnérable, en octets ?</li><li>À quel offset, compté depuis le début du tampon, l'adresse de retour commence-t-elle à être écrasée ?</li><li>Combien d'octets séparent la fin du tampon du début de l'adresse de retour ?</li><li>L'équipe envoie une entrée de 400 octets : combien d'octets restent après l'adresse de retour ?</li><li>Quel registre 32 bits, contenant l'adresse de la prochaine instruction à exécuter, l'écrasement détourne-t-il ?</li><li>Quelle protection du compilateur insère une valeur secrète entre le tampon et l'adresse de retour pour détecter l'écrasement ?</li></ol>",
+    "starter": "# Exercice — L'écrasement de l'adresse de retour du service borne de Navik\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : un nombre d'octets ou un offset. Question 5 : un registre. Question 6 : une protection.\n\n[Question 1 — Taille du tampon vulnérable]\nA_COMPLETER\n\n[Question 2 — Offset d'écrasement de l'adresse de retour]\nA_COMPLETER\n\n[Question 3 — Octets entre le tampon et l'adresse de retour]\nA_COMPLETER\n\n[Question 4 — Octets restants après l'adresse de retour]\nA_COMPLETER\n\n[Question 5 — Registre 32 bits détourné]\nA_COMPLETER\n\n[Question 6 — Protection par valeur secrète]\nA_COMPLETER\n",
     "hints": [
-      "Identifiez ret_bytes : 4 octets pour x86 et 8 octets pour x64.",
-      "Sommez offset + ret_bytes + sled_len + shellcode_len.",
-      "Affichez la disposition du payload selon le format demandé."
+      "Sur la pile, l'ordre est : tampon, puis EBP sauvegardé (4 octets), puis l'adresse de retour ; l'offset de l'adresse de retour est donc la taille du tampon plus 4.",
+      "Pour la place restante, retirez de l'entrée totale l'offset de l'adresse de retour puis ses 4 octets.",
+      "Le registre qui porte l'adresse de la prochaine instruction s'appelle EIP en architecture 32 bits ; la protection qui insère une valeur secrète s'appelle le canari de pile (stack canary)."
     ],
     "examples": [
       {
-        "stdin": "BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44",
-        "expected": "PAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION",
-        "note": "Payload x86 standard avec 112 octets de padding et 32 octets de NOP sled."
+        "stdin": "L'épreuve chat_v1 du même CTF expose un tampon de 120 octets,\nsuivi de l'EBP sauvegardé (4 octets) puis de l'adresse de retour.\n\n1) Tampon : 120 octets. 2) L'adresse de retour est écrasée à l'offset 120 + 4 = 124.\n3) 4 octets (l'EBP) séparent le tampon de l'adresse de retour.\n4) Sur une entrée de 200 octets, il reste 200 − 124 − 4 = 72 octets après l'adresse de retour.\n5) Le registre détourné est EIP. 6) La protection s'appelle le canari de pile (stack canary).",
+        "expected": "tampon 120 — offset 124 — 4 octets — 72 octets après EIP — EIP — le canari",
+        "note": "L'offset 124 = 120 + 4 : les 4 octets de l'EBP sauvegardé se placent toujours entre le tampon et l'adresse de retour."
       }
     ],
     "tests": [
       {
-        "label": "Payload 64-bit avec pointeur d'instruction RIP sur 8 octets",
-        "stdin": "cas:1",
-        "expected": "PAYLOAD_LAYOUT: arch=x64 offset=264 ret_bytes=8 sled=64 shellcode=85 total_size=421 status=READY_FOR_INJECTION"
+        "label": "Question 1 — Taille du tampon",
+        "stdin": "q:1",
+        "expected": "250"
       },
       {
-        "label": "Petit offset sans NOP sled (saut direct au début du shellcode)",
-        "stdin": "cas:2",
-        "expected": "PAYLOAD_LAYOUT: arch=x86 offset=40 ret_bytes=4 sled=0 shellcode=28 total_size=72 status=READY_FOR_INJECTION"
+        "label": "Question 2 — Offset de l'adresse de retour",
+        "stdin": "q:2",
+        "expected": "254"
       },
       {
-        "label": "Tampon volumineux sous architecture x64",
-        "stdin": "cas:3",
-        "expected": "PAYLOAD_LAYOUT: arch=x64 offset=1024 ret_bytes=8 sled=128 shellcode=120 total_size=1280 status=READY_FOR_INJECTION"
+        "label": "Question 3 — Octets entre tampon et adresse",
+        "stdin": "q:3",
+        "expected": "4||quatre"
+      },
+      {
+        "label": "Question 4 — Octets restants après l'adresse",
+        "stdin": "q:4",
+        "expected": "142"
+      },
+      {
+        "label": "Question 5 — Registre détourné",
+        "stdin": "q:5",
+        "expected": "eip||le registre eip||EIP"
+      },
+      {
+        "label": "Question 6 — Protection par valeur secrète",
+        "stdin": "q:6",
+        "expected": "le canari||canari||canary||stack canary||la protection canary||stack protector||ssp"
       }
     ],
-    "solution": "[Exemple]\nPAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION\n\n[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]\nPAYLOAD_LAYOUT: arch=x64 offset=264 ret_bytes=8 sled=64 shellcode=85 total_size=421 status=READY_FOR_INJECTION\n\n[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]\nPAYLOAD_LAYOUT: arch=x86 offset=40 ret_bytes=4 sled=0 shellcode=28 total_size=72 status=READY_FOR_INJECTION\n\n[Cas 3 — Tampon volumineux sous architecture x64]\nPAYLOAD_LAYOUT: arch=x64 offset=1024 ret_bytes=8 sled=128 shellcode=120 total_size=1280 status=READY_FOR_INJECTION"
+    "solution": "[Question 1 — Taille du tampon vulnérable]\n250\n\n[Question 2 — Offset d'écrasement de l'adresse de retour]\n254\n\n[Question 3 — Octets entre le tampon et l'adresse de retour]\n4\n\n[Question 4 — Octets restants après l'adresse de retour]\n142\n\n[Question 5 — Registre 32 bits détourné]\neip\n\n[Question 6 — Protection par valeur secrète]\nle canari",
+    "takeaway": "1) Le tampon vulnérable fait 250 octets.\n2) L'adresse de retour commence à l'offset 250 + 4 = 254 depuis le début du tampon.\n3) Les 4 octets de l'EBP sauvegardé séparent la fin du tampon du début de l'adresse de retour.\n4) Sur une entrée de 400 octets : 400 − 254 − 4 = 142 octets restent après l'adresse de retour.\n5) L'écrasement détourne EIP, le registre qui pointe vers la prochaine instruction à exécuter.\n6) La protection s'appelle le canari de pile (stack canary) : une valeur secrète insérée entre le tampon et l'adresse de retour, vérifiée avant le retour de fonction.\nContrôle : 250 (tampon) + 4 (EBP) + 4 (adresse de retour) + 142 (reste) = 400 octets envoyés, la comptabilité de l'exploit est exacte."
   }
 ];

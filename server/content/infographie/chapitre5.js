@@ -158,42 +158,42 @@ module.exports = {
       stem: 'Quel programme du pipeline graphique GPU s’exécute pour chaque pixel rasterisé afin de calculer sa couleur finale ?',
       opts: [
         'Le Vertex Shader',
-        'Le Fragment / Pixel Shader',
         'Le BIOS de la carte mère',
+        'Le Fragment / Pixel Shader',
         'Le compilateur GCC'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Fragment Shader calcule l’illumination, les ombres et les textures pour chaque fragment de pixel affiché à l’écran.'
     },
     {
       stem: 'Selon la loi du cosinus de Lambert, quelle formule mathématique donne l’intensité de lumière diffuse reçue par une surface ?',
       opts: [
         'Id = N × L',
-        'Id = max(0.0, N · L)',
+        'Id = ||N|| / ||L||',
         'Id = N + L',
-        'Id = ||N|| / ||L||'
+        'Id = max(0.0, N · L)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’intensité dépend du cosinus de l’angle d’incidence calculé par le produit scalaire N · L, borné à zéro pour les angles supérieurs à 90°.'
     },
     {
       stem: 'Que vaut l’intensité diffuse de Lambert si le vecteur normal N et la direction vers la lumière L forment un angle de 90 degrés (incidence rasante) ?',
       opts: [
-        '1.0',
-        '0.5',
         '0.0',
+        '0.5',
+        '1.0',
         '-1.0'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le cosinus de 90° vaut 0. Le produit scalaire de deux vecteurs orthogonaux est nul, donc l’intensité reçue est exactement 0.0.'
     },
     {
       stem: 'Quel avantage calculatoire majeur présente le modèle de Blinn-Phong par rapport au modèle de Phong classique ?',
       opts: [
-        'Il supprime le besoin de Fragment Shader',
-        'Il utilise le vecteur mi-chemin H = normalize(L + V), éliminant le calcul coûteux du rayon réfléchi R pour chaque pixel',
-        'Il double la résolution de la texture',
-        'Il désactive les ombres portées'
+        "Il supprime complètement le besoin de programmer un Fragment Shader dans le pipeline graphique moderne",
+        "Il utilise le vecteur mi-chemin H = normalize(L + V), éliminant le calcul coûteux du rayon réfléchi R pour chaque pixel",
+        "Il double automatiquement la résolution native des textures appliquées sur les modèles du jeu",
+        "Il désactive définitivement les ombres portées projetées par les sources lumineuses de la scène"
       ],
       correct: 1,
       exp: 'Calculer le vecteur mi-chemin H entre la lumière et la vue est bien plus direct et économique pour les GPU que de calculer le reflet R = 2(N·L)N - L.'
@@ -201,43 +201,43 @@ module.exports = {
     {
       stem: 'Que stipule le principe fondamental de conservation de l’énergie dans le rendu basé sur la physique (PBR) ?',
       opts: [
-        'La facture d’électricité du serveur ne doit pas dépasser 100 euros',
-        'La quantité totale de lumière réfléchie (diffuse + spéculaire) par une surface ne peut en aucun cas excéder la quantité de lumière qu’elle a reçue',
-        'Les objets en métal doivent toujours être froids au toucher',
-        'La lumière doit toujours voyager à la même vitesse dans tous les shaders'
+        "La facture d’électricité du serveur d’hébergement ne doit jamais dépasser un plafond de cent euros par mois",
+        "Les objets modélisés en métal doivent obligatoirement donner une impression de froid au toucher sur le rendu final",
+        "La quantité totale de lumière réfléchie (diffuse + spéculaire) par une surface ne peut en aucun cas excéder la quantité de lumière qu’elle a reçue",
+        "La lumière doit toujours voyager exactement à la même vitesse d’exécution dans chacun des shaders compilés du moteur"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Physiquement, une surface passive ne crée pas d’énergie. La somme des fractions diffuse (Kd) et spéculaire (Ks) doit être inférieure ou égale à 1.0.'
     },
     {
       stem: 'Pourquoi un métal pur (comme l’or ou le cuivre avec Metallic = 1.0) ne possède-t-il pratiquement aucune composante de lumière diffuse en PBR ?',
       opts: [
-        'Parce que les métaux sont transparents',
-        'Parce que les métaux conduisent l’électricité et absorbent immédiatement par leurs électrons libres toute lumière réfractée à l’intérieur, toute réflexion visible étant spéculaire',
-        'Parce que le GPU refuse de peindre le métal en diffus',
-        'Parce que les métaux ne supportent pas la loi de Lambert'
+        "Parce que les métaux purs sont en réalité totalement transparents et laissent passer la totalité de la lumière incidente sans jamais la diffuser",
+        "Parce que le processeur graphique refuse catégoriquement de calculer la composante diffuse des matériaux métalliques paramétrés dans le moteur",
+        "Parce que les métaux ne respectent pas la loi de Lambert, celle-ci ne s’appliquant qu’aux surfaces plastiques et mates du monde réel",
+        "Parce que les métaux conduisent l’électricité et absorbent immédiatement par leurs électrons libres toute lumière réfractée à l’intérieur, toute réflexion visible étant spéculaire"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Chez les métaux conducteurs, la lumière qui pénètre sous la surface est absorbée au lieu d’être rediffusée. Toute la couleur vient donc du reflet spéculaire teinté.'
     },
     {
       stem: 'Quel phénomène physique l’approximation de Fresnel de Schlick modélise-t-elle avec précision ?',
       opts: [
-        'La décoloration des pigments sous le soleil',
-        'L’augmentation spectaculaire de la réflectivité spéculaire d’une surface lorsque le regard de l’observateur devient presque rasant (tangent à la surface)',
-        'La vitesse du son dans l’air',
-        'Le clignotement des diodes LED'
+        "L’augmentation spectaculaire de la réflectivité spéculaire d’une surface lorsque le regard de l’observateur devient presque rasant (tangent à la surface)",
+        "La décoloration progressive des pigments et des peintures de surface exposés durablement aux rayonnements directs du soleil d’été",
+        "La vitesse de propagation des ondes sonores dans l’air ambiant en fonction de la température et du taux d’humidité local",
+        "Le clignotement périodique des diodes électroluminescentes LED selon la fréquence exacte du courant électrique d’alimentation"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’effet de Fresnel explique pourquoi une vitre ou une flaque d’eau apparaît transparente vue de dessus, mais devient un miroir éclatant vue de biais sous incidence rasante.'
     },
     {
       stem: 'Dans l’équation de Fresnel de Schlick F(θ) = F0 + (1 - F0) * (1 - cos θ)⁵, que représente le paramètre F0 ?',
       opts: [
-        'La distance focale de la caméra',
-        'La réflectance de base de la surface sous un angle de vue perpendiculaire normal (à 0 degré)',
-        'Le niveau de charge de la batterie',
-        'La rugosité maximale du matériau'
+        "La distance focale de la caméra virtuelle utilisée pour observer la scène 3D rendue",
+        "La réflectance de base de la surface sous un angle de vue perpendiculaire normal (à 0 degré)",
+        "Le niveau de charge restant de la batterie de l’appareil qui exécute le rendu temps réel",
+        "La rugosité maximale du matériau mesurée sur l’échelle standard des microfacettes"
       ],
       correct: 1,
       exp: 'F0 est la réflectance minimale observée face à la surface. Pour la plupart des non-métaux (eau, verre, plastique), F0 vaut environ 0.04 (4 % de réflexion).'

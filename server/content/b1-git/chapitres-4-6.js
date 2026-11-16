@@ -122,14 +122,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que fait git checkout -b nom ?', opts: ['Supprime la branche', 'Crée la branche et s\'y déplace', 'Renomme la branche courante'], correct: 1, exp: '-b combine branch (créer) et checkout (basculer).' },
-      { stem: 'Dans le fast-forward, que devient la branche fusionnée dans l\'historique ?', opts: ['Elle reste visible', 'Il n\'y a plus trace d\'elle', 'Elle devient une étiquette'], correct: 1, exp: 'Les commits s\'enchaînent comme s\'ils avaient toujours été sur main : plus de trace de la branche.' },
+      { stem: 'Que fait git checkout -b nom ?', opts: ['Supprime la branche', 'Renomme la branche courante', 'Crée la branche et s\'y déplace'], correct: 2, exp: '-b combine branch (créer) et checkout (basculer).' },
+      { stem: 'Dans le fast-forward, que devient la branche fusionnée dans l\'historique ?', opts: ['Il n\'y a plus trace d\'elle', 'Elle reste visible', 'Elle devient une étiquette'], correct: 0, exp: 'Les commits s\'enchaînent comme s\'ils avaient toujours été sur main : plus de trace de la branche.' },
       { stem: 'Quelle option force la création d\'un commit de fusion ?', opts: ['--force', '--no-ff', '--abort'], correct: 1, exp: '--no-ff crée l\'objet commit même quand le fast-forward est possible : la branche reste visible.' },
       { stem: 'Un merge en cours s\'annule avec…', opts: ['git merge --abort', 'git reset --hard', 'git checkout -f'], correct: 0, exp: 'merge --abort remet la branche dans l\'état d\'avant fusion.' },
-      { stem: 'Un conflit naît quand…', opts: ['deux branches existent', 'deux modifications touchent la même zone d\'un même fichier', 'un push est refusé'], correct: 1, exp: 'Git ne choisit pas à votre place entre deux versions d\'une même zone.' },
-      { stem: 'Dans les marqueurs de conflit, HEAD désigne…', opts: ['la version de la branche courante', 'la version de la branche fusionnée', 'le dernier push'], correct: 0, exp: 'HEAD est la version courante ; la section après ======= vient de la branche fusionnée.' },
-      { stem: 'Que fait git branch -d nom ?', opts: ['Bascule dessus', 'Supprime la branche', 'La fusionne'], correct: 1, exp: 'branch -d supprime — le TP3 le fait après fusion de la branche.' },
-      { stem: 'checkout refuse de changer de branche quand…', opts: ['la branche n\'existe pas', 'la copie de travail porte des modifications', 'il y a un dépôt distant'], correct: 1, exp: 'Changer de branche écraserait les modifications : -f les perd, stash les garde.' }
+      { stem: 'Un conflit naît quand…', opts: ["deux branches coexistent, même sans modification","un push est rejeté par le dépôt distant","deux modifications touchent la même zone d'un même fichier"], correct: 2, exp: 'Git ne choisit pas à votre place entre deux versions d\'une même zone.' },
+      { stem: 'Dans les marqueurs de conflit, HEAD désigne…', opts: ['la version de la branche fusionnée', 'la version de la branche courante', 'le dernier push'], correct: 1, exp: 'HEAD est la version courante ; la section après ======= vient de la branche fusionnée.' },
+      { stem: 'Que fait git branch -d nom ?', opts: ['Supprime la branche', 'Bascule dessus', 'La fusionne'], correct: 0, exp: 'branch -d supprime — le TP3 le fait après fusion de la branche.' },
+      { stem: 'checkout refuse de changer de branche quand…', opts: ["la branche n'existe pas","la copie de travail porte des modifications","un dépôt distant est configuré pour le projet"], correct: 1, exp: 'Changer de branche écraserait les modifications : -f les perd, stash les garde.' }
     ],
 
     pitfalls: [
@@ -291,14 +291,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Le nom origin désigne…', opts: ['le dépôt local', 'le lien conventionnel vers le dépôt distant', 'la branche principale'], correct: 1, exp: 'origin est le nom par défaut du lien distant ; il peut être changé.' },
-      { stem: 'Quelle commande liste les liens distants ?', opts: ['git remote -v', 'git branch -r', 'git log origin'], correct: 0, exp: 'remote -v montre les liens et leurs URL ; branch -r liste les branches distantes.' },
-      { stem: 'Un push est rejeté quand…', opts: ['le dépôt distant est plein', 'le distant contient des commits que le local n\'a pas', 'le message est trop long'], correct: 1, exp: 'Le distant refuse qu\'on écrive par-dessus ce que notre local ne connaît pas : pull d\'abord.' },
-      { stem: 'Que fait git fetch ?', opts: ['Il fusionne le distant dans le local', 'Il actualise les références distantes sans fusionner', 'Il pousse les commits'], correct: 1, exp: 'fetch ramène l\'historique distant et met à jour origin/main, sans toucher à la copie.' },
-      { stem: 'git pull équivaut à…', opts: ['fetch puis merge', 'push puis fetch', 'clone puis merge'], correct: 0, exp: 'pull = fetch + merge : il ramène ET incorpore dans la branche courante.' },
+      { stem: 'Le nom origin désigne…', opts: ["le dépôt local situé dans le dossier .git","la branche principale du dépôt distant","le lien conventionnel vers le dépôt distant"], correct: 2, exp: 'origin est le nom par défaut du lien distant ; il peut être changé.' },
+      { stem: 'Quelle commande liste les liens distants ?', opts: ['git log origin', 'git branch -r', 'git remote -v'], correct: 2, exp: 'remote -v montre les liens et leurs URL ; branch -r liste les branches distantes.' },
+      { stem: 'Un push est rejeté quand…', opts: ["le distant contient des commits que le local n'a pas","le dépôt distant a atteint sa capacité maximale","le message de commit dépasse la taille autorisée"], correct: 0, exp: 'Le distant refuse qu\'on écrive par-dessus ce que notre local ne connaît pas : pull d\'abord.' },
+      { stem: 'Que fait git fetch ?', opts: ["Il fusionne la branche distante dans la branche locale","Il actualise les références distantes sans fusionner","Il pousse les commits locaux vers le dépôt distant"], correct: 1, exp: 'fetch ramène l\'historique distant et met à jour origin/main, sans toucher à la copie.' },
+      { stem: 'git pull équivaut à…', opts: ['clone puis merge', 'push puis fetch', 'fetch puis merge'], correct: 2, exp: 'pull = fetch + merge : il ramène ET incorpore dans la branche courante.' },
       { stem: 'Après un fetch, la copie de travail est…', opts: ['mise à jour', 'inchangée', 'supprimée'], correct: 1, exp: 'fetch ne touche ni à la copie de travail ni à la branche courante.' },
-      { stem: 'Que fait git push -u origin main ?', opts: ['Renomme main', 'Pousse main et la lie à sa jumelle distante', 'Crée origin'], correct: 1, exp: '-u (upstream) lie la branche locale à la branche distante pour les push/pull suivants.' },
-      { stem: 'Dans le TP2, le conflit survient parce que…', opts: ['les deux ont modifié le même fichier', 'le dépôt est public', 'B a cloné'], correct: 0, exp: 'Deux modifications de la même zone : la fusion demande un arbitrage humain.' }
+      { stem: 'Que fait git push -u origin main ?', opts: ["Pousse main et la lie à sa jumelle distante","Renomme la branche main en branche origin","Crée le dépôt distant origin sur le serveur"], correct: 0, exp: '-u (upstream) lie la branche locale à la branche distante pour les push/pull suivants.' },
+      { stem: 'Dans le TP2, le conflit survient parce que…', opts: ["le dépôt est hébergé publiquement sur GitHub","les deux ont modifié le même fichier","B a cloné le dépôt après le commit de A"], correct: 1, exp: 'Deux modifications de la même zone : la fusion demande un arbitrage humain.' }
     ],
 
     pitfalls: [
@@ -452,14 +452,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que fait git stash ?', opts: ['Il commite', 'Il remise les modifications et rend la copie propre', 'Il pousse'], correct: 1, exp: 'stash empile les modifications de la copie : elle redevient propre, rien ne se perd.' },
-      { stem: 'git stash pop fait quoi ?', opts: ['Ajoute une remise', 'Reprend la remise la plus récente et la retire de la pile', 'Liste les remises'], correct: 1, exp: 'pop dépile : les modifications remises reviennent dans la copie de travail.' },
-      { stem: 'pop sur une pile vide…', opts: ['crée une remise vide', 'signale qu\'il n\'y a rien à reprendre', 'efface la copie'], correct: 1, exp: 'Sans remise en attente, pop n\'a rien à rendre — l\'atelier reproduit ce cas.' },
-      { stem: 'Quel .gitignore pour un projet Python du TP1 ?', opts: ['*.py seulement', '__pycache__/, *.pyc, venv/', 'main.py'], correct: 1, exp: 'Cache d\'exécution, fichiers compilés et environnement virtuel : les trois pollutions du TP1.' },
-      { stem: 'Comment vérifier ce que le .gitignore exclut ?', opts: ['git status', 'git ls-files --other --ignored --exclude-standard', 'git diff'], correct: 1, exp: 'Cette commande liste tous les fichiers exclus du suivi dans le projet.' },
-      { stem: 'Que produit git archive ?', opts: ['Un clone du dépôt', 'Une archive de la version courante sans le dossier .git', 'Un commit spécial'], correct: 1, exp: 'archive livre la branche courante en tar/tar.gz, préfixe de dossier au choix.' },
-      { stem: 'Où active-t-on GitHub Pages ?', opts: ['Dans le README', 'Settings → Pages, branch main, dossier /root', 'Dans .gitignore'], correct: 1, exp: 'Le service se règle dans Settings → Pages : il sert l\'URL user.github.io/depot.' },
-      { stem: 'Stash ou commit avant de changer de branche ?', opts: ['Toujours commit', 'stash si le travail est en cours et ne mérite pas une trace', 'Aucun des deux'], correct: 1, exp: 'stash remise sans polluer l\'historique : idéal pour un chantier inachevé.' }
+      { stem: 'Que fait git stash ?', opts: ["Il remise les modifications et rend la copie propre","Il crée un commit provisoire dans l'historique","Il pousse les modifications vers le dépôt distant"], correct: 0, exp: 'stash empile les modifications de la copie : elle redevient propre, rien ne se perd.' },
+      { stem: 'git stash pop fait quoi ?', opts: ["Ajoute une nouvelle remise au sommet de la pile","Liste les remises en attente sans y toucher","Reprend la remise la plus récente et la retire de la pile"], correct: 2, exp: 'pop dépile : les modifications remises reviennent dans la copie de travail.' },
+      { stem: 'pop sur une pile vide…', opts: ["crée une remise vide pour la prochaine fois","efface le contenu de la copie de travail","signale qu'il n'y a rien à reprendre"], correct: 2, exp: 'Sans remise en attente, pop n\'a rien à rendre — l\'atelier reproduit ce cas.' },
+      { stem: 'Quel .gitignore pour un projet Python du TP1 ?', opts: ['__pycache__/, *.pyc, venv/', '*.py seulement', 'main.py'], correct: 0, exp: 'Cache d\'exécution, fichiers compilés et environnement virtuel : les trois pollutions du TP1.' },
+      { stem: 'Comment vérifier ce que le .gitignore exclut ?', opts: ["git status, qui liste aussi les fichiers ignorés","git ls-files --other --ignored --exclude-standard","git diff, qui compare l'index et la copie de travail"], correct: 1, exp: 'Cette commande liste tous les fichiers exclus du suivi dans le projet.' },
+      { stem: 'Que produit git archive ?', opts: ["Une archive de la version courante sans le dossier .git","Un clone complet du dépôt avec son historique","Un commit spécial versé dans l'historique"], correct: 0, exp: 'archive livre la branche courante en tar/tar.gz, préfixe de dossier au choix.' },
+      { stem: 'Où active-t-on GitHub Pages ?', opts: ["Dans le fichier README du dépôt principal","Dans le fichier .gitignore à la racine","Settings → Pages, branch main, dossier /root"], correct: 2, exp: 'Le service se règle dans Settings → Pages : il sert l\'URL user.github.io/depot.' },
+      { stem: 'Stash ou commit avant de changer de branche ?', opts: ["Toujours commiter, même un chantier inachevé","stash si le travail est en cours et ne mérite pas une trace","Aucun des deux : checkout bascule sans rien perdre"], correct: 1, exp: 'stash remise sans polluer l\'historique : idéal pour un chantier inachevé.' }
     ],
 
     pitfalls: [

@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (az3-c1-e1) — Validateur de hiérarchie ARM & Conventions de nommage CAF\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série A]\n# Données : HIERARCHY mg-root/mg-prod/sub-corp-01/rg-web-prod-fc-01\n# Données : HIERARCHY mg-tenant/mg-dev/sub-sandbox-02/rg-api-dev-use-02\nA_COMPLETER\n\n[Cas 2 — Série B]\n# Données : HIERARCHY mg-root/sub-prod-01/rg-web-prod-fc-01\n# Données : HIERARCHY mg-root/mg-core/sub-01/sub-02/rg-data-prod-we-01\nA_COMPLETER\n\n[Cas 3 — Série C]\n# Données : HIERARCHY mg-root/mg-prod/sub-01/rg-web-preprod-we-01\n# Données : HIERARCHY mg-root/mg-prod/sub-01/rg-db-prod-paris-01\n# Données : HIERARCHY mg-root/mg-prod/sub-01/my-resource-group\nA_COMPLETER\n\n[Cas 4 — Série D]\n# Données : HIERARCHY mg-root//sub-01/rg-app-test-ne-01\nA_COMPLETER\n",
     "hints": [
       "Utiliser l’extraction des champs sur le chemin de la hiérarchie pour vérifier qu'il contient exactement 4 éléments.",
-      "Valider le nom du groupe de ressources à l'aide d'une regex ou en découpant sur le tiret \"-\" : rg-<app>-<env>-<region>-<instance>."
+      "Valider le nom du groupe de ressources à l'aide d'une regex ou en découpant sur le tiret \"-\" : rg-<app>-<env>-<region>-<instance>.",
+      "Vérifiez que les préfixes suivent la hiérarchie Management Group -> Subscription -> Resource Group -> Ressource et respectent les conventions alphanumériques."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "INVALID: reason=MALFORMED_HIERARCHY"
       }
     ],
-    "solution": "[Exemple]\nVALID: HIERARCHY depth=4 sub=sub-prod-01 rg=rg-erp-prod-we-01 status=COMPLIANT\n\n[Cas 1 — Hiérarchies conformes en production et dev]\nVALID: HIERARCHY depth=4 sub=sub-corp-01 rg=rg-web-prod-fc-01 status=COMPLIANT\nVALID: HIERARCHY depth=4 sub=sub-sandbox-02 rg=rg-api-dev-use-02 status=COMPLIANT\n\n[Cas 2 — Erreur de hiérarchie malformée]\nINVALID: reason=MALFORMED_HIERARCHY\nINVALID: reason=MALFORMED_HIERARCHY\n\n[Cas 3 — Nom de Resource Group non conforme (env ou région invalide)]\nINVALID: rg=rg-web-preprod-we-01 reason=NON_COMPLIANT_NAMING\nINVALID: rg=rg-db-prod-paris-01 reason=NON_COMPLIANT_NAMING\nINVALID: rg=my-resource-group reason=NON_COMPLIANT_NAMING\n\n[Cas 4 — Segment vide dans la hiérarchie]\nINVALID: reason=MALFORMED_HIERARCHY"
+    "solution": "[Exemple]\nVALID: HIERARCHY depth=4 sub=sub-prod-01 rg=rg-erp-prod-we-01 status=COMPLIANT\n\n[Cas 1 — Hiérarchies conformes en production et dev]\nVALID: HIERARCHY depth=4 sub=sub-corp-01 rg=rg-web-prod-fc-01 status=COMPLIANT\nVALID: HIERARCHY depth=4 sub=sub-sandbox-02 rg=rg-api-dev-use-02 status=COMPLIANT\n\n[Cas 2 — Erreur de hiérarchie malformée]\nINVALID: reason=MALFORMED_HIERARCHY\nINVALID: reason=MALFORMED_HIERARCHY\n\n[Cas 3 — Nom de Resource Group non conforme (env ou région invalide)]\nINVALID: rg=rg-web-preprod-we-01 reason=NON_COMPLIANT_NAMING\nINVALID: rg=rg-db-prod-paris-01 reason=NON_COMPLIANT_NAMING\nINVALID: rg=my-resource-group reason=NON_COMPLIANT_NAMING\n\n[Cas 4 — Segment vide dans la hiérarchie]\nINVALID: reason=MALFORMED_HIERARCHY",
+    "takeaway": "À retenir : Appliquer à des chemins une convention fictive de hiérarchie et de nommage inspirée d’Azure.\nRepère : Chemin conforme à la convention fictive de cet exercice."
   },
   {
     "id": "az3-c1-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (az3-c1-e2) — Sélecteur de région, Zones de disponibilité et Paires géographiques (modèle fictif)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — SLA haute disponibilité 99.99% sur West Europe et France Central]\n# Données : REGION westeurope SLA 99.99%\n# Données : REGION francecentral SLA 99.99%\nA_COMPLETER\n\n[Cas 2 — Région avec zones insuffisantes pour 99.99%]\n# Données : REGION brazilsouth SLA 99.99%\nA_COMPLETER\n\n[Cas 3 — Paliers SLA 99.95% et 99.9% sur diverses régions]\n# Données : REGION northeurope SLA 99.95%\n# Données : REGION eastus SLA 99.9%\n# Données : REGION germanywestcentral SLA 99.95%\nA_COMPLETER\n\n[Cas 4 — Région non répertoriée]\n# Données : REGION mars-central SLA 99.99%\nA_COMPLETER\n",
     "hints": [
       "Utilisez exclusivement les nombres de zones et paires fictifs fournis dans le tableau.",
-      "Appliquez les seuils du modèle sans conclure à un SLA réel ; vérifiez séparément les conditions du service."
+      "Appliquez les seuils du modèle sans conclure à un SLA réel ; vérifiez séparément les conditions du service.",
+      "Croisez le support des Zones de Disponibilité (AZ >= 3) et la région paire fournie pour déterminer la résilience fictive, sans extrapoler un SLA contractuel."
     ],
     "examples": [
       {
@@ -87,51 +90,59 @@ module.exports = [
         "expected": "REGION: mars-central -> UNKNOWN_REGION"
       }
     ],
-    "solution": "[Exemple]\nREGION: westeurope -> RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS\n\n[Cas 1 — SLA haute disponibilité 99.99% sur West Europe et France Central]\nREGION: westeurope -> RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS\nREGION: francecentral -> RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=francesouth | REPLICATION=ZRS_OR_GZRS\n\n[Cas 2 — Région avec zones insuffisantes pour 99.99%]\nREGION: brazilsouth -> INSUFFICIENT_ZONES (zones=2) | TARGET_SLA_UNMET\n\n[Cas 3 — Paliers SLA 99.95% et 99.9% sur diverses régions]\nREGION: northeurope -> RESILIENCE=AVAILABILITY_SETS | PAIRED=westeurope | REPLICATION=LRS_OR_GRS\nREGION: eastus -> RESILIENCE=SINGLE_VM_PREMIUM | PAIRED=westus | REPLICATION=LRS\nREGION: germanywestcentral -> RESILIENCE=AVAILABILITY_SETS | PAIRED=germanynorth | REPLICATION=LRS_OR_GRS\n\n[Cas 4 — Région non répertoriée]\nREGION: mars-central -> UNKNOWN_REGION"
+    "solution": "[Exemple]\nREGION: westeurope -> RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS\n\n[Cas 1 — SLA haute disponibilité 99.99% sur West Europe et France Central]\nREGION: westeurope -> RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=northeurope | REPLICATION=ZRS_OR_GZRS\nREGION: francecentral -> RESILIENCE=AZ_SUPPORTED (zones=3) | PAIRED=francesouth | REPLICATION=ZRS_OR_GZRS\n\n[Cas 2 — Région avec zones insuffisantes pour 99.99%]\nREGION: brazilsouth -> INSUFFICIENT_ZONES (zones=2) | TARGET_SLA_UNMET\n\n[Cas 3 — Paliers SLA 99.95% et 99.9% sur diverses régions]\nREGION: northeurope -> RESILIENCE=AVAILABILITY_SETS | PAIRED=westeurope | REPLICATION=LRS_OR_GRS\nREGION: eastus -> RESILIENCE=SINGLE_VM_PREMIUM | PAIRED=westus | REPLICATION=LRS\nREGION: germanywestcentral -> RESILIENCE=AVAILABILITY_SETS | PAIRED=germanynorth | REPLICATION=LRS_OR_GRS\n\n[Cas 4 — Région non répertoriée]\nREGION: mars-central -> UNKNOWN_REGION",
+    "takeaway": "À retenir : Appliquer une grille fictive de résilience et de réplication sans en déduire un SLA réel.\nRepère : Dans ce modèle fictif, la grille associe trois zones à la cible 99.99% ; cela ne garantit aucun SLA réel."
   },
   {
     "id": "az3-c1-e3",
     "chapter": 1,
-    "title": "Estimateur de coûts TCO et optimisation par Instances Réservées (RI)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer le budget mensuel d’une flotte de machines virtuelles et disques managés, en simulant l’économie apportée par les réservations Azure (1 an ou 3 ans).",
-    "brief": "<p>La maîtrise financière (FinOps) sous Azure requiert d'optimiser l'engagement sur les capacités de calcul (Instances Réservées) tout en dimensionnant le stockage et les flux sortants (Egress).<br><br>\nBarème fictif propre à cet exercice, pas des prix Azure actuels (730 heures par mois) :<br>\n- VM Calcul (tarif Pay-As-You-Go) :<br>\n  - <code>Standard_B2s</code> : 30.37 USD / mois par VM<br>\n  - <code>Standard_D4s_v5</code> : 140.16 USD / mois par VM<br>\n  - <code>Standard_E4s_v5</code> : 183.96 USD / mois par VM<br>\n- Disques managés SSD Premium (tarif mensuel fixe par unité) :<br>\n  - <code>P10</code> (128 Go) : 19.71 USD<br>\n  - <code>P20</code> (512 Go) : 73.22 USD<br>\n  - <code>P30</code> (1024 Go) : 135.17 USD<br>\n- Bande passante sortante (Egress Internet) :<br>\n  - Les 5 premiers Go du mois sont gratuits (0.00 USD).<br>\n  - Tout Go supplémentaire est facturé à 0.087 USD / Go.<br>\n- Remises sur le calcul des VMs par engagement Reserved Instances (RI) :<br>\n  - <code>PAYG</code> : 0% de remise.<br>\n  - <code>RI_1Y</code> : 35% de remise sur le coût du calcul VM.<br>\n  - <code>RI_3Y</code> : 60% de remise sur le coût du calcul VM.<br>\n  (Le stockage et l'egress ne bénéficient pas de la remise RI calcul).<br><br>\nFormat de la ligne d'entrée :<br>\n<code>CALC sku=&lt;SKU&gt; qty=&lt;N&gt; disk=&lt;DISK&gt; egress_gb=&lt;GB&gt; commitment=&lt;PAYG|RI_1Y|RI_3Y&gt;</code><br><br>\nFormat de sortie attendu :<br>\n<code>COST: VM=&lt;vm_cost:.2f&gt; DISK=&lt;disk_cost:.2f&gt; EGRESS=&lt;egress_cost:.2f&gt; TOTAL=&lt;total:.2f&gt; SAVINGS=&lt;savings:.2f&gt;</code></p>",
-    "starter": "# Grille d'analyse (az3-c1-e3) — Estimateur de coûts TCO et optimisation par Instances Réservées (RI)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Flotte PAYG standard 3 VMs B2s]\n# Données : CALC sku=Standard_B2s qty=3 disk=P10 egress_gb=10 commitment=PAYG\nA_COMPLETER\n\n[Cas 2 — Engagement RI 1 an avec egress significatif]\n# Données : CALC sku=Standard_D4s_v5 qty=4 disk=P20 egress_gb=105 commitment=RI_1Y\nA_COMPLETER\n\n[Cas 3 — Engagement RI 3 ans haute capacité mémoire]\n# Données : CALC sku=Standard_E4s_v5 qty=2 disk=P30 egress_gb=50 commitment=RI_3Y\nA_COMPLETER\n\n[Cas 4 — Une seule VM B2s avec RI 3 ans sans egress]\n# Données : CALC sku=Standard_B2s qty=1 disk=P10 egress_gb=0 commitment=RI_3Y\nA_COMPLETER\n",
+    "title": "Le budget Azure de la boutique Norenza",
+    "exampleTitle": "Exemple résolu — l'hébergement du site de l'agence Lumen",
+    "goal": "Calculer le coût mensuel d'une flotte de machines virtuelles (calcul, disques, flux sortants) et l'économie apportée par une réservation.",
+    "brief": "<p><strong>Énoncé.</strong> Norenza, PME de commerce en ligne de 12 salariés, dimensionne sa plateforme de e-commerce. L'architecte retient le barème mensuel suivant (tarifs de l'énoncé, calcul Linux en Europe de l'Ouest, mois de 730 heures) :</p><table><tr><th>Ressource</th><th>Tarif mensuel</th></tr><tr><th>VM Standard_B2s (calcul)</th><td>30,37 €</td></tr><tr><th>VM Standard_D4s_v5 (calcul)</th><td>140,16 €</td></tr><tr><th>VM Standard_E4s_v5 (calcul)</th><td>183,96 €</td></tr><tr><th>Disque SSD Premium P10 (128 Go)</th><td>19,71 €</td></tr><tr><th>Disque SSD Premium P20 (512 Go)</th><td>73,22 €</td></tr></table><p>Flux sortants (egress) : les 100 premiers Go du mois sont gratuits, puis chaque Go supplémentaire est facturé 0,087 €. Réservation de calcul : un engagement d'un an (RI 1 an) accorde 35 % de remise sur le seul coût de calcul des machines virtuelles ; les disques et les flux sortants ne bénéficient d'aucune remise.</p><p>La flotte retenue comprend <strong>2 VM Standard_D4s_v5</strong>, chacune munie d'<strong>1 disque P20</strong>, et l'application génère <strong>150 Go</strong> de flux sortants par mois. L'entreprise signe un engagement de réservation d'un an. Arrondissez chaque résultat au centime d'euro.</p><ol><li>Quel est le coût mensuel du calcul des 2 VM avant remise, en euros ?</li><li>Quel est le montant mensuel de la remise de réservation (35 % du calcul), en euros ?</li><li>Quel est le coût mensuel du calcul après remise, en euros ?</li><li>Quel est le coût mensuel des 2 disques P20, en euros ?</li><li>Quel est le coût mensuel des flux sortants pour 150 Go, en euros ?</li></ol>",
+    "starter": "# Exercice — Le budget Azure de la boutique Norenza\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Le nombre seul, au centime d'euro près (par exemple 280,32).\n\n[Question 1 — Coût mensuel du calcul avant remise (en €)]\nA_COMPLETER\n\n[Question 2 — Montant mensuel de la remise de réservation (en €)]\nA_COMPLETER\n\n[Question 3 — Coût mensuel du calcul après remise (en €)]\nA_COMPLETER\n\n[Question 4 — Coût mensuel des 2 disques P20 (en €)]\nA_COMPLETER\n\n[Question 5 — Coût mensuel des flux sortants pour 150 Go (en €)]\nA_COMPLETER\n",
     "hints": [
-      "Calculer d'abord le coût de base des VMs sans remise (PAYG) : base_vm = qty * tarif_unitaire.",
-      "La remise RI s'applique uniquement à base_vm : savings = base_vm * discount_rate.",
-      "Le coût effectif de la VM devient base_vm - savings."
+      "Le coût de calcul avant remise est la quantité de machines multipliée par le tarif mensuel d'une machine.",
+      "La remise de réservation ne porte que sur le calcul : disques et flux sortants se calculent au tarif plein.",
+      "1. Multipliez 2 par 140,16. 2. Prenez 35 % de ce résultat. 3. Soustrayez la remise du coût avant remise. 4. Multipliez 2 par 73,22. 5. Retirez les 100 Go gratuits puis multipliez par 0,087."
     ],
     "examples": [
       {
-        "stdin": "CALC sku=Standard_B2s qty=2 disk=P10 egress_gb=5 commitment=PAYG",
-        "expected": "COST: VM=60.74 DISK=39.42 EGRESS=0.00 TOTAL=100.16 SAVINGS=0.00",
-        "note": "2 VMs B2s avec 2 disques P10 sans engagement et 5 Go egress gratuits."
+        "stdin": "L'agence Lumen héberge un site vitrine : 1 VM Standard_B2s avec 1 disque P10, 120 Go de\nflux sortants dans le mois et un engagement de réservation de 3 ans (60 % de remise\nsur le calcul seul).\n\n1) Calcul avant remise : 1 × 30,37 = 30,37 €.\n2) Remise 3 ans : 30,37 × 0,60 = 18,222, arrondie à 18,22 €.\n3) Calcul après remise : 30,37 − 18,22 = 12,15 €.\n4) Disque P10 : 1 × 19,71 = 19,71 €.\n5) Flux sortants : 120 − 100 = 20 Go facturés, soit 20 × 0,087 = 1,74 €.",
+        "expected": "calcul avant remise : 30,37 € — remise : 18,22 € — calcul après remise : 12,15 € — disque : 19,71 € — flux sortants : 1,74 €",
+        "note": "La remise de réservation ne s'applique qu'au calcul : disques et flux sortants restent facturés au tarif plein."
       }
     ],
     "tests": [
       {
-        "label": "Flotte PAYG standard 3 VMs B2s",
-        "stdin": "cas:1",
-        "expected": "COST: VM=91.11 DISK=59.13 EGRESS=0.43 TOTAL=150.68 SAVINGS=0.00"
+        "label": "Question 1 — Coût mensuel du calcul avant remise (en €)",
+        "stdin": "q:1",
+        "expected": "280,32||280.32"
       },
       {
-        "label": "Engagement RI 1 an avec egress significatif",
-        "stdin": "cas:2",
-        "expected": "COST: VM=364.42 DISK=292.88 EGRESS=8.70 TOTAL=666.00 SAVINGS=196.22"
+        "label": "Question 2 — Montant mensuel de la remise de réservation (en €)",
+        "stdin": "q:2",
+        "expected": "98,11||98.11"
       },
       {
-        "label": "Engagement RI 3 ans haute capacité mémoire",
-        "stdin": "cas:3",
-        "expected": "COST: VM=147.17 DISK=270.34 EGRESS=3.91 TOTAL=421.42 SAVINGS=220.75"
+        "label": "Question 3 — Coût mensuel du calcul après remise (en €)",
+        "stdin": "q:3",
+        "expected": "182,21||182.21"
       },
       {
-        "label": "Une seule VM B2s avec RI 3 ans sans egress",
-        "stdin": "cas:4",
-        "expected": "COST: VM=12.15 DISK=19.71 EGRESS=0.00 TOTAL=31.86 SAVINGS=18.22"
+        "label": "Question 4 — Coût mensuel des 2 disques P20 (en €)",
+        "stdin": "q:4",
+        "expected": "146,44||146.44"
+      },
+      {
+        "label": "Question 5 — Coût mensuel des flux sortants pour 150 Go (en €)",
+        "stdin": "q:5",
+        "expected": "4,35||4.35"
       }
     ],
-    "solution": "[Exemple]\nCOST: VM=60.74 DISK=39.42 EGRESS=0.00 TOTAL=100.16 SAVINGS=0.00\n\n[Cas 1 — Flotte PAYG standard 3 VMs B2s]\nCOST: VM=91.11 DISK=59.13 EGRESS=0.43 TOTAL=150.68 SAVINGS=0.00\n\n[Cas 2 — Engagement RI 1 an avec egress significatif]\nCOST: VM=364.42 DISK=292.88 EGRESS=8.70 TOTAL=666.00 SAVINGS=196.22\n\n[Cas 3 — Engagement RI 3 ans haute capacité mémoire]\nCOST: VM=147.17 DISK=270.34 EGRESS=3.91 TOTAL=421.42 SAVINGS=220.75\n\n[Cas 4 — Une seule VM B2s avec RI 3 ans sans egress]\nCOST: VM=12.15 DISK=19.71 EGRESS=0.00 TOTAL=31.86 SAVINGS=18.22"
+    "solution": "[Question 1 — Coût mensuel du calcul avant remise (en €)]\n280,32\n\n[Question 2 — Montant mensuel de la remise de réservation (en €)]\n98,11\n\n[Question 3 — Coût mensuel du calcul après remise (en €)]\n182,21\n\n[Question 4 — Coût mensuel des 2 disques P20 (en €)]\n146,44\n\n[Question 5 — Coût mensuel des flux sortants pour 150 Go (en €)]\n4,35",
+    "takeaway": "1) Calcul avant remise : 2 × 140,16 = 280,32 €.\n2) Remise RI 1 an : 280,32 × 0,35 = 98,112, arrondie à 98,11 €.\n3) Calcul après remise : 280,32 − 98,11 = 182,21 €.\n4) Disques : 2 × 73,22 = 146,44 €.\n5) Flux sortants : 150 − 100 = 50 Go facturés, soit 50 × 0,087 = 4,35 €.\nContrôle : coût total de la flotte = 182,21 + 146,44 + 4,35 = 333,00 € par mois."
   }
 ];

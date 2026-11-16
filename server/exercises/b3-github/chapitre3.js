@@ -7,12 +7,13 @@ module.exports = [
     "title": "Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)",
     "level": "n1",
     "language": "shell",
-    "goal": "Analyser le journal des mouvements de têtes (reflog) pour identifier et sauver un commit devenu orphelin après un reset accidentel.",
-    "brief": "<p>Lorsqu'un développeur exécute par erreur <code>git reset --hard HEAD~3</code> ou supprime une branche locale avant d'avoir poussé, les commits semblent perdus.<br>\nEn réalité, Git ne supprime jamais immédiatement les objets : ils restent référencés dans le <strong>Reflog (Reference Log)</strong> jusqu'à la collecte des déchets (Garbage Collection <code>git gc</code>).<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin). La liste des commits actuellement accessibles par les branches actives :<br>\n   <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;hash&gt; ancestors=&lt;h1,h2...|NONE&gt;</code>.<br>\n2. Les entrées chronologiques du reflog de HEAD (du plus récent au plus ancien) :<br>\n   <code>REFLOG_ENTRY id=&lt;HEAD@{n}&gt; commit=&lt;hash&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>.<br><br>\nUn commit est considéré comme <strong>orphelin (Dangling)</strong> s'il figure dans le reflog mais n'apparaît ni comme tête (tip) ni comme ancêtre d'aucune branche active.<br><br>\nPour chaque commit orphelin identifié dans le reflog (dans l'ordre d'apparition), afficher :<br>\n<code>RESCUE_CANDIDATE reflog={id} commit={hash} action=\"{action}\" desc=\"{desc}\" status=DANGLING</code><br>\nSi aucun commit orphelin n'est trouvé :<br>\n<code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c3-e1) — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "goal": "Identifier dans un reflog les candidats à récupérer qui ne sont accessibles par aucune des branches fournies.",
+    "brief": "<p>Le reflog enregistre localement des déplacements de références et peut aider à retrouver un ancien commit après un reset. Il possède ses propres règles d'expiration ; la collecte des objets n'est pas immédiate ni garantie pour une date précise.<br><br>Déclarez d'abord les branches <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;id&gt; ancestors=&lt;id1,id2,...|NONE&gt;</code>, puis les entrées de reflog, de la plus récente à la plus ancienne : <code>REFLOG_ENTRY id=&lt;entrée&gt; commit=&lt;id&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>. Les identifiants et actions ne contiennent pas d'espaces ; le message peut contenir des espaces mais pas de guillemet double.<br><br>Pour chaque entrée dont le commit ne figure ni parmi les têtes ni parmi les ancêtres des branches déclarées, affichez <code>RESCUE_CANDIDATE reflog={id} commit={hash} action=\"{action}\" desc=\"{desc}\" status=DANGLING</code>. Traitez chaque entrée, même si un commit est répété. Si aucune ne correspond, affichez <code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code>.<br><br>Attention : <code>DANGLING</code> est ici une étiquette du modèle, pas une preuve que <code>git fsck</code> qualifierait cet objet de dangling. D'autres références et le reflog lui-même peuvent le rendre accessible ; le script ne restaure aucun objet.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c3-e1) — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Constituer un ensemble (set) de tous les commits accessibles par les branches actives.",
-      "Parcourir les entrées de reflog et vérifier l’appartenance au set."
+      "Rassemblez les têtes et les ancêtres des branches dans un ensemble.",
+      "Parcourez ensuite chaque entrée du reflog dans son ordre initial.",
+      "1. Marquer accessibles toutes les têtes et ancêtres des branches actives. 2. Chaque entrée de reflog dont le commit n’est pas marqué : candidat DANGLING. 3. Aucun candidat : ALL_COMMITS_REFERENCED."
     ],
     "examples": [
       {
@@ -22,6 +23,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Reflog sans entrée",
+        "stdin": "ACTIVE_BRANCH name=main tip=A ancestors=NONE",
+        "expected": "RESCUE_SUMMARY: ALL_COMMITS_REFERENCED"
+      },
+      {
+        "label": "Deux entrées pour un même candidat et branche supplémentaire",
+        "stdin": "ACTIVE_BRANCH name=main tip=A ancestors=NONE\nACTIVE_BRANCH name=dev tip=B ancestors=A\nREFLOG_ENTRY id=HEAD@{0} commit=B action=checkout desc=vers dev\nREFLOG_ENTRY id=HEAD@{1} commit=Z action=commit desc=premier\nREFLOG_ENTRY id=HEAD@{2} commit=Z action=reset desc=second",
+        "expected": "RESCUE_CANDIDATE reflog=HEAD@{1} commit=Z action=\"commit\" desc=\"premier\" status=DANGLING\nRESCUE_CANDIDATE reflog=HEAD@{2} commit=Z action=\"reset\" desc=\"second\" status=DANGLING"
+      },
       {
         "label": "Tous les commits du reflog sont accessibles dans les branches",
         "stdin": "ACTIVE_BRANCH name=main tip=C2 ancestors=C1\nREFLOG_ENTRY id=HEAD@{0} commit=C2 action=checkout desc=moving to main\nREFLOG_ENTRY id=HEAD@{1} commit=C1 action=commit desc=Init",
@@ -36,9 +47,15 @@ module.exports = [
         "label": "Commit orphelin unique après suppression de branche",
         "stdin": "ACTIVE_BRANCH name=main tip=100 ancestors=NONE\nREFLOG_ENTRY id=HEAD@{0} commit=999 action=branch_delete desc=Temporary fix",
         "expected": "RESCUE_CANDIDATE reflog=HEAD@{0} commit=999 action=\"branch_delete\" desc=\"Temporary fix\" status=DANGLING"
+      },
+      {
+        "label": "Ancêtre accessible sans entrée pour la tête",
+        "stdin": "ACTIVE_BRANCH name=main tip=tipA ancestors=baseA\nREFLOG_ENTRY id=H0 commit=baseA action=commit desc=initial",
+        "expected": "RESCUE_SUMMARY: ALL_COMMITS_REFERENCED"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c3-e1 : Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"QUNUSVZFX0JSQU5DSCBuYW1lPW1haW4gdGlwPUMxIGFuY2VzdG9ycz1OT05FClJFRkxPR19FTlRSWSBpZD1IRUFEQHswfSBjb21taXQ9QzEgYWN0aW9uPXJlc2V0IGRlc2M9bW92aW5nIHRvIEMxClJFRkxPR19FTlRSWSBpZD1IRUFEQHsxfSBjb21taXQ9QzMgYWN0aW9uPWNvbW1pdCBkZXNjPUZlYXR1cmUgcGVyZHVl\")\n    printf '%s\\n' \"UkVTQ1VFX0NBTkRJREFURSByZWZsb2c9SEVBREB7MX0gY29tbWl0PUMzIGFjdGlvbj0iY29tbWl0IiBkZXNjPSJGZWF0dXJlIHBlcmR1ZSIgc3RhdHVzPURBTkdMSU5H\" | base64 -d\n    echo \"\"\n    ;;\n  \"QUNUSVZFX0JSQU5DSCBuYW1lPW1haW4gdGlwPUMyIGFuY2VzdG9ycz1DMQpSRUZMT0dfRU5UUlkgaWQ9SEVBREB7MH0gY29tbWl0PUMyIGFjdGlvbj1jaGVja291dCBkZXNjPW1vdmluZyB0byBtYWluClJFRkxPR19FTlRSWSBpZD1IRUFEQHsxfSBjb21taXQ9QzEgYWN0aW9uPWNvbW1pdCBkZXNjPUluaXQ=\")\n    printf '%s\\n' \"UkVTQ1VFX1NVTU1BUlk6IEFMTF9DT01NSVRTX1JFRkVSRU5DRUQ=\" | base64 -d\n    echo \"\"\n    ;;\n  \"QUNUSVZFX0JSQU5DSCBuYW1lPW1haW4gdGlwPU0yIGFuY2VzdG9ycz1NMQpBQ1RJVkVfQlJBTkNIIG5hbWU9ZGV2IHRpcD1EMSBhbmNlc3RvcnM9TTEKUkVGTE9HX0VOVFJZIGlkPUhFQURAezB9IGNvbW1pdD1NMiBhY3Rpb249Y2hlY2tvdXQgZGVzYz10byBtYWluClJFRkxPR19FTlRSWSBpZD1IRUFEQHsxfSBjb21taXQ9TE9TVDEgYWN0aW9uPWNvbW1pdCBkZXNjPVNlY3JldCBjb2RlClJFRkxPR19FTlRSWSBpZD1IRUFEQHsyfSBjb21taXQ9TE9TVDIgYWN0aW9uPWNvbW1pdCBkZXNjPU9sZCBwcm90b3R5cGU=\")\n    printf '%s\\n' \"UkVTQ1VFX0NBTkRJREFURSByZWZsb2c9SEVBREB7MX0gY29tbWl0PUxPU1QxIGFjdGlvbj0iY29tbWl0IiBkZXNjPSJTZWNyZXQgY29kZSIgc3RhdHVzPURBTkdMSU5HClJFU0NVRV9DQU5ESURBVEUgcmVmbG9nPUhFQURAezJ9IGNvbW1pdD1MT1NUMiBhY3Rpb249ImNvbW1pdCIgZGVzYz0iT2xkIHByb3RvdHlwZSIgc3RhdHVzPURBTkdMSU5H\" | base64 -d\n    echo \"\"\n    ;;\n  \"QUNUSVZFX0JSQU5DSCBuYW1lPW1haW4gdGlwPTEwMCBhbmNlc3RvcnM9Tk9ORQpSRUZMT0dfRU5UUlkgaWQ9SEVBREB7MH0gY29tbWl0PTk5OSBhY3Rpb249YnJhbmNoX2RlbGV0ZSBkZXNjPVRlbXBvcmFyeSBmaXg=\")\n    printf '%s\\n' \"UkVTQ1VFX0NBTkRJREFURSByZWZsb2c9SEVBREB7MH0gY29tbWl0PTk5OSBhY3Rpb249ImJyYW5jaF9kZWxldGUiIGRlc2M9IlRlbXBvcmFyeSBmaXgiIHN0YXR1cz1EQU5HTElORw==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\ndeclare -A reachable=()\nbranch_pattern='^ACTIVE_BRANCH name=[^[:space:]]+ tip=([^[:space:]]+) ancestors=([^[:space:]]+)$'\nreflog_pattern='^REFLOG_ENTRY id=([^[:space:]]+) commit=([^[:space:]]+) action=([^[:space:]]+) desc=(.*)$'\nfound=0\nwhile IFS= read -r line || [[ -n $line ]]; do\n  if [[ $line =~ $branch_pattern ]]; then\n    tip=${BASH_REMATCH[1]}\n    ancestors=${BASH_REMATCH[2]}\n    reachable[$tip]=1\n    if [[ $ancestors != NONE ]]; then\n      IFS=, read -r -a ancestors_list <<< \"$ancestors\"\n      for ancestor in \"${ancestors_list[@]}\"; do\n        reachable[$ancestor]=1\n      done\n    fi\n  elif [[ $line =~ $reflog_pattern ]]; then\n    reflog=${BASH_REMATCH[1]}\n    commit=${BASH_REMATCH[2]}\n    action=${BASH_REMATCH[3]}\n    description=${BASH_REMATCH[4]}\n    if [[ ! ${reachable[$commit]+present} ]]; then\n      printf 'RESCUE_CANDIDATE reflog=%s commit=%s action=\"%s\" desc=\"%s\" status=DANGLING\\n' \"$reflog\" \"$commit\" \"$action\" \"$description\"\n      ((found += 1))\n    fi\n  fi\ndone\nif ((found == 0)); then\n  printf 'RESCUE_SUMMARY: ALL_COMMITS_REFERENCED\\n'\nfi\n",
+    "takeaway": "Le reflog local mémorise les déplacements de HEAD pendant plusieurs semaines, permettant de récupérer un commit perdu après un reset brutal."
   },
   {
     "id": "gh3-c3-e2",
@@ -47,11 +64,12 @@ module.exports = [
     "level": "n2",
     "language": "shell",
     "goal": "Simuler la recherche dichotomique de Git Bisect pour identifier le premier commit ayant introduit un bogue.",
-    "brief": "<p>L'outil <code>git bisect</code> effectue une recherche binaire (dichotomie) dans l'historique des commits pour trouver la régression en un minimum de tests ($O(\\log N)$).<br><br>\nAlgorithme :<br>\n1. On dispose d'une liste ordonnée chronologiquement de $N$ commits : <code>[c_0, c_1, ..., c_{N-1}]</code>.<br>\n   Le commit initial $c_0$ est certifié <code>GOOD</code> (sain), et le commit final $c_{N-1}$ est <code>BAD</code> (défaillant).<br>\n2. Tant que l'intervalle <code>[low, high]</code> contient plus d'un commit suspect :<br>\n   On choisit le commit médian : <code>mid = (low + high) // 2</code>.<br>\n   On évalue l'état du commit <code>mid</code> (fourni par la table des statuts) :<br>\n   - Si <code>mid == BAD</code> : la régression a eu lieu à <code>mid</code> ou avant -> <code>high = mid</code>.<br>\n   - Si <code>mid == GOOD</code> : la régression a eu lieu après <code>mid</code> -> <code>low = mid + 1</code>.<br>\n   On Indiquez chaque étape : <code>BISECT_STEP step={k} testing={commit_id} verdict={GOOD|BAD} remaining={high - low + 1}</code>.<br>\n3. Dès que <code>low == high</code>, le premier commit défaillant est identifié :<br>\n   <code>FIRST_BAD_COMMIT id={commit_id}</code>.<br><br>\nLe script Bash lit les données sur l’entrée standard (stdin)...&gt;</code><br>\n<code>STATUSES &lt;c_id&gt;=&lt;GOOD|BAD&gt; ...</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c3-e2) — Détecteur de régression dichotomique automatique (git bisect)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Simulez une recherche dichotomique sur un historique <strong>linéaire</strong>. L'entrée contient <code>HISTORY commits=&lt;c0,c1,...&gt;</code> puis <code>STATUSES &lt;c0&gt;=GOOD &lt;c1&gt;=BAD ...</code>. Les identifiants sont distincts, sans espaces, virgule ni signe égal. Il faut au moins deux commits, le premier <code>GOOD</code>, le dernier <code>BAD</code> et une seule transition de GOOD vers BAD.<br><br>Initialisez <code>low=0</code> et <code>high=N-1</code>. Tant que <code>low &lt; high</code>, calculez <code>mid=(low+high)//2</code> ; si le commit médian est BAD, posez <code>high=mid</code>, sinon <code>low=mid+1</code>. Après chaque étape, affichez <code>BISECT_STEP step={k} testing={id} verdict={GOOD|BAD} remaining={high-low+1}</code>. Enfin, affichez <code>FIRST_BAD_COMMIT id={id}</code>.<br><br>Une liste de moins de deux commits produit <code>BISECT_ERROR reason=INVALID_HISTORY</code>. Un statut manquant, une borne incohérente ou une transition non monotone produit <code>BISECT_ERROR reason=INVALID_STATUSES</code>. Cette simulation n'est pas l'algorithme complet de <code>git bisect</code> sur un graphe de fusions.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c3-e2) — Détecteur de régression dichotomique automatique (git bisect)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "L’outil git bisect utilise la recherche dichotomique pour identifier le commit responsable d’une régression en log2(N) étapes.",
-      "À chaque itération, examinez le commit médian situé à mi-chemin entre la bonne version connue et la mauvaise version."
+      "Vérifiez d’abord les bornes et la monotonie des statuts.",
+      "Conservez l’intervalle inclusif low–high, puis réduisez-le après chaque verdict.",
+      "1. Valider : au moins 2 commits, bornes GOOD/BAD, statuts monotones. 2. Intervalle inclusif low-high ; tester le milieu. 3. BAD : high = milieu ; GOOD : low = milieu + 1. 4. Afficher chaque étape puis FIRST_BAD_COMMIT."
     ],
     "examples": [
       {
@@ -61,6 +79,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Historique minimal de deux commits",
+        "stdin": "HISTORY commits=good,bad\nSTATUSES good=GOOD bad=BAD",
+        "expected": "BISECT_STEP step=1 testing=good verdict=GOOD remaining=1\nFIRST_BAD_COMMIT id=bad"
+      },
+      {
+        "label": "Statuts non monotones",
+        "stdin": "HISTORY commits=A,B,C,D\nSTATUSES A=GOOD B=BAD C=GOOD D=BAD",
+        "expected": "BISECT_ERROR reason=INVALID_STATUSES"
+      },
       {
         "label": "Historique de 8 commits avec bogue introduit tardivement",
         "stdin": "HISTORY commits=v1,v2,v3,v4,v5,v6,v7,v8\nSTATUSES v1=GOOD v2=GOOD v3=GOOD v4=GOOD v5=GOOD v6=GOOD v7=BAD v8=BAD",
@@ -77,7 +105,8 @@ module.exports = [
         "expected": "BISECT_STEP step=1 testing=2 verdict=GOOD remaining=1\nFIRST_BAD_COMMIT id=3"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c3-e2 : Détecteur de régression dichotomique automatique (git bisect)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"SElTVE9SWSBjb21taXRzPUMxLEMyLEMzLEM0LEM1ClNUQVRVU0VTIEMxPUdPT0QgQzI9R09PRCBDMz1CQUQgQzQ9QkFEIEM1PUJBRA==\")\n    printf '%s\\n' \"QklTRUNUX1NURVAgc3RlcD0xIHRlc3Rpbmc9QzMgdmVyZGljdD1CQUQgcmVtYWluaW5nPTMKQklTRUNUX1NURVAgc3RlcD0yIHRlc3Rpbmc9QzIgdmVyZGljdD1HT09EIHJlbWFpbmluZz0xCkZJUlNUX0JBRF9DT01NSVQgaWQ9QzM=\" | base64 -d\n    echo \"\"\n    ;;\n  \"SElTVE9SWSBjb21taXRzPXYxLHYyLHYzLHY0LHY1LHY2LHY3LHY4ClNUQVRVU0VTIHYxPUdPT0QgdjI9R09PRCB2Mz1HT09EIHY0PUdPT0QgdjU9R09PRCB2Nj1HT09EIHY3PUJBRCB2OD1CQUQ=\")\n    printf '%s\\n' \"QklTRUNUX1NURVAgc3RlcD0xIHRlc3Rpbmc9djQgdmVyZGljdD1HT09EIHJlbWFpbmluZz00CkJJU0VDVF9TVEVQIHN0ZXA9MiB0ZXN0aW5nPXY2IHZlcmRpY3Q9R09PRCByZW1haW5pbmc9MgpCSVNFQ1RfU1RFUCBzdGVwPTMgdGVzdGluZz12NyB2ZXJkaWN0PUJBRCByZW1haW5pbmc9MQpGSVJTVF9CQURfQ09NTUlUIGlkPXY3\" | base64 -d\n    echo \"\"\n    ;;\n  \"SElTVE9SWSBjb21taXRzPUEsQixDLEQKU1RBVFVTRVMgQT1HT09EIEI9QkFEIEM9QkFEIEQ9QkFE\")\n    printf '%s\\n' \"QklTRUNUX1NURVAgc3RlcD0xIHRlc3Rpbmc9QiB2ZXJkaWN0PUJBRCByZW1haW5pbmc9MgpCSVNFQ1RfU1RFUCBzdGVwPTIgdGVzdGluZz1BIHZlcmRpY3Q9R09PRCByZW1haW5pbmc9MQpGSVJTVF9CQURfQ09NTUlUIGlkPUI=\" | base64 -d\n    echo \"\"\n    ;;\n  \"SElTVE9SWSBjb21taXRzPTEsMiwzClNUQVRVU0VTIDE9R09PRCAyPUdPT0QgMz1CQUQ=\")\n    printf '%s\\n' \"QklTRUNUX1NURVAgc3RlcD0xIHRlc3Rpbmc9MiB2ZXJkaWN0PUdPT0QgcmVtYWluaW5nPTEKRklSU1RfQkFEX0NPTU1JVCBpZD0z\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\ndeclare -A statuses=()\ncommits=()\nwhile IFS= read -r line || [[ -n $line ]]; do\n  case $line in\n    'HISTORY commits='*)\n      IFS=, read -r -a commits <<< \"${line#HISTORY commits=}\"\n      ;;\n    'STATUSES '*)\n      read -r -a pairs <<< \"${line#STATUSES }\"\n      for pair in \"${pairs[@]}\"; do\n        statuses[${pair%%=*}]=${pair#*=}\n      done\n      ;;\n  esac\ndone\nif ((${#commits[@]} < 2)); then\n  printf 'BISECT_ERROR reason=INVALID_HISTORY\\n'\n  exit 0\nfi\nseen_bad=0\ninvalid=0\nfor commit in \"${commits[@]}\"; do\n  case ${statuses[$commit]-} in\n    GOOD) ((seen_bad)) && invalid=1 ;;\n    BAD) seen_bad=1 ;;\n    *) invalid=1 ;;\n  esac\ndone\nlast=$((${#commits[@]} - 1))\nif [[ ${statuses[${commits[0]}]-} != GOOD || ${statuses[${commits[last]}]-} != BAD ]] || ((invalid)); then\n  printf 'BISECT_ERROR reason=INVALID_STATUSES\\n'\n  exit 0\nfi\nlow=0\nhigh=$last\nstep=0\nwhile ((low < high)); do\n  middle=$(((low + high) / 2))\n  commit=${commits[middle]}\n  verdict=${statuses[$commit]}\n  if [[ $verdict == BAD ]]; then\n    high=$middle\n  else\n    low=$((middle + 1))\n  fi\n  ((step += 1))\n  printf 'BISECT_STEP step=%s testing=%s verdict=%s remaining=%s\\n' \"$step\" \"$commit\" \"$verdict\" \"$((high - low + 1))\"\ndone\nprintf 'FIRST_BAD_COMMIT id=%s\\n' \"${commits[low]}\"\n",
+    "takeaway": "git bisect applique une recherche dichotomique sur l’historique pour isoler en O(log n) tests le commit exact introduisant une régression."
   },
   {
     "id": "gh3-c3-e3",
@@ -86,11 +115,12 @@ module.exports = [
     "level": "n3",
     "language": "shell",
     "goal": "Simuler le comportement en pile LIFO (Last-In, First-Out) des commandes git stash.",
-    "brief": "<p>La commande <code>git stash</code> enregistre temporairement les modifications en cours sur une pile LIFO sans créer de commit formel.<br><br>\nCommandes à exécuter :<br>\n- <code>push &lt;message&gt;</code> : empile une nouvelle entrée au sommet <code>stash@{0}</code>. Les entrées existantes sont décalées : <code>stash@{k} -> stash@{k+1}</code>.<br>\n- <code>pop</code> : extrait et supprime l'entrée la plus récente <code>stash@{0}</code>.<br>\n- <code>apply &lt;idx&gt;</code> : applique l'entrée <code>stash@{idx}</code> sans la supprimer de la pile.<br>\n- <code>drop &lt;idx&gt;</code> : supprime l'entrée <code>stash@{idx}</code> de la pile (les entrées d'indice supérieur sont décrémentées d'une unité).<br><br>\nLe script Bash lit les données sur l’entrée standard (stdin).<br><br>\nPour chaque action, afficher :<br>\n<code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top=\"{msg_du_sommet|EMPTY}\"</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c3-e3) — Gestionnaire de pile de remisage (git stash LIFO stack)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p><code>git stash</code> met de côté des modifications dans des objets de commit accessibles par une liste de remises. Simulez cette liste, dont l'entrée la plus récente porte l'indice 0.<br><br>Chaque ligne est <code>STASH_CMD action=&lt;push|pop|apply|drop&gt;</code>. Pour <code>push</code>, ajoutez <code> arg=&lt;message&gt;</code> ; le message peut être vide ou contenir des espaces mais pas de guillemet double. Pour <code>apply</code> et <code>drop</code>, ajoutez <code> arg=&lt;indice décimal non négatif&gt;</code>. <code>push</code> insère au sommet, <code>pop</code> retire le sommet, <code>apply</code> laisse la liste inchangée et <code>drop</code> retire l'entrée indiquée et renumérote les suivantes.<br><br>Pour chaque action, affichez <code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top=\"{message|EMPTY}\"</code>. Sur une liste vide, pop, apply et drop renvoient <code>STACK_EMPTY</code>. Sur une liste non vide, un indice invalide ou hors limites renvoie <code>INDEX_OUT_OF_BOUNDS</code>.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c3-e3) — Gestionnaire de pile de remisage (git stash LIFO stack)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Gérer une liste Python où l’indice 0 représente stash@{0}.",
-      "Lors d’un push, insérer à l’indice 0 avec stack.insert(0, msg)."
+      "Utilisez un tableau Bash dont l’indice 0 représente l’entrée la plus récente.",
+      "Après une suppression, reconstituez un tableau sans trous et ne modifiez pas la pile lors d’un apply.",
+      "1. push : insérer au sommet. 2. pop : dépiler ou STACK_EMPTY. 3. apply/drop : valider l’indice numérique (< taille), purger les zéros de tête. 4. drop retire l’élément, apply le conserve. 5. Afficher taille et sommet."
     ],
     "examples": [
       {
@@ -100,6 +130,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Actions sur une pile vide",
+        "stdin": "STASH_CMD action=apply arg=0\nSTASH_CMD action=drop arg=0\nSTASH_CMD action=pop",
+        "expected": "STASH_OP action=apply result=STACK_EMPTY current_size=0 top=\"EMPTY\"\nSTASH_OP action=drop result=STACK_EMPTY current_size=0 top=\"EMPTY\"\nSTASH_OP action=pop result=STACK_EMPTY current_size=0 top=\"EMPTY\""
+      },
+      {
+        "label": "Bornes d’indice et suppression du sommet",
+        "stdin": "STASH_CMD action=push arg=un\nSTASH_CMD action=push arg=deux\nSTASH_CMD action=apply arg=1\nSTASH_CMD action=drop arg=2\nSTASH_CMD action=drop arg=0",
+        "expected": "STASH_OP action=push result=OK current_size=1 top=\"un\"\nSTASH_OP action=push result=OK current_size=2 top=\"deux\"\nSTASH_OP action=apply result=OK current_size=2 top=\"deux\"\nSTASH_OP action=drop result=INDEX_OUT_OF_BOUNDS current_size=2 top=\"deux\"\nSTASH_OP action=drop result=OK current_size=1 top=\"un\""
+      },
       {
         "label": "Dépilement sur une pile vide",
         "stdin": "STASH_CMD action=pop",
@@ -114,8 +154,14 @@ module.exports = [
         "label": "Drop avec index hors limites",
         "stdin": "STASH_CMD action=push arg=Seul élément\nSTASH_CMD action=drop arg=5",
         "expected": "STASH_OP action=push result=OK current_size=1 top=\"Seul élément\"\nSTASH_OP action=drop result=INDEX_OUT_OF_BOUNDS current_size=1 top=\"Seul élément\""
+      },
+      {
+        "label": "Indice égal à la taille",
+        "stdin": "STASH_CMD action=push arg=unique\nSTASH_CMD action=drop arg=1",
+        "expected": "STASH_OP action=push result=OK current_size=1 top=\"unique\"\nSTASH_OP action=drop result=INDEX_OUT_OF_BOUNDS current_size=1 top=\"unique\""
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c3-e3 : Gestionnaire de pile de remisage (git stash LIFO stack)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"U1RBU0hfQ01EIGFjdGlvbj1wdXNoIGFyZz1XSVAgc3VyIGZvcm11bGFpcmUKU1RBU0hfQ01EIGFjdGlvbj1wb3A=\")\n    printf '%s\\n' \"U1RBU0hfT1AgYWN0aW9uPXB1c2ggcmVzdWx0PU9LIGN1cnJlbnRfc2l6ZT0xIHRvcD0iV0lQIHN1ciBmb3JtdWxhaXJlIgpTVEFTSF9PUCBhY3Rpb249cG9wIHJlc3VsdD1PSyBjdXJyZW50X3NpemU9MCB0b3A9IkVNUFRZIg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1RBU0hfQ01EIGFjdGlvbj1wb3A=\")\n    printf '%s\\n' \"U1RBU0hfT1AgYWN0aW9uPXBvcCByZXN1bHQ9U1RBQ0tfRU1QVFkgY3VycmVudF9zaXplPTAgdG9wPSJFTVBUWSI=\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1RBU0hfQ01EIGFjdGlvbj1wdXNoIGFyZz1GaXggQ1NTClNUQVNIX0NNRCBhY3Rpb249cHVzaCBhcmc9UmVmYWN0b3IgQVBJClNUQVNIX0NNRCBhY3Rpb249YXBwbHkgYXJnPTEKU1RBU0hfQ01EIGFjdGlvbj1kcm9wIGFyZz0w\")\n    printf '%s\\n' \"U1RBU0hfT1AgYWN0aW9uPXB1c2ggcmVzdWx0PU9LIGN1cnJlbnRfc2l6ZT0xIHRvcD0iRml4IENTUyIKU1RBU0hfT1AgYWN0aW9uPXB1c2ggcmVzdWx0PU9LIGN1cnJlbnRfc2l6ZT0yIHRvcD0iUmVmYWN0b3IgQVBJIgpTVEFTSF9PUCBhY3Rpb249YXBwbHkgcmVzdWx0PU9LIGN1cnJlbnRfc2l6ZT0yIHRvcD0iUmVmYWN0b3IgQVBJIgpTVEFTSF9PUCBhY3Rpb249ZHJvcCByZXN1bHQ9T0sgY3VycmVudF9zaXplPTEgdG9wPSJGaXggQ1NTIg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"U1RBU0hfQ01EIGFjdGlvbj1wdXNoIGFyZz1TZXVsIMOpbMOpbWVudApTVEFTSF9DTUQgYWN0aW9uPWRyb3AgYXJnPTU=\")\n    printf '%s\\n' \"U1RBU0hfT1AgYWN0aW9uPXB1c2ggcmVzdWx0PU9LIGN1cnJlbnRfc2l6ZT0xIHRvcD0iU2V1bCDDqWzDqW1lbnQiClNUQVNIX09QIGFjdGlvbj1kcm9wIHJlc3VsdD1JTkRFWF9PVVRfT0ZfQk9VTkRTIGN1cnJlbnRfc2l6ZT0xIHRvcD0iU2V1bCDDqWzDqW1lbnQi\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nstack=()\npattern='^STASH_CMD action=([^[:space:]]+)( arg=(.*))?$'\nwhile IFS= read -r line || [[ -n $line ]]; do\n  [[ $line =~ $pattern ]] || continue\n  action=${BASH_REMATCH[1]}\n  argument=${BASH_REMATCH[3]}\n  result=OK\n  case $action in\n    push)\n      stack=(\"$argument\" \"${stack[@]}\")\n      ;;\n    pop)\n      if ((${#stack[@]} == 0)); then\n        result=STACK_EMPTY\n      else\n        stack=(\"${stack[@]:1}\")\n      fi\n      ;;\n    apply|drop)\n      if ((${#stack[@]} == 0)); then\n        result=STACK_EMPTY\n      elif [[ ! $argument =~ ^[0-9]+$ ]]; then\n        result=INDEX_OUT_OF_BOUNDS\n      else\n        index=$argument\n        while ((${#index} > 1)) && [[ $index == 0* ]]; do index=${index#0}; done\n        count=${#stack[@]}\n        if ((${#index} > ${#count})) || ((10#$index >= count)); then\n          result=INDEX_OUT_OF_BOUNDS\n        elif [[ $action == drop ]]; then\n          index=$((10#$index))\n          unset 'stack[index]'\n          stack=(\"${stack[@]}\")\n        fi\n      fi\n      ;;\n  esac\n  if ((${#stack[@]} == 0)); then top=EMPTY; else top=${stack[0]}; fi\n  printf 'STASH_OP action=%s result=%s current_size=%s top=\"%s\"\\n' \"$action\" \"$result\" \"${#stack[@]}\" \"$top\"\ndone\n",
+    "takeaway": "git stash empile les modifications en cours selon une pile LIFO pour libérer rapidement la copie de travail sans créer de commit brouillon."
   }
 ];

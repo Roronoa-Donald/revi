@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c5-e1) — Dérivation itérative de mot de passe avec sel (Key Stretching)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : Azerty123;sel_unique_42;1\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : SuperSecret2026;salt99;5\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : admin;abc;2\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : root;xyz;4\nA_COMPLETER\n",
     "hints": [
       "Le sel (salt) empêche les attaques par dictionnaires précalculés et tables arc-en-ciel.",
-      "L’étirement de clé (key stretching) augmente le coût de calcul par force brute via des itérations successives."
+      "L’étirement de clé (key stretching) augmente le coût de calcul par force brute via des itérations successives.",
+      "Pour chaque cas : concaténer mot de passe et sel, hacher, puis répéter l itération le nombre de fois demandé en réinjectant le résultat à chaque tour."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "Cle: 7eee2c9f3d8c94e7d1abf5996ec85bc04fc0ded1d0b3e5c8b822c831d0b5f992 | Sel: xyz | Iterations: 4"
       }
     ],
-    "solution": "[Exemple]\nCle: 01e9866dcf0c6e5864a596c3bf533d1094094bdddf255073a9689ea798116769 | Sel: sel_unique_42 | Iterations: 3\n\n[Cas 1 — Test de validation 1]\nCle: 31df3913a944438dddcb601a9b037db37fe43cbed49b371e5842ec54f3f5e1cb | Sel: sel_unique_42 | Iterations: 1\n\n[Cas 2 — Test de validation 2]\nCle: dc26d5c32ca6d0b33b2bd8b1e17136cd7acc6d5b454432b97d21c3e0cd8d2614 | Sel: salt99 | Iterations: 5\n\n[Cas 3 — Test de validation 3]\nCle: db2fdc110bb234a6dd72f9f13c49d6f0c81e5ec45c6f385aa969291e95e24f7a | Sel: abc | Iterations: 2\n\n[Cas 4 — Test de validation 4]\nCle: 7eee2c9f3d8c94e7d1abf5996ec85bc04fc0ded1d0b3e5c8b822c831d0b5f992 | Sel: xyz | Iterations: 4"
+    "solution": "[Exemple]\nCle: 01e9866dcf0c6e5864a596c3bf533d1094094bdddf255073a9689ea798116769 | Sel: sel_unique_42 | Iterations: 3\n\n[Cas 1 — Test de validation 1]\nCle: 31df3913a944438dddcb601a9b037db37fe43cbed49b371e5842ec54f3f5e1cb | Sel: sel_unique_42 | Iterations: 1\n\n[Cas 2 — Test de validation 2]\nCle: dc26d5c32ca6d0b33b2bd8b1e17136cd7acc6d5b454432b97d21c3e0cd8d2614 | Sel: salt99 | Iterations: 5\n\n[Cas 3 — Test de validation 3]\nCle: db2fdc110bb234a6dd72f9f13c49d6f0c81e5ec45c6f385aa969291e95e24f7a | Sel: abc | Iterations: 2\n\n[Cas 4 — Test de validation 4]\nCle: 7eee2c9f3d8c94e7d1abf5996ec85bc04fc0ded1d0b3e5c8b822c831d0b5f992 | Sel: xyz | Iterations: 4",
+    "takeaway": "Un hachage itératif salé (PBKDF2/Argon2) ajoute du sel unique et un facteur coût pour ralentir massivement les attaques hors ligne."
   },
   {
     "id": "cs2-c5-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c5-e2) — Validateur de jeton JWT et détection de faille alg=none\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJoYWNrZXIiLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE4MDAwMDAwMDB9.;1700000000\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJib2IiLCJyb2xlIjoidXNlciIsImV4cCI6MTYwMDAwMDAwMH0.signature;1700000000\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : token_malforme_sans_trois_parties;1700000000\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJjaGFybGllIiwicm9sZSI6Im1vZGVyYXRvciIsImV4cCI6MTkwMDAwMDAwMH0.sig;1700000000\nA_COMPLETER\n",
     "hints": [
       "Un jeton JWT authentique doit obligatoirement comporter une signature cryptographique valide.",
-      "Rejetez catégoriquement l’algorithme \"none\" qui tente de contourner la vérification de signature."
+      "Rejetez catégoriquement l’algorithme \"none\" qui tente de contourner la vérification de signature.",
+      "Pour chaque jeton : vérifier les trois segments, décoder l en-tête, rejeter l algorithme none ou inconnu, puis contrôler la signature et l expiration."
     ],
     "examples": [
       {
@@ -87,7 +90,8 @@ module.exports = [
         "expected": "VALIDE: utilisateur=charlie, role=moderator"
       }
     ],
-    "solution": "[Exemple]\nVALIDE: utilisateur=alice, role=admin\n\n[Cas 1 — Test de validation 1]\nREJET: algorithme non securise (alg=none)\n\n[Cas 2 — Test de validation 2]\nREJET: jeton expire (exp=1600000000, now=1700000000)\n\n[Cas 3 — Test de validation 3]\nREJET: format JWT invalide\n\n[Cas 4 — Test de validation 4]\nVALIDE: utilisateur=charlie, role=moderator"
+    "solution": "[Exemple]\nVALIDE: utilisateur=alice, role=admin\n\n[Cas 1 — Test de validation 1]\nREJET: algorithme non securise (alg=none)\n\n[Cas 2 — Test de validation 2]\nREJET: jeton expire (exp=1600000000, now=1700000000)\n\n[Cas 3 — Test de validation 3]\nREJET: format JWT invalide\n\n[Cas 4 — Test de validation 4]\nVALIDE: utilisateur=charlie, role=moderator",
+    "takeaway": "Un validateur JWT doit toujours imposer une liste blanche d algorithmes attendus (ex. HS256/RS256) et rejeter alg=none."
   },
   {
     "id": "cs2-c5-e3",
@@ -100,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c5-e3) — Moteur de contrôle d’accès basé sur les rôles (RBAC)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : ADMIN:read,write,delete|USER:read\n# Données : alice:ADMIN|bob:USER\n# Données : alice delete\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : ADMIN:read,write,delete|USER:read\n# Données : alice:ADMIN|bob:USER\n# Données : bob read\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : ADMIN:read,write,delete|USER:read\n# Données : alice:ADMIN|bob:USER\n# Données : charlie read\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : AUDITOR:export,audit|DEV:code,test\n# Données : sam:AUDITOR\n# Données : sam audit\nA_COMPLETER\n",
     "hints": [
       "Dans le modèle RBAC, l’accès est déterminé par la matrice d’habilitation liant les rôles aux permissions.",
-      "Contrôlez que l’opération demandée fait expressément partie des privilèges accordés au rôle de l’utilisateur."
+      "Contrôlez que l’opération demandée fait expressément partie des privilèges accordés au rôle de l’utilisateur.",
+      "Pour chaque requête : retrouver le rôle de l utilisateur, puis vérifier que la permission demandée figure expressément dans la liste attachée à ce rôle."
     ],
     "examples": [
       {
@@ -131,6 +136,7 @@ module.exports = [
         "expected": "ACCES ACCORDE (sam en tant que AUDITOR possede audit)"
       }
     ],
-    "solution": "[Exemple]\nACCES REFUSE (bob en tant que USER ne possede pas write)\n\n[Cas 1 — Test de validation 1]\nACCES ACCORDE (alice en tant que ADMIN possede delete)\n\n[Cas 2 — Test de validation 2]\nACCES ACCORDE (bob en tant que USER possede read)\n\n[Cas 3 — Test de validation 3]\nUTILISATEUR INCONNU\n\n[Cas 4 — Test de validation 4]\nACCES ACCORDE (sam en tant que AUDITOR possede audit)"
+    "solution": "[Exemple]\nACCES REFUSE (bob en tant que USER ne possede pas write)\n\n[Cas 1 — Test de validation 1]\nACCES ACCORDE (alice en tant que ADMIN possede delete)\n\n[Cas 2 — Test de validation 2]\nACCES ACCORDE (bob en tant que USER possede read)\n\n[Cas 3 — Test de validation 3]\nUTILISATEUR INCONNU\n\n[Cas 4 — Test de validation 4]\nACCES ACCORDE (sam en tant que AUDITOR possede audit)",
+    "takeaway": "Le contrôle RBAC vérifie si la permission demandée figure dans l union des privilèges attachés aux rôles de l utilisateur."
   }
 ];

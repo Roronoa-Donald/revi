@@ -134,43 +134,43 @@ module.exports = {
     {
       stem: 'Pourquoi l’utilisation de requêtes préparées (Prepared Statements) élimine-t-elle définitivement le risque d’injection SQL ?',
       opts: [
-        'Parce que le moteur SQL sépare rigoureusement la phase de compilation syntaxique de la transmission des données, traitant les paramètres comme de simples valeurs scalaires',
-        'Parce que les requêtes préparées chiffrent automatiquement la base de données en AES-256',
-        'Parce qu’elles refusent automatiquement toute saisie contenant le caractère espace',
-        'Parce qu’elles transfèrent l’exécution de la requête sur le navigateur du client'
+        "Parce que les requêtes préparées chiffrent automatiquement et intégralement la base de données en AES-256 côté serveur",
+        "Parce qu’elles refusent systématiquement toute saisie utilisateur contenant le moindre caractère espace, apostrophe ou guillemet",
+        "Parce qu’elles déportent l’intégralité de l’exécution de la requête SQL vers le navigateur web du client distant, hors du serveur",
+        "Parce que le moteur SQL sépare rigoureusement la phase de compilation syntaxique de la transmission des données, traitant les paramètres comme de simples valeurs scalaires"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'En séparant la grammaire SQL des données littérales, le moteur de base de données ne réévalue jamais le contenu des paramètres comme une instruction exécutable, ce qui rend l’injection impossible.'
     },
     {
       stem: 'Quel attribut de cookie HTTP empêche formellement un script malveillant injecté par XSS de dérober le cookie de session via document.cookie ?',
       opts: [
-        'HttpOnly',
-        'Secure',
         'SameSite',
+        'Secure',
+        'HttpOnly',
         'Domain'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'L’attribut HttpOnly indique au navigateur que le cookie ne doit jamais être accessible via les APIs JavaScript du DOM (document.cookie), neutralisant ainsi le vol de session direct par XSS.'
     },
     {
       stem: 'Quelle variante d’attaque XSS consiste à enregistrer définitivement la charge utile malveillante dans la base de données du site visé ?',
       opts: [
-        'XSS Stockée (Stored XSS)',
         'XSS Réfléchie (Reflected XSS)',
+        'XSS Stockée (Stored XSS)',
         'XSS basée sur le DOM (DOM XSS)',
         'XSS Aveugle (Blind XSS)'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La XSS stockée (ou persistante) sauvegarde le script dans la base de données (ex. profil, commentaire) qui s’exécute ensuite automatiquement chez tous les utilisateurs qui consultent cette ressource.'
     },
     {
       stem: 'Comment caractérise-t-on une vulnérabilité IDOR (Insecure Direct Object Reference) ?',
       opts: [
-        'Le serveur autorise l’accès à un objet privé simplement en modifiant son identifiant dans la requête, sans vérifier que l’utilisateur connecté en est le propriétaire',
-        'Le serveur utilise un algorithme de hachage cassé comme MD5',
-        'Le port SSH 22 est exposé sur Internet sans mot de passe',
-        'L’application ne dispose pas de certificat SSL/TLS valide'
+        "Le serveur autorise l’accès à un objet privé simplement en modifiant son identifiant dans la requête, sans vérifier que l’utilisateur connecté en est le propriétaire",
+        "Le serveur utilise un algorithme de hachage cryptographique cassé comme MD5 pour signer l’ensemble de ses sessions utilisateurs",
+        "Le port SSH 22 du serveur applicatif est exposé directement sur l’Internet public sans aucun mot de passe configuré",
+        "L’application web ne dispose d’aucun certificat SSL/TLS valide pour chiffrer l’intégralité de ses échanges réseau sortants"
       ],
       correct: 0,
       exp: 'L’IDOR survient lorsque l’application expose une référence directe à un objet interne (clé primaire en base) et omet de valider si l’identité authentifiée a le droit légitime de lire ou modifier cet objet.'

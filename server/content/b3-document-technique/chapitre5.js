@@ -186,21 +186,21 @@ module.exports = {
     {
       stem: 'Quel est le principe directeur fondamental de l’approche « Docs-as-Code » ?',
       opts: [
-        'Écrire toute la documentation uniquement en langage binaire exécutable',
-        'Traiter la documentation avec les mêmes outils et processus que le code : texte brut, versionnement Git, revues par PR et tests CI/CD',
-        'Imprimer la documentation sur papier après chaque sprint agile',
-        'Interdire formellement aux développeurs de lire la documentation technique'
+        "Traiter la documentation avec les mêmes outils et processus que le code : texte brut, versionnement Git, revues par PR et tests CI/CD",
+        "Écrire toute la documentation uniquement en langage binaire exécutable directement interprétable par la machine",
+        "Imprimer systématiquement la documentation sur papier après chaque sprint agile pour archivage physique",
+        "Interdire formellement aux développeurs de consulter la documentation technique de l’entreprise"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Docs-as-Code applique les pratiques logicielles éprouvées (Git, Pull Requests, linters, pipelines CI/CD) à la rédaction documentaire.'
     },
     {
       stem: 'Pourquoi est-il considéré comme une faute de hiérarchie de faire suivre immédiatement un titre de niveau 1 (#) par un sous-titre de niveau 3 (###) en Markdown ?',
       opts: [
-        'Parce que le compilateur Markdown détruit automatiquement le fichier source',
-        'Parce que cela brise la structure logique du document, perturbant les lecteurs d’écran pour l’accessibilité et la génération de la table des matières',
-        'Parce que le langage Markdown interdit d’avoir plus de deux titres par page',
-        'Parce que cela ralentit l’affichage graphique de 10 secondes'
+        "Parce que le compilateur Markdown détruit automatiquement le fichier source lors de la génération du site statique",
+        "Parce que cela brise la structure logique du document, perturbant les lecteurs d’écran pour l’accessibilité et la génération de la table des matières",
+        "Parce que le langage Markdown interdit formellement d’utiliser plus de deux titres par page de documentation",
+        "Parce que cela ralentit l’affichage graphique du site généré d’une dizaine de secondes à chaque chargement"
       ],
       correct: 1,
       exp: 'Sauter un niveau hiérarchique (de h1 à h3 sans h2) crée un trou dans l’arborescence du document, violant les règles WCAG d’accessibilité et déclenchant des erreurs de linters.'
@@ -208,67 +208,67 @@ module.exports = {
     {
       stem: 'Quel est l’avantage décisif d’un diagramme Mermaid.js par rapport à une image PNG intégrée dans une documentation technique ?',
       opts: [
-        'Mermaid.js utilise obligatoirement la couleur rouge pour tous les serveurs',
-        'Le diagramme Mermaid étant du texte brut, son évolution se relit dans les diffs Git et n’importe quel ingénieur peut le modifier sans outil graphique tiers',
-        'Mermaid.js compresse l’image en format zip pour économiser de la bande passante',
-        'Les diagrammes Mermaid ne peuvent pas être affichés dans un navigateur web'
+        "Mermaid.js utilise obligatoirement la couleur rouge pour représenter tous les serveurs des schémas d’architecture technique",
+        "Mermaid.js compresse automatiquement l’image finale en format zip afin d’économiser la bande passante du site web",
+        "Le diagramme Mermaid étant du texte brut, son évolution se relit dans les diffs Git et n’importe quel ingénieur peut le modifier sans outil graphique tiers",
+        "Les diagrammes Mermaid ne peuvent jamais être affichés correctement dans un navigateur web classique et récent"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un schéma texte Mermaid se versionne sous Git : un changement de topologie se relit ligne par ligne lors d’une Pull Request et se modifie directement dans l’éditeur.'
     },
     {
       stem: 'Dans un projet utilisant MkDocs, quel fichier central définit les métadonnées du site, les extensions et l’arborescence de navigation ?',
       opts: [
         'package.json',
-        'mkdocs.yml',
+        'settings.ini',
         'docker-compose.yml',
-        'settings.ini'
+        'mkdocs.yml'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le fichier `mkdocs.yml` est le fichier de configuration principal d’un projet MkDocs, contenant notamment la clé `nav` qui structure la navigation du site.'
     },
     {
       stem: 'À quoi sert l’argument `--strict` lors de l’exécution de la commande de build `mkdocs build --strict` dans un pipeline d’intégration continue ?',
       opts: [
-        'À supprimer tous les fichiers Markdown qui contiennent des fautes d’orthographe',
-        'À faire échouer le pipeline (exit code non nul) dès qu’un avertissement survient, tel qu’un lien interne cassé ou une page orpheline',
-        'À empêcher tout accès public au site web généré',
-        'À crypter le code HTML produit avec une clé RSA'
+        "À faire échouer le pipeline (exit code non nul) dès qu’un avertissement survient, tel qu’un lien interne cassé ou une page orpheline",
+        "À supprimer automatiquement tous les fichiers Markdown qui contiennent des fautes d’orthographe française",
+        "À empêcher tout accès public au site web généré en verrouillant l’ensemble des pages par mot de passe",
+        "À crypter le code HTML produit avec une clé RSA avant sa publication définitive sur l’hébergeur"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’option `--strict` transforme les avertissements (warnings) en erreurs bloquantes, garantissant qu’aucun lien brisé ou problème de configuration ne passe en production.'
     },
     {
       stem: 'Parmi les propositions suivantes, laquelle décrit correctement le rôle d’un outil comme « Vale » dans une chaîne de CI/CD documentaire ?',
       opts: [
-        'Un linter de style éditorial qui vérifie le respect des règles rédactionnelles, la lisibilité et la terminologie technique',
-        'Un serveur de base de données relationnelle en mémoire',
-        'Un pare-feu réseau filtrant les attaques DDoS',
-        'Un moteur de rendu 3D pour jeux vidéo'
+        "Un serveur de base de données relationnelle conservant l’intégralité de ses tables en mémoire vive",
+        "Un linter de style éditorial qui vérifie le respect des règles rédactionnelles, la lisibilité et la terminologie technique",
+        "Un pare-feu applicatif chargé de filtrer les attaques DDoS entrantes vers le site de documentation",
+        "Un moteur de rendu 3D temps réel conçu pour l’affichage des jeux vidéo en ligne"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Vale est un linter de prose (style linter) permettant d’appliquer automatiquement des guides de style rédactionnel (Google Style, Microsoft Style, règles personnalisées).'
     },
     {
       stem: 'Quelle balise d’encadrement permet de déclarer un bloc de code Python avec coloration syntaxique en Markdown GFM ?',
       opts: [
-        'Trois backticks suivis immédiatement de la mention « python » (```python ... ```)',
-        'Des guillemets français (&laquo; python ... &raquo;)',
         'Des chevrons HTML ordinaires (&lt;code&gt; ... &lt;/code&gt;)',
+        'Des guillemets français (&laquo; python ... &raquo;)',
+        'Trois backticks suivis immédiatement de la mention « python » (```python ... ```)',
         'Deux parenthèses ouvrantes (( python ... ))'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Trois backticks suivis de l’identifiant du langage (```python) forment la syntaxe standard pour les blocs de code clôturés avec coloration syntaxique.'
     },
     {
       stem: 'Pourquoi est-il fortement recommandé d’héberger la documentation dans le même dépôt Git que le code de l’application (dossier docs/) plutôt que dans un wiki externe séparé ?',
       opts: [
-        'Car Git ne peut pas gérer les fichiers textes en dehors du répertoire racine',
-        'Car cela garantit que les modifications documentaires sont synchronisées, relues et fusionnées dans la même branche et la même PR que le code qu’elles décrivent',
-        'Car les wikis externes coûtent obligatoirement un million d’euros par an',
-        'Car les développeurs refusent d’utiliser internet'
+        "Car Git n’est techniquement pas capable de gérer correctement les fichiers textes situés en dehors du répertoire racine du dépôt",
+        "Car les wikis externes coûtent obligatoirement un million d’euros par an à l’entreprise qui décide de les utiliser",
+        "Car les développeurs refusent catégoriquement d’utiliser internet dans le cadre de leur travail quotidien",
+        "Car cela garantit que les modifications documentaires sont synchronisées, relues et fusionnées dans la même branche et la même PR que le code qu’elles décrivent"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Conserver la documentation dans le même dépôt permet de coupler les commits de code et de documentation dans la même Pull Request, évitant la dérive documentaire.'
     }
   ],

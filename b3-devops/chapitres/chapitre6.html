@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -219,24 +217,30 @@ $$\text{Budget Total} = 2\,592\,000 \times (1 - 0.999) = 2\,592\,\text{secondes 
      data-exercise="do3-c6-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="INCIDENT_LOG total_hours=720 pannes=3 total_downtime_h=1.5 total_detection_h=0.6">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c6-e1) — Calculateur des métriques d’incident SRE (MTBF, MTTR, MTTD & Disponibilité)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="RadioWeb (radios en ligne) : SLO de 99,5 % de requêtes réussies sur 30 jours ; 2 000 000 requêtes servies, dont 8 000 en échec.&#10;&#10;1) Budget : 0,5 % × 2 000 000 = 10 000 requêtes.&#10;2) Réussies : 2 000 000 − 8 000 = 1 992 000.&#10;3) Consommation : 8 000 / 10 000 × 100 = 80 %.&#10;4) Restant : 10 000 − 8 000 = 2 000 requêtes.&#10;5) Taux de réussite : 99,6 % ≥ 99,5 % : oui.&#10;6) SLI : service level indicator (indicateur de niveau de service).">
+  <script type="text/plain" data-lab-starter># Exercice — Le budget d'erreur de la plateforme VidéoStream
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Mois parfait sans aucun incident]
-# Données : INCIDENT_LOG total_hours=720 pannes=0 total_downtime_h=0.0 total_detection_h=0.0
+[Question 1 — Budget d'erreur mensuel en requêtes]
 A_COMPLETER
 
-[Cas 2 — Panne unique majeure de 4 heures]
-# Données : INCIDENT_LOG total_hours=1000 pannes=1 total_downtime_h=4.0 total_detection_h=1.0
+[Question 2 — Requêtes ayant réussi]
 A_COMPLETER
 
-[Cas 3 — Multiples micro-coupures répétées]
-# Données : INCIDENT_LOG total_hours=500 pannes=5 total_downtime_h=2.5 total_detection_h=0.5
+[Question 3 — Pourcentage du budget consommé]
+A_COMPLETER
+
+[Question 4 — Budget restant en requêtes]
+A_COMPLETER
+
+[Question 5 — SLO respecté ?]
+A_COMPLETER
+
+[Question 6 — Signification de SLI]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur des métriques d’incident SRE (MTBF, MTTR, MTTD &amp; Disponibilité)</h3>
+    <h3 class="lab__title">Exercice 1 — Le budget d'erreur de la plateforme VidéoStream</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -245,26 +249,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Mesurer la fiabilité opérationnelle d’un service en calculant les temps moyens de détection, de résolution et d’espacement des pannes.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
-Formules standards SRE :<br>
-- Si $N &gt; 0$ :<br>
-  - Temps moyen de détection : $MTTD = Det / N$ (heures)<br>
-  - Temps moyen de réparation / résolution : $MTTR = D / N$ (heures)<br>
-  - Temps moyen entre deux pannes : $MTBF = (T - D) / N$ (heures de fonctionnement sain divisées par le nombre de pannes)<br>
-  - Disponibilité intrinsèque : $A = \frac{MTBF}{MTBF + MTTR} \times 100 = \frac{T - D}{T} \times 100$ (en %)<br>
-- Si $N == 0$ :<br>
-  - $MTTD = 0.0$, $MTTR = 0.0$, $MTBF = T$, $A = 100.0\%$.<br><br>
-Afficher :<br>
-<code>SRE_METRICS: DISPO=&lt;A:.4f&gt;% | MTBF=&lt;MTBF:.1f&gt;h | MTTR=&lt;MTTR:.2f&gt;h | MTTD=&lt;MTTD:.2f&gt;h</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer le budget d'erreur d'un SLO, sa consommation et son reste à partir d'un volume de requêtes réel.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> VidéoStream exploite une plateforme de vidéo à la demande. Son contrat de fiabilité fixe un SLO de <strong>99,9 % de requêtes réussies</strong> sur une fenêtre glissante de <strong>30 jours</strong>. Le SLI retenu est la part de requêtes réussies. Sur la dernière fenêtre, la plateforme a servi <strong>3 600 000 requêtes</strong>, dont <strong>2 700 ont échoué</strong>. Le budget d'erreur est la part de pannes tolérée : 100 % − SLO, appliquée au volume total.</p><p>Répondez par la valeur seule ; les pourcentages se donnent à l'unité près.</p><ol><li>Quel est le budget d'erreur mensuel, en nombre de requêtes ?</li><li>Combien de requêtes ont réussi ?</li><li>Quel pourcentage du budget a été consommé ?</li><li>Combien de requêtes en échec reste-t-il avant d'épuiser le budget ?</li><li>Le SLO est-il respecté (oui ou non) ?</li><li>Que signifie l'acronyme SLI ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INCIDENT_LOG total_hours=720 pannes=3 total_downtime_h=1.5 total_detection_h=0.6</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RadioWeb (radios en ligne) : SLO de 99,5 % de requêtes réussies sur 30 jours ; 2 000 000 requêtes servies, dont 8 000 en échec.
+
+1) Budget : 0,5 % × 2 000 000 = 10 000 requêtes.
+2) Réussies : 2 000 000 − 8 000 = 1 992 000.
+3) Consommation : 8 000 / 10 000 × 100 = 80 %.
+4) Restant : 10 000 − 8 000 = 2 000 requêtes.
+5) Taux de réussite : 99,6 % ≥ 99,5 % : oui.
+6) SLI : service level indicator (indicateur de niveau de service).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>MTBF mesure la fiabilité (espacement des incidents), MTTR mesure la résilience de l’équipe.</li>
-        <li>Arrondir Disponibilité à 4 décimales, MTBF à 1 décimale, MTTR et MTTD à 2 décimales.</li>
+        <li>Le budget d'erreur traduit le SLO en une quantité de pannes tolérée sur la fenêtre.</li>
+        <li>Budget = (100 % − SLO) × volume total ; consommation = échecs observés / budget × 100.</li>
+        <li>1. Calculez 0,1 % de 3 600 000. 2. Soustrayez les échecs du volume total. 3. Divisez 2 700 par le budget. 4. Soustrayez les échecs du budget. 5. Comparez le taux de réussite réel à 99,9 %. 6. SLI : service level indicator.</li>
       </ol>
     </details>
   </div>
@@ -274,24 +276,30 @@ Afficher :<br>
      data-exercise="do3-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="SLO_MONITOR slo_pct=99.9 indispo_s=500.0&#10;SLO_MONITOR slo_pct=99.9 indispo_s=2400.0&#10;SLO_MONITOR slo_pct=99.9 indispo_s=3000.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c6-e2) — Auditeur de budget d’erreur SLO/SLI et gel des déploiements
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="MessageriePro (messagerie d'entreprise) : SLO de disponibilité de 99,9 % sur 30 jours (43 200 minutes) ; indisponibilité de 50 minutes ce mois-ci.&#10;&#10;1) Budget : 0,1 % × 43 200 = 43,2 minutes.&#10;2) Indisponibilité : 50 minutes.&#10;3) Restant : 43,2 − 50 = −6,8 minutes, budget dépassé.&#10;4) Consommation : 50 / 43,2 × 100 = 115,7 %.&#10;5) Déploiements : non.&#10;6) Politique : gel des déploiements.">
+  <script type="text/plain" data-lab-starter># Exercice — Le budget d'erreur du service de paiement FlotteBank
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Budget d’erreur intact 0 seconde perdue]
-# Données : SLO_MONITOR slo_pct=99.95 indispo_s=0.0
+[Question 1 — Budget d'erreur mensuel en minutes]
 A_COMPLETER
 
-[Cas 2 — Dépassement sévère d’un SLO strict à 99.99%]
-# Données : SLO_MONITOR slo_pct=99.99 indispo_s=600.0
+[Question 2 — Indisponibilité du mois en minutes]
 A_COMPLETER
 
-[Cas 3 — Consommation juste au seuil d’alerte de 80%]
-# Données : SLO_MONITOR slo_pct=99.0 indispo_s=20736.0
+[Question 3 — Budget restant en minutes]
+A_COMPLETER
+
+[Question 4 — Pourcentage du budget consommé]
+A_COMPLETER
+
+[Question 5 — Déploiements encore autorisés ?]
+A_COMPLETER
+
+[Question 6 — Politique après le quatrième incident]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Auditeur de budget d’erreur SLO/SLI et gel des déploiements</h3>
+    <h3 class="lab__title">Exercice 2 — Le budget d'erreur du service de paiement FlotteBank</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -300,32 +308,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Mesurer la consommation du budget d’erreur (Error Budget Burn Rate) sur une fenêtre glissante de 30 jours et déclencher l’arrêt des déploiements en cas d’épuisement.</p>
-    <div class="lab__brief"><p>Une fenêtre glissante de 30 jours compte $30 \times 24 \times 3600 = 2\,592\,000$ secondes.<br>
-Analysez les paramètres du problème pour chaque cas.<br><br>
-Formules :<br>
-- $Budget\_total = 2592000 \times (1 - slo\_pct / 100.0)$ (en secondes)<br>
-- $Taux\_consommation (Burn) = (indispo\_s / Budget\_total) \times 100.0$ (en %)<br>
-- $Budget\_restant = Budget\_total - indispo\_s$ (en secondes, peut être négatif si dépassé)<br><br>
-Décision opérationnelle SRE :<br>
-- Si $indispo\_s &gt; Budget\_total$ :<br>
-  <code>ACTION=GEL_DEPLOIEMENTS_URGENCE (BUDGET_EPUISE)</code><br>
-- Sinon si $Burn \ge 80.0\%$ :<br>
-  <code>ACTION=ATTENTION_BUDGET_CRITIQUE</code><br>
-- Sinon :<br>
-  <code>ACTION=DEPLOIEMENTS_AUTORISES</code><br><br>
-Afficher :<br>
-<code>SLO_STATUS: BUDGET_TOTAL=&lt;b_tot:.1f&gt;s | CONSOMME=&lt;indispo_s:.1f&gt;s (&lt;burn:.1f&gt;%) | RESTANT=&lt;rest:.1f&gt;s | ACTION=&lt;ACTION&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre la consommation du budget d'erreur d'un SLO de disponibilité et appliquer la politique de gel des déploiements.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> FlotteBank exploite son service de paiement avec un SLO de disponibilité de <strong>99,95 %</strong>. La fenêtre glissante couvre <strong>30 jours</strong>, soit <strong>43 200 minutes</strong>. Ce mois-ci, l'équipe a enregistré <strong>3 incidents</strong> totalisant <strong>14 minutes</strong> d'indisponibilité. Politique SRE interne : les déploiements sont gelés dès que le budget est épuisé ; une vigilance renforcée est déclenchée à partir de <strong>80 %</strong> du budget consommé. Répondez par la valeur seule (à une décimale près si nécessaire).</p><ol><li>Quel est le budget d'erreur mensuel (en minutes) ?</li><li>Quelle est l'indisponibilité totale du mois (en minutes) ?</li><li>Quel est le budget restant (en minutes) ?</li><li>Quel pourcentage du budget a été consommé (à une décimale) ?</li><li>L'équipe peut-elle encore déployer sans restriction (oui ou non) ?</li><li>Un quatrième incident de 10 minutes survient : quelle politique SRE l'équipe doit-elle appliquer ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SLO_MONITOR slo_pct=99.9 indispo_s=500.0
-SLO_MONITOR slo_pct=99.9 indispo_s=2400.0
-SLO_MONITOR slo_pct=99.9 indispo_s=3000.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>MessageriePro (messagerie d'entreprise) : SLO de disponibilité de 99,9 % sur 30 jours (43 200 minutes) ; indisponibilité de 50 minutes ce mois-ci.
+
+1) Budget : 0,1 % × 43 200 = 43,2 minutes.
+2) Indisponibilité : 50 minutes.
+3) Restant : 43,2 − 50 = −6,8 minutes, budget dépassé.
+4) Consommation : 50 / 43,2 × 100 = 115,7 %.
+5) Déploiements : non.
+6) Politique : gel des déploiements.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le budget d’erreur est la marge d’indisponibilité tolérée par contrat : tant qu’il est positif, l’équipe peut innover et déployer.</li>
-        <li>Si le budget est épuisé, l’équipe stoppe les livraisons pour se consacrer 100% à la fiabilité.</li>
+        <li>Le budget d'erreur de disponibilité est l'indisponibilité tolérée : (100 % − SLO) × durée de la fenêtre.</li>
+        <li>Consommation = indisponibilité / budget × 100 ; le reste est la différence entre les deux.</li>
+        <li>1. Calculez 0,05 % de 43 200. 2. Relevez l'indisponibilité observée. 3. Soustrayez 14 du budget. 4. Divisez 14 par le budget. 5. Comparez au seuil de vigilance de 80 %. 6. Un nouvel incident de 10 minutes fait basculer le total au-delà du budget.</li>
       </ol>
     </details>
   </div>
@@ -335,24 +335,30 @@ SLO_MONITOR slo_pct=99.9 indispo_s=3000.0</pre></div>
      data-exercise="do3-c6-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ALERT nom=high_cpu etats=OK,FIRING,OK,FIRING,OK&#10;ALERT nom=disk_full etats=OK,OK,FIRING,FIRING">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c6-e3) — Détecteur d’instabilité et de tempête d’alertes Prometheus (Alert Flapping)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="API de ColisExpress, alerte TauxErreurs5xxAuDelaDe1Pourcent, évaluée toutes les 5 minutes.&#10;Séquence : OK — FIRING — FIRING — OK — FIRING — OK&#10;&#10;1) Bascules : OK→FIRING, FIRING→OK, OK→FIRING, FIRING→OK, soit 4.&#10;2) Déclenchements (OK→FIRING) : 2.&#10;3) État final : OK.&#10;4) 4 ≥ 3 : oui, l'alerte flappe.&#10;5) Clause : for: 5m.&#10;6) Signal surveillé : les erreurs.">
+  <script type="text/plain" data-lab-starter># Exercice — L'alerte qui oscille sur le monitoring de GreenMarket
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Alerte oscillante au seuil critique de 3 bascules]
-# Données : ALERT nom=latency_spike etats=OK,FIRING,OK,FIRING
+[Question 1 — Nombre de bascules]
 A_COMPLETER
 
-[Cas 2 — Alerte permanente sans bascule]
-# Données : ALERT nom=service_down etats=FIRING,FIRING,FIRING
+[Question 2 — Nombre de déclenchements OK vers FIRING]
 A_COMPLETER
 
-[Cas 3 — Alerte résolue proprement avec 2 bascules]
-# Données : ALERT nom=memory_leak etats=OK,FIRING,FIRING,OK
+[Question 3 — État final de la séquence]
+A_COMPLETER
+
+[Question 4 — Alerte en flapping ?]
+A_COMPLETER
+
+[Question 5 — Clause Prometheus à ajouter]
+A_COMPLETER
+
+[Question 6 — Signal doré surveillé]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Détecteur d’instabilité et de tempête d’alertes Prometheus (Alert Flapping)</h3>
+    <h3 class="lab__title">Exercice 3 — L'alerte qui oscille sur le monitoring de GreenMarket</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -361,28 +367,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser une séquence temporelle d’états d’alerte pour détecter les oscillations rapides (flapping) causées par un manque d’amortissement temporel.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&gt;&lt;/code&gt;.<br>
-Chaque état vaut soit <code>OK</code> soit <code>FIRING</code>.<br><br>
-Calculs :<br>
-- Compter le nombre de bascules (flaps) : chaque transition $e_i ≠ e_{i+1}$ pour $i \in [0..N-2]$ incrémente le compteur de bascules.<br>
-- Noter l'<code>ETAT_FINAL</code> (dernier élément de la séquence).<br><br>
-Diagnostic de stabilité :<br>
-- Si $bascules \ge 3$ : l'alerte est considérée comme instable.<br>
-  <code>DIAGNOSTIC=FLAPPING_INSTABILITE (RECOMMANDATION=AJOUTER_FOR_CLAUSE)</code><br>
-- Sinon :<br>
-  <code>DIAGNOSTIC=STABLE</code><br><br>
-Afficher :<br>
-<code>ALERT_DIAGNOSTIC: &lt;nom&gt; -&gt; BASCULES=&lt;N&gt; | ETAT_FINAL=&lt;OK|FIRING&gt; | DIAGNOSTIC=&lt;DIAGNOSTIC&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une séquence d'états d'alerte Prometheus, compter les bascules et choisir le bon amortissement.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> GreenMarket exploite un site de e-commerce supervisé avec Prometheus. L'alerte <strong>LatenceP95AuDelaDe500ms</strong> est évaluée toutes les 5 minutes. L'équipe extrait la séquence de ses états (OK = sain, FIRING = alerte déclenchée) :</p><p><code>OK — FIRING — OK — FIRING — OK — FIRING — FIRING — OK — FIRING</code></p><p>Une bascule est un changement d'état entre deux évaluations consécutives. Une alerte est dite en <strong>flapping</strong> à partir de <strong>3 bascules</strong>. Les signaux dorés sont : latence, trafic, erreurs, saturation.</p><ol><li>Combien de bascules compte la séquence ?</li><li>Combien de fois l'alerte se déclenche-t-elle (passages de OK à FIRING) ?</li><li>Quel est l'état final de la séquence ?</li><li>Cette alerte est-elle en flapping (oui ou non) ?</li><li>Quelle clause Prometheus faut-il ajouter pour exiger que la condition reste vraie 10 minutes avant d'alerter ?</li><li>Lequel des quatre signaux dorés cette alerte surveille-t-elle ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALERT nom=high_cpu etats=OK,FIRING,OK,FIRING,OK
-ALERT nom=disk_full etats=OK,OK,FIRING,FIRING</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>API de ColisExpress, alerte TauxErreurs5xxAuDelaDe1Pourcent, évaluée toutes les 5 minutes.
+Séquence : OK — FIRING — FIRING — OK — FIRING — OK
+
+1) Bascules : OK→FIRING, FIRING→OK, OK→FIRING, FIRING→OK, soit 4.
+2) Déclenchements (OK→FIRING) : 2.
+3) État final : OK.
+4) 4 ≥ 3 : oui, l'alerte flappe.
+5) Clause : for: 5m.
+6) Signal surveillé : les erreurs.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Dans Prometheus, ajouter une clause "for: 5m" exige que la condition reste vraie 5 minutes avant d’émettre une alerte, supprimant le flapping.</li>
-        <li>Comparer les éléments adjacents de la liste d’états.</li>
+        <li>Le flapping vient d'un seuil franchi par intermittence : l'alerte s'allume et s'éteint sans que l'incident soit résolu.</li>
+        <li>Une bascule se compte dès que deux états consécutifs diffèrent ; la séquence compte 9 évaluations, donc 8 intervalles.</li>
+        <li>1. Comparez chaque état au précédent. 2. Comptez les passages de OK à FIRING. 3. Lisez le dernier état. 4. Comparez au seuil de 3 bascules. 5. La clause for maintient la condition pendant une durée donnée. 6. Une latence au-delà de 500 ms surveille la latence.</li>
       </ol>
     </details>
   </div>
@@ -395,48 +398,48 @@ ALERT nom=disk_full etats=OK,OK,FIRING,FIRING</pre></div>
     <div class="q">
       <p class="q__stem">Dans la doctrine SRE formalisée par Google, quelle proportion maximale du temps d’un ingénieur peut être légitimement consacrée au travail opérationnel répétitif (« Toil ») ?</p>
       <div class="opts">
-        <button class="opt">100%</button>
-        <button class="opt">80%</button>
         <button class="opt" data-correct="1">50% au maximum (les 50% restants étant consacrés à l’ingénierie et l’automatisation)</button>
-        <button class="opt">0% (aucun travail opérationnel n’est permis)</button>
+        <button class="opt">100% du temps peut être absorbé par le Toil car l’automatisation demeure optionnelle</button>
+        <button class="opt">80% du temps, ne laissant que 20% au développement de l’outillage interne</button>
+        <button class="opt">0% : tout travail opérationnel répétitif est formellement interdit aux ingénieurs SRE</button>
       </div>
       <div class="q__exp">Google impose de plafonner le Toil à un maximum strict de 50%. Les ingénieurs SRE doivent consacrer au moins la moitié de leur temps à développer du code d’automatisation durable.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle distinction fondamentale sépare un SLO (Service Level Objective) d’un SLA (Service Level Agreement) ?</p>
       <div class="opts">
-        <button class="opt">Le SLO est un format de fichier texte tandis que le SLA est une base de données</button>
+        <button class="opt">Le SLO est un simple format de fichier texte de configuration tandis que le SLA désigne la base de données d’historisation</button>
         <button class="opt" data-correct="1">Le SLO est un objectif interne de fiabilité plus strict que le SLA, qui est quant à lui un contrat juridique assorti de pénalités financières envers les clients externes</button>
-        <button class="opt">Le SLO est réservé au matériel physique et le SLA aux logiciels libres</button>
-        <button class="opt">Il n’y a aucune différence, ce sont deux acronymes strictement synonymes</button>
+        <button class="opt">Le SLO concerne exclusivement le matériel physique des serveurs et du réseau tandis que le SLA se limite aux logiciels libres</button>
+        <button class="opt">Il n’existe aucune différence réelle, ces deux acronymes sont strictement synonymes et interchangeables dans tous les contextes</button>
       </div>
       <div class="q__exp">Le SLO est la boussole interne de l’équipe d’ingénierie. Le SLA est le contrat d’engagement légal avec le client, volontairement plus souple pour intégrer une marge de sécurité.</div>
     </div>
     <div class="q">
       <p class="q__stem">Si un service web applique un SLO de 99.9% de disponibilité sur un mois de 30 jours (2 592 000 secondes), quel est le volume de son Error Budget en secondes ?</p>
       <div class="opts">
-        <button class="opt">25 920 secondes</button>
+        <button class="opt">25 920 secondes, soit l’équivalent d’un pourcent complet du mois</button>
+        <button class="opt">259 secondes, résultat d’une division par dix mille</button>
         <button class="opt" data-correct="1">2 592 secondes (soit 43 minutes et 12 secondes)</button>
-        <button class="opt">259 secondes</button>
-        <button class="opt">0 seconde</button>
+        <button class="opt">0 seconde, car le SLO interdit toute interruption de service</button>
       </div>
       <div class="q__exp">Error Budget = 2 592 000 * (1 - 0.999) = 2 592 000 * 0.001 = 2 592 secondes (exactement 43 minutes et 12 secondes d’indisponibilité permise).</div>
     </div>
     <div class="q">
       <p class="q__stem">Que doit décider l’équipe d’ingénierie lorsque l’Error Budget d’un service de production est intégralement consommé en milieu de mois ?</p>
       <div class="opts">
-        <button class="opt">Accélérer la cadence de mise en production de nouvelles fonctionnalités</button>
+        <button class="opt">Accélérer encore la cadence de mise en production de nouvelles fonctionnalités afin de regagner la confiance des utilisateurs</button>
+        <button class="opt">Supprimer temporairement la supervision du service pour ne plus voir les erreurs remontées par les sondes de monitoring interne</button>
+        <button class="opt">Réduire artificiellement le niveau de l’objectif SLO pour que le budget d’erreur restant redevienne mécaniquement positif</button>
         <button class="opt" data-correct="1">Appliquer une politique de gel des releases fonctionnelles (Release Freeze) et réorienter l’effort sur la fiabilisation et la résilience du système</button>
-        <button class="opt">Supprimer la surveillance pour ne plus voir les erreurs</button>
-        <button class="opt">Réduire artificiellement le SLO pour que le budget redevienne positif</button>
       </div>
       <div class="q__exp">L’épuisement du budget d’erreur est un coupe-circuit organisationnel : le déploiement de fonctionnalités nouvelles est suspendu pour restaurer la stabilité du service.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quels sont les « Quatre Signaux Dorés » (Four Golden Signals) de l’observabilité selon Google SRE ?</p>
       <div class="opts">
-        <button class="opt">RAM, Disque, Clavier, Souris</button>
         <button class="opt" data-correct="1">Latence, Trafic, Erreurs, Saturation</button>
+        <button class="opt">RAM, Disque, Clavier, Souris</button>
         <button class="opt">Nombre de commits, Pull requests, Lignes de code, Heures de travail</button>
         <button class="opt">Température de la salle, Débit d’air, Pression atmosphérique, Voltage</button>
       </div>
@@ -445,20 +448,20 @@ ALERT nom=disk_full etats=OK,OK,FIRING,FIRING</pre></div>
     <div class="q">
       <p class="q__stem">Qu’appelle-t-on l’« Alert Flapping » dans un système de monitoring et d’alerte ?</p>
       <div class="opts">
-        <button class="opt">L’envoi de notifications par SMS en cas de panne</button>
+        <button class="opt">L’envoi automatique de notifications par SMS à l’ensemble de l’équipe dès qu’une panne est détectée sur un service</button>
         <button class="opt" data-correct="1">L’oscillation rapide d’une alerte entre les états actif (firing) et résolu (ok) en raison d’une métrique fluctuant autour du seuil critique</button>
-        <button class="opt">L’absence totale de logs sur un serveur</button>
-        <button class="opt">La panne simultanée de tous les routeurs d’un réseau</button>
+        <button class="opt">L’absence totale de journaux applicatifs sur un serveur dont le disque dur est pourtant pleinement opérationnel</button>
+        <button class="opt">La panne simultanée et définitive de l’ensemble des routeurs composant le réseau dorsale de l’entreprise</button>
       </div>
       <div class="q__exp">L’Alert Flapping survient lorsqu’une valeur oscille autour de la frontière de déclenchement, saturant les canaux de notification et provoquant une fatigue d’alerte toxique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle directive permet d’éradiquer l’Alert Flapping dans la définition d’une règle d’alerte sous Prometheus ?</p>
       <div class="opts">
-        <button class="opt">La directive « delay: infinite »</button>
+        <button class="opt">La directive « delay: infinite » qui reporte indéfiniment toute notification d’alerte vers les équipes d’astreinte</button>
+        <button class="opt">L’augmentation du seuil critique de mémoire vive à 100% pour ne détecter que les saturations totales du serveur</button>
         <button class="opt" data-correct="1">La clause « for: &lt;durée&gt; » exigeant que la condition critique persiste de manière ininterrompue durant un délai minimal avant déclenchement</button>
-        <button class="opt">L’augmentation du seuil de mémoire à 100%</button>
-        <button class="opt">La suppression du serveur Alertmanager</button>
+        <button class="opt">La suppression pure et simple du serveur Alertmanager chargé de la distribution des notifications aux astreintes</button>
       </div>
       <div class="q__exp">La clause `for: 5m` filtre les micro-variations passagères : l’alerte ne se déclenche que si le problème persiste au moins 5 minutes continues.</div>
     </div>
@@ -466,9 +469,9 @@ ALERT nom=disk_full etats=OK,OK,FIRING,FIRING</pre></div>
       <p class="q__stem">Si un service a un Burn Rate de 14.4 sur son budget d’erreur mensuel, en combien de temps consommera-t-il la totalité de son budget de 30 jours ?</p>
       <div class="opts">
         <button class="opt">En 30 jours</button>
-        <button class="opt" data-correct="1">En 2 jours (48 heures)</button>
-        <button class="opt">En 14 heures</button>
         <button class="opt">En 6 mois</button>
+        <button class="opt">En 14 heures</button>
+        <button class="opt" data-correct="1">En 2 jours (48 heures)</button>
       </div>
       <div class="q__exp">Durée = 30 jours / 14.4 = 2.08 jours (environ 48 heures). Un Burn Rate de 14.4 signale une hémorragie critique de fiabilité exigeant une mobilisation d’urgence.</div>
     </div>
@@ -594,7 +597,7 @@ ALERT nom=disk_full etats=OK,OK,FIRING,FIRING</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -85,14 +85,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Une épreuve de Bernoulli a…', opts: ['deux issues', 'trois issues', 'aucune issue'], correct: 0, exp: 'Succès ou échec : deux issues seulement.' },
+    { stem: 'Une épreuve de Bernoulli a…', opts: ['aucune issue', 'trois issues', 'deux issues'], correct: 2, exp: 'Succès ou échec : deux issues seulement.' },
     { stem: 'La loi binomiale modélise…', opts: ['un nombre de succès sur n épreuves', 'une durée', 'une moyenne'], correct: 0, exp: 'X compte les succès parmi n épreuves de Bernoulli.' },
-    { stem: 'Formule de P(X = k) pour B(n, p) ?', opts: ['C(n,k)·pᵏ·(1−p)ⁿ⁻ᵏ', 'pᵏ', 'n·p'], correct: 0, exp: 'Le coefficient binomial choisit l’emplacement des k succès.' },
-    { stem: 'Espérance d’une binomiale ?', opts: ['np', 'np(1−p)', 'λ'], correct: 0, exp: 'E(X) = n·p.' },
-    { stem: 'Variance d’une binomiale ?', opts: ['np', 'np(1−p)', 'p(1−p)'], correct: 1, exp: 'V(X) = n·p·(1−p).' },
-    { stem: 'Que vaut l’espérance d’une loi de Poisson ?', opts: ['λ', 'λ²', '√λ'], correct: 0, exp: 'Pour une Poisson, E(X) = V(X) = λ.' },
+    { stem: 'Formule de P(X = k) pour B(n, p) ?', opts: ['pᵏ', 'C(n,k)·pᵏ·(1−p)ⁿ⁻ᵏ', 'n·p'], correct: 1, exp: 'Le coefficient binomial choisit l’emplacement des k succès.' },
+    { stem: 'Espérance d’une binomiale ?', opts: ['np', 'np(1−p)', 'λ'], correct: 0, exp: "Une binomiale compte les succès sur n épreuves de probabilité p : en moyenne n×p réussites, d’où E(X) = n·p. Le distracteur np(1−p) est la variance, non l’espérance." },
+    { stem: 'Variance d’une binomiale ?', opts: ['np', 'p(1−p)', 'np(1−p)'], correct: 2, exp: "Chaque épreuve apporte une variance p(1−p) ; répétée n fois indépendamment, V(X) = n·p·(1−p). Le distracteur p(1−p) oublie le nombre d’épreuves, et np n’est que l’espérance." },
+    { stem: 'Que vaut l’espérance d’une loi de Poisson ?', opts: ['λ²', 'λ', '√λ'], correct: 1, exp: "Pour une Poisson, E(X) = V(X) = λ : le paramètre est tout à la fois moyenne et variance. Le distracteur λ² surestime la moyenne dès que λ dépasse 1." },
     { stem: 'Une loi de Poisson modélise…', opts: ['un comptage d’événements rares', 'un nombre de succès sur n fixé', 'une durée'], correct: 0, exp: 'Elle compte les occurrences par unité de temps ou d’espace.' },
-    { stem: 'Que signifie λ dans la Poisson ?', opts: ['le nombre moyen d’événements', 'la probabilité', 'l’écart-type'], correct: 0, exp: 'λ est l’intensité moyenne sur l’intervalle considéré.' }
+    { stem: 'Que signifie λ dans la Poisson ?', opts: ['la probabilité', 'le nombre moyen d’événements', 'l’écart-type'], correct: 1, exp: 'λ est l’intensité moyenne sur l’intervalle considéré.' }
   ],
 
   pitfalls: [

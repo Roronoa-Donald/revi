@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -218,24 +216,31 @@
      data-exercise="aws3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="EC2_COST BASELINE=4 SPIKE=6 HOURS=720 RATE=0.10 SPOT_DISC=70 RES_DISC=40">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c3-e1) — Optimiseur de Coûts & Stratégie d'Achat EC2 (On-Demand, Reserved, Spot)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="CartoPlus dimensionne son serveur de tuiles cartographiques : au moins 2 vCPU et 4 Go de mémoire.&#10;Grille : t3.small (2 vCPU, 2 Go, 0,021 €/h) — t3.medium (2, 4, 0,042 €/h) — c5.large (2, 4, 0,085 €/h) — m5.large (2, 8, 0,096 €/h).&#10;&#10;1) Types éligibles : t3.medium, c5.large, m5.large, soit 3.&#10;2) Le moins cher éligible : t3.medium.&#10;3) Coût mensuel : 730 × 0,042 = 30,66 €.&#10;4) La famille « c » (c5.large) est optimisée calcul.">
+  <script type="text/plain" data-lab-starter># Exercice — Le dimensionnement des serveurs de Culinia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 3 à 5 : le nombre seul. Question 2 : le type d'instance.
 
-[Cas 1 — Petite flotte continue (2 baseline, 0 spike sur 1 mois)]
-# Données : EC2_COST BASELINE=2 SPIKE=0 HOURS=720 RATE=0.05 SPOT_DISC=70 RES_DISC=35
+[Question 1 — Types satisfaisant les deux contraintes]
 A_COMPLETER
 
-[Cas 2 — Batch processing 100% Spot (0 baseline, 10 spike sur 24h)]
-# Données : EC2_COST BASELINE=0 SPIKE=10 HOURS=24 RATE=0.20 SPOT_DISC=75 RES_DISC=40
+[Question 2 — Type retenu au moindre coût]
 A_COMPLETER
 
-[Cas 3 — Forte charge de production avec pic nocturne]
-# Données : EC2_COST BASELINE=10 SPIKE=20 HOURS=100 RATE=0.50 SPOT_DISC=65 RES_DISC=50
+[Question 3 — Coût mensuel du type retenu (en €)]
+A_COMPLETER
+
+[Question 4 — Coût mensuel du type le plus cher (en €)]
+A_COMPLETER
+
+[Question 5 — Économie mensuelle (en €)]
+A_COMPLETER
+
+[Question 6 — Spécialité de la famille r]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Optimiseur de Coûts &amp; Stratégie d'Achat EC2 (On-Demand, Reserved, Spot)</h3>
+    <h3 class="lab__title">Exercice 1 — Le dimensionnement des serveurs de Culinia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -244,28 +249,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le coût total et l'économie réalisée en panachant les modèles d'achat d'instances EC2 pour une charge avec pic.</p>
-    <div class="lab__brief"><p>Une architecture cloud moderne optimise ses coûts en combinant plusieurs modèles d'achat EC2 :<br><br>
-1. <strong>Charge de base stable (Baseline)</strong> :<br>
-Tourne 100% du temps. Elle bénéficie d'instances réservées (Reserved Instances) ou d'un Savings Plan offrant un rabais contractuel (ex: 40%).<br>
-<code>Cout_baseline = Baseline_instances * Heures * Taux_OnDemand * (1.0 - Rabais_Reserved / 100)</code>.<br><br>
-2. <strong>Pic variable (Spike)</strong> :<br>
-Charge additionnelle tolérante aux pannes couverte par des instances Spot avec un rabais agressif (ex: 70%).<br>
-<code>Cout_spike = Spike_instances * Heures * Taux_OnDemand * (1.0 - Rabais_Spot / 100)</code>.<br><br>
-3. <strong>Scénario de référence 100% On-Demand</strong> :<br>
-<code>Cout_ref = (Baseline_instances + Spike_instances) * Heures * Taux_OnDemand</code>.<br><br>
-Données du cas :<br>
-<code>EC2_COST BASELINE=&lt;n&gt; SPIKE=&lt;n&gt; HOURS=&lt;h&gt; RATE=&lt;$/h&gt; SPOT_DISC=&lt;pct&gt; RES_DISC=&lt;pct&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-<code>BUDGET: baseline_cost=&lt;b:.2f&gt;$ spike_cost=&lt;s:.2f&gt;$ total_cost=&lt;t:.2f&gt;$ savings_pct=&lt;p:.2f&gt;%</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir un type d'instance EC2 selon des contraintes de vCPU et de mémoire, puis chiffrer son coût mensuel.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Culinia est une jeune entreprise d'abonnements de repas cuisinés. Son serveur d'application doit disposer d'<strong>au moins 4 vCPU</strong> et d'<strong>au moins 12 Go de mémoire</strong>. Le responsable technique relève, dans la grille tarifaire simplifiée de la région eu-west-3 (Linux, à la demande) :</p><table><tr><th>Type d'instance</th><th>vCPU</th><th>Mémoire (Go)</th><th>Prix horaire</th></tr><tr><th>t3.medium</th><td>2</td><td>4</td><td>0,042 €</td></tr><tr><th>t3.large</th><td>2</td><td>8</td><td>0,083 €</td></tr><tr><th>c5.xlarge</th><td>4</td><td>8</td><td>0,154 €</td></tr><tr><th>m5.xlarge</th><td>4</td><td>16</td><td>0,192 €</td></tr><tr><th>r5.xlarge</th><td>4</td><td>32</td><td>0,252 €</td></tr></table><p>Le serveur tournera sans interruption ; on retient <strong>730 heures par mois</strong>. Les questions 1 à 5 attendent un nombre (ou un type d'instance) ; la question 6 attend une réponse courte.</p><ol><li>Combien de types du tableau satisfont à la fois les 4 vCPU et les 12 Go de mémoire ?</li><li>Quel type retenir, parmi ceux qui satisfont les deux contraintes, pour le coût horaire le plus faible ?</li><li>Quel est le coût mensuel (730 h) du type retenu, en euros ?</li><li>Quel est le coût mensuel (730 h) du type le plus cher du tableau, en euros ?</li><li>Quelle économie mensuelle, en euros, entre le type le plus cher et le type retenu ?</li><li>À quelle spécialité correspond la famille « r » de r5.xlarge ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EC2_COST BASELINE=4 SPIKE=6 HOURS=720 RATE=0.10 SPOT_DISC=70 RES_DISC=40</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CartoPlus dimensionne son serveur de tuiles cartographiques : au moins 2 vCPU et 4 Go de mémoire.
+Grille : t3.small (2 vCPU, 2 Go, 0,021 €/h) — t3.medium (2, 4, 0,042 €/h) — c5.large (2, 4, 0,085 €/h) — m5.large (2, 8, 0,096 €/h).
+
+1) Types éligibles : t3.medium, c5.large, m5.large, soit 3.
+2) Le moins cher éligible : t3.medium.
+3) Coût mensuel : 730 × 0,042 = 30,66 €.
+4) La famille « c » (c5.large) est optimisée calcul.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Filtrez le tableau colonne par colonne : d'abord les lignes à 4 vCPU ou plus, puis celles à 12 Go de mémoire ou plus.</li>
+        <li>Le coût mensuel d'une instance 24 h/24 vaut prix horaire × 730 ; l'économie est la différence des deux coûts mensuels.</li>
+        <li>1. Barrez les lignes insuffisantes en vCPU puis en mémoire. 2. Parmi les restantes, prenez le prix horaire le plus bas. 3. 730 × 0,192. 4. 730 × 0,252. 5. Différence des deux lignes. 6. Relisez les familles : t, c, m, r.</li>
       </ol>
     </details>
   </div>
@@ -275,32 +275,31 @@ Résultat d’analyse attendu :<br>
      data-exercise="aws3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="EBS_CHECK TYPE=gp3 SIZE_GIB=100 IOPS=3000 MBPS=125">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c3-e2) — Dimensionneur de Volumes de Stockage EBS (gp3 vs io2 Block Express)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="StudioM fait tourner un serveur web 24/7 et une ferme de rendu 3D de 300 h par mois, sur c5.large à 0,085 €/h.&#10;Réservé 1 an : −30 % ; Spot : −60 %.&#10;&#10;1) Prix réservé : 0,085 × 0,70 = 0,0595 €/h.&#10;2) Prix Spot : 0,085 × 0,40 = 0,034 €/h.&#10;3) Serveur web 24/7 à la demande : 730 × 0,085 = 62,05 €.&#10;4) Ferme de rendu (interrompible) en Spot : 300 × 0,034 = 10,20 €.">
+  <script type="text/plain" data-lab-starter># Exercice — Les modèles d'achat EC2 de Diagora
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 et 6 : le nombre seul. Question 5 : le nom du modèle.
 
-[Cas 1 — Volume gp3 valide avec IOPS et débit augmentés]
-# Données : EBS_CHECK TYPE=gp3 SIZE_GIB=200 IOPS=10000 MBPS=500
+[Question 1 — Prix horaire d'une instance réservée (en €)]
 A_COMPLETER
 
-[Cas 2 — Erreur ratio IOPS/GiB dépassé sur gp3 (500 IOPS/GiB max)]
-# Données : EBS_CHECK TYPE=gp3 SIZE_GIB=10 IOPS=6000 MBPS=125
+[Question 2 — Prix horaire d'une instance Spot (en €)]
 A_COMPLETER
 
-[Cas 3 — Erreur débit MBps supérieur au plafond de 1 000 MB/s pour gp3]
-# Données : EBS_CHECK TYPE=gp3 SIZE_GIB=500 IOPS=10000 MBPS=1200
+[Question 3 — Coût mensuel à la demande d'un serveur 24/7 (en €)]
 A_COMPLETER
 
-[Cas 4 — Volume io2 Block Express haute performance valide]
-# Données : EBS_CHECK TYPE=io2 SIZE_GIB=500 IOPS=64000 MBPS=2000
+[Question 4 — Économie mensuelle des 2 serveurs en réservé (en €)]
 A_COMPLETER
 
-[Cas 5 — Erreur taille minimale io2 (inférieure à 4 GiB)]
-# Données : EBS_CHECK TYPE=io2 SIZE_GIB=2 IOPS=1000 MBPS=125
+[Question 5 — Modèle à choisir pour le transcodage]
+A_COMPLETER
+
+[Question 6 — Coût mensuel du transcodage en Spot (en €)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Dimensionneur de Volumes de Stockage EBS (gp3 vs io2 Block Express)</h3>
+    <h3 class="lab__title">Exercice 2 — Les modèles d'achat EC2 de Diagora</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -309,30 +308,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider et calculer les paramètres d'un volume EBS en respectant les plafonds et ratios officiels d'AWS.</p>
-    <div class="lab__brief"><p>Amazon Elastic Block Store (EBS) propose différents types de volumes SSD :<br><br>
-1. <strong>gp3 (General Purpose SSD)</strong> :<br>
-- Taille : 1 GiB à 16 384 GiB.<br>
-- Base incluse gratuite : 3 000 IOPS et 125 MB/s de débit.<br>
-- Maximum provisionnable : 16 000 IOPS et 1 000 MB/s.<br>
-- Règle de cohérence : le ratio max est de 500 IOPS par GiB.<br><br>
-2. <strong>io2 Block Express (Provisioned IOPS SSD)</strong> :<br>
-- Taille : 4 GiB à 65 536 GiB.<br>
-- Maximum provisionnable : 256 000 IOPS et 4 000 MB/s.<br>
-- Règle de cohérence : le ratio max est de 1 000 IOPS par GiB.<br><br>
-Données du cas :<br>
-<code>EBS_CHECK TYPE=&lt;gp3|io2&gt; SIZE_GIB=&lt;n&gt; IOPS=&lt;n&gt; MBPS=&lt;n&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-Si conforme : <code>EBS_VERDICT: type=&lt;t&gt; size=&lt;s&gt;GiB iops=&lt;i&gt; mbps=&lt;m&gt; status=VALID</code>.<br>
-Si non conforme : <code>EBS_VERDICT: type=&lt;t&gt; size=&lt;s&gt;GiB status=INVALID reason=&lt;BAD_SIZE|EXCEEDED_IOPS|EXCEEDED_MBPS|RATIO_IOPS_EXCEEDED&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les modèles d'achat EC2 (à la demande, réservé, Spot) et chiffrer les économies sur une charge réelle.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Diagora édite une plateforme de formation en ligne. Sa grille tarifaire interne simplifiée indique, pour l'instance m5.large sous Linux : <strong>0,10 €/heure à la demande (On-Demand)</strong> ; <strong>instance réservée 1 an sans paiement anticipé : 40 % de remise</strong> ; <strong>Spot : 70 % de remise</strong>. Deux charges sont à couvrir ce mois-ci :</p><ul><li><strong>2 serveurs d'application</strong> qui tournent 24 h/24, 7 j/7, sans interruption possible ;</li><li><strong>1 charge de transcodage vidéo</strong> chaque nuit, <strong>200 heures par mois</strong>, tolérante aux interruptions (elle reprend là où elle s'était arrêtée).</li></ul><p>On retient <strong>730 heures par mois</strong>. Les questions 1 à 4 et 6 attendent un nombre ; la question 5 attend un nom de modèle.</p><ol><li>Quel est le prix horaire d'une instance réservée 1 an, en euros ?</li><li>Quel est le prix horaire d'une instance Spot, en euros ?</li><li>Quel est le coût mensuel d'un serveur d'application 24/7 à la demande, en euros ?</li><li>Quelle économie mensuelle, en euros, si les 2 serveurs stables passent en instances réservées ?</li><li>Quel modèle d'achat choisir pour la charge de transcodage vidéo, tolérante aux interruptions ?</li><li>Quel est le coût mensuel du transcodage (200 h) en Spot, en euros ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EBS_CHECK TYPE=gp3 SIZE_GIB=100 IOPS=3000 MBPS=125</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>StudioM fait tourner un serveur web 24/7 et une ferme de rendu 3D de 300 h par mois, sur c5.large à 0,085 €/h.
+Réservé 1 an : −30 % ; Spot : −60 %.
+
+1) Prix réservé : 0,085 × 0,70 = 0,0595 €/h.
+2) Prix Spot : 0,085 × 0,40 = 0,034 €/h.
+3) Serveur web 24/7 à la demande : 730 × 0,085 = 62,05 €.
+4) Ferme de rendu (interrompible) en Spot : 300 × 0,034 = 10,20 €.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Une remise de 40 % laisse 60 % du prix à payer ; une remise de 70 % en laisse 30 %.</li>
+        <li>Le coût mensuel d'une charge continue vaut prix horaire × 730 ; l'économie se calcule serveur par serveur puis se multiplie par 2.</li>
+        <li>1. 0,10 × 0,60. 2. 0,10 × 0,30. 3. 0,10 × 730. 4. Économie par serveur : (0,10 − 0,06) × 730, puis × 2. 5. Une charge interrompible accepte le modèle le moins cher. 6. 200 × prix Spot.</li>
       </ol>
     </details>
   </div>
@@ -342,28 +334,31 @@ Si non conforme : <code>EBS_VERDICT: type=&lt;t&gt; size=&lt;s&gt;GiB status=INV
      data-exercise="aws3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ASG_DISTRIB ZONES=eu-west-3a:1,eu-west-3b:1,eu-west-3c:1 TARGET=6 MIN=2 MAX=10">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c3-e3) — Simulateur d'Auto Scaling Group & Répartition Équilibrée Multi-AZ
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="FestiGo dimensionne son ASG : min 1, desired 3, max 6, sur 2 zones (a et b), cible 50 % CPU, health checks ALB.&#10;&#10;1) 3 instances sur 2 zones : répartition 2/1, une zone compte au maximum 2 instances.&#10;2) Pic du samedi soir : montée à 6 instances (capacité maximale).&#10;3) La zone a tombe (elle hébergeait 2 instances) : 1 instance saine reste.&#10;4) Le trafic HTTP entre les zones d'une même région passe par l'ALB (CloudFront sert le cache mondial).">
+  <script type="text/plain" data-lab-starter># Exercice — L'architecture Auto Scaling des ventes privées Eclat
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nombre seul. Questions 4 à 6 : réponse courte.
 
-[Cas 1 — Scale Out de 2 à 5 instances sur 3 zones déséquilibrées]
-# Données : ASG_DISTRIB ZONES=us-east-1a:1,us-east-1b:0,us-east-1c:1 TARGET=5 MIN=1 MAX=8
+[Question 1 — Instances au maximum dans une zone (capacité 4 sur 3 zones)]
 A_COMPLETER
 
-[Cas 2 — Scale In de 7 à 3 instances]
-# Données : ASG_DISTRIB ZONES=eu-central-1a:3,eu-central-1b:2,eu-central-1c:2 TARGET=3 MIN=2 MAX=10
+[Question 2 — Instances à la capacité maximale]
 A_COMPLETER
 
-[Cas 3 — Target plafonné par MAX]
-# Données : ASG_DISTRIB ZONES=ap-southeast-1a:2,ap-southeast-1b:2 TARGET=12 MIN=2 MAX=6
+[Question 3 — Instances saines après la panne de la zone eu-west-3a]
 A_COMPLETER
 
-[Cas 4 — Capacité déjà atteinte (delta = 0)]
-# Données : ASG_DISTRIB ZONES=eu-west-1a:2,eu-west-1b:2 TARGET=4 MIN=2 MAX=6
+[Question 4 — Remplacement automatique d'une instance en erreur HTTP 500]
+A_COMPLETER
+
+[Question 5 — ALB ou CloudFront pour répartir le trafic intra-région ?]
+A_COMPLETER
+
+[Question 6 — L'ASG augmente-t-il ou diminue-t-il la capacité ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur d'Auto Scaling Group &amp; Répartition Équilibrée Multi-AZ</h3>
+    <h3 class="lab__title">Exercice 3 — L'architecture Auto Scaling des ventes privées Eclat</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -372,26 +367,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'algorithme de répartition équilibrée d'un Auto Scaling Group lors d'un événement de mise à l'échelle (Scale Out ou Scale In).</p>
-    <div class="lab__brief"><p>Un <strong>Auto Scaling Group (ASG)</strong> garantit que les instances sont toujours réparties le plus équitablement possible entre les Availability Zones (AZs) configurées :<br><br>
-Algorithme de répartition :<br>
-1. <strong>Scale Out (Ajout d'instances)</strong> :<br>
-À chaque nouvelle instance à ajouter, l'ASG sélectionne la zone qui possède actuellement <strong>le moins d'instances</strong>. En cas d'égalité, il choisit la première zone par ordre alphabétique.<br>
-2. <strong>Scale In (Suppression d'instances)</strong> :<br>
-À chaque instance à supprimer, l'ASG sélectionne la zone qui possède <strong>le plus d'instances</strong>. En cas d'égalité, il choisit la première zone par ordre alphabétique.<br>
-3. <strong>Bornes Min/Max</strong> : La capacité cible (Desired) ne peut pas descendre sous <code>MIN</code> ni dépasser <code>MAX</code> (tronquer si nécessaire).<br><br>
-Données du cas :<br>
-<code>ASG_DISTRIB ZONES=&lt;az1:count,az2:count,...&gt; TARGET=&lt;n&gt; MIN=&lt;min&gt; MAX=&lt;max&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-<code>ASG_PLAN: target=&lt;t&gt; current=&lt;c&gt; delta=&lt;+n|-n|0&gt; final_distribution=&lt;az1:count,az2:count,...&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Raisonner sur un Auto Scaling Group multi-AZ derrière un ALB : capacités, panne de zone, health checks et choix de service.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Eclat organise des ventes privées en ligne sur AWS : le trafic est calme la semaine et explose lors des opérations du vendredi. L'architecture : un <strong>Application Load Balancer (ALB)</strong> répartit le trafic HTTP sur un groupe <strong>EC2 Auto Scaling (ASG)</strong> déployé sur <strong>3 zones de disponibilité</strong> (eu-west-3a, eu-west-3b, eu-west-3c). Configuration de l'ASG : capacité minimale <strong>2</strong>, capacité souhaitée <strong>4</strong>, capacité maximale <strong>8</strong> ; politique de suivi de cible (target tracking) à <strong>60 % d'utilisation CPU</strong> ; les health checks de l'ALB signalent les instances défaillantes.</p><p>Les questions 1 à 3 attendent un nombre ; les questions 4 à 6 une réponse courte.</p><ol><li>Avec une capacité souhaitée de 4 instances réparties au mieux sur 3 zones, combien d'instances une zone peut-elle compter au maximum ?</li><li>Vendredi noir : l'ASG monte à sa capacité maximale. Combien d'instances tournent alors ?</li><li>La zone eu-west-3a tombe en panne ; elle hébergeait l'instance excédentaire (répartition 2/1/1). Combien d'instances restent immédiatement saines ?</li><li>Une instance renvoie des erreurs HTTP 500 que les health checks de l'ALB détectent : l'ASG la remplace-t-il automatiquement ?</li><li>Pour répartir le trafic HTTP entre les instances des trois zones d'une même région, faut-il choisir un Application Load Balancer ou Amazon CloudFront ?</li><li>La cible de 60 % CPU est dépassée (75 % en moyenne depuis plusieurs minutes) : l'ASG augmente-t-il ou diminue-t-il la capacité ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ASG_DISTRIB ZONES=eu-west-3a:1,eu-west-3b:1,eu-west-3c:1 TARGET=6 MIN=2 MAX=10</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FestiGo dimensionne son ASG : min 1, desired 3, max 6, sur 2 zones (a et b), cible 50 % CPU, health checks ALB.
+
+1) 3 instances sur 2 zones : répartition 2/1, une zone compte au maximum 2 instances.
+2) Pic du samedi soir : montée à 6 instances (capacité maximale).
+3) La zone a tombe (elle hébergeait 2 instances) : 1 instance saine reste.
+4) Le trafic HTTP entre les zones d'une même région passe par l'ALB (CloudFront sert le cache mondial).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>L'ASG équilibre les instances entre les zones : 4 instances sur 3 zones se répartissent 2/1/1.</li>
+        <li>Les capacités de l'ASG se lisent ainsi : jamais moins que le minimum, jamais plus que le maximum, le souhaité au repos.</li>
+        <li>1. Répartissez 4 en 3 parts. 2. Relisez la capacité maximale. 3. Comptez les instances hors zone a. 4. Que fait l'ASG d'une instance signalée défaillante ? 5. CloudFront sert le cache mondial ; la répartition intra-région est le rôle du répartiteur. 6. Comparez la moyenne observée à la cible.</li>
       </ol>
     </details>
   </div>
@@ -406,18 +397,18 @@ Résultat d’analyse attendu :<br>
       <div class="opts">
         <button class="opt">Instances Réservées (Reserved Instances)</button>
         <button class="opt">Savings Plans</button>
-        <button class="opt" data-correct="1">Instances Spot</button>
         <button class="opt">Hôtes Dédiés (Dedicated Hosts)</button>
+        <button class="opt" data-correct="1">Instances Spot</button>
       </div>
       <div class="q__exp">Les instances Spot exploitent le surplus de capacité matérielle inutilisée d'AWS avec jusqu'à 90% de rabais, mais AWS peut les réclamer avec un préavis d'interruption de 2 minutes.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle caractéristique technique distinguez les volumes EBS gp3 par rapport aux anciens volumes gp2 ?</p>
       <div class="opts">
-        <button class="opt">Les volumes gp3 ne peuvent pas être chiffrés</button>
+        <button class="opt">Les volumes gp3 ne peuvent pas être chiffrés, contrairement aux anciens volumes gp2</button>
+        <button class="opt">Les volumes gp3 sont accessibles simultanément en lecture et écriture par 100 instances EC2 distinctes</button>
         <button class="opt" data-correct="1">Les volumes gp3 permettent d'augmenter les IOPS et le débit MB/s indépendamment de la taille du disque de stockage</button>
-        <button class="opt">Les volumes gp3 sont accessibles simultanément par 100 instances</button>
-        <button class="opt">Les volumes gp3 sont stockés sur bande magnétique</button>
+        <button class="opt">Les volumes gp3 sont stockés sur des bandes magnétiques à très faible coût par téraoctet</button>
       </div>
       <div class="q__exp">Contrairement à gp2 dont les performances dépendaient strictement du nombre de Go alloués, gp3 permet de provisionner les IOPS et le débit indépendamment de la capacité de stockage.</div>
     </div>
@@ -425,17 +416,17 @@ Résultat d’analyse attendu :<br>
       <p class="q__stem">À quelle couche du modèle OSI l'Application Load Balancer (ALB) opère-t-il pour inspecter les requêtes HTTP/HTTPS ?</p>
       <div class="opts">
         <button class="opt">Couche 2 (Liaison de données)</button>
-        <button class="opt">Couche 3 (Réseau)</button>
-        <button class="opt">Couche 4 (Transport)</button>
         <button class="opt" data-correct="1">Couche 7 (Application)</button>
+        <button class="opt">Couche 4 (Transport)</button>
+        <button class="opt">Couche 3 (Réseau)</button>
       </div>
       <div class="q__exp">L'Application Load Balancer opère au niveau de la couche 7 (Application), ce qui lui permet d'inspecter les en-têtes HTTP, les URLs, les cookies et d'effectuer des redirections intelligentes.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment un Auto Scaling Group réagit-il lors d'un événement de Scale Out pour maintenir une haute disponibilité optimale ?</p>
       <div class="opts">
-        <button class="opt">Il lance toutes les instances dans la première zone alphabétique</button>
         <button class="opt" data-correct="1">Il lance l'instance dans l'Availability Zone qui compte actuellement le moins d'instances</button>
+        <button class="opt">Il lance toutes les instances dans la première zone alphabétique</button>
         <button class="opt">Il supprime aléatoirement une instance dans une autre zone</button>
         <button class="opt">Il attend que toutes les zones soient pleines</button>
       </div>
@@ -444,8 +435,8 @@ Résultat d’analyse attendu :<br>
     <div class="q">
       <p class="q__stem">Quel service d'orchestration AWS permet d'exécuter des conteneurs Docker sans avoir à gérer, dimensionner ni patcher de machines virtuelles EC2 sous-jacentes ?</p>
       <div class="opts">
-        <button class="opt">Amazon EC2 Dedicated Hosts</button>
         <button class="opt" data-correct="1">AWS Fargate</button>
+        <button class="opt">Amazon EC2 Dedicated Hosts</button>
         <button class="opt">Amazon EBS multi-attach</button>
         <button class="opt">AWS Storage Gateway</button>
       </div>
@@ -464,20 +455,20 @@ Résultat d’analyse attendu :<br>
     <div class="q">
       <p class="q__stem">Qu'advient-il d'une instance EC2 membre d'un Auto Scaling Group qui échoue de manière répétée aux sondes de santé (Health Checks) de son Load Balancer ?</p>
       <div class="opts">
-        <button class="opt">L'ASG ignore l'échec</button>
+        <button class="opt">L'ASG ignore l'échec des sondes et attend une intervention manuelle de l'administrateur sur l'instance</button>
+        <button class="opt">L'ASG arrête toutes les autres instances de la région pour éviter la propagation de la panne</button>
         <button class="opt" data-correct="1">L'ASG termine automatiquement l'instance défaillante et lance une nouvelle instance saine de remplacement (Auto-healing)</button>
-        <button class="opt">L'ASG arrête toutes les autres instances de la région</button>
-        <button class="opt">L'ASG passe en mode dégradé manuel</button>
+        <button class="opt">L'ASG passe en mode dégradé manuel et attend que l'instance défaillante redémarre d'elle-même</button>
       </div>
       <div class="q__exp">L'ASG intègre l'auto-healing : dès qu'une instance est déclarée Unhealthy par le Load Balancer, il la termine et en instancie une nouvelle pour préserver la capacité désirée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi les snapshots Amazon EBS sont-ils qualifiés d'incrémentaux ?</p>
       <div class="opts">
-        <button class="opt">Car chaque snapshot copie l'intégralité du disque à chaque fois</button>
+        <button class="opt">Car chaque snapshot copie l'intégralité du disque dur vers Amazon S3, ce qui simplifie la restauration</button>
+        <button class="opt">Car leur prix de stockage diminue automatiquement au fil du temps sans intervention</button>
+        <button class="opt">Car ils ne fonctionnent que sur des volumes contenant exclusivement des fichiers texte</button>
         <button class="opt" data-correct="1">Car seuls les blocs de données modifiés depuis le dernier snapshot sont enregistrés dans Amazon S3</button>
-        <button class="opt">Car leur prix augmente avec le temps</button>
-        <button class="opt">Car ils ne fonctionnent que sur des fichiers texte</button>
       </div>
       <div class="q__exp">Les snapshots EBS sont incrémentaux : seule la différence (les blocs modifiés depuis la sauvegarde précédente) est stockée dans S3, ce qui réduit considérablement les coûts et le temps de sauvegarde.</div>
     </div>
@@ -599,7 +590,7 @@ Résultat d’analyse attendu :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

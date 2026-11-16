@@ -33,7 +33,7 @@ with tempfile.TemporaryDirectory(prefix='revi-audit-deps-') as temporary:
         manifest = snapshotter(root, destination)
         assert all(item in manifest for item in required)
         policy = destination / 'project/server/exercises/grading-policy.js'
-        subprocess.run([sys.argv[2], '-e', "const policy=require(process.argv[1]);if(!policy.isGradingSuspended('docker'))process.exit(3)", str(policy)], check=True)
+        subprocess.run([sys.argv[2], '-e', "const policy=require(process.argv[1]);if(policy.isGradingSuspended('docker')!==false)process.exit(3)", str(policy)], check=True)
     assert all(item in csharp.SOURCES and item in github.SOURCES for item in required)
 print('ok')
 `;

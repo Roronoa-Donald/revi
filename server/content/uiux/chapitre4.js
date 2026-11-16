@@ -177,21 +177,21 @@ module.exports = {
     {
       stem: 'Quel est un intérêt possible d’une échelle d’espacement partagée, telle qu’une grille 8pt ?',
       opts: [
-        'Le chiffre 8 porte bonheur selon la tradition typographique',
         'Elle facilite la cohérence des espacements entre les composants du projet',
+        'Le chiffre 8 porte bonheur selon la tradition typographique',
         'Cela permet de compresser les images au format JPEG plus rapidement',
         'C’est le seul système accepté par le W3C pour valider le code HTML'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une échelle partagée facilite les choix cohérents ; elle ne garantit pas le rendu sur tous les écrans.'
     },
     {
       stem: 'Quand une équipe peut-elle utiliser une demi-grille de 4 px ?',
       opts: [
-        'Pour les marges de toutes les grandes cartes de contenu',
-        'Lorsque la convention de son projet prévoit ces espacements, par exemple pour un ajustement fin',
-        'Uniquement sur les écrans de télévision 4K',
-        'Elle est formellement interdite sans exception'
+        "Pour les marges de toutes les grandes cartes de contenu, quel que soit le contexte du projet",
+        "Lorsque la convention de son projet prévoit ces espacements, par exemple pour un ajustement fin",
+        "Uniquement sur les écrans de télévision 4K, dont la densité de pixels l’autorise",
+        "Elle est formellement interdite sans exception par les standards du web ouvert"
       ],
       correct: 1,
       exp: 'Une échelle de 4 px peut servir à des ajustements fins si l’équipe la retient ; ses usages ne sont pas universels.'
@@ -205,32 +205,32 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale entre un «Template» et une «Page» en Atomic Design ?',
       opts: [
-        'Le template est codé en HTML, la page en PHP',
-        'Le template est le squelette structurel avec des données factices ou vides, tandis que la page est l’instance concrète garnie avec les vraies données réelles finales',
-        'Le template est réservé au mobile, la page au desktop',
-        'Il n’y a aucune différence technique'
+        "Le template est un simple gabarit codé en HTML statique, tandis que la page est générée dynamiquement en PHP côté serveur",
+        "Le template est réservé aux maquettes mobiles du produit, la page n’existant que dans la version desktop grand écran",
+        "Il n’existe aucune différence technique réelle, les deux termes désignant exactement le même livrable de conception",
+        "Le template est le squelette structurel avec des données factices ou vides, tandis que la page est l’instance concrète garnie avec les vraies données réelles finales"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le template définit la mise en page et les conteneurs abstraits. La page injecte le contenu réel pour tester la résistance du layout face aux données réelles (textes longs, photos).'
     },
     {
       stem: 'Qu’est-ce qu’un «Design Token» dans un système de design moderne ?',
       opts: [
-        'Un jeton cryptographique pour payer les designers en Bitcoin',
-        'Une variable nommée de manière sémantique qui encapsule une décision de design (couleur, espacement, police) partageable entre outils de design et code source',
-        'Un cookie de session HTTP pour sécuriser Figma',
-        'Une police de caractères sous licence libre'
+        "Une variable nommée de manière sémantique qui encapsule une décision de design (couleur, espacement, police) partageable entre outils de design et code source",
+        "Un jeton cryptographique de blockchain servant à rémunérer les designers en bitcoins à chaque livraison validée",
+        "Un cookie de session HTTP déposé par le navigateur pour sécuriser l’accès de l’équipe aux fichiers Figma du projet",
+        "Une police de caractères sous licence libre, téléchargeable gratuitement par tous les membres de l’équipe de design"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les Design Tokens sont les briques atomiques de variables (ex: color-primary, spacing-md) qui unifient le langage visuel entre designers et ingénieurs logiciels.'
     },
     {
       stem: 'Pourquoi recommande-t-on de réaliser les premiers wireframes en niveaux de gris (Lo-Fi) sans couleurs ?',
       opts: [
-        'Pour économiser l’encre lors des impressions papier',
-        'Pour focaliser l’attention des parties prenantes sur la hiérarchie de l’information et le parcours sans que les débats ne dérivent sur les préférences de couleurs',
-        'Parce que les navigateurs ne savent pas afficher de couleurs avant la compilation',
-        'C’est une obligation légale selon la norme ISO'
+        "Pour économiser l’encre des imprimantes lors des tirages papier distribués dans les réunions de validation du projet",
+        "Pour focaliser l’attention des parties prenantes sur la hiérarchie de l’information et le parcours sans que les débats ne dérivent sur les préférences de couleurs",
+        "Parce que les navigateurs web ne savent pas afficher les couleurs avant la compilation finale des feuilles de style CSS",
+        "C’est une obligation légale formellement imposée par la norme internationale ISO 9241-210 sur l’ergonomie des écrans"
       ],
       correct: 1,
       exp: 'La couleur est émotionnelle et polarisante. Travailler en gris oblige l’équipe à valider la structure, les flux et l’utilisabilité avant de parler d’esthétique.'
@@ -238,23 +238,23 @@ module.exports = {
     {
       stem: 'Comment calcule-t-on la taille d’un titre H1 dans une échelle typographique modulaire de base 16px avec un ratio Major Third de 1.25 au cran k=3 ?',
       opts: [
-        '16 + 1.25 * 3 = 19.75px',
-        '16 * (1.25)^3 = 16 * 1.953 = environ 31px',
-        '16 * 3 = 48px',
-        '1.25^16 = un nombre infini'
+        "16 + 1.25 * 3 = 19.75px par simple addition du cran",
+        "16 * 3 = 48px par multiplication directe",
+        "1.25^16, soit un nombre quasi infini selon la calculatrice",
+        "16 * (1.25)^3 = 16 * 1.953 = environ 31px"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’échelle géométrique applique la puissance du ratio : 16 * 1.25^3 = 31.25px, ce qui s’arrondit proprement à 31px dans les feuilles de style CSS.'
     },
     {
       stem: 'Dans Figma ou les outils UI modernes, quel est le bénéfice fondamental de la fonctionnalité «Auto Layout» (équivalent de Flexbox) ?',
       opts: [
-        'Elle génère automatiquement des images par intelligence artificielle',
-        'Elle permet aux conteneurs et boutons de s’étirer ou de se contracter automatiquement lorsque leur contenu textuel change ou que la langue change',
-        'Elle corrige automatiquement les fautes d’orthographe',
-        'Elle bloque les calques pour empêcher toute modification'
+        "Elle génère automatiquement des illustrations par intelligence artificielle à partir d’un simple texte descriptif",
+        "Elle corrige automatiquement les fautes d’orthographe des libellés saisis dans les zones de texte du prototype",
+        "Elle permet aux conteneurs et boutons de s’étirer ou de se contracter automatiquement lorsque leur contenu textuel change ou que la langue change",
+        "Elle verrouille les calques pour empêcher toute modification du fichier par les autres designers"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’Auto Layout reproduit le flux dynamique du web : un bouton s’agrandit naturellement si son libellé est plus long (ex: traduction allemande), sans retouche manuelle du designer.'
     }
   ],

@@ -17,7 +17,7 @@ module.exports = [
     language: 'powershell',
     title: 'Taille totale des sauvegardes',
     goal: 'Lire une liste de tailles et totaliser : premier script d’administration PowerShell.',
-    brief: '<p>Le script lit un entier <code>n</code>, puis <code>n</code> tailles de sauvegarde en ' +
+    brief: '<p>Dans un audit Windows Server (équivalent d’un agrégat sur <code>Get-ChildItem | Measure-Object -Property Length -Sum</code> ou <code>wbadmin</code>), le script lit un entier <code>n</code>, puis <code>n</code> tailles de sauvegarde en ' +
       'gigaoctets. Affichez <code>total : X Go</code> où <code>X</code> est la somme des tailles.</p>',
     starter: `$n = [int][Console]::In.ReadLine()
 $total = 0
@@ -29,8 +29,9 @@ for ($i = 0; $i -lt $n; $i++) {
 # À compléter : afficher "total : " suivi de la somme, puis " Go".
 `,
     hints: [
-      'Dans la boucle, une seule instruction suffit : `$total += $taille`.',
-      'PowerShell affiche avec Write-Output ; concaténez le texte et la valeur : ("total : " + $total + " Go").'
+      "Dans la boucle, une seule instruction suffit : `$total += $taille`.",
+      "PowerShell affiche avec Write-Output ; concaténez le texte et la valeur : (\"total : \" + $total + \" Go\").",
+      "Étapes : lire n ; lire chaque taille et l’ajouter au total ; afficher « total : » suivi du total et de « Go »."
     ],
     examples: [
       { stdin: '3\n10\n20\n30', expected: 'total : 60 Go', note: 'Trois sauvegardes de 10, 20 et 30 Go.' }
@@ -47,7 +48,8 @@ for ($i = 0; $i -lt $n; $i++) {
     $total += $taille
 }
 Write-Output ("total : " + $total + " Go")
-`
+`,
+    takeaway: "En PowerShell, Measure-Object -Sum ou une boucle foreach totalise proprement des objets ou nombres lus depuis le pipeline."
   },
   {
     id: 'ws2-c1-e2',
@@ -69,8 +71,9 @@ $horsSite = [Console]::In.ReadLine()
 # "3-2-1 : conforme" ou "3-2-1 : non conforme".
 `,
     hints: [
-      'Combinez les tests avec -and : `($copies -ge 3) -and ($supports -ge 2) -and ($horsSite -eq "oui")`.',
-      'La comparaison de chaînes utilise -eq, pas ==.'
+      "Combinez les tests avec -and : `($copies -ge 3) -and ($supports -ge 2) -and ($horsSite -eq \"oui\")`.",
+      "La comparaison de chaînes utilise -eq, pas ==.",
+      "Étapes : lire copies, supports et hors-site ; conforme si copies ≥ 3 et supports ≥ 2 et hors-site = « oui » ; sinon non conforme."
     ],
     examples: [
       { stdin: '3\n2\noui', expected: '3-2-1 : conforme', note: 'Les trois conditions sont remplies.' }
@@ -88,7 +91,8 @@ if (($copies -ge 3) -and ($supports -ge 2) -and ($horsSite -eq "oui")) {
 } else {
     Write-Output "3-2-1 : non conforme"
 }
-`
+`,
+    takeaway: "La règle 3-2-1 exige 3 copies, sur 2 supports distincts dont 1 hors site, pour résister aux pannes locales."
   },
   {
     id: 'ws2-c1-e3',
@@ -108,8 +112,9 @@ $taille = [int][Console]::In.ReadLine()
 # "alerte : espace insuffisant" ou "libre : X Go".
 `,
     hints: [
-      'Comparez avec -gt : `($taille -gt $capacite)`.',
-      'L’espace restant vaut `$capacite - $taille`.'
+      "Comparez avec -gt : `($taille -gt $capacite)`.",
+      "L’espace restant vaut `$capacite - $taille`.",
+      "Étapes : lire capacité puis taille ; si la taille dépasse la capacité, afficher l’alerte ; sinon afficher « libre : » suivi de la différence en Go."
     ],
     examples: [
       { stdin: '500\n200', expected: 'libre : 300 Go', note: '500 Go de capacité, 200 Go écrits.' }
@@ -126,6 +131,7 @@ if ($taille -gt $capacite) {
 } else {
     Write-Output ("libre : " + ($capacite - $taille) + " Go")
 }
-`
+`,
+    takeaway: "Vérifier l espace disponible sur le volume cible avant d lancer une sauvegarde évite les échecs à mi-transfert."
   }
 ];

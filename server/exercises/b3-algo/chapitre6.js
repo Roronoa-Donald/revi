@@ -20,8 +20,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : calculer les manières d'atteindre la marche N par programmation dynamique
 `,
     hints: [
-      'Initialiser un tableau dp de taille N + 1 à 0, avec dp[0] = 1.',
-      'Pour chaque marche i de 1 à N, sommer les valeurs dp[i - p] pour les pas p valides.'
+      "Initialiser un tableau dp de taille N + 1 à 0, avec dp[0] = 1.",
+      "Pour chaque marche i de 1 à N, sommer les valeurs dp[i - p] pour les pas p valides.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (calculer le nombre de combinaisons pour gravir un escalier de n marches avec des pas autorisés en utilisant la tabulation ascendante (DP)), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -72,7 +73,8 @@ for lig in lignes:
 
     table_str = ", ".join(str(x) for x in dp)
     print(f"ESCALIER: nom={nom} | N={N} -> COMBINAISONS: {dp[N]} | TABLE_DP: {table_str}")
-`
+`,
+    takeaway: "La programmation dynamique remplace les appels récursifs redondants par une table de sous-problèmes déjà résolus en temps linéaire."
   },
   {
     id: 'al3-c6-e2',
@@ -89,8 +91,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter la programmation dynamique du sac à dos 0/1
 `,
     hints: [
-      'La table DP stocke pour chaque préfixe d’objets et chaque capacité résiduelle la valeur maximale.',
-      'La reconstruction vérifie si dp[i][w] != dp[i-1][w] pour déduire que l’objet i a été sélectionné.'
+      "La table DP stocke pour chaque préfixe d’objets et chaque capacité résiduelle la valeur maximale.",
+      "La reconstruction vérifie si dp[i][w] != dp[i-1][w] pour déduire que l’objet i a été sélectionné.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (résoudre le problème du sac à dos 0/1 par programmation dynamique 2D, puis reconstituer l’ensemble des objets retenus), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -162,7 +165,8 @@ for lig in lignes:
     chosen.sort()
     obj_str = ", ".join(chosen) if chosen else "AUCUN"
     print(f"KNAPSACK: nom={nom} | CAPACITE: {W} | VALEUR_MAX: {val_max} | OBJETS: {obj_str} | POIDS_TOTAL: {total_w}")
-`
+`,
+    takeaway: "Dans le sac à dos 0/1, chaque objet n’est pris qu’une fois : la table 2D ou le balayage arrière des capacités évite la réutilisation multiple."
   },
   {
     id: 'al3-c6-e3',
@@ -179,8 +183,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter l'algorithme LCS et sa reconstruction
 `,
     hints: [
-      'Initialiser une table 2D de taille (len(S1)+1) x (len(S2)+1) à 0.',
-      'Lors de la reconstruction, si les caractères correspondent, l’ajouter et décrémenter i et j.'
+      "Initialiser une table 2D de taille (len(S1)+1) x (len(S2)+1) à 0.",
+      "Lors de la reconstruction, si les caractères correspondent, l’ajouter et décrémenter i et j.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (calculer la longueur et reconstruire la chaîne de la plus longue sous-séquence commune (LCS) entre deux séquences de caractères), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -251,6 +256,7 @@ for lig in lignes:
     res.reverse()
     seq_str = "".join(res) if res else "VIDE"
     print(f"LCS: nom={nom} | LONGUEUR: {lcs_len} | SEQUENCE: {seq_str}")
-`
+`,
+    takeaway: "La Plus Longue Sous-Séquence Commune (LCS) compare les caractères deux à deux et reconstruit la séquence en remontant la matrice DP."
   }
 ];

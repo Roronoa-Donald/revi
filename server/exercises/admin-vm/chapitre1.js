@@ -24,8 +24,9 @@ $parServeur = [int][Console]::In.ReadLine()
 # À compléter : calculer le total et afficher "vms : X".
 `,
     hints: [
-      'Le total vaut `$serveurs * $parServeur`.',
-      'PowerShell affiche avec Write-Output ; concaténez texte et valeur.'
+      "Le total vaut `$serveurs * $parServeur`.",
+      "PowerShell affiche avec Write-Output ; concaténez texte et valeur.",
+      "Étapes : lire serveurs puis parServeur ; total = produit des deux ; afficher « vms : » suivi du total."
     ],
     examples: [
       { stdin: '4\n5', expected: 'vms : 20', note: '4 serveurs de 5 VM.' }
@@ -40,7 +41,8 @@ $parServeur = [int][Console]::In.ReadLine()
 
 $total = $serveurs * $parServeur
 Write-Output ("vms : " + $total)
-`
+`,
+    takeaway: "Consolider plusieurs serveurs physiques en VM exige d additionner exactement leurs besoins avant dimensionnement."
   },
   {
     id: 'vm2-c1-e2',
@@ -60,8 +62,9 @@ $nom = [Console]::In.ReadLine()
 # "solution : NOM (test)" selon le type.
 `,
     hints: [
-      'Le type 1 (bare-metal) vise la production.',
-      'Le type 2 (hébergé) sert surtout aux tests et à la formation.'
+      "Le type 1 (bare-metal) vise la production.",
+      "Le type 2 (hébergé) sert surtout aux tests et à la formation.",
+      "Étapes : lire le type puis le nom ; type 1 → « (production) », sinon « (test) » ; afficher « solution : » suivie du nom et du qualificatif."
     ],
     examples: [
       { stdin: '1\nESXi', expected: 'solution : ESXi (production)', note: 'ESXi vise la production.' }
@@ -79,7 +82,8 @@ if ($type -eq 1) {
 } else {
     Write-Output ("solution : " + $nom + " (test)")
 }
-`
+`,
+    takeaway: "On réserve les hyperviseurs bare-metal (Type 1) à la production pour minimiser l overhead et les pannes de l OS hôte."
   },
   {
     id: 'vm2-c1-e3',
@@ -97,8 +101,9 @@ if ($type -eq 1) {
 # À compléter : avec un switch sur $domaine, afficher l'exemple correspondant.
 `,
     hints: [
-      'Serveur → Proxmox ; Poste (VDI) → VMware Horizon.',
-      'Stockage → NAS/SAN ; Réseau → pfSense.'
+      "Serveur → Proxmox ; Poste (VDI) → VMware Horizon.",
+      "Stockage → NAS/SAN ; Réseau → pfSense.",
+      "Étapes : lire le domaine ; serveur → Proxmox, poste → VMware Horizon, stockage → NAS/SAN, reseau → pfSense ; autre valeur → « exemple : inconnu »."
     ],
     examples: [
       { stdin: 'serveur', expected: 'exemple : Proxmox', note: 'La virtualisation de serveurs.' }
@@ -117,6 +122,7 @@ switch ($domaine) {
     "reseau" { Write-Output "exemple : pfSense" }
     default { Write-Output "exemple : inconnu" }
 }
-`
+`,
+    takeaway: "Ne confondez pas virtualisation serveur (VM complète), poste client (VDI) et conteneurisation (partage du noyau)."
   }
 ];

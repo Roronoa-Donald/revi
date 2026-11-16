@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -197,10 +195,11 @@ HYPERVISEUR nom=virtualbox_dev COUCHE=HOSTED ACCEL=OUI OVERHEAD=9.2
 HYPERVISEUR nom=xen_legacy COUCHE=BARE_METAL ACCEL=NON OVERHEAD=4.5</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Les hyperviseurs de Type 1 (ESXi, KVM, Xen) tournent directement sur le matériel.</li>
         <li>Le mode HVM exploite la virtualisation assistée par le processeur hôte.</li>
+        <li>1. COUCHE=BARE_METAL : TYPE_1, sinon TYPE_2. 2. ACCEL=OUI : HVM, sinon PV. 3. OVERHEAD ≤ 3 : OPTIMALE ; ≤ 8 : BONNE ; sinon DEGRADEE.</li>
       </ol>
     </details>
   </div>
@@ -263,10 +262,11 @@ VM id=web2 vcpu=8 ram_gb=16
 VM id=app1 vcpu=16 ram_gb=32</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>En virtualisation Cloud, un ratio vCPU:pCPU de 2:1 à 4:1 est courant, mais la RAM ne doit être que très modérément sur-allouée (1.0 à 1.25).</li>
         <li>Arrondir les ratios à 2 décimales pour l'affichage.</li>
+        <li>1. Sommer les vCPU et la RAM des machines. 2. Diviser par les capacités physiques. 3. Comparer chaque ratio à son plafond. 4. Statut VALIDE ou SURCHARGE selon le ou les ratios franchis.</li>
       </ol>
     </details>
   </div>
@@ -316,10 +316,11 @@ A_COMPLETER
 SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Une durée en millisecondes se convertit en secondes ; le débit seul n’est pas une concurrence.</li>
         <li>Retirez la mémoire de base du budget de chaque nœud ; la pointe est une donnée distincte.</li>
+        <li>1. Concurrence moyenne = tps_moy × duree_ms / 1000. 2. Budget utile = ram_max_gb × 1024 × K − base_mb ; négatif : BASE_NON_ADMISSIBLE. 3. Pointe manquante : INDETERMINEE. 4. Sinon arrondir CPU, RAM et IOPS au supérieur.</li>
       </ol>
     </details>
   </div>
@@ -332,8 +333,8 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80
     <div class="q">
       <p class="q__stem">Quel type d’hyperviseur s’exécute directement sur le matériel physique sans passer par un système d’exploitation hôte intermédiaire ?</p>
       <div class="opts">
-        <button class="opt">Hyperviseur de Type 2 (Hosted)</button>
         <button class="opt" data-correct="1">Hyperviseur de Type 1 (Bare-Metal)</button>
+        <button class="opt">Hyperviseur de Type 2 (Hosted)</button>
         <button class="opt">Moteur de conteneurs Docker</button>
         <button class="opt">Émulateur d’architecture QEMU en mode utilisateur</button>
       </div>
@@ -353,8 +354,8 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80
       <p class="q__stem">Sur un serveur hôte physique disposant de 16 cœurs physiques (pCPU), on déploie 12 VMs configurées avec 4 vCPU chacune. Quel est le ratio de sur-allocation CPU résultant ?</p>
       <div class="opts">
         <button class="opt">1.50:1</button>
-        <button class="opt" data-correct="1">3.00:1</button>
         <button class="opt">0.33:1</button>
+        <button class="opt" data-correct="1">3.00:1</button>
         <button class="opt">4.00:1</button>
       </div>
       <div class="q__exp">Total vCPU alloués = 12 * 4 = 48 vCPU. Ratio = 48 / 16 = 3.00:1 (3 vCPU virtuels pour chaque cœur physique réel).</div>
@@ -363,9 +364,9 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80
       <p class="q__stem">Comment s’appelle la technique qui permet à l’hyperviseur de récupérer de la RAM inutilisée au sein d’une VM invité sans redémarrage ?</p>
       <div class="opts">
         <button class="opt">Le Swapping disque brut</button>
-        <button class="opt" data-correct="1">Le Memory Ballooning</button>
-        <button class="opt">L’Overclocking dynamique</button>
         <button class="opt">La pagination synchrone</button>
+        <button class="opt">L’Overclocking dynamique</button>
+        <button class="opt" data-correct="1">Le Memory Ballooning</button>
       </div>
       <div class="q__exp">Le pilote de ballonnement (Memory Ballooning) gonfle artificiellement à l’intérieur de la VM pour contraindre son OS invité à libérer des pages mémoires inactives au profit de l’hyperviseur.</div>
     </div>
@@ -373,9 +374,9 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80
       <p class="q__stem">Quelle métrique de l’hyperviseur indique qu’une machine virtuelle possède du travail à exécuter mais attend désespérément qu’un cœur physique se libère ?</p>
       <div class="opts">
         <button class="opt">CPU Utilization</button>
-        <button class="opt" data-correct="1">CPU Ready Time (%RDY)</button>
-        <button class="opt">Memory Footprint</button>
         <button class="opt">Disk IOPS</button>
+        <button class="opt">Memory Footprint</button>
+        <button class="opt" data-correct="1">CPU Ready Time (%RDY)</button>
       </div>
       <div class="q__exp">Le CPU Ready Time (%RDY) mesure le pourcentage de temps pendant lequel une VM prête à exécuter des instructions est mise en attente par l’ordonnanceur faute de pCPU disponible.</div>
     </div>
@@ -392,18 +393,18 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80
     <div class="q">
       <p class="q__stem">Comment qualifie-t-on le problème où une machine virtuelle voisine consomme de manière abusive les ressources partagées (CPU, bus disque), dégradant les autres VMs sur le même hôte ?</p>
       <div class="opts">
-        <button class="opt">Le problème du « Silent Partner »</button>
+        <button class="opt">Le problème du « Silent Partner » : partenaire muet et invisible</button>
         <button class="opt" data-correct="1">Le phénomène du « Noisy Neighbor » (voisin bruyant)</button>
-        <button class="opt">L’attaque par rejeu temporel</button>
-        <button class="opt">La rupture de quorum</button>
+        <button class="opt">L’attaque par rejeu temporel de trames capturées</button>
+        <button class="opt">La rupture de quorum du cluster de haute disponibilité</button>
       </div>
       <div class="q__exp">Le phénomène de « Noisy Neighbor » survient lorsqu’une VM monopolise les ressources physiques partagées au détriment des autres locataires de l’hôte physique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la principale différence architecturale entre un conteneur et une machine virtuelle classique ?</p>
       <div class="opts">
-        <button class="opt">Le conteneur possède son propre hyperviseur Type 1 dédié</button>
         <button class="opt" data-correct="1">Le conteneur partage le noyau du système d’exploitation hôte avec les autres conteneurs</button>
+        <button class="opt">Le conteneur possède son propre hyperviseur Type 1 dédié</button>
         <button class="opt">Le conteneur ne peut pas exécuter de code binaire</button>
         <button class="opt">Le conteneur ne supporte pas le réseau IP</button>
       </div>
@@ -530,7 +531,7 @@ SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=3000 cible_pct=80
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

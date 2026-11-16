@@ -151,12 +151,12 @@ module.exports = {
     {
       stem: 'Quel postulat caractérise fondamentalement le paradigme épistémologique positiviste par rapport à l’interprétativisme ?',
       opts: [
-        'La réalité est une illusion totale impossible à observer scientifiquement',
         'La réalité existe indépendamment de l’observateur et peut être mesurée objectivement sous forme de données chiffrées régies par des lois',
+        'La réalité est une illusion totale impossible à observer scientifiquement',
         'Le chercheur doit obligatoirement modifier le comportement des sujets observés',
         'Toutes les théories scientifiques doivent être rédigées sous forme de poèmes'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le positivisme postule une réalité objective indépendante du chercheur, accessible par la mesure quantitative neutre et la vérification d’hypothèses déductives.'
     },
     {
@@ -173,32 +173,32 @@ module.exports = {
     {
       stem: 'Quelle est la différence méthodologique exacte entre la « population cible » et la « base de sondage » ?',
       opts: [
-        'Il n’y a aucune différence, ce sont deux synonymes parfaits',
-        'La population cible est l’ensemble théorique visé par l’étude (ex: tous les DSI de France), tandis que la base de sondage est la liste concrète permettant de les joindre (ex: annuaire Syntec)',
-        'La base de sondage est un bâtiment physique et la population cible un logiciel',
-        'La population cible concerne uniquement les serveurs informatiques'
+        "Il n’y a aucune différence réelle : les deux termes désignent indifféremment l’ensemble des personnes contactées au cours de la campagne d’enquête",
+        "La base de sondage désigne le bâtiment physique abritant les locaux de l’institut, tandis que la population cible est un logiciel de traitement de données",
+        "La population cible est l’ensemble théorique visé par l’étude (ex: tous les DSI de France), tandis que la base de sondage est la liste concrète permettant de les joindre (ex: annuaire Syntec)",
+        "La population cible ne concerne que les serveurs informatiques de l’entreprise, la base de sondage étant constituée de leur contrat de maintenance annuel"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La population cible est l’univers d’enquête défini conceptuellement ; la base de sondage est le support d’accès réel (liste, annuaire, base de données) d’où sera extrait l’échantillon.'
     },
     {
       stem: 'Selon Norman Denzin, en quoi consiste la « triangulation méthodologique » ?',
       opts: [
-        'À dessiner des triangles sur tous les graphiques du rapport',
-        'À croiser des instruments de collecte quantitatifs et qualitatifs pour observer un même phénomène et en neutraliser les biais réciproques',
-        'À faire payer trois fois le prix de l’enquête au client',
-        'À limiter obligatoirement l’enquête à trois questions'
+        "À dessiner systématiquement des triangles sur tous les graphiques du rapport final de l’étude quantitative",
+        "À facturer trois fois le prix normal de l’enquête au client commanditaire, une fois par méthode employée",
+        "À limiter obligatoirement le questionnaire à trois questions au maximum, une par dimension de l’étude",
+        "À croiser des instruments de collecte quantitatifs et qualitatifs pour observer un même phénomène et en neutraliser les biais réciproques"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La triangulation méthodologique combine approches quantitative et qualitative pour vérifier la convergence des résultats et sécuriser leur robustesse.'
     },
     {
       stem: 'Dans une recherche en méthodes mixtes, quel est le déroulement d’un design « exploratoire séquentiel » ?',
       opts: [
-        'On réalise d’abord une phase qualitative (entretiens) pour explorer le problème, puis une phase quantitative (sondage) pour mesurer et généraliser',
-        'On réalise uniquement des sondages téléphoniques sans jamais rencontrer personne',
-        'On supprime toutes les données numériques après les avoir collectées',
-        'On commence par rédiger la conclusion avant d’avoir posé la moindre question'
+        "On réalise d’abord une phase qualitative (entretiens) pour explorer le problème, puis une phase quantitative (sondage) pour mesurer et généraliser",
+        "On réalise uniquement des sondages téléphoniques à grande échelle, sans jamais rencontrer les enquêtés en face à face",
+        "On supprime toutes les données numériques après la collecte afin de ne conserver que les verbatims d’entretiens",
+        "On commence par rédiger la conclusion finale du rapport avant même d’avoir posé la moindre question aux enquêtés"
       ],
       correct: 0,
       exp: 'Le design exploratoire séquentiel débute par le qualitatif pour comprendre le terrain et concevoir les variables, puis enchaîne sur le quantitatif pour valider à large échelle.'
@@ -206,10 +206,10 @@ module.exports = {
     {
       stem: 'Pourquoi une recherche purement inductive ne peut-elle pas prétendre tester formellement des hypothèses statistiques préétablies ?',
       opts: [
-        'Parce que les ordinateurs ne savent pas exécuter d’algorithmes inductifs',
-        'Parce que la démarche inductive part des observations de terrain pour faire émerger des théories et non pour valider un modèle théorique préexistant',
-        'Parce que la loi interdit l’induction dans les universités',
-        'Parce que les statistiques sont réservées aux sciences de la terre'
+        "Parce que les ordinateurs actuels ne savent pas exécuter d’algorithmes proprement inductifs sur des données textuelles",
+        "Parce que la démarche inductive part des observations de terrain pour faire émerger des théories et non pour valider un modèle théorique préexistant",
+        "Parce que la réglementation universitaire interdit formellement le recours à la démarche inductive dans les mémoires",
+        "Parce que les statistiques inférentielles sont réservées aux sciences de la terre et aux disciplines naturelles"
       ],
       correct: 1,
       exp: 'Tester formellement des hypothèses relève de la logique déductive (Top-Down). L’induction (Bottom-Up) produit des hypothèses et des concepts nouveaux à partir du terrain.'
@@ -217,23 +217,23 @@ module.exports = {
     {
       stem: 'Parmi les situations suivantes, laquelle illustre une « triangulation des chercheurs » ?',
       opts: [
-        'Un même chercheur relit son propre texte trois fois dans la même journée',
-        'Deux analystes indépendants codent le même corpus de verbatim d’entretiens avec une grille d’analyse pour comparer leurs résultats',
-        'Une équipe de trois personnes partage le même mot de passe d’ordinateur',
-        'Un chercheur cite trois fois son propre nom dans la bibliographie'
+        "Un même chercheur relit son propre texte trois fois dans la même journée afin d’en corriger les fautes d’orthographe",
+        "Une équipe de trois personnes partage le même mot de passe afin d’accéder à l’ordinateur d’analyse des données",
+        "Deux analystes indépendants codent le même corpus de verbatim d’entretiens avec une grille d’analyse pour comparer leurs résultats",
+        "Un chercheur cite son propre nom à trois reprises dans la bibliographie finale du rapport de recherche"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La triangulation des chercheurs implique l’intervention de plusieurs observateurs indépendants pour analyser les mêmes données et éliminer les biais d’interprétation individuels.'
     },
     {
       stem: 'Qu’est-ce qu’une « unité d’échantillonnage » dans une enquête portant sur la cybersécurité des centres hospitaliers ?',
       opts: [
-        'Le réseau internet mondial dans sa totalité',
-        'L’élément individuel unitaire sélectionné pour être interrogé ou mesuré (ex: un centre hospitalier ou son Responsable de la Sécurité des SI)',
-        'L’unité centrale de traitement (processeur) du serveur web',
-        'Le câble réseau RJ45 reliant deux commutateurs'
+        "Le réseau internet mondial dans sa totalité, considéré comme un immense réservoir de répondants potentiels",
+        "L’unité centrale de traitement (processeur) du serveur web hébergeant la plateforme d’enquête en ligne",
+        "Le câble réseau RJ45 reliant entre eux les deux commutateurs de la salle des serveurs de l’entreprise enquêtée",
+        "L’élément individuel unitaire sélectionné pour être interrogé ou mesuré (ex: un centre hospitalier ou son Responsable de la Sécurité des SI)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’unité d’échantillonnage est l’entité de base sur laquelle portent le tirage au sort et la collecte de données (l’hôpital ou le RSSI selon le niveau d’analyse).'
     }
   ],

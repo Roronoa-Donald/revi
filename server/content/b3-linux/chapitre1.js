@@ -151,66 +151,66 @@ module.exports = {
       stem: 'Pourquoi le pseudo-système de fichiers « /proc » ne consomme-t-il aucun octet sur le disque dur physique ?',
       opts: [
         'Parce qu’il est compressé en continu avec l’algorithme gzip',
-        'Parce qu’il réside exclusivement en mémoire vive et est généré dynamiquement par le noyau à la lecture',
+        'Parce qu’il est effacé automatiquement chaque seconde',
         'Parce qu’il est hébergé sur un serveur distant de télémétrie',
-        'Parce qu’il est effacé automatiquement chaque seconde'
+        'Parce qu’il réside exclusivement en mémoire vive et est généré dynamiquement par le noyau à la lecture'
       ],
-      correct: 1,
+      correct: 3,
       exp: '/proc est un pseudo-système de fichiers géré par procfs : il n’a aucune existence physique sur le disque. Le noyau génère les données au vol en mémoire vive lors des appels de lecture.'
     },
     {
       stem: 'Pourquoi un processus à l’état « D » (Uninterruptible Sleep) ne réagit-il pas à la commande « kill -9 » ?',
       opts: [
-        'Parce que le signal SIGKILL n’existe pas sous Linux',
-        'Parce que le processus attend une réponse matérielle directe (I/O disque) et le noyau bloque tout signal pour préserver la cohérence des pilotes',
-        'Parce que le processus a des privilèges root supérieurs à systemd',
-        'Parce que son fichier /proc/[pid]/status est verrouillé en écriture'
+        "Parce que le signal SIGKILL n’existe pas sous Linux et ne peut donc jamais être délivré à un processus en exécution",
+        "Parce que le processus dispose de privilèges root supérieurs à ceux de systemd, qui ne peut donc pas l’arrêter",
+        "Parce que le processus attend une réponse matérielle directe (I/O disque) et le noyau bloque tout signal pour préserver la cohérence des pilotes",
+        "Parce que son fichier /proc/[pid]/status est verrouillé en écriture et empêche la livraison des signaux"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’état D est réservé aux attentes d’I/O matérielles critiques. Pour éviter de corrompre les structures de données des pilotes de périphériques, le noyau n’applique aucun signal tant que l’I/O n’est pas acquittée.'
     },
     {
       stem: 'Qu’est-ce qu’un processus « Zombie » (état Z) sous Linux ?',
       opts: [
-        'Un processus malveillant injecté par un rootkit',
-        'Un processus qui s’exécute sans fin en consommant 100% du CPU',
-        'Un processus terminé dont la mémoire a été libérée, mais dont le père n’a pas encore lu le code de retour via wait()',
-        'Un conteneur Docker arrêté de force'
+        "Un processus malveillant injecté par un rootkit pour échapper à la détection de l’antivirus",
+        "Un processus terminé dont la mémoire a été libérée, mais dont le père n’a pas encore lu le code de retour via wait()",
+        "Un processus qui s’exécute sans fin en consommant 100% du CPU sans jamais se terminer",
+        "Un conteneur Docker arrêté de force par la commande docker kill sans état intermédiaire"
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Un zombie a terminé son exécution mais conserve son entrée dans la table des processus tant que son parent n’a pas appelé wait(). Il ne consomme pas de mémoire mais occupe un PID.'
     },
     {
       stem: 'Que prescrit le principe de sécurité mémoire W^X (Write XOR Execute) ?',
       opts: [
-        'Un fichier doit obligatoirement avoir les droits 777 pour être exécuté',
         'Une plage de mémoire virtuelle ne doit jamais être simultanément inscriptible et exécutable',
+        'Un fichier doit obligatoirement avoir les droits 777 pour être exécuté',
         'Le swap doit être chiffré avec une clé asymétrique',
         'Toutes les commandes doivent être exécutées dans un terminal X11'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'W^X (Write XOR Execute) garantit qu’une page mémoire peut être inscriptible (données) ou exécutable (code), mais jamais les deux en même temps, neutralisant ainsi l’exécution directe de code injecté.'
     },
     {
       stem: 'Quel appel système de débogage l’utilitaire « strace » exploite-t-il pour intercepter les transitions noyau d’un processus ?',
       opts: [
         'clone(2)',
-        'ptrace(2)',
+        'mmap(2)',
         'fork(2)',
-        'mmap(2)'
+        'ptrace(2)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'strace s’appuie sur ptrace(2) (Process Trace), qui permet à un processus parent de contrôler et surveiller l’exécution d’un autre processus, d’inspecter ses registres et d’intercepter ses syscalls.'
     },
     {
       stem: 'Que signifie le code d’erreur système « ENOENT » retourné par un appel système comme openat() ?',
       opts: [
         'Permission non accordée (Permission denied)',
-        'Fichier ou répertoire introuvable (No such file or directory)',
         'Espace disque saturé (No space left on device)',
+        'Fichier ou répertoire introuvable (No such file or directory)',
         'Opération interrompue par un signal (Interrupted system call)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'ENOENT (Error No Entry) est la constante POSIX retournée lorsqu’un chemin de fichier ou répertoire spécifié n’existe pas.'
     },
     {

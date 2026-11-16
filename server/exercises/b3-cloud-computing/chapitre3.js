@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c3-e1) — Classificateur d’hyperviseurs (Bare-Metal vs Hosted, HVM vs PV)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — VMware ESXi Datacenter]\n# Données : HYPERVISEUR nom=esxi_cluster COUCHE=BARE_METAL ACCEL=OUI OVERHEAD=2.1\nA_COMPLETER\n\n[Cas 2 — Poste de travail avec VMware Workstation]\n# Données : HYPERVISEUR nom=vm_workstation COUCHE=HOSTED ACCEL=OUI OVERHEAD=7.5\nA_COMPLETER\n\n[Cas 3 — Vieux conteneur hébergé sans assistance CPU]\n# Données : HYPERVISEUR nom=vserver_old COUCHE=HOSTED ACCEL=NON OVERHEAD=12.0\nA_COMPLETER\n",
     "hints": [
       "Les hyperviseurs de Type 1 (ESXi, KVM, Xen) tournent directement sur le matériel.",
-      "Le mode HVM exploite la virtualisation assistée par le processeur hôte."
+      "Le mode HVM exploite la virtualisation assistée par le processeur hôte.",
+      "1. COUCHE=BARE_METAL : TYPE_1, sinon TYPE_2. 2. ACCEL=OUI : HVM, sinon PV. 3. OVERHEAD ≤ 3 : OPTIMALE ; ≤ 8 : BONNE ; sinon DEGRADEE."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "HYPERVISEUR: vserver_old -> ARCH=TYPE_2_HOSTED | MODE=PV | PERF=DEGRADEE (OVERHEAD=12.0%)"
       }
     ],
-    "solution": "[Exemple]\nHYPERVISEUR: kvm_prod -> ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=1.8%)\nHYPERVISEUR: virtualbox_dev -> ARCH=TYPE_2_HOSTED | MODE=HVM | PERF=DEGRADEE (OVERHEAD=9.2%)\nHYPERVISEUR: xen_legacy -> ARCH=TYPE_1_BARE_METAL | MODE=PV | PERF=BONNE (OVERHEAD=4.5%)\n\n[Cas 1 — VMware ESXi Datacenter]\nHYPERVISEUR: esxi_cluster -> ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=2.1%)\n\n[Cas 2 — Poste de travail avec VMware Workstation]\nHYPERVISEUR: vm_workstation -> ARCH=TYPE_2_HOSTED | MODE=HVM | PERF=BONNE (OVERHEAD=7.5%)\n\n[Cas 3 — Vieux conteneur hébergé sans assistance CPU]\nHYPERVISEUR: vserver_old -> ARCH=TYPE_2_HOSTED | MODE=PV | PERF=DEGRADEE (OVERHEAD=12.0%)"
+    "solution": "[Exemple]\nHYPERVISEUR: kvm_prod -> ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=1.8%)\nHYPERVISEUR: virtualbox_dev -> ARCH=TYPE_2_HOSTED | MODE=HVM | PERF=DEGRADEE (OVERHEAD=9.2%)\nHYPERVISEUR: xen_legacy -> ARCH=TYPE_1_BARE_METAL | MODE=PV | PERF=BONNE (OVERHEAD=4.5%)\n\n[Cas 1 — VMware ESXi Datacenter]\nHYPERVISEUR: esxi_cluster -> ARCH=TYPE_1_BARE_METAL | MODE=HVM | PERF=OPTIMALE (OVERHEAD=2.1%)\n\n[Cas 2 — Poste de travail avec VMware Workstation]\nHYPERVISEUR: vm_workstation -> ARCH=TYPE_2_HOSTED | MODE=HVM | PERF=BONNE (OVERHEAD=7.5%)\n\n[Cas 3 — Vieux conteneur hébergé sans assistance CPU]\nHYPERVISEUR: vserver_old -> ARCH=TYPE_2_HOSTED | MODE=PV | PERF=DEGRADEE (OVERHEAD=12.0%)",
+    "takeaway": "Un hyperviseur Type 1 s’exécute directement sur le matériel pour isoler les VMs avec un surcoût minimal comparé au Type 2 hébergé."
   },
   {
     "id": "cc3-c3-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c3-e2) — Calculateur de consolidation et sur-allocation (Overcommitment)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Surcharge exclusive sur la RAM]\n# Données : HOTE pcpu=16 ram_gb=64 max_vcpu_ratio=3.00 max_ram_ratio=1.10\n# Données : VM id=vm1 vcpu=16 ram_gb=40\n# Données : VM id=vm2 vcpu=16 ram_gb=40\nA_COMPLETER\n\n[Cas 2 — Surcharge exclusive sur les vCPU]\n# Données : HOTE pcpu=8 ram_gb=128 max_vcpu_ratio=2.00 max_ram_ratio=1.20\n# Données : VM id=node1 vcpu=12 ram_gb=32\n# Données : VM id=node2 vcpu=12 ram_gb=32\nA_COMPLETER\n\n[Cas 3 — Double dépassement vCPU et RAM]\n# Données : HOTE pcpu=4 ram_gb=16 max_vcpu_ratio=2.00 max_ram_ratio=1.00\n# Données : VM id=heavy1 vcpu=8 ram_gb=12\n# Données : VM id=heavy2 vcpu=8 ram_gb=12\nA_COMPLETER\n",
     "hints": [
       "En virtualisation Cloud, un ratio vCPU:pCPU de 2:1 à 4:1 est courant, mais la RAM ne doit être que très modérément sur-allouée (1.0 à 1.25).",
-      "Arrondir les ratios à 2 décimales pour l'affichage."
+      "Arrondir les ratios à 2 décimales pour l'affichage.",
+      "1. Sommer les vCPU et la RAM des machines. 2. Diviser par les capacités physiques. 3. Comparer chaque ratio à son plafond. 4. Statut VALIDE ou SURCHARGE selon le ou les ratios franchis."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "CONSOLIDATION: VMS=2 | VCPU=16/4 (ratio=4.00/2.00) | RAM=24/16GB (ratio=1.50/1.00) | STATUT=SURCHARGE (DEPASSEMENT=VCPU_ET_RAM)"
       }
     ],
-    "solution": "[Exemple]\nCONSOLIDATION: VMS=3 | VCPU=32/16 (ratio=2.00/3.00) | RAM=64/64GB (ratio=1.00/1.20) | STATUT=VALIDE\n\n[Cas 1 — Surcharge exclusive sur la RAM]\nCONSOLIDATION: VMS=2 | VCPU=32/16 (ratio=2.00/3.00) | RAM=80/64GB (ratio=1.25/1.10) | STATUT=SURCHARGE (DEPASSEMENT=RAM)\n\n[Cas 2 — Surcharge exclusive sur les vCPU]\nCONSOLIDATION: VMS=2 | VCPU=24/8 (ratio=3.00/2.00) | RAM=64/128GB (ratio=0.50/1.20) | STATUT=SURCHARGE (DEPASSEMENT=VCPU)\n\n[Cas 3 — Double dépassement vCPU et RAM]\nCONSOLIDATION: VMS=2 | VCPU=16/4 (ratio=4.00/2.00) | RAM=24/16GB (ratio=1.50/1.00) | STATUT=SURCHARGE (DEPASSEMENT=VCPU_ET_RAM)"
+    "solution": "[Exemple]\nCONSOLIDATION: VMS=3 | VCPU=32/16 (ratio=2.00/3.00) | RAM=64/64GB (ratio=1.00/1.20) | STATUT=VALIDE\n\n[Cas 1 — Surcharge exclusive sur la RAM]\nCONSOLIDATION: VMS=2 | VCPU=32/16 (ratio=2.00/3.00) | RAM=80/64GB (ratio=1.25/1.10) | STATUT=SURCHARGE (DEPASSEMENT=RAM)\n\n[Cas 2 — Surcharge exclusive sur les vCPU]\nCONSOLIDATION: VMS=2 | VCPU=24/8 (ratio=3.00/2.00) | RAM=64/128GB (ratio=0.50/1.20) | STATUT=SURCHARGE (DEPASSEMENT=VCPU)\n\n[Cas 3 — Double dépassement vCPU et RAM]\nCONSOLIDATION: VMS=2 | VCPU=16/4 (ratio=4.00/2.00) | RAM=24/16GB (ratio=1.50/1.00) | STATUT=SURCHARGE (DEPASSEMENT=VCPU_ET_RAM)",
+    "takeaway": "Le ratio de consolidation et la sur-allocation CPU/RAM doivent rester sous un seuil critique pour éviter la contention lors des pics."
   },
   {
     "id": "cc3-c3-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d’analyse (cc3-c3-e3) — Dimensionnement illustratif\n\n[Cas 1 — Pointe limitée par les entrées-sorties]\n# Données : CHARGE tps_moy=1000 tps_pic=2000 duree_ms=250 pic_concurrent=300 cpu_ms=2 ram_mb=8 iops_tx=10\n# Données : SPEC_NOEUD cpu_max_ms=8000 ram_max_gb=32 base_mb=1024 iops_max=4000 cible_pct=80\nA_COMPLETER\n\n[Cas 2 — Pointe limitée par la mémoire]\n# Données : CHARGE tps_moy=1000 tps_pic=1200 duree_ms=200 pic_concurrent=300 cpu_ms=3 ram_mb=128 iops_tx=2\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=5000 cible_pct=75\nA_COMPLETER\n\n[Cas 3 — Durée et concurrence absentes]\n# Données : CHARGE tps_moy=1000 tps_pic=1200 cpu_ms=3 ram_mb=128 iops_tx=2\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=16 base_mb=1024 iops_max=5000 cible_pct=75\nA_COMPLETER\n\n[Cas 4 — Mémoire de base trop élevée]\n# Données : CHARGE tps_moy=500 tps_pic=600 duree_ms=200 pic_concurrent=160 cpu_ms=4 ram_mb=64 iops_tx=3\n# Données : SPEC_NOEUD cpu_max_ms=4000 ram_max_gb=2 base_mb=2048 iops_max=3000 cible_pct=80\nA_COMPLETER\n",
     "hints": [
       "Une durée en millisecondes se convertit en secondes ; le débit seul n’est pas une concurrence.",
-      "Retirez la mémoire de base du budget de chaque nœud ; la pointe est une donnée distincte."
+      "Retirez la mémoire de base du budget de chaque nœud ; la pointe est une donnée distincte.",
+      "1. Concurrence moyenne = tps_moy × duree_ms / 1000. 2. Budget utile = ram_max_gb × 1024 × K − base_mb ; négatif : BASE_NON_ADMISSIBLE. 3. Pointe manquante : INDETERMINEE. 4. Sinon arrondir CPU, RAM et IOPS au supérieur."
     ],
     "examples": [
       {
@@ -121,6 +126,7 @@ module.exports = [
         "expected": "SIZING: BASE_NON_ADMISSIBLE"
       }
     ],
-    "solution": "[Exemple]\nSIZING: CONC_MOY=100.00 | CONC_PIC=160 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=1 | INSTANCES_PIC=1 | LIMITANT=CPU\n\n[Cas 1 — Pointe limitée par les entrées-sorties]\nSIZING: CONC_MOY=250.00 | CONC_PIC=300 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=7 | INSTANCES_PIC=7 | LIMITANT=IOPS\n\n[Cas 2 — Pointe limitée par la mémoire]\nSIZING: CONC_MOY=200.00 | CONC_PIC=300 | CPU=2 | RAM_MOY=3 | RAM_PIC=4 | IOPS=1 | INSTANCES_PIC=4 | LIMITANT=RAM\n\n[Cas 3 — Durée et concurrence absentes]\nSIZING: CONCURRENCE=INDETERMINEE | RAM=INDETERMINEE | INSTANCES=INDETERMINEES\n\n[Cas 4 — Mémoire de base trop élevée]\nSIZING: BASE_NON_ADMISSIBLE"
+    "solution": "[Exemple]\nSIZING: CONC_MOY=100.00 | CONC_PIC=160 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=1 | INSTANCES_PIC=1 | LIMITANT=CPU\n\n[Cas 1 — Pointe limitée par les entrées-sorties]\nSIZING: CONC_MOY=250.00 | CONC_PIC=300 | CPU=1 | RAM_MOY=1 | RAM_PIC=1 | IOPS=7 | INSTANCES_PIC=7 | LIMITANT=IOPS\n\n[Cas 2 — Pointe limitée par la mémoire]\nSIZING: CONC_MOY=200.00 | CONC_PIC=300 | CPU=2 | RAM_MOY=3 | RAM_PIC=4 | IOPS=1 | INSTANCES_PIC=4 | LIMITANT=RAM\n\n[Cas 3 — Durée et concurrence absentes]\nSIZING: CONCURRENCE=INDETERMINEE | RAM=INDETERMINEE | INSTANCES=INDETERMINEES\n\n[Cas 4 — Mémoire de base trop élevée]\nSIZING: BASE_NON_ADMISSIBLE",
+    "takeaway": "Dimensionner uniquement sur la moyenne provoque des saturations aux heures de pointe : les marges doivent couvrir la charge maximale."
   }
 ];

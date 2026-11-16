@@ -149,23 +149,23 @@ module.exports = {
     {
       stem: 'Quelle est la première étape indispensable du cycle de veille et du renseignement stratégique ?',
       opts: [
-        'La rédaction du bulletin final',
-        'L’expression des besoins et le cadrage des objectifs',
-        'L’achat d’un logiciel de scraping',
-        'Le tri des flux RSS'
+        "La rédaction du bulletin final de synthèse diffusé aux décideurs",
+        "L’achat d’un logiciel de scraping et d’une plateforme de veille",
+        "L’expression des besoins et le cadrage des objectifs",
+        "Le tri manuel des flux RSS agrégés dans le lecteur"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Sans cadrage initial des besoins et des objectifs décisionnels, la veille manque de direction et produit du bruit.'
     },
     {
       stem: 'Parmi les suivantes, laquelle constitue une source primaire de haute fiabilité pour la veille technologique ?',
       opts: [
         'Un fil de discussion anonyme sur Reddit',
-        'Une publication de brevet officiel sur la base Espacenet ou WIPO',
+        'Un résumé généré par un influenceur sur TikTok',
         'Un communiqué de presse marketing sponsorisé',
-        'Un résumé généré par un influenceur sur TikTok'
+        'Une publication de brevet officiel sur la base Espacenet ou WIPO'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les bases de brevets d’organismes officiels (Espacenet, WIPO, INPI) représentent des sources primaires vérifiables et juridiquement opposables.'
     },
     {
@@ -182,43 +182,43 @@ module.exports = {
     {
       stem: 'Dans la grille multicritère de qualification d’une source, quel axe vérifie l’accès aux données brutes et aux dépôts de code ?',
       opts: [
-        'La fraîcheur',
         'La traçabilité',
+        'La fraîcheur',
         'L’esthétique',
         'La rentabilité'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La traçabilité évalue la présence de références bibliographiques précises, de liens vers les sources primaires et de code source reproductible.'
     },
     {
       stem: 'Comment se caractérise mathématiquement un signal faible selon la théorie d’Ansoff ?',
       opts: [
-        'Un volume massif constant depuis 10 ans',
-        'Un volume total d’occurrences faible mais une accélération de croissance exponentielle récente',
-        'Une absence totale de mentions écrites',
-        'Un score de bruit maximal sans aucune logique'
+        "Un volume massif d’occurrences constant depuis dix ans sur tous les canaux",
+        "Une absence totale de mentions écrites dans la littérature spécialisée",
+        "Un score de bruit maximal dépourvu de toute logique de progression",
+        "Un volume total d’occurrences faible mais une accélération de croissance exponentielle récente"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un signal faible se caractérise par une faible fréquence absolue d’apparition combinée à un taux d’accélération très fort entre périodes.'
     },
     {
       stem: 'À quoi sert la dernière étape de rétroaction (Feedback) dans le cycle du renseignement ?',
       opts: [
-        'À supprimer les fichiers de la base',
-        'À mesurer l’utilité perçue par les décideurs pour affiner le ciblage et réajuster les sources du cycle suivant',
-        'À éteindre les serveurs la nuit',
-        'À envoyer des factures aux clients'
+        "À supprimer automatiquement les fichiers obsolètes de la base documentaire entre deux campagnes",
+        "À éteindre les serveurs de collecte la nuit afin de réduire les coûts d’exploitation électrique",
+        "À mesurer l’utilité perçue par les décideurs pour affiner le ciblage et réajuster les sources du cycle suivant",
+        "À envoyer des factures aux clients internes pour chaque livrable d’analyse produit"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La boucle de feedback permet de vérifier si les livrables répondent aux attentes et d’ajuster les axes de recherche pour les itérations futures.'
     },
     {
       stem: 'Que produit la requête booléenne "intelligence artificielle" -marketing site:arxiv.org ?',
       opts: [
-        'Des articles sur le marketing de l’IA',
-        'Des publications académiques sur l’IA sur arxiv.org en excluant le mot marketing',
-        'Une erreur de syntaxe',
-        'L’ouverture de l’application Arxiv'
+        "Des articles traitant du marketing de l’intelligence artificielle sur le site arxiv.org",
+        "Des publications académiques sur l’IA sur arxiv.org en excluant le mot marketing",
+        "Une erreur de syntaxe signalée par le moteur avant toute exécution de la requête",
+        "L’ouverture automatique de l’application Arxiv installée sur le poste de travail"
       ],
       correct: 1,
       exp: 'La requête recherche l’expression exacte sur le site universitaire arxiv.org tout en excluant expressément le terme « marketing ».'
@@ -226,12 +226,12 @@ module.exports = {
     {
       stem: 'Quel biais cognitif pousse un ingénieur à ignorer les alertes sur une technologie qu’il n’apprécie pas ?',
       opts: [
-        'Le biais de récence',
         'Le biais de confirmation',
+        'Le biais de récence',
         'L’effet halo',
         'L’illusion d’ancrage'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le biais de confirmation incite à ne retenir que les informations qui confortent nos hypothèses préexistantes tout en rejetant les données contradictoires.'
     }
   ],

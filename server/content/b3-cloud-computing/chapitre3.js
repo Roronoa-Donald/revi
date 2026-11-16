@@ -123,12 +123,12 @@ module.exports = {
     {
       stem: 'Quel type d’hyperviseur s’exécute directement sur le matériel physique sans passer par un système d’exploitation hôte intermédiaire ?',
       opts: [
-        'Hyperviseur de Type 2 (Hosted)',
         'Hyperviseur de Type 1 (Bare-Metal)',
+        'Hyperviseur de Type 2 (Hosted)',
         'Moteur de conteneurs Docker',
         'Émulateur d’architecture QEMU en mode utilisateur'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’hyperviseur de Type 1 (Bare-Metal) est installé directement sur le matériel informatique physique, offrant un niveau de performance et de sécurité optimal.'
     },
     {
@@ -146,33 +146,33 @@ module.exports = {
       stem: 'Sur un serveur hôte physique disposant de 16 cœurs physiques (pCPU), on déploie 12 VMs configurées avec 4 vCPU chacune. Quel est le ratio de sur-allocation CPU résultant ?',
       opts: [
         '1.50:1',
-        '3.00:1',
         '0.33:1',
+        '3.00:1',
         '4.00:1'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Total vCPU alloués = 12 * 4 = 48 vCPU. Ratio = 48 / 16 = 3.00:1 (3 vCPU virtuels pour chaque cœur physique réel).'
     },
     {
       stem: 'Comment s’appelle la technique qui permet à l’hyperviseur de récupérer de la RAM inutilisée au sein d’une VM invité sans redémarrage ?',
       opts: [
         'Le Swapping disque brut',
-        'Le Memory Ballooning',
+        'La pagination synchrone',
         'L’Overclocking dynamique',
-        'La pagination synchrone'
+        'Le Memory Ballooning'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le pilote de ballonnement (Memory Ballooning) gonfle artificiellement à l’intérieur de la VM pour contraindre son OS invité à libérer des pages mémoires inactives au profit de l’hyperviseur.'
     },
     {
       stem: 'Quelle métrique de l’hyperviseur indique qu’une machine virtuelle possède du travail à exécuter mais attend désespérément qu’un cœur physique se libère ?',
       opts: [
         'CPU Utilization',
-        'CPU Ready Time (%RDY)',
+        'Disk IOPS',
         'Memory Footprint',
-        'Disk IOPS'
+        'CPU Ready Time (%RDY)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le CPU Ready Time (%RDY) mesure le pourcentage de temps pendant lequel une VM prête à exécuter des instructions est mise en attente par l’ordonnanceur faute de pCPU disponible.'
     },
     {
@@ -189,10 +189,10 @@ module.exports = {
     {
       stem: 'Comment qualifie-t-on le problème où une machine virtuelle voisine consomme de manière abusive les ressources partagées (CPU, bus disque), dégradant les autres VMs sur le même hôte ?',
       opts: [
-        'Le problème du « Silent Partner »',
-        'Le phénomène du « Noisy Neighbor » (voisin bruyant)',
-        'L’attaque par rejeu temporel',
-        'La rupture de quorum'
+        "Le problème du « Silent Partner » : partenaire muet et invisible",
+        "Le phénomène du « Noisy Neighbor » (voisin bruyant)",
+        "L’attaque par rejeu temporel de trames capturées",
+        "La rupture de quorum du cluster de haute disponibilité"
       ],
       correct: 1,
       exp: 'Le phénomène de « Noisy Neighbor » survient lorsqu’une VM monopolise les ressources physiques partagées au détriment des autres locataires de l’hôte physique.'
@@ -200,12 +200,12 @@ module.exports = {
     {
       stem: 'Quelle est la principale différence architecturale entre un conteneur et une machine virtuelle classique ?',
       opts: [
-        'Le conteneur possède son propre hyperviseur Type 1 dédié',
         'Le conteneur partage le noyau du système d’exploitation hôte avec les autres conteneurs',
+        'Le conteneur possède son propre hyperviseur Type 1 dédié',
         'Le conteneur ne peut pas exécuter de code binaire',
         'Le conteneur ne supporte pas le réseau IP'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les conteneurs partagent le noyau de l’OS hôte et isolent les processus via des mécanismes natifs (cgroups, namespaces), éliminant l’émulation matérielle d’une VM.'
     }
   ],

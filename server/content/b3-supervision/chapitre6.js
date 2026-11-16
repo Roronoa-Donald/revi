@@ -149,26 +149,26 @@ module.exports = {
   questions: [
     {
       stem: 'Quel est l\'objectif premier de l\'intégration du principe d\'hystérésis dans la configuration d\'un seuil de supervision ?',
-      opts: ['Augmenter le nombre d\'emails envoyés', 'Empêcher les alertes en rafale lorsqu\'une valeur oscille légèrement autour de la frontière d\'alerte', 'Chiffrer les données de télémétrie', 'Remplacer l\'agent SNMP'],
+      opts: ["Augmenter significativement le volume d'emails d'alerte envoyés aux équipes","Empêcher les alertes en rafale lorsqu'une valeur oscille légèrement autour de la frontière d'alerte","Chiffrer systématiquement les données de télémétrie collectées en transit","Remplacer progressivement l'agent SNMP installé par un agent plus moderne"],
       correct: 1,
       exp: 'En fixant un seuil de déclenchement plus haut que le seuil de rétablissement (ex: alerte à 85%, retour à 75%), on élimine les alertes répétées dues aux oscillations mineures.'
     },
     {
       stem: 'Dans un algorithme de détection de flapping, que fait le système de supervision lorsque le pourcentage d\'oscillation d\'un service dépasse le seuil critique ?',
-      opts: ['Il supprime définitivement le serveur du réseau', 'Il bascule le service en état FLAPPING et gèle temporairement l\'envoi des alertes individuelles', 'Il formate le disque dur', 'Il désactive les pare-feux'],
-      correct: 1,
+      opts: ["Il supprime définitivement le serveur de l'inventaire et du réseau supervisé","Il formate automatiquement le disque dur système du serveur concerné","Il bascule le service en état FLAPPING et gèle temporairement l'envoi des alertes individuelles","Il désactive temporairement l'ensemble des pare-feux de l'entreprise"],
+      correct: 2,
       exp: 'Le mode FLAPPING bloque le déluge de notifications individuelles pour protéger l\'attention des opérateurs d\'exploitation.'
     },
     {
       stem: 'Un volume de stockage de 1 000 Go contient actuellement 700 Go de données. La pente journalière de consommation est de 10 Go/jour. Dans combien de jours atteindra-t-il le seuil de 900 Go (90%) ?',
-      opts: ['10 jours', '20 jours', '30 jours', '100 jours'],
-      correct: 1,
+      opts: ['10 jours', '100 jours', '30 jours', '20 jours'],
+      correct: 3,
       exp: 'Espace restant avant 900 Go = 900 - 700 = 200 Go. Au rythme de 10 Go/jour : 200 / 10 = 20 jours.'
     },
     {
       stem: 'Pourquoi est-il vital d\'instaurer une limite stricte de réessais (max_retries) dans un mécanisme d\'auto-remédiation exécutant un runbook ?',
-      opts: ['Pour économiser le papier d\'impression', 'Pour éviter qu\'un service défaillant ne boucle indéfiniment en redémarrant en continu et pour forcer l\'escalade humaine si la cause est profonde', 'Car Linux interdit plus de 3 commandes par heure', 'Pour accélérer le processeur'],
-      correct: 1,
+      opts: ["Pour éviter qu'un service défaillant ne boucle indéfiniment en redémarrant en continu et pour forcer l'escalade humaine si la cause est profonde","Pour économiser le papier d'impression des rapports d'incidents générés automatiquement par le runbook d'exécution","Car le système Linux interdit formellement l'exécution de plus de trois commandes de remédiation par heure","Pour accélérer artificiellement la cadence du processeur du serveur supervisé lors des phases de correction"],
+      correct: 0,
       exp: 'Si un script redémarre un service qui crash immédiatement à cause d\'une corruption de base, relancer en boucle masque le problème et peut aggraver la corruption. L\'intervention humaine devient alors indispensable.'
     },
     {
@@ -179,14 +179,14 @@ module.exports = {
     },
     {
       stem: 'Dans une régression linéaire simple pour le Capacity Planning (y = a*x + b), que représente la variable « a » ?',
-      opts: ['La capacité totale du serveur', 'La pente de croissance, c\'est-à-dire le volume moyen de ressource consommée par unité de temps (Go/jour)', 'Le pourcentage d\'erreurs HTTP', 'L\'adresse IP de la sonde'],
-      correct: 1,
+      opts: ["La capacité totale de stockage du serveur concerné par l'analyse de tendance","Le pourcentage d'erreurs HTTP constaté sur l'ensemble de la période analysée","La pente de croissance, c'est-à-dire le volume moyen de ressource consommée par unité de temps (Go/jour)","L'adresse IP de la sonde de supervision chargée de collecter les données de capacité"],
+      correct: 2,
       exp: 'La pente a quantifie le rythme journalier d\'accroissement de la consommation, permettant d\'extrapoler la date de saturation future.'
     },
     {
       stem: 'Quelle action est typiquement automatisée par un runbook de remédiation lorsque le volume /tmp est saturé ?',
-      opts: ['L\'achat de nouveaux disques sur internet', 'La purge des fichiers temporaires et archives de logs obsolètes', 'L\'extinction complète du centre de données', 'La réinstallation du système d\'exploitation'],
-      correct: 1,
+      opts: ['L\'achat de nouveaux disques sur internet', 'La réinstallation du système d\'exploitation', 'L\'extinction complète du centre de données', 'La purge des fichiers temporaires et archives de logs obsolètes'],
+      correct: 3,
       exp: 'La suppression des fichiers temporaires plus anciens qu\'un certain nombre de jours (purge /tmp) est un cas d\'école classique de remédiation automatisée sûre.'
     },
     {

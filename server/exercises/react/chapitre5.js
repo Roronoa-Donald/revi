@@ -23,8 +23,9 @@ const dep2 = (lignes[1] || '').split(' ');
 // À compléter : comparer les dépendances terme à terme
 `,
     hints: [
-      'Comparez chaque paire dep1[i] et dep2[i] avec Object.is ou ===.',
-      'Dès qu\'une différence apparaît, l\'effet doit s\'exécuter.'
+      "Comparez chaque paire dep1[i] et dep2[i] avec Object.is ou ===.",
+      "Dès qu'une différence apparaît, l'effet doit s'exécuter.",
+      "Comparer les deux séries position par position ; toute différence déclenche l effet, l égalité complète des deux lignes l ignore."
     ],
     examples: [
       { stdin: '10 Paris\n10 Lyon\n', expected: 'EFFET DECLENCHE', note: 'La seconde dépendance a changé (Paris -> Lyon).' }
@@ -54,7 +55,8 @@ if (dep1.length !== dep2.length) {
 }
 
 console.log(change ? 'EFFET DECLENCHE' : 'EFFET IGNORE');
-`
+`,
+    takeaway: "useEffect compare les valeurs du tableau de dépendances avec Object.is pour ne relancer l effet qu au vrai changement."
   },
   {
     id: 'rx2-c5-e2',
@@ -73,8 +75,9 @@ const donnee = reste.join(' ');
 // À compléter : afficher le composant correspondant à l'état
 `,
     hints: [
-      'Gérez les trois branches avec if / else if.',
-      'Pour LOADING, le composant Spinner n\'utilise pas la donnée restante.'
+      "Gérez les trois branches avec if / else if.",
+      "Pour LOADING, le composant Spinner n'utilise pas la donnée restante.",
+      "Lire l état puis la donnée ; LOADING affiche le Spinner, SUCCESS la DataView avec le résultat, ERROR le message d échec."
     ],
     examples: [
       { stdin: 'SUCCESS 42_utilisateurs\n', expected: '<DataView result="42_utilisateurs" />', note: 'Requête réussie avec affichage des données.' }
@@ -97,7 +100,8 @@ if (etat === 'LOADING') {
 } else if (etat === 'ERROR') {
   console.log(\`<AlertError message="\${donnee}" />\`);
 }
-`
+`,
+    takeaway: "Modéliser une requête en états exclusifs (loading / success / error) élimine les rendus incohérents."
   },
   {
     id: 'rx2-c5-e3',
@@ -115,8 +119,9 @@ const events = (lignes[0] || '').split(',');
 // À compléter : tracer le cycle de vie et le nettoyage
 `,
     hints: [
-      'Bouclez sur chaque événement découpé et nettoyé par trim().',
-      'Associez chaque mot-clé à sa chaîne de journalisation exacte.'
+      "Bouclez sur chaque événement découpé et nettoyé par trim().",
+      "Associez chaque mot-clé à sa chaîne de journalisation exacte.",
+      "Parcourir les événements dans l ordre ; MOUNT démarre le timer, TICK journalise chaque tic, UNMOUNT nettoie, en affichant la ligne correspondante."
     ],
     examples: [
       { stdin: 'MOUNT,TICK,UNMOUNT\n', expected: 'Timer demarre\nTick horloge\nTimer nettoye', note: 'Cycle complet avec un battement.' }
@@ -135,6 +140,7 @@ events.forEach(ev => {
   else if (ev === 'TICK') console.log('Tick horloge');
   else if (ev === 'UNMOUNT') console.log('Timer nettoye');
 });
-`
+`,
+    takeaway: "Retourner une fonction cleanup depuis useEffect nettoie timers et écouteurs avant le démontage ou la ré-exécution."
   }
 ];

@@ -80,14 +80,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quel mot-clé fait hériter une classe ?', opts: ['implements', 'extends', 'parent'], correct: 1, exp: 'extends établit l’héritage simple entre deux classes.' },
-    { stem: 'Comment appelle-t-on le constructeur du parent ?', opts: ['self::__construct()', 'parent::__construct()', 'super()'], correct: 1, exp: 'parent::__construct() exécute le constructeur de la classe mère.' },
-    { stem: 'Une classe abstraite…', opts: ['s’instancie', 'ne s’instancie pas', 'est une interface'], correct: 1, exp: 'abstract interdit new : elle sert de base à des filles concrètes.' },
+    { stem: 'Quel mot-clé fait hériter une classe ?', opts: ['implements', 'parent', 'extends'], correct: 2, exp: 'extends établit l’héritage simple entre deux classes.' },
+    { stem: 'Comment appelle-t-on le constructeur du parent ?', opts: ['parent::__construct()', 'self::__construct()', 'super()'], correct: 0, exp: 'parent::__construct() exécute le constructeur de la classe mère.' },
+    { stem: 'Une classe abstraite…', opts: ['ne s’instancie pas', 's’instancie', 'est une interface'], correct: 0, exp: 'abstract interdit new : elle sert de base à des filles concrètes.' },
     { stem: 'Une méthode abstraite…', opts: ['a un corps', 'n’a pas de corps', 'est statique'], correct: 1, exp: 'Elle déclare la signature ; chaque fille doit la définir.' },
-    { stem: 'protected est visible…', opts: ['partout', 'dans la classe et ses filles', 'nulle part'], correct: 1, exp: 'protected ouvre l’accès à la classe et à ses descendantes.' },
-    { stem: 'Combien d’interfaces peut implémenter une classe ?', opts: ['Une seule', 'Autant qu’on veut', 'Zéro'], correct: 1, exp: 'On peut implémenter plusieurs interfaces, séparées par des virgules.' },
-    { stem: 'Depuis PHP 8.4, une interface peut-elle exiger une propriété publique ?', opts: ['Oui : en lecture { get; } et/ou écriture { set; }', 'Non, jamais', 'Oui, mais elle stocke toujours elle-même la valeur'], correct: 0, exp: 'Depuis PHP 8.4, une interface peut déclarer un accès public get et/ou set ; la classe implémentante satisfait le contrat.' },
-    { stem: 'Le polymorphisme permet…', opts: ['d’appeler la même méthode sur des types différents', 'de copier une classe', 'd’interdire l’héritage'], correct: 0, exp: 'Chaque objet répond à la même méthode selon sa propre implémentation.' }
+    { stem: 'protected est visible…', opts: ['partout', 'nulle part', 'dans la classe et ses filles'], correct: 2, exp: 'protected ouvre l’accès à la classe et à ses descendantes.' },
+    { stem: 'Combien d’interfaces peut implémenter une classe ?', opts: ['Autant qu’on veut', 'Une seule', 'Zéro'], correct: 0, exp: 'On peut implémenter plusieurs interfaces, séparées par des virgules.' },
+    { stem: 'Depuis PHP 8.4, une interface peut-elle exiger une propriété publique ?', opts: ['Oui, mais elle stocke toujours elle-même la valeur', 'Non, jamais', 'Oui : en lecture { get; } et/ou écriture { set; }'], correct: 2, exp: 'Depuis PHP 8.4, une interface peut déclarer un accès public get et/ou set ; la classe implémentante satisfait le contrat.' },
+    { stem: 'Le polymorphisme permet…', opts: ["de dupliquer une classe existante en mémoire","d’appeler la même méthode sur des types différents","d’empêcher une classe d’hériter d’une autre"], correct: 1, exp: "Chaque objet répond à la même méthode selon sa propre implémentation ; le clonage et la fermeture d’héritage relèvent d’autres mécanismes (clone, final)." }
   ],
 
   pitfalls: [

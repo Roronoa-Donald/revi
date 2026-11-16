@@ -170,23 +170,23 @@ module.exports = {
     {
       q: 'Quel est le système d\'exploitation sous-jacent de l\'appliance moderne VMware vCenter Server Appliance (VCSA) ?',
       opts: [
-        'VMware Photon OS (distribution Linux durcie optimisée).',
+        'FreeBSD 13 avec noyau personnalisé pour vSphere.',
         'Microsoft Windows Server 2022 Datacenter Edition.',
         'Red Hat Enterprise Linux 9 avec interface graphique GNOME.',
-        'FreeBSD 13 avec noyau personnalisé pour vSphere.'
+        'VMware Photon OS (distribution Linux durcie optimisée).'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Depuis vSphere 6.5+, vCenter Server est exclusivement distribué sous la forme d\'une appliance virtuelle (VCSA) autonome s\'exécutant sur VMware Photon OS avec une base PostgreSQL intégrée.'
     },
     {
       q: 'Quel fichier stocké sur le datastore contient la configuration matérielle complète d\'une VM au format texte ASCII ?',
       opts: [
-        'Le fichier avec l\'extension .vmx.',
-        'Le fichier avec l\'extension -flat.vmdk.',
         'Le fichier avec l\'extension .nvram.',
+        'Le fichier avec l\'extension -flat.vmdk.',
+        'Le fichier avec l\'extension .vmx.',
         'Le fichier avec l\'extension .vmsd.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le fichier .vmx est le fichier de configuration principal d\'une VM VMware. Il décrit en texte brut les vCPUs, la mémoire, les disques durs, les adresses MAC et les contrôleurs matériels.'
     },
     {
@@ -203,12 +203,12 @@ module.exports = {
     {
       q: 'Que devient le fichier de disque principal `-flat.vmdk` lorsqu\'un administrateur prend un snapshot d\'une VM ?',
       opts: [
-        'Il est verrouillé en lecture seule et un nouveau disque différentiel (-delta.vmdk) intercepte les écritures.',
         'Il est immédiatement compressé et déplacé dans la corbeille de vCenter.',
+        'Il est verrouillé en lecture seule et un nouveau disque différentiel (-delta.vmdk) intercepte les écritures.',
         'Il est cloné intégralement vers le second hôte ESXi du cluster.',
         'Il est converti à chaud au format Thick Eager Zeroed.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Lors de la création d\'un snapshot, le disque de base est figé en lecture seule pour préserver son état exact, tandis qu\'un fichier delta (.vmdk de cliché) enregistre toutes les modifications ultérieures.'
     },
     {
@@ -225,34 +225,34 @@ module.exports = {
     {
       q: 'Quelle est la taille d\'un fichier .vswp pour une VM configurée avec 32 Go de RAM et une réservation mémoire de 32 Go ?',
       opts: [
-        '0 Go (aucun fichier d\'échange requis car la mémoire est garantie à 100%).',
         '32 Go (la taille de la RAM allouée).',
+        '0 Go (aucun fichier d\'échange requis car la mémoire est garantie à 100%).',
         '64 Go (le double de la RAM par mesure de sécurité).',
         '16 Go (la moitié de la RAM allouée).'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Taille .vswp = RAM allouée - RAM réservée. Si 32 Go sont alloués et 32 Go sont réservés, la différence est nulle : aucun espace de swap n\'est réservé sur le datastore.'
     },
     {
       q: 'Pourquoi une accumulation excessive de snapshots dégrade-t-elle les performances d\'I/O d\'une VM ?',
       opts: [
-        'Les lectures nécessitent de parcourir successivement l\'ensemble des fichiers deltas de la chaîne.',
-        'La carte réseau virtuelle passe automatiquement du mode 10G au mode 100M.',
         'Le contrôleur SCSI virtuel bascule en émulation IDE lente.',
+        'La carte réseau virtuelle passe automatiquement du mode 10G au mode 100M.',
+        'Les lectures nécessitent de parcourir successivement l\'ensemble des fichiers deltas de la chaîne.',
         'L\'hyperviseur désactive l\'Hyper-Threading sur tous les cœurs du socket.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Pour lire un bloc de données, le VMkernel doit d\'abord chercher s\'il a été modifié dans le delta le plus récent, puis remonter la chaîne des deltas jusqu\'au disque plat d\'origine, augmentant la latence d\'accès.'
     },
     {
       q: 'Que se passe-t-il si un Resource Pool possède une Limit CPU fixée à 4000 MHz alors que l\'application en réclame 6000 MHz et que le cluster est inoccupé ?',
       opts: [
-        'L\'allocation est strictement bridée à 4000 MHz, créant un goulot d\'étranglement artificiel.',
+        'Une alarme sonore retentit sur les haut-parleurs physiques du serveur.',
         'La limite est ignorée dynamiquement et l\'application reçoit ses 6000 MHz.',
         'L\'hyperviseur éteint immédiatement la VM pour non-respect des quotas.',
-        'Une alarme sonore retentit sur les haut-parleurs physiques du serveur.'
+        'L\'allocation est strictement bridée à 4000 MHz, créant un goulot d\'étranglement artificiel.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La directive Limit impose un plafond rigide. Même si le processeur de l\'hôte est libre à 90%, l\'hyperviseur bride l\'exécution à la valeur de la limite configurée.'
     }
   ],

@@ -80,18 +80,28 @@ module.exports = {
           'Passer de l’une à l’autre se fait par somme (ponctuelle → répartition) ou par différence ' +
           '(répartition → ponctuelle : <code>P(X = x) = F(x) − F(x⁻)</code>).</p>')
       ].join('\n')
+    },
+    {
+      title: 'Labo Python appliqué',
+      html: [
+        '<p>La loi binomiale <code>B(n, p)</code> se calcule avec <code>math.comb</code> : <code>P(X = k) = C(n, k) · pᵏ · (1 − p)ⁿ⁻ᵏ</code>. La somme des probabilités jusqu’à <code>k</code> donne la fonction de répartition.</p>',
+        '<pre><code class="language-python">from math import comb\n\ndef binomiale(n, p, k):\n    return comb(n, k) * p ** k * (1 - p) ** (n - k)\n\nn, p = 10, 0.3\nprint("P(X = 3) =", round(binomiale(n, p, 3), 4))\nprint("P(X &lt;= 3) =", round(sum(binomiale(n, p, k) for k in range(4)), 4))\nprint("E(X) =", n * p, " V(X) =", round(n * p * (1 - p), 2))</code></pre>',
+        '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+        '<pre><code>P(X = 3) = 0.2668\nP(X &lt;= 3) = 0.6496\nE(X) = 3.0  V(X) = 2.1</code></pre>',
+        '<p>Contrôle : l’espérance <code>np</code> et la variance <code>np(1 − p)</code> se retrouvent par le calcul.</p>'
+      ].join('\n')
     }
   ],
 
   questions: [
     { stem: 'Une loi de probabilité discrète vérifie…', opts: ['Σ pᵢ = 1', 'Σ pᵢ = 0', 'Σ pᵢ = n'], correct: 0, exp: 'Les probabilités des valeurs possibles somment à 1.' },
     { stem: 'Formule de l’espérance ?', opts: ['Σ xᵢ', 'Σ xᵢ·pᵢ', 'Σ pᵢ'], correct: 1, exp: 'E(X) est la moyenne pondérée par les probabilités.' },
-    { stem: 'Formule de Kœnig–Huygens ?', opts: ['E(X)² − E(X²)', 'E(X²) − E(X)²', 'E(X²) + E(X)²'], correct: 1, exp: 'V(X) = E(X²) − E(X)².' },
-    { stem: 'L’écart-type vaut…', opts: ['V(X)', '√V(X)', 'V(X)²'], correct: 1, exp: 'σ(X) = √V(X), même unité que X.' },
-    { stem: 'E(aX + b) vaut…', opts: ['aE(X) + b', 'E(X) + b', 'aE(X)'], correct: 0, exp: 'L’espérance est linéaire : aE(X) + b.' },
-    { stem: 'Que vaut F(x) = P(X ≤ x) sous la plus petite valeur ?', opts: ['0', '1', '0,5'], correct: 0, exp: 'Aucune valeur n’est ≤ x : la répartition vaut 0.' },
+    { stem: 'Formule de Kœnig–Huygens ?', opts: ['E(X)² − E(X²)', 'E(X²) + E(X)²', 'E(X²) − E(X)²'], correct: 2, exp: "V(X) = E(X²) − E(X)² : on moyenne les carrés, puis on retranche le carré de la moyenne. Le distracteur E(X)² − E(X²) est son opposé, souvent négatif — inacceptable pour une variance." },
+    { stem: 'L’écart-type vaut…', opts: ['V(X)', '√V(X)', 'V(X)²'], correct: 1, exp: "L’écart-type est la racine carrée de la variance, σ(X) = √V(X), et revient à l’unité de X. V(X) garde des unités au carré ; V(X)² en serait le cube : aucun n’est un écart." },
+    { stem: 'E(aX + b) vaut…', opts: ['aE(X) + b', 'E(X) + b', 'aE(X)'], correct: 0, exp: "L’espérance est linéaire : E(aX + b) = a·E(X) + b. Le distracteur E(X) + b oublie le facteur a, comme si dilater les valeurs ne changeait pas la moyenne." },
+    { stem: 'Que vaut F(x) = P(X ≤ x) sous la plus petite valeur ?', opts: ['0,5', '1', '0'], correct: 2, exp: 'Aucune valeur n’est ≤ x : la répartition vaut 0.' },
     { stem: 'P(X ≥ x) se calcule comme…', opts: ['F(x)', '1 − P(X < x)', 'F(x) − 1'], correct: 1, exp: 'On passe par le complément de l’événement contraire.' },
-    { stem: 'E(X²) est…', opts: ['le carré de la moyenne', 'la moyenne des carrés', 'la variance'], correct: 1, exp: 'E(X²) = Σ xᵢ²·pᵢ, une quantité différente de E(X)².' }
+    { stem: 'E(X²) est…', opts: ['la moyenne des carrés', 'le carré de la moyenne', 'la variance'], correct: 0, exp: 'E(X²) = Σ xᵢ²·pᵢ, une quantité différente de E(X)².' }
   ],
 
   pitfalls: [

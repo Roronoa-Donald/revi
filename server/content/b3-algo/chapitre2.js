@@ -81,11 +81,11 @@ module.exports = {
       "stem": "Quel est l’ordre des nœuds visités lors d’un parcours infixe sur un ABR contenant les clés [50, 20, 70, 10, 30] ?",
       "opts": [
         "50, 20, 10, 30, 70",
-        "10, 20, 30, 50, 70",
         "10, 30, 20, 70, 50",
+        "10, 20, 30, 50, 70",
         "70, 50, 30, 20, 10"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Le parcours infixe d’un ABR visite obligatoirement les éléments par ordre croissant de clé : 10, 20, 30, 50, 70."
     },
     {
@@ -93,43 +93,43 @@ module.exports = {
       "opts": [
         "Par la racine de l’arbre",
         "Par la plus grande feuille de l’arbre entier",
-        "Par son successeur in-order (plus petit nœud du sous-arbre droit)",
-        "Par son fils gauche immédiat sans autre modification"
+        "Par son fils gauche immédiat sans autre modification",
+        "Par son successeur in-order (plus petit nœud du sous-arbre droit)"
       ],
-      "correct": 2,
+      "correct": 3,
       "exp": "Dans l’algorithme standard, on copie la clé du successeur in-order (minimum du sous-arbre droit) ou du prédécesseur in-order (maximum du sous-arbre gauche)."
     },
     {
       "stem": "Quelle est la complexité temporelle au pire des cas d’une recherche dans un ABR classique sans équilibrage ?",
       "opts": [
         "O(1)",
-        "O(log n)",
         "O(n)",
+        "O(log n)",
         "O(n log n)"
       ],
-      "correct": 2,
+      "correct": 1,
       "exp": "Si les insertions ont été faites dans l’ordre trié croissant, l’arbre dégénère en liste chaînée (peigne) de hauteur n-1, donnant une recherche au pire des cas en O(n)."
     },
     {
       "stem": "Combien d’enfants au maximum possède le successeur in-order d’un nœud dans un ABR ?",
       "opts": [
-        "0 enfant",
         "Au plus 1 enfant (fils droit)",
+        "0 enfant",
         "2 enfants",
         "Aucune limite"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "Le successeur in-order étant le minimum du sous-arbre droit, il ne peut pas avoir de fils gauche (sinon ce fils serait encore plus petit). Il a donc au plus un fils droit."
     },
     {
       "stem": "Quelle est la hauteur minimale d’un arbre binaire contenant 15 nœuds ?",
       "opts": [
-        "3",
+        "15",
         "4",
         "7",
-        "15"
+        "3"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Un arbre binaire parfait de hauteur h=3 contient 2^(3+1) - 1 = 15 nœuds. La hauteur minimale (avec la racine à profondeur 0) est donc 3."
     },
     {
@@ -146,23 +146,23 @@ module.exports = {
     {
       "stem": "Dans un arbre binaire, que vaut le nombre de feuilles par rapport au nombre de nœuds ayant deux enfants ?",
       "opts": [
-        "Le nombre de feuilles est égal au nombre de nœuds à 2 enfants + 1",
         "Le nombre de feuilles est le double des nœuds internes",
-        "Ils sont toujours égaux",
-        "Il n’y a aucun lien fixe"
+        "Le nombre de feuilles est égal au nombre de nœuds à 2 enfants + 1",
+        "Le nombre de feuilles est toujours égal au nombre total de nœuds internes de l’arbre",
+        "Il n’existe aucun lien fixe entre ces deux quantités, qui dépendent de l’ordre d’insertion"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Dans tout arbre binaire strict ou complet, le nombre de feuilles L vérifie la formule fondamentale L = N2 + 1 où N2 est le nombre de nœuds ayant exactement deux enfants."
     },
     {
       "stem": "Quel est l’impact de l’insertion de clés dans un arbre AVL par rapport à un ABR standard ?",
       "opts": [
-        "L’insertion est impossible",
         "L’arbre garantit une hauteur O(log n) grâce à des rotations locales",
-        "La recherche devient linéaire",
-        "L’arbre double de taille en mémoire"
+        "Une insertion devient impossible sans reconstruire entièrement l’arbre",
+        "La recherche d’une clé dégénère en un parcours linéaire O(n), comme sur une liste chaînée",
+        "L’arbre double sa consommation mémoire car chaque nœud stocke une copie de sa clé"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "L’arbre AVL maintient un facteur d’équilibre (-1, 0, +1) et applique des rotations (gauche, droite) pour borner strictement la hauteur à 1.44 * log2(n)."
     }
   ],

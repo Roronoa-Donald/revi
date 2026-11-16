@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -186,10 +184,13 @@ LIMIT 2;</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="sq-c5-e1" data-lab
      data-exercise="sq-c5-e1"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -198,13 +199,11 @@ LIMIT 2;</code></pre>
     <h3 class="lab__title">Exercice 1 — Compter et sommer par pays avec GROUP BY</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Utiliser COUNT(*) et SUM() associés à GROUP BY.</p>
-    <p class="lab__note" id="sq-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>À partir de <code>Marque</code>, reliez les voitures par une jointure gauche sur <code>codemarque</code>. Pour chaque <code>paysmarque</code>, affichez le pays, le nombre de lignes de la jointure (<code>COUNT(*) AS nb_lignes</code>), le nombre de voitures (<code>COUNT(V.immat) AS nb_voitures</code>) et la somme des prix d’achat (<code>SUM(V.pxachat) AS total_achat</code>). Triez par pays croissant.</p><p>Une marque sans voiture produit une ligne dont les colonnes de <code>V</code> sont <code>NULL</code> : <code>COUNT(*)</code> la compte, mais <code>COUNT(V.immat)</code> ne la compte pas. <code>SUM</code> ignore les prix <code>NULL</code> et renvoie <code>NULL</code> si aucun prix n’est présent dans le groupe.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -265,10 +264,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">Au Japon, MAZDA contribue une ligne sans voiture ; les deux prix à 50000000 sont additionnés.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La jointure gauche conserve les marques sans voiture ; distinguez le nombre de lignes et le nombre d’immatriculations non NULL.</li>
         <li>Calculez les agrégats demandés, regroupez par pays et triez le résultat.</li>
+        <li>Étapes : joindre à gauche toutes les marques, regrouper par pays, compter les lignes puis les immatriculations non nulles, sommer les prix, trier par pays.</li>
       </ol>
     </details>
   </div>
@@ -276,7 +276,6 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
 
 <div class="lab" id="sq-c5-e2" data-lab
      data-exercise="sq-c5-e2"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -285,13 +284,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <h3 class="lab__title">Exercice 2 — Filtrer les groupes après agrégation avec HAVING</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Sélectionner uniquement les groupes dont l’agrégat dépasse un seuil via HAVING.</p>
-    <p class="lab__note" id="sq-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans <code>Voiture</code>, affichez chaque <code>marque</code> et le total de ses prix d’achat (<code>SUM(pxachat) AS total</code>), uniquement si ce total est supérieur ou égal à <code>50000000</code>. Triez par total décroissant, puis par marque croissante en cas d’égalité.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -352,10 +349,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">Les marques dont le total vaut exactement 50000000 sont conservées.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>WHERE filtre les lignes avant le regroupement ; HAVING filtre les groupes après le calcul des agrégats.</li>
         <li>Conservez les groupes dont la somme atteint le seuil, puis triez sur le total et la marque.</li>
+        <li>Étapes : regrouper les voitures par marque, sommer les prix d’achat, ne garder que les groupes dont le total atteint 50 millions, trier par total décroissant puis marque.</li>
       </ol>
     </details>
   </div>
@@ -363,7 +361,6 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
 
 <div class="lab" id="sq-c5-e3" data-lab
      data-exercise="sq-c5-e3"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -372,13 +369,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <h3 class="lab__title">Exercice 3 — Statistiques par marque (MIN, MAX, COUNT)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Combiner plusieurs fonctions d’agrégation sur chaque groupe.</p>
-    <p class="lab__note" id="sq-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans <code>Voiture</code>, affichez pour chaque <code>marque</code> : la marque, le nombre de voitures (<code>COUNT(*) AS effectif</code>), le kilométrage minimal (<code>MIN(km) AS km_min</code>) et le kilométrage maximal (<code>MAX(km) AS km_max</code>). Triez par marque croissante.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -441,10 +436,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">Les deux Toyota sont comptées même si leurs kilométrages sont identiques.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appelez COUNT(*), MIN(km) et MAX(km) dans SELECT.</li>
         <li>Regroupez et triez par marque.</li>
+        <li>Étapes : regrouper par marque, compter les voitures du groupe, relever son kilométrage minimal et maximal, trier les groupes par marque croissante.</li>
       </ol>
     </details>
   </div>
@@ -457,17 +453,17 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <div class="q">
       <p class="q__stem">Que renvoie une fonction d’agrégation ?</p>
       <div class="opts">
-        <button class="opt">Une colonne</button>
+        <button class="opt">Une colonne calculée ligne par ligne</button>
+        <button class="opt">Une table de résultats détaillés</button>
         <button class="opt" data-correct="1">Une seule valeur (ou une par groupe)</button>
-        <button class="opt">Une table</button>
       </div>
       <div class="q__exp">Elle résume une colonne : une valeur totale, ou une par groupe avec GROUP BY.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un jeu hypothétique de 34 voitures dont 9 dates sont NULL, COUNT(datecirc) vaut…</p>
       <div class="opts">
-        <button class="opt">34</button>
         <button class="opt" data-correct="1">25</button>
+        <button class="opt">34</button>
         <button class="opt">9</button>
       </div>
       <div class="q__exp">COUNT(colonne) ignore les NULL : 34 − 9 = 25. Ce jeu hypothétique diffère des 23 voitures initiales.</div>
@@ -484,9 +480,9 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <div class="q">
       <p class="q__stem">En SQLite, que fait SELECT marque, immat, COUNT(*) FROM Voiture GROUP BY marque ?</p>
       <div class="opts">
-        <button class="opt">SQLite le refuse toujours</button>
         <button class="opt" data-correct="1">SQLite accepte et choisit une immatriculation du groupe sans garantir laquelle</button>
-        <button class="opt">SQLite choisit toujours la première immatriculation</button>
+        <button class="opt">SQLite refuse systématiquement cette écriture et renvoie une erreur</button>
+        <button class="opt">SQLite choisit toujours la première immatriculation du groupe</button>
       </div>
       <div class="q__exp">SQLite accepte une colonne non regroupée et non agrégée ; sa valeur n’est pas déterministe. D’autres dialectes ou réglages peuvent la refuser.</div>
     </div>
@@ -494,8 +490,8 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
       <p class="q__stem">HAVING filtre…</p>
       <div class="opts">
         <button class="opt">les lignes avant regroupement</button>
-        <button class="opt" data-correct="1">les groupes après regroupement</button>
         <button class="opt">les colonnes</button>
+        <button class="opt" data-correct="1">les groupes après regroupement</button>
       </div>
       <div class="q__exp">WHERE filtre les lignes, HAVING filtre les groupes.</div>
     </div>
@@ -627,7 +623,7 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

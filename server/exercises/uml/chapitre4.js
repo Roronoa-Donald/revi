@@ -4,118 +4,172 @@ module.exports = [
   {
     "id": "um2-c4-e1",
     "chapter": 4,
-    "title": "Simulateur de trace de diagramme de séquence",
     "level": "n1",
     "language": "analyse",
-    "goal": "Valider l'ordonnancement temporel vertical des messages et l'équilibre des appels/retours entre lignes de vie (lifelines).",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Un message de retour <code>A --&gt; B</code> n'est valide que si un appel synchrone <code>B -&gt; A</code> est actuellement ouvert sur la pile d'activation.<br>\n2. À la fin de la séquence, toutes les activations doivent être fermées (pile vide).<br>\nPour chaque ligne lue :<br>\n- Si appel synchrone : afficher <code>[APPEL] &lt;Source&gt; invoque &lt;Cible&gt;.&lt;methode&gt; (Profondeur: &lt;N&gt;)</code><br>\n- Si retour : afficher <code>[RETOUR] &lt;Source&gt; repond a &lt;Cible&gt; : &lt;reponse&gt;</code><br>\n- Si retour incohérent : afficher <code>[ERREUR RETOUR] Pas d appel en attente de &lt;Cible&gt; vers &lt;Source&gt;</code>.<br>\nTerminer par le statut global : <code>SEQUENCE VALIDE</code> ou <code>SEQUENCE INCOMPLETE (&lt;X&gt; appels non clos)</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c4-e1) — Simulateur de trace de diagramme de séquence\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Appel non refermé en fin de scénario]\n# Données : IHM -> Controller : valider()\n# Données : Controller -> Service : check()\nA_COMPLETER\n\n[Cas 2 — Retour envoyé sans appel préalable]\n# Données : Client --> Serveur : ok\nA_COMPLETER\n\n[Cas 3 — Séquence à trois niveaux avec fermetures successives]\n# Données : A -> B : m1()\n# Données : B --> A : r1\n# Données : A -> C : m2()\n# Données : C --> A : r2\nA_COMPLETER\n",
+    "title": "Le diagramme de séquence du badgage de bus à Héricourt",
+    "exampleTitle": "Exemple résolu — le paiement au restaurant universitaire",
+    "goal": "Lire un diagramme de séquence : lignes de vie, ordre chronologique des messages, appels synchrones et retours.",
+    "brief": "<p><strong>Énoncé.</strong> La régie de bus de la ville d'Héricourt modélise la validation d'un titre de transport sans contact. Le diagramme de séquence comporte <strong>3 lignes de vie</strong> : Voyageur, Validateur et ServeurST. Les messages, dans l'ordre chronologique (le temps s'écoule de haut en bas) :</p><p><code>1. Voyageur -&gt; Validateur : badger(carte)<br>2. Validateur -&gt; ServeurST : verifierSolde(carte)<br>3. ServeurST --&gt; Validateur : soldeOK<br>4. Validateur --&gt; Voyageur : ticketDelivre</code></p><p>Rappel : une flèche pleine (<code>-&gt;</code>) représente un appel synchrone ; une flèche en pointillés (<code>--&gt;</code>) représente un message de retour. Répondez par des nombres, un nom exact, ou oui/non.</p><ol><li>Combien de lignes de vie compte le diagramme ?</li><li>Quel est le nom du premier message émis ?</li><li>Quel participant reçoit l'appel « verifierSolde(carte) » ?</li><li>Combien de messages de retour (flèches pointillées) compte le scénario ?</li><li>Qui émet le dernier message du scénario ?</li><li>L'appel « badger(carte) » est-il synchrone ?</li></ol>",
+    "starter": "# Exercice — Le diagramme de séquence du badgage de bus à Héricourt\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Pour la question 2, donnez le message avec ses parenthèses (ex. valider(carte)).\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Nombre de lignes de vie]\nA_COMPLETER\n\n[Question 2 — Premier message émis]\nA_COMPLETER\n\n[Question 3 — Destinataire de « verifierSolde(carte) »]\nA_COMPLETER\n\n[Question 4 — Nombre de messages de retour]\nA_COMPLETER\n\n[Question 5 — Émetteur du dernier message]\nA_COMPLETER\n\n[Question 6 — « badger(carte) » est-il synchrone ?]\nA_COMPLETER\n",
     "hints": [
-      "Gérer une pile (stack) d'appels contenant des tuples (demandeur, executeur).",
-      "Un message \"-->\" doit dépiler le sommet de la pile et vérifier la concordance des acteurs."
+      "Une ligne de vie est un participant du scénario, dessiné par un rectangle en tête et une ligne verticale pointillée.",
+      "Le temps s'écoule de haut en bas : numérotez les messages dans l'ordre du diagramme avant de répondre.",
+      "Repérez la nature de chaque flèche (pleine ou pointillée), puis suivez les émetteurs et destinataires de chaque message numéroté."
     ],
     "examples": [
       {
-        "stdin": "Client -> Serveur : getCatalogue()\nServeur -> BDD : queryAll()\nBDD --> Serveur : [art1, art2]\nServeur --> Client : listeArticles",
-        "expected": "[APPEL] Client invoque Serveur.getCatalogue (Profondeur: 1)\n[APPEL] Serveur invoque BDD.queryAll (Profondeur: 2)\n[RETOUR] BDD repond a Serveur : [art1, art2]\n[RETOUR] Serveur repond a Client : listeArticles\nSEQUENCE VALIDE",
-        "note": "Trace synchrone imbriquée parfaitement équilibrée."
+        "stdin": "Le restaurant universitaire modélise le paiement au comptoir avec 3 lignes de vie : Etudiant, Caisse, TerminalBancaire.\n1. Etudiant -> Caisse : presenterCarte()\n2. Caisse -> TerminalBancaire : debiterRepas()\n3. TerminalBancaire --> Caisse : paiementAccepte\n4. Caisse --> Etudiant : ticketImprime\n\n1) Le diagramme compte 3 lignes de vie.\n2) Le premier message émis est presenterCarte().\n3) L'appel « debiterRepas() » est reçu par TerminalBancaire.\n4) Le scénario compte 2 messages de retour (paiementAccepte, ticketImprime).\n5) Le dernier message, ticketImprime, est émis par la Caisse.\n6) presenterCarte() est représenté par une flèche pleine : c'est un appel synchrone.",
+        "expected": "3 lignes de vie — premier message : presenterCarte() — debiterRepas() reçu par TerminalBancaire — 2 retours — dernier émetteur : la Caisse — appel synchrone",
+        "note": "Chaque appel synchrone plein est généralement suivi de sa flèche en pointillés : le compte des retours égale souvent le compte des appels."
       }
     ],
     "tests": [
       {
-        "label": "Appel non refermé en fin de scénario",
-        "stdin": "cas:1",
-        "expected": "[APPEL] IHM invoque Controller.valider (Profondeur: 1)\n[APPEL] Controller invoque Service.check (Profondeur: 2)\nSEQUENCE INCOMPLETE (2 appels non clos)"
+        "label": "Question 1 — Nombre de lignes de vie",
+        "stdin": "q:1",
+        "expected": "3"
       },
       {
-        "label": "Retour envoyé sans appel préalable",
-        "stdin": "cas:2",
-        "expected": "[ERREUR RETOUR] Pas d appel en attente de Serveur vers Client\nSEQUENCE VALIDE"
+        "label": "Question 2 — Premier message émis",
+        "stdin": "q:2",
+        "expected": "badger(carte)||badger (carte)||badger"
       },
       {
-        "label": "Séquence à trois niveaux avec fermetures successives",
-        "stdin": "cas:3",
-        "expected": "[APPEL] A invoque B.m1 (Profondeur: 1)\n[RETOUR] B repond a A : r1\n[APPEL] A invoque C.m2 (Profondeur: 1)\n[RETOUR] C repond a A : r2\nSEQUENCE VALIDE"
+        "label": "Question 3 — Destinataire de « verifierSolde(carte) »",
+        "stdin": "q:3",
+        "expected": "ServeurST||Serveur ST||serveurst"
+      },
+      {
+        "label": "Question 4 — Nombre de messages de retour",
+        "stdin": "q:4",
+        "expected": "2"
+      },
+      {
+        "label": "Question 5 — Émetteur du dernier message",
+        "stdin": "q:5",
+        "expected": "Validateur||validateur||le Validateur||le validateur"
+      },
+      {
+        "label": "Question 6 — « badger(carte) » est-il synchrone ?",
+        "stdin": "q:6",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\n[APPEL] Client invoque Serveur.getCatalogue (Profondeur: 1)\n[APPEL] Serveur invoque BDD.queryAll (Profondeur: 2)\n[RETOUR] BDD repond a Serveur : [art1, art2]\n[RETOUR] Serveur repond a Client : listeArticles\nSEQUENCE VALIDE\n\n[Cas 1 — Appel non refermé en fin de scénario]\n[APPEL] IHM invoque Controller.valider (Profondeur: 1)\n[APPEL] Controller invoque Service.check (Profondeur: 2)\nSEQUENCE INCOMPLETE (2 appels non clos)\n\n[Cas 2 — Retour envoyé sans appel préalable]\n[ERREUR RETOUR] Pas d appel en attente de Serveur vers Client\nSEQUENCE VALIDE\n\n[Cas 3 — Séquence à trois niveaux avec fermetures successives]\n[APPEL] A invoque B.m1 (Profondeur: 1)\n[RETOUR] B repond a A : r1\n[APPEL] A invoque C.m2 (Profondeur: 1)\n[RETOUR] C repond a A : r2\nSEQUENCE VALIDE"
+    "solution": "[Question 1 — Nombre de lignes de vie]\n3\n\n[Question 2 — Premier message émis]\nbadger(carte)\n\n[Question 3 — Destinataire de « verifierSolde(carte) »]\nServeurST\n\n[Question 4 — Nombre de messages de retour]\n2\n\n[Question 5 — Émetteur du dernier message]\nValidateur\n\n[Question 6 — « badger(carte) » est-il synchrone ?]\noui",
+    "takeaway": "1) Le diagramme compte 3 lignes de vie : Voyageur, Validateur, ServeurST.\n2) Le premier message, en haut du diagramme, est badger(carte).\n3) L'appel verifierSolde(carte) est envoyé par le Validateur : c'est le ServeurST qui le reçoit.\n4) Deux messages de retour en pointillés : soldeOK et ticketDelivre.\n5) Le dernier message ticketDelivre est émis par le Validateur.\n6) Oui : badger(carte) est dessiné avec une flèche pleine, c'est un appel synchrone.\nContrôle : 2 appels synchrones (badger, verifierSolde) et 2 retours (soldeOK, ticketDelivre) : le scénario est équilibré."
   },
   {
     "id": "um2-c4-e2",
     "chapter": 4,
-    "title": "Évaluateur de fragments combinés (alt, opt, loop)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Interpréter les fragments d'interaction UML (alt pour alternative exclusive, opt pour optionnel, loop pour itération).",
-    "brief": "<p>Le script simule l'exécution d'un fragment combiné UML en fonction d'un contexte de variables initiales :<br>\n- Première ligne : variables d'état au format <code>VAR k=v ...</code> (ex: <code>VAR solde=150 age=20</code>).<br>\n- Lignes suivantes : blocs de séquence balisés :<br>\n  * <code>ALT [garde]</code> ... <code>ELSE</code> ... <code>END_ALT</code><br>\n  * <code>OPT [garde]</code> ... <code>END_OPT</code><br>\n  * <code>LOOP [N]</code> ... <code>END_LOOP</code> (répète N fois le bloc)<br>\n  * Messages simples : <code>A -&gt; B : msg</code><br>\nLe script évalue les gardes booléennes simples (ex: <code>solde &gt;= 100</code>). Si la condition est vraie, les messages internes sont exécutés et affichés au format :<br>\n<code>[EXEC] &lt;Source&gt; -&gt; &lt;Cible&gt; : &lt;msg&gt;</code>.<br>\nSi la garde est fausse, le bloc est ignoré (ou la branche ELSE est empruntée).<br>\nÀ la fin, afficher le nombre total de messages émis : <code>MESSAGES TRANSMIS: &lt;N&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c4-e2) — Évaluateur de fragments combinés (alt, opt, loop)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Branche ELSE exécutée]\n# Données : VAR solde=50\n# Données : ALT [solde >= 100]\n# Données :   Client -> Distributeur : delivrerBillets\n# Données : ELSE\n# Données :   Client -> Distributeur : refuserRetrait\n# Données : END_ALT\nA_COMPLETER\n\n[Cas 2 — Fragment OPT vérifié]\n# Données : VAR assurance=1\n# Données : OPT [assurance == 1]\n# Données :   Client -> Assureur : souscrirePolice\n# Données : END_OPT\nA_COMPLETER\n\n[Cas 3 — Fragment OPT non vérifié]\n# Données : VAR assurance=0\n# Données : OPT [assurance == 1]\n# Données :   Client -> Assureur : souscrirePolice\n# Données : END_OPT\nA_COMPLETER\n",
+    "title": "Les fragments combinés du distributeur de la banque Aurore",
+    "exampleTitle": "Exemple résolu — le paiement du site de fleurs Botanic",
+    "goal": "Interpréter les fragments combinés alt, opt et loop selon un contexte d'exécution donné.",
+    "brief": "<p><strong>Énoncé.</strong> La banque Aurore modélise le retrait d'espèces à son distributeur à l'aide de trois fragments combinés :</p><ul><li>un fragment <strong>loop</strong> de bornes [1..3] contenant « Saisir le code » puis « Vérifier le code » ;</li><li>un fragment <strong>alt</strong> : branche [code valide] contenant « Demander le montant » puis « Distribuer les billets » ; branche [sinon] contenant « Afficher code erroné » ;</li><li>un fragment <strong>opt</strong> muni de la garde [montant ≥ 200] contenant « Proposer un reçu détaillé ».</li></ul><p>Contexte d'exécution : la cliente saisit un code valide dès la première tentative et demande 250 €. Répondez par alt, opt ou loop, des nombres, oui/non, ou le nom de la branche.</p><ol><li>Quel type de fragment modélise une alternative exclusive entre plusieurs branches ?</li><li>Combien de fois le bloc « Saisir le code » s'exécute-t-il dans ce scénario ?</li><li>Quelle branche du fragment alt s'exécute : [code valide] ou [sinon] ?</li><li>Le fragment opt « Proposer un reçu détaillé » s'exécute-t-il pour un retrait de 250 € ?</li><li>Quel est le nombre maximal d'itérations autorisé par le loop ?</li><li>Un fragment opt comporte-t-il une branche else ?</li></ol>",
+    "starter": "# Exercice — Les fragments combinés du distributeur de la banque Aurore\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Fragment d'alternative exclusive]\nA_COMPLETER\n\n[Question 2 — Exécutions de « Saisir le code »]\nA_COMPLETER\n\n[Question 3 — Branche du alt exécutée]\nA_COMPLETER\n\n[Question 4 — L'opt s'exécute-t-il pour 250 € ?]\nA_COMPLETER\n\n[Question 5 — Maximum d'itérations du loop]\nA_COMPLETER\n\n[Question 6 — Un opt a-t-il une branche else ?]\nA_COMPLETER\n",
     "hints": [
-      "Stocker les variables dans un dictionnaire pour évaluer les expressions de garde.",
-      "Pour le bloc LOOP [N], exécuter le corps N fois."
+      "alt offre plusieurs branches exclusives ; opt est un cas particulier d'alt à une seule branche conditionnelle ; loop répète son corps.",
+      "Le loop s'arrête dès que sa condition de sortie est atteinte : un code valide dès la première saisie met fin à la boucle au minimum de la borne.",
+      "Évaluez chaque garde avec le contexte (code valide au premier essai, montant de 250 €), puis appliquez la sémantique de chaque fragment pour dérouler le scénario."
     ],
     "examples": [
       {
-        "stdin": "VAR solde=200\nALT [solde >= 100]\n  Client -> Distributeur : delivrerBillets\nELSE\n  Client -> Distributeur : refuserRetrait\nEND_ALT",
-        "expected": "[EXEC] Client -> Distributeur : delivrerBillets\nMESSAGES TRANSMIS: 1",
-        "note": "La garde solde >= 100 est vraie (200 >= 100), la branche ALT est exécutée."
+        "stdin": "Le site de fleurs Botanic modélise son paiement :\nUn fragment loop [1..5] contenant « Ajouter un article au panier ».\nUn fragment opt avec la garde [total ≥ 50] contenant « Offrir la livraison ».\nUn fragment alt : branche [code promo valide] « Appliquer la remise » ; branche [sinon] « Payer le prix plein ».\nContexte : la cliente ajoute 3 articles, total 64 €, code promo expiré.\n\n1) Le loop s'exécute 3 fois (3 articles ajoutés).\n2) L'opt s'exécute : 64 ≥ 50, la livraison est offerte.\n3) Le code promo étant expiré, c'est la branche [sinon] du alt qui s'exécute.\n4) L'alternative exclusive est modélisée par alt.\n5) Le loop autorise au maximum 5 itérations.",
+        "expected": "loop : 3 itérations — livraison offerte (64 ≥ 50) — branche [sinon] du alt — alternative : alt — maximum 5 itérations",
+        "note": "Chaque garde s'évalue avec le contexte d'exécution : c'est elle qui décide de la branche empruntée."
       }
     ],
     "tests": [
       {
-        "label": "Branche ELSE exécutée",
-        "stdin": "cas:1",
-        "expected": "[EXEC] Client -> Distributeur : refuserRetrait\nMESSAGES TRANSMIS: 1"
+        "label": "Question 1 — Fragment d'alternative exclusive",
+        "stdin": "q:1",
+        "expected": "alt"
       },
       {
-        "label": "Fragment OPT vérifié",
-        "stdin": "cas:2",
-        "expected": "[EXEC] Client -> Assureur : souscrirePolice\nMESSAGES TRANSMIS: 1"
+        "label": "Question 2 — Exécutions de « Saisir le code »",
+        "stdin": "q:2",
+        "expected": "1"
       },
       {
-        "label": "Fragment OPT non vérifié",
-        "stdin": "cas:3",
-        "expected": "MESSAGES TRANSMIS: 0"
+        "label": "Question 3 — Branche du alt exécutée",
+        "stdin": "q:3",
+        "expected": "code valide||[code valide]||la branche code valide||branche [code valide]"
+      },
+      {
+        "label": "Question 4 — L'opt s'exécute-t-il pour 250 € ?",
+        "stdin": "q:4",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 5 — Maximum d'itérations du loop",
+        "stdin": "q:5",
+        "expected": "3"
+      },
+      {
+        "label": "Question 6 — Un opt a-t-il une branche else ?",
+        "stdin": "q:6",
+        "expected": "non"
       }
     ],
-    "solution": "[Exemple]\n[EXEC] Client -> Distributeur : delivrerBillets\nMESSAGES TRANSMIS: 1\n\n[Cas 1 — Branche ELSE exécutée]\n[EXEC] Client -> Distributeur : refuserRetrait\nMESSAGES TRANSMIS: 1\n\n[Cas 2 — Fragment OPT vérifié]\n[EXEC] Client -> Assureur : souscrirePolice\nMESSAGES TRANSMIS: 1\n\n[Cas 3 — Fragment OPT non vérifié]\nMESSAGES TRANSMIS: 0"
+    "solution": "[Question 1 — Fragment d'alternative exclusive]\nalt\n\n[Question 2 — Exécutions de « Saisir le code »]\n1\n\n[Question 3 — Branche du alt exécutée]\ncode valide\n\n[Question 4 — L'opt s'exécute-t-il pour 250 € ?]\noui\n\n[Question 5 — Maximum d'itérations du loop]\n3\n\n[Question 6 — Un opt a-t-il une branche else ?]\nnon",
+    "takeaway": "1) L'alternative exclusive entre plusieurs branches est le fragment alt.\n2) Le code est valide dès la première tentative : « Saisir le code » s'exécute 1 fois (borne minimale du loop atteinte).\n3) La branche [code valide] du alt s'exécute.\n4) Oui : 250 >= 200, la garde de l'opt est vraie, « Proposer un reçu détaillé » s'exécute.\n5) Le loop [1..3] autorise au maximum 3 itérations.\n6) Non : opt n'a pas de branche else ; si la garde est fausse, le fragment est simplement sauté.\nContrôle : scénario déroulé — Saisir puis Vérifier le code (1 fois), Demander le montant et Distribuer les billets, puis Proposer un reçu détaillé."
   },
   {
     "id": "um2-c4-e3",
     "chapter": 4,
-    "title": "Analyseur de synchronisme et concurrence de messages",
     "level": "n3",
     "language": "analyse",
-    "goal": "Distinguer les messages synchrones (flèche pleine, appel bloquant) des messages asynchrones (flèche ouverte, non bloquant) et détecter les risques de blocage.",
-    "brief": "<p>Analysez les données fournies pour chaque cas. Si un émetteur A tente un appel (synchrone ou asynchrone) alors qu'il est lui-même <strong>déjà bloqué en attente d'une réponse synchrone</strong> : <code>[BLOCAGE] &lt;A&gt; ne peut pas emettre (bloque en attente de reponse)</code>.<br>\n2. Si un appel synchrone est circulaire direct (A attend B et B attend A) : <code>[DEADLOCK] Interblocage mutuel detecte entre &lt;A&gt; et &lt;B&gt;</code>.<br>\n3. Sinon, afficher : <code>[OK] &lt;TYPE&gt; de &lt;A&gt; vers &lt;B&gt; (Statut &lt;A&gt;: &lt;BLOQUE|LIBRE&gt;)</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c4-e3) — Analyseur de synchronisme et concurrence de messages\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Émission refusée pour acteur déjà bloqué]\n# Données : SYNC A ->> B : req1\n# Données : SYNC A ->> C : req2\nA_COMPLETER\n\n[Cas 2 — Deadlock mutuel direct]\n# Données : SYNC X ->> Y : call1\n# Données : SYNC Y ->> X : call2\nA_COMPLETER\n\n[Cas 3 — Messages asynchrones consécutifs sans blocage]\n# Données : ASYNC Producteur -> File : push1\n# Données : ASYNC Producteur -> File : push2\n# Données : ASYNC Producteur -> File : push3\nA_COMPLETER\n",
+    "title": "L'équilibrage des appels de la commande de Fleurs d'Avril",
+    "exampleTitle": "Exemple résolu — la réservation du club RacketClub",
+    "goal": "Vérifier l'équilibre d'une trace d'interaction : appels ouverts, retours correspondants et profondeur d'imbrication.",
+    "brief": "<p><strong>Énoncé.</strong> Le site de vente « Fleurs d'Avril » trace la validation d'une commande entre <strong>4 lignes de vie</strong> : Client, Panier, Stock et Paiement. Chaque appel synchrone ouvert doit être refermé par un message de retour avant la fin du scénario. La trace, dans l'ordre :</p><p><code>1. Client -&gt; Panier : valider()<br>2. Panier -&gt; Stock : reserver()<br>3. Stock --&gt; Panier : reservationOK<br>4. Panier -&gt; Paiement : debiter()<br>5. Paiement --&gt; Panier : paiementAccepte<br>6. Panier --&gt; Client : commandeConfirmee</code></p><p>Rappel : un appel synchrone (<code>-&gt;</code>) reste « ouvert » jusqu'au retour (<code>--&gt;</code>) qui le referme ; les appels ouverts s'empilent. Répondez par des nombres, un nom exact, ou oui/non.</p><ol><li>Combien d'appels synchrones (flèches pleines) compte la trace ?</li><li>Juste après le message « reserver() » (ligne 2), combien d'appels ouverts non refermés ?</li><li>Quel message de retour referme l'appel « debiter() » ?</li><li>La trace est-elle équilibrée : tous les appels refermés à la fin ?</li><li>Quel participant n'émet jamais d'appel synchrone vers un autre ?</li><li>Quelle profondeur maximale d'imbrication la pile d'activation atteint-elle ?</li></ol>",
+    "starter": "# Exercice — L'équilibrage des appels de la commande de Fleurs d'Avril\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Nombre d'appels synchrones]\nA_COMPLETER\n\n[Question 2 — Appels ouverts après « reserver() »]\nA_COMPLETER\n\n[Question 3 — Retour refermant « debiter() »]\nA_COMPLETER\n\n[Question 4 — La trace est-elle équilibrée ?]\nA_COMPLETER\n\n[Question 5 — Participant n'émettant aucun appel]\nA_COMPLETER\n\n[Question 6 — Profondeur maximale d'imbrication]\nA_COMPLETER\n",
     "hints": [
-      "Maintenir l'état de chaque lifeline : bloquée (avec le nom de l'acteur attendu) ou libre.",
-      "Un message asynchrone n'altère pas la disponibilité de l'émetteur."
+      "Chaque flèche pleine ouvre une activation ; chaque flèche en pointillés referme la plus récente activation ouverte correspondante.",
+      "Comptez les flèches pleines et les flèches pointillées séparément : une trace équilibrée en compte autant.",
+      "Déroulez la trace ligne à ligne en empilant les appels ouverts et en les dépilant à chaque retour ; notez la taille maximale de la pile."
     ],
     "examples": [
       {
-        "stdin": "SYNC Client ->> Serveur : getData\nASYNC Serveur -> Logger : logEvent\nREPLY Serveur --> Client\nSYNC Client ->> Autre : check",
-        "expected": "[OK] SYNC de Client vers Serveur (Statut Client: BLOQUE)\n[OK] ASYNC de Serveur vers Logger (Statut Serveur: LIBRE)\n[OK] REPLY de Serveur vers Client (Statut Client: LIBRE)\n[OK] SYNC de Client vers Autre (Statut Client: BLOQUE)",
-        "note": "Le client se bloque sur l'appel synchrone, le serveur émet en asynchrone sans bloquer, puis le client est débloqué."
+        "stdin": "Le club RacketClub trace une réservation de terrain entre 2 lignes de vie : Adherent et Portail.\n1. Adherent -> Portail : consulterPlanning()\n2. Portail --> Adherent : planningEnvoye\n3. Adherent -> Portail : reserver()\n\n1) La trace compte 2 appels synchrones (consulterPlanning, reserver).\n2) Elle compte 1 seul message de retour (planningEnvoye).\n3) Après le message « reserver() », 1 appel reste ouvert sans retour.\n4) La trace n'est pas équilibrée : « reserver() » n'est jamais refermé.",
+        "expected": "2 appels — 1 retour — 1 appel non refermé (reserver) — trace non équilibrée",
+        "note": "Une pile d'activation non vide en fin de trace signale un appel jamais refermé."
       }
     ],
     "tests": [
       {
-        "label": "Émission refusée pour acteur déjà bloqué",
-        "stdin": "cas:1",
-        "expected": "[OK] SYNC de A vers B (Statut A: BLOQUE)\n[BLOCAGE] A ne peut pas emettre (bloque en attente de reponse)"
+        "label": "Question 1 — Nombre d'appels synchrones",
+        "stdin": "q:1",
+        "expected": "3"
       },
       {
-        "label": "Deadlock mutuel direct",
-        "stdin": "cas:2",
-        "expected": "[OK] SYNC de X vers Y (Statut X: BLOQUE)\n[DEADLOCK] Interblocage mutuel detecte entre Y et X"
+        "label": "Question 2 — Appels ouverts après « reserver() »",
+        "stdin": "q:2",
+        "expected": "2"
       },
       {
-        "label": "Messages asynchrones consécutifs sans blocage",
-        "stdin": "cas:3",
-        "expected": "[OK] ASYNC de Producteur vers File (Statut Producteur: LIBRE)\n[OK] ASYNC de Producteur vers File (Statut Producteur: LIBRE)\n[OK] ASYNC de Producteur vers File (Statut Producteur: LIBRE)"
+        "label": "Question 3 — Retour refermant « debiter() »",
+        "stdin": "q:3",
+        "expected": "paiementAccepte||paiementaccepte"
+      },
+      {
+        "label": "Question 4 — La trace est-elle équilibrée ?",
+        "stdin": "q:4",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 5 — Participant n'émettant aucun appel",
+        "stdin": "q:5",
+        "expected": "Stock||stock||le Stock||le stock"
+      },
+      {
+        "label": "Question 6 — Profondeur maximale d'imbrication",
+        "stdin": "q:6",
+        "expected": "2"
       }
     ],
-    "solution": "[Exemple]\n[OK] SYNC de Client vers Serveur (Statut Client: BLOQUE)\n[OK] ASYNC de Serveur vers Logger (Statut Serveur: LIBRE)\n[OK] REPLY de Serveur vers Client (Statut Client: LIBRE)\n[OK] SYNC de Client vers Autre (Statut Client: BLOQUE)\n\n[Cas 1 — Émission refusée pour acteur déjà bloqué]\n[OK] SYNC de A vers B (Statut A: BLOQUE)\n[BLOCAGE] A ne peut pas emettre (bloque en attente de reponse)\n\n[Cas 2 — Deadlock mutuel direct]\n[OK] SYNC de X vers Y (Statut X: BLOQUE)\n[DEADLOCK] Interblocage mutuel detecte entre Y et X\n\n[Cas 3 — Messages asynchrones consécutifs sans blocage]\n[OK] ASYNC de Producteur vers File (Statut Producteur: LIBRE)\n[OK] ASYNC de Producteur vers File (Statut Producteur: LIBRE)\n[OK] ASYNC de Producteur vers File (Statut Producteur: LIBRE)"
+    "solution": "[Question 1 — Nombre d'appels synchrones]\n3\n\n[Question 2 — Appels ouverts après « reserver() »]\n2\n\n[Question 3 — Retour refermant « debiter() »]\npaiementAccepte\n\n[Question 4 — La trace est-elle équilibrée ?]\noui\n\n[Question 5 — Participant n'émettant aucun appel]\nStock\n\n[Question 6 — Profondeur maximale d'imbrication]\n2",
+    "takeaway": "1) Trois appels synchrones : valider(), reserver(), debiter().\n2) Après la ligne 2, valider() et reserver() sont ouverts : 2 appels non refermés.\n3) L'appel debiter() est refermé par le retour paiementAccepte.\n4) Oui : 3 appels et 3 retours, la pile est vide à la fin.\n5) Stock n'émet que le retour reservationOK : jamais d'appel synchrone.\n6) La pile atteint la profondeur 2 (valider() puis reserver() imbriqué), avant de redescendre.\nContrôle : appels ouverts ligne à ligne — 1 ; 2 ; 1 ; 2 ; 1 ; 0 : la pile revient à vide, la trace est équilibrée."
   }
 ];

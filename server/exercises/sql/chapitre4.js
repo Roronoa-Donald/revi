@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Calculez le rang par département avec RANK() OVER (...)\nSELECT nom, departement, salaire FROM employes;",
     "hints": [
       "Utilisez RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang.",
-      "Triez par departement ASC, rang ASC, nom ASC."
+      "Triez par departement ASC, rang ASC, nom ASC.",
+      "Écrivez le SELECT des colonnes demandées puis la fonction de rang partitionnée ; l ordre final combine département, rang et nom."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+-----+-------------+---------+------+\n| nom | departement | salaire | rang |\n+-----+-------------+---------+------+\n| E2  | A           | 200     | 1    |\n| E1  | A           | 100     | 2    |\n| E3  | B           | 150     | 1    |\n+-----+-------------+---------+------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "SELECT nom, departement, salaire, RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang FROM employes ORDER BY departement ASC, rang ASC, nom ASC;"
+    "solution": "SELECT nom, departement, salaire, RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang FROM employes ORDER BY departement ASC, rang ASC, nom ASC;",
+    "takeaway": "Les fonctions de fenêtre OVER (PARTITION BY ... ORDER BY ...) classent les lignes sans réduire le résultat à une ligne par groupe."
   },
   {
     "id": "sql2-c4-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Calculez le cumul progressif avec SUM(montant) OVER (ORDER BY jour ASC)\nSELECT jour, montant FROM recettes;",
     "hints": [
       "SUM(montant) OVER (ORDER BY jour ASC) additionne toutes les lignes du début jusqu’à la ligne courante.",
-      "Nommez la colonne AS cumul."
+      "Nommez la colonne AS cumul.",
+      "Écrivez le SELECT du jour et du montant, ajoutez la somme fenêtrée ordonnée par jour, sans clause GROUP BY."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+------+---------+--------+\n| jour | montant | cumul  |\n+------+---------+--------+\n| 10   | 25000   | 25000  |\n| 20   | 75000   | 100000 |\n+------+---------+--------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT jour, montant, SUM(montant) OVER (ORDER BY jour ASC) AS cumul FROM recettes ORDER BY jour ASC;"
+    "solution": "SELECT jour, montant, SUM(montant) OVER (ORDER BY jour ASC) AS cumul FROM recettes ORDER BY jour ASC;",
+    "takeaway": "SUM(x) OVER (ORDER BY date) calcule un cumul glissant chronologique impossible à obtenir simplement par GROUP BY."
   },
   {
     "id": "sql2-c4-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Utilisez WITH totaux AS (...) SELECT ...\nSELECT vendeur, montant FROM ventes;",
     "hints": [
       "Définissez WITH totaux AS (SELECT vendeur, SUM(montant) AS ca_total FROM ventes GROUP BY vendeur).",
-      "Interrogez ensuite totaux avec WHERE ca_total >= 50000 ORDER BY ca_total DESC."
+      "Interrogez ensuite totaux avec WHERE ca_total >= 50000 ORDER BY ca_total DESC.",
+      "Définissez la CTE d agrégation par vendeur, puis écrivez la requête finale filtrant et triant les totaux obtenus."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+---------+----------+\n| vendeur | ca_total |\n+---------+----------+\n| Binta   | 60000    |\n+---------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "WITH totaux AS (\n  SELECT vendeur, SUM(montant) AS ca_total\n  FROM ventes\n  GROUP BY vendeur\n)\nSELECT vendeur, ca_total FROM totaux WHERE ca_total >= 50000 ORDER BY ca_total DESC;"
+    "solution": "WITH totaux AS (\n  SELECT vendeur, SUM(montant) AS ca_total\n  FROM ventes\n  GROUP BY vendeur\n)\nSELECT vendeur, ca_total FROM totaux WHERE ca_total >= 50000 ORDER BY ca_total DESC;",
+    "takeaway": "Une CTE (WITH nom AS (...)) nomme des sous-ensembles intermédiaires pour rendre lisibles les requêtes analytiques à étapes."
   }
 ];

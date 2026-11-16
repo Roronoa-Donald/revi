@@ -25,6 +25,8 @@ module.exports = {
     {
       title: 'Infrastructure Mondiale de Google Cloud : Régions, Zones &amp; Réseau Edge',
       html: [
+        box('tech', 'Ancrage sur le cours fondamental Cloud Computing B3 (/b3-cloud-computing/)', 'compass',
+          '    <p>Les concepts fondateurs <strong>IaaS / PaaS / SaaS</strong>, la <strong>responsabilité partagée</strong>, la maîtrise des coûts <strong>FinOps</strong> et la stratégie <strong>Multi-cloud</strong> sont établis dans le cours socle <a href="/b3-cloud-computing/index.html"><strong>Cloud Computing B3 (<code>/b3-cloud-computing/</code>)</strong></a>. Ce cours <strong>Google Cloud Platform B3 (<code>/b3-google-cloud/</code>)</strong> approfondit les mécanismes propres à GCP : hiérarchie <code>Organization → Folder → Project</code> et stratégies <strong>IAM</strong> (Service Accounts, rôles primitifs/prédéfinis/personnalisés), architecture <strong>VPC</strong> globale (sous-réseaux régionaux, Cloud Router, Cloud NAT), pilotage par le SDK <code>gcloud</code> et services managés (Compute Engine, Cloud Storage, Cloud SQL, GKE, BigQuery).</p>'),
         '<p>Google Cloud s\'appuie sur la même infrastructure matérielle et réseau que celle qui alimente Google Search, YouTube et Gmail. Cette infrastructure est structurée selon un maillage mondial rigoureux :</p>',
         '<div class="grid grid-3">',
         '  <div class="card">',
@@ -164,20 +166,20 @@ module.exports = {
   questions: [
     {
       stem: 'Quel est l\'ordre exact de la hiérarchie organisationnelle des ressources dans Google Cloud du niveau racine vers les ressources ?',
-      opts: ['Projet > Dossier > Organisation > Ressource', 'Organisation > Dossiers > Projets > Ressources', 'Dossier > Organisation > Projet > Ressource', 'Ressource > Projet > Dossier > Organisation'],
-      correct: 1,
+      opts: ['Projet > Dossier > Organisation > Ressource', 'Dossier > Organisation > Projet > Ressource', 'Organisation > Dossiers > Projets > Ressources', 'Ressource > Projet > Dossier > Organisation'],
+      correct: 2,
       exp: 'La hiérarchie Google Cloud s\'organise strictement du haut vers le bas : Organisation (niveau 0) > Dossiers (niveau 1) > Projets (niveau 2) > Ressources (niveau 3).'
     },
     {
       stem: 'Laquelle de ces chaînes est un identifiant Project ID Google Cloud VALIDE selon la RFC 1035 ?',
-      opts: ['mon-projet-cloud-2026', 'PROJET_PROD_1', '123-mon-projet', 'projet-super-cloud-de-test-pour-la-production-mondiale-2026'],
-      correct: 0,
+      opts: ['projet-super-cloud-de-test-pour-la-production-mondiale-2026', 'PROJET_PROD_1', '123-mon-projet', 'mon-projet-cloud-2026'],
+      correct: 3,
       exp: '« mon-projet-cloud-2026 » est valide : entre 6 et 30 caractères, lettres minuscules, chiffres et tirets, commençant par une lettre et ne se terminant pas par un tiret.'
     },
     {
       stem: 'Combien de zones de disponibilité au minimum une région Google Cloud contient-elle ?',
-      opts: ['1 zone', '2 zones', '3 zones', '5 zones'],
-      correct: 2,
+      opts: ['3 zones', '2 zones', '1 zone', '5 zones'],
+      correct: 0,
       exp: 'Une région comprend au moins 3 zones. Leur présence ne garantit pas à elle seule la haute disponibilité : celle-ci dépend notamment de la redondance des composants et du basculement.'
     },
     {
@@ -188,8 +190,8 @@ module.exports = {
     },
     {
       stem: 'Que se passe-t-il si un utilisateur reçoit le rôle Viewer au niveau d\'un dossier contenant 5 projets ?',
-      opts: ['L\'utilisateur doit demander une validation pour chaque projet', 'Le rôle allow est hérité, mais un deny applicable peut refuser certaines permissions', 'L\'utilisateur ne peut lire que le premier projet créé', 'Le rôle est bloqué car il doit être attribué à l\'organisation'],
-      correct: 1,
+      opts: ['L\'utilisateur doit demander une validation pour chaque projet', 'L\'utilisateur ne peut lire que le premier projet créé', 'Le rôle allow est hérité, mais un deny applicable peut refuser certaines permissions', 'Le rôle est bloqué car il doit être attribué à l\'organisation'],
+      correct: 2,
       exp: 'La liaison allow est héritée par les projets descendants. Une règle deny applicable au principal et aux permissions prises en charge peut toutefois les refuser ; ses conditions et exceptions doivent être vérifiées, ainsi que les autres règles deny applicables.'
     }
   ],

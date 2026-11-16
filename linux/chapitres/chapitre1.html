@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -81,7 +79,22 @@
 
 <section class="sec">
 
-<h2>1. La ligne de commande</h2>
+<h2>1. Rappel Express des acquis B1 (b1-linux) &amp; progression B2</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Rappel Express des acquis B1 (b1-linux) — Socle supposé maîtrisé</div>
+    <p>Ce cours d’<strong>Administration Linux B2</strong> s’inscrit dans la continuité directe du module fondamental <a href="/b1-linux/index.html"><strong>Linux &amp; Shell B1 (<code>/b1-linux/</code>)</strong></a>. Au lieu de réexpliquer pas à pas la découverte du terminal, nous mobilisons directement vos acquis B1 pour passer à l’administration serveur en production :</p>
+    <ul>
+      <li><strong>Acquis B1 consolidés (<a href="/b1-linux/">/b1-linux/</a>) :</strong> hiérarchie FHS (<code>/etc</code>, <code>/var</code>, <code>/proc</code>, <code>/home</code>), commandes de manipulation de fichiers (<code>ls</code>, <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>find</code>, <code>grep</code>), redirections de flux (<code>stdin</code>, <code>stdout</code>, <code>stderr</code>, pipes <code>|</code>) et droits POSIX de base (<code>chmod</code>, <code>chown</code>).</li>
+      <li><strong>Nouveaux approfondissements B2 (ce cours) :</strong> gestion souple des volumes logiques <strong>LVM</strong> (<code>pvcreate</code>, <code>vgcreate</code>, <code>lvcreate</code>, <code>lvextend</code> à chaud), configuration réseau persistante (<code>nmcli</code>, <code>ip route</code>), orchestration d’unités et de planificateurs <strong>systemd</strong> (fichiers <code>.service</code> et <code>.timer</code>), diagnostic filtré via <code>journalctl</code>, et durcissement de bastion <strong>OpenSSH</strong> (<code>PermitRootLogin</code>, <code>PasswordAuthentication</code>) couplé à <strong>fail2ban</strong>.</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. La ligne de commande</h2>
 
 <p>Une commande se lit toujours <strong>COMMANDE OPTIONS ARGUMENTS</strong>. Les options commencent par un tiret (<code>ls -l</code>) et les arguments désignent sur quoi elle agit (<code>ls -l /home</code>). Le shell (<code>bash</code>) lit la ligne, la découpe puis demande au noyau d’exécuter le programme.</p>
 <p>Trois commandes suffisent à s’orienter : <code>pwd</code> affiche le répertoire courant, <code>ls</code> liste son contenu, <code>cd</code> change de répertoire. <code>cd</code> sans argument ramène dans la maison de l’utilisateur ; <code>cd ..</code> remonte d’un niveau ; <code>cd /</code> va à la racine.</p>
@@ -99,7 +112,7 @@ cd ../etc           # chemin relatif</code></pre>
 
 <section class="sec">
 
-<h2>2. L’arborescence FHS</h2>
+<h2>3. L’arborescence FHS</h2>
 
 <p>Sur Linux, <strong>tout part de la racine <code>/</code></strong> : il n’y a ni lettre de lecteur ni séparateur en forme de barre oblique inversée. La norme FHS (Filesystem Hierarchy Standard) fixe le rôle de chaque répertoire :</p>
 <pre><code>/        racine, origine de tout chemin absolu
@@ -121,7 +134,7 @@ cd ../etc           # chemin relatif</code></pre>
 
 <section class="sec">
 
-<h2>3. Chemins absolus et relatifs</h2>
+<h2>4. Chemins absolus et relatifs</h2>
 
 <p>Un chemin <strong>absolu</strong> commence par <code>/</code> et décrit la position depuis la racine : <code>/etc/hosts</code>. Un chemin <strong>relatif</strong> part du répertoire courant : <code>hosts</code>, <code>./hosts</code>, <code>../etc/hosts</code>. Les symboles spéciaux sont <code>.</code> (répertoire courant) et <code>..</code> (répertoire parent).</p>
 <p>Un chemin se construit en joignant un répertoire et un nom. Le piège classique est le double séparateur : <code>/var/</code> plus <code>log</code> donne <code>/var/log</code>, pas <code>/var//log</code>. C’est exactement la logique que code l’exercice 3 de ce chapitre.</p>
@@ -134,7 +147,7 @@ cd ../etc           # chemin relatif</code></pre>
 
 <section class="sec">
 
-<h2>4. Créer, copier, déplacer, supprimer</h2>
+<h2>5. Créer, copier, déplacer, supprimer</h2>
 
 <pre><code>touch rapport.txt          # créer un fichier vide
 mkdir -p /srv/site/html   # créer un dossier et ses parents
@@ -155,11 +168,14 @@ echo "texte" &gt;&gt; f         # ajouter (conserve)</code></pre>
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="lx2-c1-e1" data-lab
      data-exercise="lx2-c1-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="2&#10;/etc/hosts&#10;home/rd&#10;">
@@ -175,13 +191,11 @@ done
     <h3 class="lab__title">Exercice 1 — Reconnaître un chemin absolu</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Classer chaque chemin en absolu ou relatif, puis compter les absolus.</p>
-    <p class="lab__note" id="lx2-c1-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune un chemin. Un chemin est <strong>absolu</strong> s’il commence par <code>/</code> ; sinon il est <strong>relatif</strong>. Pour chaque chemin, le script affiche <code>chemin : absolu</code> ou <code>chemin : relatif</code>, puis à la fin <code>absolus : X</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
@@ -193,10 +207,11 @@ home/rd : relatif
 absolus : 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le motif <code>/*</code> en début de case correspond à tout chemin commençant par un slash.</li>
         <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>Étapes : lire n ; pour chaque chemin, s’il commence par / afficher « chemin : absolu » et incrémenter le compteur, sinon afficher « chemin : relatif » ; conclure par « absolus : N ».</li>
       </ol>
     </details>
   </div>
@@ -204,7 +219,6 @@ absolus : 1</pre></div>
 
 <div class="lab" id="lx2-c1-e2" data-lab
      data-exercise="lx2-c1-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="3&#10;etc repertoire&#10;bashrc lien&#10;notes fichier&#10;">
@@ -222,13 +236,11 @@ done
     <h3 class="lab__title">Exercice 2 — Compter les entrées par type</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Dresser le bilan d’un répertoire : fichiers, répertoires et liens.</p>
-    <p class="lab__note" id="lx2-c1-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « nom type » où <code>type</code> vaut <code>fichier</code>, <code>repertoire</code> ou <code>lien</code>. Il affiche trois compteurs, dans cet ordre : <code>fichiers : X</code>, <code>repertoires : Y</code>, <code>liens : Z</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
@@ -241,10 +253,11 @@ repertoires : 1
 liens : 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un case sur le type : fichier, repertoire, lien.</li>
         <li>Les trois lignes de bilan sortent dans l’ordre fichiers, repertoires, liens.</li>
+        <li>Étapes : lire n ; pour chaque entrée, lire le type et incrémenter le compteur correspondant (fichier, repertoire ou lien) ; en fin de parcours, afficher les trois bilans dans l’ordre convenu.</li>
       </ol>
     </details>
   </div>
@@ -252,7 +265,6 @@ liens : 1</pre></div>
 
 <div class="lab" id="lx2-c1-e3" data-lab
      data-exercise="lx2-c1-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="2&#10;/etc hosts&#10;/var/ log&#10;">
@@ -266,13 +278,11 @@ done
     <h3 class="lab__title">Exercice 3 — Assembler un chemin</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Joindre un répertoire et un nom de fichier sans doubler le séparateur.</p>
-    <p class="lab__note" id="lx2-c1-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « repertoire nom ». Il affiche le chemin assemblé : <code>repertoire/nom</code>, sauf si le répertoire se termine déjà par <code>/</code>, auquel cas la barre n’est pas répétée. Une seule ligne par entrée.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
@@ -283,33 +293,34 @@ done
 /var/log</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le motif <code>*/</code> en début de case repère un répertoire terminé par un slash.</li>
         <li>Ne pas oublier le cas simple, sans slash final, dans la branche par défaut.</li>
+        <li>Étapes : lire n ; pour chaque couple, si le répertoire finit par / afficher répertoire puis nom tels quels ; sinon intercaler un / entre les deux ; rien d’autre à afficher.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quelle commande affiche le répertoire courant ?</p>
       <div class="opts">
         <button class="opt">cd</button>
-        <button class="opt" data-correct="1">pwd</button>
         <button class="opt">ls</button>
+        <button class="opt" data-correct="1">pwd</button>
       </div>
       <div class="q__exp">pwd (print working directory) affiche le chemin absolu du répertoire courant.</div>
     </div>
     <div class="q">
       <p class="q__stem">Un chemin qui commence par / est…</p>
       <div class="opts">
-        <button class="opt">relatif</button>
         <button class="opt" data-correct="1">absolu</button>
+        <button class="opt">relatif</button>
         <button class="opt">un lien</button>
       </div>
       <div class="q__exp">Tout chemin partant de la racine est absolu ; sinon il est relatif au répertoire courant.</div>
@@ -335,11 +346,11 @@ done
     <div class="q">
       <p class="q__stem">Différence entre / et /root ?</p>
       <div class="opts">
-        <button class="opt">Aucune</button>
+        <button class="opt">« / » est le répertoire personnel du compte root</button>
+        <button class="opt">Aucune : /root est un alias de la racine /</button>
         <button class="opt" data-correct="1">/ est la racine, /root la maison de root</button>
-        <button class="opt">/root est un alias de /</button>
       </div>
-      <div class="q__exp">/ est l’origine de l’arborescence ; /root est le répertoire personnel du super-utilisateur.</div>
+      <div class="q__exp">/ est l’origine de l’arborescence ; /root est le répertoire personnel du super-utilisateur. Le distracteur « alias » est faux : /root est un répertoire réel et distinct de /.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait echo "x" &gt;&gt; f ?</p>
@@ -353,8 +364,8 @@ done
     <div class="q">
       <p class="q__stem">mkdir -p a/b/c sert à…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">créer les parents manquants</button>
         <button class="opt">copier un dossier</button>
+        <button class="opt" data-correct="1">créer les parents manquants</button>
         <button class="opt">protéger un dossier</button>
       </div>
       <div class="q__exp">L’option -p crée toute la chaîne de répertoires intermédiaires.</div>
@@ -362,8 +373,8 @@ done
     <div class="q">
       <p class="q__stem">Quelle commande renomme un fichier ?</p>
       <div class="opts">
-        <button class="opt">cp</button>
         <button class="opt" data-correct="1">mv</button>
+        <button class="opt">cp</button>
         <button class="opt">rm</button>
       </div>
       <div class="q__exp">mv déplace et, dans le même dossier, renomme : mv ancien nouveau.</div>
@@ -374,7 +385,7 @@ done
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -391,7 +402,7 @@ done
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Explorer un système inconnu</div>
@@ -408,7 +419,7 @@ done
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -438,7 +449,7 @@ done
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -487,7 +498,7 @@ done
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -159,8 +159,42 @@ const LEVEL_RANK = { b1: 1, b2: 2, b3: 3 };
 //  - preparation-web : tout sauf assets/
 //  - autres cours : données QCM (.js/.json), chapitres >= 2, PDFs (assets inclus)
 // Gratuit et sans aucune trace d'abonnement : portail, index de cours, chapitre1.html.
+function decodePathnameSafely(pathname) {
+  let current = String(pathname || '/').split('?')[0].split('#')[0];
+  let malformed = false;
+  for (let i = 0; i < 4; i++) {
+    if (!current.includes('%')) break;
+    try {
+      const decoded = decodeURIComponent(current);
+      if (decoded === current) break;
+      current = decoded;
+    } catch {
+      malformed = true;
+      break;
+    }
+  }
+  if (/%[0-9a-fA-F]{2}/.test(current) || /%[^0-9a-fA-F]|%$/.test(current) || current.includes('\0')) {
+    malformed = true;
+  }
+  return { decoded: current, malformed };
+}
+
+function normalizePathname(pathname) {
+  const { decoded, malformed } = decodePathnameSafely(pathname);
+  if (malformed) return null;
+  const segments = [];
+  for (const seg of decoded.replace(/\\/g, '/').split('/')) {
+    if (!seg || seg === '.') continue;
+    if (seg === '..') segments.pop();
+    else segments.push(seg);
+  }
+  return '/' + segments.join('/');
+}
+
 function isProtectedPath(pathname) {
-  const parts = pathname.split('/').filter(Boolean);
+  const norm = normalizePathname(pathname);
+  if (norm === null) return true; // Fail-closed sur URL malformée ou sur-encodée
+  const parts = norm.split('/').filter(Boolean);
   if (parts.length < 1) return false;
 
   const courseName = parts[0];
@@ -173,31 +207,35 @@ function isProtectedPath(pathname) {
     return true;
   }
   const filename = parts[parts.length - 1] || '';
-  const isQcmData = /qcm/i.test(filename) && (filename.endsWith('.js') || filename.endsWith('.json'));
+  const isQcmData = /qcm/i.test(filename) && (filename.toLowerCase().endsWith('.js') || filename.toLowerCase().endsWith('.json'));
   if (isQcmData) return true;
 
-  if (parts[1] === 'assets') return pathname.endsWith('.pdf');
+  if (parts[1] === 'assets') return norm.toLowerCase().endsWith('.pdf');
 
   if (parts.length === 2 && (parts[1] === 'index.html' || parts[1] === 'sommaire.html' || parts[1] === '')) return false;
   if (parts.length === 2 && parts[1] === 'chapitre1.html') return false;
   if (parts[1] === 'chapitres' && parts.length >= 3 && parts[2] === 'chapitre1.html') return false;
 
-  if (!pathname.endsWith('.html') && !pathname.endsWith('.pdf')) return false;
+  if (!norm.toLowerCase().endsWith('.html') && !norm.toLowerCase().endsWith('.pdf')) return false;
   return true;
 }
 
 function getCourseFromPath(pathname) {
-  const parts = pathname.split('/').filter(Boolean);
+  const norm = normalizePathname(pathname);
+  if (!norm) return null;
+  const parts = norm.split('/').filter(Boolean);
   if (parts.length >= 1 && COURSE_DIRS.includes(parts[0])) return parts[0];
   return null;
 }
 
 /**
  * Le niveau du compte permet-il d'accéder au cours de cette page ?
- * fail-closed : niveau inconnu → refus.
+ * fail-closed : niveau inconnu ou chemin malformé → refus.
  */
 function canAccessPath(userLevel, pathname) {
-  const course = getCourseFromPath(pathname);
+  const norm = normalizePathname(pathname);
+  if (norm === null) return false;
+  const course = getCourseFromPath(norm);
   if (!course) return true; // hors cours canonique : pas de garde de niveau
   const courseLevel = COURSE_LEVELS[course];
   if (!courseLevel) return true;
@@ -224,12 +262,25 @@ function buildLevelRedirect(requestUrl) {
   return Response.redirect(`${requestUrl.origin}/_auth/account.html?level=denied&redirect=${redirectTarget}`, 307);
 }
 
+export {
+  decodePathnameSafely,
+  normalizePathname,
+  isProtectedPath,
+  getCourseFromPath,
+  canAccessPath
+};
+
 export default async function middleware(request) {
   const requestUrl = new URL(request.url);
   const { pathname } = requestUrl;
+  const norm = normalizePathname(pathname);
+
+  if (norm === null) {
+    return new Response('Bad Request', { status: 400 });
+  }
 
   // Protection du dashboard admin : requiert le cookie admin_token valide
-  if (pathname.startsWith('/_auth/admin/dashboard')) {
+  if (norm.toLowerCase().startsWith('/_auth/admin/dashboard')) {
     const adminVerifyUrl = new URL('/api/admin/verify', requestUrl.origin);
     try {
       const res = await fetch(adminVerifyUrl, {
@@ -246,11 +297,11 @@ export default async function middleware(request) {
     return next();
   }
 
-  if (pathname.startsWith('/_auth/') || pathname.startsWith('/api/')) {
+  if (norm.startsWith('/_auth/') || norm.startsWith('/api/')) {
     return next();
   }
 
-  const protectedPath = isProtectedPath(pathname);
+  const protectedPath = isProtectedPath(norm);
 
   // Gratuit et sans restriction pour tous : portail, index de cours, sommaire et chapitre 1.
   if (!protectedPath) return next();

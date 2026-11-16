@@ -174,31 +174,31 @@ module.exports = {
       stem: 'Quel est le résultat du mélange additif maximal des trois composantes primaires Rouge, Vert et Bleu (R=255, V=255, B=255) ?',
       opts: [
         'Noir pur',
-        'Blanc pur',
+        'Brun sombre',
         'Gris neutre à 50 %',
-        'Brun sombre'
+        'Blanc pur'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'En synthèse additive, la superposition de tous les flux lumineux primaires à intensité maximale produit la lumière blanche.'
     },
     {
       stem: 'Pourquoi ajoute-t-on la composante noire K (Key) aux trois encres primaires Cyan, Magenta et Jaune en imprimerie quadrichromique ?',
       opts: [
-        'Pour empêcher le papier de brûler sous la presse',
-        'Parce que le mélange de C, M et J ne donne qu’un brun foncé terne et coûteux en encre, alors que K apporte profondeur, netteté et contraste',
-        'Pour convertir automatiquement l’image au format SVG',
-        'Parce que les encres de couleur ne sèchent jamais sans encre noire'
+        "Pour empêcher le papier de brûler sous la pression des rouleaux chauffés de la presse d’impression professionnelle",
+        "Pour permettre la conversion automatique de n’importe quelle image matricielle en graphique vectoriel SVG exploitable",
+        "Parce que le mélange de C, M et J ne donne qu’un brun foncé terne et coûteux en encre, alors que K apporte profondeur, netteté et contraste",
+        "Parce que les encres colorées ne sèchent jamais complètement sur le papier sans une couche d’encre noire absorbante"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le noir pur K permet d’obtenir un contraste élevé, des textes nets et une opacité parfaite tout en réduisant considérablement la quantité d’encre déposée.'
     },
     {
       stem: 'Pourquoi les calculs d’éclairage dans les shaders GPU doivent-ils s’effectuer en espace RVB linéaire plutôt qu’en sRVB ?',
       opts: [
-        'Parce que la carte graphique ne sait pas faire de multiplication en sRVB',
-        'Parce que les lois physiques de propagation lumineuse sont linéaires (l’intensité double si la source double), alors que sRVB est compressé par une courbe gamma non-linéaire',
-        'Parce que sRVB est un format breveté et payant',
-        'Parce que sRVB ne prend en charge que les images en noir et blanc'
+        "Parce que les unités de calcul flottant des cartes graphiques ne savent tout simplement pas multiplier des couleurs encodées dans l’espace sRVB",
+        "Parce que les lois physiques de propagation lumineuse sont linéaires (l’intensité double si la source double), alors que sRVB est compressé par une courbe gamma non-linéaire",
+        "Parce que l’espace sRVB est un format breveté et payant dont chaque opération d’éclairage déclencherait le versement de royalties",
+        "Parce que l’espace sRVB ne prend en charge que les images monochromes en noir et blanc, sans aucune information de couleur"
       ],
       correct: 1,
       exp: 'L’éclairage physique repose sur des additions et produits scalaires linéaires. Appliquer ces opérations sur des valeurs non-linéaires déforme la réponse lumineuse.'
@@ -206,23 +206,23 @@ module.exports = {
     {
       stem: 'Quelle formule permet de calculer la largeur physique d’une image imprimée en centimètres connaissant sa largeur en pixels L et sa résolution en DPI ?',
       opts: [
-        'Largeur_cm = (L * DPI) / 2.54',
         'Largeur_cm = (L / DPI) * 2.54',
+        'Largeur_cm = (L * DPI) / 2.54',
         'Largeur_cm = L * 2.54 * DPI',
         'Largeur_cm = DPI / (L * 2.54)'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L / DPI donne la dimension physique en pouces. Comme 1 pouce équivaut à 2.54 centimètres, on multiplie ce résultat par 2.54.'
     },
     {
       stem: 'Quelle caractéristique fondamentale différencie une image vectorielle SVG d’une image raster PNG ?',
       opts: [
-        'Le SVG ne peut être affiché que sur des écrans cathodiques',
-        'Le SVG est défini par des équations géométriques scalables sans perte de netteté, tandis que le PNG est une grille finie de pixels qui pixellise à l’agrandissement',
-        'Le PNG est plus léger que le SVG pour toutes les icônes simples',
-        'Le SVG ne supporte pas les couleurs'
+        "Le format SVG ne peut être affiché que sur les anciens écrans cathodiques à tube, jamais sur les écrans plats modernes",
+        "Le fichier PNG est systématiquement plus léger que le fichier SVG pour toutes les icônes simples et l’ensemble des logos graphiques",
+        "Le format SVG ne supporte aucune couleur et se limite strictement aux nuances de gris, du noir le plus profond au blanc le plus clair",
+        "Le SVG est défini par des équations géométriques scalables sans perte de netteté, tandis que le PNG est une grille finie de pixels qui pixellise à l’agrandissement"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le format vectoriel décrit mathématiquement les formes, permettant un affichage parfait à n’importe quelle échelle ou résolution d’écran.'
     },
     {
@@ -239,23 +239,23 @@ module.exports = {
     {
       stem: 'Pourquoi le format JPEG est-il inadapté pour enregistrer des icônes d’interface ou des captures d’écran avec du texte contrasté ?',
       opts: [
-        'Parce qu’il produit des artéfacts de compression par blocs (DCT 8x8) et des halos de flou autour des arêtes nettes',
         'Parce qu’il refuse d’enregistrer les images de moins de 10 mégapixels',
+        'Parce qu’il produit des artéfacts de compression par blocs (DCT 8x8) et des halos de flou autour des arêtes nettes',
         'Parce qu’il convertit toutes les couleurs en noir et blanc',
         'Parce qu’il nécessite une connexion Internet permanente pour être ouvert'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La transformée en cosinus discrète (DCT) de JPEG quantifie les hautes fréquences spatiales, créant des artéfacts visibles (ringing) autour des contours nets.'
     },
     {
       stem: 'Quel avantage majeur apporte le format WebP développé par Google par rapport aux formats historiques JPEG et PNG ?',
       opts: [
-        'Il supprime le besoin de carte graphique',
-        'Il offre un taux de compression supérieur d’environ 25 à 35 % à qualité visuelle équivalente, avec support du canal alpha et du mode avec/sans perte',
-        'Il augmente la résolution de l’écran physiquement',
-        'Il n’a besoin d’aucun octet pour stocker les images'
+        "Il offre un taux de compression supérieur d’environ 25 à 35 % à qualité visuelle équivalente, avec support du canal alpha et du mode avec/sans perte",
+        "Il supprime complètement le besoin d’une carte graphique dédiée pour afficher les images sur les pages web modernes",
+        "Il augmente physiquement la résolution native de l’écran de l’appareil qui affiche les images compressées du web",
+        "Il n’a besoin d’absolument aucun octet de stockage pour archiver des images entières sur le disque dur du serveur"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'WebP réutilise les algorithmes de prédiction intra-image du codec vidéo VP8, offrant une réduction de poids majeure pour le web moderne.'
     }
   ],

@@ -80,12 +80,12 @@ module.exports = {
     {
       "stem": "Dans un tas binaire indexé à 0, quel est l’indice du parent du nœud situé à l’indice 6 ?",
       "opts": [
-        "2",
+        "5",
         "3",
         "1",
-        "5"
+        "2"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "La formule du parent est (i - 1) // 2. Pour i = 6, (6 - 1) // 2 = 5 // 2 = 2."
     },
     {
@@ -102,10 +102,10 @@ module.exports = {
     {
       "stem": "Où se situe le minimum absolu dans un Tas-Max ?",
       "opts": [
-        "À la racine indice 0",
+        "À la racine du tableau, à l’indice 0, qui concentre toujours l’élément le plus petit",
         "Nécessairement parmi les feuilles de l’arbre (indices >= n // 2)",
-        "Au dernier indice n - 1 obligatoirement",
-        "Au fils gauche de la racine"
+        "Au dernier indice n - 1, position qu’occupe forcément le plus petit élément inséré",
+        "Au fils gauche de la racine, à l’indice 1, considéré comme la plus petite feuille"
       ],
       "correct": 1,
       "exp": "Dans un Tas-Max, chaque parent est supérieur à ses descendants. Le minimum ne peut donc pas avoir d’enfants et se trouve obligatoirement parmi les feuilles."
@@ -124,12 +124,12 @@ module.exports = {
     {
       "stem": "Dans un tableau [90, 50, 70, 40, 60], pourquoi ce tableau ne forme-t-il PAS un Tas-Max valide ?",
       "opts": [
-        "90 n’est pas le maximum",
         "Le nœud 50 à l’indice 1 a pour fils droit 60 à l’indice 4, violant 50 >= 60",
-        "70 est plus grand que 50",
-        "Il manque des éléments"
+        "La valeur 90 ne constitue pas le maximum du tableau, pourtant placée à l’indice 0",
+        "Le nœud 70 de l’indice 2 est supérieur à son parent 50, ce qui interdit un Tas-Max",
+        "Le tableau ne contient pas assez d’éléments pour former un tas binaire complet"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "À l’indice 1 (valeur 50), son fils droit est à l’indice 2*1 + 2 = 4 (valeur 60). Comme 50 < 60, l’invariant de Tas-Max est violé."
     },
     {
@@ -147,22 +147,22 @@ module.exports = {
       "stem": "Quelle structure de données est couramment utilisée pour implémenter une file de priorité efficace dans les bibliothèques standards (comme heapq en Python) ?",
       "opts": [
         "Une table de hachage",
-        "Un tas binaire (Heap)",
         "Une liste simplement chaînée",
+        "Un tas binaire (Heap)",
         "Une pile LIFO"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Les modules standard comme heapq en Python ou PriorityQueue en Java utilisent des tas binaires sous forme de tableau 1D."
     },
     {
       "stem": "Quelle propriété de stabilité possède l’algorithme de tri par tas (Heapsort) ?",
       "opts": [
-        "Il est stable",
-        "Il n’est pas stable car les échanges à longue distance peuvent inverser l’ordre d’éléments égaux",
-        "Il est stable uniquement si le tableau est trié à l’envers",
-        "Il est récursif pur"
+        "Il est stable, car le tri par tas compare les éléments deux à deux avant chaque échange",
+        "Il est stable uniquement lorsque le tableau initial est déjà trié par ordre décroissant",
+        "Il est récursif pur, ce qui lui interdit tout échange susceptible de modifier l’ordre initial",
+        "Il n’est pas stable car les échanges à longue distance peuvent inverser l’ordre d’éléments égaux"
       ],
-      "correct": 1,
+      "correct": 3,
       "exp": "Heapsort n’est pas un tri stable : les permutations entre la racine et les éléments de queue déplacent des clés égales sans préserver leur ordre initial."
     }
   ],

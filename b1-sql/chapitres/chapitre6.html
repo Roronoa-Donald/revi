@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -176,10 +174,13 @@ WITH GRANT OPTION;</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="sq-c6-e1" data-lab
      data-exercise="sq-c6-e1"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');&#10;-- VERIFY:&#10;SELECT * FROM Voiture ORDER BY immat ASC;">
@@ -188,13 +189,11 @@ WITH GRANT OPTION;</code></pre>
     <h3 class="lab__title">Exercice 1 — Mettre à jour des lignes ciblées avec UPDATE ... WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Modifier la valeur d’une colonne sur un sous-ensemble de lignes avec UPDATE.</p>
-    <p class="lab__note" id="sq-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans une copie de <code>Voiture</code>, ajoutez <code>10</code> au kilométrage <code>km</code> des seules voitures dont le kilométrage actuel est strictement inférieur à <code>5</code>, après un essai de 10 km. Ne modifiez ni les autres voitures ni leurs autres colonnes.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -262,10 +261,11 @@ SELECT * FROM Voiture ORDER BY immat ASC;</pre></div>
     </div>
     <p class="lab__note">La vérification affiche toutes les voitures après la modification.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La nouvelle valeur peut être calculée à partir de l’ancienne : km + 10.</li>
         <li>Utilisez WHERE pour ne conserver que les kilométrages strictement inférieurs à 5.</li>
+        <li>Étapes : cibler la copie de Voiture, ne retenir que les lignes de km strictement inférieur à 5, remplacer km par km + 10, laisser tout le reste intact.</li>
       </ol>
     </details>
   </div>
@@ -273,7 +273,6 @@ SELECT * FROM Voiture ORDER BY immat ASC;</pre></div>
 
 <div class="lab" id="sq-c6-e2" data-lab
      data-exercise="sq-c6-e2"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');&#10;UPDATE Voiture SET datecirc = NULL WHERE immat IN ('TG-3733-AC', 'TG-9420-AF');&#10;-- VERIFY:&#10;SELECT * FROM Voiture ORDER BY immat ASC;&#10;SELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequipement ASC;">
@@ -282,13 +281,11 @@ SELECT * FROM Voiture ORDER BY immat ASC;</pre></div>
     <h3 class="lab__title">Exercice 2 — Supprimer des lignes ciblées avec DELETE ... WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Supprimer uniquement les lignes répondant à un critère précis avec DELETE FROM.</p>
-    <p class="lab__note" id="sq-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Pour cet exercice sur une copie du parc, supprimez de <code>Voiture</code> uniquement les lignes dont la date de circulation <code>datecirc</code> est <code>NULL</code>. Conservez les autres voitures ; une chaîne vide n’est pas <code>NULL</code>. Le parc initial du simulateur ne comporte pas de date absente : certains jeux sont adaptés pour l’exercice.</p><p>Les clés étrangères étant activées, les associations des voitures supprimées disparaissent automatiquement de <code>VoitureEquipement</code> ; les équipements eux-mêmes sont conservés.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -365,10 +362,11 @@ SELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequi
     </div>
     <p class="lab__note">La vérification affiche les voitures et associations conservées après les suppressions.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>DELETE FROM supprime des lignes ; la clause WHERE limite la suppression.</li>
         <li>Testez l’absence de date avec IS NULL.</li>
+        <li>Étapes : cibler Voiture, retenir uniquement les lignes dont datecirc est absente, supprimer ces lignes, conserver toutes les autres.</li>
       </ol>
     </details>
   </div>
@@ -376,7 +374,6 @@ SELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequi
 
 <div class="lab" id="sq-c6-e3" data-lab
      data-exercise="sq-c6-e3"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -385,13 +382,11 @@ SELECT immat, codeequipement FROM VoitureEquipement ORDER BY immat ASC, codeequi
     <h3 class="lab__title">Exercice 3 — Sous-requête dans WHERE</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Utiliser une sous-requête (IN / SELECT) pour filtrer selon les données d’une seconde table.</p>
-    <p class="lab__note" id="sq-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Dans <code>Voiture</code>, affichez <code>immat</code> et <code>marque</code> pour les voitures dont la marque a <code>paysmarque = 'JAPON'</code> dans la table <code>Marque</code>. Reliez les deux tables par <code>codemarque</code> et triez par <code>immat</code> croissante.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -452,10 +447,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">Le jeu contient des voitures de deux marques japonaises.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Une sous-requête sur Marque peut renvoyer les codes de toutes les marques japonaises.</li>
         <li>Utilisez IN pour comparer le code de chaque voiture à cet ensemble, puis triez par immat.</li>
+        <li>Étapes : chercher dans Marque les codes de pays JAPON, retenir les voitures dont le code y figure, projeter immat et marque, trier par immat croissante.</li>
       </ol>
     </details>
   </div>
@@ -468,9 +464,9 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <div class="q">
       <p class="q__stem">Que fait UPDATE sans clause WHERE ?</p>
       <div class="opts">
-        <button class="opt">Rien</button>
         <button class="opt" data-correct="1">Il modifie toutes les lignes de la table</button>
-        <button class="opt">Il modifie la première ligne</button>
+        <button class="opt">Rien, la commande est refusée</button>
+        <button class="opt">Il modifie uniquement la première ligne</button>
       </div>
       <div class="q__exp">Sans condition, la modification s’applique à toute la table.</div>
     </div>
@@ -487,25 +483,25 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
       <p class="q__stem">Quelle commande ajoute une colonne à une table existante ?</p>
       <div class="opts">
         <button class="opt">UPDATE</button>
-        <button class="opt" data-correct="1">ALTER TABLE … ADD COLUMN</button>
         <button class="opt">INSERT</button>
+        <button class="opt" data-correct="1">ALTER TABLE … ADD COLUMN</button>
       </div>
-      <div class="q__exp">ALTER TABLE fait évoluer la structure.</div>
+      <div class="q__exp">Seul ALTER TABLE modifie la structure : ADD COLUMN ajoute la colonne ; UPDATE change des valeurs et INSERT ajoute des lignes.</div>
     </div>
     <div class="q">
       <p class="q__stem">En MySQL, un compte nouvellement créé avant tout GRANT possède…</p>
       <div class="opts">
         <button class="opt">le droit de lire toutes les bases</button>
-        <button class="opt" data-correct="1">aucun privilège par défaut</button>
         <button class="opt">le droit de créer des tables</button>
+        <button class="opt" data-correct="1">aucun privilège par défaut</button>
       </div>
       <div class="q__exp">Le compte ne reçoit aucun privilège par défaut ; la connexion dépend aussi de l’authentification.</div>
     </div>
     <div class="q">
       <p class="q__stem">En MySQL 8.4 avec le joker actif, 'leader'@'192.168.66.%' désigne…</p>
       <div class="opts">
-        <button class="opt">un hôte uniquement : 192.168.66.9</button>
         <button class="opt" data-correct="1">un motif d’hôte commençant par 192.168.66.</button>
+        <button class="opt">un hôte uniquement : 192.168.66.9</button>
         <button class="opt">un joker sur le login</button>
       </div>
       <div class="q__exp">% élargit le motif d’hôte ; cet usage est déprécié dans MySQL 8.4.</div>
@@ -638,7 +634,7 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -142,55 +142,55 @@ module.exports = {
       stem: 'Dans quelle situation topologique une fusion Fast-Forward est-elle possible ?',
       opts: [
         'Lorsque les deux branches ont créé des commits différents au même moment',
-        'Lorsque la branche cible est un ancêtre direct de la branche source sans aucune divergence',
         'Uniquement lorsque tous les fichiers modifiés ont des extensions différentes',
+        'Lorsque la branche cible est un ancêtre direct de la branche source sans aucune divergence',
         'Lorsque le dépôt est configuré avec le moteur de fusion ORT en mode multi-parents'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Fast-Forward n’est possible que si la branche réceptrice n’a pas divergé par rapport à l’ancêtre commun de la branche à intégrer. Git déplace simplement le pointeur vers l’amont.'
     },
     {
       stem: 'Combien de parents possède un commit généré par une fusion tridirectionnelle classique (3-Way Merge) ?',
       opts: [
         'Exactement 1 parent',
-        'Exactement 2 parents',
+        'Aucun parent (c’est un commit racine orphelin)',
         '3 parents (l’ancêtre commun et les deux têtes)',
-        'Aucun parent (c’est un commit racine orphelin)'
+        'Exactement 2 parents'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un commit de fusion standard à deux branches possède exactement deux parents : le commit HEAD courant et le commit de la branche intégrée.'
     },
     {
       stem: 'Quel est le rôle du Lowest Common Ancestor (LCA) lors d’une fusion à 3 voies ?',
       opts: [
-        'Il sert de point de référence neutre pour comparer les deltas intervenus sur chacune des deux branches',
         'Il supprime automatiquement tous les conflits de code sans intervention humaine',
+        'Il sert de point de référence neutre pour comparer les deltas intervenus sur chacune des deux branches',
         'Il calcule l’empreinte SHA-256 finale du dépôt',
         'Il verrouille la branche distante pendant l’opération'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le LCA est le dernier ancêtre commun le plus proche dans le DAG. Git compare les modifications de la branche locale par rapport au LCA et de la branche distante par rapport au LCA pour identifier les vrais conflits.'
     },
     {
       stem: 'Quelle directive de « git rebase -i » permet de fondre un commit dans le précédent en éliminant son message ?',
       opts: [
-        'squash',
         'fixup',
+        'squash',
         'reword',
         'drop'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La commande fixup fusionne les modifications dans le commit situé au-dessus de lui dans la liste tout en ignorant son message de commit, contrairement à squash qui ouvre un éditeur pour concaténer les messages.'
     },
     {
       stem: 'Pourquoi est-il formellement interdit de rebaser une branche publique partagée sur GitHub ?',
       opts: [
         'Parce que le rebase consomme trop de bande passante réseau',
-        'Parce que le rebase modifie les hashes SHA de tous les commits rejoués, provoquant une divergence pour les pairs',
+        'Parce que les fichiers binaires LFS sont supprimés lors du rebase',
         'Parce que Git bloque automatiquement les commandes rebase sur les serveurs distants',
-        'Parce que les fichiers binaires LFS sont supprimés lors du rebase'
+        'Parce que le rebase modifie les hashes SHA de tous les commits rejoués, provoquant une divergence pour les pairs'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Chaque commit rebasé reçoit un nouveau parent, donc un nouvel identifiant SHA. Pour les autres membres de l’équipe qui se basaient sur les anciens commits, l’historique est brisé et entre en conflit violent.'
     },
     {
@@ -218,12 +218,12 @@ module.exports = {
     {
       stem: 'Quelle commande permet de forcer la création d’un commit de fusion même si un Fast-Forward est réalisable ?',
       opts: [
-        'git merge --ff-only',
         'git merge --no-ff',
+        'git merge --ff-only',
         'git merge --squash',
         'git merge --rebase'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’option --no-ff désactive le comportement par défaut d’avance rapide et force Git à créer un commit de fusion dédié, préservant la trace explicite de l’existence d’une branche de fonctionnalité.'
     }
   ],

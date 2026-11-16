@@ -132,56 +132,56 @@ module.exports = {
     {
       q: 'Dans un tableau du simplexe en maximisation, à quel moment s’arrête l’algorithme avec la certitude d’avoir trouvé l’optimum ?',
       opts: [
-        'Lorsque tous les coûts réduits de la ligne d’indicateurs sont négatifs ou nuls (Δj ≤ 0)',
-        'Lorsque toutes les variables de décision valent zéro',
-        'Lorsque le second membre b devient négatif',
-        'Après exactement 10 itérations'
+        "Lorsque toutes les variables de décision sont nulles dans la base courante",
+        "Lorsque le second membre b devient négatif dans la colonne de droite",
+        "Lorsque tous les coûts réduits de la ligne d’indicateurs sont négatifs ou nuls (Δj ≤ 0)",
+        "Après un nombre fixe d’itérations, typiquement dix pour un problème standard"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Si tous les coûts réduits sont $\\le 0$, aucune variable hors-base ne peut améliorer la fonction objectif, la solution est optimale.'
     },
     {
       q: 'Selon le critère de Dantzig pour un problème MAX, quelle variable choisit-on pour entrer dans la base ?',
       opts: [
-        'Celle qui possède le coût réduit le plus strictement positif',
+        'Celle dont le coefficient dans la première ligne est nul',
         'Celle qui a la plus petite valeur absolue',
         'Celle qui a le plus petit indice j',
-        'Celle dont le coefficient dans la première ligne est nul'
+        'Celle qui possède le coût réduit le plus strictement positif'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La règle de Dantzig sélectionne la variable promettant le plus fort taux d’accroissement unitaire de la fonction objectif.'
     },
     {
       q: 'Pourquoi la règle du ratio minimum (b_i / a_ik) impose-t-elle de ne considérer que les coefficients a_ik strictement positifs (a_ik > 0) ?',
       opts: [
-        'Pour garantir que la nouvelle solution de base reste non négative (réalisable)',
-        'Pour éviter une division par un nombre complexe',
-        'Parce que les coûts réduits sont positifs',
-        'C’est une convention purement esthétique'
+        "Pour éviter une division par un nombre complexe lors du pivotage",
+        "Parce que les coûts réduits de la ligne d’indicateurs sont tous positifs",
+        "Pure convention d’écriture du tableau, sans effet sur la solution",
+        "Pour garantir que la nouvelle solution de base reste non négative (réalisable)"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Augmenter la variable entrante diminue les variables de base proportionnellement à $a_{ik}$. Si $a_{ik} > 0$, la variable de base s’annule à $b_i / a_{ik}$. Le ratio minimum garantit qu’aucune variable ne devient négative.'
     },
     {
       q: 'Que conclut l’algorithme du simplexe si, pour une variable entrante choisie, tous les coefficients de la colonne pivot sont négatifs ou nuls (a_ik ≤ 0) ?',
       opts: [
-        'Le problème est non borné (la fonction objectif peut croître vers l’infini sans jamais violer les contraintes)',
-        'Le problème est irréalisable',
-        'La solution optimale vaut zéro',
-        'Le pivotage est impossible et l’algorithme recommence'
+        "Le problème est irréalisable : aucune solution ne satisfait l’ensemble des contraintes",
+        "La solution optimale vaut exactement zéro et l’algorithme s’arrête immédiatement",
+        "Le problème est non borné (la fonction objectif peut croître vers l’infini sans jamais violer les contraintes)",
+        "Le pivotage devient impossible et l’algorithme doit repartir depuis la base initiale"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Si aucun coefficient n’est positif, la variable entrante peut augmenter indéfiniment sans qu’aucune variable de base ne diminue : $Z \\to +\\infty$.'
     },
     {
       q: 'Quelle règle de brisure d’égalité (tie-breaking) permet de choisir la variable de plus petit indice pour éviter le phénomène de cyclage ?',
       opts: [
-        'La règle de Bland',
         'La règle de Cramer',
+        'La règle de Bland',
         'La règle de L’Hôpital',
         'La règle de Simpson'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La règle de Bland (Robert Bland, 1977) garantit formellement l’absence de bouclage infini en cas de dégénérescence.'
     },
     {
@@ -198,23 +198,23 @@ module.exports = {
     {
       q: 'Après l’opération de pivot de Gauss-Jordan sur l’élément (r, c), que vaut l’élément de pivot lui-même et les autres coefficients de sa colonne ?',
       opts: [
-        'Le pivot vaut 1 et tous les autres éléments de la colonne valent 0',
-        'Le pivot vaut 0 et les autres valent 1',
-        'Tous les éléments valent -1',
-        'La colonne est supprimée du tableau'
+        "Le pivot vaut 0 et tous les autres éléments de la colonne valent 1",
+        "Tous les éléments de la colonne pivot valent -1 après le pivotage",
+        "La colonne du pivot est entièrement supprimée du tableau du simplexe",
+        "Le pivot vaut 1 et tous les autres éléments de la colonne valent 0"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le pivotage crée une colonne de la matrice identité : un 1 sur la ligne pivot $r$ et des 0 partout ailleurs.'
     },
     {
       q: 'Comment qualifie-t-on une solution de base réalisable dans laquelle au moins une variable de base a une valeur égale à zéro (b_i = 0) ?',
       opts: [
-        'Une solution de base dégénérée',
-        'Une solution non bornée',
         'Une solution imaginaire',
+        'Une solution non bornée',
+        'Une solution de base dégénérée',
         'Une solution asymptotique'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La présence d’un zéro dans le vecteur de base caractérise la dégénérescence, où plus de $n$ hyperplans se coupent en un même sommet.'
     }
   ],

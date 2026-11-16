@@ -110,13 +110,13 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quelle sauvegarde copie l’ensemble des données ?', opts: ['Complète', 'Incrementielle', 'Differentielle'], correct: 0, exp: 'La complète copie tout, à chaque fois.' },
+    { stem: 'Quelle sauvegarde copie l’ensemble des données ?', opts: ['Differentielle', 'Incrementielle', 'Complète'], correct: 2, exp: "La sauvegarde complète copie l’intégralité des données à chaque exécution. L’incrémentielle ne retient que les changements depuis la dernière sauvegarde — ce n’est pas « tout, à chaque fois »." },
     { stem: 'Une incrementalielle copie les modifications depuis…', opts: ['La dernière sauvegarde', 'La dernière complète', 'Le début du mois'], correct: 0, exp: 'Elle repart de la sauvegarde précédente, quelle qu’elle soit.' },
-    { stem: 'Une differentielle copie les modifications depuis…', opts: ['La dernière complète', 'La dernière sauvegarde', 'La veille'], correct: 0, exp: 'Elle s’appuie toujours sur la complète de référence.' },
+    { stem: 'Une differentielle copie les modifications depuis…', opts: ['La dernière sauvegarde', 'La dernière complète', 'La veille'], correct: 1, exp: 'Elle s’appuie toujours sur la complète de référence.' },
     { stem: 'Quelle sauvegarde est la plus rapide ?', opts: ['Incrementielle', 'Complete', 'Differentielle'], correct: 0, exp: 'Peu de données ont changé : elle dure une fraction du temps.' },
-    { stem: 'Quelle restauration est la plus simple ?', opts: ['Complete', 'Incrementielle', 'Differentielle'], correct: 0, exp: 'Un seul jeu de données à remettre.' },
-    { stem: 'Que signifie la stratégie 3-2-1 ?', opts: ['3 copies, 2 supports, 1 hors site', '3, 2 et 1 jours', '3 serveurs'], correct: 0, exp: 'Trois copies, sur deux types de supports, dont une hors site.' },
-    { stem: 'Quel plan vise la continuité sans arrêt ?', opts: ['PCA', 'PRA', 'SLA'], correct: 0, exp: 'Le PCA cherche à ne jamais interrompre le service.' },
+    { stem: 'Quelle restauration est la plus simple ?', opts: ['Differentielle', 'Incrementielle', 'Complete'], correct: 2, exp: "La restauration complète remet un seul jeu de données. L’incrémentielle exige de rejouer toute la chaîne des sauvegardes antérieures, dans l’ordre." },
+    { stem: 'Que signifie la stratégie 3-2-1 ?', opts: ['3, 2 et 1 jours', '3 copies, 2 supports, 1 hors site', '3 serveurs'], correct: 1, exp: 'Trois copies, sur deux types de supports, dont une hors site.' },
+    { stem: 'Quel plan vise la continuité sans arrêt ?', opts: ['PRA', 'PCA', 'SLA'], correct: 1, exp: 'Le PCA cherche à ne jamais interrompre le service.' },
     { stem: 'Que faut-il impérativement tester ?', opts: ['La restauration', 'La couleur des icônes', 'Le nom du serveur'], correct: 0, exp: 'Une stratégie non testée peut échouer au pire moment.' }
   ],
 

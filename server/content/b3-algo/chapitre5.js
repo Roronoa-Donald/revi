@@ -92,23 +92,23 @@ module.exports = {
     {
       "stem": "Pourquoi l’algorithme de Dijkstra exige-t-il des poids strictement positifs ou nuls ?",
       "opts": [
-        "Pour éviter la division par zéro",
         "Parce qu’il suppose qu’une fois la distance d’un sommet finalisée, elle ne pourra plus jamais être réduite",
-        "Parce que les ordinateurs ne savent pas stocker d’entiers négatifs",
-        "Pour limiter le nombre de sommets"
+        "Pour éviter une division par zéro dans la formule de mise à jour des distances intermédiaires",
+        "Parce que les processeurs ne savent pas représenter les poids négatifs en complément à deux",
+        "Pour limiter le nombre de sommets explorés et garantir un temps de réponse borné"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "Dijkstra est un algorithme glouton : dès qu’un sommet est extrait avec la distance minimale courante, il est figé définitivement. Un arc négatif ultérieur pourrait violer cette hypothèse."
     },
     {
       "stem": "Quelle est l’opération fondamentale exécutée pour chaque arc sortant dans Dijkstra et Bellman-Ford ?",
       "opts": [
         "La division euclidienne",
-        "Le relâchement d’arc (relaxation)",
+        "La rotation AVL",
         "La compression de chemin",
-        "La rotation AVL"
+        "Le relâchement d’arc (relaxation)"
       ],
-      "correct": 1,
+      "correct": 3,
       "exp": "Le relâchement (relaxation) consiste à tester si passer par l’arc courant permet de découvrir un chemin plus court vers le sommet d’arrivée."
     },
     {
@@ -125,10 +125,10 @@ module.exports = {
     {
       "stem": "Comment détecte-t-on la présence d’un cycle absorbant (cycle négatif) avec Bellman-Ford ?",
       "opts": [
-        "Si la file de priorité déborde",
+        "Si la file de priorité déborde lors de l’insertion répétée d’un même sommet déjà finalisé",
         "Si une |V|-ième passe supplémentaire de relaxation parvient encore à réduire la distance d’au moins un sommet",
-        "Si la somme des degrés est impaire",
-        "Si le graphe est non orienté"
+        "Si la somme des degrés des sommets du graphe est impaire, ce qui signe un cycle impossible à relâcher",
+        "Si le graphe est non orienté, car chaque arête peut alors être relâchée dans les deux sens"
       ],
       "correct": 1,
       "exp": "Après |V|-1 passes, toutes les distances des chemins simples sont figées. Si un arc peut encore être relâché à la |V|-ième passe, c’est qu’il appartient à un cycle absorbant infini."
@@ -136,12 +136,12 @@ module.exports = {
     {
       "stem": "Quel protocole de routage réseau dynamique utilise directement l’algorithme de Dijkstra pour calculer les tables de routage ?",
       "opts": [
-        "BGP",
-        "RIP",
         "OSPF (Open Shortest Path First)",
+        "RIP",
+        "BGP",
         "DNS"
       ],
-      "correct": 2,
+      "correct": 0,
       "exp": "Le protocole OSPF (ainsi que IS-IS) est un protocole à état de liens qui utilise l’algorithme de Dijkstra (SPF) pour déterminer le chemin de coût minimal à travers le réseau."
     },
     {
@@ -149,21 +149,21 @@ module.exports = {
       "opts": [
         "0",
         "-1",
-        "float(\"inf\")",
-        "None"
+        "None",
+        "float(\"inf\")"
       ],
-      "correct": 2,
+      "correct": 3,
       "exp": "Initialisée à l’infini (float(\"inf\")), la distance d’un sommet qui ne reçoit aucun chemin depuis la source conserve sa valeur infinie."
     },
     {
       "stem": "Comment reconstitue-t-on le chemin optimal entre la source et la cible à partir du dictionnaire parent généré par Dijkstra ?",
       "opts": [
-        "En partant de la source et en tirant au sort les voisins",
+        "En partant de la source et en tirant au sort les voisins jusqu’à rejoindre la cible par hasard",
+        "En triant les sommets par nom alphabétique puis en concaténant leurs identifiants dans cet ordre",
         "En partant de la cible et en remontant de parent en parent jusqu’à atteindre None à la source, puis en inversant la liste",
-        "En triant les sommets par nom",
-        "Ce n’est pas possible"
+        "Ce n’est pas possible, car l’algorithme ne mémorise aucune information de chemin pendant son exécution"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Chaque sommet stocke son prédécesseur optimal. On remonte de la destination vers la source, puis on inverse la liste de sommets pour obtenir le chemin dans le bon sens."
     }
   ],

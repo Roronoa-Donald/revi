@@ -228,75 +228,75 @@ module.exports = {
   questions: [
     {
       stem: 'Quelle commande permet de passer du mode Utilisateur (Router>) au mode Privilégié (Router#) ?',
-      opts: ['configure terminal', 'enable', 'login', 'super-user'],
-      correct: 1,
+      opts: ['enable', 'configure terminal', 'login', 'super-user'],
+      correct: 0,
       exp: 'La commande enable permet d’accéder au mode Privilégié (Privileged EXEC mode). Elle est généralement protégée par le mot de passe configuré via enable secret.'
     },
     {
       stem: 'Dans quelle mémoire réside le fichier de configuration actuellement actif et en cours d’exécution par le processeur ?',
-      opts: ['La mémoire NVRAM', 'La mémoire flash', 'La mémoire vive (RAM)', 'La mémoire morte (ROM)'],
-      correct: 2,
+      opts: ['La mémoire NVRAM', 'La mémoire vive (RAM)', 'La mémoire flash', 'La mémoire morte (ROM)'],
+      correct: 1,
       exp: 'La running-config est chargée et exécutée en mémoire vive (RAM). Elle est volatile et sera effacée en cas de coupure de courant si elle n’est pas copiée en NVRAM (startup-config).'
     },
     {
       stem: 'Quelle commande Cisco IOS enregistre de manière permanente les modifications de configuration pour le prochain démarrage ?',
       opts: [
         'save running-config',
-        'copy running-config startup-config',
         'commit configuration',
+        'copy running-config startup-config',
         'write startup-config'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La commande officielle est « copy running-config startup-config » (ou la commande historique équivalente « write memory »).'
     },
     {
       stem: 'Pourquoi est-il impératif d’utiliser « enable secret » plutôt que « enable password » ?',
       opts: [
-        'enable secret permet, selon la version et la compatibilité, un type 8 ou un type 9 ; enable password peut rester en clair ou utiliser un masquage faible',
-        'enable secret est la seule commande compatible avec IPv6',
-        'enable secret permet de définir plusieurs mots de passe simultanément',
-        'enable password est réservé aux commutateurs de niveau 3'
+        "enable secret est la seule commande d’authentification réellement compatible avec l’ensemble des réseaux IPv6 modernes",
+        "enable secret permet de définir plusieurs mots de passe simultanément actifs sur le même équipement",
+        "enable password est une commande exclusivement réservée aux commutateurs de niveau 3 et aux routeurs récents",
+        "enable secret permet, selon la version et la compatibilité, un type 8 ou un type 9 ; enable password peut rester en clair ou utiliser un masquage faible"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le type 5 fondé sur MD5 est faible ; les types 8 (PBKDF2-SHA-256) et 9 (scrypt) sont à privilégier lorsqu’ils sont compatibles avec la plateforme et sa politique de sécurité. Le type 7 est réversible.'
     },
     {
       stem: 'Quelle instruction interdit formellement les connexions Telnet non chiffrées sur les terminaux virtuels (lignes VTY) ?',
       opts: [
-        'no telnet server',
         'transport input ssh',
+        'no telnet server',
         'access-class ssh only',
         'crypto line vty force'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Dans le sous-mode line vty 0 4, la commande « transport input ssh » n’autorise que les sessions SSH chiffrées et rejette automatiquement toutes les tentatives de connexion Telnet en clair.'
     },
     {
       stem: 'Quelle taille de clé minimale est préconisée par Cisco pour la génération des clés RSA destinées à SSH version 2 ?',
-      opts: ['512 bits', '1024 bits', '2048 bits', '4096 bits obligatoire'],
-      correct: 2,
+      opts: ['512 bits', '2048 bits', '1024 bits', '4096 bits obligatoire'],
+      correct: 1,
       exp: 'Une clé RSA de 2048 bits est le standard recommandé moderne. Une clé inférieure à 768 bits interdit le passage en SSH v2 sous Cisco IOS.'
     },
     {
       stem: 'Dans la sortie de « show ip interface brief », que signifie l’état « Status: administratively down / Protocol: down » ?',
       opts: [
-        'Le câble réseau est débranché ou coupé',
-        'L’interface a été désactivée manuellement par un administrateur et nécessite la commande no shutdown',
-        'L’adresse IP configurée est en conflit avec une autre machine',
-        'L’horloge de synchronisation série est mal réglée'
+        "Le câble réseau reliant l’équipement est physiquement débranché ou coupé net",
+        "L’adresse IP configurée est en conflit avec celle d’une autre machine du réseau",
+        "L’horloge de synchronisation série est mal réglée sur le routeur distant",
+        "L’interface a été désactivée manuellement par un administrateur et nécessite la commande no shutdown"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Status « administratively down » indique que la commande shutdown est active sur l’interface. Pour la rendre opérationnelle, l’administrateur doit entrer dans l’interface et taper « no shutdown ».'
     },
     {
       stem: 'Que réalise la commande globale « service password-encryption » ?',
       opts: [
-        'Elle chiffre les mots de passe visibles en clair dans le fichier de configuration pour masquer leur lecture à l’écran',
-        'Elle active le protocole IPsec sur toutes les interfaces',
-        'Elle génère les clés SSH publiques et privées',
-        'Elle empêche toute modification de configuration par console'
+        "Elle active automatiquement le protocole IPsec sur l’ensemble des interfaces actives",
+        "Elle génère automatiquement les paires de clés SSH publiques et privées du routeur",
+        "Elle chiffre les mots de passe visibles en clair dans le fichier de configuration pour masquer leur lecture à l’écran",
+        "Elle empêche toute modification ultérieure de la configuration passant par la console"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Elle masque certains mots de passe dans la configuration au moyen du type 7, réversible et faible : ce masquage ne protège pas les secrets si la configuration est divulguée.'
     }
   ],

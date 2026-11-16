@@ -137,38 +137,32 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier d’analyse &amp; Bac à sable</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Écrivez un calcul, ' +
-    'donnez-lui ses données, exécutez-le et lisez ce qu’il affiche. C’est ici qu’une formule devient un réflexe.</p>',
+    '  <p class="lead">Un espace structuré dans la page pour rédiger vos raisonnements d’algèbre linéaire, vérifier vos étapes et conserver vos brouillons par notion.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
-      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
-      '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
-      '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
+      '      <li><strong>Rédiger par cas</strong> structure vos réponses étape par étape dans la grille dédiée.</li>',
+      '      <li><strong>Données du cas</strong> rassemble les paramètres de référence soumis à l’étude.</li>',
+      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand une vérification échoue, pourquoi l’approche diverge et comment la corriger.</li>',
+      '      <li>Votre brouillon est conservé dans ce navigateur, par exercice et par cours.</li>',
       '    </ul>'
     ].join('\n')),
     '  <h2>Zone libre</h2>',
     [
       '<div class="lab" data-lab',
       '     data-language="analyse"',
-      '     data-height="360"',
-      '     data-languages="1"',
-      '     data-stdin="1&#10;1&#10;1">',
-      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
+      '     data-height="360">',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Zone libre : simulez votre calcul matriciel]\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — produit matrice × vecteur</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Python</span>',
+      '      <span class="lab__lang">' + ic('layers') + ' Étude de cas</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
       '    <p class="lab__goal"><strong>Objectif :</strong> expérimenter sans conséquence. Prenez une notion du cours ' +
-      '(produit, transposée, déterminant, rang), programmez-la et testez-la sur des cas limites.</p>',
+      '(produit, transposée, déterminant, rang), détaillez les étapes et validez votre raisonnement sur des cas limites.</p>',
       '    <div class="lab__brief">',
-      '      <p>Le script proposé calcule le produit d’une matrice fixe par un vecteur fourni dans les données du cas. ' +
-      'Modifiez la matrice, change la dimension, ou remplacez tout le script par le calcul que vous voulez vérifier.</p>',
-      '      <p>Une erreur n’est pas un échec : c’est le message que Python vous laisse pour comprendre ce qu’il attendait.</p>',
+      '      <p>La grille proposée permet de poser librement les étapes d’un calcul matriciel ou d’un système linéaire.</p>',
       '    </div>',
       '    <div class="lab__sample">',
       '      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1',
@@ -178,7 +172,6 @@ function atelier(course) {
       '4',
       '5</pre></div>',
       '    </div>',
-      '    <p class="lab__note">Trois lignes attendues : déplie « Entrée du programme » et saisis-les avant d’exécuter.</p>',
       '  </div>',
       '</div>'
     ].join('\n'),
@@ -490,7 +483,7 @@ function examens(course) {
     sujets.map(sujet => '  <h2>' + sujet.title + '</h2>\n\n  <p class="lead">' + sujet.intro + '</p>\n\n' +
       sujet.items.map(itemHtml).join('\n\n')).join('\n\n'),
     '  <h2>QCM final — toutes notions</h2>',
-    '  ' + qcm(mastery, { mastery: true }),
+    '  ' + qcm(mastery, { mastery: true, secure: true }),
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },

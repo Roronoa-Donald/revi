@@ -116,8 +116,8 @@ module.exports = [
           '\n' +
           '     [1 2]   [3  6]\n' +
           '3 ·  [0 4] = [0 12]</code></pre>',
-          '<p>Ces deux opérations donnent à l’ensemble des matrices <code>m × n</code> une structure ' +
-          'd’espace vectoriel — la notion du chapitre 4. Retenez dès maintenant leurs propriétés :</p>',
+          '<p>Puisque ces deux opérations agissent case par case comme sur des nombres réels ordinaires, ' +
+          'elles obéissent aux mêmes règles de calcul élémentaires sur l’ensemble des matrices de même format <code>m × n</code> :</p>',
           '<ul>\n' +
           '    <li><code>A + B = B + A</code> (commutative) ;</li>\n' +
           '    <li><code>(A + B) + C = A + (B + C)</code> (associative) ;</li>\n' +
@@ -130,12 +130,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quelles sont les dimensions d’une matrice à 3 lignes et 4 colonnes ?', opts: ['4 × 3', '3 × 4', '12'], correct: 1, exp: 'On écrit toujours lignes × colonnes : 3 × 4.' },
-      { stem: 'Dans la notation <code>a<sub>ij</sub></code>, que désigne j ?', opts: ['La ligne', 'La colonne', 'La valeur'], correct: 1, exp: 'i = ligne, j = colonne : « Ligne Avant Colonne ».' },
+      { stem: 'Quelles sont les dimensions d’une matrice à 3 lignes et 4 colonnes ?', opts: ['4 × 3', '12', '3 × 4'], correct: 2, exp: 'On écrit toujours lignes × colonnes : 3 × 4.' },
+      { stem: 'Dans la notation <code>a<sub>ij</sub></code>, que désigne j ?', opts: ['La colonne', 'La ligne', 'La valeur'], correct: 0, exp: 'i = ligne, j = colonne : « Ligne Avant Colonne ».' },
       { stem: 'Deux matrices peuvent être additionnées si…', opts: ['elles ont la même diagonale', 'elles ont les mêmes dimensions', 'elles sont carrées'], correct: 1, exp: 'L’addition est coefficient par coefficient : les dimensions doivent coïncider.' },
-      { stem: 'Qu’est-ce que la matrice identité I<sub>n</sub> ?', opts: ['Des 1 partout', 'Des 1 sur la diagonale, des 0 ailleurs', 'Des 0 sur la diagonale'], correct: 1, exp: 'I<sub>n</sub> joue le rôle du 1 pour le produit matriciel.' },
-      { stem: 'Que vaut <code>tr(A)</code> pour A = [2 1 ; 5 3] ?', opts: ['5', '7', '11'], correct: 0, exp: 'tr(A) = a₁₁ + a₂₂ = 2 + 3 = 5.' },
-      { stem: 'Une matrice 2 × 5 contient combien de coefficients ?', opts: ['7', '10', '25'], correct: 1, exp: '2 × 5 = 10 coefficients.' }
+      { stem: 'Qu’est-ce que la matrice identité I<sub>n</sub> ?', opts: ["Des 1 sur la diagonale, des 0 ailleurs","Des 1 dans toutes les cases de la matrice","Des 0 sur la diagonale, des 1 ailleurs"], correct: 0, exp: 'I<sub>n</sub> joue le rôle du 1 pour le produit matriciel.' },
+      { stem: 'Que vaut <code>tr(A)</code> pour A = [2 1 ; 5 3] ?', opts: ['11', '7', '5'], correct: 2, exp: "La trace somme les coefficients diagonaux : tr(A) = a₁₁ + a₂₂ = 2 + 3 = 5 ; 7 additionnerait aussi un coefficient hors diagonale et 11 toute la matrice." },
+      { stem: 'Une matrice 2 × 5 contient combien de coefficients ?', opts: ['7', '10', '25'], correct: 1, exp: "Une matrice 2 × 5 compte 2 × 5 = 10 coefficients ; 7 additionnerait lignes et colonnes et 25 ne garderait qu’une dimension." }
     ],
 
     pitfalls: [
@@ -314,9 +314,9 @@ module.exports = [
 
     questions: [
       { stem: 'Le produit A · B existe si…', opts: ['A et B sont carrées', 'colonnes(A) = lignes(B)', 'lignes(A) = lignes(B)'], correct: 1, exp: 'La taille du produit est (lignes de A) × (colonnes de B).' },
-      { stem: 'Quelle est la taille du produit d’une 2 × 3 par une 3 × 5 ?', opts: ['3 × 3', '2 × 5', '5 × 2'], correct: 1, exp: 'On garde les lignes de la première et les colonnes de la seconde.' },
-      { stem: 'Le produit matriciel est…', opts: ['commutatif', 'associatif mais non commutatif', 'ni l’un ni l’autre'], correct: 1, exp: '(A·B)·C = A·(B·C), mais A·B ≠ B·A en général.' },
-      { stem: 'Que vaut <code><sup>t</sup>(A · B)</code> ?', opts: ['<sup>t</sup>A · <sup>t</sup>B', '<sup>t</sup>B · <sup>t</sup>A', 'A · B'], correct: 1, exp: 'L’ordre s’inverse : « la transposée du produit retourne la file ».' },
+      { stem: 'Quelle est la taille du produit d’une 2 × 3 par une 3 × 5 ?', opts: ['2 × 5', '3 × 3', '5 × 2'], correct: 0, exp: 'On garde les lignes de la première et les colonnes de la seconde.' },
+      { stem: 'Le produit matriciel est…', opts: ['commutatif', 'ni l’un ni l’autre', 'associatif mais non commutatif'], correct: 2, exp: '(A·B)·C = A·(B·C), mais A·B ≠ B·A en général.' },
+      { stem: 'Que vaut <code><sup>t</sup>(A · B)</code> ?', opts: ['<sup>t</sup>A · <sup>t</sup>B', 'A · B', '<sup>t</sup>B · <sup>t</sup>A'], correct: 2, exp: 'L’ordre s’inverse : « la transposée du produit retourne la file ».' },
       { stem: 'Que vaut <code>tr(A · B)</code> comparé à <code>tr(B · A)</code> ?', opts: ['Ils sont égaux', 'Le premier est le double', 'Impossible à comparer'], correct: 0, exp: 'La trace du produit est invariante par échange des facteurs.' },
       { stem: 'Une matrice est symétrique lorsque…', opts: ['elle est carrée', '<sup>t</sup>A = A', 'tous ses coefficients sont positifs'], correct: 1, exp: 'Symétrie autour de la diagonale : a<sub>ij</sub> = a<sub>ji</sub>.' }
     ],
@@ -499,11 +499,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Une matrice carrée est inversible si et seulement si…', opts: ['elle n’a pas de zéros', 'det(A) ≠ 0', 'elle est symétrique'], correct: 1, exp: 'det(A) ≠ 0 ⇔ A inversible ⇔ rang(A) = n.' },
+      { stem: 'Une matrice carrée est inversible si et seulement si…', opts: ['det(A) ≠ 0', 'elle n’a pas de zéros', 'elle est symétrique'], correct: 0, exp: 'det(A) ≠ 0 ⇔ A inversible ⇔ rang(A) = n.' },
       { stem: 'Que vaut <code>A⁻¹</code> pour A = [[a, b], [c, d]] ?', opts: ['[[d, −b], [−c, a]]', '1/det(A) · [[d, −b], [−c, a]]', '1/det(A) · [[a, −b], [−c, d]]'], correct: 1, exp: 'Il ne faut pas oublier la division par le déterminant.' },
       { stem: 'Parmi ces opérations, laquelle est interdite ?', opts: ['L1 ↔ L2', 'L2 ← 3·L2', 'L2 ← L1'], correct: 2, exp: 'Remplacer une ligne par une autre fait perdre de l’information.' },
-      { stem: 'Dans [ A | I ], à quoi aboutit Gauss-Jordan ?', opts: ['[ I | A⁻¹ ]', '[ A⁻¹ | I ]', '[ I | A ]'], correct: 0, exp: 'Quand A devient I, ce qui reste à droite est l’inverse.' },
-      { stem: 'Après échelonnement d’un système 3 × 3 on lit la ligne <code>[0 0 0 | 5]</code>. Conclusion ?', opts: ['Trois solutions', 'Aucune solution', 'Une infinité de solutions'], correct: 1, exp: '0 = 5 est impossible : le système est incompatible.' },
+      { stem: 'Dans [ A | I ], à quoi aboutit Gauss-Jordan ?', opts: ['[ I | A ]', '[ A⁻¹ | I ]', '[ I | A⁻¹ ]'], correct: 2, exp: 'Quand A devient I, ce qui reste à droite est l’inverse.' },
+      { stem: 'Après échelonnement d’un système 3 × 3 on lit la ligne <code>[0 0 0 | 5]</code>. Conclusion ?', opts: ['Aucune solution', 'Trois solutions', 'Une infinité de solutions'], correct: 0, exp: '0 = 5 est impossible : le système est incompatible.' },
       { stem: 'Que vaut det(A) si A·B = I ?', opts: ['0', 'Il est non nul', '1 exactement'], correct: 1, exp: 'A est inversible, donc son déterminant ne peut pas être nul.' }
     ],
 

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -83,7 +81,7 @@
 
 <h2>1. Emprunter des bits</h2>
 
-<p>Créer des sous-réseaux, c'est <strong>emprunter des bits à la partie hôte</strong> en les mettant à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : 2^emprunt (3 bits = 8 sous-réseaux). Les <strong>bits restants</strong> déterminent les hôtes valides de chaque sous-réseau IPv4 ordinaire jusqu’à /30 : 2^(bits restants) - 2 (5 bits restants = 30 hôtes valides — l'adresse réseau et l'adresse de diffusion sont retirées). Une liaison /31 point-à-point fait exception.</p>
+<p>Créer des sous-réseaux, c'est <strong>emprunter des bits à la partie hôte</strong> en les mettant à 1 dans le masque. Les <strong>bits empruntés</strong> déterminent le nombre de sous-réseaux : 2^emprunt (3 bits = 8 sous-réseaux). Selon la formule générale $2^h - 2$ (où $h$ désigne les <strong>bits restants</strong> pour la partie hôte), chaque sous-réseau IPv4 ordinaire jusqu’à /30 offre 2^(bits restants) - 2 hôtes valides (5 bits restants = 30 hôtes valides — l'adresse réseau et l'adresse de diffusion sont retirées).</p>
 <p>Le <strong>nouveau masque</strong> se lit sur le dernier octet : 3 bits empruntés donnent 11100000, soit 128 + 64 + 32 = <strong>224</strong> — masque 255.255.255.224, ou <strong>/27</strong> en notation CIDR. Deux bits donnent 192 (/26), un bit 128 (/25), quatre bits 240 (/28).</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « chaque bit emprunté double les réseaux et divise les hôtes »</div>
@@ -96,8 +94,14 @@
 
 <h2>2. VLSM et CIDR</h2>
 
-<p>Avec le découpage classique, tous les sous-réseaux d'un réseau portaient le même masque : inefficace quand un bureau n'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> (Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau principal</strong> : /30 pour les liaisons point-à-point (2 hôtes), /26 pour les gros bureaux. Sur une liaison <strong>/31 point-à-point</strong> compatible avec la RFC 3021, les deux adresses sont utilisables comme adresses d’interface. Un /32 désigne une adresse unique, souvent une route d’hôte. Source : <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a>, consultée le 30 octobre 2026.</p>
+<p>Avec le découpage classique, tous les sous-réseaux d'un réseau portaient le même masque : inefficace quand un bureau n'a besoin que de 5 hôtes et un autre de 50. Le <strong>VLSM</strong> (Variable Length Subnet Masking) permet <strong>différents masques au sein du même réseau principal</strong> : /30 pour les liaisons point-à-point classiques ($2^2 - 2 = 2$ hôtes), /26 pour les gros bureaux.</p>
 <p>Le <strong>CIDR</strong> (Classless Inter-Domain Routing), adopté au début des années 90, rend obsolète le système de classes et standardise le VLSM. La <strong>notation CIDR</strong> écrit le nombre de bits réseau après un slash : 192.168.1.0/27 — ancienne classe C sous-réseautée ; 10.0.0.0/30 — liaison point-à-point. Le choix de la taille exacte optimise l'espace d'adressage global.</p>
+<h3>Pour aller plus loin — Cas particuliers avancés (/31 RFC 3021 et /32)</h3>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Pour aller plus loin — Cas particuliers avancés (/31 RFC 3021 et /32)</div>
+    <p>Une fois la règle générale $2^h - 2$ maîtrisée jusqu’à /30, deux préfixes spéciaux d’ingénierie réseau font exception :</p>
+    <p>Sur une liaison <strong>/31 point-à-point</strong> compatible avec la RFC 3021, les deux adresses sont utilisables comme adresses d’interface (une liaison /31 point-à-point fait exception au retrait réseau/diffusion). Un <strong>/32</strong> désigne une adresse unique, souvent une route d’hôte ou une interface de bouclage (loopback). Source : <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a>, consultée le 30 octobre 2026.</p>
+  </div>
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Confusions d'examen</div>
     <ul>
@@ -166,10 +170,11 @@ agence3 1
 </pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le nombre d’adresses IP d’un bloc CIDR de préfixe /p vaut 2^(32 - p).</li>
         <li>Dans cette grille /25 à /30, retirer l’adresse réseau et l’adresse de diffusion : N_hôtes = 2^k - 2 ; le /31 point-à-point est hors grille.</li>
+        <li>Calculez /24+k, le nombre de sous-réseaux 2^k et les hôtes utilisables 2^(8-k) - 2 en respectant le format exact « /XX (R sous-reseaux, H hotes) ».</li>
       </ol>
     </details>
   </div>
@@ -223,10 +228,11 @@ agence3 4
 </pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>L'octet vaut 256 moins la puissance de deux restante : 256 - (1 &lt;&lt; (8 - emprunt)).</li>
         <li>L'emprunt de 4 bits donne 240 : c'est le /28 à compter.</li>
+        <li>Additionnez les k bits à 1 de poids fort sur le 4e octet (128, 192, 224, 240, 248, 252) et accolez le suffixe « (/prefix) ».</li>
       </ol>
     </details>
   </div>
@@ -281,10 +287,11 @@ siege 100
 </pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Une boucle while augmente k tant que (2^k - 2) est inférieur au besoin ; le préfixe vaut 32 - k.</li>
         <li>Dans ce modèle, comptez comme « liaisons » les blocs /30 de capacité 2.</li>
+        <li>Prenez la plus petite puissance de 2 telle que 2^h - 2 &gt;= besoin (ex. 2 hôtes -&gt; /30, 30 hôtes -&gt; /27) et vérifiez le décompte des liaisons /30.</li>
       </ol>
     </details>
   </div>
@@ -301,40 +308,40 @@ siege 100
         <button class="opt" data-correct="1">8 sous-réseaux</button>
         <button class="opt">30 sous-réseaux</button>
       </div>
-      <div class="q__exp">2^3 = 8 sous-réseaux possibles.</div>
+      <div class="q__exp">Chaque bit emprunté double le nombre de sous-réseaux : 2^3 = 8 sous-réseaux possibles ; répondre 3 confond bits empruntés et sous-réseaux créés.</div>
     </div>
     <div class="q">
       <p class="q__stem">Avec 5 bits d'hôte restants, un sous-réseau offre…</p>
       <div class="opts">
         <button class="opt">32 hôtes</button>
-        <button class="opt" data-correct="1">30 hôtes</button>
         <button class="opt">5 hôtes</button>
+        <button class="opt" data-correct="1">30 hôtes</button>
       </div>
-      <div class="q__exp">2^5 - 2 : réseau et diffusion retirés.</div>
+      <div class="q__exp">Cinq bits d'hôte donnent 2^5 = 32 adresses, moins l'adresse de réseau et celle de diffusion : 30 hôtes valides.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le masque 255.255.255.224 correspond à…</p>
       <div class="opts">
         <button class="opt">/26</button>
-        <button class="opt" data-correct="1">/27</button>
         <button class="opt">/28</button>
+        <button class="opt" data-correct="1">/27</button>
       </div>
-      <div class="q__exp">11100000 = 224 : 3 bits empruntés, /27.</div>
+      <div class="q__exp">224 s'écrit 11100000 en binaire : 3 bits à 1 empruntés au-delà des 24 du /24, donc 24 + 3 = 27, soit /27.</div>
     </div>
     <div class="q">
       <p class="q__stem">Emprunter 2 bits donne un dernier octet de…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">192</button>
         <button class="opt">224</button>
+        <button class="opt" data-correct="1">192</button>
         <button class="opt">240</button>
       </div>
-      <div class="q__exp">11000000 = 128 + 64 = 192.</div>
+      <div class="q__exp">Deux bits empruntés à gauche du dernier octet valent 11000000 en binaire, soit 128 + 64 = 192 ; le masque devient 255.255.255.192.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le VLSM permet…</p>
       <div class="opts">
-        <button class="opt">un masque unique par réseau</button>
         <button class="opt" data-correct="1">des masques différents dans un même réseau</button>
+        <button class="opt">un masque unique par réseau</button>
         <button class="opt">d'ignorer le routage</button>
       </div>
       <div class="q__exp">Tailles variées : /30 pour les liaisons, /26 pour les bureaux.</div>
@@ -351,9 +358,9 @@ siege 100
     <div class="q">
       <p class="q__stem">Une liaison /31 point-à-point compatible RFC 3021 utilise…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ses deux adresses pour les interfaces</button>
-        <button class="opt">aucune adresse utilisable</button>
         <button class="opt">une adresse pour diffusion obligatoire</button>
+        <button class="opt">aucune adresse utilisable</button>
+        <button class="opt" data-correct="1">ses deux adresses pour les interfaces</button>
       </div>
       <div class="q__exp">La RFC 3021 autorise les deux adresses sur une liaison point-à-point compatible ; /30 reste une option classique.</div>
     </div>
@@ -481,7 +488,7 @@ siege 100
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

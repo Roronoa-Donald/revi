@@ -76,11 +76,11 @@ module.exports = {
   questions: [
     { stem: 'Par où démarre un programme Java ?', opts: ['La méthode main', 'La première ligne', 'Le constructeur'], correct: 0, exp: 'La machine virtuelle cherche public static void main(String[] args).' },
     { stem: 'Quel type pour un décimal ?', opts: ['int', 'double', 'boolean'], correct: 1, exp: 'double représente les nombres à virgule flottante.' },
-    { stem: 'Que vaut 7 / 2 en Java ?', opts: ['3.5', '3', '4'], correct: 1, exp: 'Deux entiers donnent une division entière : 3.' },
-    { stem: 'Comment obtenir un décimal ?', opts: ['7 / 2', '7.0 / 2', '7 mod 2'], correct: 1, exp: 'Un opérande double suffit à produire un résultat décimal.' },
-    { stem: 'Que fait le signe + entre une chaîne et un nombre ?', opts: ['Il additionne', 'Il concatène', 'Il compare'], correct: 1, exp: 'Dès qu’un opérande est une chaîne, + concatène.' },
-    { stem: 'Quel objet lit le clavier ?', opts: ['Scanner', 'Reader', 'Printer'], correct: 0, exp: 'Scanner(System.in) lit l’entrée standard.' },
-    { stem: 'Que fait System.out.println ?', opts: ['Lit une ligne', 'Affiche une ligne', 'Efface l’écran'], correct: 1, exp: 'println affiche, puis passe à la ligne suivante.' },
+    { stem: 'Que vaut 7 / 2 en Java ?', opts: ['3.5', '4', '3'], correct: 2, exp: 'Deux entiers donnent une division entière : 3.' },
+    { stem: 'Comment obtenir un décimal ?', opts: ['7 / 2', '7 mod 2', '7.0 / 2'], correct: 2, exp: 'Un opérande double suffit à produire un résultat décimal.' },
+    { stem: 'Que fait le signe + entre une chaîne et un nombre ?', opts: ['Il concatène', 'Il additionne', 'Il compare'], correct: 0, exp: 'Dès qu’un opérande est une chaîne, + concatène.' },
+    { stem: 'Quel objet lit le clavier ?', opts: ['Reader', 'Scanner', 'Printer'], correct: 1, exp: 'Scanner(System.in) lit l’entrée standard.' },
+    { stem: 'Que fait System.out.println ?', opts: ['Lit une ligne', 'Efface l’écran', 'Affiche une ligne'], correct: 2, exp: 'println affiche, puis passe à la ligne suivante.' },
     { stem: 'Pourquoi formater avec Locale.US ?', opts: ['Pour accélérer', 'Pour garder le point décimal', 'Pour arrondir'], correct: 1, exp: 'La locale française utiliserait la virgule comme séparateur.' }
   ],
 

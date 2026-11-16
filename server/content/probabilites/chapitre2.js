@@ -83,14 +83,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Le principe multiplicatif dit que…', opts: ['on additionne les choix', 'on multiplie les choix des étapes', 'on divise les choix'], correct: 1, exp: 'm choix puis n choix donnent m × n chemins.' },
-    { stem: 'Quand utilise-t-on un arrangement ?', opts: ['Quand l’ordre compte', 'Quand l’ordre ne compte pas', 'Jamais'], correct: 0, exp: 'A(n,k) tient compte de l’ordre des k objets choisis.' },
-    { stem: 'Quand utilise-t-on une combinaison ?', opts: ['Quand l’ordre compte', 'Quand l’ordre ne compte pas', 'Toujours'], correct: 1, exp: 'C(n,k) ignore l’ordre : c’est un choix de sous-ensemble.' },
+    { stem: 'Le principe multiplicatif dit que…', opts: ['on additionne les choix', 'on divise les choix', 'on multiplie les choix des étapes'], correct: 2, exp: 'm choix puis n choix donnent m × n chemins.' },
+    { stem: 'Quand utilise-t-on un arrangement ?', opts: ['Jamais', 'Quand l’ordre ne compte pas', 'Quand l’ordre compte'], correct: 2, exp: 'A(n,k) tient compte de l’ordre des k objets choisis.' },
+    { stem: 'Quand utilise-t-on une combinaison ?', opts: ['Quand l’ordre ne compte pas', 'Quand l’ordre compte', 'Toujours'], correct: 0, exp: 'C(n,k) ignore l’ordre : c’est un choix de sous-ensemble.' },
     { stem: 'Formule de C(n,k) ?', opts: ['n!/(n−k)!', 'n!/(k!(n−k)!)', 'n!·k!'], correct: 1, exp: 'On divise l’arrangement par k! pour oublier l’ordre.' },
-    { stem: 'Combien d’anagrammes pour AAB ?', opts: ['3', '6', '2'], correct: 0, exp: '3!/2! = 6/2 = 3 anagrammes distincts.' },
-    { stem: 'Le coefficient binomial C(n,k) sert dans…', opts: ['le binôme de Newton', 'la dérivée', 'l’intégrale'], correct: 0, exp: '(a+b)ⁿ = Σ C(n,k) aᵏ bⁿ⁻ᵏ.' },
-    { stem: 'Combien d’anagrammes pour ABCD ?', opts: ['24', '12', '4'], correct: 0, exp: 'Lettres distinctes : 4! = 24.' },
-    { stem: 'Pourquoi diviser par les factorielles des effectifs ?', opts: ['Pour compter les répétitions comme identiques', 'Pour accélérer', 'Pour l’ordre'], correct: 0, exp: 'Les permutations d’éléments identiques donnent le même mot.' }
+    { stem: 'Combien d’anagrammes pour AAB ?', opts: ['3', '6', '2'], correct: 0, exp: "Les 3! = 6 permutations comptent deux fois chaque mot car les deux A sont indiscernables : 6/2! = 3 anagrammes distincts. Répondre 6 compterait le même mot plusieurs fois." },
+    { stem: 'Le coefficient binomial C(n,k) sert dans…', opts: ['la dérivée', 'le binôme de Newton', 'l’intégrale'], correct: 1, exp: "C(n,k) développe le binôme : (a+b)ⁿ = Σ C(n,k) aᵏ bⁿ⁻ᵏ, en comptant les parties à k éléments. Le distracteur « la dérivée » est faux : nulle règle de dérivation ne mobilise ce coefficient." },
+    { stem: 'Combien d’anagrammes pour ABCD ?', opts: ['4', '12', '24'], correct: 2, exp: "Quatre lettres distinctes donnent 4! = 4×3×2×1 = 24 anagrammes, chaque permutation formant un mot différent. Le distracteur 12 supposerait à tort des lettres répétées comme dans AAB." },
+    { stem: 'Pourquoi diviser par les factorielles des effectifs ?', opts: ["Pour accélérer le calcul des factorielles","Pour imposer un ordre dans le dénombrement","Pour compter les répétitions comme identiques"], correct: 2, exp: "Les permutations d’éléments identiques donnent le même mot : diviser par les factorielles des effectifs fusionne ces doublons. Il ne s’agit ni d’accélérer le calcul, ni de trier les tirages." }
   ],
 
   pitfalls: [

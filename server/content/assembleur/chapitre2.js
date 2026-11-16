@@ -117,6 +117,25 @@ module.exports = {
         '   Mis à 1 si un débordement d’entier SIGNÉ s’est produit en complément à 2\n' +
         '   (ex. +100 + +50 = +150 &rarr; dépassement de la plage -128..+127 &rarr; OF=1).\n</code></pre>'
       ].join('\n')
+    },
+    {
+      title: 'Trace d’exécution ALU &amp; Simulateur interactif des drapeaux EFLAGS',
+      html: [
+        '<p>Vérifions concrètement la mise à jour des sous-registres 8 bits (<code>AH</code>, <code>AL</code>) et des drapeaux ' +
+        'lors d’une retenue non signée (<code>CF</code>) puis d’une comparaison (<code>CMP</code>) :</p>',
+        '<table class="table">',
+        '  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>AX</th><th>BX</th><th>ZF</th><th>SF</th><th>CF</th><th>OF</th><th>Diagnostic ALU</th></tr></thead>',
+        '  <tbody>',
+        '    <tr><td>1</td><td><code>MOV AL, 0xFF</code></td><td><code>0x00FF</code></td><td><code>0x0000</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Initialise <code>AL = 255</code> (<code>-1</code> signé sur 8 bits).</td></tr>',
+        '    <tr><td>2</td><td><code>ADD AL, 0x01</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td>1</td><td>0</td><td>1</td><td>0</td><td>Débordement non signé 8 bits : $255 + 1 = 0$ avec retenue <code>CF=1</code> et résultat nul <code>ZF=1</code>.</td></tr>',
+        '    <tr><td>3</td><td><code>MOV AH, 0x02</code></td><td><code>0x0200</code></td><td><code>0x0000</code></td><td>1</td><td>0</td><td>1</td><td>0</td><td>Écrire <code>0x02</code> dans <code>AH</code> place <code>AX</code> à <code>0x0200</code> (512).</td></tr>',
+        '    <tr><td>4</td><td><code>MOV BX, 0x0200</code></td><td><code>0x0200</code></td><td><code>0x0200</code></td><td>1</td><td>0</td><td>1</td><td>0</td><td>Charge la même valeur 16 bits dans <code>BX</code>.</td></tr>',
+        '    <tr><td>5</td><td><code>CMP AX, BX</code></td><td><code>0x0200</code></td><td><code>0x0200</code></td><td>1</td><td>0</td><td>0</td><td>0</td><td>Calcule <code>AX - BX = 0</code> sans modifier <code>AX</code> : égalité détectée par <code>ZF=1</code>.</td></tr>',
+        '  </tbody>',
+        '</table>',
+        '<div class="asm-sim" data-asm-simulator data-asm-code="MOV AL, 0xFF\\nADD AL, 0x01\\nMOV AH, 0x02\\nMOV BX, 0x0200\\nCMP AX, BX\\nHLT"></div>',
+        '<script src="/assets/js/engines/asm-simulator.js" defer></script>'
+      ].join('\n')
     }
   ],
 
@@ -124,34 +143,34 @@ module.exports = {
     {
       stem: 'Dans quelle phase du cycle machine le processeur analyse-t-il l’opcode binaire pour activer les circuits adaptés ?',
       opts: [
-        'Décodage (Decode)',
-        'Recherche (Fetch)',
         'Exécution (Execute)',
+        'Recherche (Fetch)',
+        'Décodage (Decode)',
         'Réécriture (Writeback)'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'C’est durant la phase Decode que l’Unité de Contrôle déchiffre l’opcode binaire et prépare les opérandes.'
     },
     {
       stem: 'Quel est le temps d’accès typique aux données stockées dans les registres du processeur ?',
       opts: [
-        'Inférieur à 1 cycle d’horloge (< 1 ns)',
+        '1 seconde',
         'Environ 100 à 200 cycles d’horloge',
         'Environ 10 millisecondes',
-        '1 seconde'
+        'Inférieur à 1 cycle d’horloge (< 1 ns)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Les registres sont les mémoires les plus rapides de l’ordinateur : ils répondent en une fraction de cycle d’horloge.'
     },
     {
       stem: 'En x86_64, si RAX contient 0xFFFFFFFFFFFFFFFF et qu’on exécute MOV EAX, 1, que devient RAX ?',
       opts: [
-        '0x0000000000000001 (les 32 bits supérieurs sont mis à zéro)',
-        '0xFFFFFFFF00000001',
-        '0xFFFFFFFFFFFFFFFF',
-        '0x00000001FFFFFFFF'
+        "0xFFFFFFFF00000001 (seule la partie basse de RAX est modifiée)",
+        "0x0000000000000001 (les 32 bits supérieurs sont mis à zéro)",
+        "0xFFFFFFFFFFFFFFFF (le registre reste inchangé par l’écriture 32 bits)",
+        "0x00000001FFFFFFFF (les 32 bits supérieurs reçoivent des uns)"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'En x86_64, toute écriture dans un sous-registre 32 bits effectue une extension par zéro sur les 32 bits de poids fort de RAX.'
     },
     {
@@ -168,34 +187,34 @@ module.exports = {
     {
       stem: 'Quand le drapeau Zero Flag (ZF) passe-t-il à 1 ?',
       opts: [
-        'Lorsque le résultat de l’opération arithmétique ou logique est strictement nul (0)',
-        'Lorsque le résultat est négatif',
-        'Lorsqu’il y a eu une division par zéro',
-        'Quand la pile est vide'
+        "Lorsque le résultat de l’opération est un nombre strictement négatif",
+        "Lorsqu’il y a eu une division par zéro lors de l’opération précédente",
+        "Quand la pile d’exécution du programme est entièrement vide",
+        "Lorsque le résultat de l’opération arithmétique ou logique est strictement nul (0)"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'ZF = 1 signale que le résultat vaut exactement zéro. C’est le test clé de l’égalité (A - B = 0).'
     },
     {
       stem: 'Quelle est la différence fondamentale entre le Carry Flag (CF) et l’Overflow Flag (OF) ?',
       opts: [
-        'CF signale un débordement en calcul non signé, tandis que OF signale un débordement en calcul signé',
-        'CF est pour les registres 64 bits, OF pour les registres 32 bits',
-        'CF s’applique uniquement à la multiplication, OF à l’addition',
-        'Il n’y a aucune différence'
+        "CF est réservé aux registres 64 bits, tandis que OF ne concerne que les registres 32 bits",
+        "CF s’applique uniquement à la multiplication, tandis que OF ne concerne que l’addition",
+        "CF signale un débordement en calcul non signé, tandis que OF signale un débordement en calcul signé",
+        "Il n’y a aucune différence, les deux drapeaux sont interchangeables"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'CF (retenue) gère l’arithmétique modulaire non signée, alors que OF (débordement) gère le dépassement en complément à 2 signé.'
     },
     {
       stem: 'Dans une addition 8 bits signée, que vaut le drapeau OF après l’opération 100 + 50 ?',
       opts: [
-        'OF = 1 (car 150 dépasse la borne maximale signée +127)',
-        'OF = 0',
-        'OF = -1',
-        'OF est indéfini'
+        "OF = 0, car la somme reste dans la plage signée sur 8 bits",
+        "OF = 1 (car 150 dépasse la borne maximale signée +127)",
+        "OF = -1, valeur négative signalant un débordement inverse",
+        "OF est indéfini, le résultat dépendant du processeur utilisé"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Deux nombres positifs dont la somme théorique (150) dépasse +127 provoquent un débordement signé (OF = 1).'
     },
     {

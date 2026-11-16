@@ -179,38 +179,38 @@ module.exports = {
   questions: [
     {
       stem: 'Quelle est la durée maximale d\'exécution (timeout limite) autorisée pour une fonction AWS Lambda avant interruption forcée ?',
-      opts: ['5 minutes', '15 minutes', '1 heure', 'Illimitée'],
-      correct: 1,
+      opts: ['5 minutes', '1 heure', '15 minutes', 'Illimitée'],
+      correct: 2,
       exp: 'Une fonction AWS Lambda peut s\'exécuter pendant une durée maximale de 15 minutes (900 secondes). Au-delà, l\'exécution est interrompue et il convient d\'employer AWS Batch, ECS ou EC2.'
     },
     {
       stem: 'Dans Amazon SQS, quel mécanisme permet d\'isoler automatiquement les messages ayant échoué à être traités après N tentatives infructueuses ?',
-      opts: ['Auto-scaling Queue', 'Dead-Letter Queue (DLQ)', 'Visibility Timeout infini', 'S3 Glacier Archive'],
-      correct: 1,
+      opts: ['Auto-scaling Queue', 'S3 Glacier Archive', 'Visibility Timeout infini', 'Dead-Letter Queue (DLQ)'],
+      correct: 3,
       exp: 'Une Dead-Letter Queue (DLQ) reçoit automatiquement les messages dont le compteur ReceiveCount atteint ou dépasse le seuil MaxReceiveCount configuré, isolant ainsi les messages toxiques.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre Amazon CloudWatch et AWS CloudTrail ?',
-      opts: ['CloudWatch est payant alors que CloudTrail est gratuit', 'CloudWatch surveille les métriques de performance et les logs ; CloudTrail enregistre l\'historique d\'audit de tous les appels API (qui a fait quoi)', 'CloudTrail ne fonctionne qu\'avec S3', 'Il n\'y a aucune différence'],
-      correct: 1,
+      opts: ["CloudWatch surveille les métriques de performance et les logs ; CloudTrail enregistre l'historique d'audit de tous les appels API (qui a fait quoi)","CloudWatch est un service payant alors que CloudTrail est entièrement gratuit, quelle que soit la région utilisée","CloudTrail ne fonctionne qu'avec les buckets S3 et les instances EC2, tous les autres services AWS étant exclus du suivi","Il n'y a aucune différence réelle : les deux services enregistrent exactement les mêmes journaux d'audit et de performance"],
+      correct: 0,
       exp: 'CloudWatch monitore l\'état opérationnel et les métriques des ressources (CPU, mémoire, requêtes). CloudTrail est un outil d\'audit de gouvernance qui trace l\'identité de l\'appelant et chaque requête API.'
     },
     {
       stem: 'Quel patron d\'architecture permet de dupliquer un message unique vers plusieurs files d\'attente SQS traitées en parallèle par différents services ?',
-      opts: ['Le patron Scatter-Gather', 'Le patron Fan-out (Amazon SNS vers plusieurs Amazon SQS)', 'Le patron Single Point of Failure', 'Le patron Round-Robin DNS'],
+      opts: ["Le patron Scatter-Gather avec agrégation des réponses","Le patron Fan-out (Amazon SNS vers plusieurs Amazon SQS)","Le patron Single Point of Failure concentré sur un nœud","Le patron Round-Robin DNS avec rotation d'adresses IP"],
       correct: 1,
       exp: 'Le pattern Fan-out consiste à publier un message sur un topic Amazon SNS, auquel sont abonnées plusieurs files SQS distinctes. SNS duplique et pousse le message vers chaque file en parallèle.'
     },
     {
       stem: 'Comment la puissance de calcul CPU et la bande passante réseau sont-elles allouées à une fonction AWS Lambda ?',
-      opts: ['Elles doivent être achetées sur une console dédiée', 'Elles sont allouées proportionnellement à la quantité de mémoire RAM configurée pour la fonction', 'Elles sont toujours plafonnées à 1 vCPU', 'Elles dépendent de la région uniquement'],
-      correct: 1,
+      opts: ["Elles doivent être achetées à l'unité sur une console dédiée de réservation de capacité","Elles sont toujours plafonnées à 1 vCPU, quelle que soit la mémoire configurée","Elles sont allouées proportionnellement à la quantité de mémoire RAM configurée pour la fonction","Elles dépendent uniquement de la région de déploiement, pas de la mémoire de la fonction"],
+      correct: 2,
       exp: 'Dans AWS Lambda, l\'unique curseur de performance est la mémoire RAM (128 MB à 10 GB). AWS alloue automatiquement la puissance CPU et le réseau de façon strictement proportionnelle à la RAM allouée.'
     },
     {
       stem: 'Quelle caractéristique technique distingue formellement une file Amazon SQS FIFO d\'une file SQS Standard ?',
-      opts: ['Les files FIFO ne supportent pas le format JSON', 'Les files FIFO garantissent un ordre de traitement strict (premier entré, premier sorti) et une livraison exactement une fois sans doublon', 'Les files FIFO sont gratuites sans limite', 'Les files FIFO ne peuvent contenir que 10 messages'],
-      correct: 1,
+      opts: ["Les files FIFO ne supportent pas le format JSON dans les charges utiles des messages échangés entre producteurs","Les files FIFO sont gratuites à l'usage, sans aucune limite de débit ni de quota de requêtes par seconde","Les files FIFO ne peuvent contenir que 10 messages en attente simultanément, au-delà tout envoi est rejeté","Les files FIFO garantissent un ordre de traitement strict (premier entré, premier sorti) et une livraison exactement une fois sans doublon"],
+      correct: 3,
       exp: 'Les files SQS FIFO (First-In-First-Out) garantissent que les messages sont remis strictement dans l\'ordre de leur émission et éliminent les doublons (exactly-once processing).'
     },
     {

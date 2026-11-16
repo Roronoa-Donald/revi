@@ -90,13 +90,13 @@ module.exports = [
 
     questions: [
       { q: 'Le Code civil est du droit…', opts: ['subjectif', 'objectif', 'naturel'], correct: 1, exp: 'Ensemble de règles qui gouvernent la vie en société : droit objectif.' },
-      { q: 'Le droit de propriété est…', opts: ['une règle objective', 'un droit subjectif', 'une sanction'], correct: 1, exp: 'Prérogative reconnue à un individu sous la protection des pouvoirs publics.' },
-      { q: 'La formule de Carbonnier dit que…', opts: ['le droit objectif protège les droits subjectifs', 'les droits subjectifs créent le droit objectif', 'le droit et la morale coïncident toujours'], correct: 0, exp: '« Si le droit nous permet de faire quelque chose, nous avons le droit de le faire. »' },
-      { q: 'Une règle de droit s\'adresse…', opts: ['à des personnes nommées', 'à des situations juridiques en général', 'aux juges seuls'], correct: 1, exp: 'Elle est générale et abstraite : elle vise des situations, pas des individus désignés.' },
-      { q: 'L\'amende et l\'emprisonnement sont des sanctions…', opts: ['civiles', 'administratives', 'pénales'], correct: 2, exp: 'Sanctions pénales ; les civiles sont des dommages-intérêts à la victime.' },
-      { q: 'Le retrait d\'autorisation par l\'administration est une sanction…', opts: ['disciplinaire', 'administrative', 'pénale'], correct: 1, exp: 'Prononcée par l\'administration : suspension d\'activité, retrait d\'autorisation.' },
-      { q: 'Le litige entre un fonctionnaire et son administration relève…', opts: ['du droit privé', 'du droit administratif', 'du droit commercial'], correct: 1, exp: 'Rapports entre administrations et usagers : droit administratif (branche du droit public).' },
-      { q: 'Ce qui distingue la règle de droit de la morale, c\'est…', opts: ['son ancienneté', 'son caractère coercitif et sanctionné par l\'État', 'sa source religieuse'], correct: 1, exp: 'La sanction est appliquée par l\'autorité publique : coercition étatique.' }
+      { q: 'Le droit de propriété est…', opts: ['un droit subjectif', 'une règle objective', 'une sanction'], correct: 0, exp: 'Prérogative reconnue à un individu sous la protection des pouvoirs publics.' },
+      { q: 'La formule de Carbonnier dit que…', opts: ['le droit et la morale coïncident toujours', 'les droits subjectifs créent le droit objectif', 'le droit objectif protège les droits subjectifs'], correct: 2, exp: '« Si le droit nous permet de faire quelque chose, nous avons le droit de le faire. »' },
+      { q: 'Une règle de droit s\'adresse…', opts: ["à des personnes désignées nommément","aux seuls magistrats chargés de l'appliquer","à des situations juridiques en général"], correct: 2, exp: 'Elle est générale et abstraite : elle vise des situations, pas des individus désignés.' },
+      { q: 'L\'amende et l\'emprisonnement sont des sanctions…', opts: ['civiles', 'pénales', 'administratives'], correct: 1, exp: 'Sanctions pénales ; les civiles sont des dommages-intérêts à la victime.' },
+      { q: 'Le retrait d\'autorisation par l\'administration est une sanction…', opts: ['administrative', 'disciplinaire', 'pénale'], correct: 0, exp: 'Prononcée par l\'administration : suspension d\'activité, retrait d\'autorisation.' },
+      { q: 'Le litige entre un fonctionnaire et son administration relève…', opts: ['du droit privé', 'du droit commercial', 'du droit administratif'], correct: 2, exp: 'Rapports entre administrations et usagers : droit administratif (branche du droit public).' },
+      { q: 'Ce qui distingue la règle de droit de la morale, c\'est…', opts: ["son caractère coercitif et sanctionné par l'État","son ancienneté : le droit existerait avant toute morale","sa source religieuse : toute règle émanerait d'un texte sacré"], correct: 0, exp: "La sanction est appliquée par l'autorité publique : coercition étatique, ce que la morale ne garantit pas." }
     ],
 
     pitfalls: [
@@ -233,14 +233,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Les sources directes du droit sont…', opts: ['la loi et la coutume', 'la jurisprudence et la doctrine', 'les décrets et les arrêtés'], correct: 0, exp: 'Sources principales ; jurisprudence et doctrine sont indirectes.' },
-      { q: 'La promulgation est l\'acte par lequel…', opts: ['la loi est insérée au journal officiel', 'le Président reconnaît la loi votée et ordonne son exécution', 'le Parlement vote'], correct: 1, exp: 'Promulgation = acte du Président ; publication = journal officiel.' },
-      { q: 'Le jour franc désigne…', opts: ['le délai de 24 h après la parution du journal officiel', 'le jour du vote', 'un jour férié'], correct: 0, exp: 'La loi entre en vigueur 24 h après la parution : après ce délai, nul ne peut l\'ignorer.' },
-      { q: 'L\'abrogation met fin…', opts: ['aux effets passés d\'une loi', 'à la force obligatoire d\'une loi pour l\'avenir', 'à la Constitution'], correct: 1, exp: 'Anéantissement pour l\'avenir : expresse (énoncée) ou tacite (incompatibilité).' },
-      { q: '« La loi ne dispose que pour l\'avenir » signifie…', opts: ['elle est rétroactive', 'elle n\'a pas d\'effet rétroactif', 'elle expire vite'], correct: 1, exp: 'Article 2 du code civil : non-rétroactivité ; effet immédiat sur les situations nouvelles et en cours.' },
-      { q: 'Les deux éléments constitutifs de la coutume sont…', opts: ['matériel et psychologique', 'écrit et oral', 'loi et règlement'], correct: 0, exp: 'Répétition prolongée de la pratique + croyance en son caractère obligatoire.' },
+      { q: 'Les sources directes du droit sont…', opts: ['la jurisprudence et la doctrine', 'la loi et la coutume', 'les décrets et les arrêtés'], correct: 1, exp: 'Sources principales ; jurisprudence et doctrine sont indirectes.' },
+      { q: 'La promulgation est l\'acte par lequel…', opts: ["le Président reconnaît la loi votée et ordonne son exécution","le texte voté est inséré au journal officiel","le Parlement adopte définitivement le texte en séance"], correct: 0, exp: 'Promulgation = acte du Président ; publication = journal officiel.' },
+      { q: 'Le jour franc désigne…', opts: ["le jour du vote du texte par les députés","le délai de 24 h après la parution du journal officiel","le jour férié qui suit l'adoption de la loi"], correct: 1, exp: 'La loi entre en vigueur 24 h après la parution : après ce délai, nul ne peut l\'ignorer.' },
+      { q: 'L\'abrogation met fin…', opts: ["aux effets passés d'une loi, rétroactivement","à la valeur suprême de la Constitution","à la force obligatoire d'une loi pour l'avenir"], correct: 2, exp: 'Anéantissement pour l\'avenir : expresse (énoncée) ou tacite (incompatibilité).' },
+      { q: '« La loi ne dispose que pour l\'avenir » signifie…', opts: ['elle est rétroactive', 'elle expire vite', 'elle n\'a pas d\'effet rétroactif'], correct: 2, exp: 'Article 2 du code civil : non-rétroactivité ; effet immédiat sur les situations nouvelles et en cours.' },
+      { q: 'Les deux éléments constitutifs de la coutume sont…', opts: ['écrit et oral', 'matériel et psychologique', 'loi et règlement'], correct: 1, exp: 'Répétition prolongée de la pratique + croyance en son caractère obligatoire.' },
       { q: 'La hiérarchie des normes ordonne…', opts: ['Constitution, traités, lois, règlements', 'lois, Constitution, règlements, traités', 'règlements, lois, traités, Constitution'], correct: 0, exp: 'Chaque règle doit être conforme à celle qui lui est supérieure.' },
-      { q: 'La jurisprudence est…', opts: ['l\'opinion des professeurs', 'l\'ensemble des décisions juridictionnelles concordantes', 'un texte voté'], correct: 1, exp: 'Décisions concordantes des juridictions sur des faits non prévus par la loi ; la doctrine est l\'opinion des auteurs.' }
+      { q: 'La jurisprudence est…', opts: ["l'opinion des professeurs et des auteurs sur le droit","l'ensemble des décisions juridictionnelles concordantes","un texte voté par le Parlement et promulgué"], correct: 1, exp: 'Décisions concordantes des juridictions sur des faits non prévus par la loi ; la doctrine est l\'opinion des auteurs.' }
     ],
 
     pitfalls: [
@@ -363,14 +363,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: '« Nul ne peut se faire justice » signifie…', opts: ['le particulier juge ses voisins', 'la fonction de juger appartient à l\'État', 'la vengeance est tolérée'], correct: 1, exp: 'La justice est un service public de l\'État.' },
-      { q: '« Le pouvoir arrête le pouvoir » résume…', opts: ['le double degré', 'la séparation des pouvoirs (Montesquieu)', 'l\'égalité devant la loi'], correct: 1, exp: 'Chaque pouvoir limite les autres ; le judiciaire est indépendant.' },
+      { q: '« Nul ne peut se faire justice » signifie…', opts: ['le particulier juge ses voisins', 'la vengeance est tolérée', 'la fonction de juger appartient à l\'État'], correct: 2, exp: 'La justice est un service public de l\'État.' },
+      { q: '« Le pouvoir arrête le pouvoir » résume…', opts: ["la séparation des pouvoirs (Montesquieu)","le double degré de juridiction","l'égalité de tous les justiciables devant la loi"], correct: 0, exp: 'Chaque pouvoir limite les autres ; le judiciaire est indépendant.' },
       { q: 'Le Conseil Supérieur de la Magistrature veille à…', opts: ['l\'indépendance des juges', 'la publication des lois', 'la rédaction des décrets'], correct: 0, exp: 'Garantie de l\'indépendance du pouvoir judiciaire.' },
       { q: 'Le premier degré de juridiction, c\'est…', opts: ['la Cour Suprême', 'le Tribunal de Première Instance', 'la Cour d\'Appel'], correct: 1, exp: 'Les TPI sont les juridictions de droit commun de premier degré.' },
-      { q: 'La Cour d\'Appel…', opts: ['crée des lois', 'examine les appels des décisions des TPI', 'remplace le TPI'], correct: 1, exp: 'Deuxième degré : elle réexamine le litige.' },
-      { q: 'Le double degré vise surtout…', opts: ['à retarder les procès', 'le rattrapage des erreurs des premiers juges', 'à doubler les amendes'], correct: 1, exp: 'Un second examen du litige : gage de bonne justice.' },
-      { q: 'L\'organisation judiciaire togolaise est régie par…', opts: ['la Constitution de 2024 seule', 'la loi N°2019-015 portant Code de l\'organisation judiciaire', 'un décret municipal'], correct: 1, exp: 'Loi N°2019-015 du 30 octobre 2019.' },
-      { q: 'L\'article 2 de la Constitution garantit…', opts: ['l\'égalité devant la loi sans discrimination', 'le droit de vote à 16 ans', 'la gratuité des procès'], correct: 0, exp: 'Non-discrimination : origine, race, ethnie, sexe, handicap, statut social, religion.' }
+      { q: 'La Cour d\'Appel…', opts: ["crée du droit en rendant des lois nouvelles","juge en premier ressort à la place du TPI","examine les appels des décisions des TPI"], correct: 2, exp: 'Deuxième degré : elle réexamine le litige.' },
+      { q: 'Le double degré vise surtout…', opts: ["le rattrapage des erreurs des premiers juges","à retarder les procès en multipliant les instances","à doubler les amendes prononcées contre le perdant"], correct: 0, exp: 'Un second examen du litige : gage de bonne justice.' },
+      { q: 'L\'organisation judiciaire togolaise est régie par…', opts: ["la Constitution de la République, seul texte applicable","un décret municipal pris par une mairie","la loi N°2019-015 portant Code de l'organisation judiciaire"], correct: 2, exp: "L'organisation judiciaire relève de la loi N°2019-015 du 30 octobre 2019 portant Code de l'organisation judiciaire ; la Constitution pose les principes mais un texte organique reste nécessaire, et un décret municipal n'a pas cette portée." },
+      { q: 'L\'article 2 de la Constitution garantit…', opts: ["le droit de vote dès l'âge de seize ans révolus","l'égalité devant la loi sans discrimination","la gratuité intégrale de tous les procès"], correct: 1, exp: 'Non-discrimination : origine, race, ethnie, sexe, handicap, statut social, religion.' }
     ],
 
     pitfalls: [

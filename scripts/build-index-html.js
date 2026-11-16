@@ -18,10 +18,7 @@ const indexHtml = `<!DOCTYPE html>
     <meta property="og:description" content="71 cours interactifs complets pour Licence 1, 2 et 3. Tous les premiers chapitres sont gratuits sans inscription.">
     <meta property="og:type" content="website">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+    <link rel="stylesheet" href="/assets/css/fonts.css">
 
     <link rel="stylesheet" href="assets/css/tokens.css">
     <link rel="stylesheet" href="assets/css/base.css">
@@ -56,7 +53,7 @@ const indexHtml = `<!DOCTYPE html>
                     <use href="/assets/img/ui-icons.svg#i-user"></use>
                 </svg>
             </a>
-            <button type="button" id="themeToggle" class="theme-toggle" aria-label="Activer le mode sombre">
+            <button type="button" id="themeToggle" class="theme-toggle" aria-label="Activer le mode sombre" aria-pressed="false">
                 <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <circle cx="12" cy="12" r="4"/>
                     <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
@@ -207,11 +204,13 @@ ${cardsHtml}
         }
         .prep-locked-msg__close:hover { background: color-mix(in srgb, var(--color-warning) 14%, transparent); }
 
-        /* Theme toggle icon visibility */
-        [data-theme="dark"] .theme-toggle__sun { display: none; }
-        [data-theme="light"] .theme-toggle__moon { display: none; }
-        [data-theme="dark"] .theme-toggle__moon,
-        [data-theme="light"] .theme-toggle__sun { display: block; }
+        /* Theme toggle icon visibility (shows the target mode icon, matching portal.css) */
+        [data-theme="light"] .theme-toggle__sun,
+        :root:not([data-theme="dark"]) .theme-toggle__sun { display: none; }
+        [data-theme="dark"] .theme-toggle__moon { display: none; }
+        [data-theme="dark"] .theme-toggle__sun,
+        [data-theme="light"] .theme-toggle__moon,
+        :root:not([data-theme="dark"]) .theme-toggle__moon { display: block; }
 
         /* Smooth scroll */
         html { scroll-behavior: smooth; }

@@ -137,44 +137,44 @@ module.exports = {
       stem: 'Face à un utilisateur paniqué demandant si son paiement a été débité suite à une erreur HTTP 502, quelle est la réponse de support la plus professionnelle ?',
       opts: [
         'Read the status codes, 502 means bad gateway on upstream Nginx.',
-        'We could not confirm your payment status. Please check it or contact support before trying again.',
+        'Our microservice crashed because of a null pointer exception.',
         'It is not our problem, your bank rejected the transaction.',
-        'Our microservice crashed because of a null pointer exception.'
+        'We could not confirm your payment status. Please check it or contact support before trying again.'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une 502 ne confirme pas l’état du paiement. La réponse indique l’incertitude et demande une vérification avant toute nouvelle tentative.'
     },
     {
       stem: 'Quel est l’objectif premier d’un Post-Mortem Blameless dans la culture SRE (Site Reliability Engineering) ?',
       opts: [
-        'Identifier l’ingénieur fautif pour lui infliger une sanction financière.',
-        'Comprendre les défaillances systémiques de l’infrastructure et mettre en place des garde-fous automatisés pour empêcher que l’incident ne se reproduise.',
-        'Rédiger un communiqué de presse pour accuser un fournisseur de matériel.',
-        'Archiver les logs dans un format propriétaire inaccessible.'
+        "Identifier l’ingénieur fautif de la chaîne de décision afin de lui infliger une sanction financière dissuasive et exemplaire.",
+        "Rédiger un communiqué de presse public pour accuser formellement un fournisseur de matériel défaillant devant les clients.",
+        "Comprendre les défaillances systémiques de l’infrastructure et mettre en place des garde-fous automatisés pour empêcher que l’incident ne se reproduise.",
+        "Archiver l’intégralité des journaux applicatifs dans un format propriétaire inaccessible aux équipes d’audit internes."
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’approche blameless vise à renforcer la résilience globale du système en corrigeant les failles d’automatisation, sans désigner de coupable humain.'
     },
     {
       stem: 'Selon la matrice de sévérité ITIL, quelle classification correspond à une panne totale du système d’authentification touchant l’ensemble des clients en pleine journée ?',
       opts: [
         'SEV-4 (Cosmetic)',
-        'SEV-3 (Minor Incident)',
+        'SEV-1 (Critical Outage)',
         'SEV-2 (Major Incident)',
-        'SEV-1 (Critical Outage)'
+        'SEV-3 (Minor Incident)'
       ],
-      correct: 3,
+      correct: 1,
       exp: 'Une panne complète d’un service vital sans solution de contournement immédiate relève du niveau critique SEV-1.'
     },
     {
       stem: 'Dans la méthode des 5 Pourquoi (5-Whys), pourquoi répète-t-on la question « Pourquoi ? » à cinq reprises ?',
       opts: [
-        'C’est une obligation imposée par le protocole TCP/IP.',
-        'Pour dépasser le symptôme superficiel immédiat et remonter jusqu’à la cause racine systémique et organisationnelle.',
-        'Pour épuiser psychologiquement les membres de l’équipe d’astreinte.',
-        'Pour faire correspondre le rapport aux cinq jours ouvrés de la semaine.'
+        "Pour dépasser le symptôme superficiel immédiat et remonter jusqu’à la cause racine systémique et organisationnelle.",
+        "Parce que le protocole TCP/IP impose cinq tentatives de retransmission avant tout diagnostic réseau.",
+        "Pour épuiser psychologiquement les membres de l’équipe d’astreinte mobilisée durant la gestion de l’incident.",
+        "Pour faire correspondre la longueur du rapport d’incident aux cinq jours ouvrés de la semaine de travail."
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Poser 5 fois la question permet d’explorer la chaîne causale en profondeur jusqu’à identifier l’absence d’un garde-fou technique ou procédural.'
     },
     {
@@ -182,30 +182,30 @@ module.exports = {
       opts: [
         'The deployment script lacked validation checks for unquoted variables.',
         'The database migration was slow due to a missing table index.',
-        'Alice was careless and made a stupid mistake by pushing bad code.',
-        'Monitoring thresholds were set too high to trigger an early alert.'
+        'Monitoring thresholds were set too high to trigger an early alert.',
+        'Alice was careless and made a stupid mistake by pushing bad code.'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Accuser personnellement Alice (« was careless », « stupid mistake ») est une violation directe et toxique de la culture blameless.'
     },
     {
       stem: 'Quel est le délai cible de prise en charge (Response SLA) généralement associé à un incident critique de niveau SEV-1 ?',
       opts: [
-        '15 minutes',
-        '24 heures',
         '3 jours ouvrés',
+        '24 heures',
+        '15 minutes',
         '1 semaine'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Un incident SEV-1 exige une mobilisation immédiate de l’Incident Commander et de l’astreinte sous 15 minutes maximum.'
     },
     {
       stem: 'Dans un contexte de support client, comment appelle-t-on l’action d’expliquer un problème technique complexe en termes compréhensibles pour un usager ordinaire ?',
       opts: [
-        'Obfuscation',
-        'Plain English Translation (Vulgarisation / Empathie)',
-        'Reverse Engineering',
-        'Data Scraping'
+        "Obfuscation (Rendre le message volontairement incompréhensible)",
+        "Plain English Translation (Vulgarisation / Empathie)",
+        "Reverse Engineering (Rétro-ingénierie du binaire)",
+        "Data Scraping (Extraction automatisée de données web)"
       ],
       correct: 1,
       exp: 'Le « Plain English Translation » consiste à reformuler sans condescendance le fonctionnement du système dans la langue courante de l’usager.'
@@ -213,12 +213,12 @@ module.exports = {
     {
       stem: 'Quelle est la dernière étape incontournable de tout post-mortem réussi ?',
       opts: [
-        'Supprimer tous les tickets de bug précédents.',
-        'Définir des actions correctives concrètes (Action Items), assignées à des responsables et vérifiées en production.',
-        'Organiser une fête pour célébrer la fin de la panne.',
-        'Recommencer l’analyse depuis le début.'
+        "Définir des actions correctives concrètes (Action Items), assignées à des responsables et vérifiées en production.",
+        "Supprimer tous les tickets de bug antérieurs afin d’alléger la base de suivi des anomalies de l’équipe.",
+        "Organiser une fête de fin d’incident pour célébrer collectivement la restauration du service en production.",
+        "Recommencer l’intégralité de l’analyse causale depuis le début avec une nouvelle équipe d’experts."
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Sans plan d’action correctif mesurable (tests ajoutés, alertes affinées, automatisation créée), un post-mortem reste lettre morte.'
     }
   ],

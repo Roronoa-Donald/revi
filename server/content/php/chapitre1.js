@@ -83,14 +83,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quelle est la différence entre classe et objet ?', opts: ['Aucune', 'La classe est le moule, l’objet l’instance', 'L’objet est le moule'], correct: 1, exp: 'La classe décrit la forme ; new en produit des objets (instances) distincts.' },
-    { stem: 'Quand le constructeur est-il exécuté ?', opts: ['À la déclaration de la classe', 'À la création avec new', 'Jamais'], correct: 1, exp: '__construct() s’exécute à chaque new, pour initialiser l’objet.' },
-    { stem: 'Que représente $this ?', opts: ['La classe', 'L’objet courant', 'Le constructeur'], correct: 1, exp: '$this est l’instance en cours d’utilisation.' },
-    { stem: 'Comment atteint-on une propriété en PHP ?', opts: ['$this.x', '$this->x', '$this::x'], correct: 1, exp: 'La flèche -> atteint membres et méthodes : $this->x.' },
+    { stem: 'Quelle est la différence entre classe et objet ?', opts: ["Aucune : les deux mots désignent la même chose","La classe est le moule, l’objet l’instance","L’objet est le moule, la classe l’instance"], correct: 1, exp: "La classe décrit la forme ; new en produit des objets (instances) distincts. Confondre les deux revient à confondre le plan et la maison construite." },
+    { stem: 'Quand le constructeur est-il exécuté ?', opts: ['À la création avec new', 'À la déclaration de la classe', 'Jamais'], correct: 0, exp: '__construct() s’exécute à chaque new, pour initialiser l’objet.' },
+    { stem: 'Que représente $this ?', opts: ['La classe', 'Le constructeur', 'L’objet courant'], correct: 2, exp: '$this est l’instance en cours d’utilisation.' },
+    { stem: 'Comment atteint-on une propriété en PHP ?', opts: ['$this.x', '$this::x', '$this->x'], correct: 2, exp: 'La flèche -> atteint membres et méthodes : $this->x.' },
     { stem: 'Que fait le point en PHP ?', opts: ['Il accède à un membre', 'Il concatène des chaînes', 'Il compare'], correct: 1, exp: 'Le point est l’opérateur de concaténation, pas d’accès aux membres.' },
-    { stem: 'Une propriété private est accessible…', opts: ['partout', 'seulement dans la classe', 'depuis les fonctions'], correct: 1, exp: 'private réserve l’accès au code de la classe elle-même.' },
-    { stem: 'Que promet `: string` après un nom de méthode ?', opts: ['Rien', 'Un type de retour', 'Un paramètre'], correct: 1, exp: 'C’est la déclaration du type renvoyé : le contrat est vérifié.' },
-    { stem: 'Deux objets d’une même classe partagent-ils leur état ?', opts: ['Oui', 'Non, chacun a le sien', 'Seulement en static'], correct: 1, exp: 'Chaque instance porte ses propres valeurs de propriétés.' }
+    { stem: 'Une propriété private est accessible…', opts: ['seulement dans la classe', 'partout', 'depuis les fonctions'], correct: 0, exp: 'private réserve l’accès au code de la classe elle-même.' },
+    { stem: 'Que promet `: string` après un nom de méthode ?', opts: ['Rien', 'Un paramètre', 'Un type de retour'], correct: 2, exp: 'C’est la déclaration du type renvoyé : le contrat est vérifié.' },
+    { stem: 'Deux objets d’une même classe partagent-ils leur état ?', opts: ['Non, chacun a le sien', 'Oui', 'Seulement en static'], correct: 0, exp: 'Chaque instance porte ses propres valeurs de propriétés.' }
   ],
 
   pitfalls: [

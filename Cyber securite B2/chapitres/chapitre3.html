@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -240,10 +238,11 @@ Résultat d’analyse attendu : <code>Action: &lt;ACTION&gt; (regle: &lt;REGLE_M
 tcp 80</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Les règles de pare-feu sont ordonnées : la première règle correspondante (First-Match) détermine le sort du paquet.</li>
         <li>En l’absence de règle explicite correspondante, appliquez la politique par défaut de filtrage.</li>
+        <li>Pour chaque paquet : parcourir les règles dans l ordre, appliquer la première dont protocole et port correspondent, sinon conclure selon la politique par défaut.</li>
       </ol>
     </details>
   </div>
@@ -298,10 +297,11 @@ Si aucun service vulnérable n’est détecté, afficher : <code>AUCUNE VULNERAB
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>21/ftp,22/ssh,80/http,23/telnet,443/https</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Repérez les protocoles non chiffrés vulnérables à l’écoute réseau : Telnet (23), FTP (21) ou HTTP (80).</li>
         <li>Préconisez la migration systématique vers leurs alternatives chiffrées sécurisées (SSH, SFTP, HTTPS).</li>
+        <li>Pour chaque port et service : vérifier s il figure dans la liste des services vulnérables, émettre l alerte associée, sinon conclure à l absence de vulnérabilité critique.</li>
       </ol>
     </details>
   </div>
@@ -357,10 +357,11 @@ Traitement :
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>192.168.1.1:aa:bb:cc:dd:ee:ff,192.168.1.10:11:22:33:44:55:66;is-at 192.168.1.1 00:11:22:33:44:55</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>L’usurpation ARP (ARP Spoofing) détourne le trafic en associant frauduleusement une IP à une fausse adresse MAC.</li>
         <li>Détectez les réponses ARP incohérentes ou les conflits d’adresses MAC pour une même passerelle.</li>
+        <li>Pour chaque réponse : chercher l adresse IP annoncée dans la table, comparer l adresse MAC ; la concordance donne un paquet légitime, la divergence un empoisonnement.</li>
       </ol>
     </details>
   </div>
@@ -373,19 +374,19 @@ Traitement :
     <div class="q">
       <p class="q__stem">Dans un pare-feu Linux iptables, quelle chaîne de la table filter inspecte les paquets qui traversent la machine d’une interface réseau à une autre ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">FORWARD</button>
+        <button class="opt">PREROUTING</button>
         <button class="opt">INPUT</button>
         <button class="opt">OUTPUT</button>
-        <button class="opt">PREROUTING</button>
+        <button class="opt" data-correct="1">FORWARD</button>
       </div>
       <div class="q__exp">La chaîne FORWARD traite les paquets qui ne sont ni émis par la machine locale ni destinés à celle-ci, mais qui sont routés d’une interface à une autre.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il crucial d’isoler les serveurs web publics dans une zone démilitarisée (DMZ) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Pour empêcher un pirate qui compromettrait le serveur web d’accéder directement et sans entrave au réseau interne de l’entreprise</button>
-        <button class="opt">Pour accélérer la vitesse de calcul du processeur du serveur web</button>
         <button class="opt">Parce que le protocole HTTPS ne peut pas fonctionner sur un réseau local standard</button>
+        <button class="opt">Pour accélérer la vitesse de calcul du processeur du serveur web</button>
+        <button class="opt" data-correct="1">Pour empêcher un pirate qui compromettrait le serveur web d’accéder directement et sans entrave au réseau interne de l’entreprise</button>
         <button class="opt">Pour éviter d’avoir à installer des antivirus sur les postes de travail</button>
       </div>
       <div class="q__exp">En cas de compromission d’un serveur en DMZ, la politique de filtrage interdit à la DMZ d’initier des connexions vers le réseau interne, limitant ainsi la propagation latérale de l’attaque.</div>
@@ -393,8 +394,8 @@ Traitement :
     <div class="q">
       <p class="q__stem">Lors d’un scan Nmap SYN (-sS), quelle réponse du serveur cible indique que le port testé est OUVERT ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Un paquet SYN-ACK</button>
         <button class="opt">Un paquet RST-ACK</button>
+        <button class="opt" data-correct="1">Un paquet SYN-ACK</button>
         <button class="opt">Une absence totale de réponse (timeout)</button>
         <button class="opt">Un paquet ICMP Port Unreachable</button>
       </div>
@@ -529,7 +530,7 @@ Traitement :
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

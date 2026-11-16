@@ -197,23 +197,23 @@ module.exports = {
     {
       q: 'Quelle est la caractéristique fondamentale d\'un hyperviseur de Type-1 par rapport à un hyperviseur de Type-2 ?',
       opts: [
-        'Il s\'exécute directement sur le matériel physique sans OS hôte sous-jacent.',
+        'Il utilise exclusivement une émulation logicielle complète de processeur.',
         'Il nécessite obligatoirement Windows Server pour gérer ses pilotes d\'E/S.',
         'Il ne permet de virtualiser que des conteneurs légers de type Docker.',
-        'Il utilise exclusivement une émulation logicielle complète de processeur.'
+        'Il s\'exécute directement sur le matériel physique sans OS hôte sous-jacent.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'L\'hyperviseur de Type-1 bare-metal (comme VMware ESXi ou XenServer) s\'installe directement sur le serveur physique nu et contrôle directement les ressources sans système d\'exploitation intermédiaire.'
     },
     {
       q: 'À quoi sert la technologie matérielle Intel EPT (Extended Page Tables) / AMD RVI ?',
       opts: [
         'À chiffrer les disques durs virtuels à la volée sur le contrôleur SAS.',
-        'À assurer la traduction matérielle d\'adresses mémoire de l\'OS invité vers l\'hôte (SLAT).',
         'À émuler une carte graphique 3D dédiée pour chaque machine virtuelle.',
+        'À assurer la traduction matérielle d\'adresses mémoire de l\'OS invité vers l\'hôte (SLAT).',
         'À fusionner les cartes réseaux physiques en un agrégat de liens 802.3ad.'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Intel EPT et AMD RVI (SLAT) fournissent une virtualisation matérielle de la mémoire (MMU) gérant la correspondance entre adresses mémoires virtuelles et physiques au niveau du processeur sans interception logicielle.'
     },
     {
@@ -242,33 +242,33 @@ module.exports = {
       q: 'Quelle est la conséquence si une machine virtuelle monopolise de la mémoire sur deux nœuds NUMA physiques distincts (accès cross-socket) ?',
       opts: [
         'L\'hyperviseur plante immédiatement avec un écran violet PSOD.',
-        'Les accès mémoire distants traversent le bus inter-socket avec une latence accrue de 30% à 50%.',
+        'L\'OS invité refuse de démarrer tant que le BIOS n\'est pas mis à jour.',
         'Le disque dur virtuel est automatiquement converti en format Thin.',
-        'L\'OS invité refuse de démarrer tant que le BIOS n\'est pas mis à jour.'
+        'Les accès mémoire distants traversent le bus inter-socket avec une latence accrue de 30% à 50%.'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Lorsque la mémoire d\'une VM dépasse la capacité d\'un nœud NUMA local, les accès aux banques de mémoire du second socket traversent le bus d\'interconnexion (Intel UPI / AMD Infinity Fabric) avec une pénalité de latence mesurée de 30% à 50%.'
     },
     {
       q: 'Quelle est la première technique activée par VMware ESXi pour récupérer de la mémoire vive en situation de surallocation avant de swapper sur disque ?',
       opts: [
-        'Le gonflage du pilote de Ballooning (vmmemctl) dans le système d\'exploitation invité.',
-        'La suppression automatique des fichiers de snapshots différentiels.',
         'L\'arrêt forcé sans préavis des machines virtuelles les moins prioritaires.',
+        'La suppression automatique des fichiers de snapshots différentiels.',
+        'Le gonflage du pilote de Ballooning (vmmemctl) dans le système d\'exploitation invité.',
         'La réinitialisation des cartes réseaux virtuelles VMXNET3.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le mécanisme de Ballooning gonfle un faux pilote mémoire dans l\'OS invité, ce qui pousse l\'OS à vider ses propres caches disque et à libérer de la mémoire physique sans dégradation violente pour l\'hyperviseur.'
     },
     {
       q: 'Quel format de disque VMDK est obligatoirement requis par la fonctionnalité vSphere Fault Tolerance (FT) ?',
       opts: [
         'Thin Provisioning dynamique.',
-        'Thick Provisioning Lazy Zeroed.',
         'Thick Provisioning Eager Zeroed.',
+        'Thick Provisioning Lazy Zeroed.',
         'Raw Device Mapping (RDM) en mode virtuel.'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'vSphere FT requiert impérativement des disques Thick Eager Zeroed afin de garantir que tous les blocs sont immédiatement réservés et mis à zéro, interdisant toute latence d\'allocation lors de la synchronisation Lockstep.'
     },
     {

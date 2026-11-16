@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chapitre 5 — Virtualisation &amp; VMware | Windows Server B2</title>
-<meta name="description" content="Chapitre 5 du cours Windows Server B2 : Hyperviseur type 1/2, ESXi/vCenter/vSphere, réseaux virtuels, images disque, vCPU et thin provisioning. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<title>Chapitre 5 — GPO avancées, Réplication AD, Rôles FSMO &amp;amp; Virtualisation Hyper-V / VMware | Windows Server B2</title>
+<meta name="description" content="Chapitre 5 du cours Windows Server B2 : Stratégies de groupe avancées (GPO, héritage, application forcée, filtrage de sécurité et filtres WMI), réplication Active Directory multi-sites (KCC, sites, liens), 5 rôles FSMO, gestion Hyper-V sous Windows Server et virtualisation VMware. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/chapitres/chapitre5.html">
-<meta property="og:title" content="Chapitre 5 — Virtualisation &amp; VMware | Windows Server B2">
-<meta property="og:description" content="Chapitre 5 du cours Windows Server B2 : Hyperviseur type 1/2, ESXi/vCenter/vSphere, réseaux virtuels, images disque, vCPU et thin provisioning. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:title" content="Chapitre 5 — GPO avancées, Réplication AD, Rôles FSMO &amp;amp; Virtualisation Hyper-V / VMware | Windows Server B2">
+<meta property="og:description" content="Chapitre 5 du cours Windows Server B2 : Stratégies de groupe avancées (GPO, héritage, application forcée, filtrage de sécurité et filtres WMI), réplication Active Directory multi-sites (KCC, sites, liens), 5 rôles FSMO, gestion Hyper-V sous Windows Server et virtualisation VMware. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -57,37 +55,81 @@
 
 <div class="chapmeta">
     <span class="tag tag--module">Module 5</span>
-    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
     <span class="tag tag--lock">Réservé B2 et plus</span>
   </div>
 
-<h1>Chapitre 5 — Virtualisation &amp; VMware</h1>
+<h1>Chapitre 5 — GPO avancées, Réplication AD, Rôles FSMO &amp; Virtualisation Hyper-V / VMware</h1>
 
 <div class="lead">  <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Plutôt que d’installer un serveur par machine, on exécute plusieurs machines virtuelles sur un même hôte. Comprendre l’hyperviseur, les réseaux virtuels et l’allocation de ressources est la base de toute infrastructure moderne.</p>
+    <p>Dans une infrastructure Windows Server B2 multi-sites, l’administrateur système orchestre à la fois la gouvernance Active Directory (stratégies de groupe GPO, réplication inter-sites et rôles maîtres FSMO) et la couche de virtualisation serveur (Hyper-V sous Windows Server et clusters VMware vSphere). Maîtriser l’ordre d’application des GPO, les cinq maîtres d’opérations FSMO et l’allocation des ressources virtuelles évite les dérives de configuration comme les goulets d’étranglement.</p>
   </div></div>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
-      <li>distinguer hyperviseur de type 1 et de type 2 ;</li>
-      <li>situer ESXi, vCenter et vSphere Client ;</li>
-      <li>comparer les modes réseau NAT, Bridge et Host-Only ;</li>
-      <li>interpréter vCPU, CPU Ready Time et thin provisioning.</li>
+      <li>maîtriser les stratégies de groupe avancées (GPO, héritage LSDOU, application forcée Enforced, filtrage de sécurité et filtres WMI) ;</li>
+      <li>configurer et diagnostiquer la réplication Active Directory multi-sites (KCC, sites, sous-réseaux, liens de sites IP/SMTP) ;</li>
+      <li>identifier, localiser et transférer les 5 rôles FSMO (Schema Master, Domain Naming Master, RID Master, PDC Emulator, Infrastructure Master) ;</li>
+      <li>administrer le rôle Hyper-V sous Windows Server (commutateurs virtuels, disques VHDX, PowerShell) et distinguer hyperviseurs de type 1 et 2 ;</li>
+      <li>interpréter les modes réseau virtuels (NAT, Bridge, Host-Only), les formats d’images disque, vCPU, CPU Ready Time et thin provisioning.</li>
     </ol>
   </div>
 
 <section class="sec">
 
-<h2>1. Hyperviseur de type 1 et de type 2</h2>
+<h2>1. Stratégies de groupe avancées (GPO : héritage, application forcée, filtrage de sécurité et filtres WMI)</h2>
+
+<p>Les <strong>stratégies de groupe (GPO — Group Policy Objects)</strong> centralisent la configuration des postes et des serveurs joints au domaine Active Directory. L’évaluation des GPO suit strictement l’ordre hiérarchique <strong>LSDOU</strong> : <em>Local</em> → <em>Site</em> → <em>Domaine</em> → <em>Unité d’Organisation (OU)</em> parente puis enfant (la dernière GPO appliquée l’emporte par défaut).</p>
+<table><thead><tr><th>Mécanisme GPO</th><th>Fonctionnement technique</th><th>Cas d’usage B2</th></tr></thead><tbody>
+<tr><td><strong>Héritage et Blocage d’héritage</strong> (<em>Block Inheritance</em>)</td><td>Posé sur une OU, le blocage empêche les GPO liées plus haut (Site, Domaine, OU parente) de descendre sur cette OU.</td><td>Isoler une OU <code>Serveurs-Lab</code> des restrictions bureautiques générales.</td></tr>
+<tr><td><strong>Application forcée</strong> (<em>Enforced</em> / ex-<em>No Override</em>)</td><td>Posée sur le <em>lien</em> GPO, l’application forcée prime sur tout : elle traverse le blocage d’héritage et ne peut pas être écrasée par une OU enfant.</td><td>Imposer la politique de sécurité SOC (pare-feu, audit, mot de passe, LAPS) sur 100 % du domaine.</td></tr>
+<tr><td><strong>Filtrage de sécurité</strong> (<em>Security Filtering</em>)</td><td>Restreint l’application d’une GPO aux seuls groupes ou ordinateurs disposant des permissions NTFS <code>Read</code> et <code>Apply Group Policy</code> (par défaut <code>Authenticated Users</code>).</td><td>Cibler uniquement le groupe <code>GRP-Serveurs-SQL</code> au sein d’une OU mixte.</td></tr>
+<tr><td><strong>Filtres WMI</strong> (requêtes <em>WQL</em>)</td><td>Évalue dynamiquement une requête WMI sur la machine cible avant d’appliquer la GPO (système d’exploitation, RAM libre, espace disque).</td><td>Exemple : <code>SELECT * FROM Win32_OperatingSystem WHERE Version LIKE "10.0.2%" AND ProductType="3"</code> (cibler uniquement les serveurs Windows Server 2022/2025).</td></tr>
+</tbody></table>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Diagnostic GPO et Loopback Processing en PowerShell</div>
+    <p>Sur les serveurs RDS / Citrix ou les salles blanches, le <strong>traitement en boucle (Loopback Processing)</strong> applique à la session utilisateur les paramètres de l’OU de l’<em>ordinateur</em> (en mode <strong>Replace</strong> ou <strong>Merge</strong>). Pour auditer le jeu de stratégies résultant (RSoP), utilisez <code>gpresult /r</code>, <code>gpresult /h rapport-gpo.html</code>, ou les cmdlets <code>Get-GPO -All</code>, <code>New-GPLink -Name "GPO-Durcissement" -Target "OU=Serveurs,DC=corp,DC=lan" -Enforced Yes</code> et <code>Invoke-GPUpdate</code>.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Réplication Active Directory multi-sites et les 5 rôles FSMO</h2>
+
+<p>Dans un domaine Active Directory comportant plusieurs contrôleurs de domaine (DC) répartis entre un siège et des agences distantes, la <strong>réplication Active Directory multi-sites</strong> distingue deux régimes pilotés par le composant interne <strong>KCC (Knowledge Consistency Checker)</strong> :</p>
+<ul>
+  <li><strong>Réplication intra-site (LAN haut débit) :</strong> le KCC construit automatiquement une topologie en anneau bidirectionnel avec un maximum de 3 sauts. Les modifications sont notifiées rapidement (15 secondes après changement, 3 secondes entre partenaires) et transmises <strong>sans compression</strong> pour économiser le CPU.</li>
+  <li><strong>Réplication inter-sites (liaisons WAN / VPN) :</strong> l’administrateur déclare les <strong>Sites Active Directory</strong>, associe chaque plage IP CIDR à un objet <strong>Subnet (Sous-réseau)</strong> et relie les sites par des <strong>Site Links (Liens de sites)</strong> en protocole <code>IP</code> (RPC sur TCP) ou <code>SMTP</code>. Le trafic inter-sites est <strong>fortement compressé</strong> (au-delà de 32 Ko) et cadencé selon un <em>coût</em>, une <em>fréquence</em> (ex. toutes les 180 minutes, abaissable à 15 min) et une fenêtre horaire via un serveur tête de pont (<strong>Bridgehead Server</strong>).</li>
+</ul>
+<p>Bien qu’Active Directory fonctionne en réplication multi-maîtres, certaines opérations critiques exigent un garant unique pour éviter tout conflit : ce sont les <strong>5 rôles FSMO (Flexible Single Master Operations)</strong> :</p>
+<table><thead><tr><th>Rôle FSMO</th><th>Périmètre</th><th>Responsabilité critique dans Active Directory</th></tr></thead><tbody>
+<tr><td><strong>1. Schema Master</strong></td><td>Forêt (unique)</td><td>Détient l’exclusivité des mises à jour du schéma Active Directory (classes et attributs d’objets, ex. préparation <code>adprep /forestprep</code> ou Exchange).</td></tr>
+<tr><td><strong>2. Domain Naming Master</strong></td><td>Forêt (unique)</td><td>Contrôle l’ajout ou la suppression de domaines et de partitions d’application au sein de la forêt pour garantir l’unicité des noms.</td></tr>
+<tr><td><strong>3. RID Master</strong></td><td>Domaine (1 par domaine)</td><td>Distribue des blocs d’identifiants relatifs (<strong>RID Pools</strong> de 500 RID) à chaque contrôleur de domaine afin qu’aucun SID d’objet créé ne soit dupliqué.</td></tr>
+<tr><td><strong>4. PDC Emulator</strong></td><td>Domaine (1 par domaine)</td><td>Source de temps <strong>NTP</strong> faisant autorité dans le domaine, réplication immédiate des changements de mots de passe, gestion centrale du verrouillage des comptes et cible par défaut de l’édition des GPO.</td></tr>
+<tr><td><strong>5. Infrastructure Master</strong></td><td>Domaine (1 par domaine)</td><td>Met à jour les références croisées d’objets (DN/SID) entre domaines distincts d’une forêt multi-domaines (à placer hors Catalogue Global sauf si tous les DC sont GC).</td></tr>
+</tbody></table>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-server"></use></svg> Audit de réplication et gestion PowerShell des rôles FSMO</div>
+    <p>On vérifie l’état de la réplication avec <code>repadmin /replsummary</code>, <code>repadmin /showrepl *</code> et <code>Get-ADReplicationPartnerMetadata -Target *</code>. Pour localiser les 5 rôles FSMO : <code>netdom query fsmo</code> ou <code>Get-ADForest | Select-Object SchemaMaster, DomainNamingMaster</code> et <code>Get-ADDomain | Select-Object RIDMaster, PDCEmulator, InfrastructureMaster</code>. Un transfert planifié s’effectue avec <code>Move-ADDirectoryServerOperationMasterRole -Identity "DC02" -OperationMasterRole SchemaMaster,DomainNamingMaster,PDCEmulator,RIDMaster,InfrastructureMaster</code> ; la saisie forcée (<code>-Force</code>) est réservée à la perte définitive du DC titulaire.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Gestion Hyper-V sous Windows Server, Hyperviseur de type 1 et de type 2</h2>
 
 <p>Un <strong>hyperviseur</strong> est un logiciel qui crée et gère des <strong>machines virtuelles</strong> (VM). On en distingue deux familles :</p>
 <table><thead><tr><th>Type</th><th>Description</th><th>Exemples</th></tr></thead><tbody>
-<tr><td>Type 1 (bare-metal)</td><td>Virtualise directement sur le matériel, sans OS intermédiaire</td><td>VMware ESXi</td></tr>
+<tr><td>Type 1 (bare-metal)</td><td>Virtualise directement sur le matériel, sans OS intermédiaire</td><td>Microsoft Hyper-V, VMware ESXi</td></tr>
 <tr><td>Type 2 (hébergé)</td><td>S’installe sur un OS existant (Windows, Linux, macOS)</td><td>VMware Workstation, VirtualBox</td></tr>
 </tbody></table>
+<p>Sous Windows Server, l’activation du rôle <strong>Hyper-V</strong> (<code>Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart</code>) transforme le serveur en hyperviseur de <strong>type 1</strong> : le micro-noyau hyperviseur prend directement le contrôle du matériel et la partition parente Windows Server s’exécute au-dessus. On y administre des machines virtuelles de <strong>Génération 1</strong> (BIOS historique, IDE) ou de <strong>Génération 2</strong> (UEFI, <em>Secure Boot</em>, contrôleur SCSI rapide et démarrage PXE IPv4/IPv6), reliées à trois types de commutateurs virtuels (<strong>vSwitch External</strong> relié à une carte physique, <strong>Internal</strong> entre l’hôte et les VM, <strong>Private</strong> isolé entre VM uniquement) via Hyper-V Manager, Windows Admin Center ou PowerShell (<code>New-VM</code>, <code>New-VHD</code>, <code>New-VMSwitch</code>).</p>
 <p>Dans un environnement VMware professionnel : <strong>ESXi</strong> est l’hyperviseur qui héberge les VM, <strong>vCenter</strong> gère centralement plusieurs hôtes et les clusters, <strong>vSphere Client</strong> est l’interface web d’administration.</p>
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-server"></use></svg> Un exemple concret</div>
@@ -98,7 +140,7 @@
 
 <section class="sec">
 
-<h2>2. Les réseaux virtuels</h2>
+<h2>4. Les réseaux virtuels</h2>
 
 <p>Une VM se connecte au réseau selon trois modes principaux :</p>
 <ul>
@@ -116,7 +158,7 @@
 
 <section class="sec">
 
-<h2>3. Images disque</h2>
+<h2>5. Images disque</h2>
 
 <p>Une <strong>image disque</strong> est un fichier qui représente tout le contenu d’un disque dur ou d’un support optique.</p>
 <ul>
@@ -133,7 +175,7 @@
 
 <section class="sec">
 
-<h2>4. vCPU, CPU Ready Time et surallocation</h2>
+<h2>6. vCPU, CPU Ready Time et surallocation</h2>
 
 <p>Un <strong>vCPU</strong> est un processeur virtuel alloué à une VM ; il correspond à un cœur (ou un thread) du processeur de l’hôte. Une VM peut en recevoir plusieurs.</p>
 <p>Le <strong>CPU Ready Time</strong> mesure le temps qu’une VM attend pour obtenir du temps processeur : c’est l’indicateur clé de contention CPU dans VMware.</p>
@@ -149,13 +191,12 @@
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
+  <h2>7. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
   réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
   <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
   s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
-  <p>La validation est suspendue pour les exercices signalés ci-dessous.</p>
 <div class="lab" id="ws2-c5-e1" data-lab
      data-exercise="ws2-c5-e1"
      data-language="powershell"
@@ -176,7 +217,7 @@ $produit = [Console]::In.ReadLine()
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Classifier un produit selon qu’il s’installe sur le matériel ou sur un système hôte.</p>
-    <div class="lab__brief"><p>Le script lit le <strong>type</strong> de l’hyperviseur (<code>1</code> ou <code>2</code>), puis le <strong>nom</strong> du produit. Affichez <code>produit : NOM (bare-metal)</code> pour le type 1 et <code>produit : NOM (heberge)</code> pour le type 2.</p></div>
+    <div class="lab__brief"><p>Dans un inventaire d’hôtes de virtualisation (<code>Get-VMHost</code> sous Hyper-V ou inventaire ESXi), le script lit le <strong>type</strong> de l’hyperviseur (<code>1</code> ou <code>2</code>), puis le <strong>nom</strong> du produit. Affichez <code>produit : NOM (bare-metal)</code> pour le type 1 et <code>produit : NOM (heberge)</code> pour le type 2.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
 ESXi</pre></div>
@@ -184,10 +225,11 @@ ESXi</pre></div>
     </div>
     <p class="lab__note">ESXi est un hyperviseur de type 1.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un type 1 tourne directement sur le matériel : bare-metal.</li>
         <li>Le type 2 s’installe sur un OS existant : « heberge ».</li>
+        <li>Étapes : lire le type puis le produit ; type 1 → « (bare-metal) », sinon « (heberge) » ; afficher « produit : » suivi du nom et du qualificatif.</li>
       </ol>
     </details>
   </div>
@@ -195,7 +237,6 @@ ESXi</pre></div>
 
 <div class="lab" id="ws2-c5-e2" data-lab
      data-exercise="ws2-c5-e2"
-     data-grading-suspended="1"
      data-language="powershell"
      data-height="300"
      data-stdin="nat">
@@ -208,13 +249,11 @@ ESXi</pre></div>
     <h3 class="lab__title">Exercice 2 — Mode réseau d’une VM</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déduire l’accès Internet et l’accès au réseau local selon le mode de connexion.</p>
-    <p class="lab__note" id="ws2-c5-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit un <strong>mode réseau</strong> (<code>nat</code>, <code>bridge</code> ou <code>host-only</code>). Affichez <code>internet : oui/non</code> puis <code>lan : oui/non</code>. NAT et Bridge donnent accès à Internet ; seul Bridge rend la VM accessible depuis le réseau local.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>nat</pre></div>
@@ -223,10 +262,11 @@ lan : non</pre></div>
     </div>
     <p class="lab__note">La VM sort via l’hôte, pas d’accès entrant.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un switch sur $mode associe chaque mode à ses deux réponses.</li>
         <li>NAT : Internet oui, LAN non. Bridge : Internet oui, LAN oui. Host-Only : Internet non, LAN non.</li>
+        <li>Étapes : lire le mode ; nat → internet oui, lan non ; bridge → oui et oui ; host-only → non et non ; autre valeur → non et non. Deux lignes en sortie.</li>
       </ol>
     </details>
   </div>
@@ -261,36 +301,37 @@ vcpu en exces : 16</pre></div>
     </div>
     <p class="lab__note">Deux fois plus de vCPU que de cœurs.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Surallocation active quand <code>($vcpu -gt $coeurs)</code>.</li>
         <li>L’excédent vaut <code>$vcpu - $coeurs</code> ; il vaut 0 sinon.</li>
+        <li>Étapes : lire vcpu puis coeurs ; si vcpu dépasse coeurs, « surallocation : oui » et l’excédent vaut la différence ; sinon « non » avec excédent 0.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>8. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Qu’est-ce qu’un hyperviseur ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Un logiciel qui gère des VM</button>
-        <button class="opt">Un antivirus</button>
         <button class="opt">Un switch réseau</button>
+        <button class="opt">Un antivirus</button>
+        <button class="opt" data-correct="1">Un logiciel qui gère des VM</button>
       </div>
       <div class="q__exp">Il crée et exécute des machines virtuelles.</div>
     </div>
     <div class="q">
       <p class="q__stem">L’hyperviseur de type 1 s’installe…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Directement sur le matériel</button>
-        <button class="opt">Sur un OS hôte</button>
         <button class="opt">Dans une VM</button>
+        <button class="opt">Sur un OS hôte</button>
+        <button class="opt" data-correct="1">Directement sur le matériel</button>
       </div>
-      <div class="q__exp">C’est un hyperviseur bare-metal.</div>
+      <div class="q__exp">L’hyperviseur de type 1 s’installe directement sur le matériel, sans OS hôte : c’est le bare-metal. Sur un OS hôte, ce serait un type 2 ; dans une VM, rien du tout.</div>
     </div>
     <div class="q">
       <p class="q__stem">Exemple d’hyperviseur de type 1 ?</p>
@@ -304,8 +345,8 @@ vcpu en exces : 16</pre></div>
     <div class="q">
       <p class="q__stem">Rôle de vCenter ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Gestion centralisée des hôtes</button>
         <button class="opt">Créer des images ISO</button>
+        <button class="opt" data-correct="1">Gestion centralisée des hôtes</button>
         <button class="opt">Sauvegarder les VM</button>
       </div>
       <div class="q__exp">Il administre plusieurs hôtes et les clusters.</div>
@@ -313,17 +354,17 @@ vcpu en exces : 16</pre></div>
     <div class="q">
       <p class="q__stem">En NAT, la VM est-elle accessible depuis le LAN ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Non</button>
-        <button class="opt">Oui</button>
         <button class="opt">Parfois</button>
+        <button class="opt">Oui</button>
+        <button class="opt" data-correct="1">Non</button>
       </div>
       <div class="q__exp">Elle sort via l’hôte mais n’est pas joignable de l’extérieur.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel mode met la VM sur le même réseau que l’hôte ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Bridge</button>
         <button class="opt">NAT</button>
+        <button class="opt" data-correct="1">Bridge</button>
         <button class="opt">Host-Only</button>
       </div>
       <div class="q__exp">Le pont intègre la VM au réseau physique.</div>
@@ -335,16 +376,34 @@ vcpu en exces : 16</pre></div>
         <button class="opt">VHDX</button>
         <button class="opt">ISO</button>
       </div>
-      <div class="q__exp">VMDK est le format de disque de VMware.</div>
+      <div class="q__exp">VMDK est le format de disque virtuel de VMware ; VHDX appartient à Hyper-V. Quant à ISO, c’est une image optique, pas un disque de VM.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que mesure le CPU Ready Time ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le temps d’attente CPU d’une VM</button>
         <button class="opt">La RAM libre</button>
+        <button class="opt" data-correct="1">Le temps d’attente CPU d’une VM</button>
         <button class="opt">Le débit réseau</button>
       </div>
-      <div class="q__exp">Il indique la contention CPU.</div>
+      <div class="q__exp">Le CPU Ready Time mesure le temps d’attente d’une VM pour obtenir du processeur : il révèle la contention CPU. Ce n’est ni la RAM libre ni le débit réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel ordre hiérarchique les GPO Active Directory sont-elles évaluées ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Local → Site → Domaine → OU (LSDOU)</button>
+        <button class="opt">OU → Domaine → Site → Local</button>
+        <button class="opt">Domaine → Local → OU → Site</button>
+      </div>
+      <div class="q__exp">L’évaluation suit toujours l’ordre LSDOU (Local, Site, Domaine, puis Unité d’Organisation de la racine vers la feuille), la dernière GPO appliquée l’emportant sauf en cas d’application forcée (Enforced).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel rôle FSMO est responsable de la synchronisation horaire NTP et des verrouillages de comptes dans le domaine ?</p>
+      <div class="opts">
+        <button class="opt">Schema Master</button>
+        <button class="opt" data-correct="1">PDC Emulator</button>
+        <button class="opt">Infrastructure Master</button>
+      </div>
+      <div class="q__exp">Le PDC Emulator gère la synchronisation horaire NTP de référence du domaine, le traitement prioritaire des mots de passe, le verrouillage des comptes et l’édition des GPO.</div>
     </div>
   </div>
 
@@ -352,16 +411,16 @@ vcpu en exces : 16</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>9. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
-      <li>Confondre hyperviseur de type 1 (bare-metal) et de type 2 (hébergé).</li>
-      <li>Attendre qu’une VM en NAT soit joignable depuis le réseau local.</li>
-      <li>Confondre VMDK (VMware) et VHDX (Microsoft).</li>
+      <li>Abuser de l’application forcée (Enforced) ou du blocage d’héritage GPO au lieu de structurer proprement les OU et le filtrage de sécurité.</li>
+      <li>Saisir de force (Seize) le rôle RID Master ou Schema Master puis rallumer l’ancien contrôleur de domaine sur le réseau.</li>
+      <li>Confondre hyperviseur de type 1 (bare-metal : Hyper-V, ESXi) et de type 2 (hébergé : Workstation, VirtualBox).</li>
+      <li>Confondre VMDK (VMware) et VHDX (Microsoft Hyper-V).</li>
       <li>Surallouer les vCPU et dégrader le CPU Ready Time de tous.</li>
-      <li>Croire que thin provisioning réserve l’espace à l’avance.</li>
     </ul>
   </div>
 
@@ -369,16 +428,16 @@ vcpu en exces : 16</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>10. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Provisionner et connecter une VM</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Gouverner Active Directory (GPO / FSMO) et provisionner une VM</div>
     <ol>
-      <li><strong>Choisir</strong> l’hyperviseur : type 1 en production, type 2 pour le poste de travail.</li>
-      <li><strong>Gérer</strong> l’infrastructure avec vCenter et vSphere Client.</li>
-      <li><strong>Connecter</strong> la VM selon le besoin : NAT, Bridge ou Host-Only.</li>
-      <li><strong>Sélectionner</strong> le format d’image adapté (ISO, VMDK, VHDX).</li>
-      <li><strong>Dimensionner</strong> les vCPU sans surallocation excessive.</li>
+      <li><strong>Structurer</strong> les stratégies de groupe GPO selon l’ordre LSDOU en combinant filtrage de sécurité et filtres WMI ciblés.</li>
+      <li><strong>Superviser</strong> la réplication Active Directory multi-sites (KCC, sites, liens IP) avec <code>repadmin /replsummary</code> et vérifier la santé des 5 rôles FSMO.</li>
+      <li><strong>Choisir</strong> l’hyperviseur de type 1 en production (Hyper-V sous Windows Server ou VMware ESXi géré par vCenter).</li>
+      <li><strong>Connecter</strong> la VM selon le besoin (NAT, Bridge/External ou Host-Only/Private) et sélectionner le format disque (VHDX ou VMDK).</li>
+      <li><strong>Dimensionner</strong> les vCPU au juste besoin sans surallocation excessive.</li>
     </ol>
   </div>
 
@@ -386,27 +445,27 @@ vcpu en exces : 16</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>11. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
-      <li>Type 1 (ESXi) sur le matériel ; type 2 (Workstation, VirtualBox) sur un OS.</li>
-      <li>ESXi héberge, vCenter gère, vSphere Client administre.</li>
-      <li>NAT : Internet via l’hôte ; Bridge : sur le réseau ; Host-Only : réseau privé.</li>
-      <li>ISO : optique ; VMDK : VMware ; VHD/VHDX : Microsoft.</li>
-      <li>vCPU, CPU Ready Time et surallocation mesurent et limitent la contention CPU.</li>
+      <li>GPO : ordre d’application LSDOU, blocage d’héritage, application forcée (Enforced), filtrage de sécurité et filtres WMI (WQL).</li>
+      <li>Réplication AD multi-sites : topologie KCC intra-site non compressée vs réplication inter-sites compressée et planifiée via liens de sites.</li>
+      <li>Les 5 rôles FSMO : Schema Master et Domain Naming Master (forêt) ; RID Master, PDC Emulator et Infrastructure Master (domaine).</li>
+      <li>Hyper-V (VHD/VHDX, Gen 1/2, vSwitch) et VMware (ESXi, vCenter, vSphere Client, VMDK) sont des hyperviseurs de type 1.</li>
+      <li>vCPU, CPU Ready Time et thin provisioning mesurent et maîtrisent la contention des ressources.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
-      <li>Je distinguez les deux types d’hyperviseur.</li>
-      <li>Je situe ESXi, vCenter et vSphere Client.</li>
-      <li>Je compare NAT, Bridge et Host-Only.</li>
-      <li>J’explique vCPU, CPU Ready Time et thin provisioning.</li>
+      <li>Je maîtrise l’ordre LSDOU, l’application forcée, le filtrage de sécurité et les filtres WMI des GPO.</li>
+      <li>Je sais diagnostiquer la réplication AD multi-sites et nommer les 5 rôles FSMO et leur périmètre.</li>
+      <li>Je distingue les deux types d’hyperviseur et j’administre Hyper-V comme l’écosystème VMware.</li>
+      <li>Je compare NAT, Bridge et Host-Only et j’explique vCPU, CPU Ready Time et thin provisioning.</li>
     </ul>
-    <h3>Les 17 notions à connaître absolument</h3>
+    <h3>Les 33 notions à connaître absolument</h3>
     <ol>
-      <li>hyperviseur</li><li>type 1</li><li>bare-metal</li><li>type 2</li><li>VMware ESXi</li><li>vCenter</li><li>vSphere Client</li><li>NAT</li><li>bridge</li><li>host-only</li><li>ISO</li><li>VMDK</li><li>VHDX</li><li>vCPU</li><li>CPU Ready Time</li><li>surallocation</li><li>thin provisioning</li>
+      <li>GPO</li><li>LSDOU</li><li>héritage</li><li>application forcée</li><li>Enforced</li><li>filtrage de sécurité</li><li>filtre WMI</li><li>réplication Active Directory multi-sites</li><li>KCC</li><li>FSMO</li><li>Schema Master</li><li>Domain Naming Master</li><li>RID Master</li><li>PDC Emulator</li><li>Infrastructure Master</li><li>Hyper-V</li><li>hyperviseur</li><li>type 1</li><li>bare-metal</li><li>type 2</li><li>VMware ESXi</li><li>vCenter</li><li>vSphere Client</li><li>NAT</li><li>bridge</li><li>host-only</li><li>ISO</li><li>VMDK</li><li>VHDX</li><li>vCPU</li><li>CPU Ready Time</li><li>surallocation</li><li>thin provisioning</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -416,16 +475,16 @@ vcpu en exces : 16</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>12. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez les deux types d’hyperviseur.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les modes réseau.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous dimensionnez et connectez une VM.</div>
-      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : enchaînez sur les snapshots, chapitre 6.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez l’ordre LSDOU des GPO, les 5 rôles FSMO et les deux types d’hyperviseur.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur le filtrage GPO, la réplication AD multi-sites et les modes réseau.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous gouvernez AD DS et dimensionnez des VM Hyper-V/VMware.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : enchaînez sur Windows Server Backup, FSRM, WSUS et snapshots au chapitre 6.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
   </div>
@@ -434,7 +493,7 @@ vcpu en exces : 16</pre></div>
 
   <div class="chnav">
     <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
-    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Snapshots, clones &amp; templates <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Windows Server Backup (wbadmin, VSS), FSRM, WSUS, Surveillance &amp; Snapshots VM <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
   </div>
 
   <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
@@ -465,7 +524,7 @@ vcpu en exces : 16</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

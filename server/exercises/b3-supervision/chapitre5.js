@@ -4,118 +4,157 @@ module.exports = [
   {
     "id": "sup3-c5-e1",
     "chapter": 5,
-    "title": "Parseur et Normalisateur de Logs Web Nginx / Apache",
     "level": "n1",
     "language": "analyse",
-    "goal": "Extraire les champs structurés d'une ligne de journal HTTP Combined Log et classifier la réponse par catégorie.",
-    "brief": "<p>Dans une chaîne Logstash / Fluentd, le parsing grok décompose la ligne de log :<br><br>\nFormat standard Combined Log :<br>\n<code>&lt;client_ip&gt; - - [&lt;timestamp&gt;] \"&lt;method&gt; &lt;uri&gt; &lt;http_version&gt;\" &lt;status_code&gt; &lt;response_bytes&gt; \"&lt;referrer&gt;\" \"&lt;user_agent&gt;\"</code><br><br>\nCatégories de statut :<br>\n- 200..299 : <code>SUCCESS</code><br>\n- 400..499 : <code>CLIENT_ERROR</code><br>\n- 500..599 : <code>SERVER_ERROR</code><br>\n- Autre : <code>OTHER</code><br><br>\nDonnées du cas : <code>LOG_PARSE &lt;combined_log_line&gt;</code>.<br>\nRésultat d’analyse attendu : <code>WEB_LOG: ip=&lt;client_ip&gt; method=&lt;method&gt; uri=&lt;uri&gt; status=&lt;status_code&gt; bytes=&lt;bytes&gt; category=&lt;category&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (sup3-c5-e1) — Parseur et Normalisateur de Logs Web Nginx / Apache\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Requête POST de connexion réussie 200]\n# Données : LOG_PARSE 10.0.4.15 - - [11/Oct/2026:15:00:01 +0000] \"POST /auth/login HTTP/1.1\" 200 450 \"https://app.corp.local\" \"Mozilla/5.0\"\nA_COMPLETER\n\n[Cas 2 — Erreur client 404 page non trouvée avec octets nuls]\n# Données : LOG_PARSE 203.0.113.89 - - [11/Oct/2026:15:05:00 +0000] \"GET /admin/setup.php HTTP/1.1\" 404 - \"-\" \"scanner-bot\"\nA_COMPLETER\n\n[Cas 3 — Redirection HTTP 302 catégorisée OTHER]\n# Données : LOG_PARSE 172.16.0.2 - - [11/Oct/2026:15:10:00 +0000] \"GET /old-portal HTTP/1.1\" 302 120 \"-\" \"curl/8.0\"\nA_COMPLETER\n",
+    "title": "Les journaux d'accès Nginx de la librairie LivrExpress",
+    "exampleTitle": "Exemple résolu — les journaux Apache de la bibliothèque LireIci",
+    "goal": "Lire une ligne de journal d'accès web : adresse IP, utilisateur, méthode, ressource, code HTTP et taille.",
+    "brief": "<p><strong>Énoncé.</strong> La librairie en ligne LivrExpress collecte les journaux d'accès de son serveur Nginx. Format d'une ligne : adresse IP du client, identité locale, utilisateur authentifié, horodatage, requête entre guillemets, code HTTP, taille de la réponse en octets. Trois lignes extraites du 12 mars 2026 :</p><p><code>203.0.113.45 - - [12/Mar/2026:10:15:32 +0100] \"GET /livre/9782070413119 HTTP/1.1\" 200 5123</code></p><p><code>198.51.100.7 - alice [12/Mar/2026:10:16:01 +0100] \"POST /panier HTTP/1.1\" 201 842</code></p><p><code>203.0.113.45 - - [12/Mar/2026:10:16:45 +0100] \"GET /admin HTTP/1.1\" 403 199</code></p><p>Rappel du cours : un tiret signale une valeur absente ; le code 403 signifie que le serveur refuse de servir la ressource.</p><ol><li>Quelle méthode HTTP correspond à l'ajout d'un article au panier ?</li><li>Quel code HTTP traduit le refus de servir la page /admin ?</li><li>Combien d'octets le serveur a-t-il renvoyés pour la fiche produit ?</li><li>Quelle adresse IP a tenté d'accéder à /admin ?</li><li>Quel identifiant d'utilisateur authentifié figure dans la deuxième ligne ?</li></ol>",
+    "starter": "# Exercice — Les journaux d'accès Nginx de la librairie LivrExpress\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 4 et 5 : le mot exact. Questions 2 et 3 : la valeur seule.\n\n[Question 1 — Méthode HTTP de l'ajout au panier]\nA_COMPLETER\n\n[Question 2 — Code HTTP du refus de /admin]\nA_COMPLETER\n\n[Question 3 — Taille de la réponse de la fiche produit (en octets)]\nA_COMPLETER\n\n[Question 4 — Adresse IP ayant tenté /admin]\nA_COMPLETER\n\n[Question 5 — Utilisateur authentifié de la deuxième ligne]\nA_COMPLETER\n",
     "hints": [
-      "Isolez l'adresse IP, la requête entre guillemets et le code de statut HTTP.",
-      "Gérez le cas où les octets sont représentés par un tiret '-' en affectant 0."
+      "Le format se lit dans l'ordre : IP, identité, utilisateur, horodatage, requête entre guillemets, code, taille en octets.",
+      "La méthode GET demande une ressource au serveur ; la méthode POST transmet des données, comme un ajout au panier.",
+      "1. Cherchez la requête qui touche /panier. 2. Le refus de servir se lit sur la ligne de /admin. 3. La taille suit le code HTTP. 4. Regardez l'IP en tête de la ligne de /admin. 5. Le troisième champ de la deuxième ligne remplace le tiret."
     ],
     "examples": [
       {
-        "stdin": "LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] \"GET /api/v1/users HTTP/1.1\" 500 2314 \"-\" \"curl/7.88.1\"",
-        "expected": "WEB_LOG: ip=192.168.1.10 method=GET uri=/api/v1/users status=500 bytes=2314 category=SERVER_ERROR",
-        "note": "Erreur serveur 500 sur une requête GET."
+        "stdin": "La bibliothèque LireIci collecte les journaux Apache de son catalogue :\n192.0.2.10 - marc [02/Apr/2026:14:03:11 +0200] \"GET /catalogue HTTP/1.1\" 200 8421\n192.0.2.55 - - [02/Apr/2026:14:04:02 +0200] \"GET /emprunt HTTP/1.1\" 401 97\n\n1) La page /catalogue est servie en GET.\n2) Le code 401 demande une authentification pour /emprunt.\n3) La réponse du catalogue pèse 8 421 octets.\n4) L'IP 192.0.2.55 a reçu le 401.\n5) L'utilisateur authentifié est marc.",
+        "expected": "catalogue servi en GET, 8 421 octets — code 401 pour /emprunt — utilisateur marc — IP 192.0.2.55",
+        "note": "Le tiret signifie une valeur absente : ni identité ni utilisateur authentifié sur la ligne du 401, tandis que marc apparaît en clair sur la première ligne."
       }
     ],
     "tests": [
       {
-        "label": "Requête POST de connexion réussie 200",
-        "stdin": "cas:1",
-        "expected": "WEB_LOG: ip=10.0.4.15 method=POST uri=/auth/login status=200 bytes=450 category=SUCCESS\n"
+        "label": "Question 1 — Méthode HTTP de l'ajout au panier",
+        "stdin": "q:1",
+        "expected": "POST||post||la méthode POST||la methode POST"
       },
       {
-        "label": "Erreur client 404 page non trouvée avec octets nuls",
-        "stdin": "cas:2",
-        "expected": "WEB_LOG: ip=203.0.113.89 method=GET uri=/admin/setup.php status=404 bytes=0 category=CLIENT_ERROR\n"
+        "label": "Question 2 — Code HTTP du refus de /admin",
+        "stdin": "q:2",
+        "expected": "403||le code 403"
       },
       {
-        "label": "Redirection HTTP 302 catégorisée OTHER",
-        "stdin": "cas:3",
-        "expected": "WEB_LOG: ip=172.16.0.2 method=GET uri=/old-portal status=302 bytes=120 category=OTHER\n"
+        "label": "Question 3 — Taille de la réponse de la fiche produit (en octets)",
+        "stdin": "q:3",
+        "expected": "5123||5 123"
+      },
+      {
+        "label": "Question 4 — Adresse IP ayant tenté /admin",
+        "stdin": "q:4",
+        "expected": "203.0.113.45||l'adresse 203.0.113.45||l'ip 203.0.113.45"
+      },
+      {
+        "label": "Question 5 — Utilisateur authentifié de la deuxième ligne",
+        "stdin": "q:5",
+        "expected": "alice||l'utilisateur alice"
       }
     ],
-    "solution": "[Exemple]\nWEB_LOG: ip=192.168.1.10 method=GET uri=/api/v1/users status=500 bytes=2314 category=SERVER_ERROR\n\n[Cas 1 — Requête POST de connexion réussie 200]\nWEB_LOG: ip=10.0.4.15 method=POST uri=/auth/login status=200 bytes=450 category=SUCCESS\n\n\n[Cas 2 — Erreur client 404 page non trouvée avec octets nuls]\nWEB_LOG: ip=203.0.113.89 method=GET uri=/admin/setup.php status=404 bytes=0 category=CLIENT_ERROR\n\n\n[Cas 3 — Redirection HTTP 302 catégorisée OTHER]\nWEB_LOG: ip=172.16.0.2 method=GET uri=/old-portal status=302 bytes=120 category=OTHER"
+    "solution": "[Question 1 — Méthode HTTP de l'ajout au panier]\nPOST\n\n[Question 2 — Code HTTP du refus de /admin]\n403\n\n[Question 3 — Taille de la réponse de la fiche produit (en octets)]\n5123\n\n[Question 4 — Adresse IP ayant tenté /admin]\n203.0.113.45\n\n[Question 5 — Utilisateur authentifié de la deuxième ligne]\nalice",
+    "takeaway": "1) L'ajout au panier utilise la méthode POST : la requête transmet les données de l'article au serveur.\n2) La page /admin est servie avec le code 403 : le serveur a compris la demande mais refuse de l'honorer.\n3) La fiche produit a été renvoyée avec 5 123 octets.\n4) C'est l'adresse 203.0.113.45 qui a tenté d'accéder à /admin, sans utilisateur authentifié (tiret).\n5) La deuxième ligne porte l'utilisateur authentifié alice.\nContrôle : la même IP 203.0.113.45 signe la première et la troisième ligne, sans compte utilisateur : trois lignes, deux visiteurs distincts."
   },
   {
     "id": "sup3-c5-e2",
     "chapter": 5,
-    "title": "Détecteur d’Anomalies de Débit de Logs (Spike & Drop)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Surveiller les variations d'Events Per Second (EPS) et détecter les pics anormaux (inondation) ou chutes brutales (panne de collecte).",
-    "brief": "<p>La télémétrie des flux de logs permet de repérer des anomalies opérationnelles majeures :<br><br>\nCalcul de déviation sur le dernier échantillon de débit mesuré <code>current</code> :<br>\n<code>deviation_pct = ((current - BASELINE) / BASELINE) * 100.0</code>.<br><br>\nRègles d'alerte :<br>\n- Si <code>deviation_pct &gt;= MAX_SPIKE</code> : <code>alert=LOG_FLOOD action=REQUIRED</code>.<br>\n- Sinon si <code>deviation_pct &lt;= -MIN_DROP</code> : <code>alert=LOG_DROP action=REQUIRED</code>.<br>\n- Sinon : <code>alert=NORMAL action=NONE</code>.<br><br>\nDonnées du cas : <code>EPS_CHECK BASELINE=&lt;base&gt; MIN_DROP=&lt;drop_pct&gt; MAX_SPIKE=&lt;spike_pct&gt; SAMPLES=&lt;s1,s2,...&gt;</code>.<br>\nRésultat d’analyse attendu : <code>EPS_ALERT: current=&lt;curr:.1f&gt; deviation=&lt;dev_pct:+.1f&gt;% alert=&lt;LOG_FLOOD|LOG_DROP|NORMAL&gt; action=&lt;REQUIRED|NONE&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (sup3-c5-e2) — Détecteur d’Anomalies de Débit de Logs (Spike & Drop)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chute brutale de logs (service écroulé)]\n# Données : EPS_CHECK BASELINE=1000.0 MIN_DROP=80.0 MAX_SPIKE=150.0 SAMPLES=980.0,950.0,120.0\nA_COMPLETER\n\n[Cas 2 — Débit nominal parfaitement stable]\n# Données : EPS_CHECK BASELINE=250.0 MIN_DROP=75.0 MAX_SPIKE=150.0 SAMPLES=245.0,260.0,255.0\nA_COMPLETER\n\n[Cas 3 — Légère baisse sans dépassement du seuil de drop]\n# Données : EPS_CHECK BASELINE=400.0 MIN_DROP=50.0 MAX_SPIKE=100.0 SAMPLES=380.0,300.0\nA_COMPLETER\n",
+    "title": "Le débit de journaux de la vente flash de PrimStyle",
+    "exampleTitle": "Exemple résolu — le pic de journaux du portail SportiNet",
+    "goal": "Construire un seuil d'alerte sur le débit de journaux (EPS) et distinguer pic légitime et anomalie.",
+    "brief": "<p><strong>Énoncé.</strong> La plateforme de mode PrimStyle centralise ses journaux dans une pile ELK. En régime normal, le pipeline traite un bruit de fond de <strong>250 événements par seconde (EPS)</strong>. Règle d'alerte du NOC : pic de journaux si le débit mesuré dépasse le bruit de fond <strong>augmenté de 200 %</strong>. Débits mesurés toutes les dix minutes pendant la vente flash du 20 mars :</p><table><tr><th>Heure</th><th>20:00</th><th>20:10</th><th>20:20</th><th>20:30</th><th>20:40</th><th>20:50</th><th>21:00</th></tr><tr><th>Débit (EPS)</th><td>252</td><td>248</td><td>980</td><td>1010</td><td>965</td><td>260</td><td>255</td></tr></table><p>Contexte : l'équipe marketing a lancé la vente flash à 20 h 20.</p><ol><li>Quel est le bruit de fond du pipeline, en EPS ?</li><li>Quel est le seuil d'alerte du NOC, en EPS ?</li><li>Combien de mesures dépassent le seuil d'alerte ?</li><li>À quelle heure la première mesure hors norme apparaît-elle ?</li><li>Ce pic doit-il être traité comme un incident de sécurité ? Répondez par le qualificatif attendu : légitime ou suspect.</li></ol>",
+    "starter": "# Exercice — Le débit de journaux de la vente flash de PrimStyle\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : le nombre seul. Question 4 : l'heure au format 20:20. Question 5 : légitime ou suspect.\n\n[Question 1 — Bruit de fond (en EPS)]\nA_COMPLETER\n\n[Question 2 — Seuil d'alerte (en EPS)]\nA_COMPLETER\n\n[Question 3 — Nombre de mesures au-dessus du seuil]\nA_COMPLETER\n\n[Question 4 — Heure de la première mesure hors norme]\nA_COMPLETER\n\n[Question 5 — Qualificatif du pic]\nA_COMPLETER\n",
     "hints": [
-      "Extrayez la dernière valeur de la liste SAMPLES.",
-      "Formatez la déviation avec un signe explicite (+ ou -) via :+.1f."
+      "Une augmentation de 200 % du bruit de fond revient à multiplier le débit par trois : 250 × 3.",
+      "Comparez chaque mesure au seuil : seules les mesures strictement supérieures au seuil comptent comme pics.",
+      "1. Le bruit de fond est donné dans l'énoncé. 2. Seuil = bruit de fond × 3. 3. Comptez les mesures au-dessus. 4. Repérez la première mesure qui saute. 5. Confrontez le pic au contexte : que s'est-il passé à 20 h 20 ?"
     ],
     "examples": [
       {
-        "stdin": "EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0",
-        "expected": "EPS_ALERT: current=1600.0 deviation=+220.0% alert=LOG_FLOOD action=REQUIRED",
-        "note": "Pic de débit de +220% dépassant le seuil de 200% : LOG_FLOOD."
+        "stdin": "Le portail SportiNet tourne sur un bruit de fond de 120 EPS, avec la même règle d'alerte (bruit + 200 %).\nMesures : 15:10 = 125 ; 15:20 = 118 ; 15:30 = 420 ; 15:40 = 390 ; 15:50 = 130.\nLe pic coïncide avec la rediffusion d'un match attendue par les abonnés.\n\n1) Bruit de fond : 120 EPS.\n2) Seuil : 120 × 3 = 360 EPS.\n3) Deux mesures dépassent le seuil (420 et 390).\n4) Première mesure hors norme à 15:30.\n5) Le pic accompagne la rediffusion : il est légitime.",
+        "expected": "seuil 360 EPS — deux mesures au-dessus — première à 15:30 — pic légitime lié à la rediffusion",
+        "note": "Un seuil relatif au bruit de fond s'adapte à la taille du service : 360 EPS pour un petit portail, 750 EPS pour une grande plateforme."
       }
     ],
     "tests": [
       {
-        "label": "Chute brutale de logs (service écroulé)",
-        "stdin": "cas:1",
-        "expected": "EPS_ALERT: current=120.0 deviation=-88.0% alert=LOG_DROP action=REQUIRED\n"
+        "label": "Question 1 — Bruit de fond (en EPS)",
+        "stdin": "q:1",
+        "expected": "250||250 eps||250 EPS"
       },
       {
-        "label": "Débit nominal parfaitement stable",
-        "stdin": "cas:2",
-        "expected": "EPS_ALERT: current=255.0 deviation=+2.0% alert=NORMAL action=NONE\n"
+        "label": "Question 2 — Seuil d'alerte (en EPS)",
+        "stdin": "q:2",
+        "expected": "750||750 eps||750 EPS"
       },
       {
-        "label": "Légère baisse sans dépassement du seuil de drop",
-        "stdin": "cas:3",
-        "expected": "EPS_ALERT: current=300.0 deviation=-25.0% alert=NORMAL action=NONE\n"
+        "label": "Question 3 — Nombre de mesures au-dessus du seuil",
+        "stdin": "q:3",
+        "expected": "3||trois"
+      },
+      {
+        "label": "Question 4 — Heure de la première mesure hors norme",
+        "stdin": "q:4",
+        "expected": "20:20||20h20||20 h 20"
+      },
+      {
+        "label": "Question 5 — Qualificatif du pic",
+        "stdin": "q:5",
+        "expected": "légitime||legitime||bénin||benin||attendu||normal"
       }
     ],
-    "solution": "[Exemple]\nEPS_ALERT: current=1600.0 deviation=+220.0% alert=LOG_FLOOD action=REQUIRED\n\n[Cas 1 — Chute brutale de logs (service écroulé)]\nEPS_ALERT: current=120.0 deviation=-88.0% alert=LOG_DROP action=REQUIRED\n\n\n[Cas 2 — Débit nominal parfaitement stable]\nEPS_ALERT: current=255.0 deviation=+2.0% alert=NORMAL action=NONE\n\n\n[Cas 3 — Légère baisse sans dépassement du seuil de drop]\nEPS_ALERT: current=300.0 deviation=-25.0% alert=NORMAL action=NONE"
+    "solution": "[Question 1 — Bruit de fond (en EPS)]\n250\n\n[Question 2 — Seuil d'alerte (en EPS)]\n750\n\n[Question 3 — Nombre de mesures au-dessus du seuil]\n3\n\n[Question 4 — Heure de la première mesure hors norme]\n20:20\n\n[Question 5 — Qualificatif du pic]\nlégitime",
+    "takeaway": "1) Le bruit de fond du pipeline est de 250 EPS.\n2) Une augmentation de 200 % porte le débit à trois fois le bruit de fond : 250 × 3 = 750 EPS.\n3) Trois mesures dépassent le seuil : 980, 1010 et 965 EPS.\n4) La première mesure hors norme apparaît à 20:20, avec 980 EPS.\n5) Le pic démarre exactement au lancement de la vente flash et retombe à 20 h 50 : c'est un pic légitime, le reflet du trafic commercial.\nContrôle : les trois mesures au-dessus de 750 EPS (980, 1010, 965) encadrent le lancement commercial de 20 h 20, et le débit retrouve le bruit de fond dès 20 h 50."
   },
   {
     "id": "sup3-c5-e3",
     "chapter": 5,
-    "title": "Corrélateur Multi-Sources de Logs d’Incidents de Sécurité",
     "level": "n3",
     "language": "analyse",
-    "goal": "Regrouper et corréler les traces d'une adresse IP suspecte à travers des équipements hétérogènes.",
-    "brief": "<p>En analyse SOC / SIEM, les traces laissées sur différents serveurs sont corrélées :<br><br>\nCritères de décision :<br>\n- Un événement est considéré <strong>suspect</strong> si sa sévérité est <code>WARN</code>, <code>ALERT</code> ou <code>DENY</code>.<br>\n- La mise en quarantaine (<code>quarantine=YES</code>) est décidée si l'adresse IP cible cumule <code>&gt;= 3</code> événements suspects OU si au moins un événement porte la sévérité bloquante <code>DENY</code>.<br>\n- Sinon, <code>quarantine=NO</code>.<br><br>\nDonnées du cas : <code>CORRELATE TARGET_IP=&lt;ip&gt; LOGS=&lt;src1:ip1:act1:sev1|src2:ip2:act2:sev2|...&gt;</code>.<br>\nRésultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&lt;total_matches&gt; suspicious=&lt;n_suspects&gt; quarantine=&lt;YES|NO&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (sup3-c5-e3) — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trafic légitime sans alerte]\n# Données : CORRELATE TARGET_IP=192.168.1.50 LOGS=firewall:192.168.1.50:TcpSyn:INFO|proxy:192.168.1.50:PageGet:INFO\nA_COMPLETER\n\n[Cas 2 — Blocage immédiat sur règle DENY de pare-feu]\n# Données : CORRELATE TARGET_IP=10.10.10.10 LOGS=firewall:10.10.10.10:SqlInjection:DENY\nA_COMPLETER\n\n[Cas 3 — Deux avertissements sous le seuil de 3]\n# Données : CORRELATE TARGET_IP=172.20.1.100 LOGS=proxy:172.20.1.100:SlowRequest:WARN|app:172.20.1.100:DeprecationCall:WARN\nA_COMPLETER\n",
+    "title": "Corréler trois sources : l'intrusion du serveur de paie de ComptaPlus",
+    "exampleTitle": "Exemple résolu — la compromission du serveur de fichiers FichiersNet",
+    "goal": "Corréler des journaux d'équipements hétérogènes pour reconstituer une chronologie d'attaque.",
+    "brief": "<p><strong>Énoncé.</strong> Le SIEM de l'entreprise ComptaPlus fusionne les journaux du serveur SSH, du pare-feu et de l'application de paie. Dans la nuit du 15 mars 2026, le corrélateur aligne les événements suivants :</p><table><tr><th>Heure</th><th>Source</th><th>Événement</th></tr><tr><th>03 h 12</th><td>sshd</td><td>échec d'authentification root depuis 198.51.100.77</td></tr><tr><th>03 h 13</th><td>sshd</td><td>échec d'authentification root depuis 198.51.100.77</td></tr><tr><th>03 h 14</th><td>sshd</td><td>authentification root réussie depuis 198.51.100.77</td></tr><tr><th>03 h 16</th><td>pare-feu</td><td>connexion sortante autorisée vers 203.0.113.200 port 4444</td></tr><tr><th>03 h 22</th><td>application paie</td><td>export du fichier salaries_2026.csv lancé par root</td></tr></table><ol><li>Combien de tentatives d'authentification ont échoué avant le succès ?</li><li>Quelle adresse IP mène l'attaque ?</li><li>Comment nomme-t-on une attaque qui enchaîne des essais d'identifiants jusqu'au succès ?</li><li>La connexion sortante vers le port 4444 évoque quel type de canal installé par l'attaquant ?</li><li>Combien de minutes séparent la compromission (03 h 14) de l'exfiltration (03 h 22) ?</li></ol>",
+    "starter": "# Exercice — Corréler trois sources : l'intrusion du serveur de paie de ComptaPlus\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 5 : le nombre seul. Question 2 : l'adresse exacte. Questions 3 et 4 : un court libellé.\n\n[Question 1 — Tentatives échouées avant le succès]\nA_COMPLETER\n\n[Question 2 — Adresse IP de l'attaquant]\nA_COMPLETER\n\n[Question 3 — Type d'attaque par essais successifs]\nA_COMPLETER\n\n[Question 4 — Nature du canal sortant sur le port 4444]\nA_COMPLETER\n\n[Question 5 — Minutes entre compromission et exfiltration]\nA_COMPLETER\n",
     "hints": [
-      "Isolez les événements correspondant à TARGET_IP.",
-      "Vérifiez si le nombre d'événements suspects est >= 3 ou si la sévérité DENY apparaît."
+      "Reconstituez la chronologie minute par minute : qui fait quoi, depuis où, vers où.",
+      "Des échecs répétés suivis d'un succès sur le compte root caractérisent une attaque par force brute.",
+      "1. Comptez les échecs sshd avant 03 h 14. 2. L'IP revient sur les trois lignes sshd. 3. Nommez la technique des essais successifs. 4. Un port de sortie inhabituel juste après la compromission signe le canal de contrôle. 5. De 03 h 14 à 03 h 22."
     ],
     "examples": [
       {
-        "stdin": "CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT",
-        "expected": "CORRELATION: ip=198.51.100.42 events=3 suspicious=3 quarantine=YES",
-        "note": "3 événements suspects cumulés entraînent une mise en quarantaine."
+        "stdin": "Le serveur de fichiers FichiersNet est compromis dans la nuit du 3 avril.\n22 h 41 : échec d'authentification admin depuis 203.0.113.9 (sshd)\n22 h 42 : échec d'authentification admin depuis 203.0.113.9 (sshd)\n22 h 43 : authentification admin réussie depuis 203.0.113.9 (sshd)\n22 h 47 : connexion sortante vers 192.0.2.50 port 8080 (pare-feu)\n22 h 58 : copie compressée des partages vers l'extérieur (application)\n\n1) Deux échecs avant le succès.\n2) L'attaque vient de 203.0.113.9.\n3) Attaque par force brute.\n4) La connexion sortante vers un port inhabituel installe un canal de contrôle.\n5) De 22 h 43 à 22 h 58 : 15 minutes.",
+        "expected": "2 échecs puis succès — IP 203.0.113.9 — force brute — canal de contrôle vers 192.0.2.50:8080 — 15 minutes avant l'exfiltration",
+        "note": "La corrélation ne se lit pas source par source : c'est l'enchaînement authentification suspecte, connexion sortante, accès aux données qui forme la signature de l'intrusion."
       }
     ],
     "tests": [
       {
-        "label": "Trafic légitime sans alerte",
-        "stdin": "cas:1",
-        "expected": "CORRELATION: ip=192.168.1.50 events=2 suspicious=0 quarantine=NO\n"
+        "label": "Question 1 — Tentatives échouées avant le succès",
+        "stdin": "q:1",
+        "expected": "2||deux"
       },
       {
-        "label": "Blocage immédiat sur règle DENY de pare-feu",
-        "stdin": "cas:2",
-        "expected": "CORRELATION: ip=10.10.10.10 events=1 suspicious=1 quarantine=YES\n"
+        "label": "Question 2 — Adresse IP de l'attaquant",
+        "stdin": "q:2",
+        "expected": "198.51.100.77||l'adresse 198.51.100.77||l'ip 198.51.100.77"
       },
       {
-        "label": "Deux avertissements sous le seuil de 3",
-        "stdin": "cas:3",
-        "expected": "CORRELATION: ip=172.20.1.100 events=2 suspicious=2 quarantine=NO\n"
+        "label": "Question 3 — Type d'attaque par essais successifs",
+        "stdin": "q:3",
+        "expected": "force brute||la force brute||brute force||une attaque par force brute||l'attaque par force brute"
+      },
+      {
+        "label": "Question 4 — Nature du canal sortant sur le port 4444",
+        "stdin": "q:4",
+        "expected": "un reverse shell||reverse shell||un canal de contrôle||canal de contrôle||un canal de commande||c2||command and control"
+      },
+      {
+        "label": "Question 5 — Minutes entre compromission et exfiltration",
+        "stdin": "q:5",
+        "expected": "8||8 minutes||8 min"
       }
     ],
-    "solution": "[Exemple]\nCORRELATION: ip=198.51.100.42 events=3 suspicious=3 quarantine=YES\n\n[Cas 1 — Trafic légitime sans alerte]\nCORRELATION: ip=192.168.1.50 events=2 suspicious=0 quarantine=NO\n\n\n[Cas 2 — Blocage immédiat sur règle DENY de pare-feu]\nCORRELATION: ip=10.10.10.10 events=1 suspicious=1 quarantine=YES\n\n\n[Cas 3 — Deux avertissements sous le seuil de 3]\nCORRELATION: ip=172.20.1.100 events=2 suspicious=2 quarantine=NO"
+    "solution": "[Question 1 — Tentatives échouées avant le succès]\n2\n\n[Question 2 — Adresse IP de l'attaquant]\n198.51.100.77\n\n[Question 3 — Type d'attaque par essais successifs]\nforce brute\n\n[Question 4 — Nature du canal sortant sur le port 4444]\nun reverse shell\n\n[Question 5 — Minutes entre compromission et exfiltration]\n8",
+    "takeaway": "1) Deux tentatives d'authentification ont échoué (03 h 12 et 03 h 13) avant le succès de 03 h 14.\n2) L'attaque est menée depuis l'adresse 198.51.100.77, présente sur les trois lignes sshd.\n3) Des essais d'identifiants enchaînés jusqu'au succès sur root : c'est une attaque par force brute.\n4) La connexion sortante vers le port 4444 installe un canal de contrôle, typiquement un reverse shell, permettant à l'attaquant de piloter la machine.\n5) De 03 h 14 à 03 h 22 : 8 minutes séparent la compromission de l'exfiltration du fichier de salaires.\nContrôle : la chronologie complète tient en 10 minutes, de 03 h 12 à 03 h 22, et chaque étape (authentification, canal sortant, exfiltration) provient d'une source différente du SIEM."
   }
 ];

@@ -94,14 +94,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le WAN de lignes louées utilise comme protocole de liaison…', opts: ['HDLC', 'EoMPLS', 'ARP'], correct: 0, exp: 'HDLC (ou PPP) ; EoMPLS est le WAN Ethernet, plus récent.' },
-      { q: 'Première étape du routage interne :', opts: ['chercher la route', 'vérifier le FCS', 'encapsuler'], correct: 1, exp: 'FCS d\'abord : trame erronée jetée.' },
-      { q: 'Deux adresses sont sur le même segment : comment comparer leurs sous-réseaux ?', opts: ['Comparer les adresses et leurs masques ou préfixes', 'Supposer qu\'elles sont toujours dans le même sous-réseau', 'Vérifier uniquement leur adresse MAC'], correct: 0, exp: 'Un segment peut porter plusieurs préfixes ; la MAC seule ne détermine pas le sous-réseau IP.' },
-      { q: 'L\'en-tête IPv4 fait…', opts: ['20 à 60 octets selon les options', 'toujours 20 octets', 'toujours 64 octets'], correct: 0, exp: 'Le minimum est 20 octets ; des options peuvent porter la taille à 60 octets.' },
-      { q: 'Pendant le routage IPv4, que devient l\'en-tête du paquet transmis ?', opts: ['Le TTL diminue et la somme de contrôle est recalculée', 'Il reste intégralement inchangé', 'Il est toujours supprimé'], correct: 0, exp: 'La trame change, et le routeur actualise aussi des champs de l\'en-tête IPv4.' },
+      { q: 'Le WAN de lignes louées utilise comme protocole de liaison…', opts: ['EoMPLS', 'HDLC', 'ARP'], correct: 1, exp: 'HDLC (ou PPP) ; EoMPLS est le WAN Ethernet, plus récent.' },
+      { q: 'Première étape du routage interne :', opts: ['vérifier le FCS', 'chercher la route', 'encapsuler'], correct: 0, exp: "Le routeur vérifie d’abord le FCS : une trame erronée est jetée avant toute recherche de route ou réencapsulation." },
+      { q: 'Deux adresses sont sur le même segment : comment comparer leurs sous-réseaux ?', opts: ['Vérifier uniquement leur adresse MAC', 'Supposer qu\'elles sont toujours dans le même sous-réseau', 'Comparer les adresses et leurs masques ou préfixes'], correct: 2, exp: 'Un segment peut porter plusieurs préfixes ; la MAC seule ne détermine pas le sous-réseau IP.' },
+      { q: 'L\'en-tête IPv4 fait…', opts: ['toujours 64 octets', 'toujours 20 octets', '20 à 60 octets selon les options'], correct: 2, exp: 'Le minimum est 20 octets ; des options peuvent porter la taille à 60 octets.' },
+      { q: 'Pendant le routage IPv4, que devient l\'en-tête du paquet transmis ?', opts: ["L'en-tête reste intégralement inchangé d'un saut à l'autre","Le TTL diminue et la somme de contrôle est recalculée","L'en-tête est entièrement supprimé à chaque saut du trajet"], correct: 1, exp: 'La trame change, et le routeur actualise aussi des champs de l\'en-tête IPv4.' },
       { q: 'La « meilleure route » est choisie selon…', opts: ['une métrique', 'un hasard', 'l\'alphabet'], correct: 0, exp: 'Métrique : le critère de choix entre plusieurs routes.' },
-      { q: 'Un hôte envoie les paquets distants à…', opts: ['son routeur par défaut', 'son switch', 'le serveur DNS'], correct: 0, exp: 'Logique de transfert de l\'hôte : envoyer au routeur par défaut.' },
-      { q: 'ARP sert à…', opts: ['apprendre la MAC d\'un hôte IP du LAN', 'router entre sous-réseaux', 'chiffrer SSH'], correct: 0, exp: 'Résolution d\'adresse : IP → MAC sur le segment local.' }
+      { q: 'Un hôte envoie les paquets distants à…', opts: ['le serveur DNS', 'son switch', 'son routeur par défaut'], correct: 2, exp: 'Logique de transfert de l\'hôte : envoyer au routeur par défaut.' },
+      { q: 'ARP sert à…', opts: ["router les paquets entre sous-réseaux IP","apprendre la MAC d'un hôte IP du LAN","chiffrer les sessions SSH distantes"], correct: 1, exp: 'Résolution d\'adresse : IP → MAC sur le segment local.' }
     ],
 
     pitfalls: [
@@ -227,14 +227,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'L\'accès CLI qui exige une connexion physique :', opts: ['SSH', 'console', 'Telnet'], correct: 1, exp: 'Câble console vers le port dédié (RJ-45 ou USB mini-B).' },
+      { q: 'L\'accès CLI qui exige une connexion physique :', opts: ['console', 'SSH', 'Telnet'], correct: 0, exp: 'Câble console vers le port dédié (RJ-45 ou USB mini-B).' },
       { q: 'Telnet transmet les données…', opts: ['chiffrées', 'en clair', 'compressées'], correct: 1, exp: 'Mots de passe compris : dangereux en production.' },
-      { q: 'La commande qui fait passer du mode user au mode enable :', opts: ['configure', 'enable', 'login'], correct: 1, exp: 'enable ; configure terminal monte ensuite vers la configuration.' },
-      { q: 'La commande reload en mode user est…', opts: ['acceptée', 'refusée', 'masquée'], correct: 1, exp: 'Reload est puissante : réservée au mode enable.' },
-      { q: 'La running-config est stockée en…', opts: ['RAM', 'NVRAM', 'flash'], correct: 0, exp: 'RAM : active, dynamique, volatile.' },
-      { q: 'La startup-config est stockée en…', opts: ['NVRAM', 'RAM', 'ROM'], correct: 0, exp: 'NVRAM : configuration initiale, utilisée à la recharge.' },
-      { q: 'IOS est chargé depuis…', opts: ['la flash', 'la ROM', 'la RAM'], correct: 0, exp: 'La flash stocke les images IOS ; la ROM n\'a que le bootstrap.' },
-      { q: 'Pour tout effacer et repartir de zéro :', opts: ['erase startup-config puis reload', 'clear running-config', 'write ram'], correct: 0, exp: 'Trois commandes possibles (write erase, erase startup-config, erase nvram:), puis recharge.' }
+      { q: 'La commande qui fait passer du mode user au mode enable :', opts: ['configure', 'login', 'enable'], correct: 2, exp: 'enable ; configure terminal monte ensuite vers la configuration.' },
+      { q: 'La commande reload en mode user est…', opts: ['refusée', 'acceptée', 'masquée'], correct: 0, exp: 'Reload est puissante : réservée au mode enable.' },
+      { q: 'La running-config est stockée en…', opts: ['RAM', 'NVRAM', 'flash'], correct: 0, exp: "La running-config vit en RAM, volatile à l’extinction ; la NVRAM porte la startup-config et la flash porte l’image IOS." },
+      { q: 'La startup-config est stockée en…', opts: ['RAM', 'NVRAM', 'ROM'], correct: 1, exp: 'NVRAM : configuration initiale, utilisée à la recharge.' },
+      { q: 'IOS est chargé depuis…', opts: ['la RAM', 'la ROM', 'la flash'], correct: 2, exp: 'La flash stocke les images IOS ; la ROM n\'a que le bootstrap.' },
+      { q: 'Pour tout effacer et repartir de zéro :', opts: ['write ram', 'clear running-config', 'erase startup-config puis reload'], correct: 2, exp: 'Trois commandes possibles (write erase, erase startup-config, erase nvram:), puis recharge.' }
     ],
 
     pitfalls: [
@@ -365,14 +365,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Par défaut, un commutateur Catalyst…', opts: ['exige un mot de passe console', 'n\'exige aucun mot de passe console et refuse le distant', 'accepte Telnet librement'], correct: 1, exp: 'Console libre, Telnet/SSH fermés : tout reste à sécuriser.' },
+      { q: 'Par défaut, un commutateur Catalyst…', opts: ["exige un mot de passe dès la connexion console","n'exige aucun mot de passe console et refuse le distant","accepte les connexions Telnet distantes sans mot de passe"], correct: 1, exp: 'Console libre, Telnet/SSH fermés : tout reste à sécuriser.' },
       { q: 'Le mot de passe du mode enable se pose par…', opts: ['enable secret', 'line password', 'login local'], correct: 0, exp: 'Commande de configuration globale : enable secret.' },
       { q: 'Les lignes vty portent…', opts: ['le mot de passe console', 'le mot de passe Telnet', 'le mot de passe enable'], correct: 1, exp: 'line vty 0 15 : le mot de passe vty (Telnet).' },
-      { q: 'login local signifie…', opts: ['utiliser la liste locale des noms d\'utilisateurs', 'un mot de passe simple', 'une authentification externe'], correct: 0, exp: 'Couple nom/mot de passe par utilisateur, créé par username nom secret motdepasse.' },
-      { q: 'Dans cet exemple Cisco, la clé du serveur SSH se génère par…', opts: ['crypto key generate rsa', 'ssh keygen', 'ip ssh key'], correct: 0, exp: 'Le FQDN est configuré avant ; IOS XE 17.10 indique au moins 2048 bits pour la paire RSA.' },
-      { q: 'L\'adresse IP de gestion se pose sur…', opts: ['un port physique', 'l\'interface VLAN (SVI)', 'la console'], correct: 1, exp: 'interface vlan 1 par défaut — carte réseau virtuelle du commutateur.' },
-      { q: 'Sans ip default-gateway, le commutateur…', opts: ['ne commmute pas', 'ne parle pas hors de son sous-réseau', 'perd sa MAC'], correct: 1, exp: 'La commutation continue ; seul le trafic de gestion distant échoue.' },
-      { q: 'logging synchronous sert à…', opts: ['chiffrer la console', 'synchroniser l\'affichage des messages syslog', 'déconnecter'], correct: 1, exp: 'Les messages non sollicités apparaissent sur une ligne séparée, puis l\'invite est réaffichée.' }
+      { q: 'login local signifie…', opts: ["utiliser la liste locale des noms d'utilisateurs","demander un mot de passe unique, sans nom d'utilisateur","déléguer l'authentification à un serveur externe"], correct: 0, exp: 'Couple nom/mot de passe par utilisateur, créé par username nom secret motdepasse.' },
+      { q: 'Dans cet exemple Cisco, la clé du serveur SSH se génère par…', opts: ['ip ssh key', 'ssh keygen', 'crypto key generate rsa'], correct: 2, exp: 'Le FQDN est configuré avant ; IOS XE 17.10 indique au moins 2048 bits pour la paire RSA.' },
+      { q: 'L\'adresse IP de gestion se pose sur…', opts: ['un port physique', 'la console', 'l\'interface VLAN (SVI)'], correct: 2, exp: 'interface vlan 1 par défaut — carte réseau virtuelle du commutateur.' },
+      { q: 'Sans ip default-gateway, le commutateur…', opts: ["ne commute plus aucune trame entrante","ne parle pas hors de son sous-réseau","perd sa table d'adresses MAC"], correct: 1, exp: 'La commutation continue ; seul le trafic de gestion distant échoue.' },
+      { q: 'logging synchronous sert à…', opts: ["synchroniser l'affichage des messages syslog","chiffrer les accès distants à la console","déconnecter les sessions console inactives"], correct: 0, exp: 'Les messages non sollicités apparaissent sur une ligne séparée, puis l\'invite est réaffichée.' }
     ],
 
     pitfalls: [

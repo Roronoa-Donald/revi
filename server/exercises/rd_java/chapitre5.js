@@ -30,8 +30,9 @@ public class Main {
 }
 `,
     hints: [
-      'Un Set ne garde qu’une copie de chaque valeur : vus.add(sc.next()) suffit.',
-      'La taille de l’ensemble (vus.size()) est exactement le nombre de mots distincts.'
+      "Un Set ne garde qu’une copie de chaque valeur : vus.add(sc.next()) suffit.",
+      "La taille de l’ensemble (vus.size()) est exactement le nombre de mots distincts.",
+      "Étapes : lire n ; verser chaque mot dans un ensemble où les doublons n’entrent qu’une fois ; afficher la taille de l’ensemble."
     ],
     examples: [
       { stdin: '4\na\nb\na\nc', expected: 'mots distincts : 3', note: 'a, b et c : trois mots différents.' }
@@ -54,7 +55,8 @@ public class Main {
         System.out.println("mots distincts : " + vus.size());
     }
 }
-`
+`,
+    takeaway: "Set<String> (HashSet ou LinkedHashSet) garantit l unicité en O(1) amorti lors de la déduplication de mots."
   },
   {
     id: 'java2-c5-e2',
@@ -93,8 +95,9 @@ public class Main {
 }
 `,
     hints: [
-      'Une classe abstraite déclare abstract double aire(); chaque fille l’implémente.',
-      'Choisissez avec type.equals("carre") ? new Carre(valeur) : new Cercle(valeur), puis formate avec Locale.US.'
+      "Une classe abstraite déclare abstract double aire(); chaque fille l’implémente.",
+      "Choisissez avec type.equals(\"carre\") ? new Carre(valeur) : new Cercle(valeur), puis formate avec Locale.US.",
+      "Étapes : lire le type puis la valeur ; un cercle a pour aire π × rayon², un carré côté × côté ; afficher à deux décimales avec un point."
     ],
     examples: [
       { stdin: 'carre\n4', expected: 'aire : 16.00', note: 'Un carré de côté 4.' }
@@ -144,7 +147,8 @@ public class Main {
         System.out.println("aire : " + String.format(Locale.US, "%.2f", forme.aire()));
     }
 }
-`
+`,
+    takeaway: "Une classe abstract Shape déclare aire() sans corps et laisse chaque sous-classe fournir son calcul polymorphe."
   },
   {
     id: 'java2-c5-e3',
@@ -193,8 +197,9 @@ public class Main {
 }
 `,
     hints: [
-      'La redéfinition utilise @Override String crier() { return "Wouf"; }.',
-      'Le polymorphisme joue son rôle : animal.sePresente() appelle la version de Chien pour crier().'
+      "La redéfinition utilise @Override String crier() { return \"Wouf\"; }.",
+      "Le polymorphisme joue son rôle : animal.sePresente() appelle la version de Chien pour crier().",
+      "Étapes : lire le nom ; construire le chien ; sa présentation appelle la redéfinition de crier(), qui rend « Wouf »."
     ],
     examples: [
       { stdin: 'Rex', expected: 'Rex dit Wouf', note: 'L’animal Rex est un chien.' }
@@ -241,6 +246,7 @@ public class Main {
         System.out.println(animal.sePresente());
     }
 }
-`
+`,
+    takeaway: "super(...) chaîne l appel au constructeur parent et @Override sécurise à la compilation la signature redéfinie."
   }
 ];

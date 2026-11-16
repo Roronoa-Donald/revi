@@ -97,14 +97,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que regroupe un cluster ?', opts: ['Plusieurs serveurs en un seul système', 'Des fichiers', 'Des utilisateurs'], correct: 0, exp: 'Les nœuds coopèrent comme un ensemble.' },
-    { stem: 'Citez un bénéfice du clustering.', opts: ['Tolérance aux pannes', 'Compression', 'Chiffrement'], correct: 0, exp: 'HA, répartition de charge et tolérance aux pannes.' },
-    { stem: 'Dans un cluster active-passive…', opts: ['Un nœud actif, d’autres en veille', 'Tous actifs', 'Aucun nœud actif'], correct: 0, exp: 'Le passif prend le relais en cas de panne.' },
-    { stem: 'Inconvénient d’active-passive ?', opts: ['Sous-utilisation du nœud passif', 'Aucune tolérance', 'Trop rapide'], correct: 0, exp: 'Le nœud en veille ne travaille pas.' },
-    { stem: 'Dans un cluster active-active…', opts: ['Tous les nœuds sont actifs', 'Un seul nœud travaille', 'Aucun nœud ne travaille'], correct: 0, exp: 'Les nœuds partagent les tâches.' },
-    { stem: 'Que distribue un load balancer ?', opts: ['Les requêtes entre serveurs', 'Les sauvegardes', 'Les adresses MAC'], correct: 0, exp: 'Il équilibre la charge entre les serveurs actifs.' },
-    { stem: 'Sur quoi repose un failover cluster ?', opts: ['Un stockage partagé', 'Un seul disque local', 'Aucun disque'], correct: 0, exp: 'Un autre nœud reprend les services avec le même état.' },
-    { stem: 'À quoi sert un grid cluster ?', opts: ['Au calcul intensif distribué', 'À héberger un site vitrine', 'À sauvegarder'], correct: 0, exp: 'Plusieurs nœuds calculent en parallèle.' }
+    { stem: 'Que regroupe un cluster ?', opts: ["Plusieurs serveurs en un seul système","Des fichiers partagés entre les nœuds","Des utilisateurs authentifiés ensemble"], correct: 0, exp: "Un cluster regroupe plusieurs serveurs (nœuds) vus de l’extérieur comme un seul système. Ce ne sont ni des fichiers partagés ni des utilisateurs : c’est une unité de service." },
+    { stem: 'Citez un bénéfice du clustering.', opts: ['Compression', 'Tolérance aux pannes', 'Chiffrement'], correct: 1, exp: 'HA, répartition de charge et tolérance aux pannes.' },
+    { stem: 'Dans un cluster active-passive…', opts: ['Aucun nœud actif', 'Tous actifs', 'Un nœud actif, d’autres en veille'], correct: 2, exp: 'Le passif prend le relais en cas de panne.' },
+    { stem: 'Inconvénient d’active-passive ?', opts: ['Aucune tolérance', 'Sous-utilisation du nœud passif', 'Trop rapide'], correct: 1, exp: "En active-passive, le nœud passif reste en attente et ne traite aucune charge : il est sous-utilisé. La tolérance aux pannes, elle, reste entière — ce n’est pas « aucune »." },
+    { stem: 'Dans un cluster active-active…', opts: ['Tous les nœuds sont actifs', 'Un seul nœud travaille', 'Aucun nœud ne travaille'], correct: 0, exp: "En active-active, tous les nœuds traitent la charge en même temps et se répartissent les tâches. Un seul nœud au travail, c’est le schéma active-passive." },
+    { stem: 'Que distribue un load balancer ?', opts: ['Les adresses MAC', 'Les sauvegardes', 'Les requêtes entre serveurs'], correct: 2, exp: 'Il équilibre la charge entre les serveurs actifs.' },
+    { stem: 'Sur quoi repose un failover cluster ?', opts: ['Un seul disque local', 'Un stockage partagé', 'Aucun disque'], correct: 1, exp: 'Un autre nœud reprend les services avec le même état.' },
+    { stem: 'À quoi sert un grid cluster ?', opts: ['Au calcul intensif distribué', 'À héberger un site vitrine', 'À sauvegarder'], correct: 0, exp: "Un grid cluster distribue un calcul intensif sur plusieurs nœuds en parallèle — météo, rendu 3D, IA. Un site vitrine n’exige pas cette puissance, et sauvegarder n’est pas calculer." }
   ],
 
   pitfalls: [

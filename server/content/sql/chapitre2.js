@@ -137,34 +137,34 @@ module.exports = {
     {
       stem: 'Dans une clause WHERE, que se passe-t-il pour une ligne dont la condition s’évalue à UNKNOWN ?',
       opts: [
-        'La ligne est exclue du résultat final (car seule une évaluation à TRUE permet la sélection)',
-        'La ligne est incluse par précaution',
-        'La requête s’interrompt avec une erreur d’exécution',
-        'La valeur de la colonne est automatiquement remplacée par zéro'
+        "La ligne est tout de même incluse par précaution dans le résultat final",
+        "La requête s’interrompt immédiatement avec une erreur d’exécution fatale",
+        "La valeur de la colonne concernée est automatiquement remplacée par zéro",
+        "La ligne est exclue du résultat final (car seule une évaluation à TRUE permet la sélection)"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La clause WHERE ne retient une ligne que si l’expression conditionnelle s’évalue strictement à TRUE. Tout résultat valant FALSE ou UNKNOWN entraîne l’exclusion immédiate de la ligne.'
     },
     {
       stem: 'Que renvoie l’appel à la fonction COALESCE(NULL, NULL, \'contact@domain.com\', \'aucun\') ?',
       opts: [
-        '\'contact@domain.com\'',
-        'NULL',
         '\'aucun\'',
+        'NULL',
+        '\'contact@domain.com\'',
         'Une liste contenant les 4 éléments'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'COALESCE parcourt les arguments dans l’ordre de gauche à droite et renvoie le premier élément non-NULL rencontré, ici \'contact@domain.com\'.'
     },
     {
       stem: 'Quel motif SQL LIKE permet de trouver tous les mots commençant par la lettre \'C\', se terminant par \'R\', et ayant exactement 3 caractères au total ?',
       opts: [
-        '\'C_R\'',
         '\'C%R\'',
+        '\'C_R\'',
         '\'C__R\'',
         '\'C?R\''
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Dans l’opérateur LIKE, le tiret bas \'_\' remplace exactement un caractère unique. Le motif \'C_R\' correspond donc à un texte de 3 caractères débutant par C et finissant par R (ex: CAR, COR).'
     },
     {

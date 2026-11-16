@@ -120,13 +120,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'L\'informatique est la science…', opts: ['des circuits intégrés', 'du traitement automatique de l\'information', 'de l\'électricité'], correct: 1, exp: 'Information + automatique : traiter l\'information sans intervention humaine.' },
-      { q: 'La Pascaline (1642) fonctionne à…', opts: ['vapeur', 'électricité', 'mécanique'], correct: 2, exp: 'Roues dentées : c\'est une machine mécanique.' },
-      { q: 'La génération du microprocesseur est la…', opts: ['3e', '4e', '5e'], correct: 1, exp: 'Lampe 1, transistor 2, circuit intégré 3, microprocesseur 4, réseau et cloud 5.' },
-      { q: 'La RAM et le disque dur appartiennent au…', opts: ['software', 'hardware', 'kernel'], correct: 1, exp: 'Parties physiques : matériel.' },
-      { q: 'MS-DOS est un OS…', opts: ['mono-utilisateur mono-tâche', 'multi-utilisateurs', 'temps réel'], correct: 0, exp: 'Un utilisateur, un programme à la fois.' },
+      { q: 'L\'informatique est la science…', opts: ["du traitement automatique de l'information","des circuits intégrés qui composent les machines","de la circulation du courant dans les circuits"], correct: 0, exp: 'Information + automatique : traiter l\'information sans intervention humaine.' },
+      { q: 'La Pascaline (1642) fonctionne à…', opts: ['vapeur', 'mécanique', 'électricité'], correct: 1, exp: 'Roues dentées : c\'est une machine mécanique.' },
+      { q: 'La génération du microprocesseur est la…', opts: ['3e', '5e', '4e'], correct: 2, exp: 'Lampe 1, transistor 2, circuit intégré 3, microprocesseur 4, réseau et cloud 5.' },
+      { q: 'La RAM et le disque dur appartiennent au…', opts: ['software', 'kernel', 'hardware'], correct: 2, exp: "La RAM comme le disque dur sont des composants physiques tangibles : le matériel (hardware), par opposition aux logiciels (software), programmes immatériels." },
+      { q: 'MS-DOS est un OS…', opts: ['mono-utilisateur mono-tâche', 'multi-utilisateurs', 'temps réel'], correct: 0, exp: "MS-DOS n'accepte qu'un utilisateur et qu'un programme à la fois : il est mono-utilisateur et mono-tâche, contrairement aux systèmes multi-utilisateurs comme UNIX." },
       { q: '1 Mio vaut…', opts: ['1000 Kio', '1024 Kio', '1024 octets'], correct: 1, exp: 'Puissances de 2 : 1 Mio = 1024 Kio = 1024 × 1024 octets.' },
-      { q: 'Un lien de 80 Mbps transfert au plus…', opts: ['10 Mo/s', '80 Mo/s', '8 Mo/s'], correct: 0, exp: '1 Mo/s = 8 Mbps : 80 ÷ 8 = 10 Mo/s.' },
+      { q: 'Un lien de 80 Mbps transfert au plus…', opts: ['8 Mo/s', '80 Mo/s', '10 Mo/s'], correct: 2, exp: "80 Mbps se convertit en octets en divisant par 8 : 80 ÷ 8 = 10 Mo/s ; confondre bits et octets ferait croire à 80 Mo/s, huit fois trop." },
       { q: 'La latence mesure…', opts: ['la capacité', 'un délai', 'une puissance'], correct: 1, exp: 'Délai d\'accès — plus elle est faible, mieux c\'est.' }
     ],
 
@@ -258,14 +258,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un octet contient…', opts: ['4 bits', '8 bits', '16 bits'], correct: 1, exp: 'Huit bits ; le quartet en vaut quatre.' },
-      { q: 'Le bit de poids fort s\'appelle…', opts: ['LSB', 'MSB', 'MBR'], correct: 1, exp: 'Most Significant Bit, à gauche du mot.' },
-      { q: '13 en binaire vaut…', opts: ['1011', '1101', '1110'], correct: 1, exp: '13 = 8 + 4 + 1 = 1101.' },
-      { q: '101011 en décimal vaut…', opts: ['41', '43', '45'], correct: 1, exp: '32 + 8 + 2 + 1 = 43.' },
-      { q: 'Pour lire l\'hexa, on groupe le binaire par…', opts: ['3 bits', '4 bits', '8 bits'], correct: 1, exp: '2^4 = 16 : un quartet par chiffre hexa.' },
-      { q: 'F en hexadécimal vaut…', opts: ['14', '15', '16'], correct: 1, exp: 'A=10 … F=15.' },
-      { q: '0,101 en binaire vaut…', opts: ['0,625', '0,5', '0,75'], correct: 0, exp: '0,5 + 0 + 0,125 = 0,625.' },
-      { q: 'En BCD, le nombre 259 s\'écrit…', opts: ['un octet unique', 'trois quartets 0010 0101 1001', '100000011'], correct: 1, exp: 'Chaque chiffre décimal a son quartet.' }
+      { q: 'Un octet contient…', opts: ['8 bits', '4 bits', '16 bits'], correct: 0, exp: "Un octet (byte) regroupe huit bits ; le quartet, mi-octet, en vaut quatre, et seize bits forment un mot de deux octets." },
+      { q: 'Le bit de poids fort s\'appelle…', opts: ['LSB', 'MSB', 'MBR'], correct: 1, exp: "MSB signifie Most Significant Bit : le bit de gauche, porteur du poids le plus fort (2^7 dans un octet) ; LSB désigne le bit de poids faible." },
+      { q: '13 en binaire vaut…', opts: ['1011', '1110', '1101'], correct: 2, exp: "13 = 8 + 4 + 1 : les poids 2^3, 2^2 et 2^0 sont actifs, d'où 1101 ; 1011 ne vaudrait que 11." },
+      { q: '101011 en décimal vaut…', opts: ['43', '41', '45'], correct: 0, exp: "De gauche à droite : 32 + 0 + 8 + 0 + 2 + 1 = 43 ; 41 correspondrait à 101001, erreur classique de lecture des poids." },
+      { q: 'Pour lire l\'hexa, on groupe le binaire par…', opts: ['3 bits', '4 bits', '8 bits'], correct: 1, exp: "Un chiffre hexadécimal couvre seize valeurs : il faut donc 4 bits (2^4 = 16), un quartet par chiffre, et non 3 ou 8 bits." },
+      { q: 'F en hexadécimal vaut…', opts: ['15', '14', '16'], correct: 0, exp: "L'hexadécimal poursuit au-delà de 9 : A=10, B=11, C=12, D=13, E=14 et F=15 ; aucun chiffre ne vaut 16, F étant le maximum d'un quartet." },
+      { q: '0,101 en binaire vaut…', opts: ['0,75', '0,5', '0,625'], correct: 2, exp: "Après la virgule, les poids deviennent 2^-1=0,5, 2^-2=0,25 et 2^-3=0,125 : 0,5 + 0 + 0,125 = 0,625, et non 0,5 qui ignorerait le dernier bit." },
+      { q: 'En BCD, le nombre 259 s\'écrit…', opts: ['un octet unique', '100000011', 'trois quartets 0010 0101 1001'], correct: 2, exp: "Le code BCD traduit chaque chiffre décimal sur son quartet : 2 donne 0010, 5 donne 0101 et 9 donne 1001, soit trois quartets, jamais un octet unique." }
     ],
 
     pitfalls: [
@@ -403,15 +403,15 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'En signe + valeur absolue, le zéro a…', opts: ['une écriture', 'deux écritures', 'trois écritures'], correct: 1, exp: '0000 et 1000 représentent +0 et -0.' },
-      { q: 'Le complément à 1 de 0110 vaut…', opts: ['1001', '1010', '0110'], correct: 0, exp: 'On inverse tous les bits.' },
-      { q: 'Le complément à 2 de 0110 vaut…', opts: ['1009 impossible', '1010', '1001'], correct: 1, exp: 'C1 = 1001, puis +1 → 1010.' },
-      { q: 'En complément à 2, -5 sur 4 bits vaut…', opts: ['1101', '1011', '1010'], correct: 1, exp: 'C1(0101)=1010, +1 → 1011.' },
-      { q: '1 + 1 en binaire donne…', opts: ['1', '10', '11'], correct: 1, exp: 'Somme 0, retenue 1 : on écrit 10.' },
-      { q: '1111 + 0001 sur 4 bits non signés provoque…', opts: ['rien', 'un débordement', 'une division'], correct: 1, exp: '10000 : le bit qui sort du mot est le carry.' },
-      { q: 'Quelle addition déborde sur 4 bits signés en complément à 2 ?', opts: ['(-1) + (-1)', '7 + 1', '1 + (-1)'], correct: 1, exp: 'Les valeurs représentables vont de -8 à 7 : 7 + 1 = 8 dépasse la borne. Les deux autres résultats, -2 et 0, sont représentables.' },
-      { q: 'Multiplier par 4 revient à…', opts: ['décaler de 2 bits à gauche', 'décaler de 2 bits à droite', 'inverser les bits'], correct: 0, exp: 'Décalage gauche de k bits = multiplication par 2^k.' },
-      { q: 'Soustraire revient à…', opts: ['ajouter le complément à 2', 'inverser le signe du mot', 'diviser'], correct: 0, exp: 'Le processeur additionne le complément à 2 : un seul additionneur.' }
+      { q: 'En signe + valeur absolue, le zéro a…', opts: ['une écriture', 'deux écritures', 'trois écritures'], correct: 1, exp: "En signe + valeur absolue, 0000 code +0 et 1000 code -0 : deux écritures du même nombre, défaut que le complément à 2 élimine." },
+      { q: 'Le complément à 1 de 0110 vaut…', opts: ['1001', '1010', '0110'], correct: 0, exp: "Le complément à 1 inverse chaque bit un à un : 0→1, 1→0, 1→0, 0→1, d'où 1001 ; 1010 serait le complément à 2 de 0110." },
+      { q: 'Le complément à 2 de 0110 vaut…', opts: ['1009 impossible', '1001', '1010'], correct: 2, exp: "On calcule d'abord le complément à 1 (1001) puis on ajoute 1 : 1001 + 1 = 1010 ; 1001 n'est que l'étape intermédiaire." },
+      { q: 'En complément à 2, -5 sur 4 bits vaut…', opts: ['1011', '1101', '1010'], correct: 0, exp: "5 s'écrit 0101 ; son complément à 1 vaut 1010 et l'ajout de 1 donne 1011, représentation de -5 ; 1010 serait -6." },
+      { q: '1 + 1 en binaire donne…', opts: ['1', '10', '11'], correct: 1, exp: "En base 2, deux s'écrit 10 : la somme des bits vaut 0 et l'on retient 1 ; 11 correspondrait à 1 + 1 + 1 avec retenue." },
+      { q: '1111 + 0001 sur 4 bits non signés provoque…', opts: ['rien', 'une division', 'un débordement'], correct: 2, exp: '10000 : le bit qui sort du mot est le carry.' },
+      { q: 'Quelle addition déborde sur 4 bits signés en complément à 2 ?', opts: ['7 + 1', '(-1) + (-1)', '1 + (-1)'], correct: 0, exp: 'Les valeurs représentables vont de -8 à 7 : 7 + 1 = 8 dépasse la borne. Les deux autres résultats, -2 et 0, sont représentables.' },
+      { q: 'Multiplier par 4 revient à…', opts: ['décaler de 2 bits à droite', 'décaler de 2 bits à gauche', 'inverser les bits'], correct: 1, exp: 'Décalage gauche de k bits = multiplication par 2^k.' },
+      { q: 'Soustraire revient à…', opts: ['diviser', 'inverser le signe du mot', 'ajouter le complément à 2'], correct: 2, exp: 'Le processeur additionne le complément à 2 : un seul additionneur.' }
     ],
 
     pitfalls: [

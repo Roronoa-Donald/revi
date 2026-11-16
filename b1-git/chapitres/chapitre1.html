@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -83,7 +81,7 @@
 
 <h2>1. Pourquoi versionner</h2>
 
-<p>Git est le <strong>système de gestion de version décentralisé</strong> open source qui facilite les activités GitHub sur le poste de travail. Décentralisé signifie que chaque machine possède <strong>tout l'historique</strong> : on peut commité, revenir en arrière, brancher, sans réseau. Le réseau ne sert qu'à la synchronisation entre dépôts.</p>
+<p>Git est le <strong>système de gestion de version décentralisé</strong> open source qui facilite les activités GitHub sur le poste de travail. Décentralisé signifie que chaque machine possède <strong>tout l'historique</strong> : on peut commiter, revenir en arrière, brancher, sans réseau. Le réseau ne sert qu'à la synchronisation entre dépôts.</p>
 <p>Les bénéfices concrets du TP : revenir à n'importe quelle version d'un fichier, savoir qui a changé quoi et quand, expérimenter sur une branche sans risquer la version qui marche, collaborer à plusieurs sans s'écraser les fichiers.</p>
   <div class="box box--mnemo">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémotechnique — « tout l'historique dans la poche »</div>
@@ -193,10 +191,11 @@ dépôt : gestion_taches
 config : manquant</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Couper l’opération et son argument : read -r op reste lit le premier mot puis tout le reste de la ligne.</li>
         <li>Deux drapeaux suffisent pour la config : un pour user.name, un pour user.email.</li>
+        <li>init mémorise le nom et annonce la création ; config lève le drapeau de sa clé ; status affiche le dépôt (aucun sans init) puis config : ok si les deux drapeaux sont levés, sinon manquant.</li>
       </ol>
     </details>
   </div>
@@ -207,22 +206,29 @@ config : manquant</pre></div>
      data-language="shell"
      data-height="300"
      data-stdin="4&#10;config user.name Alice&#10;config user.email a@x.fr&#10;commit init&#10;commit second&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.useConfigOnly true
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op reste
-  # À compléter : refuser les commits sans identité, numéroter les acceptés.
+  # À compléter : git config cle valeur ; ou echo/git add/git commit -q -m "$reste"
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Identité et commits refusés</h3>
+    <h3 class="lab__title">Exercice 2 — Identité git config et refus de commit</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le refus de commit sans identité : le premier piège du TP1.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>config user.name X</code>, <code>config user.email X</code>, ou <code>commit msg</code>. Un commit est accepté seulement si user.name ET user.email sont posés : il affiche alors <code>[main SHA] msg</code> avec SHA le numéro du commit sur quatre chiffres (0001, 0002…). Sinon il affiche <code>erreur : identité manquante</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exécuter de vraies commandes git config et git commit pour vérifier le blocage sans identité.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt Git temporaire initialisé avec <code>user.useConfigOnly=true</code>, le script lit <strong>n opérations</strong> : <code>config cle valeur</code> (exécute <code>git config</code>), ou <code>commit msg</code> (ajoute une ligne à <code>journal.txt</code>, l’indexe puis tente <code>git commit -q -m ...</code>). Si <code>git commit</code> réussit, affichez <code>[main SHA] msg</code> avec le rang du commit réel sur 4 chiffres (0001, 0002…) ; sinon affichez <code>erreur : identité manquante</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 config user.name Alice
@@ -234,10 +240,11 @@ commit second
 [main 0002] second</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un compteur de commits acceptés, initialisé avant la boucle, sert de numéro.</li>
-        <li>Le formatage sur quatre chiffres : printf "%04d" $numero.</li>
+        <li>Pour configurer avec git config, séparez la clé (reste%% *) et la valeur (reste#* ).</li>
+        <li>Avant chaque git commit, modifiez et indexez un fichier (echo "$i" &gt;&gt; journal.txt &amp;&amp; git add journal.txt) pour qu’il y ait un changement à valider.</li>
+        <li>Récupérez le nombre réel de commits créés avec git rev-list --count HEAD après un git commit réussi.</li>
       </ol>
     </details>
   </div>
@@ -283,10 +290,11 @@ indexes : 1</pre></div>
     </div>
     <p class="lab__note">main.py reste indexé et possède aussi une modification ; README.md reste non suivi au status.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un fichier peut avoir une version indexée et, en même temps, une modification dans la copie de travail.</li>
         <li>Une modification sur un fichier non suivi le laisse non suivi ; un nouvel add actualise sa version indexée.</li>
+        <li>cree rend le fichier non suivi ; add le fait passer à indexé ; modifie ne compte un modifié que si le fichier est déjà indexé ; status imprime les trois compteurs dans l’ordre.</li>
       </ol>
     </details>
   </div>
@@ -299,18 +307,18 @@ indexes : 1</pre></div>
     <div class="q">
       <p class="q__stem">Que crée exactement git init ?</p>
       <div class="opts">
-        <button class="opt">Un dépôt distant</button>
+        <button class="opt">Un dépôt distant hébergé sur un serveur Git</button>
+        <button class="opt">Un simple fichier de configuration du projet</button>
         <button class="opt" data-correct="1">Un sous-dossier .git contenant le dépôt local</button>
-        <button class="opt">Un fichier de configuration seul</button>
       </div>
       <div class="q__exp">git init crée le sous-dossier .git qui abrite tout le dépôt local.</div>
     </div>
     <div class="q">
       <p class="q__stem">Sans user.name ni user.email configurés, un commit…</p>
       <div class="opts">
-        <button class="opt">est accepté anonymement</button>
         <button class="opt" data-correct="1">peut être refusé ou signé d'une identité incorrecte</button>
-        <button class="opt">demande le mot de passe</button>
+        <button class="opt">est accepté et signé par un utilisateur anonyme</button>
+        <button class="opt">demande le mot de passe du compte GitHub</button>
       </div>
       <div class="q__exp">C'est l'erreur classique du débutant signalée par le TP1 : configurer avant de commiter.</div>
     </div>
@@ -326,9 +334,9 @@ indexes : 1</pre></div>
     <div class="q">
       <p class="q__stem">Quels sont les trois espaces de Git ?</p>
       <div class="opts">
-        <button class="opt">RAM, disque, cloud</button>
         <button class="opt" data-correct="1">Copie de travail, index, dépôt local</button>
-        <button class="opt">main, feature, origin</button>
+        <button class="opt">La RAM, le disque dur et le cloud</button>
+        <button class="opt">main, feature, origin (des branches)</button>
       </div>
       <div class="q__exp">Copie de travail, index (zone de transit) et dépôt local (historique, tête HEAD).</div>
     </div>
@@ -353,9 +361,9 @@ indexes : 1</pre></div>
     <div class="q">
       <p class="q__stem">git clone fait quoi, de plus que copier des fichiers ?</p>
       <div class="opts">
-        <button class="opt">Rien de plus</button>
+        <button class="opt">Rien de plus : le clone se réduit à une copie des fichiers</button>
         <button class="opt" data-correct="1">Télécharge le projet et tout son historique, et crée le lien origin</button>
-        <button class="opt">Crée un .gitignore</button>
+        <button class="opt">Crée un .gitignore adapté au projet téléchargé</button>
       </div>
       <div class="q__exp">Le clone reconstruit l'historique complet et le lien vers le dépôt distant.</div>
     </div>
@@ -487,7 +495,7 @@ indexes : 1</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

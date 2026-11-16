@@ -23,8 +23,9 @@ $ram = [int][Console]::In.ReadLine()
 # et la mémoire disponible.
 `,
     hints: [
-      'Sans extensions CPU, l’hyperviseur ne peut pas isoler les VM : impossible.',
-      'Avec extensions, vérifiez la RAM : au moins 8 Go.'
+      "Sans extensions CPU, l’hyperviseur ne peut pas isoler les VM : impossible.",
+      "Avec extensions, vérifiez la RAM : au moins 8 Go.",
+      "Étapes : lire extensions puis RAM ; « non » → virtualisation impossible ; sinon RAM ≥ 8 → possible ; sinon ram insuffisante."
     ],
     examples: [
       { stdin: 'oui\n16', expected: 'virtualisation : possible', note: 'Extensions présentes, 16 Go de RAM.' }
@@ -44,7 +45,8 @@ if ($extensions -eq "non") {
 } else {
     Write-Output "ram insuffisante"
 }
-`
+`,
+    takeaway: "La virtualisation matérielle requiert l activation des extensions VT-x/AMD-V dans le firmware UEFI et assez de RAM libre."
   },
   {
     id: 'vm2-c2-e2',
@@ -62,8 +64,9 @@ $ramVm = [int][Console]::In.ReadLine()
 # À compléter : calculer la division entière et afficher "vms possibles : X".
 `,
     hints: [
-      'La RAM est la ressource la plus critique : elle est partagée sans élasticité.',
-      'Division entière : `[int]([math]::Floor($ramHote / $ramVm))`.'
+      "La RAM est la ressource la plus critique : elle est partagée sans élasticité.",
+      "Division entière : `[int]([math]::Floor($ramHote / $ramVm))`.",
+      "Étapes : lire ramHote puis ramVm ; nombre possible = partie entière du quotient ; afficher « vms possibles : » suivi du nombre."
     ],
     examples: [
       { stdin: '64\n4', expected: 'vms possibles : 16', note: '64 Go pour des VM de 4 Go.' }
@@ -78,7 +81,8 @@ $ramVm = [int][Console]::In.ReadLine()
 
 $possibles = [int]([math]::Floor($ramHote / $ramVm))
 Write-Output ("vms possibles : " + $possibles)
-`
+`,
+    takeaway: "La division entière de la RAM exploitable par le gabarit par VM donne le plafond d instances sans swap."
   },
   {
     id: 'vm2-c2-e3',
@@ -96,8 +100,9 @@ Write-Output ("vms possibles : " + $possibles)
 # À compléter : avec un switch, afficher le rôle du composant.
 `,
     hints: [
-      'Le noyau fournit l’accélération matérielle (extensions CPU).',
-      'QEMU exécute les VM, libvirt pilote et expose une API.'
+      "Le noyau fournit l’accélération matérielle (extensions CPU).",
+      "QEMU exécute les VM, libvirt pilote et expose une API.",
+      "Étapes : lire le composant ; noyau → extensions CPU ; qemu → execution des VM ; libvirt → pilotage et API ; toute autre valeur → « role : inconnu »."
     ],
     examples: [
       { stdin: 'noyau', expected: 'role : extensions CPU', note: 'Le module noyau KVM.' }
@@ -115,6 +120,7 @@ switch ($composant) {
     "libvirt" { Write-Output "role : pilotage et API" }
     default { Write-Output "role : inconnu" }
 }
-`
+`,
+    takeaway: "Sur Linux, KVM fournit l accélération noyau, QEMU émule le matériel virtuel et libvirt orchestre l API d administration."
   }
 ];

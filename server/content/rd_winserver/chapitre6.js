@@ -1,5 +1,6 @@
 /**
- * Chapitre 6 du cours « Windows Server » B2 — snapshots, clones et sauvegarde VM.
+ * Chapitre 6 du cours « Windows Server » B2 — Sauvegarde Windows Server Backup
+ * (wbadmin, BMR, VSS), FSRM, WSUS, surveillance et snapshots/clones VM.
  */
 'use strict';
 
@@ -7,25 +8,53 @@ const { box } = require('../../../scripts/course-kit');
 
 module.exports = {
   n: 6,
-  title: 'Snapshots, clones & templates',
-  short: 'Snapshots & clones',
-  toc: 'Snapshots, clones complet/lié, templates, vMotion, cluster HA et sauvegarde Veeam.',
-  time: '≈ 2 h 30 de travail',
+  title: 'Windows Server Backup (wbadmin, VSS), FSRM, WSUS, Surveillance &amp; Snapshots VM',
+  short: 'WBAdmin, FSRM, WSUS &amp; Snapshots',
+  toc: 'Windows Server Backup (wbadmin, Bare-Metal Recovery, clichés instantanés VSS), FSRM (quotas et filtrage de fichiers), WSUS, surveillance d’événements/performances, snapshots, clones, templates, vMotion et Veeam.',
+  time: '≈ 2 h 45 de travail',
   lockLabel: 'Réservé B2 et plus',
 
   situation:
-    'Avant une mise à jour risquée, on prend un snapshot ; pour déployer dix serveurs identiques, on ' +
-    'clone ou on part d’un template ; pour équilibrer la charge, on migre une VM à chaud. Ces gestes ' +
-    'du quotidien de l’administrateur ont chacun leurs règles.',
+    'En production sous Windows Server B2, la continuité opérationnelle repose sur des outils natifs ' +
+    'incontournables : sauvegarder l’état du système et le serveur nu avec Windows Server Backup (wbadmin) ' +
+    'et les clichés instantanés VSS, maîtriser la volumétrie et bloquer les extensions dangereuses avec ' +
+    'le Gestionnaire de ressources du serveur de fichiers (FSRM), orchestrer les correctifs via WSUS, ' +
+    'corréler les événements et compteurs de performance, et encadrer les snapshots et migrations de VM.',
 
   objectives: [
-    'définir un snapshot et le distinguer d’une sauvegarde ;',
-    'comparer clone complet et clone lié ;',
-    'expliquer l’usage d’un template ;',
-    'situer vMotion, le cluster HA et la sauvegarde Veeam.'
+    'mettre en œuvre Windows Server Backup (wbadmin, System State, Bare-Metal Recovery et clichés instantanés VSS) ;',
+    'configurer le Gestionnaire de ressources du serveur de fichiers (FSRM : quotas stricts/souples et filtrage de fichiers actif/passif) ;',
+    'administrer le déploiement de correctifs avec WSUS et surveiller les événements (Event Viewer / Get-WinEvent) et performances (Performance Monitor) ;',
+    'définir un snapshot (checkpoint Hyper-V standard vs production) et le distinguer d’une sauvegarde ;',
+    'comparer clone complet et clone lié, expliquer l’usage d’un template et situer vMotion, le cluster HA et la sauvegarde Veeam.'
   ],
 
   sections: [
+    {
+      title: 'Sauvegarde et restauration Windows Server Backup (wbadmin, Bare-Metal Recovery et clichés instantanés VSS)',
+      html: [
+        '<p>La fonctionnalité native <strong>Windows Server Backup</strong> (installée via <code>Install-WindowsFeature Windows-Server-Backup</code>) s’appuie sur le service <strong>VSS (Volume Shadow Copy Service)</strong> pour réaliser des sauvegardes à chaud cohérentes sans interrompre Active Directory ni les bases de données :</p>',
+        '<ul>',
+        '  <li><strong>Architecture des clichés instantanés VSS :</strong> le <em>VSS Requestor</em> (<code>wbadmin</code> ou agent tiers) interroge les <em>VSS Writers</em> applicatifs (NTDS pour Active Directory, SQL Server, Hyper-V) afin de purger les tampons en mémoire et de geler brièvement les écritures pendant que le <em>VSS Provider</em> prend un cliché instantané (<em>Shadow Copy</em>) en lecture seule du volume. Sur les partages de fichiers, les clichés VSS permettent aussi aux utilisateurs de restaurer leurs <strong>Versions précédentes (Previous Versions)</strong> en autonomie.</li>',
+        '  <li><strong>Sauvegarde System State (État du système) :</strong> <code>wbadmin start systemstatebackup -backupTarget:E: -quiet</code> sauvegarde la base Active Directory (<code>ntds.dit</code>), le dossier <code>SYSVOL</code>, le Registre, les fichiers système protégés et la base de certificats AD CS. En cas de suppression accidentelle d’une OU, on redémarre en mode <strong>DSRM (Directory Services Restore Mode)</strong> pour exécuter une restauration <em>non-autoritative</em> suivie d’un marquage <strong>autoritatif</strong> via <code>ntdsutil</code>.</li>',
+        '  <li><strong>Bare-Metal Recovery (BMR — Restauration sur matériel vierge) :</strong> <code>wbadmin start backup -backupTarget:\\\\nas\\backups -allCritical -systemState -vssFull -quiet</code> capture l’intégralité des volumes critiques, la partition EFI/boot et l’état système pour reconstruire le serveur à l’identique sur un nouveau serveur physique ou virtuel depuis l’environnement de récupération Windows RE.</li>',
+        '</ul>',
+        box('tech', 'Commandes clés wbadmin et vssadmin en production', 'terminal',
+          '    <p>Lister les sauvegardes disponibles : <code>wbadmin get versions</code> ; consulter les éléments d’un jeu : <code>wbadmin get items -version:11/15/2026-02:00</code> ; inspecter les clichés instantanés VSS actifs : <code>vssadmin list shadows</code> et redimensionner l’espace réservé aux clichés : <code>vssadmin resize shadowstorage /for=D: /on=D: /maxsize=20%</code>.</p>')
+      ].join('\n')
+    },
+    {
+      title: 'Gestionnaire de ressources du serveur de fichiers (FSRM), WSUS et surveillance d’événements / performances',
+      html: [
+        '<p>Le rôle <strong>FSRM (File Server Resource Manager — Gestionnaire de ressources du serveur de fichiers)</strong> protège les serveurs de fichiers SMB contre la saturation disque et les dépôts illicites ou malveillants :</p>',
+        '<table><thead><tr><th>Brique d’administration</th><th>Mécanisme sous Windows Server</th><th>Commandes PowerShell &amp; bonnes pratiques</th></tr></thead><tbody>',
+        '<tr><td><strong>Quotas FSRM</strong></td><td>Un quota <strong>strict (Hard Quota)</strong> bloque toute écriture dès la limite atteinte (ex. 10 Go par dossier de service) ; un quota <strong>souple (Soft Quota)</strong> laisse écrire mais déclenche des alertes e-mail, journaux d’événements ou scripts à 85 %, 95 % et 100 %.</td><td><code>New-FsrmQuotaTemplate</code>, <code>New-FsrmQuota -Path "D:\\Partages\\Compta" -Size 10GB</code></td></tr>',
+        '<tr><td><strong>Filtrage de fichiers FSRM</strong> (<em>File Screening</em>)</td><td>Bloque des groupes d’extensions (exécutables <code>.exe/.ps1</code>, multimédias <code>.mp4/.iso</code>, ou extensions connues de rançongiciels). Le filtrage <strong>actif</strong> refuse l’écriture ; le filtrage <strong>passif</strong> autorise mais journalise pour audit.</td><td><code>New-FsrmFileGroup</code>, <code>New-FsrmFileScreen -Path "D:\\Partages" -IncludeGroup @("Exécutables") -Active</code></td></tr>',
+        '<tr><td><strong>WSUS</strong> (<em>Windows Server Update Services</em>)</td><td>Centralise le téléchargement des correctifs Microsoft, segmente les machines en <strong>groupes d’ordinateurs</strong> (<em>Anneau Pilote / Test</em> puis <em>Production</em>) pilotés par GPO et contrôle l’<strong>approbation</strong> (<em>Approve / Decline</em>) et les rapports de conformité.</td><td>GPO <code>Specify intranet Microsoft update service location</code>, <code>Get-WsusServer</code>, <code>Approve-WsusUpdate</code></td></tr>',
+        '<tr><td><strong>Surveillance d’événements &amp; performances</strong></td><td>Corrélation des journaux dans l’<strong>observateur d’événements (Event Viewer)</strong> (IDs sécurité <code>4624</code> connexion, <code>4625</code> échec, <code>4720</code> création de compte, <code>4740</code> verrouillage, <code>1102</code> purge d’audit) et suivi des compteurs <strong>Performance Monitor (PerfMon)</strong> (CPU, <code>Available MBytes</code>, latence disque <code>Avg. Disk sec/Read</code> &lt; 15 ms).</td><td><code>Get-WinEvent -FilterHashtable @{LogName=\'Security\'; Id=4625}</code>, <code>Get-Counter</code>, abonnements WEF.</td></tr>',
+        '</tbody></table>'
+      ].join('\n')
+    },
     {
       title: 'Le snapshot',
       html: [
@@ -103,56 +132,60 @@ module.exports = {
 
   questions: [
     { stem: 'Que capture un checkpoint Hyper-V de production ?', opts: ['Un état cohérent sans mémoire de la VM', 'Toujours la mémoire de la VM', 'Seulement le réseau'], correct: 0, exp: 'La capture de mémoire caractérise le checkpoint standard, pas le checkpoint de production.' },
-    { stem: 'Durée de conservation d’un snapshot ?', opts: ['Temporaire', 'Long terme', 'Permanente'], correct: 0, exp: 'Il ne doit pas rester longtemps en production.' },
-    { stem: 'Que fait un clone complet ?', opts: ['Copie indépendante de la VM', 'Partage les disques', 'Supprime la source'], correct: 0, exp: 'Il fonctionne même si la source est supprimée.' },
+    { stem: 'Durée de conservation d’un snapshot ?', opts: ['Permanente', 'Long terme', 'Temporaire'], correct: 2, exp: 'Il ne doit pas rester longtemps en production.' },
+    { stem: 'Que fait un clone complet ?', opts: ['Supprime la source', 'Partage les disques', 'Copie indépendante de la VM'], correct: 2, exp: 'Il fonctionne même si la source est supprimée.' },
     { stem: 'Faiblesse d’un clone lié ?', opts: ['Il dépend de la VM source', 'Il est trop gros', 'Il est trop lent'], correct: 0, exp: 'Si la source est supprimée, il cesse de fonctionner.' },
-    { stem: 'À quoi sert un template ?', opts: ['Standardiser les déploiements', 'Sauvegarder les données', 'Migrer à chaud'], correct: 0, exp: 'C’est un modèle de VM préconfigurée.' },
-    { stem: 'Que fait vMotion ?', opts: ['Migrer une VM à chaud avec une pause de bascule', 'Éteindre un hôte', 'Cloner un template'], correct: 0, exp: 'La VM change d’hôte en limitant l’interruption, sans garantir son absence.' },
-    { stem: 'En cas de panne, que fait un cluster HA ?', opts: ['Redémarre les VM sur un autre hôte', 'Efface les snapshots', 'Réinstalle ESXi'], correct: 0, exp: 'Les VM redémarrent automatiquement ailleurs.' },
-    { stem: 'Que permet Veeam ?', opts: ['Sauvegarde automatique et restauration rapide', 'Compiler du code', 'Créer des réseaux'], correct: 0, exp: 'Il sauvegarde les VM et restaure rapidement.' }
+    { stem: 'À quoi sert un template ?', opts: ['Sauvegarder les données', 'Standardiser les déploiements', 'Migrer à chaud'], correct: 1, exp: "Un template est un modèle de VM préconfigurée : il standardise les déploiements et garantit des machines identiques. Il ne sauvegarde rien et ne migre rien à chaud." },
+    { stem: 'Que fait vMotion ?', opts: ["Migrer une VM à chaud avec une pause de bascule","Éteindre un hôte pour vider sa mémoire","Cloner un template vers un nouvel hôte"], correct: 0, exp: "vMotion déplace la VM vers un autre hôte en limitant l’interruption — une courte pause de bascule, sans extinction d’hôte ni clonage." },
+    { stem: 'En cas de panne, que fait un cluster HA ?', opts: ['Réinstalle ESXi', 'Efface les snapshots', 'Redémarre les VM sur un autre hôte'], correct: 2, exp: 'Les VM redémarrent automatiquement ailleurs.' },
+    { stem: 'Que permet Veeam ?', opts: ["Compiler du code sur les machines virtuelles","Sauvegarde automatique et restauration rapide","Créer des réseaux virtuels entre machines"], correct: 1, exp: "Veeam sauvegarde automatiquement les VM et restaure rapidement — restauration instantanée incluse. Il ne compile aucun code et ne crée aucun réseau." },
+    { stem: 'Quel service Windows Server coordonne les Writers applicatifs (AD DS, SQL) pour capturer une sauvegarde wbadmin cohérente à chaud ?', opts: ['VSS (Volume Shadow Copy Service)', 'DHCP Relay Agent', 'Routing and Remote Access'], correct: 0, exp: 'Le service VSS (Volume Shadow Copy Service) orchestre les Writers applicatifs pour geler proprement les écritures et créer un cliché instantané cohérent.' },
+    { stem: 'Dans FSRM, quelle est la différence entre un quota strict (Hard) et un quota souple (Soft) ?', opts: ['Aucune différence fonctionnelle', 'Le quota strict bloque l’écriture au seuil ; le quota souple autorise le dépassement et alerte', 'Le quota souple supprime automatiquement les fichiers anciens'], correct: 1, exp: 'Dans FSRM, un quota strict (Hard Quota) empêche immédiatement d’écrire au-delà de la limite, tandis qu’un quota souple (Soft Quota) laisse l’écriture aboutir mais génère des alertes et événements.' }
   ],
 
   pitfalls: [
+    'Oublier d’inclure l’état du système (System State) et l’option Bare-Metal Recovery dans la sauvegarde wbadmin des contrôleurs de domaine.',
+    'Appliquer un filtrage de fichiers FSRM actif en production sans l’avoir d’abord validé en mode passif (audit).',
     'Confondre snapshot et sauvegarde : le snapshot ne protège pas d’une perte du stockage.',
     'Conserver des snapshots pendant des semaines en production.',
-    'Supprimer la VM source d’un clone lié, qui cesse alors de fonctionner.',
-    'Se servir d’un template obsolète, sans les mises à jour de sécurité.',
-    'Compter sur un cluster HA sans surveiller les hôtes.'
+    'Supprimer la VM source d’un clone lié, qui cesse alors de fonctionner.'
   ],
 
-  methodTitle: 'Protéger et déployer des VM',
+  methodTitle: 'Sauvegarder, gouverner les ressources (FSRM / WSUS) et protéger les VM',
   method: [
-    '<strong>Prendre</strong> un snapshot avant tout changement critique, puis le purger.',
-    '<strong>Distinguer</strong> snapshot (court terme) et sauvegarde (long terme).',
-    '<strong>Cloner</strong> ou déployer depuis un template selon le besoin.',
-    '<strong>Migrer</strong> à chaud avec vMotion pour équilibrer la charge.',
-    '<strong>Protéger</strong> par le cluster HA et la sauvegarde automatique Veeam.'
+    '<strong>Sauvegarder</strong> l’état du système et le serveur nu avec Windows Server Backup (<code>wbadmin</code>) et les clichés instantanés VSS.',
+    '<strong>Encadrer</strong> les partages SMB via FSRM (quotas stricts/souples et filtrage d’extensions actif/passif) et piloter les correctifs par anneaux dans WSUS.',
+    '<strong>Surveiller</strong> proactivement les journaux Event Viewer (<code>Get-WinEvent</code>) et les compteurs Performance Monitor (<code>Get-Counter</code>).',
+    '<strong>Prendre</strong> un snapshot court terme avant tout changement critique, puis le purger après validation.',
+    '<strong>Protéger</strong> durablement les machines virtuelles par les templates, le cluster HA et la sauvegarde Veeam.'
   ],
 
   summary: [
+    'Windows Server Backup (wbadmin) : sauvegarde System State, Bare-Metal Recovery (BMR) et clichés instantanés VSS cohérents à chaud.',
+    'FSRM : quotas stricts (Hard) ou souples (Soft) et filtrage de fichiers (File Screening) actif ou passif sur les partages SMB.',
+    'WSUS et surveillance : groupes d’ordinateurs et approbation de correctifs ; Event Viewer (4624, 4625, 4740) et Performance Monitor.',
     'Checkpoint Hyper-V : standard avec mémoire ; production sans mémoire ; aucun ne remplace une sauvegarde.',
-    'Clone complet : indépendant ; clone lié : dépendant de la source.',
-    'Template : VM préconfigurée qui standardise les déploiements.',
-    'vMotion : migration à chaud avec une courte pause de bascule et un impact possible.',
-    'Cluster HA et Veeam : redémarrage automatique et sauvegarde des VM.'
+    'Clone complet vs lié, Template, vMotion (migration à chaud avec courte pause), Cluster HA et Veeam.'
   ],
 
   checklist: [
-    'Je distingue snapshot et sauvegarde.',
-    'Je compare clone complet et clone lié.',
-    'J’explique l’intérêt d’un template.',
-    'Je situe vMotion, cluster HA et Veeam.'
+    'Je sais sauvegarder et restaurer un serveur avec Windows Server Backup (wbadmin, BMR, System State et VSS).',
+    'Je configure des quotas et un filtrage de fichiers dans FSRM ainsi que les groupes d’approbation WSUS.',
+    'J’exploite Event Viewer (Get-WinEvent) et Performance Monitor pour diagnostiquer un serveur.',
+    'Je distingue snapshot et sauvegarde et je situe clone complet/lié, template, vMotion, cluster HA et Veeam.'
   ],
 
-  notions: ['snapshot', 'instantané', 'clone complet', 'clone lié', 'linked clone', 'template', 'vMotion', 'cluster HA', 'Veeam', 'restauration', 'bonnes pratiques'],
+  notions: ['Windows Server Backup', 'wbadmin', 'Bare-Metal Recovery', 'BMR', 'System State', 'VSS', 'Volume Shadow Copy Service', 'FSRM', 'quotas', 'filtrage de fichiers', 'File Screening', 'WSUS', 'Event Viewer', 'Get-WinEvent', 'Performance Monitor', 'PerfMon', 'snapshot', 'instantané', 'clone complet', 'clone lié', 'linked clone', 'template', 'vMotion', 'cluster HA', 'Veeam', 'restauration', 'bonnes pratiques'],
   mastery: [
-    { cls: 'low', text: '&lt; 50 % — Reprenez la différence snapshot / sauvegarde.' },
-    { cls: 'mid', text: '50–69 % — Entraînez-vous sur les clones complet / lié.' },
-    { cls: 'good', text: '70–94 % — Solide : vous protégez et déployez des VM correctement.' },
+    { cls: 'low', text: '&lt; 50 % — Reprenez le rôle de VSS/wbadmin, les quotas FSRM et la différence snapshot / sauvegarde.' },
+    { cls: 'mid', text: '50–69 % — Entraînez-vous sur FSRM, WSUS et les clones complet / lié.' },
+    { cls: 'good', text: '70–94 % — Solide : vous administrez wbadmin, FSRM, WSUS et la protection des VM.' },
     { cls: 'top', text: '≥ 95 % — Maîtrise : le cours est bouclé, place aux examens blancs.' }
   ],
 
   flashcards: [
+    { q: 'Rôle de wbadmin, BMR et VSS sous Windows Server ?', a: 'wbadmin pilote Windows Server Backup (System State et Bare-Metal Recovery BMR) en s’appuyant sur les clichés instantanés VSS cohérents à chaud.' },
+    { q: 'Quelles sont les deux fonctions majeures de FSRM ?', a: 'Les quotas d’espace disque (stricts Hard ou souples Soft) et le filtrage de fichiers par extension (File Screening actif ou passif).' },
     { q: 'Checkpoint Hyper-V de production ou standard ?', a: 'Production : état cohérent sans mémoire ; standard : capture aussi la mémoire.' },
     { q: 'Snapshot vs sauvegarde ?', a: 'Snapshot : court terme ; sauvegarde : long terme.' },
     { q: 'Clone complet ?', a: 'Copie indépendante, fonctionne même si la source est supprimée.' },

@@ -173,34 +173,34 @@ module.exports = {
     {
       stem: 'Quel intervalle de valeurs standard les coordonnées de texture UV utilisent-elles pour couvrir l’intégralité d’une image ?',
       opts: [
-        'De -1.0 à +1.0',
         'De 0.0 à 1.0',
+        'De -1.0 à +1.0',
         'De 0 à 255',
         'De 0 à 1024'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les coordonnées UV sont normalisées : (0, 0) correspond à un coin de la texture et (1, 1) au coin diagonalement opposé.'
     },
     {
       stem: 'Pourquoi exige-t-on traditionnellement que les textures 3D aient des dimensions en puissances de deux (Power of Two : 512, 1024, 2048) ?',
       opts: [
-        'Parce que le GPU calcule les adresses mémoire par de simples décalages de bits binaires et nécessite des dimensions divisibles par 2 pour générer la chaîne de mipmaps',
-        'Parce que les câbles HDMI ne supportent que les puissances de deux',
-        'Pour réduire le prix de vente de la carte graphique',
-        'Pour empêcher la copie illégale des textures'
+        "Parce que les câbles HDMI reliant la carte graphique à l’écran ne supportent que les résolutions en puissance de deux",
+        "Parce que le GPU calcule les adresses mémoire par de simples décalages de bits binaires et nécessite des dimensions divisibles par 2 pour générer la chaîne de mipmaps",
+        "Pour réduire le prix de vente au public des cartes graphiques, la fabrication de mémoires vidéo standards coûtant moins cher",
+        "Pour empêcher techniquement la copie illégale des textures protégées par le droit d’auteur lors des phases de rendu 3D"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La division binaire par 2 s’effectue en un seul cycle d’horloge (bit shift), garantissant des accès mémoire ultra-rapides et des mipmaps sans reste.'
     },
     {
       stem: 'Quel est l’intérêt architectural majeur de concevoir un « Texture Atlas » regroupant plusieurs textures d’objets dans un seul grand fichier image ?',
       opts: [
-        'Augmenter le nombre de polygones du modèle 3D',
-        'Réduire le nombre de changements de matériaux et de Draw Calls envoyés par le CPU au processeur graphique',
-        'Désactiver la carte son de la machine',
-        'Accélérer la connexion Wi-Fi'
+        "Augmenter considérablement le nombre de polygones constituant le maillage du modèle 3D final",
+        "Désactiver temporairement la carte son de la machine pour libérer de la mémoire vidéo",
+        "Réduire le nombre de changements de matériaux et de Draw Calls envoyés par le CPU au processeur graphique",
+        "Accélérer la connexion Wi-Fi entre le poste de jeu et le serveur de distribution de contenu"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Chaque texture distincte oblige le pilote GPU à changer d’état (Texture Binding). Un atlas permet de rendre des dizaines d’objets en un seul appel groupé.'
     },
     {
@@ -208,10 +208,10 @@ module.exports = {
       opts: [
         'Nearest Neighbor',
         'Filtrage bilinéaire',
-        'Filtrage trilinéaire',
-        'Filtrage par seuillage'
+        'Filtrage par seuillage',
+        'Filtrage trilinéaire'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Le filtrage trilinéaire combine un filtrage bilinéaire sur chaque niveau de mipmap et une interpolation linéaire entre les deux niveaux consécutifs.'
     },
     {
@@ -219,43 +219,43 @@ module.exports = {
       opts: [
         'Rouge pur (255, 0, 0)',
         'Vert pur (0, 255, 0)',
-        'Bleu ciel neutre (128, 128, 255)',
-        'Noir pur (0, 0, 0)'
+        'Noir pur (0, 0, 0)',
+        'Bleu ciel neutre (128, 128, 255)'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Après décodage shader : R=128 donne Nx≈0, V=128 donne Ny≈0, et B=255 donne Nz=+1. Le vecteur est (0, 0, 1), perpendiculaire à la face.'
     },
     {
       stem: 'Quelle formule de shader convertit la composante de couleur rouge R (comprise entre 0 et 255) en composante de normale spatiale Nx (comprise entre -1.0 et +1.0) ?',
       opts: [
         'Nx = R / 255.0',
-        'Nx = (R / 255.0) * 2.0 - 1.0',
         'Nx = R - 128.0',
+        'Nx = (R / 255.0) * 2.0 - 1.0',
         'Nx = 1.0 - (R / 128.0)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'R / 255 normalise sur [0, 1]. En multipliant par 2 puis en soustrayant 1, on remet à l’échelle sur l’intervalle symétrique [-1.0, 1.0].'
     },
     {
       stem: 'Quelle composante géométrique manque-t-il si un maillage 3D possède des positions (X, Y, Z) et des normales (Nx, Ny, Nz) mais pas de tangentes (T) pour utiliser une Normal Map en espace tangent ?',
       opts: [
-        'Le repère TBN ne peut pas être construit et les perturbations de la normale ne peuvent pas être alignées sur la surface',
-        'Le processeur refuse de démarrer',
-        'L’écran passe automatiquement en noir et blanc',
-        'La texture devient invisible'
+        "Le processeur central de la machine refuse purement et simplement de démarrer le moteur de rendu",
+        "Le repère TBN ne peut pas être construit et les perturbations de la normale ne peuvent pas être alignées sur la surface",
+        "L’écran d’affichage bascule automatiquement en mode noir et blanc sans aucune couleur",
+        "La texture appliquée sur le maillage devient totalement invisible lors de l’affichage final"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le repère TBN (Tangente, Bitangente, Normale) est indispensable pour transformer le vecteur lu dans la texture tangent-space vers l’espace monde ou objet.'
     },
     {
       stem: 'Que permet le filtrage anisotrope par rapport au filtrage trilinéaire standard ?',
       opts: [
-        'Il augmente la vitesse du ventilateur du GPU',
-        'Il améliore considérablement la netteté des textures observées sous un angle de vue très rasant (ex: sol fuyant vers l’horizon)',
-        'Il compresse les fichiers MP3',
-        'Il divise la consommation électrique par deux'
+        "Il améliore considérablement la netteté des textures observées sous un angle de vue très rasant (ex: sol fuyant vers l’horizon)",
+        "Il augmente automatiquement la vitesse de rotation du ventilateur du processeur graphique pendant les jeux",
+        "Il compresse fortement les fichiers audio MP3 embarqués dans les ressources du jeu vidéo concerné",
+        "Il divise exactement par deux la consommation électrique globale de la carte graphique pendant le rendu 3D"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’anisotropie échantillonne la texture selon une ellipse non-isotrope, évitant le flou excessif lorsque la surface est fortement inclinée par rapport à la caméra.'
     }
   ],

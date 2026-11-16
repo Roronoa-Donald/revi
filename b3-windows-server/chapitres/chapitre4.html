@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -181,27 +179,31 @@
      data-exercise="ws3-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="ACCESS user=Alice share=READ ntfs=FULL_CONTROL&#10;ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY&#10;ACCESS user=Charlie share=CHANGE ntfs=WRITE">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e1) — Calculateur de permissions effectives (Partage SMB vs NTFS)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le partage Ventes (D:\Ventes) du même cabinet :&#10;Émilie : partage Contrôle total, NTFS Lecture ; Farid : partage Lecture, NTFS Écriture ;&#10;Gaby : partage Modification, NTFS Contrôle total ; Hanna : partage Contrôle total, NTFS Contrôle total.&#10;&#10;1) Règle : la plus restrictive des deux barrières.&#10;2) Émilie : Lecture (bridée par le NTFS).&#10;3) Farid : Lecture (bridé par le partage).&#10;4) Gaby : Modification (bridée par le partage).&#10;5) Hanna : Contrôle total.&#10;6) Ne peuvent pas modifier : Émilie et Farid.">
+  <script type="text/plain" data-lab-starter># Exercice — Le partage Projets du cabinet Alpha Conseil
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 2 à 5 : le niveau de droit exact. Question 6 : les prénoms.
 
-[Cas 1 — Accès totalement refusé par le partage ou NTFS]
-# Données : ACCESS user=David share=NONE ntfs=FULL_CONTROL
-# Données : ACCESS user=Emma share=FULL_CONTROL ntfs=NONE
+[Question 1 — Règle du droit effectif]
 A_COMPLETER
 
-[Cas 2 — Accès maximal Full Control des deux côtés]
-# Données : ACCESS user=Admin share=FULL_CONTROL ntfs=FULL_CONTROL
+[Question 2 — Droit effectif d'Amélie]
 A_COMPLETER
 
-[Cas 3 — Profils mixtes avec lecture seule et écriture]
-# Données : ACCESS user=User1 share=READ ntfs=READ
-# Données : ACCESS user=User2 share=CHANGE ntfs=READ
-# Données : ACCESS user=User3 share=CHANGE ntfs=MODIFY
+[Question 3 — Droit effectif de Bruno]
+A_COMPLETER
+
+[Question 4 — Droit effectif de Chloé]
+A_COMPLETER
+
+[Question 5 — Droit effectif de David]
+A_COMPLETER
+
+[Question 6 — Utilisateurs sans modification possible]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur de permissions effectives (Partage SMB vs NTFS)</h3>
+    <h3 class="lab__title">Exercice 1 — Le partage Projets du cabinet Alpha Conseil</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -210,38 +212,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la permission réseau résultante selon la règle universelle Windows du plus restrictif entre le partage et le système de fichiers.</p>
-    <div class="lab__brief">Dans un accès distant à travers le protocole SMB, Windows Server applique l’intersection la plus restrictive entre les permissions de partage et les permissions NTFS :
-- Permissions Partage (Share) : `NONE` &lt; `READ` &lt; `CHANGE` &lt; `FULL_CONTROL`
-- Permissions NTFS : `NONE` &lt; `READ` &lt; `WRITE` &lt; `MODIFY` &lt; `FULL_CONTROL`
-
-Règles d’évaluation des droits effectifs distants :
-- `FULL_CONTROL` effectif : requiert `share == FULL_CONTROL` ET `ntfs == FULL_CONTROL`.
-- `MODIFY` effectif : requiert `share &gt;= CHANGE` ET `ntfs &gt;= MODIFY`.
-- `WRITE` effectif : requiert `share &gt;= CHANGE` ET `ntfs &gt;= WRITE`.
-- `READ` effectif : requiert `share &gt;= READ` ET `ntfs &gt;= READ`.
-- Sinon : `NONE` (aucun accès).
-
-Entrée :
-`ACCESS user=&lt;NOM&gt; share=&lt;NONE|READ|CHANGE|FULL_CONTROL&gt; ntfs=&lt;NONE|READ|WRITE|MODIFY|FULL_CONTROL&gt;`
-
-Résultat d’analyse attendu :
-- Pour chaque utilisateur :
-  `EFFECTIVE_ACCESS user=&lt;NOM&gt; share=&lt;S&gt; ntfs=&lt;N&gt; effective=&lt;EFF&gt;`
-- Bilan :
-  `SUMMARY total_users=&lt;U&gt; acces_ecriture=&lt;W&gt; lecture_seule=&lt;R&gt; aucun_acces=&lt;Z&gt;`
-  (acces_ecriture = WRITE, MODIFY, FULL_CONTROL ; lecture_seule = READ ; aucun_acces = NONE).</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Déterminer le droit d'accès réseau effectif entre permissions de partage et permissions NTFS.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le cabinet d'architecture Alpha Conseil partage le dossier D:\Projets depuis le serveur SRV-FICHIER (partage SMB « Projets »). Les quatre profils d'accès sont les suivants :</p><table><tr><th>Utilisateur</th><th>Permission de partage</th><th>Permission NTFS</th></tr><tr><th>Amélie (cheffe de projet)</th><td>Modification</td><td>Écriture</td></tr><tr><th>Bruno (dessinateur)</th><td>Lecture</td><td>Modification</td></tr><tr><th>Chloé (stagiaire)</th><td>Lecture</td><td>Lecture</td></tr><tr><th>David (administrateur)</th><td>Contrôle total</td><td>Contrôle total</td></tr></table><p>Rappel du cours : pour un accès réseau, le droit effectif est le plus restrictif des deux barrières. Les questions 2 à 5 appellent le niveau de droit exact ; la question 6 appelle des prénoms.</p><ol><li>Quelle règle détermine le droit d'accès réseau effectif ?</li><li>Quel est le droit effectif d'Amélie ?</li><li>Quel est le droit effectif de Bruno ?</li><li>Quel est le droit effectif de Chloé ?</li><li>Quel est le droit effectif de David ?</li><li>Qui ne peut pas modifier les fichiers du partage ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACCESS user=Alice share=READ ntfs=FULL_CONTROL
-ACCESS user=Bob share=FULL_CONTROL ntfs=MODIFY
-ACCESS user=Charlie share=CHANGE ntfs=WRITE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le partage Ventes (D:\Ventes) du même cabinet :
+Émilie : partage Contrôle total, NTFS Lecture ; Farid : partage Lecture, NTFS Écriture ;
+Gaby : partage Modification, NTFS Contrôle total ; Hanna : partage Contrôle total, NTFS Contrôle total.
+
+1) Règle : la plus restrictive des deux barrières.
+2) Émilie : Lecture (bridée par le NTFS).
+3) Farid : Lecture (bridé par le partage).
+4) Gaby : Modification (bridée par le partage).
+5) Hanna : Contrôle total.
+6) Ne peuvent pas modifier : Émilie et Farid.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Créer des échelles numériques ou fonctions booléennes pour chaque droit.</li>
-        <li>Tester du plus haut au plus bas (FULL_CONTROL -&gt; MODIFY -&gt; WRITE -&gt; READ -&gt; NONE).</li>
-        <li>Comptabiliser les types d’accès pour le résumé final.</li>
+        <li>Le partage et NTFS sont deux barrières successives : le droit réseau ne peut excéder aucune des deux.</li>
+        <li>Classez chaque niveau sur une échelle unique, puis prenez le plus faible des deux côtés, utilisateur par utilisateur.</li>
+        <li>Pour la question 6, ne peuvent modifier que ceux dont le droit effectif atteint au moins Écriture.</li>
       </ol>
     </details>
   </div>
@@ -251,29 +241,31 @@ ACCESS user=Charlie share=CHANGE ntfs=WRITE</pre></div>
      data-exercise="ws3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="USER name=Alice groups=GG_Compta,GG_Employes&#10;ACE target=GG_Employes type=INHERITED perm=DELETE action=DENY&#10;ACE target=Alice type=EXPLICIT perm=DELETE action=ALLOW&#10;ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e2) — Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le dossier D:\Direction\Salaires porte :&#10;GG_Direction (explicite) Autoriser Lecture ; GG_Direction (explicite) Autoriser Écriture ;&#10;Zoe (explicite) Refuser Lecture ; Zoe (explicite) Refuser Écriture ;&#10;GG_Siege (héritée de D:\Direction) Autoriser Lecture ; GG_Siege (héritée) Refuser Suppression.&#10;Nadia appartient à GG_Siege et GG_Direction ; Paul à GG_Siege ; Zoe à GG_Direction.&#10;&#10;1) Le refus explicite l'emporte sur tout.&#10;2) Lecture de Nadia : accordée (via GG_Direction).&#10;3) Suppression de Nadia : refusée (refus hérité de GG_Siege).&#10;4) Écriture de Paul : refusée (refus implicite).&#10;5) Lecture de Zoe : refusée (refus explicite).&#10;6) La lecture de Paul est permise par l'autorisation héritée.">
+  <script type="text/plain" data-lab-starter># Exercice — Les droits sur le dossier Cadres de la direction
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 2 à 5 : Accordé ou Refusé.
 
-[Cas 1 — Explicit Deny direct verrouillant un droit]
-# Données : USER name=Bob groups=GG_Devs
-# Données : ACE target=GG_Devs type=EXPLICIT perm=READ action=ALLOW
-# Données : ACE target=Bob type=EXPLICIT perm=READ action=DENY
+[Question 1 — Catégorie d'autorisations prioritaire]
 A_COMPLETER
 
-[Cas 2 — Toutes les permissions accordées par héritage]
-# Données : USER name=Claire groups=GG_Admins
-# Données : ACE target=GG_Admins type=INHERITED perm=READ action=ALLOW
-# Données : ACE target=GG_Admins type=INHERITED perm=WRITE action=ALLOW
-# Données : ACE target=GG_Admins type=INHERITED perm=DELETE action=ALLOW
+[Question 2 — Lecture de Marc]
 A_COMPLETER
 
-[Cas 3 — Aucune ACE applicable (tout en refus implicite)]
-# Données : USER name=Inconnu groups=GG_Visiteurs
+[Question 3 — Suppression de Marc]
+A_COMPLETER
+
+[Question 4 — Écriture de Julie]
+A_COMPLETER
+
+[Question 5 — Lecture de Thomas]
+A_COMPLETER
+
+[Question 6 — Niveau de l'autorisation de Julie]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur de résolution des conflits NTFS : Héritage, Allow et Deny explicite</h3>
+    <h3 class="lab__title">Exercice 2 — Les droits sur le dossier Cadres de la direction</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -282,35 +274,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les permissions NTFS cumulatives pour chaque opération selon la hiérarchie : Explicit Deny &gt; Explicit Allow &gt; Inherited Deny &gt; Inherited Allow.</p>
-    <div class="lab__brief">Dans le modèle de contrôle d’accès Windows NTFS (DACL), la priorité d’arbitrage pour chaque droit (`READ`, `WRITE`, `DELETE`) est ordonnée ainsi :
-1. `EXPLICIT_DENY` (Priorité absolue 4) -&gt; Accordé : NON
-2. `EXPLICIT_ALLOW` (Priorité 3) -&gt; Accordé : OUI (surpasse les refus hérités)
-3. `INHERITED_DENY` (Priorité 2) -&gt; Accordé : NON
-4. `INHERITED_ALLOW` (Priorité 1) -&gt; Accordé : OUI
-5. Défaut (`IMPLICIT_DENY`, Priorité 0) -&gt; Accordé : NON
-
-Entrée :
-`USER name=&lt;NOM&gt; groups=&lt;G1,G2,...&gt;`
-`ACE target=&lt;NOM_OU_GROUPE&gt; type=&lt;EXPLICIT|INHERITED&gt; perm=&lt;READ|WRITE|DELETE&gt; action=&lt;ALLOW|DENY&gt;` (1 ou plusieurs)
-
-Résultat d’analyse attendu :
-- Pour les trois droits `READ`, `WRITE`, `DELETE` (dans cet ordre) :
-  `PERM_RESULT perm=&lt;P&gt; status=&lt;ACCORDE|REFUSE&gt; decision_level=&lt;NIVEAU&gt;`
-- Bilan :
-  `SUMMARY user=&lt;NOM&gt; accordees=&lt;A&gt; refusees=&lt;R&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre des autorisations NTFS selon la hiérarchie refus explicite, autorisation explicite, refus hérité, autorisation héritée.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Sur SRV-FICHIER, le service RH gère l'arborescence D:\RH\Cadres. Les autorisations portées par le dossier Cadres sont les suivantes :</p><table><tr><th>Cible</th><th>Portée</th><th>Droit</th><th>Action</th></tr><tr><th>GG_Cadres</th><td>explicite</td><td>Lecture</td><td>Autoriser</td></tr><tr><th>GG_Cadres</th><td>explicite</td><td>Écriture</td><td>Autoriser</td></tr><tr><th>Thomas</th><td>explicite</td><td>Lecture</td><td>Refuser</td></tr><tr><th>Thomas</th><td>explicite</td><td>Écriture</td><td>Refuser</td></tr><tr><th>GG_RH</th><td>héritée de D:\RH</td><td>Lecture</td><td>Autoriser</td></tr><tr><th>GG_RH</th><td>héritée de D:\RH</td><td>Suppression</td><td>Refuser</td></tr></table><p>Appartenance : <strong>Marc</strong> est membre de GG_RH et de GG_Cadres ; <strong>Julie</strong> est membre de GG_RH uniquement ; <strong>Thomas</strong>, cadre partant à la retraite, est membre de GG_Cadres uniquement. Répondez par « Accordé » ou « Refusé » aux questions 2 à 5, de façon courte ailleurs.</p><ol><li>Quelle catégorie d'autorisations l'emporte sur toutes les autres ?</li><li>Le droit de lecture de Marc : accordé ou refusé ?</li><li>Le droit de suppression de Marc : accordé ou refusé ?</li><li>Le droit d'écriture de Julie : accordé ou refusé ?</li><li>Le droit de lecture de Thomas : accordé ou refusé ?</li><li>Quel niveau d'autorisation permet la lecture de Julie ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>USER name=Alice groups=GG_Compta,GG_Employes
-ACE target=GG_Employes type=INHERITED perm=DELETE action=DENY
-ACE target=Alice type=EXPLICIT perm=DELETE action=ALLOW
-ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le dossier D:\Direction\Salaires porte :
+GG_Direction (explicite) Autoriser Lecture ; GG_Direction (explicite) Autoriser Écriture ;
+Zoe (explicite) Refuser Lecture ; Zoe (explicite) Refuser Écriture ;
+GG_Siege (héritée de D:\Direction) Autoriser Lecture ; GG_Siege (héritée) Refuser Suppression.
+Nadia appartient à GG_Siege et GG_Direction ; Paul à GG_Siege ; Zoe à GG_Direction.
+
+1) Le refus explicite l'emporte sur tout.
+2) Lecture de Nadia : accordée (via GG_Direction).
+3) Suppression de Nadia : refusée (refus hérité de GG_Siege).
+4) Écriture de Paul : refusée (refus implicite).
+5) Lecture de Zoe : refusée (refus explicite).
+6) La lecture de Paul est permise par l'autorisation héritée.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Filtrer les ACEs qui ciblent l’utilisateur ou l’un de ses groupes.</li>
-        <li>Pour chaque droit, chercher la règle ayant le niveau de priorité le plus élevé.</li>
-        <li>Déduire ACCORDE si action==ALLOW, REFUSE sinon.</li>
+        <li>Hiérarchie du cours : refus explicite, puis autorisation explicite, puis refus hérité, puis autorisation héritée, et enfin refus implicite.</li>
+        <li>Pour Marc, la lecture existe en explicite (GG_Cadres) et en héritée (GG_RH) : la catégorie la plus haute tranche.</li>
+        <li>Pour Julie, aucune autorisation d'écriture n'existe nulle part : sans aucune ACE, le refus est implicite.</li>
       </ol>
     </details>
   </div>
@@ -320,32 +305,31 @@ ACE target=GG_Compta type=INHERITED perm=READ action=ALLOW</pre></div>
      data-exercise="ws3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR&#10;DISK id=D1 size_gb=1000&#10;DISK id=D2 size_gb=1000">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c4-e3) — Simulateur d’espaces de stockage et résilience Storage Spaces
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un pool filial compte six disques de 2 To (2000 Go), soit 12 000 Go bruts.&#10;Le service demande 7 To utiles en tolérant une panne.&#10;&#10;1) Simple : 12 000 Go.&#10;2) Miroir double : 6000 Go.&#10;3) Miroir triple : 4000 Go.&#10;4) Parité : 12 000 × 5/6 = 10 000 Go.&#10;5) Le miroir triple tolère 2 pannes.&#10;6) Retenu : parité (6000 Go insuffisants, 10 000 Go suffisent).">
+  <script type="text/plain" data-lab-starter># Exercice — Le choix du layout du pool de stockage de SRV-FICHIER
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : le nombre seul en Go. Question 6 : miroir double ou parité.
 
-[Cas 1 — Mode Parité avec 4 disques de 500 Go]
-# Données : POOL nom=Pool-Archives resiliency=PARITY
-# Données : DISK id=D1 size_gb=500
-# Données : DISK id=D2 size_gb=500
-# Données : DISK id=D3 size_gb=500
-# Données : DISK id=D4 size_gb=500
+[Question 1 — Capacité utile Simple (Go)]
 A_COMPLETER
 
-[Cas 2 — Erreur : disques insuffisants pour Three-Way Mirror]
-# Données : POOL nom=Pool-Critique resiliency=THREE_WAY_MIRROR
-# Données : DISK id=D1 size_gb=2000
-# Données : DISK id=D2 size_gb=2000
-# Données : DISK id=D3 size_gb=2000
+[Question 2 — Capacité utile Miroir double (Go)]
 A_COMPLETER
 
-[Cas 3 — Mode Simple mono-disque]
-# Données : POOL nom=Pool-Temp resiliency=SIMPLE
-# Données : DISK id=D1 size_gb=512
+[Question 3 — Capacité utile Miroir triple (Go)]
+A_COMPLETER
+
+[Question 4 — Capacité utile Parité (Go)]
+A_COMPLETER
+
+[Question 5 — Pannes tolérées par le miroir triple]
+A_COMPLETER
+
+[Question 6 — Layout retenu pour 14 To utiles]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur d’espaces de stockage et résilience Storage Spaces</h3>
+    <h3 class="lab__title">Exercice 3 — Le choix du layout du pool de stockage de SRV-FICHIER</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -354,39 +338,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la capacité utile, le taux d’efficacité et la tolérance aux pannes d’un pool de stockage Windows Server.</p>
-    <div class="lab__brief">La fonctionnalité Storage Spaces agrège des disques durs physiques en pools pour créer des espaces virtuels résilients :
-- `SIMPLE` (agrégation par bandes sans tolérance de panne) :
-  - Min disques : 1 | Pannes tolérées : 0 | Capacité utile = Somme brute | Efficacité = 100.0%
-- `TWO_WAY_MIRROR` (miroir double bidirectionnel) :
-  - Min disques : 2 | Pannes tolérées : 1 | Capacité utile = round(Somme brute / 2, 1) | Efficacité = 50.0%
-- `THREE_WAY_MIRROR` (miroir triple pour haute résilience) :
-  - Min disques : 5 | Pannes tolérées : 2 | Capacité utile = round(Somme brute / 3, 1) | Efficacité = 33.3%
-- `PARITY` (parité distribuée style RAID-5) :
-  - Min disques : 3 | Pannes tolérées : 1 | Capacité utile = round(Somme brute * (N - 1) / N, 1) | Efficacité = round(((N - 1) / N) * 100, 1)%
-
-Entrée :
-`POOL nom=&lt;NOM&gt; resiliency=&lt;SIMPLE|TWO_WAY_MIRROR|THREE_WAY_MIRROR|PARITY&gt;`
-`DISK id=&lt;ID&gt; size_gb=&lt;N&gt;` (1 ou plusieurs disques)
-
-Résultat d’analyse attendu :
-- Si le nombre de disques est suffisant pour le mode choisi :
-  `POOL_RESULT nom=&lt;P&gt; disks=&lt;N&gt; raw_gb=&lt;RAW&gt; usable_gb=&lt;USABLE&gt; efficiency=&lt;EFF&gt;% fault_tolerance=&lt;FT&gt;_disks`
-  `SUMMARY status=VALIDE mode=&lt;MODE&gt;`
-- Si disques insuffisants :
-  `POOL_ERROR nom=&lt;P&gt; disques_fournis=&lt;N&gt; disques_requis=&lt;MIN&gt;`
-  `SUMMARY status=ERREUR_CAPACITE_MIN mode=&lt;MODE&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Chiffrer la capacité utile des layouts Storage Spaces et arbitrer selon un besoin en capacité et en tolérance de pannes.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Marnier dote SRV-FICHIER d'un pool de six disques neufs de <strong>4 To</strong> chacun, soit 4000 Go par disque (24 000 Go bruts). Le cours donne les layouts suivants pour un même pool :</p><table><tr><th>Layout</th><th>Disques minimum</th><th>Pannes tolérées</th><th>Capacité utile</th></tr><tr><th>Simple</th><td>1</td><td>0</td><td>somme brute</td></tr><tr><th>Miroir double</th><td>2</td><td>1</td><td>moitié de la brute</td></tr><tr><th>Miroir triple</th><td>5</td><td>2</td><td>tiers de la brute</td></tr><tr><th>Parité</th><td>3</td><td>1</td><td>brute × (N − 1) / N</td></tr></table><p>Le service demandeur souhaite <strong>14 To utiles</strong> en tolérant <strong>au moins une panne de disque</strong>. Répondez par le nombre seul en Go pour les questions 1 à 4.</p><ol><li>Quelle est la capacité utile en Go du layout Simple ?</li><li>Quelle est la capacité utile en Go du layout Miroir double ?</li><li>Quelle est la capacité utile en Go du layout Miroir triple ?</li><li>Quelle est la capacité utile en Go du layout Parité ?</li><li>Combien de pannes le miroir triple tolère-t-il ?</li><li>Quel layout retenir entre miroir double et parité pour satisfaire la demande du service ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POOL nom=Pool-Compta resiliency=TWO_WAY_MIRROR
-DISK id=D1 size_gb=1000
-DISK id=D2 size_gb=1000</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un pool filial compte six disques de 2 To (2000 Go), soit 12 000 Go bruts.
+Le service demande 7 To utiles en tolérant une panne.
+
+1) Simple : 12 000 Go.
+2) Miroir double : 6000 Go.
+3) Miroir triple : 4000 Go.
+4) Parité : 12 000 × 5/6 = 10 000 Go.
+5) Le miroir triple tolère 2 pannes.
+6) Retenu : parité (6000 Go insuffisants, 10 000 Go suffisent).</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifier N &gt;= min_disks selon le mode de résilience.</li>
-        <li>Calculer la somme totale des capacités brutes.</li>
-        <li>Appliquer les formules de capacité utile et d’efficacité.</li>
+        <li>Posez la brute : 6 × 4000 = 24 000 Go, puis appliquez la règle de chaque layout.</li>
+        <li>La parité avec N disques offre la brute × (N − 1)/N : ici 24 000 × 5/6.</li>
+        <li>Pour la question 6, confrontez chaque capacité utile à la demande de 14 To : 12 000 Go (miroir double) ne suffisent pas.</li>
       </ol>
     </details>
   </div>
@@ -399,8 +369,8 @@ DISK id=D2 size_gb=1000</pre></div>
     <div class="q">
       <p class="q__stem">Si un utilisateur dispose de l’autorisation Partage « Change » et de la permission NTFS « Full Control », quel est son droit effectif à distance ?</p>
       <div class="opts">
-        <button class="opt">Full Control</button>
         <button class="opt" data-correct="1">Change (Modify)</button>
+        <button class="opt">Full Control</button>
         <button class="opt">Read uniquement</button>
         <button class="opt">Accès interdit</button>
       </div>
@@ -410,9 +380,9 @@ DISK id=D2 size_gb=1000</pre></div>
       <p class="q__stem">Quelle entrée de contrôle d’accès possède la plus haute priorité d’évaluation dans une DACL NTFS ?</p>
       <div class="opts">
         <button class="opt">Inherited Allow</button>
-        <button class="opt">Explicit Allow</button>
-        <button class="opt">Inherited Deny</button>
         <button class="opt" data-correct="1">Explicit Deny</button>
+        <button class="opt">Inherited Deny</button>
+        <button class="opt">Explicit Allow</button>
       </div>
       <div class="q__exp">L’Explicit Deny (refus direct) est évalué en priorité absolue et surpasse immédiatement toutes les autorisations explicites ou héritées.</div>
     </div>
@@ -439,10 +409,10 @@ DISK id=D2 size_gb=1000</pre></div>
     <div class="q">
       <p class="q__stem">Si un utilisateur reçoit une autorisation directe « Explicit Allow » sur un droit et hérite d’un « Inherited Deny », que se passe-t-il ?</p>
       <div class="opts">
-        <button class="opt">Le droit est refusé car tout Deny l’emporte</button>
         <button class="opt" data-correct="1">Le droit est accordé car l’Explicit Allow l’emporte sur un refus hérité (Inherited Deny)</button>
-        <button class="opt">L’ordinateur redémarre immédiatement</button>
-        <button class="opt">Le fichier est verrouillé par l’administrateur</button>
+        <button class="opt">Le droit est refusé car tout Deny l’emporte systématiquement sur toute autorisation</button>
+        <button class="opt">L’ordinateur redémarre immédiatement pour appliquer la nouvelle permission</button>
+        <button class="opt">Le fichier est verrouillé par l’administrateur jusqu’à validation manuelle</button>
       </div>
       <div class="q__exp">Dans l’ordre des ACEs, l’Explicit Allow (priorité 2) est supérieur à l’Inherited Deny (priorité 3) : l’autorisation directe gagne sur le refus parent.</div>
     </div>
@@ -459,20 +429,20 @@ DISK id=D2 size_gb=1000</pre></div>
     <div class="q">
       <p class="q__stem">Comment la déduplication de données Windows Server libère-t-elle de l’espace disque ?</p>
       <div class="opts">
-        <button class="opt">En compressant tous les fichiers au format ZIP</button>
-        <button class="opt">En supprimant les fichiers qui n’ont pas été ouverts depuis 6 mois</button>
+        <button class="opt">En compressant l’intégralité des fichiers du volume au format ZIP avant leur écriture sur le disque</button>
+        <button class="opt">En supprimant automatiquement les fichiers qui n’ont pas été ouverts depuis plus de 6 mois par les utilisateurs</button>
+        <button class="opt">En transférant automatiquement les fichiers peu consultés vers le stockage Cloud Azure distant</button>
         <button class="opt" data-correct="1">En remplaçant les blocs de données dupliqués par des pointeurs vers une copie unique stockée dans le Chunk Store</button>
-        <button class="opt">En transférant automatiquement les fichiers vers le Cloud Azure</button>
       </div>
       <div class="q__exp">La déduplication découpe les fichiers en blocs, stocke une copie unique dans le Chunk Store et insère des points de réanalyse dans les fichiers.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la bonne pratique recommandée par Microsoft pour la gestion des partages de fichiers SMB ?</p>
       <div class="opts">
-        <button class="opt">Bloquer le partage et ne travailler que localement sur le serveur</button>
+        <button class="opt">Bloquer tout partage réseau et ne travailler que localement sur le serveur de fichiers physique</button>
+        <button class="opt">Attribuer un mot de passe différent pour chaque sous-dossier partagé sur le serveur de fichiers</button>
         <button class="opt" data-correct="1">Accorder Change ou Full Control au niveau du partage SMB et gérer les droits réels fins dans les permissions NTFS</button>
-        <button class="opt">Attribuer un mot de passe différent par sous-dossier</button>
-        <button class="opt">Désactiver totalement le protocole SMB pour utiliser FTP</button>
+        <button class="opt">Désactiver totalement le protocole SMB au profit du protocole FTP non chiffré</button>
       </div>
       <div class="q__exp">Ouvrir largement le partage SMB (Change/Full Control) permet de centraliser toute la sécurité dans les permissions NTFS sans redondance conflictuelle.</div>
     </div>
@@ -598,7 +568,7 @@ DISK id=D2 size_gb=1000</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

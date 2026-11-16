@@ -164,48 +164,69 @@ test('FedaPayService : validation Fail-Closed des transactions', () => {
 });
 
 test('Fastify Routes : Configuration et Tentative serveur (/attempt)', async () => {
+  const jwt = require('jsonwebtoken');
+  const db = require('../server/db');
+
   process.env.FEDAPAY_PUBLIC_KEY = TEST_PUBLIC_KEY;
   process.env.FEDAPAY_SECRET_KEY = TEST_SECRET_KEY;
   process.env.FEDAPAY_WEBHOOK_SECRET = TEST_WEBHOOK_SECRET;
+  const savedJwt = process.env.JWT_SECRET;
+  process.env.JWT_SECRET = 'fedapay-unit-test-secret';
+
+  const origGetSession = db.getSessionByJti;
+  const origGetUser = db.getUserById;
+  db.getSessionByJti = async (jti) => ({ jti, user_id: 1, is_valid: true });
+  db.getUserById = async (id) => ({ id, is_active: true, email: 'test@example.com' });
 
   const app = buildApp({ logger: false });
+  const authToken = jwt.sign({ userId: 1, jti: 'jti-fedapay-test' }, process.env.JWT_SECRET);
 
-  // 1. Route de configuration (/api/fedapay/config et alias /dashboard/abonnement/config)
-  const cfgRes = await app.inject({
-    method: 'GET',
-    url: '/api/fedapay/config'
-  });
-  assert.equal(cfgRes.statusCode, 200);
-  const cfg = JSON.parse(cfgRes.body);
-  assert.equal(cfg.enabled, true);
-  assert.equal(cfg.public_key, TEST_PUBLIC_KEY);
-  assert.equal(cfg.amounts.monthly, 5000);
-  assert.equal(cfg.amounts.annual, 45000);
+  try {
+    // 1. Route de configuration (/api/fedapay/config et alias /dashboard/abonnement/config)
+    const cfgRes = await app.inject({
+      method: 'GET',
+      url: '/api/fedapay/config'
+    });
+    assert.equal(cfgRes.statusCode, 200);
+    const cfg = JSON.parse(cfgRes.body);
+    assert.equal(cfg.enabled, true);
+    assert.equal(cfg.public_key, TEST_PUBLIC_KEY);
+    assert.equal(cfg.amounts.monthly, 5000);
+    assert.equal(cfg.amounts.annual, 45000);
 
-  // 2. Étape 1 : Tentative serveur (/dashboard/abonnement/attempt)
-  const attemptMonthly = await app.inject({
-    method: 'POST',
-    url: '/dashboard/abonnement/attempt',
-    payload: { plan: 'monthly' }
-  });
-  assert.equal(attemptMonthly.statusCode, 200);
-  const monthlyData = JSON.parse(attemptMonthly.body);
-  assert.equal(monthlyData.success, true);
-  assert.equal(monthlyData.attempt.amount, 5000);
-  assert.equal(monthlyData.attempt.currency, 'XOF');
-  assert.equal(monthlyData.attempt.plan, 'monthly');
-  assert.match(monthlyData.attempt.merchant_reference, /^MBFP_/);
+    // 2. Étape 1 : Tentative serveur (/dashboard/abonnement/attempt) — utilisateur connecté requis
+    const attemptMonthly = await app.inject({
+      method: 'POST',
+      url: '/dashboard/abonnement/attempt',
+      cookies: { auth_token: authToken },
+      payload: { plan: 'monthly' }
+    });
+    assert.equal(attemptMonthly.statusCode, 200);
+    const monthlyData = JSON.parse(attemptMonthly.body);
+    assert.equal(monthlyData.success, true);
+    assert.equal(monthlyData.attempt.amount, 5000);
+    assert.equal(monthlyData.attempt.currency, 'XOF');
+    assert.equal(monthlyData.attempt.plan, 'monthly');
+    assert.match(monthlyData.attempt.merchant_reference, /^MBFP_/);
 
-  // 3. Étape 1 : Tentative annuelle (/api/fedapay/attempt)
-  const attemptAnnual = await app.inject({
-    method: 'POST',
-    url: '/api/fedapay/attempt',
-    payload: { plan: 'annual' }
-  });
-  assert.equal(attemptAnnual.statusCode, 200);
-  const annualData = JSON.parse(attemptAnnual.body);
-  assert.equal(annualData.attempt.amount, 45000);
-  assert.equal(annualData.attempt.plan, 'annual');
+    // 3. Étape 1 : Tentative annuelle (/api/fedapay/attempt)
+    const attemptAnnual = await app.inject({
+      method: 'POST',
+      url: '/api/fedapay/attempt',
+      cookies: { auth_token: authToken },
+      payload: { plan: 'annual' }
+    });
+    assert.equal(attemptAnnual.statusCode, 200);
+    const annualData = JSON.parse(attemptAnnual.body);
+    assert.equal(annualData.attempt.amount, 45000);
+    assert.equal(annualData.attempt.plan, 'annual');
+  } finally {
+    db.getSessionByJti = origGetSession;
+    db.getUserById = origGetUser;
+    await app.close();
+    if (savedJwt !== undefined) process.env.JWT_SECRET = savedJwt;
+    else delete process.env.JWT_SECRET;
+  }
 });
 
 test('Fastify Routes : Webhook officiel FedaPay (Sécurité HMAC 401 & Rejet invalide)', async () => {

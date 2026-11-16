@@ -729,7 +729,8 @@ const CS2_EXERCISES = [
         "expected": "pi: Type=double | Mem=Stack | Op=ALLOCATION\nactif: Type=bool | Mem=Stack | Op=ALLOCATION\no: Type=object | Mem=Heap | Op=BOXING\nverif: Type=bool | Mem=Stack | Op=UNBOXING"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c1-e1"]
+    "solution": CS2_SOLUTIONS["csb2-c1-e1"],
+    "takeaway": "Le boxing encapsule un type valeur (struct/int) sur le tas géré en object ; les génériques évitent ce surcoût d allocation."
   },
   {
     "id": "csb2-c1-e2",
@@ -764,7 +765,8 @@ const CS2_EXERCISES = [
         "expected": "ETAT_INITIAL: dividende=17, diviseur=5, q=0, r=0\nMETHODE: DivRem\nETAT_FINAL: dividende=17, diviseur=5, q=3, r=2"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c1-e2"]
+    "solution": CS2_SOLUTIONS["csb2-c1-e2"],
+    "takeaway": "ref exige une variable initialisée et permet lecture/écriture ; out impose à la méthode appelée d affecter la variable avant retour."
   },
   {
     "id": "csb2-c1-e3",
@@ -804,7 +806,8 @@ const CS2_EXERCISES = [
         "expected": "Polygon => FormeNonSupportee | Aire=0.00\nHexagon => FormeNonSupportee | Aire=0.00"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c1-e3"]
+    "solution": CS2_SOLUTIONS["csb2-c1-e3"],
+    "takeaway": "Les switch expressions C# combinent pattern de type, propriétés et clauses when pour évaluer exhaustivement sans mutabilité."
   },
   {
     "id": "csb2-c2-e1",
@@ -844,7 +847,8 @@ const CS2_EXERCISES = [
         "expected": "Compte: David | Solde initial: 0.00\nRETRAIT 10.00 => Rejet: InvalidOperationException (Solde insuffisant)\nSOLDE_FINAL: 0.00"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c2-e1"]
+    "solution": CS2_SOLUTIONS["csb2-c2-e1"],
+    "takeaway": "Les accesseurs get/set encapsulent l invariant métier du champ privé via validation immédiate à l assignation."
   },
   {
     "id": "csb2-c2-e2",
@@ -884,7 +888,8 @@ const CS2_EXERCISES = [
         "expected": "Article(\"CASQ\", \"Casque Bluetooth\") => Chaine: ctor(r, nom) -> ctor(r, nom, prix) | Objet: [Ref=CASQ, Nom=Casque Bluetooth, Prix=0.00]\nArticle(\"MAX-DEC\", \"Borne\", 79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MAX-DEC, Nom=Borne, Prix=79228162514264337593543950335.00]\nArticle(\"MIN-DEC\", \"Borne\", -79228162514264337593543950335) => Chaine: ctor(r, nom, prix) | Objet: [Ref=MIN-DEC, Nom=Borne, Prix=-79228162514264337593543950335.00]"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c2-e2"]
+    "solution": CS2_SOLUTIONS["csb2-c2-e2"],
+    "takeaway": "Le chaînage : this(...) délègue vers un constructeur canonique et supprime toute duplication d initialisation."
   },
   {
     "id": "csb2-c2-e3",
@@ -924,7 +929,8 @@ const CS2_EXERCISES = [
         "expected": "CREATE: rA => Record { X = 10, Y = 20 }\nCREATE: rB => Record { X = 10, Y = 20 }\nEQUALS: rA == rB => True (Egalite structurelle)"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c2-e3"]
+    "solution": CS2_SOLUTIONS["csb2-c2-e3"],
+    "takeaway": "Un record C# fournit égalité structurelle par valeur et copie immuable modifiée via l expression with."
   },
   {
     "id": "csb2-c3-e1",
@@ -964,7 +970,8 @@ const CS2_EXERCISES = [
         "expected": "Base->Derived: Afficher() => Derived.Afficher [virtual/override dynamique]"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c3-e1"]
+    "solution": CS2_SOLUTIONS["csb2-c3-e1"],
+    "takeaway": "override redéfinit le comportement polymorphe à l exécution selon le type réel tandis que new masque seulement sur le type statique."
   },
   {
     "id": "csb2-c3-e2",
@@ -1004,7 +1011,8 @@ const CS2_EXERCISES = [
         "expected": "DIRECT Traiter => ERREUR_COMPILATION CS1061 (Implementation explicite requiert un cast)"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c3-e2"]
+    "solution": CS2_SOLUTIONS["csb2-c3-e2"],
+    "takeaway": "L implémentation explicite (void IFoo.Run()) résout les collisions entre deux interfaces et n est appelable que via l interface."
   },
   {
     "id": "csb2-c3-e3",
@@ -1044,7 +1052,8 @@ const CS2_EXERCISES = [
         "expected": "Pipeline Inscription: [1. Valider unicite email] -> [2. Creer compte utilisateur en base] -> [3. Notification globale envoyee]"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c3-e3"]
+    "solution": CS2_SOLUTIONS["csb2-c3-e3"],
+    "takeaway": "Le patron Template Method fige le squelette d algorithme dans la classe de base et délègue les étapes variables aux méthodes abstract/protected."
   },
   {
     "id": "csb2-c4-e1",
@@ -1084,7 +1093,8 @@ const CS2_EXERCISES = [
         "expected": "TRYGET: Inconnu1 => NonTrouve (out val=0)\nTRYGET: Inconnu2 => NonTrouve (out val=0)"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c4-e1"]
+    "solution": CS2_SOLUTIONS["csb2-c4-e1"],
+    "takeaway": "TryGetValue() sur Dictionary<K,V> recherche en une seule passe sans jamais lever KeyNotFoundException en cas d absence."
   },
   {
     "id": "csb2-c4-e2",
@@ -1124,7 +1134,8 @@ const CS2_EXERCISES = [
         "expected": "Exception: HttpException (400) => Intercepte par: catch (Exception) [FallbackGlobal] | FINALLY execute"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c4-e2"]
+    "solution": CS2_SOLUTIONS["csb2-c4-e2"],
+    "takeaway": "Une clause catch (...) when (...) filtre sans dérouler la pile si le prédicat échoue, préservant l information de débogage."
   },
   {
     "id": "csb2-c4-e3",
@@ -1164,7 +1175,8 @@ const CS2_EXERCISES = [
         "expected": "Type Entier: REJETE [Violation: non-class (struct), n implemente pas IComparable]"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c4-e3"]
+    "solution": CS2_SOLUTIONS["csb2-c4-e3"],
+    "takeaway": "where T : struct / class / new() / IComparable<T> contraignent les types génériques dès la compilation plutôt qu à l exécution."
   },
   {
     "id": "csb2-c5-e1",
@@ -1204,7 +1216,8 @@ const CS2_EXERCISES = [
         "expected": "LINQ: Declenchement ToList() (Evaluation differee terminee)\nResultat: Webcam - 70.00\nResultat: Casque - 50.00\nResultat: Micro - 50.00\nTOTAL_ELEMENTS: 3"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c5-e1"]
+    "solution": CS2_SOLUTIONS["csb2-c5-e1"],
+    "takeaway": "Les opérateurs LINQ (Where, Select, OrderBy) s exécutent de façon différée uniquement lors de l itération ou matérialisation (ToList)."
   },
   {
     "id": "csb2-c5-e2",
@@ -1244,7 +1257,8 @@ const CS2_EXERCISES = [
         "expected": "Groupe: Audio | NbAchats: 3 | Total: 120.00 | Moyenne: 40.00"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c5-e2"]
+    "solution": CS2_SOLUTIONS["csb2-c5-e2"],
+    "takeaway": "GroupBy regroupe les éléments partageant une clé puis permet de projeter Count, Sum et Average par groupe."
   },
   {
     "id": "csb2-c5-e3",
@@ -1284,7 +1298,8 @@ const CS2_EXERCISES = [
         "expected": "EVENT \"Msg2\" => ServiceA recoit la notification"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c5-e3"]
+    "solution": CS2_SOLUTIONS["csb2-c5-e3"],
+    "takeaway": "Le mot-clé event protège le délégué multicast : les abonnés externes ne peuvent utiliser que += et -= sans écraser la liste."
   },
   {
     "id": "csb2-c6-e1",
@@ -1324,7 +1339,8 @@ const CS2_EXERCISES = [
         "expected": "[T=0ms] Demarrage LireDisque -> Await (trace simulee)\n[T=40ms] Reprise contexte -> Demarrage Decompresser -> Await\n[T=65ms] Reprise contexte -> Demarrage Indexer -> Await\n[T=100ms] Reprise contexte -> Demarrage EnvoyerEmail -> Await\n[T=110ms] Tache completee avec succes. Duree totale=110ms"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c6-e1"]
+    "solution": CS2_SOLUTIONS["csb2-c6-e1"],
+    "takeaway": "async/await transforme une méthode en machine à états reprenant après chaque Task achevée sans bloquer le thread appelant."
   },
   {
     "id": "csb2-c6-e2",
@@ -1364,7 +1380,8 @@ const CS2_EXERCISES = [
         "expected": "WHENALL: 0 succes, 2 echecs\nAggregateException observee (2 erreurs):\n- Erreur 1: IOException: Disque plein\n- Erreur 2: UnauthorizedAccessException: Droit refuse"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c6-e2"]
+    "solution": CS2_SOLUTIONS["csb2-c6-e2"],
+    "takeaway": "Task.WhenAll exécute les tâches en parallèle et agrège d éventuelles erreurs multiples dans une AggregateException."
   },
   {
     "id": "csb2-c6-e3",
@@ -1404,7 +1421,8 @@ const CS2_EXERCISES = [
         "expected": "[ALLOC] PortSerie alloue (Handle=COM3)\n[CRASH] Exception TimeoutException intercepte\n[DISPOSE] PortSerie libere via IDisposable"
       }
     ],
-    "solution": CS2_SOLUTIONS["csb2-c6-e3"]
+    "solution": CS2_SOLUTIONS["csb2-c6-e3"],
+    "takeaway": "Le bloc using garantit l appel automatique à Dispose() même lorsqu une exception est levée dans la portée."
   }
 ];
 

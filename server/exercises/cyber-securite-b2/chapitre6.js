@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c6-e1) — Moteur de détection de signature NIDS (Format Snort simplifié)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : alert tcp any any -> 192.168.1.10 80 (msg:\"Tentative acces admin\"; content:\"/admin.php\"; sid:10001;)\n# Données : tcp 10.0.0.5 45892 192.168.1.10 80 GET /index.html HTTP/1.1\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : alert tcp any any -> 10.0.0.1 22 (msg:\"Scan SSH brute\"; content:\"SSH-2.0\"; sid:10002;)\n# Données : tcp 172.16.0.4 55000 10.0.0.1 22 SSH-2.0-OpenSSH_8.9\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : alert udp any any -> 192.168.1.1 53 (msg:\"Attaque DNS malveillante\"; content:\"malware.xyz\"; sid:10003;)\n# Données : udp 192.168.1.50 61234 192.168.1.1 53 query malware.xyz A\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : alert tcp any any -> 10.0.0.1 80 (msg:\"Injection SQL url\"; content:\"UNION\"; sid:10004;)\n# Données : udp 10.0.0.5 12345 10.0.0.1 80 UNION SELECT\nA_COMPLETER\n",
     "hints": [
       "Une signature NIDS inspecte simultanément l’en-tête IP/port et le motif binaire ou textuel du payload.",
-      "Déclenchez l’alerte de sécurité dès que tous les prédicats de la règle de détection sont satisfaits."
+      "Déclenchez l’alerte de sécurité dès que tous les prédicats de la règle de détection sont satisfaits.",
+      "Pour chaque paquet : vérifier le protocole, la destination et le port, puis chercher le motif dans la charge utile ; si tout correspond, déclencher l alerte."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "PAQUET NORMAL (aucun match)"
       }
     ],
-    "solution": "[Exemple]\n[ALERT] [sid:10001] Tentative acces admin (source: 10.0.0.5:45892 -> dest: 192.168.1.10:80)\n\n[Cas 1 — Test de validation 1]\nPAQUET NORMAL (aucun match)\n\n[Cas 2 — Test de validation 2]\n[ALERT] [sid:10002] Scan SSH brute (source: 172.16.0.4:55000 -> dest: 10.0.0.1:22)\n\n[Cas 3 — Test de validation 3]\n[ALERT] [sid:10003] Attaque DNS malveillante (source: 192.168.1.50:61234 -> dest: 192.168.1.1:53)\n\n[Cas 4 — Test de validation 4]\nPAQUET NORMAL (aucun match)"
+    "solution": "[Exemple]\n[ALERT] [sid:10001] Tentative acces admin (source: 10.0.0.5:45892 -> dest: 192.168.1.10:80)\n\n[Cas 1 — Test de validation 1]\nPAQUET NORMAL (aucun match)\n\n[Cas 2 — Test de validation 2]\n[ALERT] [sid:10002] Scan SSH brute (source: 172.16.0.4:55000 -> dest: 10.0.0.1:22)\n\n[Cas 3 — Test de validation 3]\n[ALERT] [sid:10003] Attaque DNS malveillante (source: 192.168.1.50:61234 -> dest: 192.168.1.1:53)\n\n[Cas 4 — Test de validation 4]\nPAQUET NORMAL (aucun match)",
+    "takeaway": "Une règle NIDS corréle protocole, ports, direction de flux et signature payload pour lever une alerte réseau ciblée."
   },
   {
     "id": "cs2-c6-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c6-e2) — Détection d’attaque par force brute dans les journaux d’événements\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 10 10.0.0.1 FAIL|20 10.0.0.2 FAIL|30 10.0.0.1 SUCCESS|40 10.0.0.1 FAIL\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 10 192.168.1.50 FAIL|80 192.168.1.50 FAIL|150 192.168.1.50 FAIL|220 192.168.1.50 FAIL|290 192.168.1.50 FAIL\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 5 172.16.5.99 FAIL|10 172.16.5.99 FAIL|15 172.16.5.99 FAIL|20 172.16.5.99 FAIL|25 172.16.5.99 FAIL\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 1 1.1.1.1 SUCCESS|2 2.2.2.2 SUCCESS\nA_COMPLETER\n",
     "hints": [
       "Analysez la fréquence temporelle des échecs d’authentification provenant d’une même source IP.",
-      "Dépassement du seuil de tentatives infructueuses = suspicion avérée d’attaque par force brute ou dictionnaire."
+      "Dépassement du seuil de tentatives infructueuses = suspicion avérée d’attaque par force brute ou dictionnaire.",
+      "Pour chaque journal : regrouper les échecs par adresse IP, compter les tentatives, puis signaler la force brute dès que le seuil est atteint."
     ],
     "examples": [
       {
@@ -87,7 +90,8 @@ module.exports = [
         "expected": "JOURNAUX NORMAUX (0 echecs disperses)"
       }
     ],
-    "solution": "[Exemple]\nALERTE BRUTE FORCE: IP 192.168.1.50 (5 echecs en 40s) -> BANNISSEMENT IP\n\n[Cas 1 — Test de validation 1]\nJOURNAUX NORMAUX (3 echecs disperses)\n\n[Cas 2 — Test de validation 2]\nJOURNAUX NORMAUX (5 echecs disperses)\n\n[Cas 3 — Test de validation 3]\nALERTE BRUTE FORCE: IP 172.16.5.99 (5 echecs en 20s) -> BANNISSEMENT IP\n\n[Cas 4 — Test de validation 4]\nJOURNAUX NORMAUX (0 echecs disperses)"
+    "solution": "[Exemple]\nALERTE BRUTE FORCE: IP 192.168.1.50 (5 echecs en 40s) -> BANNISSEMENT IP\n\n[Cas 1 — Test de validation 1]\nJOURNAUX NORMAUX (3 echecs disperses)\n\n[Cas 2 — Test de validation 2]\nJOURNAUX NORMAUX (5 echecs disperses)\n\n[Cas 3 — Test de validation 3]\nALERTE BRUTE FORCE: IP 172.16.5.99 (5 echecs en 20s) -> BANNISSEMENT IP\n\n[Cas 4 — Test de validation 4]\nJOURNAUX NORMAUX (0 echecs disperses)",
+    "takeaway": "Compter les échecs d authentification par IP ou compte sur fenêtre temporelle courte déclenche la détection de force brute."
   },
   {
     "id": "cs2-c6-e3",
@@ -100,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c6-e3) — Analyseur de compromission et corrélation d’IoC (Hashes malveillants)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : aaaa:VirusA,bbbb:WormB\n# Données : /bin/ls:1111,/bin/cat:2222\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : deadbeef:Rootkit.Zero,cafebabe:Keylogger.Spy\n# Données : /var/tmp/svchost.exe:DEADBEEF\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 1234:Backdoor.X\n# Données : /etc/init.d/service:9999,/opt/agent:1234\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 1111:Threat1\n# Données : /tmp/test:2222\nA_COMPLETER\n",
     "hints": [
       "Un IoC (Indicateur de Compromission) fournit la preuve technique d’une infection ou intrusion sur le système.",
-      "Confrontez les empreintes collectées aux signatures connues de menaces pour qualifier la compromission."
+      "Confrontez les empreintes collectées aux signatures connues de menaces pour qualifier la compromission.",
+      "Pour chaque fichier : comparer son empreinte à la base des signatures malveillantes ; une correspondance qualifie la compromission, sinon le système reste sain."
     ],
     "examples": [
       {
@@ -131,6 +136,7 @@ module.exports = [
         "expected": "SYSTEME SAIN (aucun IoC detecte)"
       }
     ],
-    "solution": "[Exemple]\nMENACE DETECTEE: /usr/bin/bash correspond a Trojan.Downloader\nMENACE DETECTEE: /tmp/updater.exe correspond a Ransomware.WannaCry\n\n[Cas 1 — Test de validation 1]\nSYSTEME SAIN (aucun IoC detecte)\n\n[Cas 2 — Test de validation 2]\nMENACE DETECTEE: /var/tmp/svchost.exe correspond a Rootkit.Zero\n\n[Cas 3 — Test de validation 3]\nMENACE DETECTEE: /opt/agent correspond a Backdoor.X\n\n[Cas 4 — Test de validation 4]\nSYSTEME SAIN (aucun IoC detecte)"
+    "solution": "[Exemple]\nMENACE DETECTEE: /usr/bin/bash correspond a Trojan.Downloader\nMENACE DETECTEE: /tmp/updater.exe correspond a Ransomware.WannaCry\n\n[Cas 1 — Test de validation 1]\nSYSTEME SAIN (aucun IoC detecte)\n\n[Cas 2 — Test de validation 2]\nMENACE DETECTEE: /var/tmp/svchost.exe correspond a Rootkit.Zero\n\n[Cas 3 — Test de validation 3]\nMENACE DETECTEE: /opt/agent correspond a Backdoor.X\n\n[Cas 4 — Test de validation 4]\nSYSTEME SAIN (aucun IoC detecte)",
+    "takeaway": "Croiser les empreintes observées sur les postes avec une liste d IoC vérifiée permet d identifier rapidement une compromission."
   }
 ];

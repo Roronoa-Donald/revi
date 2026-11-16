@@ -183,33 +183,33 @@ module.exports = {
       stem: 'Dans quelle couche d’exécution le micro-noyau NT et les pilotes matériels opèrent-ils ?',
       opts: [
         'En mode utilisateur Ring 3',
-        'En mode noyau Ring 0',
         'Dans le sous-système Win32',
+        'En mode noyau Ring 0',
         'Directement dans le navigateur Edge'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le noyau NT, la HAL et les pilotes .sys s’exécutent en mode noyau (Ring 0) avec accès matériel direct et mémoire protégée.'
     },
     {
       stem: 'Quel est l’avantage premier du déploiement en Server Core pour un contrôleur de domaine ?',
       opts: [
-        'Permettre d’exécuter des jeux vidéo en 3D',
-        'Réduire la surface d’attaque logicielle et minimiser les vulnérabilités de sécurité',
-        'Rendre impossible l’accès via PowerShell',
-        'Désactiver totalement la mise en réseau'
+        "Permettre d’exécuter des jeux vidéo en 3D sur le serveur de production",
+        "Rendre impossible tout accès distant via PowerShell au serveur",
+        "Désactiver totalement la mise en réseau du serveur pour l’isoler",
+        "Réduire la surface d’attaque logicielle et minimiser les vulnérabilités de sécurité"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’absence de sous-système graphique réduit massivement le code exécuté, diminuant les failles exploitables et les besoins en redémarrages de patchs.'
     },
     {
       stem: 'Selon les règles officielles Microsoft, quel est le minimum de cœurs à licencier par serveur physique ?',
       opts: [
-        '4 cœurs',
-        '8 cœurs',
         '16 cœurs',
+        '8 cœurs',
+        '4 cœurs',
         '32 cœurs'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Chaque serveur physique doit être licencié pour un minimum absolu de 16 cœurs, même s’il n’en contient que 4 ou 8.'
     },
     {
@@ -226,12 +226,12 @@ module.exports = {
     {
       stem: 'À quoi sert une plage d’exclusion dans une étendue DHCP ?',
       opts: [
-        'À bloquer l’accès à Internet des téléphones portables',
-        'À réserver des adresses de la plage pour des serveurs ou équipements statiques sans attribution dynamique',
-        'À forcer le chiffrement AES des paquets réseau',
-        'À désactiver le serveur DNS de l’entreprise'
+        "À bloquer entièrement l’accès à Internet des téléphones portables des salariés",
+        "À forcer le chiffrement AES de tous les paquets réseau émis par le serveur DHCP",
+        "À réserver des adresses de la plage pour des serveurs ou équipements statiques sans attribution dynamique",
+        "À désactiver temporairement le serveur DNS de l’entreprise pendant les maintenances"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’exclusion protège les adresses IP assignées en fixe aux serveurs et routeurs pour que le DHCP ne les distribue jamais à des postes clients.'
     },
     {
@@ -239,30 +239,30 @@ module.exports = {
       opts: [
         'Enregistrement MX',
         'Enregistrement TXT',
-        'Enregistrement SRV',
-        'Enregistrement CNAME'
+        'Enregistrement CNAME',
+        'Enregistrement SRV'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Les enregistrements SRV (Service Records) indiquent le protocole, le port et le FQDN des services vitaux comme LDAP (389) et Kerberos (88).'
     },
     {
       stem: 'Quel est le résultat d’une requête DNS inverse (Reverse Lookup) ?',
       opts: [
-        'Résoudre un nom de domaine en adresse IPv4',
-        'Résoudre une adresse IP en nom d’hôte complet (FQDN) via un enregistrement PTR',
-        'Changer le mot de passe de l’administrateur',
-        'Vider la corbeille de Windows'
+        "Résoudre une adresse IP en nom d’hôte complet (FQDN) via un enregistrement PTR",
+        "Résoudre un nom de domaine en adresse IPv4 via les enregistrements de type A",
+        "Changer le mot de passe administrateur du domaine Active Directory",
+        "Vider la corbeille de Windows du serveur DNS concerné"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La résolution inverse interroge la zone in-addr.arpa pour convertir une adresse IP en nom FQDN grâce à l’enregistrement PTR.'
     },
     {
       stem: 'Que se passe-t-il lorsqu’un serveur physique doté de 2 CPU à 4 cœurs chacun est licencié ?',
       opts: [
-        'On achète 8 cœurs de licence',
-        'On applique la règle de 8 cœurs par socket, soit 16 cœurs au total (8 packs de 2 cœurs)',
-        'Microsoft offre gratuitement la licence',
-        'Le serveur refuse de démarrer'
+        "On achète uniquement 8 cœurs de licence, soit un seul pack par processeur physique",
+        "On applique la règle de 8 cœurs par socket, soit 16 cœurs au total (8 packs de 2 cœurs)",
+        "Microsoft offre gratuitement la licence lors de l’achat du matériel serveur",
+        "Le serveur refuse de démarrer tant que la licence n’a pas été activée"
       ],
       correct: 1,
       exp: 'Chaque processeur physique requiert un plancher de 8 cœurs : 2 sockets x 8 cœurs = 16 cœurs de base (soit 8 packs de 2 cœurs).'

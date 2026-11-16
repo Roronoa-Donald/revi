@@ -156,34 +156,34 @@ module.exports = {
     {
       stem: 'Quel est le comportement d’exécution par défaut de deux jobs déclarés au même niveau dans un workflow si aucune directive « needs: » n’est précisée ?',
       opts: [
-        'Ils s’exécutent en série l’un après l’autre dans l’ordre du fichier',
         'Ils s’exécutent en parallèle simultanément sur des runners indépendants',
+        'Ils s’exécutent en série l’un après l’autre dans l’ordre du fichier',
         'Le premier bloque l’exécution du second jusqu’à approbation manuelle',
         'Le second écrase automatiquement les résultats du premier'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Par défaut, tous les jobs d’un workflow sont indépendants et s’exécutent en parallèle, sauf si une dépendance explicite est introduite via le mot-clé needs:.'
     },
     {
       stem: 'Pourquoi l’instruction « run: echo "Branche : ${{ github.head_ref }}" » représente-t-elle une vulnérabilité critique ?',
       opts: [
         'Parce que GitHub Actions ne supporte pas la commande echo sous Linux',
-        'Parce qu’un attaquant peut nommer sa branche avec des métacaractères shell pour exécuter du code arbitraire',
+        'Parce que cette syntaxe consomme deux fois plus de crédits de calcul',
         'Parce que le nom de branche est effacé par le runner avant l’exécution',
-        'Parce que cette syntaxe consomme deux fois plus de crédits de calcul'
+        'Parce qu’un attaquant peut nommer sa branche avec des métacaractères shell pour exécuter du code arbitraire'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’expression ${{ github.head_ref }} est substituée textuellement avant l’appel du shell : un nom de branche contenant des points-virgules ou guillemets permet d’injecter des commandes malveillantes (Command Injection).'
     },
     {
       stem: 'Quelle est la méthode recommandée pour assainir l’utilisation d’un paramètre dynamique issu de l’événement GitHub dans un script shell ?',
       opts: [
         'L’encoder en base64 dans le message de commit',
-        'Le transmettre via « env: », citer l’expansion et valider la valeur selon son usage',
         'Désactiver l’interpréteur bash au profit de sh standard',
+        'Le transmettre via « env: », citer l’expansion et valider la valeur selon son usage',
         'Exécuter le workflow uniquement sur des machines Windows'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le bloc env: évite la substitution directe dans le script, mais ne sécurise pas automatiquement tous les usages : citer l’expansion, valider les arguments et éviter eval.'
     },
     {
@@ -200,34 +200,34 @@ module.exports = {
     {
       stem: 'Que provoque la directive « fail-fast: false » au sein d’une stratégie matricielle ?',
       opts: [
-        'Le workflow s’arrête immédiatement dès qu’un job réussit',
         'Tous les autres jobs de la matrice continuent de s’exécuter même si l’un d’eux échoue',
+        'Le workflow s’arrête immédiatement dès qu’un job réussit',
         'Les erreurs de tests sont ignorées et le statut final est toujours vert',
         'La matrice est exécutée séquentiellement pour économiser de la mémoire'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Par défaut (fail-fast: true), l’échec d’un job stoppe immédiatement tous les autres. En fixant fail-fast: false, on permet à chaque configuration de mener ses tests à terme pour avoir un diagnostic complet.'
     },
     {
       stem: 'Comment restreindre les droits du token d’authentification automatique à la seule lecture du code source dans un workflow ?',
       opts: [
-        'permissions: { contents: read }',
+        'token: { write: false }',
         'security: { read-only: true }',
         'auth: { level: minimal }',
-        'token: { write: false }'
+        'permissions: { contents: read }'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le bloc déclaratif standard permissions: permet de spécifier les scopes autorisés, ici contents: read pour autoriser uniquement la lecture du dépôt.'
     },
     {
       stem: 'Pourquoi est-il fortement conseillé d’épingler les actions tierces par leur hash de commit complet (ex: uses: actions/checkout@b4ffde...) ?',
       opts: [
-        'Pour accélérer le téléchargement depuis le cache local',
-        'Pour se prémunir contre la compromission d’un tag de version mutable sur le dépôt de l’action (Supply Chain Attack)',
-        'Parce que GitHub refuse d’exécuter les actions référencées par des tags',
-        'Pour rendre l’action compatible avec Windows et macOS'
+        "Pour accélérer le téléchargement des couches depuis le cache local du runner d’exécution",
+        "Parce que GitHub refuse catégoriquement d’exécuter les actions tierces référencées uniquement par des tags",
+        "Pour se prémunir contre la compromission d’un tag de version mutable sur le dépôt de l’action (Supply Chain Attack)",
+        "Pour rendre l’action automatiquement compatible avec les runners Windows et macOS de la matrice"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un tag (comme @v4) est une référence modifiable par le propriétaire du dépôt de l’action : un attaquant qui compromettrait ce dépôt pourrait y pousser du code hostile. Le hash SHA immuable garantit l’intégrité absolue.'
     }
   ],

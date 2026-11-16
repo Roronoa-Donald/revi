@@ -38,6 +38,7 @@ const LANGUAGES = [
   { id: 'shell',      label: 'Bash',       monaco: 'shell',      oanor: 'bash',       ext: 'sh',   aliases: ['bash', 'shell', 'sh'] },
   { id: 'powershell', label: 'PowerShell', monaco: 'powershell', oanor: 'powershell', ext: 'ps1',  aliases: ['powershell', 'pwsh'] },
   { id: 'sql',        label: 'SQL',        monaco: 'sql',        oanor: 'sql',        ext: 'sql',  aliases: ['sql', 'sqlite', 'sqlite3'] },
+  { id: 'algo',       label: 'Pseudo-code', monaco: 'pseudocode', oanor: 'algo',      ext: 'algo', sample: '// Pseudo-code\nDébut\n  Afficher("Bonjour")\nFin\n', aliases: ['algo', 'pseudocode', 'pseudo-code', 'pseudo_code'] },
   { id: 'analyse',    label: 'Étude de cas', monaco: 'plaintext', oanor: 'analyse',   ext: 'txt',  sample: '# Grille d\'analyse\n', aliases: ['analyse'] }
 ];
 
@@ -54,7 +55,9 @@ function isSupported(id) {
 }
 
 function listLanguages() {
-  return LANGUAGES.map(l => ({ id: l.id, label: l.label, monaco: l.monaco, ext: l.ext }));
+  return LANGUAGES
+    .filter(l => l.id !== 'analyse')
+    .map(l => ({ id: l.id, label: l.label, monaco: l.monaco, ext: l.ext }));
 }
 
 /**

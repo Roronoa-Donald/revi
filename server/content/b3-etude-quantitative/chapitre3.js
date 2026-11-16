@@ -172,10 +172,10 @@ module.exports = {
     {
       stem: 'Quel défaut méthodologique rédhibitoire présente la question : « Êtes-vous satisfait de la rapidité et du coût de notre solution cloud ? » ?',
       opts: [
-        'Elle est écrite en français au lieu d’être en anglais',
-        'Il s’agit d’une question à double détente (double-barrelled) qui évalue deux attributs distincts simultanément (rapidité et coût), rendant la réponse impossible si l’un est bon et l’autre mauvais',
-        'Elle utilise le mot cloud qui est interdit dans les sondages',
-        'Elle comporte plus de 100 caractères'
+        "Elle est rédigée en français alors que les standards internationaux d’enquête imposent la rédaction en anglais pour l’ensemble des questionnaires scientifiques",
+        "Il s’agit d’une question à double détente (double-barrelled) qui évalue deux attributs distincts simultanément (rapidité et coût), rendant la réponse impossible si l’un est bon et l’autre mauvais",
+        "Elle emploie le terme technique cloud, qui est formellement proscrit par les chartes de rédaction des questionnaires destinés au grand public français",
+        "Elle comporte plus de 100 caractères, ce qui dépasse la longueur maximale traditionnellement admise pour une question fermée de questionnaire"
       ],
       correct: 1,
       exp: 'Une question à double détente force le répondant à une moyenne arbitraire entre deux dimensions indépendantes. Elle doit obligatoirement être scindée en deux questions.'
@@ -183,76 +183,76 @@ module.exports = {
     {
       stem: 'Sur une échelle de Likert de 1 à 5 points, qu’indique un écart-type faible (ex: σ = 0.45) sur un échantillon de 100 répondants ?',
       opts: [
-        'Que le compilateur de données est tombé en panne',
-        'Qu’il existe un consensus très fort entre les répondants, leurs notes étant très concentrées autour de la moyenne',
-        'Que la moitié des répondants ont menti',
-        'Que l’échelle doit être annulée'
+        "Qu’il existe un consensus très fort entre les répondants, leurs notes étant très concentrées autour de la moyenne",
+        "Que le logiciel de traitement des données est tombé en panne pendant le calcul de l’indicateur",
+        "Que la moitié des répondants ont délibérément menti sur leurs véritables opinions",
+        "Que l’échelle de Likert retenue doit être purement et simplement annulée et reconstruite"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’écart-type mesure la dispersion autour de la moyenne : plus il est proche de 0, plus l’accord et le consensus entre les participants sont unanimes.'
     },
     {
       stem: 'Pourquoi est-il fortement recommandé de placer les questions signalétiques (âge, intitulé de poste, taille d’entreprise) à la toute fin d’un questionnaire ?',
       opts: [
-        'Pour éviter que les répondants ne s’endorment immédiatement',
-        'Parce que ces questions sociodémographiques peuvent être perçues comme intrusives au début et risqueraient de provoquer un abandon précoce avant même d’aborder le sujet principal',
-        'Parce que la loi RGPD interdit de collecter ces données au début',
-        'Pour des raisons purement esthétiques de mise en page'
+        "Pour éviter que les répondants ne s’endorment dès les premières minutes du questionnaire et qu’ils ne l’abandonnent ensuite en cours de route",
+        "Parce que le règlement général sur la protection des données interdit formellement de collecter ces informations personnelles au début",
+        "Uniquement pour des raisons purement esthétiques de mise en page et d’équilibrage visuel des différents blocs de questions du questionnaire",
+        "Parce que ces questions sociodémographiques peuvent être perçues comme intrusives au début et risqueraient de provoquer un abandon précoce avant même d’aborder le sujet principal"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Placer les données démographiques en fin de parcours minimise les refus d’engagement initial : une fois les questions métier complétées, le répondant est plus enclin à finaliser son profil.'
     },
     {
       stem: 'Dans un questionnaire administré en ligne, comment se calcule précisément le taux d’abandon en cours de route (drop-off rate) ?',
       opts: [
-        '(Nombre de questionnaires envoyés - Nombre d’ouverts) / Envoyés',
-        '(Nombre de questionnaires initiés - Nombre de questionnaires complétés) / Nombre de questionnaires initiés',
-        'Nombre de questions divisé par le nombre de minutes',
-        'Nombre total de clics sur le bouton Suivant'
+        "(Questionnaires envoyés - Questionnaires ouverts) / Questionnaires envoyés, pour mesurer les taux d’ouverture",
+        "Le nombre total de questions divisé par le nombre de minutes nécessaires pour y répondre",
+        "(Nombre de questionnaires initiés - Nombre de questionnaires complétés) / Nombre de questionnaires initiés",
+        "Le nombre total de clics enregistrés sur le bouton Suivant de l’interface de l’enquête"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le drop-off rate mesure la déperdition parmi les personnes qui ont effectivement commencé à répondre : ((Initiés - Complétés) / Initiés) * 100.'
     },
     {
       stem: 'Qu’est-ce qu’un « pré-test pilote » dans la phase d’ingénierie d’un questionnaire ?',
       opts: [
-        'Un vol d’avion d’essai pour l’équipe de recherche',
-        'Une passation d’essai du questionnaire auprès d’un petit groupe test (5 à 15 personnes) pour mesurer la durée de remplissage, vérifier la compréhension et détecter les ambiguïtés avant le déploiement général',
-        'Un test de résistance physique des ordinateurs',
-        'Un tirage au sort des gagnants d’un lot commercial'
+        "Un vol d’avion d’essai payé par le laboratoire afin que l’équipe de recherche puisse repérer physiquement les lieux du terrain d’enquête avant le lancement de la collecte",
+        "Un test de résistance physique des ordinateurs et des serveurs employés pour héberger la plateforme de collecte en ligne des réponses des participants à l’enquête",
+        "Une passation d’essai du questionnaire auprès d’un petit groupe test (5 à 15 personnes) pour mesurer la durée de remplissage, vérifier la compréhension et détecter les ambiguïtés avant le déploiement général",
+        "Un tirage au sort des gagnants d’un lot commercial destiné à récompenser les répondants ayant rempli l’intégralité du questionnaire final le plus rapidement possible"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le pré-test teste l’instrument de mesure en conditions réelles sur un échantillon réduit pour identifier et rectifier tout écueil sémantique ou technique.'
     },
     {
       stem: 'Quelle formulation respecte le principe de neutralité de rédaction pour une enquête de satisfaction logicielle ?',
       opts: [
-        'Ne trouvez-vous pas que la version 2.0 est bien plus performante ?',
-        'Vous conviendrez certainement que notre équipe a fait un travail remarquable.',
-        'Quel est votre niveau d’accord avec l’affirmation suivante : « Le temps de chargement de l’application répond à mes attentes opérationnelles » ?',
-        'N’est-il pas évident que la nouvelle interface surpasse l’ancienne ?'
+        "Ne trouvez-vous pas que la version 2.0 de l’application est réellement bien plus performante que la version précédente ?",
+        "Vous conviendrez certainement que notre équipe de développement a fait un travail tout à fait remarquable.",
+        "N’est-il pas évident pour n’importe quel utilisateur que la nouvelle interface surpasse largement l’ancienne ?",
+        "Quel est votre niveau d’accord avec l’affirmation suivante : « Le temps de chargement de l’application répond à mes attentes opérationnelles » ?"
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La formulation neutre pose une assertion mesurable et symétrique sans adjectifs flatteurs ni incitation psychologique vers l’approbation.'
     },
     {
       stem: 'Quelle est la durée maximale de passation généralement recommandée pour une enquête en ligne auprès de professionnels IT afin d’éviter l’effondrement de la qualité des réponses ?',
       opts: [
-        '1 minute maximum',
-        '7 à 10 minutes maximum (environ 15 à 25 questions ciblées)',
-        '2 heures obligatoires',
-        'Une journée entière de travail'
+        "7 à 10 minutes maximum (environ 15 à 25 questions ciblées)",
+        "1 minute maximum, pour une question unique et fermée",
+        "2 heures obligatoires, avec des questionnaires longs et détaillés",
+        "Une journée entière de travail rémunéré au temps passé"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Au-delà de 10 minutes, la fatigue cognitive entraîne des abandons massifs et des réponses aléatoires de désengagement (straightlining).'
     },
     {
       stem: 'Qu’est-ce que le phénomène de « Straightlining » (ou réponses en ligne droite) lors du remplissage d’une batterie de questions Likert ?',
       opts: [
-        'Le fait pour le répondant de tracer des lignes au crayon sur son écran',
-        'Le comportement de fatigue consistant à cocher la même case (ex: tout à 3 ou tout à 5) sans lire les questions pour expédier le questionnaire au plus vite',
-        'Une nouvelle technique statistique de régression linéaire',
-        'L’alignement des questions en mode paysage'
+        "Le fait pour le répondant de tracer des lignes au crayon directement sur l’écran de son ordinateur portable pendant la passation",
+        "Le comportement de fatigue consistant à cocher la même case (ex: tout à 3 ou tout à 5) sans lire les questions pour expédier le questionnaire au plus vite",
+        "Une nouvelle technique statistique de régression linéaire destinée à corriger automatiquement les réponses jugées extrêmes",
+        "L’alignement systématique des questions en mode paysage lors de la mise en page définitive du formulaire d’enquête"
       ],
       correct: 1,
       exp: 'Le straightlining est un biais de non-engagement provoqué par la fatigue ou l’ennui : l’utilisateur clique sur la même colonne d’un bout à l’autre de la grille.'

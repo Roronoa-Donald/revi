@@ -141,34 +141,34 @@ module.exports = {
     {
       stem: 'Quel symbole représente un nœud de décision conditionnelle (embranchement if / else) dans un diagramme d’activités ?',
       opts: [
-        'Un rectangle à coins arrondis',
-        'Un losange avec une entrée et plusieurs sorties gardées',
-        'Une barre noire épaisse horizontale',
-        'Un cercle barré d’une croix'
+        "Un rectangle à coins arrondis avec une bordure épaisse",
+        "Une barre noire épaisse horizontale de synchronisation",
+        "Un losange avec une entrée et plusieurs sorties gardées",
+        "Un cercle barré d’une croix en son centre"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En diagramme d’activités, le losange (decision node) aiguille un jeton entrant vers une seule de ses branches de sortie en fonction des conditions de garde [condition].'
     },
     {
       stem: 'Quel est le comportement exact d’un nœud de jonction Join (représenté par une barre épaisse) ?',
       opts: [
-        'Il laisse passer le premier jeton arrivé et ignore les suivants',
-        'Il attend qu’un jeton soit présent sur CHACUNE de ses transitions entrantes avant d’émettre un unique jeton en sortie',
-        'Il duplique le jeton entrant vers toutes les sorties',
-        'Il détruit l’intégralité de l’activité en cours'
+        "Il laisse simplement passer le premier jeton arrivé et ignore systématiquement tous les suivants",
+        "Il duplique le jeton entrant vers l’ensemble des différentes sorties disponibles du nœud",
+        "Il détruit immédiatement l’intégralité de l’activité en cours d’exécution",
+        "Il attend qu’un jeton soit présent sur CHACUNE de ses transitions entrantes avant d’émettre un unique jeton en sortie"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le nœud Join agit comme une barrière de synchronisation : il bloque tant que toutes les branches concurrentes entrantes n’ont pas produit leur jeton.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre un «nœud final d’activité» et un «nœud final de flux» ?',
       opts: [
-        'Le final d’activité détruit la base de données SQL, le final de flux ferme le réseau',
-        'Le final d’activité stoppe immédiatement l’intégralité de l’activité et tue tous les jetons, tandis que le final de flux détruit uniquement le jeton qui l’atteint sans impacter les autres branches',
-        'Il n’y a aucune différence, ce sont deux variantes cosmétiques',
-        'Le final de flux ne peut être placé que dans une Swimlane administrateur'
+        "Le final d’activité stoppe immédiatement l’intégralité de l’activité et tue tous les jetons, tandis que le final de flux détruit uniquement le jeton qui l’atteint sans impacter les autres branches",
+        "Le final d’activité détruit physiquement la base de données SQL sous-jacente, tandis que le final de flux se contente de fermer la connexion réseau",
+        "Il n’y a aucune différence fonctionnelle réelle, ces deux symboles ne sont en réalité que de simples variantes cosmétiques de la notation UML",
+        "Le final de flux ne peut être placé que dans une Swimlane spécifique réservée à l’administrateur technique de l’ensemble du système modélisé"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le final d’activité (disque cerclé) termine tout le processus. Le final de flux (cercle avec croix) détruit seulement son flux local sans stopper les branches parallèles.'
     },
     {
@@ -180,45 +180,45 @@ module.exports = {
     {
       stem: 'Que se passe-t-il si un modélisateur relie les deux sorties exclusives d’un losange de décision directement aux entrées d’une barre Join ?',
       opts: [
-        'Le diagramme s’exécute deux fois plus vite',
-        'Le système se bloque définitivement (Deadlock) car la barre Join attend deux jetons, alors qu’un seul ne sera jamais produit par le losange',
-        'La barre Join se transforme automatiquement en nœud de fusion',
-        'C’est la syntaxe recommandée par l’OMG'
+        "Le diagramme complet s’exécute deux fois plus vite grâce au parallélisme des deux branches reliées directement",
+        "La barre Join se transforme alors automatiquement en un simple nœud de fusion passif de jetons concurrents",
+        "Le système se bloque définitivement (Deadlock) car la barre Join attend deux jetons, alors qu’un seul ne sera jamais produit par le losange",
+        "C’est justement la syntaxe officiellement recommandée par l’OMG dans ce type précis de situation"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Puisque la décision n’émet qu’un seul jeton sur l’une de ses branches, l’autre branche ne recevra jamais de jeton. La barre Join attendant toutes ses entrées sera bloquée à l’infini.'
     },
     {
       stem: 'Quel symbole représente l’état initial d’un diagramme d’activités ?',
       opts: [
         'Un cercle blanc vide',
-        'Un disque noir plein',
+        'Un rectangle avec une flèche',
         'Un losange jaune',
-        'Un rectangle avec une flèche'
+        'Un disque noir plein'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’état initial est matérialisé par un disque noir plein, qui produit le premier jeton dès l’activation du diagramme.'
     },
     {
       stem: 'Quelle notation est utilisée pour encadrer une condition de garde sur une transition sortant d’un losange de décision ?',
       opts: [
-        'Des parenthèses (condition)',
         'Des crochets [condition]',
+        'Des parenthèses (condition)',
         'Des accolades {condition}',
         'Des guillemets "condition"'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La syntaxe officielle OMG UML pour les conditions de garde sur les transitions est l’encadrement strict par des crochets, par exemple [solde &gt;= montant].'
     },
     {
       stem: 'Dans un diagramme d’activités, comment est modélisé un objet produit ou consommé par une action (flux d’objets) ?',
       opts: [
-        'Par un rectangle classique portant le nom de l’objet et son état entre crochets (ex: Facture [Émise])',
-        'Par une ligne brisée rouge',
-        'Par un losange plein',
-        'Par un point d’exclamation'
+        "Par une ligne brisée rouge traversant horizontalement le couloir de nage concerné",
+        "Par un rectangle classique portant le nom de l’objet et son état entre crochets (ex: Facture [Émise])",
+        "Par un losange plein identique au symbole utilisé pour un nœud de décision",
+        "Par un point d’exclamation placé directement sur la transition sortante"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Un nœud d’objet (Object Node) est représenté par un rectangle portant le nom de la classe ou de la donnée avec son état éventuel spécifié entre crochets.'
     }
   ],

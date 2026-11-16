@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c1-e1) — Validateur d’assignation d’interfaces et calcul de sous-réseau CIDR\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau LAN standard /24]\n# Données : IFACE_CONFIG iface=lan ip=10.10.20.1/24\nA_COMPLETER\n\n[Cas 2 — Interconnexion WAN en /30]\n# Données : IFACE_CONFIG iface=wan ip=198.51.100.2/30\nA_COMPLETER\n\n[Cas 3 — Lien point-à-point inter-routeurs en /31 (RFC 3021)]\n# Données : IFACE_CONFIG iface=opt1 ip=172.16.0.10/31\nA_COMPLETER\n\n[Cas 4 — Adresse virtuelle Loopback d’hôte unique en /32]\n# Données : IFACE_CONFIG iface=lo0 ip=203.0.113.55/32\nA_COMPLETER\n",
     "hints": [
       "Pour un préfixe /n avec n <= 30, le bloc compte 2^(32-n) adresses totales, dont 2^(32-n) - 2 adresses d’hôtes utilisables entre l’adresse réseau et l’adresse de diffusion.",
-      "Appliquez les cas particuliers normés de la section 4 : en /31 (RFC 3021) les 2 adresses sont utilisables (hosts=2), et en /32 l’adresse désigne 1 hôte unique (hosts=1)."
+      "Appliquez les cas particuliers normés de la section 4 : en /31 (RFC 3021) les 2 adresses sont utilisables (hosts=2), et en /32 l’adresse désigne 1 hôte unique (hosts=1).",
+      "1. Séparer l’IP et le préfixe n. 2. Mettre les 32-n bits de poids faible à 0 pour net, à 1 pour bcast. 3. hosts : 2^(32-n)-2 si n<=30, 2 si /31, 1 si /32."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "IFACE_REPORT iface=lo0 ip=203.0.113.55 net=203.0.113.55 bcast=203.0.113.55 hosts=1"
       }
     ],
-    "solution": "[Exemple]\nIFACE_REPORT iface=lan ip=192.168.1.1 net=192.168.1.0 bcast=192.168.1.255 hosts=254\n\n[Cas 1 — Sous-réseau LAN standard /24]\nIFACE_REPORT iface=lan ip=10.10.20.1 net=10.10.20.0 bcast=10.10.20.255 hosts=254\n\n[Cas 2 — Interconnexion WAN en /30]\nIFACE_REPORT iface=wan ip=198.51.100.2 net=198.51.100.0 bcast=198.51.100.3 hosts=2\n\n[Cas 3 — Lien point-à-point inter-routeurs en /31 (RFC 3021)]\nIFACE_REPORT iface=opt1 ip=172.16.0.10 net=172.16.0.10 bcast=172.16.0.11 hosts=2\n\n[Cas 4 — Adresse virtuelle Loopback d’hôte unique en /32]\nIFACE_REPORT iface=lo0 ip=203.0.113.55 net=203.0.113.55 bcast=203.0.113.55 hosts=1"
+    "solution": "[Exemple]\nIFACE_REPORT iface=lan ip=192.168.1.1 net=192.168.1.0 bcast=192.168.1.255 hosts=254\n\n[Cas 1 — Sous-réseau LAN standard /24]\nIFACE_REPORT iface=lan ip=10.10.20.1 net=10.10.20.0 bcast=10.10.20.255 hosts=254\n\n[Cas 2 — Interconnexion WAN en /30]\nIFACE_REPORT iface=wan ip=198.51.100.2 net=198.51.100.0 bcast=198.51.100.3 hosts=2\n\n[Cas 3 — Lien point-à-point inter-routeurs en /31 (RFC 3021)]\nIFACE_REPORT iface=opt1 ip=172.16.0.10 net=172.16.0.10 bcast=172.16.0.11 hosts=2\n\n[Cas 4 — Adresse virtuelle Loopback d’hôte unique en /32]\nIFACE_REPORT iface=lo0 ip=203.0.113.55 net=203.0.113.55 bcast=203.0.113.55 hosts=1",
+    "takeaway": "Avant toute règle pfSense, chaque interface (WAN, LAN, OPT) doit recevoir un CIDR distinct sans chevauchement de sous-réseaux."
   },
   {
     "id": "pf3-c1-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c1-e2) — Convertisseur de règles pfSense WebGUI vers syntaxe native FreeBSD PF (pf.conf)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Blocage total de tout trafic sur le WAN]\n# Données : GUI_RULE action=block iface=wan proto=any src=any dst=any port=any\nA_COMPLETER\n\n[Cas 2 — Autorisation DNS UDP spécifique]\n# Données : GUI_RULE action=pass iface=opt1 proto=udp src=10.0.1.0/24 dst=1.1.1.1 port=53\nA_COMPLETER\n\n[Cas 3 — Trafic TCP sans restriction de port]\n# Données : GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.10 dst=10.0.0.5 port=any\nA_COMPLETER\n",
     "hints": [
       "N’incluez la clause « proto <protocole> » que lorsqu’un protocole spécifique (tcp, udp, icmp) est imposé.",
-      "N’incluez la clause « port <port> » après la destination que lorsqu’un numéro de port précis est imposé."
+      "N’incluez la clause « port <port> » après la destination que lorsqu’un numéro de port précis est imposé.",
+      "1. Recopier action, « in on » et l’interface. 2. Insérer « proto » sauf si any. 3. Ajouter « from src to dst ». 4. Terminer par « port » sauf si any."
     ],
     "examples": [
       {
@@ -82,7 +85,8 @@ module.exports = [
         "expected": "PF_CONF_RULE pass in on lan proto tcp from 192.168.1.10 to 10.0.0.5"
       }
     ],
-    "solution": "[Exemple]\nPF_CONF_RULE pass in on lan proto tcp from 192.168.1.0/24 to any port 443\n\n[Cas 1 — Blocage total de tout trafic sur le WAN]\nPF_CONF_RULE block in on wan from any to any\n\n[Cas 2 — Autorisation DNS UDP spécifique]\nPF_CONF_RULE pass in on opt1 proto udp from 10.0.1.0/24 to 1.1.1.1 port 53\n\n[Cas 3 — Trafic TCP sans restriction de port]\nPF_CONF_RULE pass in on lan proto tcp from 192.168.1.10 to 10.0.0.5"
+    "solution": "[Exemple]\nPF_CONF_RULE pass in on lan proto tcp from 192.168.1.0/24 to any port 443\n\n[Cas 1 — Blocage total de tout trafic sur le WAN]\nPF_CONF_RULE block in on wan from any to any\n\n[Cas 2 — Autorisation DNS UDP spécifique]\nPF_CONF_RULE pass in on opt1 proto udp from 10.0.1.0/24 to 1.1.1.1 port 53\n\n[Cas 3 — Trafic TCP sans restriction de port]\nPF_CONF_RULE pass in on lan proto tcp from 192.168.1.10 to 10.0.0.5",
+    "takeaway": "Comprendre la traduction WebGUI vers pf.conf (pass/block, direction, quick, interface) évite les ambiguïtés d’évaluation PF."
   },
   {
     "id": "pf3-c1-e3",
@@ -95,7 +99,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c1-e3) — Auditeur de plage DHCP pfSense et détection de conflit de baux statiques\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Bail statique en plein milieu de la plage dynamique (conflit)]\n# Données : DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.150\nA_COMPLETER\n\n[Cas 2 — Adresse statique hors du sous-réseau configuré]\n# Données : DHCP_CHECK subnet=10.0.0.0/24 pool_start=10.0.0.10 pool_end=10.0.0.50 static_ip=10.0.1.5\nA_COMPLETER\n\n[Cas 3 — Plage dynamique hors sous-réseau]\n# Données : DHCP_CHECK subnet=172.16.10.0/24 pool_start=172.16.20.10 pool_end=172.16.20.50 static_ip=172.16.10.5\nA_COMPLETER\n",
     "hints": [
       "Vérifiez d’abord que les octets réseau des adresses du pool et du bail statique correspondent au préfixe CIDR du sous-réseau.",
-      "Comparez ensuite le dernier octet de l’adresse statique aux bornes inférieure et supérieure de la plage dynamique."
+      "Comparez ensuite le dernier octet de l’adresse statique aux bornes inférieure et supérieure de la plage dynamique.",
+      "1. Vérifier l’appartenance des trois adresses au sous-réseau. 2. Sinon INVALID_SUBNET_OUT_OF_BOUNDS. 3. Statique entre bornes du pool : CONFLICT. 4. Sinon VALID_SCOPE."
     ],
     "examples": [
       {
@@ -121,6 +126,7 @@ module.exports = [
         "expected": "DHCP_AUDIT subnet=172.16.10.0/24 static_ip=172.16.10.5 status=INVALID_SUBNET_OUT_OF_BOUNDS"
       }
     ],
-    "solution": "[Exemple]\nDHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.50 status=VALID_SCOPE\n\n[Cas 1 — Bail statique en plein milieu de la plage dynamique (conflit)]\nDHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.150 status=CONFLICT_STATIC_INSIDE_DYNAMIC_POOL\n\n[Cas 2 — Adresse statique hors du sous-réseau configuré]\nDHCP_AUDIT subnet=10.0.0.0/24 static_ip=10.0.1.5 status=INVALID_SUBNET_OUT_OF_BOUNDS\n\n[Cas 3 — Plage dynamique hors sous-réseau]\nDHCP_AUDIT subnet=172.16.10.0/24 static_ip=172.16.10.5 status=INVALID_SUBNET_OUT_OF_BOUNDS"
+    "solution": "[Exemple]\nDHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.50 status=VALID_SCOPE\n\n[Cas 1 — Bail statique en plein milieu de la plage dynamique (conflit)]\nDHCP_AUDIT subnet=192.168.1.0/24 static_ip=192.168.1.150 status=CONFLICT_STATIC_INSIDE_DYNAMIC_POOL\n\n[Cas 2 — Adresse statique hors du sous-réseau configuré]\nDHCP_AUDIT subnet=10.0.0.0/24 static_ip=10.0.1.5 status=INVALID_SUBNET_OUT_OF_BOUNDS\n\n[Cas 3 — Plage dynamique hors sous-réseau]\nDHCP_AUDIT subnet=172.16.10.0/24 static_ip=172.16.10.5 status=INVALID_SUBNET_OUT_OF_BOUNDS",
+    "takeaway": "Les réservations DHCP statiques doivent impérativement être configurées en dehors de la plage dynamique pour prévenir les conflits d’IP."
   }
 ];

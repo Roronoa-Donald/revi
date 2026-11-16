@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -26,7 +24,7 @@
 
 <header class="stnav"><div class="stnav__in">
   <a class="stnav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
-    <span class="stnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-chart"></use></svg></span>
+    <span class="stnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
     <span class="stnav__word">cours.interactifs</span>
   </a>
   <div class="stnav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="stnav__chip" href="../index.html">Statistiques B1</a></div>
@@ -167,11 +165,35 @@ y = 0,4·x + 18        vérification : 0,4 × 5 + 18 = 20 = ȳ</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>5. Labo Python appliqué</h2>
+
+<p>Le calcul de la droite de régression linéaire et la vérification du passage par le point moyen s’implémentent directement en Python :</p>
+<pre><code class="language-python"># Régression linéaire et droite des moindres carrés
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 5, 4, 5]
+n = len(x)
+x_bar = sum(x) / n
+y_bar = sum(y) / n
+cov_xy = sum((xi - x_bar) * (yi - y_bar) for xi, yi in zip(x, y)) / n
+var_x = sum((xi - x_bar)**2 for xi in x) / n
+a = cov_xy / var_x
+b = y_bar - a * x_bar
+print("droite de regression : y = %.1f*x + %.1f" % (a, b))
+print("verification point moyen : G(%.1f, %.1f) -&gt; %.1f" % (x_bar, y_bar, a * x_bar + b))</code></pre>
+<p><strong>Sortie attendue (CPython 3) :</strong></p>
+<pre><code>droite de regression : y = 0.6*x + 2.2
+verification point moyen : G(3.0, 4.0) -&gt; 4.0</code></pre>
+<p>La droite passe exactement par le point moyen G(3.0, 4.0), ce qui valide le calcul.</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -235,10 +257,11 @@ A_COMPLETER
 6</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La formule rapide évite de calculer chaque écart : cov = (1/n) × Σ xᵢyᵢ − x̄·ȳ.</li>
         <li>Les deux moyennes se calculent avant la covariance ; n’oubliez pas de les retrancher.</li>
+        <li>Calculez Cov(X,Y) = (sum(x_i * y_i) / N) - x̄ * ȳ avec quatre décimales ; vérifiez si le signe correspond bien au sens d évolution.</li>
       </ol>
     </details>
   </div>
@@ -308,10 +331,11 @@ A_COMPLETER
 6</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez la covariance, puis les deux écarts-types avec la même division par n.</li>
         <li>r est le quotient de la covariance par le produit des deux écarts-types.</li>
+        <li>Divisez la covariance par le produit σ_X * σ_Y (population) ; un coefficient r hors de [-1, 1] signale une erreur de formule.</li>
       </ol>
     </details>
   </div>
@@ -377,25 +401,26 @@ A_COMPLETER
 6</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez d’abord la pente, avec la variance de x au dénominateur — jamais l’inverse.</li>
         <li>Contrôle final : a × x̄ + b doit redonner ȳ. Si ce n’est pas le cas, il y a une erreur de calcul.</li>
+        <li>Calculez la pente a = Cov(X,Y) / Var(X), puis l ordonnée à l origine b = ȳ - a * x̄ avec quatre décimales.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quel est le point moyen d’une série double ?</p>
       <div class="opts">
         <button class="opt">(0 ; 0)</button>
-        <button class="opt" data-correct="1">(x̄ ; ȳ)</button>
         <button class="opt">(x<sub>max</sub> ; y<sub>max</sub>)</button>
+        <button class="opt" data-correct="1">(x̄ ; ȳ)</button>
       </div>
       <div class="q__exp">C’est le centre de gravité du nuage : les deux moyennes.</div>
     </div>
@@ -420,20 +445,20 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">r = 0,05 pour une série où y = x². Conclusion ?</p>
       <div class="opts">
-        <button class="opt">Aucune liaison</button>
         <button class="opt" data-correct="1">Pas de liaison linéaire, mais une liaison existe</button>
-        <button class="opt">Erreur de calcul</button>
+        <button class="opt">Aucune liaison entre les deux variables étudiées</button>
+        <button class="opt">Une erreur de calcul dans le coefficient obtenu</button>
       </div>
-      <div class="q__exp">r ne mesure que la liaison linéaire : il faut regarder le nuage.</div>
+      <div class="q__exp">Le coefficient r ne mesure que la linéarité : pour y = x², la liaison est parfaite mais non linéaire, d’où un r proche de 0 ; le nuage de points révèle la courbe.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment calcule-t-on la pente a de la droite des moindres carrés ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">a = cov(x, y)/V(x)</button>
-        <button class="opt">a = ȳ/x̄</button>
         <button class="opt">a = V(x)/cov(x, y)</button>
+        <button class="opt">a = ȳ/x̄</button>
+        <button class="opt" data-correct="1">a = cov(x, y)/V(x)</button>
       </div>
-      <div class="q__exp">a = cov(x,y)/V(x), puis b = ȳ − a·x̄.</div>
+      <div class="q__exp">La pente est le quotient de la covariance par la variance des x : a = cov(x,y)/V(x) ; l’option inversée V(x)/cov(x,y) renverserait le rôle des variables.</div>
     </div>
     <div class="q">
       <p class="q__stem">La droite des moindres carrés passe par…</p>
@@ -442,7 +467,7 @@ A_COMPLETER
         <button class="opt" data-correct="1">le point moyen (x̄ ; ȳ)</button>
         <button class="opt">le premier point du nuage</button>
       </div>
-      <div class="q__exp">Propriété de contrôle : ȳ = a·x̄ + b.</div>
+      <div class="q__exp">Propriété de contrôle : le point moyen vérifie l’équation, ȳ = a·x̄ + b ; la droite ne passe en général ni par l’origine ni par le premier point du nuage.</div>
     </div>
   </div>
 
@@ -450,7 +475,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -467,7 +492,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Étudier une série double</div>
@@ -484,7 +509,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -514,7 +539,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -563,7 +588,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

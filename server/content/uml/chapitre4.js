@@ -180,77 +180,77 @@ module.exports = {
     {
       stem: 'Comment est représenté graphiquement un appel de méthode synchrone (bloquant pour l’émetteur) en UML 2.5 ?',
       opts: [
-        'Un trait plein avec une tête de flèche triangulaire noire pleine fermée',
-        'Un trait tireté avec une flèche ouverte',
-        'Une double ligne avec un cercle blanc',
-        'Un trait ondulé rouge'
+        "Un trait tireté avec une flèche ouverte pointant vers la ligne de vie émettrice",
+        "Une double ligne horizontale terminée par un cercle blanc ouvert",
+        "Un trait ondulé rouge tracé entre les deux lignes de vie concernées",
+        "Un trait plein avec une tête de flèche triangulaire noire pleine fermée"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'En UML 2.5, le message synchrone est impérativement représenté par un trait plein terminé par une tête de flèche triangulaire noire pleine fermée.'
     },
     {
       stem: 'Quelle flèche est utilisée pour représenter le retour d’une valeur de fonction (message de réponse) ?',
       opts: [
         'Un trait plein avec un triangle blanc creux',
-        'Un trait tireté avec une tête de flèche ouverte simple',
         'Un trait plein avec un losange noir',
+        'Un trait tireté avec une tête de flèche ouverte simple',
         'Une flèche pointant vers le haut'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le message de retour (reply message) s’illustre formellement par un trait tireté muni d’une flèche ouverte simple pointant vers l’émetteur initial.'
     },
     {
       stem: 'Quel opérateur de fragment combiné correspond à une structure conditionnelle exclusive à plusieurs branches (if / else if / else) ?',
-      opts: ['opt', 'loop', 'alt', 'par'],
-      correct: 2,
+      opts: ['opt', 'alt', 'loop', 'par'],
+      correct: 1,
       exp: 'L’opérateur «alt» (alternatives) divise un cadre en compartiments exclusifs séparés par des pointillés, chacun surveillé par une condition de garde.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre les opérateurs de fragments «alt» et «opt» ?',
       opts: [
-        'opt comporte obligatoirement un bloc else, pas alt',
-        'alt gère des alternatives mutuellement exclusives (avec éventuellement else), alors que opt est un bloc conditionnel unique (if sans else)',
-        'opt s’exécute toujours deux fois',
-        'alt ne fonctionne qu’en multithreading'
+        "alt gère des alternatives mutuellement exclusives (avec éventuellement else), alors que opt est un bloc conditionnel unique (if sans else)",
+        "opt comporte obligatoirement un bloc else dans sa définition, alors que alt n’en possède jamais",
+        "opt s’exécute systématiquement deux fois, une première fois pour la condition puis une seconde pour son contraire",
+        "alt ne fonctionne qu’en contexte de multithreading réel avec plusieurs threads d’exécution parallèles"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’opérateur «opt» (option) contient un unique sous-bloc exécuté seulement si sa garde est vraie ; «alt» définit plusieurs branches alternatives exclusives.'
     },
     {
       stem: 'Comment note-t-on graphiquement la destruction définitive d’un objet à la fin de sa ligne de vie ?',
       opts: [
-        'Un point noir plein',
-        'Une grande croix «X» marquant la fin de la ligne de vie',
-        'Un point d’interrogation',
-        'La mention «DELETE» en lettres grasses'
+        "Un point noir plein placé au bout de la ligne de vie terminée",
+        "Un point d’interrogation inversé posé sur la ligne de vie",
+        "La mention «DELETE» écrite en lettres grasses au-dessus de la ligne",
+        "Une grande croix «X» marquant la fin de la ligne de vie"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La fin de vie d’un objet et sa libération mémoire sont formellement symbolisées par une croix «X» sur sa ligne de vie (destruction occurrence).'
     },
     {
       stem: 'Quel opérateur de fragment combiné permet de spécifier que plusieurs groupes de messages s’exécutent de façon concurrente en parallèle ?',
-      opts: ['loop', 'par', 'alt', 'seq'],
-      correct: 1,
+      opts: ['loop', 'alt', 'par', 'seq'],
+      correct: 2,
       exp: 'L’opérateur «par» (parallel) modélise la concurrence : les sous-compartiments s’exécutent en parallèle, les messages s’entremêlant de manière non déterministe.'
     },
     {
       stem: 'Dans quelle direction s’écoule conventionnellement le temps dans un diagramme de séquence UML ?',
       opts: [
-        'De gauche à droite',
-        'De bas en haut',
         'De haut en bas',
+        'De bas en haut',
+        'De gauche à droite',
         'Dans le sens des aiguilles d’une montre'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'L’axe vertical d’un diagramme de séquence représente la flèche du temps : la chronologie progresse strictement de haut en bas.'
     },
     {
       stem: 'Que désigne le phénomène d’«interblocage» (deadlock) observable dans les mauvaises modélisations de séquences ?',
       opts: [
-        'Une ligne de vie qui n’a pas d’attributs',
-        'Une situation où deux participants ou plus s’attendent mutuellement de manière synchrone, bloquant indéfiniment le système',
-        'Un fragment alt avec trop de branches',
-        'Un message asynchrone qui arrive trop vite'
+        "Une ligne de vie du diagramme de séquence qui ne possède aucun attribut défini dans sa déclaration",
+        "Une situation où deux participants ou plus s’attendent mutuellement de manière synchrone, bloquant indéfiniment le système",
+        "Un fragment combiné alt comportant un trop grand nombre de branches alternatives imbriquées",
+        "Un message asynchrone qui arrive trop vite au destinataire et perturbe son exécution"
       ],
       correct: 1,
       exp: 'Un deadlock survient lorsque le service A attend la réponse synchrone de B, tandis que B attend la réponse synchrone de A (attente circulaire bloquante).'

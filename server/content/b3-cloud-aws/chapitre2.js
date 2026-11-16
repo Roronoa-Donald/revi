@@ -166,14 +166,14 @@ module.exports = {
   questions: [
     {
       stem: 'Que se passe-t-il si un utilisateur IAM fait l\'objet d\'une politique avec « Effect: Allow » sur s3:* et d\'une autre politique avec « Effect: Deny » sur s3:DeleteBucket ?',
-      opts: ['L\'utilisateur peut supprimer les buckets car Allow est évalué en premier', 'La suppression de bucket est strictement refusée, mais les autres opérations S3 sont autorisées', 'Toutes les opérations S3 sont bloquées', 'Une erreur de conflit de politique est levée dans la console'],
-      correct: 1,
+      opts: ['L\'utilisateur peut supprimer les buckets car Allow est évalué en premier', 'Toutes les opérations S3 sont bloquées', 'La suppression de bucket est strictement refusée, mais les autres opérations S3 sont autorisées', 'Une erreur de conflit de politique est levée dans la console'],
+      correct: 2,
       exp: 'L\'Explicit Deny est prioritaire absolu sur tout Allow. L\'utilisateur conserve le droit d\'exécuter toutes les actions S3 (GetObject, PutObject...) SAUF DeleteBucket qui est refusée.'
     },
     {
       stem: 'Quel mécanisme AWS permet à une application exécutée sur une instance EC2 d\'accéder à S3 sans stocker de clés d\'accès en dur sur le serveur ?',
-      opts: ['Un fichier texte ~/.aws/credentials contenant les clés root', 'Un Instance Profile associant un rôle IAM à l\'instance EC2', 'Une variable d\'environnement globale dans /etc/profile', 'Un tunnel VPN IPsec dédié'],
-      correct: 1,
+      opts: ['Un fichier texte ~/.aws/credentials contenant les clés root', 'Un tunnel VPN IPsec dédié', 'Une variable d\'environnement globale dans /etc/profile', 'Un Instance Profile associant un rôle IAM à l\'instance EC2'],
+      correct: 3,
       exp: 'L\'Instance Profile transmet un rôle IAM à la VM EC2. Le SDK Boto3/AWS CLI interroge alors automatiquement le service de métadonnées (IMDS) pour obtenir des clés temporaires renouvelées en continu.'
     },
     {
@@ -184,32 +184,32 @@ module.exports = {
     },
     {
       stem: 'Selon les recommandations officielles d\'AWS et le benchmark CIS, quelle est la fréquence maximale de rotation des clés d\'accès ?',
-      opts: ['Tous les 7 jours', 'Tous les 30 jours', 'Tous les 90 jours', 'Tous les 365 jours'],
-      correct: 2,
+      opts: ['Tous les 90 jours', 'Tous les 30 jours', 'Tous les 7 jours', 'Tous les 365 jours'],
+      correct: 0,
       exp: 'Le benchmark CIS AWS Foundations exige une rotation d\'au moins tous les 90 jours pour toute clé d\'accès IAM permanente afin de minimiser le risque de compromission.'
     },
     {
       stem: 'Quel est le rôle exact d\'une Service Control Policy (SCP) dans AWS Organizations ?',
-      opts: ['Accorder des droits administratifs aux utilisateurs d\'un compte', 'Définir une limite supérieure (garde-fou) des permissions autorisées sur les comptes membres d\'une OU', 'Chiffrer automatiquement tous les disques EBS d\'une région', 'Générer la facture consolidée mensuelle'],
-      correct: 1,
+      opts: ["Accorder directement des droits administratifs complets à tous les utilisateurs d'un compte membre","Chiffrer automatiquement tous les volumes EBS des instances déployées dans une région donnée","Générer automatiquement la facture consolidée mensuelle de tous les comptes de l'organisation","Définir une limite supérieure (garde-fou) des permissions autorisées sur les comptes membres d'une OU"],
+      correct: 3,
       exp: 'Une SCP ne donne aucun droit direct. Elle agit comme un filtre supérieur interdisant formellement certaines actions ou limitant le périmètre d\'action possible des administrateurs du compte.'
     },
     {
       stem: 'Quelle version de document de stratégie doit être impérativement déclarée dans le champ « Version » d\'une politique JSON moderne ?',
-      opts: ['2008-10-17', '2012-10-17', '2024-01-01', 'latest'],
-      correct: 1,
+      opts: ['2008-10-17', '2024-01-01', '2012-10-17', 'latest'],
+      correct: 2,
       exp: 'La valeur officielle standard est strictement « 2012-10-17 ». L\'ancienne version « 2008-10-17 » ne supporte pas les conditions avancées ni les variables de stratégie.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre une Identity-based policy et une Resource-based policy ?',
-      opts: ['Les Resource-based policies sont payantes', 'Une Resource-based policy est attachée directement à la ressource (ex: bucket S3) et contient un élément « Principal » obligatoire', 'Les Identity-based policies ne peuvent pas comporter de Condition', 'Il n\'y a aucune différence'],
+      opts: ["Les Resource-based policies sont facturées à l'usage alors que les Identity-based policies sont gratuites","Une Resource-based policy est attachée directement à la ressource (ex: bucket S3) et contient un élément « Principal » obligatoire","Les Identity-based policies ne peuvent pas comporter de bloc Condition aussi riche que les policies de ressource","Il n'y a aucune différence : les deux types de politiques s'attachent indifféremment à une identité ou à une ressource"],
       correct: 1,
       exp: 'Une Resource-based policy (comme une Bucket Policy S3) est attachée à la ressource elle-même et doit impérativement spécifier « Principal » pour désigner QUI a le droit d\'y accéder.'
     },
     {
       stem: 'Si aucune politique applicable ne mentionne une action donnée, quelle décision est prise par le moteur IAM ?',
-      opts: ['ALLOW (car rien n\'interdit l\'action)', 'DENY (en vertu du refus par défaut / Default Deny)', 'ASK_USER (une alerte est envoyée par e-mail)', 'LOG_ONLY (l\'action est permise mais consignée)'],
-      correct: 1,
+      opts: ['DENY (en vertu du refus par défaut / Default Deny)', 'ALLOW (car rien n\'interdit l\'action)', 'ASK_USER (une alerte est envoyée par e-mail)', 'LOG_ONLY (l\'action est permise mais consignée)'],
+      correct: 0,
       exp: 'Dans AWS IAM, la sécurité repose sur le modèle de fermeture par défaut : toute action qui n\'est pas explicitement autorisée est systématiquement refusée (Default Deny).'
     }
   ],

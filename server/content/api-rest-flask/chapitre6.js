@@ -71,18 +71,70 @@ module.exports = {
           '    <p>Ne jamais lancer <code>app.run(debug=True)</code> sur un serveur public accessible : ' +
           'le debugger interactif de Werkzeug permet l’exécution arbitraire de code Python sur la machine hôte !</p>')
       ].join('\n')
+    },
+    {
+      title: 'Architecture modulaire complète : Blueprint Flask, middleware JWT et CRUD testé',
+      html: [
+        '<p>Voici l’architecture complète d’un module <code>Blueprint</code> Flask combinant routes CRUD (<code>GET</code>, ' +
+        '<code>POST</code>, <code>DELETE</code>), codes HTTP (<code>200</code>, <code>201</code>, <code>204</code>, <code>400</code>, <code>404</code>, <code>422</code>), ' +
+        'protection JWT et tests d’intégration via <code>app.test_client()</code> :</p>',
+        '<pre><code class="language-python">from functools import wraps\n' +
+        'from flask import Flask, Blueprint, request, jsonify\n\n' +
+        'taches_bp = Blueprint("taches", __name__, url_prefix="/api/v1/taches")\n' +
+        'TACHES = {1: {"id": 1, "titre": "Configurer Gunicorn", "fait": False}}\n\n' +
+        'def require_jwt(fn):\n' +
+        '    @wraps(fn)\n' +
+        '    def wrapper(*args, **kwargs):\n' +
+        '        auth = request.headers.get("Authorization", "")\n' +
+        '        if auth != "Bearer jeton-valide-b2":\n' +
+        '            return jsonify({"error": "Jeton JWT manquant ou invalide"}), 401\n' +
+        '        return fn(*args, **kwargs)\n' +
+        '    return wrapper\n\n' +
+        '@taches_bp.route("", methods=["GET"])\n' +
+        'def lister_taches():\n' +
+        '    return jsonify(list(TACHES.values())), 200\n\n' +
+        '@taches_bp.route("", methods=["POST"])\n' +
+        '@require_jwt\n' +
+        'def ajouter_tache():\n' +
+        '    data = request.get_json(silent=True)\n' +
+        '    if not isinstance(data, dict):\n' +
+        '        return jsonify({"error": "Corps JSON invalide"}), 400\n' +
+        '    titre = str(data.get("titre", "")).strip()\n' +
+        '    if not titre:\n' +
+        '        return jsonify({"error": "Le champ titre est obligatoire"}), 422\n' +
+        '    new_id = max(TACHES.keys(), default=0) + 1\n' +
+        '    TACHES[new_id] = {"id": new_id, "titre": titre, "fait": bool(data.get("fait", False))}\n' +
+        '    return jsonify(TACHES[new_id]), 201\n\n' +
+        '@taches_bp.route("/<int:tid>", methods=["DELETE"])\n' +
+        '@require_jwt\n' +
+        'def supprimer_tache(tid):\n' +
+        '    if tid not in TACHES:\n' +
+        '        return jsonify({"error": "Tâche introuvable"}), 404\n' +
+        '    del TACHES[tid]\n' +
+        '    return "", 204\n\n' +
+        'def creer_application():\n' +
+        '    app = Flask(__name__)\n' +
+        '    app.register_blueprint(taches_bp)\n' +
+        '    return app\n\n' +
+        'if __name__ == "__main__":\n' +
+        '    app = creer_application()\n' +
+        '    client = app.test_client()\n' +
+        '    assert client.post("/api/v1/taches", json={"titre": "Test"}).status_code == 401\n' +
+        '    r_post = client.post("/api/v1/taches", json={"titre": "Déployer"}, headers={"Authorization": "Bearer jeton-valide-b2"})\n' +
+        '    assert r_post.status_code == 201</code></pre>'
+      ].join('\n')
     }
   ],
 
   questions: [
     { stem: 'À quoi servent les Blueprints dans une application Flask ?', opts: ['À organiser l’application en modules de routes réutilisables et découplés', 'À créer automatiquement les tables de la base de données', 'À compiler le code Python en binaire machine'], correct: 0, exp: 'Les Blueprints permettent de structurer et découper les applications Flask volumineuses.' },
-    { stem: 'Quel paramètre d’un Blueprint factorise l’URI racine de toutes ses routes ?', opts: ['url_prefix', 'base_path', 'root_uri'], correct: 0, exp: 'url_prefix permet d’appliquer un préfixe commun à toutes les routes d’un Blueprint.' },
+    { stem: 'Quel paramètre d’un Blueprint factorise l’URI racine de toutes ses routes ?', opts: ['base_path', 'url_prefix', 'root_uri'], correct: 1, exp: 'url_prefix permet d’appliquer un préfixe commun à toutes les routes d’un Blueprint.' },
     { stem: 'Quelle méthode HTTP est la plus adaptée pour supprimer un élément dans un CRUD ?', opts: ['DELETE', 'POST', 'GET'], correct: 0, exp: 'DELETE est le verbe REST canonique dédié à la suppression de ressources.' },
-    { stem: 'Quel code d’état renvoie généralement une route DELETE réussie sans contenu retourné ?', opts: ['204 No Content', '200 OK', '201 Created'], correct: 0, exp: '204 No Content confirme la suppression sans avoir à renvoyer de corps.' },
-    { stem: 'Pourquoi ne faut-il JAMAIS utiliser app.run(debug=True) en production ?', opts: ['Le débogueur interactif permet d’exécuter du code à distance sur le serveur', 'Flask consomme trop de batterie', 'Les requêtes GET deviennent payantes'], correct: 0, exp: 'Le debugger web de Werkzeug constitue une faille de sécurité critique s’il est exposé publiquement.' },
-    { stem: 'Quel serveur WSGI de production est couramment employé pour faire tourner Flask ?', opts: ['Gunicorn', 'Webpack', 'Node.js'], correct: 0, exp: 'Gunicorn (Green Unicorn) est un serveur WSGI Python standard, performant et éprouvé.' },
+    { stem: 'Quel code d’état renvoie généralement une route DELETE réussie sans contenu retourné ?', opts: ['200 OK', '204 No Content', '201 Created'], correct: 1, exp: '204 No Content confirme la suppression sans avoir à renvoyer de corps.' },
+    { stem: 'Pourquoi ne faut-il JAMAIS utiliser app.run(debug=True) en production ?', opts: ["Le mode débogage vide la batterie du serveur en production","Chaque requête GET devient payante au-delà d’un certain quota","Le débogueur interactif permet d’exécuter du code à distance sur le serveur"], correct: 2, exp: "Le débogueur Werkzeug exécute du code arbitraire à distance : faille critique s’il est exposé. Ni la batterie ni des GET payants n’entrent en ligne de compte." },
+    { stem: 'Quel serveur WSGI de production est couramment employé pour faire tourner Flask ?', opts: ['Node.js', 'Webpack', 'Gunicorn'], correct: 2, exp: 'Gunicorn (Green Unicorn) est un serveur WSGI Python standard, performant et éprouvé.' },
     { stem: 'Quel standard permet de formaliser et documenter le contrat d’une API REST ?', opts: ['OpenAPI / Swagger', 'HTML5', 'RSS'], correct: 0, exp: 'OpenAPI est la spécification de référence pour documenter les interfaces d’API REST.' },
-    { stem: 'Comment enregistre-t-on un Blueprint nommé users_bp dans l’application app ?', opts: ['app.register_blueprint(users_bp)', 'app.use(users_bp)', 'app.add_module(users_bp)'], correct: 0, exp: 'register_blueprint rattache le module et ses routes à l’application principale.' }
+    { stem: 'Comment enregistre-t-on un Blueprint nommé users_bp dans l’application app ?', opts: ['app.use(users_bp)', 'app.register_blueprint(users_bp)', 'app.add_module(users_bp)'], correct: 1, exp: 'register_blueprint rattache le module et ses routes à l’application principale.' }
   ],
 
   pitfalls: [

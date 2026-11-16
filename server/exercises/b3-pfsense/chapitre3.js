@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c3-e1) — Simulateur de redirection de ports (Port Forwarding / DNAT)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Redirection HTTPS standard 443 vers 443 interne]\n# Données : NAT_RULE ext_port=443 int_ip=10.0.0.10 int_port=443\n# Données : INCOMING_PKT id=HTTPS_REQ ext_dst_ip=198.51.100.1 ext_dst_port=443\nA_COMPLETER\n\n[Cas 2 — Plusieurs règles de redirection distinctes]\n# Données : NAT_RULE ext_port=80 int_ip=192.168.1.10 int_port=80\n# Données : NAT_RULE ext_port=2222 int_ip=192.168.1.20 int_port=22\n# Données : INCOMING_PKT id=SSH_TEST ext_dst_ip=203.0.113.5 ext_dst_port=2222\n# Données : INCOMING_PKT id=UNKNOWN ext_dst_ip=203.0.113.5 ext_dst_port=3389\nA_COMPLETER\n\n[Cas 3 — Aucune règle de redirection déclarée]\n# Données : INCOMING_PKT id=ALONE ext_dst_ip=203.0.113.1 ext_dst_port=80\nA_COMPLETER\n",
     "hints": [
       "Gérer un dictionnaire associant ext_port à (int_ip, int_port).",
-      "Vérifier si ext_dst_port existe dans les règles."
+      "Vérifier si ext_dst_port existe dans les règles.",
+      "1. Indexer les règles NAT par port externe. 2. Port du paquet présent : REDIRECTED vers la cible interne. 3. Sinon DROPPED avec NONE."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "DNAT_REPORT id=ALONE ext_port=80 status=DROPPED target=NONE"
       }
     ],
-    "solution": "[Exemple]\nDNAT_REPORT id=PKT1 ext_port=8080 status=REDIRECTED target=192.168.1.50:80\nDNAT_REPORT id=PKT2 ext_port=22 status=DROPPED target=NONE\n\n[Cas 1 — Redirection HTTPS standard 443 vers 443 interne]\nDNAT_REPORT id=HTTPS_REQ ext_port=443 status=REDIRECTED target=10.0.0.10:443\n\n[Cas 2 — Plusieurs règles de redirection distinctes]\nDNAT_REPORT id=SSH_TEST ext_port=2222 status=REDIRECTED target=192.168.1.20:22\nDNAT_REPORT id=UNKNOWN ext_port=3389 status=DROPPED target=NONE\n\n[Cas 3 — Aucune règle de redirection déclarée]\nDNAT_REPORT id=ALONE ext_port=80 status=DROPPED target=NONE"
+    "solution": "[Exemple]\nDNAT_REPORT id=PKT1 ext_port=8080 status=REDIRECTED target=192.168.1.50:80\nDNAT_REPORT id=PKT2 ext_port=22 status=DROPPED target=NONE\n\n[Cas 1 — Redirection HTTPS standard 443 vers 443 interne]\nDNAT_REPORT id=HTTPS_REQ ext_port=443 status=REDIRECTED target=10.0.0.10:443\n\n[Cas 2 — Plusieurs règles de redirection distinctes]\nDNAT_REPORT id=SSH_TEST ext_port=2222 status=REDIRECTED target=192.168.1.20:22\nDNAT_REPORT id=UNKNOWN ext_port=3389 status=DROPPED target=NONE\n\n[Cas 3 — Aucune règle de redirection déclarée]\nDNAT_REPORT id=ALONE ext_port=80 status=DROPPED target=NONE",
+    "takeaway": "Le Port Forwarding (DNAT) redirige un port public WAN vers une machine interne et s’accompagne d’une règle pass associée sur le WAN."
   },
   {
     "id": "pf3-c3-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c3-e2) — Moteur d’Outbound NAT (SNAT) : Masquerade vs Adresses Virtuelles (VIP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Translation vers IP virtuelle dédiée (VIP)]\n# Données : OUTBOUND_DEF src_subnet=172.16.0.0/16 nat_ip=198.51.100.50\n# Données : OUT_PKT id=P_VIP src_ip=172.16.10.2 wan_ip=198.51.100.1\nA_COMPLETER\n\n[Cas 2 — Plusieurs sous-réseaux internes distincts]\n# Données : OUTBOUND_DEF src_subnet=10.0.1.0/24 nat_ip=WAN_INTERFACE\n# Données : OUTBOUND_DEF src_subnet=10.0.2.0/24 nat_ip=198.51.100.20\n# Données : OUT_PKT id=A src_ip=10.0.1.50 wan_ip=198.51.100.1\n# Données : OUT_PKT id=B src_ip=10.0.2.80 wan_ip=198.51.100.1\nA_COMPLETER\n\n[Cas 3 — Sous-réseau ne correspondant à aucune règle]\n# Données : OUTBOUND_DEF src_subnet=192.168.10.0/24 nat_ip=WAN_INTERFACE\n# Données : OUT_PKT id=NOP src_ip=192.168.20.5 wan_ip=203.0.113.1\nA_COMPLETER\n",
     "hints": [
       "Stocker les réseaux avec la notation CIDR du réseau.",
-      "Tester src_ip in net_obj pour appliquer la règle correspondante."
+      "Tester src_ip in net_obj pour appliquer la règle correspondante.",
+      "1. Tester si src_ip appartient à un src_subnet CIDR. 2. Si oui, choisir wan_ip ou nat_ip selon la règle touchée. 3. Sinon conserver la source (NO_NAT)."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "SNAT_REPORT id=NOP original_src=192.168.20.5 status=NO_NAT nat_src=192.168.20.5"
       }
     ],
-    "solution": "[Exemple]\nSNAT_REPORT id=P1 original_src=192.168.1.15 status=SNAT_APPLIED nat_src=203.0.113.100\nSNAT_REPORT id=P2 original_src=10.0.0.5 status=NO_NAT nat_src=10.0.0.5\n\n[Cas 1 — Translation vers IP virtuelle dédiée (VIP)]\nSNAT_REPORT id=P_VIP original_src=172.16.10.2 status=SNAT_APPLIED nat_src=198.51.100.50\n\n[Cas 2 — Plusieurs sous-réseaux internes distincts]\nSNAT_REPORT id=A original_src=10.0.1.50 status=SNAT_APPLIED nat_src=198.51.100.1\nSNAT_REPORT id=B original_src=10.0.2.80 status=SNAT_APPLIED nat_src=198.51.100.20\n\n[Cas 3 — Sous-réseau ne correspondant à aucune règle]\nSNAT_REPORT id=NOP original_src=192.168.20.5 status=NO_NAT nat_src=192.168.20.5"
+    "solution": "[Exemple]\nSNAT_REPORT id=P1 original_src=192.168.1.15 status=SNAT_APPLIED nat_src=203.0.113.100\nSNAT_REPORT id=P2 original_src=10.0.0.5 status=NO_NAT nat_src=10.0.0.5\n\n[Cas 1 — Translation vers IP virtuelle dédiée (VIP)]\nSNAT_REPORT id=P_VIP original_src=172.16.10.2 status=SNAT_APPLIED nat_src=198.51.100.50\n\n[Cas 2 — Plusieurs sous-réseaux internes distincts]\nSNAT_REPORT id=A original_src=10.0.1.50 status=SNAT_APPLIED nat_src=198.51.100.1\nSNAT_REPORT id=B original_src=10.0.2.80 status=SNAT_APPLIED nat_src=198.51.100.20\n\n[Cas 3 — Sous-réseau ne correspondant à aucune règle]\nSNAT_REPORT id=NOP original_src=192.168.20.5 status=NO_NAT nat_src=192.168.20.5",
+    "takeaway": "L’Outbound NAT traduit les sources privées sortantes vers l’IP WAN principale ou une IP virtuelle (VIP) selon le service émetteur."
   },
   {
     "id": "pf3-c3-e3",
@@ -117,6 +121,7 @@ module.exports = [
         "expected": "MULTIWAN_DECISION tier=NONE mode=TOTAL_OUTAGE selected=NONE"
       }
     ],
-    "solution": "[Exemple]\nMULTIWAN_DECISION tier=2 mode=FAILOVER_ACTIVE selected=WAN_4G\n\n[Cas 1 — Deux liaisons Tier 1 actives (Load Balancing)]\nMULTIWAN_DECISION tier=1 mode=LOAD_BALANCING selected=WAN_FREE,WAN_ORANGE\n\n[Cas 2 — Une seule liaison Tier 1 nominale active]\nMULTIWAN_DECISION tier=1 mode=PRIMARY_ACTIVE selected=WAN_MAIN\n\n[Cas 3 — Panne complète de toutes les passerelles]\nMULTIWAN_DECISION tier=NONE mode=TOTAL_OUTAGE selected=NONE"
+    "solution": "[Exemple]\nMULTIWAN_DECISION tier=2 mode=FAILOVER_ACTIVE selected=WAN_4G\n\n[Cas 1 — Deux liaisons Tier 1 actives (Load Balancing)]\nMULTIWAN_DECISION tier=1 mode=LOAD_BALANCING selected=WAN_FREE,WAN_ORANGE\n\n[Cas 2 — Une seule liaison Tier 1 nominale active]\nMULTIWAN_DECISION tier=1 mode=PRIMARY_ACTIVE selected=WAN_MAIN\n\n[Cas 3 — Panne complète de toutes les passerelles]\nMULTIWAN_DECISION tier=NONE mode=TOTAL_OUTAGE selected=NONE",
+    "takeaway": "Les Gateway Groups répartissent le trafic Multi-WAN entre passerelles de même Tier et basculent automatiquement sur les Tiers supérieurs."
   }
 ];

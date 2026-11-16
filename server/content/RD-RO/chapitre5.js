@@ -143,43 +143,43 @@ module.exports = {
     {
       q: 'Que fait-on si la somme des offres des usines (1 200 unités) dépasse la somme des demandes des clients (1 000 unités) ?',
       opts: [
-        'On ajoute une destination fictive ayant une demande de 200 unités avec des coûts de transport nuls (0 €)',
-        'On refuse de résoudre le problème',
-        'On réduit arbitrairement la capacité de la première usine',
-        'On augmente les prix de transport de 20 %'
+        "On refuse de résoudre le problème tant que l’équilibre offre-demande n’est pas rétabli",
+        "On ajoute une destination fictive ayant une demande de 200 unités avec des coûts de transport nuls (0 €)",
+        "On réduit arbitrairement la capacité de production de la première usine",
+        "On augmente uniformément tous les prix de transport de vingt pour cent"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Une colonne fictive à coût nul absorbe l’excédent de production sans biaiser les coûts réels.'
     },
     {
       q: 'Quel est l’inconvénient majeur de la méthode du Coin Nord-Ouest par rapport à la méthode du Moindre Coût ?',
       opts: [
-        'Elle ignore totalement les coûts de transport c_ij et peut attribuer de gros volumes aux liaisons les plus chères',
-        'Elle ne garantit pas la faisabilité de la solution',
-        'Elle crée des divisions par zéro',
-        'Elle ne fonctionne que pour les matrices carrées'
+        "Elle ne garantit pas du tout la faisabilité de la solution de transport qu’elle construit",
+        "Elle provoque des divisions par zéro lors du calcul des coûts marginaux des cases",
+        "Elle ignore totalement les coûts de transport c_ij et peut attribuer de gros volumes aux liaisons les plus chères",
+        "Elle ne fonctionne correctement que pour les matrices de coûts strictement carrées et équilibrées"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le Coin Nord-Ouest ne regarde que la position dans la matrice, conduisant souvent à une solution initiale coûteuse.'
     },
     {
       q: 'Dans la méthode MODI, quelle équation lie les potentiels u_i et v_j aux coûts c_ij pour les cases occupées de la base ?',
       opts: [
-        'u_i + v_j = c_ij',
+        'u_i + v_j = 0',
         'u_i * v_j = c_ij',
         'u_i - v_j = c_ij',
-        'u_i + v_j = 0'
+        'u_i + v_j = c_ij'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Pour chaque case de base, la somme des potentiels de ligne et de colonne égale exactement le coût unitaire de transport.'
     },
     {
       q: 'À quelle condition une solution de transport est-elle déclarée optimale selon la méthode MODI ?',
       opts: [
-        'Lorsque tous les coûts marginaux Δ_ij = c_ij - (u_i + v_j) des cases vides sont positifs ou nuls (≥ 0)',
-        'Lorsque tous les potentiels u_i sont négatifs',
-        'Lorsque le coût total est strictement égal à 0',
-        'Quand toutes les cellules de la matrice sont remplies'
+        "Lorsque tous les coûts marginaux Δ_ij = c_ij - (u_i + v_j) des cases vides sont positifs ou nuls (≥ 0)",
+        "Lorsque tous les potentiels u_i des lignes d’origine sont strictement négatifs",
+        "Lorsque le coût total de la solution courante est strictement égal à zéro",
+        "Quand toutes les cellules de la matrice de transport sont entièrement remplies"
       ],
       correct: 0,
       exp: 'Si tous les $\\Delta_{ij} \\ge 0$, aucune réallocation le long d’un cycle ne peut faire baisser le coût total.'
@@ -187,23 +187,23 @@ module.exports = {
     {
       q: 'Comment s’appelle la première étape de l’algorithme Hongrois pour le problème d’affectation ?',
       opts: [
-        'La réduction des lignes (soustraire le minimum de chaque ligne)',
         'L’inversion de la matrice de covariance',
+        'La réduction des lignes (soustraire le minimum de chaque ligne)',
         'Le calcul du déterminant de Vandermonde',
         'La triangulation de Cholesky'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'On commence par soustraire le plus petit coût de chaque ligne afin de créer au moins un zéro par ligne sans changer les écarts relatifs.'
     },
     {
       q: 'Dans l’algorithme Hongrois pour une matrice 4×4, que conclut-on si l’on peut recouvrir l’ensemble des zéros avec seulement 3 lignes ?',
       opts: [
-        'L’affectation n’est pas encore optimale, il faut effectuer un ajustement matriciel',
-        'La solution optimale est déjà trouvée',
-        'Le problème n’a aucune solution bijective',
-        'Il faut permuter les colonnes'
+        "La solution optimale est déjà trouvée, l’algorithme peut s’arrêter là",
+        "L’affectation n’est pas encore optimale, il faut effectuer un ajustement matriciel",
+        "Le problème ne possède aucune solution bijective entre lignes et colonnes",
+        "Il faut simplement permuter les colonnes de la matrice des coefficients"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Il faut un nombre de lignes de couverture égal à la dimension de la matrice ($k = n = 4$) pour pouvoir extraire 4 zéros indépendants.'
     },
     {

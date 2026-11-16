@@ -25,6 +25,8 @@ module.exports = {
     {
       title: 'Organisation Mondiale d\'Azure : Datacenters, Régions, Zones de Disponibilité et Paires',
       html: [
+        box('tech', 'Ancrage sur le cours fondamental Cloud Computing B3 (/b3-cloud-computing/)', 'compass',
+          '    <p>Les paradigmes <strong>IaaS / PaaS / SaaS</strong>, le modèle de <strong>responsabilité partagée</strong>, l’ingénierie <strong>FinOps</strong> et les architectures <strong>Multi-cloud</strong> sont traités dans le module de référence <a href="/b3-cloud-computing/index.html"><strong>Cloud Computing B3 (<code>/b3-cloud-computing/</code>)</strong></a>. Ce cours <strong>Cloud Azure B3 (<code>/b3-cloud-azure/</code>)</strong> cible exclusivement l’écosystème Microsoft Azure : gouvernance d’identités <strong>Microsoft Entra ID</strong> et contrôle d’accès <strong>RBAC / IAM</strong> (Management Groups, Subscriptions, Resource Groups), réseaux virtuels <strong>VNet</strong> (NSG, VNet Peering, Azure Bastion), administration par la CLI <code>az</code> et services managés (Azure VM, Blob Storage, Azure SQL, App Service / AKS).</p>'),
         '<p>L\'infrastructure globale de Microsoft Azure repose sur plus de 60 régions réparties dans le monde entier, interconnectées par un réseau privé dédié en fibre optique à très haut débit et ultra-faible latence (Microsoft Dark Fiber Network) :</p>',
         '<div class="grid grid-2">',
         '  <div class="card">',
@@ -132,8 +134,8 @@ module.exports = {
     },
     {
       stem: 'Que garantit à elle seule l\'appartenance d\'une région Azure à une paire régionale ?',
-      opts: ['La réplication automatique de toutes les ressources', 'Un basculement automatique pour toutes les applications', 'Ni réplication ni basculement automatique de toutes les ressources', 'L\'impossibilité d\'une panne affectant les deux régions'],
-      correct: 2,
+      opts: ['La réplication automatique de toutes les ressources', 'Ni réplication ni basculement automatique de toutes les ressources', 'Un basculement automatique pour toutes les applications', 'L\'impossibilité d\'une panne affectant les deux régions'],
+      correct: 1,
       exp: 'Le jumelage peut servir à certains services, mais ne configure ni réplication ni basculement pour toutes les ressources et n\'exclut pas une panne commune. Il faut concevoir et tester le plan de reprise.'
     },
     {
@@ -145,18 +147,18 @@ module.exports = {
     {
       stem: 'Dans la convention fictive rg-application-environnement-région-instance du cours, quel nom correspond à une API stage en West Europe, instance 01 ?',
       opts: [
-        'rg-api-stage-we-01',
+        'my-rg-api-stage-01',
         'resourcegroup_api_preprod_westeurope',
         'API-STAGE-WESTEUROPE-GROUP',
-        'my-rg-api-stage-01'
+        'rg-api-stage-we-01'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Avec les éléments imposés par cette convention locale, le nom associe rg, api, stage, we et 01. Les trois autres propositions ne respectent pas cette convention ; d\'autres conventions peuvent être valides dans Azure.'
     },
     {
       stem: 'Quelle stratégie de réplication de stockage garantit une copie des données sur trois zones de disponibilité indépendantes au sein de la même région ?',
-      opts: ['LRS (Locally Redundant Storage)', 'ZRS (Zone-Redundant Storage)', 'GRS (Geo-Redundant Storage)', 'RA-GRS'],
-      correct: 1,
+      opts: ['ZRS (Zone-Redundant Storage)', 'LRS (Locally Redundant Storage)', 'GRS (Geo-Redundant Storage)', 'RA-GRS'],
+      correct: 0,
       exp: 'ZRS réplique de manière synchrone dans au moins trois zones de la région primaire. LRS reste dans un centre de données ; GRS et RA-GRS ajoutent une réplication géographique et ne désignent pas ce choix zonal.'
     },
     {
@@ -173,10 +175,10 @@ module.exports = {
     {
       stem: 'Une ressource peut-elle appartenir simultanément à deux Resource Groups distincts ?',
       opts: [
-        'Oui, si les deux groupes sont dans le même abonnement',
-        'Oui, si elle utilise une étiquette (tag) partagée',
-        'Non, chaque ressource appartient obligatoirement à un et un seul Resource Group à un instant donné',
-        'Oui, uniquement pour les réseaux virtuels VNet'
+        "Oui, si les deux Resource Groups appartiennent au même abonnement Azure et à la même région",
+        "Oui, si la ressource porte une étiquette (tag) partagée entre les deux groupes de ressources",
+        "Non, chaque ressource appartient obligatoirement à un et un seul Resource Group à un instant donné",
+        "Oui, uniquement pour les ressources de type réseau virtuel VNet réparties entre les régions"
       ],
       correct: 2,
       exp: 'Dans l\'architecture ARM, une ressource n\'appartient qu\'à un seul Resource Group. Elle peut en revanche interagir avec des ressources d\'autres groupes ou être déplacée vers un autre groupe.'
@@ -186,10 +188,10 @@ module.exports = {
       opts: [
         'Les vCPUs de la machine virtuelle',
         'La mémoire RAM de la machine virtuelle',
-        'Le stockage des disques managés (OS Disk et Data Disks)',
-        'Le processeur sous système Linux'
+        'Le processeur sous système Linux',
+        'Le stockage des disques managés (OS Disk et Data Disks)'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Les Reserved Instances (RI) ne couvrent que le coût horaire de la puissance de calcul (vCPU et RAM) de la VM. Le stockage des disques managés attachés et l\'egress réseau continuent d\'être facturés selon leurs tarifs respectifs.'
     }
   ],

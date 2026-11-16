@@ -169,12 +169,12 @@ module.exports = {
     {
       stem: 'Pourquoi les équipes adoptant la livraison continue (CI/CD) privilégient-elles Trunk-Based Development par rapport à Git Flow ?',
       opts: [
-        'Parce que Git Flow ne supporte pas le langage Python',
-        'Parce que Trunk-Based évite les branches à longue durée de vie et favorise l’intégration continue fréquente sur la branche principale',
-        'Parce que Trunk-Based supprime le besoin d’exécuter des tests automatisés',
-        'Parce que Git Flow exige obligatoirement des serveurs GitLab dédiés'
+        "Parce que Trunk-Based évite les branches à longue durée de vie et favorise l’intégration continue fréquente sur la branche principale",
+        "Parce que Git Flow ne permet de fusionner du code qu’une fois par trimestre sur la branche de production main",
+        "Parce que Trunk-Based supprime le besoin d’exécuter des tests automatisés, la revue humaine suffisant à garantir la qualité",
+        "Parce que Git Flow exige obligatoirement des serveurs GitLab dédiés et une licence entreprise payante"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Trunk-Based Development évite la divergence de code en incitant les développeurs à fusionner de petites modifications quotidiennement sur le tronc, supprimant les crises de fusions douloureuses de Git Flow.'
     },
     {
@@ -192,42 +192,42 @@ module.exports = {
       stem: 'Que se passe-t-il si un développeur tente de pusher un commit sans signature GPG sur une branche protégée par « Require signed commits » ?',
       opts: [
         'GitHub signe automatiquement le commit avec la clé du serveur',
-        'Le push est immédiatement rejeté par GitHub avec un message d’erreur',
         'Le commit est accepté mais placé dans un dossier d’attente',
+        'Le push est immédiatement rejeté par GitHub avec un message d’erreur',
         'Le dépôt bascule automatiquement en mode privé'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La règle de protection vérifie les métadonnées cryptographiques : tout commit dépourvu d’une signature valide issue d’une clé publique enregistrée sur le profil de l’utilisateur est bloqué.'
     },
     {
       stem: 'Dans la norme Conventional Commits 1.0.0, quel type de commit correspond à une nouvelle fonctionnalité ajoutée à l’application ?',
       opts: [
         'fix',
-        'feat',
+        'refactor',
         'chore',
-        'refactor'
+        'feat'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le type « feat » est réservé aux nouvelles fonctionnalités et entraîne automatiquement l’incrémentation du composant MINOR de la version sémantique SemVer.'
     },
     {
       stem: 'Quel incrément SemVer (X.Y.Z) est déclenché par un commit rédigé « feat(api)!: suppression du support XML » ?',
       opts: [
-        'Incrément de PATCH (Z)',
-        'Incrément de MINOR (Y)',
         'Incrément de MAJOR (X)',
+        'Incrément de MINOR (Y)',
+        'Incrément de PATCH (Z)',
         'Aucun incrément de version'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le point d’exclamation « ! » signale une rupture de compatibilité ascendante (Breaking Change), ce qui déclenche obligatoirement l’incrémentation du chiffre majeur (MAJOR).'
     },
     {
       stem: 'Quel est l’intérêt d’imposer la règle « Require linear history » sur la branche principale GitHub ?',
       opts: [
-        'Empêcher l’utilisation de git checkout',
-        'Éliminer les commits de fusion parasites à deux parents pour maintenir un historique séquentiel lisible',
-        'Forcer tous les développeurs à travailler sur la même machine',
-        'Interdire l’utilisation de GitHub Actions'
+        "Empêcher l’utilisation de la commande git checkout pour basculer entre les branches du dépôt",
+        "Éliminer les commits de fusion parasites à deux parents pour maintenir un historique séquentiel lisible",
+        "Forcer tous les développeurs à travailler sur la même machine pour éviter toute divergence de code",
+        "Interdire l’utilisation de GitHub Actions sur les runners partagés de l’organisation"
       ],
       correct: 1,
       exp: 'Un historique linéaire ne contient aucun embranchement ni commit de fusion à plusieurs parents, ce qui facilite grandement la lecture chronologique, les audits de sécurité et le traçage bisect.'
@@ -235,23 +235,23 @@ module.exports = {
     {
       stem: 'Où doit être placé le fichier déclarant formellement les propriétaires de répertoires de code pour les revues de Pull Requests sur GitHub ?',
       opts: [
-        'Dans .github/CODEOWNERS',
+        'Dans le README.md du projet',
         'Dans .git/config/owners.json',
         'Dans package.json sous la clé "reviewers"',
-        'Dans le README.md du projet'
+        'Dans .github/CODEOWNERS'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'GitHub lit nativement le fichier .github/CODEOWNERS (ou CODEOWNERS à la racine) pour assigner automatiquement les relecteurs requis dès qu’une Pull Request touche les fichiers sous leur responsabilité.'
     },
     {
       stem: 'Quelle information dans les en-têtes d’un commit Git peut être librement falsifiée sans clé de signature cryptographique ?',
       opts: [
         'L’empreinte SHA-1 finale',
-        'Les champs Author Name et Author Email',
         'Le hash de l’objet tree racine',
+        'Les champs Author Name et Author Email',
         'Le nombre d’octets de la charge utile'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Git se fie aux variables d’environnement user.name et user.email configurées localement : sans signature GPG ou SSH, n’importe quel utilisateur peut prétendre être l’auteur d’un commit.'
     }
   ],

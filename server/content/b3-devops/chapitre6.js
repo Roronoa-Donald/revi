@@ -181,21 +181,21 @@ module.exports = {
     {
       stem: 'Dans la doctrine SRE formalisée par Google, quelle proportion maximale du temps d’un ingénieur peut être légitimement consacrée au travail opérationnel répétitif (« Toil ») ?',
       opts: [
-        '100%',
-        '80%',
-        '50% au maximum (les 50% restants étant consacrés à l’ingénierie et l’automatisation)',
-        '0% (aucun travail opérationnel n’est permis)'
+        "50% au maximum (les 50% restants étant consacrés à l’ingénierie et l’automatisation)",
+        "100% du temps peut être absorbé par le Toil car l’automatisation demeure optionnelle",
+        "80% du temps, ne laissant que 20% au développement de l’outillage interne",
+        "0% : tout travail opérationnel répétitif est formellement interdit aux ingénieurs SRE"
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Google impose de plafonner le Toil à un maximum strict de 50%. Les ingénieurs SRE doivent consacrer au moins la moitié de leur temps à développer du code d’automatisation durable.'
     },
     {
       stem: 'Quelle distinction fondamentale sépare un SLO (Service Level Objective) d’un SLA (Service Level Agreement) ?',
       opts: [
-        'Le SLO est un format de fichier texte tandis que le SLA est une base de données',
-        'Le SLO est un objectif interne de fiabilité plus strict que le SLA, qui est quant à lui un contrat juridique assorti de pénalités financières envers les clients externes',
-        'Le SLO est réservé au matériel physique et le SLA aux logiciels libres',
-        'Il n’y a aucune différence, ce sont deux acronymes strictement synonymes'
+        "Le SLO est un simple format de fichier texte de configuration tandis que le SLA désigne la base de données d’historisation",
+        "Le SLO est un objectif interne de fiabilité plus strict que le SLA, qui est quant à lui un contrat juridique assorti de pénalités financières envers les clients externes",
+        "Le SLO concerne exclusivement le matériel physique des serveurs et du réseau tandis que le SLA se limite aux logiciels libres",
+        "Il n’existe aucune différence réelle, ces deux acronymes sont strictement synonymes et interchangeables dans tous les contextes"
       ],
       correct: 1,
       exp: 'Le SLO est la boussole interne de l’équipe d’ingénierie. Le SLA est le contrat d’engagement légal avec le client, volontairement plus souple pour intégrer une marge de sécurité.'
@@ -203,43 +203,43 @@ module.exports = {
     {
       stem: 'Si un service web applique un SLO de 99.9% de disponibilité sur un mois de 30 jours (2 592 000 secondes), quel est le volume de son Error Budget en secondes ?',
       opts: [
-        '25 920 secondes',
-        '2 592 secondes (soit 43 minutes et 12 secondes)',
-        '259 secondes',
-        '0 seconde'
+        "25 920 secondes, soit l’équivalent d’un pourcent complet du mois",
+        "259 secondes, résultat d’une division par dix mille",
+        "2 592 secondes (soit 43 minutes et 12 secondes)",
+        "0 seconde, car le SLO interdit toute interruption de service"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Error Budget = 2 592 000 * (1 - 0.999) = 2 592 000 * 0.001 = 2 592 secondes (exactement 43 minutes et 12 secondes d’indisponibilité permise).'
     },
     {
       stem: 'Que doit décider l’équipe d’ingénierie lorsque l’Error Budget d’un service de production est intégralement consommé en milieu de mois ?',
       opts: [
-        'Accélérer la cadence de mise en production de nouvelles fonctionnalités',
-        'Appliquer une politique de gel des releases fonctionnelles (Release Freeze) et réorienter l’effort sur la fiabilisation et la résilience du système',
-        'Supprimer la surveillance pour ne plus voir les erreurs',
-        'Réduire artificiellement le SLO pour que le budget redevienne positif'
+        "Accélérer encore la cadence de mise en production de nouvelles fonctionnalités afin de regagner la confiance des utilisateurs",
+        "Supprimer temporairement la supervision du service pour ne plus voir les erreurs remontées par les sondes de monitoring interne",
+        "Réduire artificiellement le niveau de l’objectif SLO pour que le budget d’erreur restant redevienne mécaniquement positif",
+        "Appliquer une politique de gel des releases fonctionnelles (Release Freeze) et réorienter l’effort sur la fiabilisation et la résilience du système"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’épuisement du budget d’erreur est un coupe-circuit organisationnel : le déploiement de fonctionnalités nouvelles est suspendu pour restaurer la stabilité du service.'
     },
     {
       stem: 'Quels sont les « Quatre Signaux Dorés » (Four Golden Signals) de l’observabilité selon Google SRE ?',
       opts: [
-        'RAM, Disque, Clavier, Souris',
         'Latence, Trafic, Erreurs, Saturation',
+        'RAM, Disque, Clavier, Souris',
         'Nombre de commits, Pull requests, Lignes de code, Heures de travail',
         'Température de la salle, Débit d’air, Pression atmosphérique, Voltage'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les 4 signaux dorés (Latency, Traffic, Errors, Saturation) constituent la télémétrie minimale indispensable pour caractériser l’état de santé d’un système distribué.'
     },
     {
       stem: 'Qu’appelle-t-on l’« Alert Flapping » dans un système de monitoring et d’alerte ?',
       opts: [
-        'L’envoi de notifications par SMS en cas de panne',
-        'L’oscillation rapide d’une alerte entre les états actif (firing) et résolu (ok) en raison d’une métrique fluctuant autour du seuil critique',
-        'L’absence totale de logs sur un serveur',
-        'La panne simultanée de tous les routeurs d’un réseau'
+        "L’envoi automatique de notifications par SMS à l’ensemble de l’équipe dès qu’une panne est détectée sur un service",
+        "L’oscillation rapide d’une alerte entre les états actif (firing) et résolu (ok) en raison d’une métrique fluctuant autour du seuil critique",
+        "L’absence totale de journaux applicatifs sur un serveur dont le disque dur est pourtant pleinement opérationnel",
+        "La panne simultanée et définitive de l’ensemble des routeurs composant le réseau dorsale de l’entreprise"
       ],
       correct: 1,
       exp: 'L’Alert Flapping survient lorsqu’une valeur oscille autour de la frontière de déclenchement, saturant les canaux de notification et provoquant une fatigue d’alerte toxique.'
@@ -247,23 +247,23 @@ module.exports = {
     {
       stem: 'Quelle directive permet d’éradiquer l’Alert Flapping dans la définition d’une règle d’alerte sous Prometheus ?',
       opts: [
-        'La directive « delay: infinite »',
-        'La clause « for: <durée> » exigeant que la condition critique persiste de manière ininterrompue durant un délai minimal avant déclenchement',
-        'L’augmentation du seuil de mémoire à 100%',
-        'La suppression du serveur Alertmanager'
+        "La directive « delay: infinite » qui reporte indéfiniment toute notification d’alerte vers les équipes d’astreinte",
+        "L’augmentation du seuil critique de mémoire vive à 100% pour ne détecter que les saturations totales du serveur",
+        "La clause « for: <durée> » exigeant que la condition critique persiste de manière ininterrompue durant un délai minimal avant déclenchement",
+        "La suppression pure et simple du serveur Alertmanager chargé de la distribution des notifications aux astreintes"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La clause `for: 5m` filtre les micro-variations passagères : l’alerte ne se déclenche que si le problème persiste au moins 5 minutes continues.'
     },
     {
       stem: 'Si un service a un Burn Rate de 14.4 sur son budget d’erreur mensuel, en combien de temps consommera-t-il la totalité de son budget de 30 jours ?',
       opts: [
         'En 30 jours',
-        'En 2 jours (48 heures)',
+        'En 6 mois',
         'En 14 heures',
-        'En 6 mois'
+        'En 2 jours (48 heures)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Durée = 30 jours / 14.4 = 2.08 jours (environ 48 heures). Un Burn Rate de 14.4 signale une hémorragie critique de fiabilité exigeant une mobilisation d’urgence.'
     }
   ],

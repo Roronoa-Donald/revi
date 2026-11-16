@@ -17,19 +17,21 @@ const aiPool = require('../server/services/ai-pool');
 const { buildApp } = require('../server/app');
 
 describe('SEC-001 : refus de l’exécution locale de code', () => {
-  test('les interpréteurs locaux ne lancent aucun programme', async () => {
-    for (const method of ['runJavaScript', 'runPython', 'runSql', 'runPseudoCode']) {
+  test('les interpréteurs locaux dangereux ne lancent aucun programme', async () => {
+    for (const method of ['runJavaScript', 'runPython']) {
       const result = await localRunner[method]('texte de test', '');
       assert.equal(result.ok, false, method);
       assert.equal(result.httpStatus, 503, method);
       assert.equal(result.data.stdout, '', method);
     }
+    assert.equal(localRunner.canHandle('sql'), true);
+    assert.equal(localRunner.canHandle('algo'), true);
   });
 
-  test('sans fournisseur, allowLocal ne peut pas réactiver un interpréteur', async context => {
+  test('sans fournisseur, allowLocal ne peut pas réactiver un interpréteur système', async context => {
     context.mock.method(execution.piston, 'isConfigured', () => false);
     context.mock.method(execution.oanor, 'isConfigured', () => false);
-    for (const language of ['javascript', 'python', 'sql', 'shell', 'csharp']) {
+    for (const language of ['javascript', 'python', 'shell', 'csharp']) {
       await assert.rejects(
         execution.execute({ language, code: 'texte de test' }, { allowLocal: true }),
         error => error.code === 'not_configured'

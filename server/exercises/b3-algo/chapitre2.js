@@ -20,8 +20,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : analyser la structure arborescente et vérifier la propriété d'ABR
 `,
     hints: [
-      'Un parcours infixe (gauche, racine, droite) d’un ABR valide donne une suite de valeurs strictement croissante.',
-      'Construire un dictionnaire noeuds[id] = {"val": v, "g": g, "d": d}.'
+      "Un parcours infixe (gauche, racine, droite) d’un ABR valide donne une suite de valeurs strictement croissante.",
+      "Construire un dictionnaire noeuds[id] = {\"val\": v, \"g\": g, \"d\": d}.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (vérifier si un arbre binaire donné respecte strictement la propriété d’ABR (ordre infixe strictement croissant sans doublon)), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -132,7 +133,8 @@ while i < len(lignes):
         print(f"ABR: {nom} | VALIDE : OUI | INFIXE: {inf_str}")
     else:
         print(f"ABR: {nom} | VALIDE : NON (Violation propriete ABR)")
-`
+`,
+    takeaway: "L’invariant d’un Arbre Binaire de Recherche impose que toute clé du sous-arbre gauche soit strictement inférieure à la racine, et inversement à droite."
   },
   {
     id: 'al3-c2-e2',
@@ -149,8 +151,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter l'insertion et la recherche instrumentée dans un ABR
 `,
     hints: [
-      'Chaque étape de recherche effectue des comparaisons avec le nœud courant pour décider de descendre à gauche ou à droite.',
-      'Si r == node.val, un test d’égalité a réussi et la recherche s’arrête.'
+      "Chaque étape de recherche effectue des comparaisons avec le nœud courant pour décider de descendre à gauche ou à droite.",
+      "Si r == node.val, un test d’égalité a réussi et la recherche s’arrête.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (construire un ABR par insertions successives et mesurer le nombre de comparaisons nécessaires pour rechercher des clés), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -233,7 +236,8 @@ for lig in lignes:
         trouve, comps, prof = search(root, r)
         status = "TROUVE" if trouve else "NON_TROUVE"
         print(f"RECHERCHE: nom={nom} val={r} -> {status} | COMPARAISONS: {comps} | PROFONDEUR: {prof}")
-`
+`,
+    takeaway: "Dans un ABR équilibré de hauteur h, l’insertion et la recherche descendent d’un niveau par comparaison et coûtent O(h)."
   },
   {
     id: 'al3-c2-e3',
@@ -250,8 +254,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter la suppression avec identification du cas
 `,
     hints: [
-      'Identifier d’abord le type de nœud avant d’opérer la mutation structurelle.',
-      'Le successeur in-order se trouve en prenant le nœud droit puis en descendant tout à gauche.'
+      "Identifier d’abord le type de nœud avant d’opérer la mutation structurelle.",
+      "Le successeur in-order se trouve en prenant le nœud droit puis en descendant tout à gauche.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (implémenter l’algorithme complet de suppression dans un ABR en traitant les 3 cas : feuille, un enfant, deux enfants (remplacement par successeur in-order)), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -373,6 +378,7 @@ for lig in lignes:
     inf = get_infixe(root)
     inf_str = ", ".join(str(x) for x in inf) if inf else "VIDE"
     print(f"SUPPR: nom={nom} | CIBLE: {cible} | CAS: {cas} | INFIXE_APRES: {inf_str}")
-`
+`,
+    takeaway: "La suppression d’un nœud interne dans un ABR le remplace par son successeur in-ordre (minimum du sous-arbre droit) pour préserver l’ordre."
   }
 ];

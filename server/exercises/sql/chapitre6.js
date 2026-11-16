@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Créez la vue vue_cadres(id, nom, departement)\nCREATE VIEW vue_cadres AS SELECT id, nom, departement FROM employes WHERE salaire >= 9999999;",
     "hints": [
       "Utilisez la syntaxe CREATE VIEW vue_cadres AS SELECT ...",
-      "Sélectionnez id, nom, departement FROM employes WHERE salaire >= 300000;"
+      "Sélectionnez id, nom, departement FROM employes WHERE salaire >= 300000;",
+      "Nommez la vue, exposez les trois colonnes filtrées par le seuil de salaire ; la vue s interroge ensuite comme une table."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+-----+-------------+\n| id | nom | departement |\n+----+-----+-------------+\n| 1  | A   | D1          |\n| 2  | B   | D2          |\n| 3  | C   | D3          |\n+----+-----+-------------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "CREATE VIEW vue_cadres AS\nSELECT id, nom, departement FROM employes WHERE salaire >= 300000;"
+    "solution": "CREATE VIEW vue_cadres AS\nSELECT id, nom, departement FROM employes WHERE salaire >= 300000;",
+    "takeaway": "CREATE VIEW factorise une requête métier filtrée ou jointe derrière un nom virtuel toujours synchronisé avec les tables sources."
   },
   {
     "id": "sql2-c6-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Créez le trigger trg_audit_solde AFTER UPDATE ON comptes\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez CREATE TRIGGER trg_audit_solde AFTER UPDATE ON comptes FOR EACH ROW BEGIN ... END;",
-      "Dans le corps, écrivez INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);"
+      "Dans le corps, écrivez INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);",
+      "Déclarez le déclencheur sur UPDATE pour chaque ligne, puis dans son corps insérez l ancien et le nouveau solde dans le journal."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (2 lignes modifiées).\n\n+-----------+--------------+---------------+\n| compte_id | ancien_solde | nouveau_solde |\n+-----------+--------------+---------------+\n| 1         | 100          | 150           |\n| 2         | 200          | 250           |\n+-----------+--------------+---------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "CREATE TRIGGER trg_audit_solde\nAFTER UPDATE ON comptes\nFOR EACH ROW\nBEGIN\n  INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);\nEND;"
+    "solution": "CREATE TRIGGER trg_audit_solde\nAFTER UPDATE ON comptes\nFOR EACH ROW\nBEGIN\n  INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);\nEND;",
+    "takeaway": "Un trigger AFTER UPDATE utilisant OLD et NEW automatise la traçabilité d audit sans dépendre du code applicatif."
   },
   {
     "id": "sql2-c6-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Créez l’index idx_journaux_service_niveau puis sélectionnez id, message\nSELECT id, message FROM journaux;",
     "hints": [
       "Écrivez CREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);",
-      "Suivez par SELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;"
+      "Suivez par SELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;",
+      "Créez d abord l index sur le couple de colonnes, puis exécutez la sélection filtrée triée par identifiant."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+--------------------+\n| id | message            |\n+----+--------------------+\n| 5  | Signature invalide |\n+----+--------------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "CREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);\nSELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;"
+    "solution": "CREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);\nSELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;",
+    "takeaway": "L ordre des colonnes dans un index composite (col_egalite, col_plage) est crucial pour accélérer sélectivement les filtres WHERE."
   }
 ];

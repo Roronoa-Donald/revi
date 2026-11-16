@@ -206,10 +206,10 @@ module.exports = {
     {
       stem: 'Pourquoi est-il impératif de déclarer un utilisateur non-root avec la directive « USER » dans un Dockerfile de production ?',
       opts: [
-        'Parce que root consomme deux fois plus de bande passante réseau',
-        'Pour respecter le principe du moindre privilège : si l’application est compromise, l’attaquant n’a pas les droits d’administration nécessaires pour modifier le système ou s’évader sur l’hôte',
-        'Parce que le système de fichiers Linux interdit aux utilisateurs root d’écrire dans des fichiers',
-        'C’est une obligation technique du compilateur Go'
+        "Parce que l’utilisateur root consomme systématiquement deux fois plus de bande passante réseau que n’importe quel autre compte système de l’hôte",
+        "Pour respecter le principe du moindre privilège : si l’application est compromise, l’attaquant n’a pas les droits d’administration nécessaires pour modifier le système ou s’évader sur l’hôte",
+        "Parce que le système de fichiers Linux interdit formellement aux utilisateurs root d’écrire dans les fichiers d’une image de conteneur Docker",
+        "C’est une obligation technique absolue imposée par le compilateur Go pour toutes les applications destinées à être conteneurisées en production"
       ],
       correct: 1,
       exp: 'S’exécuter en tant qu’utilisateur non-privilégié neutralise la plupart des attaques d’évasion de conteneur et restreint drastiquement le rayon d’action d’un pirate.'
@@ -217,43 +217,43 @@ module.exports = {
     {
       stem: 'Que produit l’utilisation du drapeau « --privileged » lors du lancement d’un conteneur avec « docker run » ?',
       opts: [
-        'Il attribue une adresse IP publique gratuite au conteneur',
-        'Il désactive pratiquement toutes les barrières d’isolation du noyau, accorde toutes les Linux Capabilities et donne un accès direct à tous les périphériques de l’hôte physique',
-        'Il compresse les fichiers de l’image pour économiser de la mémoire',
-        'Il crypte le trafic TCP en HTTPS'
+        "Il désactive pratiquement toutes les barrières d’isolation du noyau, accorde toutes les Linux Capabilities et donne un accès direct à tous les périphériques de l’hôte physique",
+        "Il attribue automatiquement une adresse IP publique gratuite au conteneur, qui devient directement joignable depuis l’Internet mondial",
+        "Il compresse fortement tous les fichiers contenus dans l’image du conteneur afin d’économiser la mémoire vive de la machine hôte",
+        "Il chiffre automatiquement et intégralement tout le trafic réseau TCP émis par le conteneur grâce à un HTTPS natif intégré"
       ],
-      correct: 1,
+      correct: 0,
       exp: '--privileged retire toutes les protections de sécurité : un processus dans le conteneur peut charger des modules noyau et prendre le contrôle total du serveur physique en quelques secondes.'
     },
     {
       stem: 'Quelle option CLI permet d’immuniser un serveur hôte contre une attaque de type « Fork Bomb » (création infinie de processus fils) lancée depuis un conteneur ?',
       opts: [
-        '--pids-limit=100',
+        '--safe-mode',
         '--no-fork',
         '--kill-process',
-        '--safe-mode'
+        '--pids-limit=100'
       ],
-      correct: 0,
+      correct: 3,
       exp: '--pids-limit plafonne le nombre de threads et processus simultanés que le conteneur peut créer, empêchant la saturation de la table des processus du noyau Linux.'
     },
     {
       stem: 'Quelle combinaison d’options permet d’appliquer la stratégie de sécurité maximale concernant les Linux Capabilities d’un conteneur ?',
       opts: [
-        '--cap-add=ALL',
-        '--cap-drop=ALL puis --cap-add uniquement pour le strict minimum nécessaire (ex: NET_BIND_SERVICE)',
-        '--no-capabilities',
-        '--kernel-bypass'
+        "--cap-add=ALL, afin de donner explicitement tous les privilèges existants au conteneur",
+        "--no-capabilities, option qui retire toutes les capabilities sans aucune exception possible",
+        "--cap-drop=ALL puis --cap-add uniquement pour le strict minimum nécessaire (ex: NET_BIND_SERVICE)",
+        "--kernel-bypass, option qui court-circuite les vérifications de sécurité du noyau"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Retirer toutes les capabilities par défaut (--cap-drop=ALL) puis réactiver uniquement le privilège indispensable applique le principe de défense en profondeur le plus strict.'
     },
     {
       stem: 'Que se passe-t-il sur un serveur hôte si un conteneur sans limite de mémoire spécifiée subit une fuite de mémoire RAM massive ?',
       opts: [
-        'Le conteneur redémarre instantanément en douceur',
-        'Le conteneur peut consommer toute la mémoire disponible de la machine physique jusqu’à ce que le noyau Linux invoque l’OOM-Killer, qui peut abattre d’autres processus vitaux de l’hôte',
-        'Le serveur hôte augmente automatiquement sa mémoire physique',
-        'Docker sauvegarde la mémoire sur un disque virtuel'
+        "Le conteneur détecte la fuite mémoire, puis redémarre instantanément et en douceur, sans aucun impact sur les autres services de l’hôte",
+        "Le conteneur peut consommer toute la mémoire disponible de la machine physique jusqu’à ce que le noyau Linux invoque l’OOM-Killer, qui peut abattre d’autres processus vitaux de l’hôte",
+        "Le serveur hôte augmente automatiquement sa capacité mémoire physique en ajoutant des barrettes supplémentaires à chaud sans intervention",
+        "Docker sauvegarde automatiquement l’intégralité de la mémoire vive du conteneur sur un disque virtuel dédié du serveur hôte physique"
       ],
       correct: 1,
       exp: 'Sans plafond cgroup (--memory), le conteneur engloutit la RAM de l’hôte physique, provoquant un arrêt d’urgence par l’OOM-Killer qui peut tuer les processus de l’OS ou d’autres conteneurs sains.'
@@ -261,34 +261,34 @@ module.exports = {
     {
       stem: 'À quoi sert l’option « --read-only » lors de l’exécution d’un conteneur Docker ?',
       opts: [
-        'Elle interdit aux utilisateurs de lire les fichiers',
-        'Elle monte le système de fichiers racine du conteneur en lecture seule intégrale, empêchant tout attaquant d’y déposer des malwares ou des scripts malveillants',
-        'Elle désactive la webcam de la machine',
-        'Elle permet de lire les logs sans mot de passe'
+        "Elle monte le système de fichiers racine du conteneur en lecture seule intégrale, empêchant tout attaquant d’y déposer des malwares ou des scripts malveillants",
+        "Elle interdit aux utilisateurs du conteneur de lire le contenu des fichiers qui y sont montés en lecture-écriture",
+        "Elle désactive physiquement la webcam de la machine hôte afin de renforcer la protection de la vie privée des utilisateurs",
+        "Elle permet de consulter l’intégralité des journaux d’activité du conteneur sans avoir à saisir le moindre mot de passe"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un système de fichiers en lecture seule (--read-only) rend le conteneur immuable à l’exécution, bloquant le dépôt de tout binaire ou script pirate sur son arborescence.'
     },
     {
       stem: 'Quel outil open source de sécurité est couramment intégré dans les chaînes CI/CD pour scanner les images Docker à la recherche de CVE connues ?',
       opts: [
-        'Trivy',
+        'Apache Benchmark',
         'Photoshop',
         'VLC',
-        'Apache Benchmark'
+        'Trivy'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Trivy (Aqua Security) est un scanner de vulnérabilités de référence pour conteneurs, capable de détecter les failles dans les paquets OS et les dépendances applicatives.'
     },
     {
       stem: 'Pourquoi est-il crucial de configurer les options « max-size » et « max-file » dans le pilote de journalisation de Docker ?',
       opts: [
-        'Pour éviter que les fichiers journaux JSON ne grossissent indéfiniment jusqu’à saturer l’intégralité de la partition disque du serveur hôte',
-        'Pour accélérer la vitesse de frappe au clavier',
-        'Pour rendre les journaux anonymes au sens du RGPD',
-        'Parce que le format JSON ne supporte pas plus de 100 lignes'
+        "Pour accélérer sensiblement la vitesse de frappe au clavier des administrateurs système du serveur hôte",
+        "Pour rendre les journaux d’activité entièrement anonymes au sens du RGPD avant leur stockage sur disque",
+        "Pour éviter que les fichiers journaux JSON ne grossissent indéfiniment jusqu’à saturer l’intégralité de la partition disque du serveur hôte",
+        "Parce que le format JSON ne peut tout simplement pas contenir plus de 100 lignes consécutives"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Par défaut, Docker ne purge pas les logs : une application bavarde peut générer des dizaines de gigaoctets de logs et bloquer totalement le serveur hôte par saturation disque.'
     }
   ],

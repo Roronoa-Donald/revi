@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -211,10 +209,11 @@ Pour chaque ligne, afficher :<br>
 SNI_EVENT id=2 client_ip=192.168.1.10 host=docs.python.org</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertir l’hôte en minuscules avant l’analyse.</li>
         <li>Tester dans l’ordre : MALWARE, GAMBLING, SOCIAL_MEDIA, puis défaut BUSINESS_TECH.</li>
+        <li>Mettre l’hôte en minuscules puis tester les motifs dans l’ordre : malware, gambling, réseaux sociaux (tous bloqués) ; à défaut BUSINESS_TECH avec autorisation.</li>
       </ol>
     </details>
   </div>
@@ -280,10 +279,11 @@ REQ ts=12 ip=192.168.1.5
 REQ ts=13 ip=192.168.1.5</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Maintenez l’historique horodaté des requêtes acceptées pour chaque adresse IP source.</li>
         <li>Rejetez toute requête excédant le seuil de débit maximal autorisé dans la fenêtre glissante d’observation.</li>
+        <li>À chaque requête : compter les requêtes antérieures de la même IP dans les 5 dernières secondes ; si le quota de 3 est atteint, rejeter, sinon accepter et enregistrer l’horodatage.</li>
       </ol>
     </details>
   </div>
@@ -341,10 +341,11 @@ Pour chaque ligne, afficher :<br>
 PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Normaliser la charge utile en minuscules.</li>
         <li>Tester dans l’ordre de la spécification : SQLi, XSS, Path Traversal, puis CLEAN.</li>
+        <li>Normaliser la charge en minuscules, chercher successivement les signatures SQLi, XSS puis Path Traversal ; la première trouvée fixe la menace et l’action, sinon autoriser.</li>
       </ol>
     </details>
   </div>
@@ -357,20 +358,20 @@ PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi le filtrage basé uniquement sur les numéros de ports TCP/UDP (L4) est-il devenu insuffisant aujourd’hui ?</p>
       <div class="opts">
+        <button class="opt">Parce que les routeurs et commutateurs modernes ne savent plus lire les en-têtes TCP des paquets en transit</button>
+        <button class="opt">Parce que le protocole IPv4 a été totalement désactivé sur l’ensemble du réseau Internet mondial actuel</button>
         <button class="opt" data-correct="1">Parce que la quasi-totalité du trafic web et des applications modernes passe par le port 443 chiffré en HTTPS pour contourner les blocages</button>
-        <button class="opt">Parce que les routeurs ne savent plus lire les en-têtes TCP</button>
-        <button class="opt">Parce que le protocole IPv4 a été totalement désactivé sur Internet</button>
-        <button class="opt">Parce que les câbles Ethernet bloquent les numéros de ports supérieurs à 80</button>
+        <button class="opt">Parce que les câbles Ethernet de catégorie 6 bloquent physiquement les numéros de ports supérieurs à 80</button>
       </div>
       <div class="q__exp">Presque toutes les applications utilisent le port 443, rendant impossible la distinction entre un trafic légitime et une menace sur la seule base du port.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans quel paquet de la négociation TLS le nom de domaine complet du serveur est-il transmis en clair via l’extension SNI ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Dans le message Client Hello envoyé par le navigateur client au tout début du handshake</button>
+        <button class="opt">Dans les paquets de données TCP ACK de fermeture</button>
         <button class="opt">Dans le message Server Hello envoyé par le serveur à la fin</button>
         <button class="opt">Uniquement après l’échange complet des clés asymétriques</button>
-        <button class="opt">Dans les paquets de données TCP ACK de fermeture</button>
+        <button class="opt" data-correct="1">Dans le message Client Hello envoyé par le navigateur client au tout début du handshake</button>
       </div>
       <div class="q__exp">Le champ SNI (Server Name Indication) est transmis en clair dans le Client Hello avant que le chiffrement de la session ne soit activé.</div>
     </div>
@@ -378,17 +379,17 @@ PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
       <p class="q__stem">Quel est l’avantage majeur de l’inspection SNI par rapport au déchiffrement SSL Man-in-the-Middle complet ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Elle ne nécessite aucun déploiement de certificat racine d’autorité sur les postes clients et préserve les performances du pare-feu</button>
-        <button class="opt">Elle permet de modifier le contenu des pages web à la volée</button>
-        <button class="opt">Elle empêche totalement les utilisateurs d’utiliser le protocole DNS</button>
-        <button class="opt">Elle fonctionne même si le câble réseau est débranché</button>
+        <button class="opt">Elle permet de modifier à la volée le contenu des pages web consultées par les utilisateurs internes</button>
+        <button class="opt">Elle empêche totalement les utilisateurs internes d’utiliser le protocole DNS pour résoudre les noms de domaine</button>
+        <button class="opt">Elle continue de fonctionner correctement même si le câble réseau du pare-feu est physiquement débranché</button>
       </div>
       <div class="q__exp">L’inspection SNI lit simplement le nom de domaine en clair dans le handshake sans casser la chaîne cryptographique ni poser de contraintes de conformité RGPD.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel type d’attaque applicative est caractérisé par la présence de motifs comme "UNION SELECT" ou "' OR '1'='1" dans les requêtes HTTP ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Une injection SQL (SQLi)</button>
         <button class="opt">Une attaque par rebond ICMP Smurf</button>
+        <button class="opt" data-correct="1">Une injection SQL (SQLi)</button>
         <button class="opt">Un empoisonnement de cache DNS</button>
         <button class="opt">Une attaque de force brute sur le protocole ARP</button>
       </div>
@@ -397,9 +398,9 @@ PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
     <div class="q">
       <p class="q__stem">Quel mécanisme permet de neutraliser les attaques par inondation de requêtes en limitant le nombre d’appels par seconde pour chaque adresse IP ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le Rate Limiting par fenêtre glissante (ou algorithme du seau à jetons / Token Bucket)</button>
-        <button class="opt">L’augmentation indéfinie de la mémoire vive du serveur</button>
         <button class="opt">La réinitialisation quotidienne de la passerelle par défaut</button>
+        <button class="opt">L’augmentation indéfinie de la mémoire vive du serveur</button>
+        <button class="opt" data-correct="1">Le Rate Limiting par fenêtre glissante (ou algorithme du seau à jetons / Token Bucket)</button>
         <button class="opt">Le passage en mode duplex intégral sur le commutateur</button>
       </div>
       <div class="q__exp">Le Rate Limiting plafonne le débit de requêtes autorisé par émetteur sur une période glissante pour contrer les dénis de service et attaques par force brute.</div>
@@ -407,10 +408,10 @@ PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
     <div class="q">
       <p class="q__stem">Comment appelle-t-on la technologie NGFW capable d’associer les règles de sécurité à des identités nominatives d’utilisateurs plutôt qu’à des adresses IP ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">User-ID</button>
+        <button class="opt">Content-ID</button>
         <button class="opt">App-ID</button>
         <button class="opt">MAC-Filtering</button>
-        <button class="opt">Content-ID</button>
+        <button class="opt" data-correct="1">User-ID</button>
       </div>
       <div class="q__exp">User-ID (Palo Alto / Fortinet) fait le lien dynamique entre l’adresse IP d’un terminal et le compte utilisateur authentifié dans l’annuaire d’entreprise.</div>
     </div>
@@ -427,10 +428,10 @@ PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
     <div class="q">
       <p class="q__stem">Qu’est-ce que l’App-ID dans l’architecture d’un pare-feu de nouvelle génération ?</p>
       <div class="opts">
+        <button class="opt">Un simple numéro de série unique gravé en usine sur la carte mère électronique du boîtier du pare-feu</button>
         <button class="opt" data-correct="1">La capacité à identifier la nature exacte de l’application logicielle (ex: Facebook, Dropbox, BitTorrent) quel que soit le port utilisé</button>
-        <button class="opt">Un numéro de série gravé sur la carte mère du pare-feu</button>
-        <button class="opt">L’adresse IP publique allouée au serveur de messagerie</button>
-        <button class="opt">Un protocole de routage dynamique propriétaire</button>
+        <button class="opt">L’adresse IP publique statique officiellement allouée par le fournisseur d’accès au serveur de messagerie</button>
+        <button class="opt">Un protocole de routage dynamique propriétaire, dédié à l’échange des tables de flux entre boîtiers pare-feu</button>
       </div>
       <div class="q__exp">App-ID classe le flux selon l’application réelle sous-jacente par analyse de signature et décodage protocolaire de couche 7.</div>
     </div>
@@ -555,7 +556,7 @@ PAYLOAD id=P2 payload=q=ordinateur+portable</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -168,6 +168,26 @@ module.exports = {
         '  </div>',
         '</div>'
       ].join('\n')
+    },
+    {
+      title: 'Trace de la pile (PUSH / POP) &amp; Simulateur de branchements x86-16',
+      html: [
+        '<p>Suivons l’évolution du pointeur de pile <code>SP</code> (initialisé à <code>0x00FE</code>) et du pointeur d’instruction <code>IP</code> ' +
+        'lors d’une sauvegarde sur la pile avec <code>PUSH</code> / <code>POP</code> et d’un saut conditionnel <code>JE</code> :</p>',
+        '<table class="table">',
+        '  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>AX</th><th>BX</th><th>DX</th><th>SP</th><th>ZF</th><th>Comportement de la pile et du saut</th></tr></thead>',
+        '  <tbody>',
+        '    <tr><td>1</td><td><code>MOV AX, 0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>0x00FE</code></td><td>0</td><td>Prépare l’argument <code>AX = 16</code>.</td></tr>',
+        '    <tr><td>2</td><td><code>PUSH AX</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>0</td><td>Décrémente <code>SP</code> de 2 (<code>0x00FC</code>) et empile <code>0x0010</code>.</td></tr>',
+        '    <tr><td>3</td><td><code>MOV BX, 0x0010</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>0</td><td>Charge la valeur de référence <code>0x0010</code> dans <code>BX</code>.</td></tr>',
+        '    <tr><td>4</td><td><code>CMP AX, BX</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>1</td><td>Comparaison : <code>AX - BX = 0</code> $\\implies$ <code>ZF = 1</code>.</td></tr>',
+        '    <tr><td>5</td><td><code>JE depiler</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>1</td><td>Saut conditionnel pris vers <code>depiler:</code> (ignore l’instruction suivante).</td></tr>',
+        '    <tr><td>6</td><td><code>POP DX</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x00FE</code></td><td>1</td><td>Dépile <code>0x0010</code> dans <code>DX</code> et ré-incrémente <code>SP</code> à <code>0x00FE</code>.</td></tr>',
+        '  </tbody>',
+        '</table>',
+        '<div class="asm-sim" data-asm-simulator data-asm-code="MOV AX, 0x0010\\nPUSH AX\\nMOV BX, 0x0010\\nCMP AX, BX\\nJE depiler\\nMOV CX, 0xFFFF\\ndepiler:\\nPOP DX\\nHLT"></div>',
+        '<script src="/assets/js/engines/asm-simulator.js" defer></script>'
+      ].join('\n')
     }
   ],
 
@@ -188,12 +208,12 @@ module.exports = {
     {
       stem: 'Pourquoi l’instruction PUSH décrémente-t-elle le registre ESP au lieu de l’incrémenter ?',
       opts: [
-        'Parce que sur l’architecture x86, la pile croît vers les adresses mémoire décroissantes (basses).',
+        'Pour éviter les conflits d’alignement avec le registre de base EBP.',
         'Parce que le registre ESP contient la taille totale allouée et non une adresse.',
         'Parce que les microprocesseurs CISC travaillent exclusivement en nombres négatifs.',
-        'Pour éviter les conflits d’alignement avec le registre de base EBP.'
+        'Parce que sur l’architecture x86, la pile croît vers les adresses mémoire décroissantes (basses).'
       ],
-      correct: 0,
+      correct: 3,
       exp:
         'Sur x86, le sommet de la pile est placé en haut de la mémoire virtuelle et grandit en descendant vers les adresses basses. ' +
         'Chaque empilement (PUSH) décrémente donc le pointeur ESP.'
@@ -201,12 +221,12 @@ module.exports = {
     {
       stem: 'En assembleur 64 bits sous Linux (System V ABI), dans quel registre est transmis le premier argument entier d’une fonction ?',
       opts: [
-        'RAX',
         'RDI',
+        'RAX',
         'RSI',
         'Sur le sommet de la pile [RSP]'
       ],
-      correct: 1,
+      correct: 0,
       exp:
         'La convention System V AMD64 ABI utilise dans l’ordre les registres RDI, RSI, RDX, RCX, R8 et R9 pour passer ' +
         'les six premiers arguments entiers ou pointeurs.'
@@ -214,15 +234,59 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale entre les instructions de saut JL et JB ?',
       opts: [
-        'JL traite des entiers signés (SF &ne; OF) tandis que JB traite des entiers non-signés (CF = 1).',
         'JL saute vers une adresse relative courte alors que JB permet un saut vers un segment distant.',
+        'JL traite des entiers signés (SF &ne; OF) tandis que JB traite des entiers non-signés (CF = 1).',
         'JB fonctionne uniquement sur microcontrôleur AVR alors que JL est propre à l’Intel x86.',
         'Il n’y a aucune différence, ce sont deux alias stricts du même opcode binaire.'
       ],
-      correct: 0,
+      correct: 1,
       exp:
         'JL (Jump if Less) teste les drapeaux de dépassement signé (SF &ne; OF), tandis que JB (Jump if Below) ' +
         'teste le drapeau de retenue CF (dépassement non-signé).'
+    },
+    {
+      stem: 'Quelle instruction rétablit le sommet de pile (ESP) et l’ancien pointeur de base (EBP) en une seule opération avant le retour d’une fonction ?',
+      opts: [
+        'LEAVE',
+        'ENTER',
+        'POPALL',
+        'RET'
+      ],
+      correct: 0,
+      exp: 'L’instruction LEAVE équivaut matériellement à MOV ESP, EBP suivi de POP EBP. Elle démonte le cadre de pile avant le RET.'
+    },
+    {
+      stem: 'Sur x86_64 sous Linux, quel registre contient le numéro de l’appel système à exécuter lors de l’instruction SYSCALL ?',
+      opts: [
+        'RDI',
+        'RAX',
+        'RDX',
+        'RSP'
+      ],
+      correct: 1,
+      exp: 'Le numéro de syscall est placé dans RAX (par exemple 0 pour sys_read, 1 pour sys_write, 60 pour sys_exit). RDI reçoit le premier argument.'
+    },
+    {
+      stem: 'Quelle action matérielle est réalisée par l’instruction RET lors de la fin d’une fonction ?',
+      opts: [
+        'Elle dépile l’ancien EBP et l’écrit dans le registre ESP.',
+        'Elle remet à zéro tous les drapeaux d’état du registre EFLAGS.',
+        'Elle dépile l’adresse de retour du sommet de la pile et la charge dans le pointeur d’instruction (EIP/RIP).',
+        'Elle sauvegarde automatiquement les registres généraux dans le cache L1.'
+      ],
+      correct: 2,
+      exp: 'RET dépile l’adresse de l’instruction suivante (empilée précédemment par CALL) et l’affecte à EIP/RIP pour reprendre l’exécution appelante.'
+    },
+    {
+      stem: 'Pourquoi une variable locale allouée sur la pile dans une fonction devient-elle invalide dès la sortie de cette fonction ?',
+      opts: [
+        'Parce que le compilateur injecte du code qui écrase immédiatement la mémoire avec des zéros.',
+        'Parce que le processeur désactive la mémoire vive dès que le registre EBP change de valeur.',
+        'Parce que les variables locales sont stockées dans les registres volatils et non en RAM.',
+        'Parce que le sommet de pile remonte (ESP augmente) et la zone mémoire peut être réécrite par tout appel ultérieur.'
+      ],
+      correct: 3,
+      exp: 'L’épilogue de fonction remonte ESP (via ADD ESP, N ou LEAVE). La zone allouée est alors libérée et sera écrasée lors du prochain PUSH ou CALL.'
     }
   ],
 

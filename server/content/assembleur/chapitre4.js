@@ -113,6 +113,28 @@ module.exports = {
         'padding = (N - reste) % N\n' +
         'nouvelle_adresse = A + padding</code></pre>'
       ].join('\n')
+    },
+    {
+      title: 'Trace d’étiquettes symboliques &amp; Simulateur d’assemblage x86-16',
+      html: [
+        '<p>Lors de l’assemblage, chaque étiquette (comme <code>boucle:</code> ou <code>fin:</code>) est convertie en index d’instruction pour le pointeur <code>IP</code>. ' +
+        'Voici la trace complète d’une boucle de décrémentation utilisant <code>DEC</code> et <code>JNE</code> :</p>',
+        '<table class="table">',
+        '  <thead><tr><th>Cycle</th><th>IP initial</th><th>Instruction exécutée</th><th>AX</th><th>CX</th><th>ZF</th><th>IP suivant</th></tr></thead>',
+        '  <tbody>',
+        '    <tr><td>1</td><td>0</td><td><code>MOV AX, 0</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td>0</td><td>1</td></tr>',
+        '    <tr><td>2</td><td>1</td><td><code>MOV CX, 2</code></td><td><code>0x0000</code></td><td><code>0x0002</code></td><td>0</td><td>2 (<code>boucle</code>)</td></tr>',
+        '    <tr><td>3</td><td>2</td><td><code>ADD AX, 5</code></td><td><code>0x0005</code></td><td><code>0x0002</code></td><td>0</td><td>3</td></tr>',
+        '    <tr><td>4</td><td>3</td><td><code>DEC CX</code></td><td><code>0x0005</code></td><td><code>0x0001</code></td><td>0</td><td>4</td></tr>',
+        '    <tr><td>5</td><td>4</td><td><code>JNE boucle</code></td><td><code>0x0005</code></td><td><code>0x0001</code></td><td>0</td><td>2 (saut pris car <code>ZF=0</code>)</td></tr>',
+        '    <tr><td>6</td><td>2</td><td><code>ADD AX, 5</code></td><td><code>0x000A</code></td><td><code>0x0001</code></td><td>0</td><td>3</td></tr>',
+        '    <tr><td>7</td><td>3</td><td><code>DEC CX</code></td><td><code>0x000A</code></td><td><code>0x0000</code></td><td>1</td><td>4</td></tr>',
+        '    <tr><td>8</td><td>4</td><td><code>JNE boucle</code></td><td><code>0x000A</code></td><td><code>0x0000</code></td><td>1</td><td>5 (sortie car <code>ZF=1</code>)</td></tr>',
+        '  </tbody>',
+        '</table>',
+        '<div class="asm-sim" data-asm-simulator data-asm-code="MOV AX, 0\\nMOV CX, 2\\nboucle:\\nADD AX, 5\\nDEC CX\\nJNE boucle\\nHLT"></div>',
+        '<script src="/assets/js/engines/asm-simulator.js" defer></script>'
+      ].join('\n')
     }
   ],
 
@@ -131,43 +153,43 @@ module.exports = {
     {
       stem: 'Pourquoi la section .bss d’un fichier ELF n’occupe-t-elle presque aucun espace sur le disque ?',
       opts: [
-        'Parce qu’elle ne contient que des variables non initialisées ou nulles, le noyau se chargeant de réserver des zéros en RAM au lancement',
-        'Parce qu’elle est compressée avec l’algorithme gzip',
-        'Parce qu’elle est stockée dans la mémoire Flash du processeur',
-        'Parce qu’elle est supprimée lors de l’édition de liens'
+        "Parce qu’elle est systématiquement compressée avec l’algorithme gzip au moment de l’édition de liens",
+        "Parce qu’elle ne contient que des variables non initialisées ou nulles, le noyau se chargeant de réserver des zéros en RAM au lancement",
+        "Parce qu’elle est intégralement stockée dans la mémoire Flash non volatile du microcontrôleur",
+        "Parce qu’elle est purement et simplement supprimée du fichier binaire lors de la phase d’édition de liens"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La section .bss n’enregistre que la taille totale à allouer : les pages de zéros sont fournies à la volée par le système d’exploitation.'
     },
     {
       stem: 'Quelle directive NASM permet de réserver et d’initialiser un entier de 64 bits (8 octets) ?',
       opts: [
-        'dq (define quad word)',
-        'dd (define double word)',
         'dw (define word)',
+        'dd (define double word)',
+        'dq (define quad word)',
         'db (define byte)'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'dq = Define Quad Word = 64 bits = 8 octets.'
     },
     {
       stem: 'Quelle section d’un binaire ELF contient le code exécutable du programme protégé en lecture et exécution (r-x) ?',
       opts: [
-        '.text',
+        '.bss',
         '.data',
         '.rodata',
-        '.bss'
+        '.text'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La section .text héberge le code machine exécuté par le processeur.'
     },
     {
       stem: 'Qu’est-ce qu’une erreur d’édition de liens « undefined reference to main » signifie exactement ?',
       opts: [
-        'L’éditeur de liens ld n’a trouvé aucun symbole global nommé main dans les fichiers objets fournis',
-        'Le code assembleur contient une division par zéro',
-        'Le processeur ne supporte pas le jeu d’instructions 64 bits',
-        'Le fichier source C est trop volumineux'
+        "L’éditeur de liens ld n’a trouvé aucun symbole global nommé main dans les fichiers objets fournis",
+        "Le code assembleur contient une instruction de division par zéro interdite",
+        "Le processeur ne supporte pas le jeu d’instructions 64 bits utilisé",
+        "Le fichier source C est beaucoup trop volumineux pour le compilateur"
       ],
       correct: 0,
       exp: 'Cette erreur survient lors de la phase de linkage : le symbole du point d’entrée principal n’a pas été résolu.'
@@ -175,34 +197,34 @@ module.exports = {
     {
       stem: 'À quelle adresse se retrouve une variable située à l’adresse 0x1003 si l’on applique la directive ALIGN 4 ?',
       opts: [
-        '0x1004 (1 octet de padding ajouté)',
         '0x1008',
+        '0x1004 (1 octet de padding ajouté)',
         '0x1000',
         '0x1007'
       ],
-      correct: 0,
+      correct: 1,
       exp: '0x1003 = 4099. Le multiple de 4 supérieur le plus proche est 4100 = 0x1004 (padding de 1 octet).'
     },
     {
       stem: 'Dans quelle section mémoire résident les chaînes de caractères littérales passées à printf("Hello\n") ?',
       opts: [
-        '.rodata (données en lecture seule)',
+        'Dans la pile RSP',
         '.bss',
         '.text',
-        'Dans la pile RSP'
+        '.rodata (données en lecture seule)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Les constantes non modifiables sont logées dans la section .rodata (Read-Only Data).'
     },
     {
       stem: 'Quel outil de la toolchain AVR permet d’extraire le code machine binaire d’un fichier ELF pour en faire un fichier .hex flashable ?',
       opts: [
-        'avr-objcopy',
-        'avrdude',
         'avr-gdb',
+        'avrdude',
+        'avr-objcopy',
         'avr-cpp'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'avr-objcopy extrait les sections exécutables de l’ELF pour produire le format Intel HEX accepté par les programmateurs de Flash.'
     }
   ],

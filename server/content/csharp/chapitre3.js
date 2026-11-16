@@ -120,31 +120,31 @@ module.exports = {
       stem: 'Soit Base b = new Deriv(); où Deriv redéfinit une méthode Afficher() présente dans Base. Quelle condition doit être remplie pour que Deriv.Afficher soit appelée ?',
       opts: [
         'Base doit marquer Afficher comme static et Deriv comme abstract.',
-        'Base doit marquer Afficher comme virtual et Deriv comme override.',
         'Deriv doit marquer Afficher avec le mot-clé new.',
+        'Base doit marquer Afficher comme virtual et Deriv comme override.',
         'La méthode doit être déclarée sans aucun mot-clé spécifique.'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Pour obtenir un dispatch dynamique (polymorphisme réel à l’exécution), la méthode doit être déclarée virtual dans la classe de base et override dans la classe dérivée.'
     },
     {
       stem: 'Quel est le résultat d’un appel b.Identifier() si b est de type Base mais référence une instance de Deriv qui utilise "new void Identifier()" ?',
       opts: [
-        'L’exécution lève une InvalidCastException.',
-        'La méthode Deriv.Identifier() est appelée.',
-        'La méthode Base.Identifier() est appelée car le masquage new applique une liaison statique précoce.',
-        'Le compilateur refuse le code en générant une erreur d’ambiguïté.'
+        "L’exécution lève immédiatement une exception de type InvalidCastException.",
+        "La méthode Deriv.Identifier() est appelée par le runtime.",
+        "Le compilateur refuse le code en générant une erreur d’ambiguïté de résolution.",
+        "La méthode Base.Identifier() est appelée car le masquage new applique une liaison statique précoce."
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Le mot-clé new masque le membre sans mettre à jour la table des méthodes virtuelles (vtable). L’appel via une référence du type Base résout statiquement vers Base.Identifier().'
     },
     {
       stem: 'Pourquoi une méthode implémentant explicitement une interface (ex: void ILogger.Log()) ne peut-elle pas comporter le mot-clé public ?',
       opts: [
-        'Parce qu’elle est réservée aux classes internes privées.',
-        'Parce qu’elle n’appartient pas à l’interface publique de la classe ; elle n’est accessible que via un cast vers l’interface correspondante.',
-        'Parce que le Garbage Collector interdit les méthodes publiques d’interface.',
-        'Parce qu’elle doit obligatoirement être statique.'
+        "Parce qu’elle est strictement réservée aux classes internes privées définies dans l’assemblage courant.",
+        "Parce qu’elle n’appartient pas à l’interface publique de la classe ; elle n’est accessible que via un cast vers l’interface correspondante.",
+        "Parce que le Garbage Collector du runtime interdit formellement les méthodes publiques d’interface.",
+        "Parce qu’elle doit obligatoirement être déclarée comme un membre statique de la classe conteneur."
       ],
       correct: 1,
       exp: 'Les membres d’implémentation explicite d’interface ne font pas partie de la surface d’API publique directe de la classe et ne peuvent être consommés qu’en référençant explicitement l’interface.'

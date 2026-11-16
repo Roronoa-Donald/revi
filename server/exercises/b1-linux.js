@@ -41,8 +41,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Un chemin est absolu exactement quand son premier caractère est « / » : test \${chemin:0:1} = "/".',
-      'Un chemin relatif se résout en le collant au répertoire courant : `"$cwd/$chemin"`.'
+      "Un chemin est absolu exactement quand son premier caractère est « / » : test ${chemin:0:1} = \"/\".",
+      "Un chemin relatif se résout en le collant au répertoire courant : `\"$cwd/$chemin\"`.",
+      "Premier caractère « / » → affichez « absolu » ; sinon « relatif → » suivi du répertoire courant, d'un slash et du chemin tel quel, sans normaliser « ./ »."
     ],
     examples: [
       { stdin: '/home/user/docs\n3\n/etc/passwd\ncours/linux\n./notes.txt\n', expected: 'absolu\nrelatif → /home/user/docs/cours/linux\nrelatif → /home/user/docs/./notes.txt', note: 'Seul le premier caractère décide ; ./notes.txt reste relatif.' }
@@ -62,7 +63,8 @@ for ((i=0; i<n; i++)); do
     echo "relatif → $cwd/$chemin"
   fi
 done
-`
+`,
+    takeaway: "Tout chemin débutant par / est absolu depuis la racine ; pwd ou la résolution de . et .. situe le répertoire courant."
   },
   {
     id: 'lx-c1-e2',
@@ -88,8 +90,9 @@ done
 done
 `,
     hints: [
-      'Le case de bash : "*) ... ;;" pour l\'inconnu, en dernier motif.',
-      'Chaque branche affiche exactement la chaîne demandée : pas d\'accent dans les sorties attendues.'
+      "Le case de bash : \"*) ... ;;\" pour l'inconnu, en dernier motif.",
+      "Chaque branche affiche exactement la chaîne demandée : pas d'accent dans les sorties attendues.",
+      "Lisez une requête par ligne jusqu'à la fin de l'entrée ; chaque chemin standard affiche son rôle exact, sans accent, et toute autre valeur affiche « inconnu »."
     ],
     examples: [
       { stdin: '/tmp\n/home\n/donnees\n', expected: 'fichiers temporaires\nrepertoires personnels\ninconnu', note: 'Les rôles, dans l\'ordre des requêtes.' }
@@ -112,7 +115,8 @@ done
     *)     echo "inconnu" ;;
   esac
 done
-`
+`,
+    takeaway: "La hiérarchie FHS sépare /etc (configs), /var (données variables/logs), /bin (binaires essentiels) et /home (utilisateurs)."
   },
   {
     id: 'lx-c1-e3',
@@ -134,8 +138,9 @@ done
 # À compléter : afficher le bilan.
 `,
     hints: [
-      'Deux tableaux (ou deux chaînes) suffisent : un pour les répertoires, un pour les fichiers, remplis dans l\'ordre.',
-      'Pour ls, parcourir les deux tableaux dans l\'ordre de création ; le bilan compte les éléments de chacun.'
+      "Deux tableaux (ou deux chaînes) suffisent : un pour les répertoires, un pour les fichiers, remplis dans l'ordre.",
+      "Pour ls, parcourir les deux tableaux dans l'ordre de création ; le bilan compte les éléments de chacun.",
+      "mkdir et touch enregistrent le chemin dans le tableau de son type ; ls reliste répertoires puis fichiers dans l'ordre de création ; la fin affiche « bilan : R repertoire(s) F fichier(s) »."
     ],
     examples: [
       { stdin: '6\nmkdir /home/user\ntouch /etc/passwd\nls\nmkdir /var/log\ntouch /var/log/syslog\nls\n', expected: 'repertoire: /home/user\nfichier: /etc/passwd\nrepertoire: /home/user\nfichier: /etc/passwd\nrepertoire: /var/log\nfichier: /var/log/syslog\nbilan : 2 repertoire(s) 2 fichier(s)', note: 'Chaque ls rejoue toute la création depuis le début.' }
@@ -166,7 +171,8 @@ for ((i=0; i<n; i++)); do
   fi
 done
 echo "bilan : \${#repertoires[@]} repertoire(s) \${#fichiers[@]} fichier(s)"
-`
+`,
+    takeaway: "Dans une arborescence POSIX, distinguons les nœuds répertoires des fichiers réguliers afin de ne pas compter doublement."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -191,8 +197,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Les triplets se découpent par positions : `\${droits:1:3}`, `\${droits:4:3}`, `\${droits:7:3}`.',
-      'Le type est \${droits:0:1} : traduire - en « fichier » et d en « repertoire ».'
+      "Les triplets se découpent par positions : `${droits:1:3}`, `${droits:4:3}`, `${droits:7:3}`.",
+      "Le type est ${droits:0:1} : traduire - en « fichier » et d en « repertoire ».",
+      "Pour chaque ligne : type au premier caractère, puis trois coupes de trois caractères ; affichez « NOM : type, u=…, g=…, o=… » avec fichier ou repertoire."
     ],
     examples: [
       { stdin: '2\n-rw-r--r-- notes.txt\ndrwxr-x--- dossier\n', expected: 'notes.txt : fichier, u=rw-, g=r--, o=r--\ndossier : repertoire, u=rwx, g=r-x, o=---', note: 'Un fichier et un répertoire classiques.' }
@@ -209,7 +216,8 @@ for ((i=0; i<n; i++)); do
   [ "\${droits:0:1}" = "d" ] && type="repertoire"
   echo "$nom : $type, u=\${droits:1:3}, g=\${droits:4:3}, o=\${droits:7:3}"
 done
-`
+`,
+    takeaway: "Sur ls -l, les 9 caractères suivant le type décrivent dans l ordre : utilisateur (u), groupe (g) et autres (o)."
   },
   {
     id: 'lx-c2-e2',
@@ -229,8 +237,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Pour un triplet, additionner : 4 si le premier caractère est r, 2 si le second est w, 1 si le troisième est x.',
-      'Boucler sur les trois positions du triplet avec une coupe \${triplet:i:1}, et construire la chaîne octale chiffre par chiffre.'
+      "Pour un triplet, additionner : 4 si le premier caractère est r, 2 si le second est w, 1 si le troisième est x.",
+      "Boucler sur les trois positions du triplet avec une coupe ${triplet:i:1}, et construire la chaîne octale chiffre par chiffre.",
+      "Par triplet, additionnez 4 pour r, 2 pour w, 1 pour x et ignorez les tirets ; affichez « NOM : » suivi des trois chiffres obtenus, sans espace."
     ],
     examples: [
       { stdin: '3\n-rw-rw-r-- liste\ndrwx------ prive\n-r-xr-x--- vue\n', expected: 'liste : 664\nprive : 700\nvue : 550', note: 'rw- = 6, rw- = 6, r-- = 4 ; rwx = 7 ; r-x = 5.' }
@@ -253,7 +262,8 @@ for ((i=0; i<n; i++)); do
   done
   echo "$nom : $octal"
 done
-`
+`,
+    takeaway: "Chaque triplet rwx vaut 4+2+1=7 en octal : additionnez les bits présents pour chaque classe u, g, o."
   },
   {
     id: 'lx-c2-e3',
@@ -334,7 +344,8 @@ if [ -n "\${fichiers[$courant]+x}" ]; then
 else
   echo "casse"
 fi
-`
+`,
+    takeaway: "Un lien symbolique pointe vers un chemin : détectez les boucles (nombre max de sauts / nœuds déjà vus) et cibles mortes."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -362,8 +373,9 @@ read -r motif
 # À compléter : filtrer selon le motif, sur le nom de base.
 `,
     hints: [
-      'Le nom de base s\'obtient avec \${chemin##*/} : tout supprimer jusqu\'au dernier /.',
-      'Trois formes de motif : `\${base#"$X"} != "$base"` (commence), `\${base%"$X"} != "$base"` (finit), ou un test de sous-chaîne.'
+      "Le nom de base s'obtient avec ${chemin##*/} : tout supprimer jusqu'au dernier /.",
+      "Trois formes de motif : `${base#\"$X\"} != \"$base\"` (commence), `${base%\"$X\"} != \"$base\"` (finit), ou un test de sous-chaîne.",
+      "Lisez d'abord les n chemins, puis le motif ; testez le nom de base selon le motif (commence, finit, contient), affichez les chemins retenus puis « trouves : K »."
     ],
     examples: [
       { stdin: '4\n/tmp/fichier1\n/tmp/fichier2\n/home/testfichier1\n/etc/passwd\nprefixe:fichier\n', expected: '/tmp/fichier1\n/tmp/fichier2\ntrouves : 2', note: 'Le /home/testfichier1 a « test » devant : pas de correspondance de préfixe.' }
@@ -400,7 +412,8 @@ for chemin in "\${chemins[@]}"; do
   fi
 done
 echo "trouves : $trouves"
-`
+`,
+    takeaway: "En Bash, les jokers ${var##*/}, *motif* et [[ == ]] filtrent le nom de base sans réimplémenter de regex lourdes."
   },
   {
     id: 'lx-c3-e2',
@@ -495,7 +508,8 @@ for ((i=0; i<total; i++)); do
   echo "\${retenus_nom[$i]} \${retenus_taille[$i]}"
 done
 echo "total : $total fichier(s)"
-`
+`,
+    takeaway: "Attention aux préfixes binaires (K=1024, M=1024^2) et à $((10#$val)) pour éviter l interprétation octale de 08/09."
   },
   {
     id: 'lx-c3-e3',
@@ -519,8 +533,9 @@ done
 # À compléter : afficher les trois comptes puis les logins humains.
 `,
     hints: [
-      'Découper par deux-points : IFS=":" read -r login uid gid shell <<< "$ligne".',
-      'Un test arithmétique [ "$uid" -lt 1000 ] sépare comptes système et comptes humains.'
+      "Découper par deux-points : IFS=\":\" read -r login uid gid shell <<< \"$ligne\".",
+      "Un test arithmétique [ \"$uid\" -lt 1000 ] sépare comptes système et comptes humains.",
+      "Pour chaque ligne, découpez les quatre champs au deux-points ; comptez tous les utilisateurs, répartissez selon UID inférieur à 1000 ; listez enfin les logins humains dans l'ordre."
     ],
     examples: [
       { stdin: '4\nroot:0:0:/bin/bash\nsys:99:99:/usr/sbin/nologin\nalice:1000:1000:/bin/bash\nbob:1001:1001:/bin/sh\n', expected: 'utilisateurs : 4\nsysteme : 2\nhumains : 2\nalice\nbob', note: 'UID 0 et 99 sont système ; 1000 et 1001 sont humains.' }
@@ -550,7 +565,8 @@ echo "humains : $humains"
 for login in "\${humain_logins[@]}"; do
   echo "$login"
 done
-`
+`,
+    takeaway: "Chaque ligne de /etc/passwd comporte 7 champs séparés par « : », avec l UID en champ 3 (>=1000 pour les comptes humains)."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -574,8 +590,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Pour un chiffre : le 4 vaut r, le 2 vaut w, le 1 vaut x — construire le triplet caractère par caractère.',
-      'Isoler chaque chiffre avec `\${octal:0:1}`, `\${octal:1:1}`, `\${octal:2:1}` et une petite fonction ou trois tests.'
+      "Pour un chiffre : le 4 vaut r, le 2 vaut w, le 1 vaut x — construire le triplet caractère par caractère.",
+      "Isoler chaque chiffre avec `${octal:0:1}`, `${octal:1:1}`, `${octal:2:1}` et une petite fonction ou trois tests.",
+      "Pour chaque chiffre, reconstruisez le triplet : 4 donne r, le reste 2 donne w, le reste 1 donne x, sinon tiret ; préfixez le type et affichez « NOM : -DROITS »."
     ],
     examples: [
       { stdin: '2\n644 notes.txt\n755 run.sh\n', expected: 'notes.txt : -rw-r--r--\nrun.sh : -rwxr-xr-x', note: '6 = rw-, 4 = r--, 5 = r-x.' }
@@ -599,7 +616,8 @@ for ((i=0; i<n; i++)); do
   droits="-$(triplet "\${octal:0:1}")$(triplet "\${octal:1:1}")$(triplet "\${octal:2:1}")"
   echo "$nom : $droits"
 done
-`
+`,
+    takeaway: "Traduisez chaque chiffre octal (0..7) en sa combinaison binaire r(4), w(2), x(1) sur trois positions fixes."
   },
   {
     id: 'lx-c4-e2',
@@ -622,8 +640,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Positions des classes : u = 0-2, g = 3-5, o = 6-8 ; a désigne les trois. Combiner les positions de toutes les lettres de classe.',
-      'Pour + : poser la lettre si la position correspond ; pour - : la remplacer par -. Parcourir les lettres demandées une à une.'
+      "Positions des classes : u = 0-2, g = 3-5, o = 6-8 ; a désigne les trois. Combiner les positions de toutes les lettres de classe.",
+      "Pour + : poser la lettre si la position correspond ; pour - : la remplacer par -. Parcourir les lettres demandées une à une.",
+      "Lisez les neuf droits et la modification ; pour chaque classe visée et chaque lettre demandée, posez ou retirez le droit à sa position ; affichez les neuf caractères obtenus."
     ],
     examples: [
       { stdin: '2\nrw-r--r-- o-r\nrwxr-xr-x go+w\n', expected: 'rw-r-----\nrwxrwxrwx', note: 'o-r retire la lecture des autres ; go+w ajoute écriture au groupe et aux autres.' }
@@ -684,7 +703,8 @@ for ((i=0; i<n; i++)); do
   for ((k=0; k<9; k++)); do resultat="$resultat\${tableau[$k]}"; done
   echo "$resultat"
 done
-`
+`,
+    takeaway: "chmod symbolique met à jour séparément les masques u, g, o (ou a=ugo) via + (OR bit) ou - (AND NOT bit)."
   },
   {
     id: 'lx-c4-e3',
@@ -707,8 +727,9 @@ for ((i=0; i<m; i++)); do
 done
 `,
     hints: [
-      'Décaler la base selon la classe : u → 0, g → 3, o → 6 ; puis r → +0, w → +1, x → +2 dans le triplet.',
-      'Un seul test suffit : le caractère à la position calculée vaut-il la lettre demandée ?'
+      "Décaler la base selon la classe : u → 0, g → 3, o → 6 ; puis r → +0, w → +1, x → +2 dans le triplet.",
+      "Un seul test suffit : le caractère à la position calculée vaut-il la lettre demandée ?",
+      "Lisez les neuf droits, puis chaque demande : calculez la position (classe + rang de la lettre) et comparez le caractère à la lettre ; « accordé » en cas d'égalité, sinon « refusé »."
     ],
     examples: [
       { stdin: 'rw-r-x---\n4\nu w\ng x\no r\ng w\n', expected: 'accordé\naccordé\nrefusé\nrefusé', note: 'Le groupe a r-x : exécution accordée, écriture refusée ; les autres n\'ont rien.' }
@@ -739,7 +760,8 @@ for ((i=0; i<m; i++)); do
     echo "refusé"
   fi
 done
-`
+`,
+    takeaway: "Le noyau vérifie d abord si l utilisateur est propriétaire, sinon membre du groupe, sinon les droits « autres » (sans cumul)."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -766,8 +788,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Un tableau des logins créés + un compteur d\'UID : le prochain UID est 1000 + le nombre de créations réussies.',
-      'Pour userdel, chercher la position du login dans le tableau et retirer l\'élément ; pour ls, rejouer le tableau.'
+      "Un tableau des logins créés + un compteur d'UID : le prochain UID est 1000 + le nombre de créations réussies.",
+      "Pour userdel, chercher la position du login dans le tableau et retirer l'élément ; pour ls, rejouer le tableau.",
+      "useradd ajoute une ligne passwd avec UID et GID égaux à 1000 + créations réussies (doublon → « existe ») ; userdel retire le login (« inconnu » sinon) ; ls rejoue les lignes restantes."
     ],
     examples: [
       { stdin: '6\nuseradd alice\nuseradd bob\nls\nuserdel alice\nls\nuseradd carol\n', expected: 'alice:x:1000:1000:/home/alice:/bin/bash\nbob:x:1001:1001:/home/bob:/bin/bash\nbob:x:1001:1001:/home/bob:/bin/bash\n', note: 'Après suppression d\'alice, seul bob reste ; carol est créée après le dernier ls.' }
@@ -819,7 +842,8 @@ for ((i=0; i<n; i++)); do
     done
   fi
 done
-`
+`,
+    takeaway: "useradd attribue par défaut le plus petit UID libre >= 1000 en préservant les comptes système et l unicité des logins."
   },
   {
     id: 'lx-c5-e2',
@@ -841,8 +865,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Un tableau associatif groupe → liste de membres (séparés par des espaces) garde l\'ordre des groupes.',
-      'Pour groups, parcourir les groupes dans l\'ordre de création et tester la présence du login dans la liste.'
+      "Un tableau associatif groupe → liste de membres (séparés par des espaces) garde l'ordre des groupes.",
+      "Pour groups, parcourir les groupes dans l'ordre de création et tester la présence du login dans la liste.",
+      "groupadd enregistre un groupe vide ; usermod ajoute le login à sa liste de membres ; groups affiche les groupes du login séparés par des virgules, ou « aucun »."
     ],
     examples: [
       { stdin: '6\ngroupadd etudiants\ngroupadd profs\nusermod etudiants alice\nusermod profs alice\ngroups alice\ngroups bob\n', expected: 'etudiants,profs\naucun', note: 'alice est dans les deux groupes, bob dans aucun.' }
@@ -882,7 +907,8 @@ for ((i=0; i<n; i++)); do
     echo "\${resultat:-aucun}"
   fi
 done
-`
+`,
+    takeaway: "Un groupe Unix liste ses membres secondaires dans /etc/group, distinct du GID primaire inscrit dans /etc/passwd."
   },
   {
     id: 'lx-c5-e3',
@@ -911,8 +937,9 @@ done
 # À compléter : afficher l'audit.
 `,
     hints: [
-      'Couper au premier deux-points : `login="\${ligne%%:*}"`, `champ="\${ligne#*:}"`.',
-      'Compter le champ * et les préfixes ! pour les mots de passe Unix ; relever séparément les champs vides.'
+      "Couper au premier deux-points : `login=\"${ligne%%:*}\"`, `champ=\"${ligne#*:}\"`.",
+      "Compter le champ * et les préfixes ! pour les mots de passe Unix ; relever séparément les champs vides.",
+      "Pour chaque ligne : champ vide → compteur et login mémorisés ; champ commençant par ! ou valant * → compteur des bloqués ; affichez les trois totaux puis la liste (ou « aucun »)."
     ],
     examples: [
       { stdin: '4\nroot:$6$sel$hash\nsys:*\nancien:!!\nvide:\n', expected: 'total : 4\nmdp_bloques : 2\nchamps_vides : 1\nvide', note: 'Deux champs portent un marqueur de mot de passe bloqué ; le champ vide est signalé séparément.' }
@@ -951,7 +978,8 @@ else
     printf '%s\\n' "$login"
   done
 fi
-`
+`,
+    takeaway: "Dans /etc/shadow, ! ou * verrouille le mot de passe, mais seul l audit complet (shell, expiration) statue sur le compte."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -995,7 +1023,8 @@ read -r mot
 echo 'script : $0 est le nom du script'
 printf '%s\\n' "$mot"
 echo "fin"
-`
+`,
+    takeaway: "La ligne #!/usr/bin/env bash (ou #!/bin/bash) en ligne 1 désigne l interpréteur exécutant le script shell."
   },
   {
     id: 'lx-c6-e2',
@@ -1017,8 +1046,9 @@ done
 # À compléter : afficher le rapport et le verdict.
 `,
     hints: [
-      'Trois compteurs initialisés à 0, un case sur "$niveau" pour incrémenter le bon.',
-      'Le verdict se décide par ordre de gravité : CRIT d\'abord, puis WARN, sinon nominal.'
+      "Trois compteurs initialisés à 0, un case sur \"$niveau\" pour incrémenter le bon.",
+      "Le verdict se décide par ordre de gravité : CRIT d'abord, puis WARN, sinon nominal.",
+      "Comptez les trois niveaux ligne à ligne ; affichez « OK : K », « WARN : W », « CRIT : C », puis le verdict : alarme si C ≥ 1, surveillance si W ≥ 1, sinon nominal."
     ],
     examples: [
       { stdin: '5\nOK\nOK\nWARN\nOK\nCRIT\n', expected: 'OK : 3\nWARN : 1\nCRIT : 1\nalarme', note: 'Une seule alerte critique suffit à déclencher l\'alarme.' }
@@ -1051,7 +1081,8 @@ elif [ "$warn" -ge 1 ]; then
 else
   echo "nominal"
 fi
-`
+`,
+    takeaway: "Une boucle while IFS= read -r ligne lit proprement un flux sans perte d espaces ni interprétation d antislashs."
   },
   {
     id: 'lx-c6-e3',
@@ -1073,8 +1104,9 @@ done
 # À complémenter : afficher le rapport.
 `,
     hints: [
-      'Quatre compteurs nommés, incrémentés par case sur le moteur, évitent les tableaux associatifs.',
-      'Le maximum se suit en un test : si prix > max_courant (ou premier tour), mémoriser marque et prix.'
+      "Quatre compteurs nommés, incrémentés par case sur le moteur, évitent les tableaux associatifs.",
+      "Le maximum se suit en un test : si prix > max_courant (ou premier tour), mémoriser marque et prix.",
+      "Comptez les voitures par moteur et cumulez les prix en suivant la première marque au prix maximal ; affichez les moteurs présents dans l'ordre imposé, puis budget et max."
     ],
     examples: [
       { stdin: '4\nTOYOTA HYBRIDE 20000000\nMB DIESEL 6000000\nBMW ESSENCE 50000000\nKIA ESSENCE 50000000\n', expected: 'DIESEL : 1\nESSENCE : 2\nHYBRIDE : 1\nbudget : 126000000\nmax : BMW 50000000', note: 'ELECTRIQUE absent : pas de ligne. À budget égal, la première entrée gagne.' }
@@ -1113,6 +1145,7 @@ done
 [ "$electrique" -gt 0 ] && echo "ELECTRIQUE : $electrique"
 echo "budget : $budget"
 echo "max : $max_marque $max_prix"
-`
+`,
+    takeaway: "Découper les champs via IFS=\";\" read -r et agréger dans la boucle while évite les sous-shells coûteux."
   }
 ];

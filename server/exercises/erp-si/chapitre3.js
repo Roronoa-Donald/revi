@@ -6,44 +6,61 @@
 
 module.exports = [
   {
-    id: "erp2-c3-e1",
-    chapter: 3,
-    level: "n1",
-    language: 'analyse',
-    title: "Point-à-Point vs Hub d’intégration EAI",
-    goal: "Calculer la complexité d’interconnexion entre N applications d’entreprise.",
-    brief: "<p>Dans une intégration <strong>Point-à-Point</strong> (spaghetti), relier <code>N</code> applications deux à deux requiert <code>N * (N - 1) / 2</code> interfaces spécifiques. À l’inverse, une architecture orientée <strong>Hub EAI ou ESB</strong> ne nécessite qu’un connecteur par application vers le bus central, soit exactement <code>N</code> interfaces.</p><p>Analyse le nombre entier d’applications <code>N</code> fourni(e) dans les données du cas (<code>N &gt;= 2</code>).<br>Calcule le nombre d’interfaces nécessaires dans les deux modèles ainsi que le gain d’interfaces apporté par le Hub.<br>Affiche le résultat sous la forme :<br><code>Point-a-Point: &lt;X&gt; | Hub ESB: &lt;Y&gt; | Gain: &lt;Z&gt; interfaces</code>.</p>",
-    starter: "# Grille d'analyse (erp2-c3-e1) — Point-à-Point vs Hub d’intégration EAI\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Deux applications]\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Dix applications en SI d’entreprise]\n# Données : 10\nA_COMPLETER\n\n[Cas 3 — Vingt applications hétérogènes]\n# Données : 20\nA_COMPLETER\n",
-    hints: [
-          "Point-à-point = n * (n - 1) // 2.",
-          "Hub ESB = n.",
-          "Gain = point_a_point - hub_esb."
+    "id": "erp2-c3-e1",
+    "chapter": 3,
+    "level": "n1",
+    "language": "analyse",
+    "title": "Du spaghetti au bus : les interfaces de la clinique Saint-Paul",
+    "exampleTitle": "Exemple résolu — les applications de la communauté de communes du Val Clair",
+    "goal": "Comparer le nombre d'interfaces d'une architecture point-à-point et d'une architecture en bus de services.",
+    "brief": "<p><strong>Énoncé.</strong> La clinique Saint-Paul exploite huit applications : le logiciel de facturation, le dossier patient, le système du laboratoire, la gestion des stocks de pharmacie, la paie, le planning des soignants, le portail des patients et l'outil de reporting de la direction. Aujourd'hui, ces huit applications sont reliées deux à deux en point-à-point : chaque paire d'applications échange par une interface spécifique (architecture spaghetti). La direction étudie leur remplacement par un bus de services (ESB) : chaque application serait alors reliée une seule fois au bus.</p><p>Rappel : relier N applications deux à deux exige N × (N − 1) ÷ 2 interfaces ; un bus exige une interface par application. Répondez par le nombre seul, sauf la question 5 (un nom).</p><ol><li>Combien d'interfaces compte aujourd'hui l'architecture point-à-point de la clinique ?</li><li>Avec un bus ESB, combien de connecteurs seraient nécessaires ?</li><li>Combien d'interfaces le bus ferait-il économiser à la clinique ?</li><li>Si deux applications seulement devaient dialoguer, combien d'interfaces le point-à-point exigerait-il ?</li><li>Dans ce cas à deux applications, quel modèle est le plus simple à mettre en place : le point-à-point ou le bus ?</li><li>Quelle est la formule qui donne le nombre d'interfaces point-à-point en fonction du nombre N d'applications ?</li></ol>",
+    "starter": "# Exercice — Du spaghetti au bus : les interfaces de la clinique Saint-Paul\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Le nombre seul ; question 6 : la formule au format N*(N-1)/2.\n\n[Question 1 — Interfaces en point-à-point (8 applications)]\nA_COMPLETER\n\n[Question 2 — Connecteurs avec un bus ESB]\nA_COMPLETER\n\n[Question 3 — Économie d'interfaces apportée par le bus]\nA_COMPLETER\n\n[Question 4 — Interfaces point-à-point pour 2 applications]\nA_COMPLETER\n\n[Question 5 — Modèle le plus simple pour 2 applications]\nA_COMPLETER\n\n[Question 6 — Formule du nombre d'interfaces point-à-point]\nA_COMPLETER\n",
+    "hints": [
+      "En point-à-point, chaque application doit savoir parler à toutes les autres : le nombre d'interfaces croît bien plus vite que le nombre d'applications.",
+      "Le bus centralise les échanges : une application n'a plus qu'une seule interface à maintenir, la sienne vers le bus.",
+      "1. Point-à-point : 8 × 7 ÷ 2. 2. Bus : une interface par application. 3. Économie = point-à-point − bus. 4. Pour 2 applications : 2 × 1 ÷ 2. 5. Comparez une interface directe contre un bus à administrer. 6. Généralisez avec N applications."
     ],
-    examples: [
-          {
-                "stdin": "6",
-                "expected": "Point-a-Point: 15 | Hub ESB: 6 | Gain: 9 interfaces",
-                "note": "Pour 6 applications : 15 interfaces spécifiques contre 6 avec un bus."
-          }
+    "examples": [
+      {
+        "stdin": "La communauté de communes du Val Clair exploite 6 applications en point-à-point.\n1) Point-à-point : 6 × 5 ÷ 2 = 15 interfaces.\n2) Bus ESB : 6 connecteurs.\n3) Économie : 15 − 6 = 9 interfaces.\n4) Avec 2 applications seulement : 2 × 1 ÷ 2 = 1 interface en point-à-point,\ncontre 2 connecteurs avec un bus : le point-à-point suffit.",
+        "expected": "15 interfaces point-à-point — 6 connecteurs bus — 9 interfaces économisées — pour 2 applications : 1 interface, le point-à-point suffit",
+        "note": "Le bus ne se justifie qu'au-delà de quelques applications : en dessous de trois, le point-à-point reste plus léger."
+      }
     ],
-    tests: [
-          {
-                "label": "Deux applications",
-                "stdin": "cas:1",
-                "expected": "Point-a-Point: 1 | Hub ESB: 2 | Gain: -1 interfaces"
-          },
-          {
-                "label": "Dix applications en SI d’entreprise",
-                "stdin": "cas:2",
-                "expected": "Point-a-Point: 45 | Hub ESB: 10 | Gain: 35 interfaces"
-          },
-          {
-                "label": "Vingt applications hétérogènes",
-                "stdin": "cas:3",
-                "expected": "Point-a-Point: 190 | Hub ESB: 20 | Gain: 170 interfaces"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Interfaces en point-à-point (8 applications)",
+        "stdin": "q:1",
+        "expected": "28"
+      },
+      {
+        "label": "Question 2 — Connecteurs avec un bus ESB",
+        "stdin": "q:2",
+        "expected": "8"
+      },
+      {
+        "label": "Question 3 — Économie d'interfaces apportée par le bus",
+        "stdin": "q:3",
+        "expected": "20"
+      },
+      {
+        "label": "Question 4 — Interfaces point-à-point pour 2 applications",
+        "stdin": "q:4",
+        "expected": "1"
+      },
+      {
+        "label": "Question 5 — Modèle le plus simple pour 2 applications",
+        "stdin": "q:5",
+        "expected": "point-à-point||point a point||le point-à-point||point-a-point||point à point||le point à point"
+      },
+      {
+        "label": "Question 6 — Formule du nombre d'interfaces point-à-point",
+        "stdin": "q:6",
+        "expected": "N*(N-1)/2||n*(n-1)/2||N(N-1)/2||N × (N − 1) ÷ 2||N x (N - 1) / 2"
+      }
     ],
-    solution: "[Exemple]\nPoint-a-Point: 15 | Hub ESB: 6 | Gain: 9 interfaces\n\n[Cas 1 — Deux applications]\nPoint-a-Point: 1 | Hub ESB: 2 | Gain: -1 interfaces\n\n[Cas 2 — Dix applications en SI d’entreprise]\nPoint-a-Point: 45 | Hub ESB: 10 | Gain: 35 interfaces\n\n[Cas 3 — Vingt applications hétérogènes]\nPoint-a-Point: 190 | Hub ESB: 20 | Gain: 170 interfaces\n"
+    "solution": "[Question 1 — Interfaces en point-à-point (8 applications)]\n28\n\n[Question 2 — Connecteurs avec un bus ESB]\n8\n\n[Question 3 — Économie d'interfaces apportée par le bus]\n20\n\n[Question 4 — Interfaces point-à-point pour 2 applications]\n1\n\n[Question 5 — Modèle le plus simple pour 2 applications]\npoint-à-point\n\n[Question 6 — Formule du nombre d'interfaces point-à-point]\nN*(N-1)/2",
+    "takeaway": "1) Huit applications reliées deux à deux : 8 × 7 ÷ 2 = 28 interfaces.\n2) Avec un bus, chaque application se branche une seule fois : 8 connecteurs.\n3) Économie : 28 − 8 = 20 interfaces à maintenir en moins.\n4) Deux applications : 2 × 1 ÷ 2 = 1 interface en point-à-point.\n5) Pour deux applications, une seule interface directe suffit : le point-à-point est plus simple qu'un bus à administrer.\n6) La formule générale est N × (N − 1) ÷ 2.\nContrôle : 28 interfaces pour 8 applications, soit plus de trois interfaces par application en moyenne, contre une seule avec le bus."
   },
   {
     id: "erp2-c3-e2",
@@ -83,7 +100,8 @@ module.exports = [
                 "expected": "{\"items_count\": 20, \"order_id\": \"PO-101\", \"total_ht\": 99.8, \"vendor_id\": \"SUPPLY\"}"
           }
     ],
-    solution: "[Exemple]\n{\"items_count\": 10, \"order_id\": \"CMD-88\", \"total_ht\": 150.0, \"vendor_id\": \"FOURN_12\"}\n\n[Cas 1 — Commande multi-lignes]\n{\"items_count\": 15, \"order_id\": \"PO-900\", \"total_ht\": 247.5, \"vendor_id\": \"ACME\"}\n\n[Cas 2 — Commande sans articles]\n{\"items_count\": 0, \"order_id\": \"CMD-00\", \"total_ht\": 0.0, \"vendor_id\": \"TEST\"}\n\n[Cas 3 — Ligne unique avec décimales]\n{\"items_count\": 20, \"order_id\": \"PO-101\", \"total_ht\": 99.8, \"vendor_id\": \"SUPPLY\"}\n"
+    solution: "[Exemple]\n{\"items_count\": 10, \"order_id\": \"CMD-88\", \"total_ht\": 150.0, \"vendor_id\": \"FOURN_12\"}\n\n[Cas 1 — Commande multi-lignes]\n{\"items_count\": 15, \"order_id\": \"PO-900\", \"total_ht\": 247.5, \"vendor_id\": \"ACME\"}\n\n[Cas 2 — Commande sans articles]\n{\"items_count\": 0, \"order_id\": \"CMD-00\", \"total_ht\": 0.0, \"vendor_id\": \"TEST\"}\n\n[Cas 3 — Ligne unique avec décimales]\n{\"items_count\": 20, \"order_id\": \"PO-101\", \"total_ht\": 99.8, \"vendor_id\": \"SUPPLY\"}\n",
+    takeaway: "À retenir : Transformer un message reçu d’un partenaire vers le format canonique de l’ERP.\nRepère : Mapping pivot avec calculs de somme."
   },
   {
     id: "erp2-c3-e3",
@@ -123,6 +141,7 @@ module.exports = [
                 "expected": "[]"
           }
     ],
-    solution: "[Exemple]\n[{\"email\": \"alice@site.fr\", \"nom\": \"ALICE MARTIN\", \"version\": 2}]\n\n[Cas 1 — Plusieurs contacts distincts avec doublon]\n[{\"email\": \"bob@test.com\", \"nom\": \"ROBERT\", \"version\": 3}, {\"email\": \"claire@test.com\", \"nom\": \"CLAIRE\", \"version\": 1}]\n\n[Cas 2 — Aucun doublon]\n[{\"email\": \"adam@domaine.fr\", \"nom\": \"ADAM\", \"version\": 1}, {\"email\": \"zack@domaine.fr\", \"nom\": \"ZACK\", \"version\": 1}]\n\n[Cas 3 — Liste vide]\n[]\n"
+    solution: "[Exemple]\n[{\"email\": \"alice@site.fr\", \"nom\": \"ALICE MARTIN\", \"version\": 2}]\n\n[Cas 1 — Plusieurs contacts distincts avec doublon]\n[{\"email\": \"bob@test.com\", \"nom\": \"ROBERT\", \"version\": 3}, {\"email\": \"claire@test.com\", \"nom\": \"CLAIRE\", \"version\": 1}]\n\n[Cas 2 — Aucun doublon]\n[{\"email\": \"adam@domaine.fr\", \"nom\": \"ADAM\", \"version\": 1}, {\"email\": \"zack@domaine.fr\", \"nom\": \"ZACK\", \"version\": 1}]\n\n[Cas 3 — Liste vide]\n[]\n",
+    takeaway: "À retenir : Filtrer et dédupliquer une liste de contacts importés dans l’ERP en conservant l’enregistrement le plus récent.\nRepère : La version 2 a écrasé la version 1."
   }
 ];

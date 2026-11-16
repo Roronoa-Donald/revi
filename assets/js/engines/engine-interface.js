@@ -22,6 +22,7 @@
     TIMEOUT: 'timeout',
     CANCELLED: 'cancelled',
     API_ERROR: 'api_error',
+    RATE_LIMITED: 'rate_limited',
     UNSUPPORTED: 'unsupported'
   };
 

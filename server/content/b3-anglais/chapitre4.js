@@ -128,42 +128,42 @@ module.exports = {
       stem: 'Dans un Daily Standup meeting agile, quelle est la façon la plus claire et professionnelle d’annoncer que l’on est bloqué par une attente de validation ?',
       opts: [
         'I cannot do anything because others are very slow.',
-        'I am currently blocked by pending code reviews on pull request 42.',
         'The project is totally stopped on my computer.',
+        'I am currently blocked by pending code reviews on pull request 42.',
         'Nobody cares about my tickets today.'
       ],
-      correct: 1,
+      correct: 2,
       exp: '« I am currently blocked by pending code reviews on PR 42 » formule le blocage avec précision, objectivité et sans agressivité.'
     },
     {
       stem: 'Que signifie l’expression « Let’s take this offline » prononcée au cours d’un Daily Standup meeting ?',
       opts: [
-        'Il faut débrancher le routeur Ethernet immédiatement.',
-        'Cette discussion technique détaillée dépasse le cadre des 15 minutes et doit se poursuivre entre les personnes concernées après la réunion.',
-        'Le projet est annulé et l’équipe est renvoyée chez elle.',
-        'Il faut éteindre tous les serveurs de production.'
+        "Il faut débrancher immédiatement le routeur Ethernet de la salle serveur afin d’isoler le segment réseau concerné.",
+        "Le projet est annulé avec effet immédiat et toute l’équipe de développement est priée de rentrer chez elle aujourd’hui.",
+        "Il faut procéder sans attendre à l’arrêt complet et planifié de tous les serveurs de production du datacenter.",
+        "Cette discussion technique détaillée dépasse le cadre des 15 minutes et doit se poursuivre entre les personnes concernées après la réunion."
       ],
-      correct: 1,
+      correct: 3,
       exp: '« Take this offline » est l’expression consacrée pour sortir un débat technique trop long de la réunion collective et le traiter en petit comité.'
     },
     {
       stem: 'Combien de temps de coupure cumulé maximal par mois de 30 jours (43 200 minutes) un contrat garantissant 99.9% de disponibilité autorise-t-il ?',
       opts: [
-        '4.32 minutes',
         '43.2 minutes',
+        '4.32 minutes',
         '432 minutes (~7 heures)',
         '120 minutes'
       ],
-      correct: 1,
+      correct: 0,
       exp: '43 200 minutes x (100 - 99.9)% = 43 200 x 0.001 = 43.2 minutes de temps de panne tolérées.'
     },
     {
       stem: 'Que mesure l’indicateur MTTR (Mean Time to Repair / Recover) dans une équipe SRE ?',
       opts: [
-        'Le temps moyen écoulé entre deux réunions d’équipe.',
-        'Le temps moyen nécessaire pour remettre un service en état nominal après la survenue d’un incident.',
-        'Le salaire horaire moyen des développeurs seniors.',
-        'Le nombre de commits fusionnés chaque semaine.'
+        "Le temps moyen qui s’écoule entre deux pannes consécutives du même composant en production.",
+        "Le temps moyen nécessaire pour remettre un service en état nominal après la survenue d’un incident.",
+        "Le salaire horaire moyen versé aux développeurs seniors de l’équipe d’exploitation.",
+        "Le nombre moyen de commits fusionnés chaque semaine dans la branche principale du dépôt Git."
       ],
       correct: 1,
       exp: 'Le MTTR mesure la rapidité avec laquelle l’équipe diagnostique, mitige et résout une défaillance de production.'
@@ -172,22 +172,22 @@ module.exports = {
       stem: 'Quelle phrase en anglais est la plus appropriée pour interrompre poliment un collègue lors d’un débat technique en visioconférence ?',
       opts: [
         'Shut up, I want to talk right now.',
-        'Could I just jump in here for a moment?',
         'You are completely wrong, listen to me.',
+        'Could I just jump in here for a moment?',
         'Stop talking about that.'
       ],
-      correct: 1,
+      correct: 2,
       exp: '« Could I just jump in here for a moment? » ou « If I could add to that... » sont les formules d’interruption courtoises standards.'
     },
     {
       stem: 'Dans une rétrospective de sprint, quelle composante transforme un constat négatif en progrès tangible pour l’itération suivante ?',
       opts: [
         'L’attribution d’un blâme public au responsable.',
-        'La définition d’un Action Item clair, daté et attribué à un responsable unique (Owner).',
+        'La suppression définitive de la fonctionnalité incriminée.',
         'L’allongement de la durée de la réunion de deux heures.',
-        'La suppression définitive de la fonctionnalité incriminée.'
+        'La définition d’un Action Item clair, daté et attribué à un responsable unique (Owner).'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un Action Item clair et assigné à un porteur désigné (Owner) est l’élément indispensable pour concrétiser l’amélioration continue.'
     },
     {
@@ -204,12 +204,12 @@ module.exports = {
     {
       stem: 'Que signifie l’expression « What will you wrap up today? » formulée par un Scrum Master lors du standup ?',
       opts: [
-        'Qu’allez-vous emballer dans un carton d’expédition ?',
         'Quelle tâche ou fonctionnalité prévoyez-vous de finaliser aujourd’hui ?',
+        'Qu’allez-vous emballer dans un carton d’expédition ?',
         'Quel sandwich allez-vous commander pour le déjeuner ?',
         'Quelle réunion allez-vous annuler dans l’après-midi ?'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le verbe à particule « to wrap up » signifie finaliser, conclure ou terminer une tâche en cours.'
     }
   ],

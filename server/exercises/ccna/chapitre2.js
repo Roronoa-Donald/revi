@@ -4,135 +4,172 @@ module.exports = [
   {
     "id": "na2-c2-e1",
     "chapter": 2,
-    "title": "Calculateur de masque IPv4 et masque générique (Wildcard)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Convertir une longueur de préfixe CIDR (/n) en masque décimal pointé, masque générique (wildcard pour ACL/OSPF) et compter les adresses.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas.<br>\nPour chaque préfixe <code>/n</code> (avec <code>0 &lt;= n &lt;= 32</code>),, indiquez une ligne au format :<br>\n<code>/n -&gt; Masque: &lt;M.M.M.M&gt; | Wildcard: &lt;W.W.W.W&gt; | Total: &lt;T&gt; | Hotes: &lt;H&gt;</code><br>\navec <code>H = max(0, 2**(32-n) - 2)</code> si <code>n &lt;= 30</code>, <code>2</code> si <code>n == 31</code> (RFC 3021 liens point-à-point), et <code>1</code> si <code>n == 32</code> (adresse d'hôte unique / loopback).</p>",
-    "starter": "# Grille d'analyse (na2-c2-e1) — Calculateur de masque IPv4 et masque générique (Wildcard)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Préfixes classe A, B et intermédiaires]\n# Données : /8 /16 /27\nA_COMPLETER\n\n[Cas 2 — Sous-réseau /29 et RFC 3021 point à point /31]\n# Données : /29 /31\nA_COMPLETER\n\n[Cas 3 — Route par défaut /0]\n# Données : /0\nA_COMPLETER\n\n[Cas 4 — Nombres sans slash]\n# Données : 21 26 28\nA_COMPLETER\n",
+    "title": "Le plan d'adressage de l'imprimerie QuadriColor",
+    "exampleTitle": "Exemple résolu — le plan du cabinet Axiome",
+    "goal": "Convertir des préfixes CIDR en masques décimaux, compter les hôtes utiles et dériver les wildcards.",
+    "brief": "<p><strong>Énoncé.</strong> L'imprimerie QuadriColor, 250 salariés, restructure son réseau autour d'un bloc <code>192.168.44.0/24</code>. La DSI transmet le plan d'adressage suivant, un préfixe par service :</p><table><tr><th>Service</th><th>Matériel à raccorder</th><th>Préfixe prévu</th></tr><tr><th>Atelier de production</th><td>55 postes et imprimantes</td><td>/26</td></tr><tr><th>Direction et comptabilité</th><td>12 postes</td><td>/28</td></tr><tr><th>Liaison WAN vers le second site</th><td>2 routeurs (point-à-point)</td><td>/30</td></tr><tr><th>Boutique en boutique</th><td>180 postes</td><td>/24</td></tr></table><p>Rappels du cours : un masque en notation CIDR compte les bits à 1 ; les hôtes utiles valent 2^n − 2 où n est le nombre de bits d'hôte (32 − préfixe) ; le wildcard d'un préfixe s'obtient en soustrayant chaque octet du masque à 255. Répondez par le nombre ou le masque exact.</p><ol><li>Écrivez le masque décimal du préfixe /26.</li><li>Combien d'hôtes utiles le sous-réseau /26 offre-t-il ?</li><li>Écrivez le masque décimal du préfixe /30.</li><li>Combien d'hôtes utiles la liaison WAN /30 offre-t-elle ?</li><li>Écrivez le masque générique (wildcard) du préfixe /26, utilisé dans les ACL.</li><li>Combien d'hôtes utiles le bloc historique /24 offre-t-il ?</li></ol>",
+    "starter": "# Exercice — Le plan d'adressage de l'imprimerie QuadriColor\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre ou le masque exact, sans commentaire.\n\n[Question 1 — Masque décimal de /26]\nA_COMPLETER\n\n[Question 2 — Hôtes utiles du /26]\nA_COMPLETER\n\n[Question 3 — Masque décimal de /30]\nA_COMPLETER\n\n[Question 4 — Hôtes utiles du /30]\nA_COMPLETER\n\n[Question 5 — Wildcard du /26]\nA_COMPLETER\n\n[Question 6 — Hôtes utiles du /24]\nA_COMPLETER\n",
     "hints": [
-      "Le masque contient n bits à 1 suivis de (32 - n) bits à 0.",
-      "Le masque générique (Wildcard) s'obtient par soustraction de chaque octet à 255 : (255 - M).",
-      "Le nombre total d'adresses est 2**(32 - n)."
+      "Un /26 laisse 32 − 26 = 6 bits d'hôte : 2^6 = 64 adresses, dont deux réservées (réseau et diffusion).",
+      "Le masque décimal se construit octet par octet : /26 = 255.255.255.192 car 26 bits à 1 se répartissent en 8 + 8 + 8 + 2 ; /30 = 255.255.255.252 (8 + 8 + 8 + 6).",
+      "Le wildcard est le complément du masque : 255 − 192 = 63 sur le dernier octet du /26 ; pour le /24, 32 − 24 = 8 bits d'hôte."
     ],
     "examples": [
       {
-        "stdin": "/24 /30 /32",
-        "expected": "/24 -> Masque: 255.255.255.0 | Wildcard: 0.0.0.255 | Total: 256 | Hotes: 254\n/30 -> Masque: 255.255.255.252 | Wildcard: 0.0.0.3 | Total: 4 | Hotes: 2\n/32 -> Masque: 255.255.255.255 | Wildcard: 0.0.0.0 | Total: 1 | Hotes: 1",
-        "note": "Conversions classiques pour LAN, lien inter-routeur et loopback."
+        "stdin": "Le cabinet Axiome planifie son réseau 10.60.0.0/24 : un pôle conseil en /27 (25 postes), une liaison transversale en /30 et le siège historique en /25.\n\n1) /27 : masque 255.255.255.224, soit 32 − 27 = 5 bits d'hôte.\n2) Hôtes utiles du /27 : 2^5 − 2 = 30.\n3) /30 : masque 255.255.255.252, 2 bits d'hôte.\n4) Hôtes utiles du /30 : 2^2 − 2 = 2.\n5) Wildcard du /27 : 255 − 224 = 31, donc 0.0.0.31.\n6) Hôtes utiles du /25 : 2^7 − 2 = 126.",
+        "expected": "/27 : 255.255.255.224 — 30 hôtes — /30 : 255.255.255.252 — 2 hôtes — wildcard 0.0.0.31 — /25 : 126 hôtes",
+        "note": "Le wildcard complète le masque octet par octet : c'est l'outil des ACL et des déclarations OSPF."
       }
     ],
     "tests": [
       {
-        "label": "Préfixes classe A, B et intermédiaires",
-        "stdin": "cas:1",
-        "expected": "/8 -> Masque: 255.0.0.0 | Wildcard: 0.255.255.255 | Total: 16777216 | Hotes: 16777214\n/16 -> Masque: 255.255.0.0 | Wildcard: 0.0.255.255 | Total: 65536 | Hotes: 65534\n/27 -> Masque: 255.255.255.224 | Wildcard: 0.0.0.31 | Total: 32 | Hotes: 30"
+        "label": "Question 1 — Masque décimal de /26",
+        "stdin": "q:1",
+        "expected": "255.255.255.192"
       },
       {
-        "label": "Sous-réseau /29 et RFC 3021 point à point /31",
-        "stdin": "cas:2",
-        "expected": "/29 -> Masque: 255.255.255.248 | Wildcard: 0.0.0.7 | Total: 8 | Hotes: 6\n/31 -> Masque: 255.255.255.254 | Wildcard: 0.0.0.1 | Total: 2 | Hotes: 2"
+        "label": "Question 2 — Hôtes utiles du /26",
+        "stdin": "q:2",
+        "expected": "62"
       },
       {
-        "label": "Route par défaut /0",
-        "stdin": "cas:3",
-        "expected": "/0 -> Masque: 0.0.0.0 | Wildcard: 255.255.255.255 | Total: 4294967296 | Hotes: 4294967294"
+        "label": "Question 3 — Masque décimal de /30",
+        "stdin": "q:3",
+        "expected": "255.255.255.252"
       },
       {
-        "label": "Nombres sans slash",
-        "stdin": "cas:4",
-        "expected": "/21 -> Masque: 255.255.248.0 | Wildcard: 0.0.7.255 | Total: 2048 | Hotes: 2046\n/26 -> Masque: 255.255.255.192 | Wildcard: 0.0.0.63 | Total: 64 | Hotes: 62\n/28 -> Masque: 255.255.255.240 | Wildcard: 0.0.0.15 | Total: 16 | Hotes: 14"
+        "label": "Question 4 — Hôtes utiles du /30",
+        "stdin": "q:4",
+        "expected": "2"
+      },
+      {
+        "label": "Question 5 — Wildcard du /26",
+        "stdin": "q:5",
+        "expected": "0.0.0.63"
+      },
+      {
+        "label": "Question 6 — Hôtes utiles du /24",
+        "stdin": "q:6",
+        "expected": "254"
       }
     ],
-    "solution": "[Exemple]\n/24 -> Masque: 255.255.255.0 | Wildcard: 0.0.0.255 | Total: 256 | Hotes: 254\n/30 -> Masque: 255.255.255.252 | Wildcard: 0.0.0.3 | Total: 4 | Hotes: 2\n/32 -> Masque: 255.255.255.255 | Wildcard: 0.0.0.0 | Total: 1 | Hotes: 1\n\n[Cas 1 — Préfixes classe A, B et intermédiaires]\n/8 -> Masque: 255.0.0.0 | Wildcard: 0.255.255.255 | Total: 16777216 | Hotes: 16777214\n/16 -> Masque: 255.255.0.0 | Wildcard: 0.0.255.255 | Total: 65536 | Hotes: 65534\n/27 -> Masque: 255.255.255.224 | Wildcard: 0.0.0.31 | Total: 32 | Hotes: 30\n\n[Cas 2 — Sous-réseau /29 et RFC 3021 point à point /31]\n/29 -> Masque: 255.255.255.248 | Wildcard: 0.0.0.7 | Total: 8 | Hotes: 6\n/31 -> Masque: 255.255.255.254 | Wildcard: 0.0.0.1 | Total: 2 | Hotes: 2\n\n[Cas 3 — Route par défaut /0]\n/0 -> Masque: 0.0.0.0 | Wildcard: 255.255.255.255 | Total: 4294967296 | Hotes: 4294967294\n\n[Cas 4 — Nombres sans slash]\n/21 -> Masque: 255.255.248.0 | Wildcard: 0.0.7.255 | Total: 2048 | Hotes: 2046\n/26 -> Masque: 255.255.255.192 | Wildcard: 0.0.0.63 | Total: 64 | Hotes: 62\n/28 -> Masque: 255.255.255.240 | Wildcard: 0.0.0.15 | Total: 16 | Hotes: 14"
+    "solution": "[Question 1 — Masque décimal de /26]\n255.255.255.192\n\n[Question 2 — Hôtes utiles du /26]\n62\n\n[Question 3 — Masque décimal de /30]\n255.255.255.252\n\n[Question 4 — Hôtes utiles du /30]\n2\n\n[Question 5 — Wildcard du /26]\n0.0.0.63\n\n[Question 6 — Hôtes utiles du /24]\n254",
+    "takeaway": "1) /26 = 26 bits à 1 : 255.255.255.192.\n2) 32 − 26 = 6 bits d'hôte : 2^6 − 2 = 62 hôtes utiles (55 postes de l'atelier tiennent largement).\n3) /30 = 255.255.255.252.\n4) 32 − 30 = 2 bits d'hôte : 2^2 − 2 = 2 hôtes, exactement les deux routeurs de la liaison point-à-point.\n5) Wildcard du /26 : 255.255.255.255 − 255.255.255.192 = 0.0.0.63.\n6) /24 : 8 bits d'hôte, 2^8 − 2 = 254 hôtes pour la boutique.\nContrôle : les masques forment des suites de 1 sans trou — 255.255.255.192, .252 et .0 sont tous valides ; les hôtes utiles vérifient 62 + 2 = 64 = 2^6, 2 + 2 = 4 = 2^2, 254 + 2 = 256 = 2^8."
   },
   {
     "id": "na2-c2-e2",
     "chapter": 2,
-    "title": "Analyseur complet de sous-réseau IPv4",
     "level": "n2",
     "language": "analyse",
-    "goal": "Déterminer l'adresse de sous-réseau, l'adresse de diffusion (broadcast), la plage d'adresses hôtes valides et la classe d'adresse.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas.168.10.45/26</code>).<br>\nIl calcule et Indiquez dans l'ordre :<br>\n- <code>Reseau: &lt;IP_RESEAU&gt;/&lt;CIDR&gt;</code><br>\n- <code>Masque: &lt;MASQUE_DECIMAL&gt;</code><br>\n- <code>Broadcast: &lt;IP_BROADCAST&gt;</code><br>\n- <code>Premier hote: &lt;IP_PREMIER&gt;</code><br>\n- <code>Dernier hote: &lt;IP_DERNIER&gt;</code><br>\n- <code>Capacite: &lt;NB_HOTES&gt; hotes utiles</code><br>\n- <code>Type: &lt;PRIVE|PUBLIC|LOOPBACK|APIPA|MULTICAST&gt;</code> (Privé selon RFC 1918 : 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 ; Loopback 127.0.0.0/8 ; APIPA 169.254.0.0/16 ; Multicast 224.0.0.0/4 ; sinon Public).</p>",
-    "starter": "# Grille d'analyse (na2-c2-e2) — Analyseur complet de sous-réseau IPv4\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-réseau classe A privé /20]\n# Données : 10.50.88.130/20\nA_COMPLETER\n\n[Cas 2 — Adresse publique /28]\n# Données : 8.8.8.8/28\nA_COMPLETER\n\n[Cas 3 — Lien d interconnexion /30 privé 172.16]\n# Données : 172.16.1.5/30\nA_COMPLETER\n\n[Cas 4 — Adresse automatique APIPA 169.254]\n# Données : 169.254.12.34/16\nA_COMPLETER\n",
+    "title": "L'analyse du sous-réseau commercial d'AutoVermeil",
+    "exampleTitle": "Exemple résolu — le sous-réseau du service études",
+    "goal": "Dériver d'une adresse hôte tout le sous-réseau : adresse réseau, diffusion, plage attribuable et appartenance.",
+    "brief": "<p><strong>Énoncé.</strong> La concession AutoVermeil, distributeur automobile de la zone industrielle Nord, adresse son réseau commercial à partir du bloc privé <code>172.20.0.0/16</code>. Le service commercial reçoit la plage suivante : la borne Wi-Fi du showroom est configurée avec l'adresse <code>172.20.8.130/26</code>. L'administrateur veut vérifier d'un coup d'œil le sous-réseau qui en découle.</p><p>Rappel du cours : un /26 découpe le dernier octet en blocs de 2^6 = 64 adresses ; l'adresse réseau est le multiple de 64 immédiatement inférieur ou égal au dernier octet de l'hôte. Répondez par l'adresse ou le nombre exact.</p><ol><li>Quelle est l'adresse réseau du sous-réseau ?</li><li>Quelle est l'adresse de diffusion (broadcast) ?</li><li>Quelle est la première adresse attribuable à un hôte ?</li><li>Quelle est la dernière adresse attribuable à un hôte ?</li><li>Combien d'hôtes utiles ce sous-réseau compte-t-il ?</li><li>L'adresse 172.20.8.200 appartient-elle à ce même sous-réseau ?</li></ol>",
+    "starter": "# Exercice — L'analyse du sous-réseau commercial d'AutoVermeil\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par l'adresse ou le nombre exact, sans commentaire.\n\n[Question 1 — Adresse réseau]\nA_COMPLETER\n\n[Question 2 — Adresse de diffusion]\nA_COMPLETER\n\n[Question 3 — Première adresse attribuable]\nA_COMPLETER\n\n[Question 4 — Dernière adresse attribuable]\nA_COMPLETER\n\n[Question 5 — Hôtes utiles]\nA_COMPLETER\n\n[Question 6 — Appartenance de 172.20.8.200]\nA_COMPLETER\n",
     "hints": [
-      "Convertir l'adresse IPv4 en entier 32 bits facilite l'opération ET bit à bit avec le masque de sous-réseau.",
-      "L'adresse réseau a tous les bits d'hôte à 0 ; l'adresse de broadcast a tous les bits d'hôte à 1.",
-      "Premier hôte = réseau + 1, dernier hôte = broadcast - 1."
+      "Un /26 impose un pas de 64 sur le dernier octet : les frontières sont 0, 64, 128, 192. Le multiple de 64 immédiatement inférieur ou égal à 130 donne l'adresse réseau.",
+      "L'adresse de diffusion est la dernière du bloc, juste avant la frontière suivante ; la plage attribuable exclut ces deux bornes.",
+      "Pour la question 6, placez 200 dans le bon bloc de 64 : s'il tombe dans un autre bloc que celui de l'hôte, il n'appartient pas au même sous-réseau."
     ],
     "examples": [
       {
-        "stdin": "192.168.10.45/26",
-        "expected": "Reseau: 192.168.10.0/26\nMasque: 255.255.255.192\nBroadcast: 192.168.10.63\nPremier hote: 192.168.10.1\nDernier hote: 192.168.10.62\nCapacite: 62 hotes utiles\nType: PRIVE",
-        "note": "Sous-réseau /26 avec 62 hôtes exploitables sur adresse RFC 1918."
+        "stdin": "Un bureau d'études adresse son réseau à partir de 10.40.0.0/16 ; la station du projeteur reçoit 10.40.6.77/27.\n\n1) Pas de 32 : les frontières sont 0, 32, 64, 96… Le multiple de 32 sous 77 est 64 : réseau 10.40.6.64.\n2) Diffusion : 64 + 32 − 1 = 10.40.6.95.\n3) Première adresse attribuable : 10.40.6.65.\n4) Dernière adresse attribuable : 10.40.6.94.\n5) Hôtes utiles : 2^5 − 2 = 30.\n6) 10.40.6.100 tombe dans le bloc [96 ; 128[ : autre sous-réseau, réponse non.",
+        "expected": "réseau 10.40.6.64 — diffusion 10.40.6.95 — plage 10.40.6.65 à 10.40.6.94 — 30 hôtes — 10.40.6.100 : non",
+        "note": "Le pas du bloc (32 pour un /27) suffit à placer n'importe quelle adresse sans binaire."
       }
     ],
     "tests": [
       {
-        "label": "Sous-réseau classe A privé /20",
-        "stdin": "cas:1",
-        "expected": "Reseau: 10.50.80.0/20\nMasque: 255.255.240.0\nBroadcast: 10.50.95.255\nPremier hote: 10.50.80.1\nDernier hote: 10.50.95.254\nCapacite: 4094 hotes utiles\nType: PRIVE"
+        "label": "Question 1 — Adresse réseau",
+        "stdin": "q:1",
+        "expected": "172.20.8.128"
       },
       {
-        "label": "Adresse publique /28",
-        "stdin": "cas:2",
-        "expected": "Reseau: 8.8.8.0/28\nMasque: 255.255.255.240\nBroadcast: 8.8.8.15\nPremier hote: 8.8.8.1\nDernier hote: 8.8.8.14\nCapacite: 14 hotes utiles\nType: PUBLIC"
+        "label": "Question 2 — Adresse de diffusion",
+        "stdin": "q:2",
+        "expected": "172.20.8.191"
       },
       {
-        "label": "Lien d interconnexion /30 privé 172.16",
-        "stdin": "cas:3",
-        "expected": "Reseau: 172.16.1.4/30\nMasque: 255.255.255.252\nBroadcast: 172.16.1.7\nPremier hote: 172.16.1.5\nDernier hote: 172.16.1.6\nCapacite: 2 hotes utiles\nType: PRIVE"
+        "label": "Question 3 — Première adresse attribuable",
+        "stdin": "q:3",
+        "expected": "172.20.8.129"
       },
       {
-        "label": "Adresse automatique APIPA 169.254",
-        "stdin": "cas:4",
-        "expected": "Reseau: 169.254.0.0/16\nMasque: 255.255.0.0\nBroadcast: 169.254.255.255\nPremier hote: 169.254.0.1\nDernier hote: 169.254.255.254\nCapacite: 65534 hotes utiles\nType: APIPA"
+        "label": "Question 4 — Dernière adresse attribuable",
+        "stdin": "q:4",
+        "expected": "172.20.8.190"
+      },
+      {
+        "label": "Question 5 — Hôtes utiles",
+        "stdin": "q:5",
+        "expected": "62"
+      },
+      {
+        "label": "Question 6 — Appartenance de 172.20.8.200",
+        "stdin": "q:6",
+        "expected": "non||non, autre sous-réseau"
       }
     ],
-    "solution": "[Exemple]\nReseau: 192.168.10.0/26\nMasque: 255.255.255.192\nBroadcast: 192.168.10.63\nPremier hote: 192.168.10.1\nDernier hote: 192.168.10.62\nCapacite: 62 hotes utiles\nType: PRIVE\n\n[Cas 1 — Sous-réseau classe A privé /20]\nReseau: 10.50.80.0/20\nMasque: 255.255.240.0\nBroadcast: 10.50.95.255\nPremier hote: 10.50.80.1\nDernier hote: 10.50.95.254\nCapacite: 4094 hotes utiles\nType: PRIVE\n\n[Cas 2 — Adresse publique /28]\nReseau: 8.8.8.0/28\nMasque: 255.255.255.240\nBroadcast: 8.8.8.15\nPremier hote: 8.8.8.1\nDernier hote: 8.8.8.14\nCapacite: 14 hotes utiles\nType: PUBLIC\n\n[Cas 3 — Lien d interconnexion /30 privé 172.16]\nReseau: 172.16.1.4/30\nMasque: 255.255.255.252\nBroadcast: 172.16.1.7\nPremier hote: 172.16.1.5\nDernier hote: 172.16.1.6\nCapacite: 2 hotes utiles\nType: PRIVE\n\n[Cas 4 — Adresse automatique APIPA 169.254]\nReseau: 169.254.0.0/16\nMasque: 255.255.0.0\nBroadcast: 169.254.255.255\nPremier hote: 169.254.0.1\nDernier hote: 169.254.255.254\nCapacite: 65534 hotes utiles\nType: APIPA"
+    "solution": "[Question 1 — Adresse réseau]\n172.20.8.128\n\n[Question 2 — Adresse de diffusion]\n172.20.8.191\n\n[Question 3 — Première adresse attribuable]\n172.20.8.129\n\n[Question 4 — Dernière adresse attribuable]\n172.20.8.190\n\n[Question 5 — Hôtes utiles]\n62\n\n[Question 6 — Appartenance de 172.20.8.200]\nnon",
+    "takeaway": "1) /26 : pas de 64. Les frontières sont 0, 64, 128, 192. 130 est dans [128 ; 192[ : adresse réseau 172.20.8.128.\n2) Diffusion : 128 + 64 − 1 = 172.20.8.191.\n3) Première adresse attribuable : 172.20.8.129.\n4) Dernière adresse attribuable : 172.20.8.190.\n5) 32 − 26 = 6 bits d'hôte : 2^6 − 2 = 62 hôtes utiles.\n6) 200 appartient au bloc [192 ; 256[, différent du bloc [128 ; 192[ de l'hôte : ce n'est pas le même sous-réseau.\nContrôle : 62 hôtes + réseau + diffusion = 64 = 2^6, la taille exacte du bloc ; la plage attribuable 129-190 compte bien 62 adresses."
   },
   {
     "id": "na2-c2-e3",
     "chapter": 2,
-    "title": "Planificateur et allocateur VLSM hiérarchique",
     "level": "n3",
     "language": "analyse",
-    "goal": "Découper un bloc IPv4 mère en sous-réseaux optimaux avec Variable Length Subnet Masking (VLSM).",
-    "brief": "<p>Analysez les données fournies pour chaque cas.168.1.0/24</code>).<br>\nLes lignes suivantes décrivent les besoins sous la forme <code>&lt;NOM_SOUS_RESEAU&gt;: &lt;NB_HOTES&gt;</code>.<br>\nL'algorithme VLSM exige de :<br>\n1. Trier les demandes par <strong>nombre d'hôtes requis décroissant</strong> (les sous-réseaux les plus larges en premier pour éviter la fragmentation de l'espace d'adressage). En cas d'égalité d'hôtes, conserver l'ordre d'apparition.<br>\n2. Calculer pour chaque besoin la taille du bloc <code>2**k</code> telle que <code>2**k - 2 &gt;= NB_HOTES</code> (et <code>k &gt;= 2</code>, sauf si hôtes == 1 où <code>k=2</code> pour /30). Le préfixe attribué est <code>/(32 - k)</code>.<br>\n3. Allouer séquentiellement à partir de l'adresse de base du bloc racine.<br>\nPour chaque sous-réseau, afficher :<br>\n<code>&lt;NOM&gt; (&lt;BESOIN&gt; hotes) -&gt; &lt;RESEAU&gt;/&lt;CIDR&gt; [&lt;FIRST&gt; - &lt;LAST&gt;] BC: &lt;BCAST&gt;</code></p>",
-    "starter": "# Grille d'analyse (na2-c2-e3) — Planificateur et allocateur VLSM hiérarchique\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux grands départements et deux petits]\n# Données : 10.0.0.0/22\n# Données : Dev: 200\n# Données : Support: 100\n# Données : Admin: 50\n# Données : Serveurs: 30\nA_COMPLETER\n\n[Cas 2 — Besoins avec tailles identiques stables]\n# Données : 172.16.0.0/23\n# Données : VLAN10: 60\n# Données : VLAN20: 60\n# Données : VLAN30: 14\nA_COMPLETER\n\n[Cas 3 — Trois liaisons WAN point à point]\n# Données : 192.168.100.0/28\n# Données : WAN_AB: 2\n# Données : WAN_BC: 2\n# Données : WAN_CA: 2\nA_COMPLETER\n\n[Cas 4 — Grand campus universitaire]\n# Données : 10.100.0.0/16\n# Données : Amphis: 1000\n# Données : Labos: 500\n# Données : Wi-Fi: 250\nA_COMPLETER\n",
+    "title": "Le découpage VLSM du siège de TransGaz",
+    "exampleTitle": "Exemple résolu — le découpage du lycée Jean-Moulin",
+    "goal": "Construire un plan VLSM complet : choisir chaque masque par ordre décroissant et aligner les blocs sans chevauchement.",
+    "brief": "<p><strong>Énoncé.</strong> TransGaz, distributeur d'énergie, reçoit pour son siège le bloc <code>192.168.60.0/24</code>. Les services à adresser sont les suivants :</p><table><tr><th>Besoin</th><th>Hôtes à raccorder</th></tr><tr><th>Production (bâtiment A)</th><td>100</td></tr><tr><th>Comptabilité</th><td>50</td></tr><tr><th>Commercial</th><td>25</td></tr><tr><th>Serveurs internes</th><td>12</td></tr><tr><th>Trois liaisons WAN point-à-point</th><td>2 routeurs chacune</td></tr></table><p>Rappel du cours (règle d'or VLSM) : traiter les besoins par ordre décroissant ; pour chaque besoin, la plus petite puissance de 2 telle que 2^k − 2 soit supérieure ou égale au nombre d'hôtes ; chaque sous-réseau démarre à la frontière suivante du bloc précédent. Répondez par l'adresse ou le nombre exact.</p><ol><li>Quelle longueur de préfixe attribuer à Production (100 hôtes) ?</li><li>Quelle est l'adresse réseau du sous-réseau Comptabilité ?</li><li>Quelle est l'adresse de diffusion du sous-réseau Commercial ?</li><li>Combien d'hôtes utiles le sous-réseau Serveurs offre-t-il ?</li><li>Quelle est l'adresse réseau de la deuxième liaison WAN ?</li><li>Après la dernière liaison WAN, combien d'adresses du /24 restent inutilisées ?</li></ol>",
+    "starter": "# Exercice — Le découpage VLSM du siège de TransGaz\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par l'adresse ou le nombre exact, sans commentaire.\n\n[Question 1 — Préfixe de Production (100 hôtes)]\nA_COMPLETER\n\n[Question 2 — Adresse réseau de Comptabilité]\nA_COMPLETER\n\n[Question 3 — Diffusion du sous-réseau Commercial]\nA_COMPLETER\n\n[Question 4 — Hôtes utiles du sous-réseau Serveurs]\nA_COMPLETER\n\n[Question 5 — Adresse réseau de la deuxième liaison WAN]\nA_COMPLETER\n\n[Question 6 — Adresses restant inutilisées]\nA_COMPLETER\n",
     "hints": [
-      "Le tri par nombre d'hôtes décroissant est impératif en VLSM sous peine de briser la contrainte d'alignement sur les puissances de 2.",
-      "L'adresse réseau du bloc suivant commence immédiatement à l'adresse de broadcast du bloc précédent + 1."
+      "Triez d'abord : 100, 50, 25, 12, puis les trois /30. Pour 100 hôtes, 2^6 − 2 = 62 est insuffisant : il faut 2^7 − 2 = 126, donc /25.",
+      "Chaque bloc démarre à la frontière suivante : après le /25 (0-127), le /26 de Comptabilité occupe 128-191, le /27 de Commercial 192-223, le /28 des serveurs 224-239.",
+      "Les liaisons /30 se partagent la fin du /24 par pas de 4 : première 240-243, deuxième 244-247, troisième 248-251 ; le reste du bloc est inutilisé."
     ],
     "examples": [
       {
-        "stdin": "192.168.1.0/24\nDirection: 50\nComptabilite: 25\nInformatique: 12\nLienWAN: 2",
-        "expected": "Direction (50 hotes) -> 192.168.1.0/26 [192.168.1.1 - 192.168.1.62] BC: 192.168.1.63\nComptabilite (25 hotes) -> 192.168.1.64/27 [192.168.1.65 - 192.168.1.94] BC: 192.168.1.95\nInformatique (12 hotes) -> 192.168.1.96/28 [192.168.1.97 - 192.168.1.110] BC: 192.168.1.111\nLienWAN (2 hotes) -> 192.168.1.112/30 [192.168.1.113 - 192.168.1.114] BC: 192.168.1.115",
-        "note": "Allocation VLSM typique d'une entreprise avec un lien WAN."
+        "stdin": "Le lycée Jean-Moulin découpe son bloc 172.31.8.0/24 pour trois besoins, puis deux liaisons WAN.\nSalle informatique : 60 postes ; CDI : 25 postes ; administration : 10 postes ; deux /30.\n\n1) Salle informatique, 60 postes : 2^6 − 2 = 62 suffit (2^5 − 2 = 30 serait insuffisant) : /26, bloc 0-63.\n2) CDI, 25 postes : /27 (30 ≥ 25), bloc 64-95, diffusion 172.31.8.95.\n3) Administration, 10 postes : /28 (14 ≥ 10), bloc 96-111.\n4) WAN 1 : 172.31.8.112/30 (112-115) ; WAN 2 : 172.31.8.116/30 (116-119).\n5) Reste inutilisé : de 120 à 255, soit 136 adresses.",
+        "expected": "salle /26 — CDI /27 diffusion 172.31.8.95 — admin /28 — WAN 172.31.8.112 et .116 — reste 136 adresses",
+        "note": "Chaque sous-réseau démarre à la frontière suivante du précédent : aucun chevauchement, aucune perte d'alignement."
       }
     ],
     "tests": [
       {
-        "label": "Deux grands départements et deux petits",
-        "stdin": "cas:1",
-        "expected": "Dev (200 hotes) -> 10.0.0.0/24 [10.0.0.1 - 10.0.0.254] BC: 10.0.0.255\nSupport (100 hotes) -> 10.0.1.0/25 [10.0.1.1 - 10.0.1.126] BC: 10.0.1.127\nAdmin (50 hotes) -> 10.0.1.128/26 [10.0.1.129 - 10.0.1.190] BC: 10.0.1.191\nServeurs (30 hotes) -> 10.0.1.192/27 [10.0.1.193 - 10.0.1.222] BC: 10.0.1.223"
+        "label": "Question 1 — Préfixe de Production (100 hôtes)",
+        "stdin": "q:1",
+        "expected": "/25||25||255.255.255.128"
       },
       {
-        "label": "Besoins avec tailles identiques stables",
-        "stdin": "cas:2",
-        "expected": "VLAN10 (60 hotes) -> 172.16.0.0/26 [172.16.0.1 - 172.16.0.62] BC: 172.16.0.63\nVLAN20 (60 hotes) -> 172.16.0.64/26 [172.16.0.65 - 172.16.0.126] BC: 172.16.0.127\nVLAN30 (14 hotes) -> 172.16.0.128/28 [172.16.0.129 - 172.16.0.142] BC: 172.16.0.143"
+        "label": "Question 2 — Adresse réseau de Comptabilité",
+        "stdin": "q:2",
+        "expected": "192.168.60.128"
       },
       {
-        "label": "Trois liaisons WAN point à point",
-        "stdin": "cas:3",
-        "expected": "WAN_AB (2 hotes) -> 192.168.100.0/30 [192.168.100.1 - 192.168.100.2] BC: 192.168.100.3\nWAN_BC (2 hotes) -> 192.168.100.4/30 [192.168.100.5 - 192.168.100.6] BC: 192.168.100.7\nWAN_CA (2 hotes) -> 192.168.100.8/30 [192.168.100.9 - 192.168.100.10] BC: 192.168.100.11"
+        "label": "Question 3 — Diffusion du sous-réseau Commercial",
+        "stdin": "q:3",
+        "expected": "192.168.60.223"
       },
       {
-        "label": "Grand campus universitaire",
-        "stdin": "cas:4",
-        "expected": "Amphis (1000 hotes) -> 10.100.0.0/22 [10.100.0.1 - 10.100.3.254] BC: 10.100.3.255\nLabos (500 hotes) -> 10.100.4.0/23 [10.100.4.1 - 10.100.5.254] BC: 10.100.5.255\nWi-Fi (250 hotes) -> 10.100.6.0/24 [10.100.6.1 - 10.100.6.254] BC: 10.100.6.255"
+        "label": "Question 4 — Hôtes utiles du sous-réseau Serveurs",
+        "stdin": "q:4",
+        "expected": "14"
+      },
+      {
+        "label": "Question 5 — Adresse réseau de la deuxième liaison WAN",
+        "stdin": "q:5",
+        "expected": "192.168.60.244"
+      },
+      {
+        "label": "Question 6 — Adresses restant inutilisées",
+        "stdin": "q:6",
+        "expected": "4"
       }
     ],
-    "solution": "[Exemple]\nDirection (50 hotes) -> 192.168.1.0/26 [192.168.1.1 - 192.168.1.62] BC: 192.168.1.63\nComptabilite (25 hotes) -> 192.168.1.64/27 [192.168.1.65 - 192.168.1.94] BC: 192.168.1.95\nInformatique (12 hotes) -> 192.168.1.96/28 [192.168.1.97 - 192.168.1.110] BC: 192.168.1.111\nLienWAN (2 hotes) -> 192.168.1.112/30 [192.168.1.113 - 192.168.1.114] BC: 192.168.1.115\n\n[Cas 1 — Deux grands départements et deux petits]\nDev (200 hotes) -> 10.0.0.0/24 [10.0.0.1 - 10.0.0.254] BC: 10.0.0.255\nSupport (100 hotes) -> 10.0.1.0/25 [10.0.1.1 - 10.0.1.126] BC: 10.0.1.127\nAdmin (50 hotes) -> 10.0.1.128/26 [10.0.1.129 - 10.0.1.190] BC: 10.0.1.191\nServeurs (30 hotes) -> 10.0.1.192/27 [10.0.1.193 - 10.0.1.222] BC: 10.0.1.223\n\n[Cas 2 — Besoins avec tailles identiques stables]\nVLAN10 (60 hotes) -> 172.16.0.0/26 [172.16.0.1 - 172.16.0.62] BC: 172.16.0.63\nVLAN20 (60 hotes) -> 172.16.0.64/26 [172.16.0.65 - 172.16.0.126] BC: 172.16.0.127\nVLAN30 (14 hotes) -> 172.16.0.128/28 [172.16.0.129 - 172.16.0.142] BC: 172.16.0.143\n\n[Cas 3 — Trois liaisons WAN point à point]\nWAN_AB (2 hotes) -> 192.168.100.0/30 [192.168.100.1 - 192.168.100.2] BC: 192.168.100.3\nWAN_BC (2 hotes) -> 192.168.100.4/30 [192.168.100.5 - 192.168.100.6] BC: 192.168.100.7\nWAN_CA (2 hotes) -> 192.168.100.8/30 [192.168.100.9 - 192.168.100.10] BC: 192.168.100.11\n\n[Cas 4 — Grand campus universitaire]\nAmphis (1000 hotes) -> 10.100.0.0/22 [10.100.0.1 - 10.100.3.254] BC: 10.100.3.255\nLabos (500 hotes) -> 10.100.4.0/23 [10.100.4.1 - 10.100.5.254] BC: 10.100.5.255\nWi-Fi (250 hotes) -> 10.100.6.0/24 [10.100.6.1 - 10.100.6.254] BC: 10.100.6.255"
+    "solution": "[Question 1 — Préfixe de Production (100 hôtes)]\n/25\n\n[Question 2 — Adresse réseau de Comptabilité]\n192.168.60.128\n\n[Question 3 — Diffusion du sous-réseau Commercial]\n192.168.60.223\n\n[Question 4 — Hôtes utiles du sous-réseau Serveurs]\n14\n\n[Question 5 — Adresse réseau de la deuxième liaison WAN]\n192.168.60.244\n\n[Question 6 — Adresses restant inutilisées]\n4",
+    "takeaway": "1) Production, 100 hôtes : 2^6 − 2 = 62 est insuffisant, 2^7 − 2 = 126 convient : /25 (192.168.60.0/25, bloc 0-127).\n2) Comptabilité, 50 hôtes : /26 (62 ≥ 50), bloc 128-191 : adresse réseau 192.168.60.128.\n3) Commercial, 25 hôtes : /27 (30 ≥ 25), bloc 192-223 : diffusion 192.168.60.223.\n4) Serveurs, 12 hôtes : /28 (14 ≥ 12), bloc 224-239 : 14 hôtes utiles.\n5) Les trois /30 se suivent : 240-243, 244-247, 248-251. La deuxième liaison WAN démarre à 192.168.60.244.\n6) La dernière adresse utilisée est 251 : il reste 252-255, soit 4 adresses inutilisées.\nContrôle : 128 + 64 + 32 + 16 + 4 + 4 + 4 = 252, et le /24 s'arrête à 255 : l'alignement des blocs est exact, sans chevauchement."
   }
 ];

@@ -4,121 +4,157 @@ module.exports = [
   {
     "id": "lan3-c3-e1",
     "chapter": 3,
-    "title": "Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Simuler l'élection du routeur MASTER dans un groupe de redondance VRRP.",
-    "brief": "<p>Le protocole <strong>VRRP (Virtual Router Redundancy Protocol - RFC 5798)</strong> permet à plusieurs routeurs ou commutateurs de niveau 3 de partager une passerelle virtuelle (VIP) pour éliminer le point unique de défaillance (SPOF).<br><br>\nRègles d'élection VRRP par groupe VRID :<br>\n- Si <code>alive == 'NO'</code> : le routeur est hors service &rarr; <code>role=INIT</code>.<br>\n- Parmi les routeurs actifs (<code>alive == 'YES'</code>) :<br>\n  1. Le routeur ayant la plus forte priorité (<code>prio</code>, valeur de 1 à 254) est élu <strong>MASTER</strong>.<br>\n  2. En cas d'égalité sur la priorité, le routeur ayant la plus grande adresse IP physique (comparaison numérique IPv4) devient <strong>MASTER</strong>.<br>\n  3. Tous les autres routeurs actifs prennent le rôle <strong>BACKUP</strong>.<br><br>\nl’étude de cas comporte dans l’énoncé du cas des déclarations de routeurs VRRP :<br>\n<code>VRRP_ROUTER name=&lt;nom&gt; vrid=&lt;int&gt; prio=&lt;int&gt; ip=&lt;ip&gt; alive=&lt;YES|NO&gt;</code><br><br>\nPour chaque routeur (triés par VRID puis par nom alphabétique), afficher :<br>\n<code>VRRP_STATUS vrid={vrid} router={name} role={role} prio={prio} ip={ip}</code><br>\nEt pour chaque groupe VRID, la ligne de synthèse :<br>\n<code>VRRP_MASTER vrid={vrid} router={master_name} ip={master_ip}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c3-e1) — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Départage par adresse IP la plus élevée en cas d'égalité de priorité]\n# Données : VRRP_ROUTER name=GW-A vrid=1 prio=100 ip=10.0.0.1 alive=YES\n# Données : VRRP_ROUTER name=GW-B vrid=1 prio=100 ip=10.0.0.2 alive=YES\nA_COMPLETER\n\n[Cas 2 — Plusieurs groupes VRID indépendants]\n# Données : VRRP_ROUTER name=R1_LAN vrid=1 prio=200 ip=192.168.1.1 alive=YES\n# Données : VRRP_ROUTER name=R2_LAN vrid=1 prio=100 ip=192.168.1.2 alive=YES\n# Données : VRRP_ROUTER name=R1_DMZ vrid=2 prio=100 ip=172.16.1.1 alive=YES\n# Données : VRRP_ROUTER name=R2_DMZ vrid=2 prio=250 ip=172.16.1.2 alive=YES\nA_COMPLETER\n\n[Cas 3 — Tous les membres d'un VRID sont hors service]\n# Données : VRRP_ROUTER name=DOWN1 vrid=5 prio=100 ip=1.1.1.1 alive=NO\n# Données : VRRP_ROUTER name=DOWN2 vrid=5 prio=120 ip=1.1.1.2 alive=NO\nA_COMPLETER\n",
+    "title": "L'élection du maître VRRP du site de production de Vellum",
+    "exampleTitle": "Exemple résolu — le VRRP du siège de Papermühle",
+    "goal": "Élire le routeur maître VRRP d'un site réel en appliquant la priorité, la préemption et le départage par adresse IP.",
+    "brief": "<p><strong>Énoncé.</strong> Vellum Industries fabrique du papier technique sur un site isolé. Le VLAN 40 (production) sort vers le réseau d'entreprise via deux routeurs redondants configurés en VRRP (groupe 40). Les postes utilisent l'adresse virtuelle 10.40.0.1 comme passerelle :</p><table><tr><th>Routeur</th><th>Priorité VRRP</th><th>Adresse IP physique</th><th>Préemption</th></tr><tr><th>R-PRIM</th><td>150</td><td>10.40.0.2</td><td>activée</td></tr><tr><th>R-SEC</th><td>100</td><td>10.40.0.3</td><td>activée</td></tr></table><p>Rappel du cours : dans VRRP, le routeur de priorité la plus élevée devient maître (Master) et détient l'adresse IP virtuelle ; à priorités égales, l'adresse IP physique la plus élevée l'emporte ; avec la préemption activée, un routeur de priorité supérieure qui revient reprend le rôle de maître. La priorité appliquée par défaut, si aucune n'est configurée, est 100.</p><p>Répondez par le nom exact du routeur (questions 1, 3 et 5), le nombre seul (question 2), ou « oui » / « non » (question 4).</p><ol><li>Quel routeur est élu maître du groupe 40 au démarrage ?</li><li>Quelle priorité VRRP est appliquée quand aucune priorité n'est configurée ?</li><li>R-PRIM tombe en panne : quel routeur devient maître ?</li><li>R-PRIM revient à la normale : redevient-il maître ?</li><li>Le technicien aligne la priorité de R-SEC sur 150 : quel routeur devient maître après convergence ?</li></ol>",
+    "starter": "# Exercice — L'élection du maître VRRP du site de production de Vellum\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 3 et 5 : le nom du routeur. Question 2 : le nombre seul.\n# Question 4 : oui ou non.\n\n[Question 1 — Maître VRRP au démarrage]\nA_COMPLETER\n\n[Question 2 — Priorité par défaut de VRRP]\nA_COMPLETER\n\n[Question 3 — Maître pendant la panne de R-PRIM]\nA_COMPLETER\n\n[Question 4 — R-PRIM redevient-il maître à son retour ?]\nA_COMPLETER\n\n[Question 5 — Maître après alignement des priorités à 150]\nA_COMPLETER\n",
     "hints": [
-      "Regrouper les routeurs par VRID dans un dictionnaire.",
-      "Comparer les routeurs actifs avec la clé : (prio, la notation CIDR du réseau).",
-      "Le maximum de cette clé est le MASTER."
+      "L'élection VRRP cherche la priorité la plus élevée, contrairement à STP qui cherche la plus petite valeur.",
+      "La préemption permet à un routeur revenu avec une meilleure priorité de reprendre la main sans attendre l'expiration du maître actuel.",
+      "1. Comparez 150 et 100. 2. La valeur par défaut est fixée par la norme. 3. Le routeur survivant devient maître. 4. La préemption est activée. 5. À priorités égales, l'adresse IP physique la plus élevée l'emporte."
     ],
     "examples": [
       {
-        "stdin": "VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES\nVRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES\nVRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO",
-        "expected": "VRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2\nVRRP_STATUS vrid=10 router=R2 role=BACKUP prio=100 ip=192.168.10.3\nVRRP_STATUS vrid=10 router=R3 role=INIT prio=200 ip=192.168.10.4\nVRRP_MASTER vrid=10 router=R1 ip=192.168.10.2",
-        "note": "R3 est tombé (alive=NO). R1 a la plus forte priorité parmi les vivants (150 vs 100) et devient MASTER."
+        "stdin": "Le siège de Papermühle exploite deux routeurs VRRP sur le VLAN 25.\nR-P : priorité 120, IP 10.25.0.2 ; R-S : priorité 120, IP 10.25.0.3.\nLes postes utilisent la passerelle virtuelle 10.25.0.1.\n\n1) Priorités égales (120) : le départage se fait sur l'adresse IP physique.\n2) 10.25.0.3 > 10.25.0.2 : R-S devient maître.\n3) La priorité par défaut, sans configuration, est 100.\n4) Si R-P monte à 200 avec préemption, il redevient maître.",
+        "expected": "maître : R-S (IP la plus élevée) — priorité par défaut : 100 — après passage à 200 : R-P maître",
+        "note": "VRRP départage les égalités par l'adresse IP la plus élevée, contrairement à STP qui utilise la plus petite valeur."
       }
     ],
     "tests": [
       {
-        "label": "Départage par adresse IP la plus élevée en cas d'égalité de priorité",
-        "stdin": "cas:1",
-        "expected": "VRRP_STATUS vrid=1 router=GW-A role=BACKUP prio=100 ip=10.0.0.1\nVRRP_STATUS vrid=1 router=GW-B role=MASTER prio=100 ip=10.0.0.2\nVRRP_MASTER vrid=1 router=GW-B ip=10.0.0.2"
+        "label": "Question 1 — Maître VRRP au démarrage",
+        "stdin": "q:1",
+        "expected": "R-PRIM||le routeur R-PRIM||RPRIM"
       },
       {
-        "label": "Plusieurs groupes VRID indépendants",
-        "stdin": "cas:2",
-        "expected": "VRRP_STATUS vrid=1 router=R1_LAN role=MASTER prio=200 ip=192.168.1.1\nVRRP_STATUS vrid=1 router=R2_LAN role=BACKUP prio=100 ip=192.168.1.2\nVRRP_MASTER vrid=1 router=R1_LAN ip=192.168.1.1\nVRRP_STATUS vrid=2 router=R1_DMZ role=BACKUP prio=100 ip=172.16.1.1\nVRRP_STATUS vrid=2 router=R2_DMZ role=MASTER prio=250 ip=172.16.1.2\nVRRP_MASTER vrid=2 router=R2_DMZ ip=172.16.1.2"
+        "label": "Question 2 — Priorité par défaut de VRRP",
+        "stdin": "q:2",
+        "expected": "100"
       },
       {
-        "label": "Tous les membres d'un VRID sont hors service",
-        "stdin": "cas:3",
-        "expected": "VRRP_STATUS vrid=5 router=DOWN1 role=INIT prio=100 ip=1.1.1.1\nVRRP_STATUS vrid=5 router=DOWN2 role=INIT prio=120 ip=1.1.1.2\nVRRP_MASTER vrid=5 router=NONE ip=NONE"
+        "label": "Question 3 — Maître pendant la panne de R-PRIM",
+        "stdin": "q:3",
+        "expected": "R-SEC||le routeur R-SEC||RSEC"
+      },
+      {
+        "label": "Question 4 — R-PRIM redevient-il maître à son retour ?",
+        "stdin": "q:4",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 5 — Maître après alignement des priorités à 150",
+        "stdin": "q:5",
+        "expected": "R-SEC||le routeur R-SEC||RSEC"
       }
     ],
-    "solution": "[Exemple]\nVRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2\nVRRP_STATUS vrid=10 router=R2 role=BACKUP prio=100 ip=192.168.10.3\nVRRP_STATUS vrid=10 router=R3 role=INIT prio=200 ip=192.168.10.4\nVRRP_MASTER vrid=10 router=R1 ip=192.168.10.2\n\n[Cas 1 — Départage par adresse IP la plus élevée en cas d'égalité de priorité]\nVRRP_STATUS vrid=1 router=GW-A role=BACKUP prio=100 ip=10.0.0.1\nVRRP_STATUS vrid=1 router=GW-B role=MASTER prio=100 ip=10.0.0.2\nVRRP_MASTER vrid=1 router=GW-B ip=10.0.0.2\n\n[Cas 2 — Plusieurs groupes VRID indépendants]\nVRRP_STATUS vrid=1 router=R1_LAN role=MASTER prio=200 ip=192.168.1.1\nVRRP_STATUS vrid=1 router=R2_LAN role=BACKUP prio=100 ip=192.168.1.2\nVRRP_MASTER vrid=1 router=R1_LAN ip=192.168.1.1\nVRRP_STATUS vrid=2 router=R1_DMZ role=BACKUP prio=100 ip=172.16.1.1\nVRRP_STATUS vrid=2 router=R2_DMZ role=MASTER prio=250 ip=172.16.1.2\nVRRP_MASTER vrid=2 router=R2_DMZ ip=172.16.1.2\n\n[Cas 3 — Tous les membres d'un VRID sont hors service]\nVRRP_STATUS vrid=5 router=DOWN1 role=INIT prio=100 ip=1.1.1.1\nVRRP_STATUS vrid=5 router=DOWN2 role=INIT prio=120 ip=1.1.1.2\nVRRP_MASTER vrid=5 router=NONE ip=NONE"
+    "solution": "[Question 1 — Maître VRRP au démarrage]\nR-PRIM\n\n[Question 2 — Priorité par défaut de VRRP]\n100\n\n[Question 3 — Maître pendant la panne de R-PRIM]\nR-SEC\n\n[Question 4 — R-PRIM redevient-il maître à son retour ?]\noui\n\n[Question 5 — Maître après alignement des priorités à 150]\nR-SEC",
+    "takeaway": "1) R-PRIM affiche la priorité la plus élevée (150 contre 100) : il est élu maître du groupe 40 et détient l'adresse virtuelle 10.40.0.1.\n2) La priorité VRRP appliquée par défaut est 100.\n3) Pendant la panne de R-PRIM, R-SEC est le seul candidat : il devient maître.\n4) Oui : la préemption est activée et R-PRIM revient avec une priorité supérieure (150), il reprend le rôle de maître.\n5) Avec deux priorités égales à 150, le départage se fait sur l'adresse IP physique la plus élevée : 10.40.0.3 > 10.40.0.2, donc R-SEC devient maître.\nContrôle : dans les deux situations (départ et alignement à 150), un seul routeur détient l'adresse virtuelle 10.40.0.1."
   },
   {
     "id": "lan3-c3-e2",
     "chapter": 3,
-    "title": "Détecteur de basculement FHRP par suivi d'interface (Object Tracking)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Calculer la priorité effective d'un routeur HSRP/VRRP en cas de panne de lien montant et déterminer le basculement.",
-    "brief": "<p>Le mécanisme d'<strong>Object Tracking</strong> permet à un routeur FHRP actif de surveiller l'état de son interface WAN vers le FAI. Si cette liaison tombe, sa priorité est décrémentée (<code>effective_prio = base_prio - decrement</code>). Si sa priorité devient inférieure à celle du routeur Standby et que la préemption (preempt) est activée, le Standby prend le relais immédiatement.<br><br>\nAnalysez les paramètres du problème pour chaque cas. Calcul de la priorité effective pour chaque routeur :<br>\n   - Si <code>if_state == 'DOWN'</code> : <code>eff_prio = base_prio - decrement</code>.<br>\n   - Si <code>if_state == 'UP'</code> : <code>eff_prio = base_prio</code>.<br>\n2. Évaluation de la préemption :<br>\n   - Le routeur initialement <code>STANDBY</code> devient <code>ACTIVE</code> (Failover) SI et SEULEMENT SI :<br>\n     <code>standby.eff_prio &gt; active.eff_prio</code> ET <code>standby.preempt == 'YES'</code>.<br>\n   - Dans ce cas, l'ancien actif devient <code>STANDBY</code>.<br>\n   - Sinon, les rôles initiaux sont conservés.<br><br>\nPour chaque routeur (triés par nom alphabétique), afficher :<br>\n<code>TRACK_REPORT router={name} track_if={track_if} if_state={if_state} eff_prio={eff_prio} final_role={final_role} failover={YES|NO}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c3-e2) — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Préemption désactivée sur le standby empêchant le basculement]\n# Données : TRACKED_ROUTER name=R_ACT init_role=ACTIVE base_prio=120 preempt=YES track_if=WAN1 decrement=50 if_state=DOWN\n# Données : TRACKED_ROUTER name=R_STBY init_role=STANDBY base_prio=100 preempt=NO track_if=WAN2 decrement=10 if_state=UP\nA_COMPLETER\n\n[Cas 2 — Décrément insuffisant pour passer sous le standby]\n# Données : TRACKED_ROUTER name=CORE1 init_role=ACTIVE base_prio=150 preempt=YES track_if=Serial0 decrement=10 if_state=DOWN\n# Données : TRACKED_ROUTER name=CORE2 init_role=STANDBY base_prio=100 preempt=YES track_if=Serial0 decrement=10 if_state=UP\nA_COMPLETER\n\n[Cas 3 — Liaison nominale UP conservant les priorités de base]\n# Données : TRACKED_ROUTER name=R_A init_role=ACTIVE base_prio=110 preempt=YES track_if=Eth1 decrement=30 if_state=UP\n# Données : TRACKED_ROUTER name=R_B init_role=STANDBY base_prio=100 preempt=YES track_if=Eth1 decrement=30 if_state=UP\nA_COMPLETER\n",
+    "title": "La bascule HSRP du siège de Transversale",
+    "exampleTitle": "Exemple résolu — la bascule HSRP de l'agence de Port-Rolland",
+    "goal": "Calculer l'effet du suivi d'interface (object tracking) sur la priorité HSRP et prévoir les bascules du routeur actif.",
+    "brief": "<p><strong>Énoncé.</strong> Transversale, courtier en assurance de 600 salariés, concentre son trafic Internet au siège. Deux routeurs HSRP (groupe 1, VLAN 100) servent de passerelle : R-A (priorité 120) et R-B (priorité 100), tous deux avec la préemption activée. L'adresse virtuelle est 10.100.0.1. Pour réagir aux pannes de liens montants, R-A surveille d'abord son interface WAN Gi0/0 avec un décrément de 40, puis on lui ajoute le suivi du lien DMZ Gi0/1 avec un décrément de 15.</p><p>Rappel du cours : en HSRP, le routeur de priorité la plus élevée devient actif ; chaque interface suivie qui tombe retranche son décrément de la priorité du routeur ; avec la préemption, la bascule se produit dès que la priorité effective d'un routeur repasse au-dessus de celle de l'autre.</p><p>Répondez par le nombre seul (questions 1, 2 et 5) ou le nom du routeur (questions 3 et 4).</p><ol><li>Quelle est la priorité effective de R-A en fonctionnement normal ?</li><li>Le lien WAN Gi0/0 tombe : quelle est la priorité effective de R-A ?</li><li>Dans cette situation, quel routeur détient le rôle actif ?</li><li>Le lien WAN est rétabli : quel routeur redevient actif ?</li><li>WAN et DMZ tombent simultanément : quelle est la priorité effective de R-A ?</li></ol>",
+    "starter": "# Exercice — La bascule HSRP du siège de Transversale\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 5 : le nombre seul. Questions 3 et 4 : le nom du routeur.\n\n[Question 1 — Priorité effective de R-A en fonctionnement normal]\nA_COMPLETER\n\n[Question 2 — Priorité de R-A après la panne du WAN]\nA_COMPLETER\n\n[Question 3 — Routeur actif pendant la panne du WAN]\nA_COMPLETER\n\n[Question 4 — Routeur actif après le rétablissement du WAN]\nA_COMPLETER\n\n[Question 5 — Priorité de R-A si WAN et DMZ tombent]\nA_COMPLETER\n",
     "hints": [
-      "Calculer eff_prio pour les deux routeurs.",
-      "Vérifier si le Standby surpasse l'Actif et possède preempt == \"YES\"."
+      "En fonctionnement normal, aucune interface suivie n'est tombée : la priorité effective est la priorité configurée.",
+      "Chaque interface suivie tombée retranche son décrément : 120 − 40 pour le WAN seul, puis encore − 15 pour la DMZ.",
+      "1. Priorité configurée. 2. 120 − 40. 3. Comparez le résultat à la priorité de R-B (100). 4. La préemption rend la main au routeur de priorité supérieure. 5. Les décréments s'additionnent."
     ],
     "examples": [
       {
-        "stdin": "TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN\nTRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP",
-        "expected": "TRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES\nTRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE failover=YES",
-        "note": "La panne WAN fait chuter la priorité de R1 à 90 (110 - 20). R2 (priorité 100 avec preempt=YES) prend le rôle ACTIVE."
+        "stdin": "L'agence de Port-Rolland exploite deux routeurs HSRP.\nR-1 : priorité 130, préemption ; R-2 : priorité 110.\nR-1 surveille son lien WAN avec un décrément de 50, puis un lien SAV avec un décrément de 20.\n\n1) Fonctionnement normal : priorité effective de R-1 = 130.\n2) WAN tombé : 130 − 50 = 80, sous 110 → R-2 devient actif.\n3) WAN rétabli : R-1 revient à 130 et redevient actif (préemption).\n4) WAN + SAV tombés : 130 − 50 − 20 = 60.",
+        "expected": "normal : 130 — WAN tombé : 80, R-2 actif — retour du WAN : R-1 actif — double panne : 60",
+        "note": "Les décréments s'additionnent : chaque interface suivie tombée retranche sa propre valeur de la priorité de base."
       }
     ],
     "tests": [
       {
-        "label": "Préemption désactivée sur le standby empêchant le basculement",
-        "stdin": "cas:1",
-        "expected": "TRACK_REPORT router=R_ACT track_if=WAN1 if_state=DOWN eff_prio=70 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_STBY track_if=WAN2 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+        "label": "Question 1 — Priorité effective de R-A en fonctionnement normal",
+        "stdin": "q:1",
+        "expected": "120"
       },
       {
-        "label": "Décrément insuffisant pour passer sous le standby",
-        "stdin": "cas:2",
-        "expected": "TRACK_REPORT router=CORE1 track_if=Serial0 if_state=DOWN eff_prio=140 final_role=ACTIVE failover=NO\nTRACK_REPORT router=CORE2 track_if=Serial0 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+        "label": "Question 2 — Priorité de R-A après la panne du WAN",
+        "stdin": "q:2",
+        "expected": "80"
       },
       {
-        "label": "Liaison nominale UP conservant les priorités de base",
-        "stdin": "cas:3",
-        "expected": "TRACK_REPORT router=R_A track_if=Eth1 if_state=UP eff_prio=110 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_B track_if=Eth1 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+        "label": "Question 3 — Routeur actif pendant la panne du WAN",
+        "stdin": "q:3",
+        "expected": "R-B||le routeur R-B||RB"
+      },
+      {
+        "label": "Question 4 — Routeur actif après le rétablissement du WAN",
+        "stdin": "q:4",
+        "expected": "R-A||le routeur R-A||RA"
+      },
+      {
+        "label": "Question 5 — Priorité de R-A si WAN et DMZ tombent",
+        "stdin": "q:5",
+        "expected": "65"
       }
     ],
-    "solution": "[Exemple]\nTRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES\nTRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE failover=YES\n\n[Cas 1 — Préemption désactivée sur le standby empêchant le basculement]\nTRACK_REPORT router=R_ACT track_if=WAN1 if_state=DOWN eff_prio=70 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_STBY track_if=WAN2 if_state=UP eff_prio=100 final_role=STANDBY failover=NO\n\n[Cas 2 — Décrément insuffisant pour passer sous le standby]\nTRACK_REPORT router=CORE1 track_if=Serial0 if_state=DOWN eff_prio=140 final_role=ACTIVE failover=NO\nTRACK_REPORT router=CORE2 track_if=Serial0 if_state=UP eff_prio=100 final_role=STANDBY failover=NO\n\n[Cas 3 — Liaison nominale UP conservant les priorités de base]\nTRACK_REPORT router=R_A track_if=Eth1 if_state=UP eff_prio=110 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_B track_if=Eth1 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+    "solution": "[Question 1 — Priorité effective de R-A en fonctionnement normal]\n120\n\n[Question 2 — Priorité de R-A après la panne du WAN]\n80\n\n[Question 3 — Routeur actif pendant la panne du WAN]\nR-B\n\n[Question 4 — Routeur actif après le rétablissement du WAN]\nR-A\n\n[Question 5 — Priorité de R-A si WAN et DMZ tombent]\n65",
+    "takeaway": "1) Aucune interface suivie n'est tombée : la priorité effective de R-A vaut 120.\n2) La chute du WAN retranche 40 : 120 − 40 = 80.\n3) R-A (80) passe sous la priorité de R-B (100) : R-B devient le routeur actif.\n4) Le WAN rétabli, R-A revient à 120 et, la préemption étant activée, il redevient actif.\n5) WAN et DMZ tombés : 120 − 40 − 15 = 65.\nContrôle : 80 < 100 explique la bascule ; 120 > 100 explique le retour ; 65 < 100 maintiendrait R-B actif."
   },
   {
     "id": "lan3-c3-e3",
     "chapter": 3,
-    "title": "Répartiteur de charge GLBP (Gateway Load Balancing Protocol)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler l'assignation dynamique des adresses MAC virtuelles (AVF) par l'AVG selon les algorithmes GLBP.",
-    "brief": "<p>Contrairement à HSRP/VRRP où un seul équipement route le trafic pendant que les autres dorment, le protocole <strong>GLBP (Gateway Load Balancing Protocol)</strong> permet à tous les routeurs membres de router le trafic simultanément.<br>\nL'<strong>AVG (Active Virtual Gateway)</strong> répond aux requêtes ARP des clients en distribuant différentes adresses MAC virtuelles associées aux <strong>AVF (Active Virtual Forwarders)</strong>.<br><br>\nAnalysez les paramètres du problème pour chaque cas. <strong>round-robin :</strong> Les AVFs sont assignés cycliquement selon leur <code>id</code> croissant (requête 0 &rarr; 1er AVF, requête 1 &rarr; 2e AVF, etc.).<br>\n2. <strong>host-dependent :</strong> L'AVF est sélectionné selon le hachage de l'adresse MAC du client (dernier octet décimal de client_mac modulo le nombre d'AVFs). Un client reçoit toujours la même MAC.<br>\n3. <strong>weighted :</strong> Chaque AVF est répété proportionnellement à son <code>weight</code> (ex: AVF1 weight=2, AVF2 weight=1 donne la séquence <code>[AVF1, AVF1, AVF2]</code> déroulée cycliquement au fil des requêtes).<br><br>\nPour chaque requête ARP client, afficher :<br>\n<code>GLBP_REPLY client={client_id} assigned_avf={avf_name} vmac={avf_vmac} mode={mode}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c3-e3) — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mode host-dependent liant un client à une même MAC virtuelle]\n# Données : GLBP_CONFIG group=2 mode=host-dependent\n# Données : AVF id=1 name=GW1 vmac=00:07:b4:00:02:01 weight=10\n# Données : AVF id=2 name=GW2 vmac=00:07:b4:00:02:02 weight=10\n# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00\n# Données : ARP_REQ client_id=HOST_B client_mac=00:00:00:00:00:01\n# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00\nA_COMPLETER\n\n[Cas 2 — Mode weighted avec poids inégaux (2 pour 1)]\n# Données : GLBP_CONFIG group=3 mode=weighted\n# Données : AVF id=1 name=CORE_STRONG vmac=00:07:b4:00:03:01 weight=2\n# Données : AVF id=2 name=CORE_WEAK vmac=00:07:b4:00:03:02 weight=1\n# Données : ARP_REQ client_id=C1 client_mac=00:aa:bb:cc:dd:01\n# Données : ARP_REQ client_id=C2 client_mac=00:aa:bb:cc:dd:02\n# Données : ARP_REQ client_id=C3 client_mac=00:aa:bb:cc:dd:03\n# Données : ARP_REQ client_id=C4 client_mac=00:aa:bb:cc:dd:04\nA_COMPLETER\n\n[Cas 3 — Groupe à 3 forwarders en round-robin]\n# Données : GLBP_CONFIG group=4 mode=round-robin\n# Données : AVF id=1 name=F1 vmac=00:07:b4:00:04:01 weight=1\n# Données : AVF id=2 name=F2 vmac=00:07:b4:00:04:02 weight=1\n# Données : AVF id=3 name=F3 vmac=00:07:b4:00:04:03 weight=1\n# Données : ARP_REQ client_id=X client_mac=00:11:22:33:44:55\n# Données : ARP_REQ client_id=Y client_mac=00:11:22:33:44:56\n# Données : ARP_REQ client_id=Z client_mac=00:11:22:33:44:57\nA_COMPLETER\n",
+    "title": "L'équilibrage GLBP du campus d'Aurelia",
+    "exampleTitle": "Exemple résolu — le GLBP du centre de recherche de Néovia",
+    "goal": "Répartir la charge entre passerelles virtuelles GLBP : élection de l'AVG, nombre de MAC virtuelles, parts de trafic selon les poids et reprise après panne.",
+    "brief": "<p><strong>Énoncé.</strong> Aurelia, école d'ingénieurs de 3 000 étudiants, dessert ses amphithéâtres via trois routeurs GLBP (groupe 10). Chaque hôte conserve une passerelle virtuelle unique (10.10.0.1), mais l'AVG distribue des adresses MAC virtuelles distinctes pour équilibrer les flux. La configuration est la suivante :</p><table><tr><th>Routeur</th><th>Priorité GLBP</th><th>Poids (weight)</th></tr><tr><th>R1</th><td>200</td><td>100</td></tr><tr><th>R2</th><td>150</td><td>100</td></tr><tr><th>R3</th><td>150</td><td>50</td></tr></table><p>Rappel du cours : GLBP élit une passerelle virtuelle active (AVG) parmi les priorités les plus élevées ; tous les routeurs du groupe servent de passerelle virtuelle (AVF) et reçoivent chacun une adresse MAC virtuelle. En équilibrage pondéré (weighted), la part de trafic d'un AVF est proportionnelle à son poids rapporté à la somme des poids des AVF actifs.</p><p>Répondez par le nom du routeur (questions 1) ou le nombre seul (questions 2 à 5, parts en pourcentage).</p><ol><li>Quel routeur est élu AVG du groupe 10 ?</li><li>Combien d'adresses MAC virtuelles le groupe expose-t-il aux hôtes ?</li><li>Quelle part du trafic (en %) R1 reçoit-il ?</li><li>Quelle part du trafic (en %) R3 reçoit-il ?</li><li>R3 tombe en panne : quelle part du trafic (en %) R1 reçoit-il désormais ?</li></ol>",
+    "starter": "# Exercice — L'équilibrage GLBP du campus d'Aurelia\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : le nom du routeur. Questions 2 à 5 : le nombre seul (parts en %).\n\n[Question 1 — AVG du groupe 10]\nA_COMPLETER\n\n[Question 2 — Nombre d'adresses MAC virtuelles]\nA_COMPLETER\n\n[Question 3 — Part du trafic de R1 (en %)]\nA_COMPLETER\n\n[Question 4 — Part du trafic de R3 (en %)]\nA_COMPLETER\n\n[Question 5 — Part du trafic de R1 après la panne de R3 (en %)]\nA_COMPLETER\n",
     "hints": [
-      "Trier les AVFs par ID croissant.",
-      "Pour round-robin : compteur global modulo nombre d'AVFs.",
-      "Pour host-dependent : dernier octet de client_mac modulo nombre d'AVFs.",
-      "Pour weighted : construire la liste pondérée et la dérouler cycliquement."
+      "L'AVG est le routeur de priorité la plus élevée du groupe ; il attribue ensuite les adresses MAC virtuelles aux AVF.",
+      "Chaque AVF actif reçoit une adresse MAC virtuelle : comptez les routeurs du groupe.",
+      "1. Comparez 200, 150 et 150. 2. Un AVF = une MAC virtuelle. 3. Part = poids / somme des poids, soit 100 / 250. 4. 50 / 250. 5. Après la panne, la somme des poids ne compte plus que R1 et R2."
     ],
     "examples": [
       {
-        "stdin": "GLBP_CONFIG group=1 mode=round-robin\nAVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100\nAVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100\nARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01\nARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02\nARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03",
-        "expected": "GLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin\nGLBP_REPLY client=PC2 assigned_avf=AVF2 vmac=00:07:b4:00:01:02 mode=round-robin\nGLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin",
-        "note": "Distribution cyclique en Round-Robin : AVF1, AVF2, puis AVF1."
+        "stdin": "Le centre de recherche de Néovia exploite trois routeurs GLBP (groupe 5).\nR-A : priorité 250, poids 60 ; R-B : priorité 200, poids 60 ; R-C : priorité 150, poids 30.\n\n1) L'AVG est le routeur de priorité la plus élevée : R-A.\n2) Chaque AVF reçoit une MAC virtuelle : 3 adresses.\n3) Somme des poids : 150 ; part de R-A : 60/150 = 40 % (R-B : 40 %, R-C : 20 %).\n4) R-C tombe : somme des poids 120 ; part de R-A : 60/120 = 50 %.",
+        "expected": "AVG : R-A — 3 MAC virtuelles — part de R-A : 40 % — après panne de R-C : 50 %",
+        "note": "Avec trois AVF actifs, chaque hôte reçoit l'une des trois MAC virtuelles : la charge suit les poids, pas le nombre d'hôtes."
       }
     ],
     "tests": [
       {
-        "label": "Mode host-dependent liant un client à une même MAC virtuelle",
-        "stdin": "cas:1",
-        "expected": "GLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent\nGLBP_REPLY client=HOST_B assigned_avf=GW2 vmac=00:07:b4:00:02:02 mode=host-dependent\nGLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent"
+        "label": "Question 1 — AVG du groupe 10",
+        "stdin": "q:1",
+        "expected": "R1||le routeur R1||R 1"
       },
       {
-        "label": "Mode weighted avec poids inégaux (2 pour 1)",
-        "stdin": "cas:2",
-        "expected": "GLBP_REPLY client=C1 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C2 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C3 assigned_avf=CORE_WEAK vmac=00:07:b4:00:03:02 mode=weighted\nGLBP_REPLY client=C4 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted"
+        "label": "Question 2 — Nombre d'adresses MAC virtuelles",
+        "stdin": "q:2",
+        "expected": "3"
       },
       {
-        "label": "Groupe à 3 forwarders en round-robin",
-        "stdin": "cas:3",
-        "expected": "GLBP_REPLY client=X assigned_avf=F1 vmac=00:07:b4:00:04:01 mode=round-robin\nGLBP_REPLY client=Y assigned_avf=F2 vmac=00:07:b4:00:04:02 mode=round-robin\nGLBP_REPLY client=Z assigned_avf=F3 vmac=00:07:b4:00:04:03 mode=round-robin"
+        "label": "Question 3 — Part du trafic de R1 (en %)",
+        "stdin": "q:3",
+        "expected": "40||40 %||40%"
+      },
+      {
+        "label": "Question 4 — Part du trafic de R3 (en %)",
+        "stdin": "q:4",
+        "expected": "20||20 %||20%"
+      },
+      {
+        "label": "Question 5 — Part du trafic de R1 après la panne de R3 (en %)",
+        "stdin": "q:5",
+        "expected": "50||50 %||50%"
       }
     ],
-    "solution": "[Exemple]\nGLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin\nGLBP_REPLY client=PC2 assigned_avf=AVF2 vmac=00:07:b4:00:01:02 mode=round-robin\nGLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin\n\n[Cas 1 — Mode host-dependent liant un client à une même MAC virtuelle]\nGLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent\nGLBP_REPLY client=HOST_B assigned_avf=GW2 vmac=00:07:b4:00:02:02 mode=host-dependent\nGLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent\n\n[Cas 2 — Mode weighted avec poids inégaux (2 pour 1)]\nGLBP_REPLY client=C1 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C2 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C3 assigned_avf=CORE_WEAK vmac=00:07:b4:00:03:02 mode=weighted\nGLBP_REPLY client=C4 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\n\n[Cas 3 — Groupe à 3 forwarders en round-robin]\nGLBP_REPLY client=X assigned_avf=F1 vmac=00:07:b4:00:04:01 mode=round-robin\nGLBP_REPLY client=Y assigned_avf=F2 vmac=00:07:b4:00:04:02 mode=round-robin\nGLBP_REPLY client=Z assigned_avf=F3 vmac=00:07:b4:00:04:03 mode=round-robin"
+    "solution": "[Question 1 — AVG du groupe 10]\nR1\n\n[Question 2 — Nombre d'adresses MAC virtuelles]\n3\n\n[Question 3 — Part du trafic de R1 (en %)]\n40\n\n[Question 4 — Part du trafic de R3 (en %)]\n20\n\n[Question 5 — Part du trafic de R1 après la panne de R3 (en %)]\n50",
+    "takeaway": "1) La priorité la plus élevée est 200 : R1 est élu AVG du groupe 10.\n2) Les trois routeurs sont des AVF : le groupe expose 3 adresses MAC virtuelles aux hôtes.\n3) Somme des poids : 100 + 100 + 50 = 250 ; part de R1 : 100/250 = 40 %.\n4) Part de R3 : 50/250 = 20 %.\n5) R3 tombé, la somme des poids actifs vaut 100 + 100 = 200 ; part de R1 : 100/200 = 50 %.\nContrôle : 40 % + 40 % + 20 % = 100 % avant la panne ; 50 % + 50 % = 100 % après la panne de R3."
   }
 ];

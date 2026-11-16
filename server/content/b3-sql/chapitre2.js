@@ -139,55 +139,55 @@ module.exports = {
       stem: 'Quelle est la taille physique par défaut d’une page de stockage dans PostgreSQL ?',
       opts: [
         '512 octets',
-        '4 096 octets (4 Ko)',
         '8 192 octets (8 Ko)',
+        '4 096 octets (4 Ko)',
         '65 536 octets (64 Ko)'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'PostgreSQL manipule toutes ses tables et index sous la forme de blocs disques standards de 8 192 octets (8 Ko).'
     },
     {
       stem: 'Quel type d’index est universellement recommandé pour indexer des champs semi-structurés de type JSONB dans PostgreSQL ?',
       opts: [
-        'Index B-Tree classique',
-        'Index HASH',
-        'Index GIN (Generalized Inverted Index)',
-        'Index BRIN'
+        "Index GIN (Generalized Inverted Index)",
+        "Un index B-Tree classique sur la colonne",
+        "Un index HASH sur les clés du document",
+        "Un index BRIN sur les blocs physiques"
       ],
-      correct: 2,
+      correct: 0,
       exp: 'L’index GIN décompose les clés et valeurs du document JSONB en index inversé, permettant des recherches instantanées avec l’opérateur @>.'
     },
     {
       stem: 'Quel est l’intérêt majeur de la clause INCLUDE lors de la création d’un index B-Tree ?',
       opts: [
-        'Compresser l’index avec l’algorithme gzip',
-        'Ajouter des colonnes de charge utile dans les pages feuilles pour permettre l’Index Only Scan sans modifier la structure de tri',
-        'Empêcher les suppressions de lignes dans la table',
-        'Traduire les colonnes en minuscules'
+        "Compresser l’intégralité de l’index avec l’algorithme gzip afin d’économiser de l’espace disque",
+        "Empêcher définitivement toute suppression ultérieure de lignes dans la table sous-jacente à l’index",
+        "Ajouter des colonnes de charge utile dans les pages feuilles pour permettre l’Index Only Scan sans modifier la structure de tri",
+        "Traduire automatiquement le contenu de toutes les colonnes indexées en lettres minuscules"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La clause INCLUDE ajoute des données aux feuilles de l’index et peut permettre un Index Only Scan. PostgreSQL peut néanmoins consulter la table pour vérifier la visibilité ou choisir un autre plan.'
     },
     {
       stem: 'Que se produit-il lorsqu’une page feuille B-Tree atteint 100 % de sa capacité et reçoit une nouvelle clé ?',
       opts: [
-        'Le serveur s’arrête immédiatement avec une erreur fatale',
-        'Le moteur effectue une division de page (Page Split) en allouant une nouvelle page et en transférant 50 % des clés',
-        'La clé la plus ancienne est automatiquement écrasée',
-        'La clé est stockée dans un fichier texte temporaire'
+        "Le serveur de base de données s’arrête immédiatement en émettant une erreur fatale irrécupérable",
+        "La clé la plus anciennement insérée dans la page est automatiquement écrasée et définitivement perdue",
+        "La nouvelle clé est dérivée vers un fichier texte temporaire stocké à côté des données",
+        "Le moteur effectue une division de page (Page Split) en allouant une nouvelle page et en transférant 50 % des clés"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le Page Split sépare la page en deux pour insérer la nouvelle valeur, un mécanisme coûteux en I/O atténué par le paramètre fillfactor.'
     },
     {
       stem: 'Pour une requête filtrant sur « WHERE client_id = 42 AND date_cmd >= \'2025-01-01\' », quel ordre de colonnes dans l’index composite est optimal ?',
       opts: [
         '(date_cmd, client_id)',
-        '(client_id, date_cmd)',
         'L’ordre n’a aucune importance dans un B-Tree',
+        '(client_id, date_cmd)',
         'Seul client_id doit être indexé'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Règle d’or : les colonnes à égalité stricte (client_id) doivent toujours être placées avant les colonnes à intervalle (date_cmd).'
     },
     {
@@ -195,32 +195,32 @@ module.exports = {
       opts: [
         'REINDEX TABLE commandes;',
         'VACUUM FULL commandes;',
-        'REINDEX TABLE CONCURRENTLY commandes;',
-        'ALTER INDEX commandes RESTART;'
+        'ALTER INDEX commandes RESTART;',
+        'REINDEX TABLE CONCURRENTLY commandes;'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'CONCURRENTLY autorise les écritures concurrentes sur la table, mais nécessite plusieurs passes et peut attendre d’autres transactions.'
     },
     {
       stem: 'Qu’est-ce qu’un index partiel (Partial Index) dans PostgreSQL ?',
       opts: [
-        'Un index qui ne fonctionne que le matin',
-        'Un index restreint à un sous-ensemble de lignes répondant à une clause WHERE définie lors de sa création',
-        'Un index contenant uniquement la moitié des colonnes',
-        'Un index stocké sur une clé USB'
+        "Un index restreint à un sous-ensemble de lignes répondant à une clause WHERE définie lors de sa création",
+        "Un index qui n’est actif et utilisable que pendant les plages horaires matinales du serveur",
+        "Un index ne contenant que la moitié des colonnes de la table, choisies aléatoirement",
+        "Un index stocké sur une clé USB externe branchée au serveur de base de données"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un index partiel (ex: CREATE INDEX ... WHERE actif = true) ne référence que les lignes pertinentes, économisant de la mémoire RAM et des I/O.'
     },
     {
       stem: 'Quelle est la complexité théorique de recherche d’une clé dans un index B-Tree contenant N enregistrements avec un facteur de branchement B ?',
       opts: [
         'O(N)',
-        'O(1)',
         'O(log_B N)',
+        'O(1)',
         'O(N^2)'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'La traversée de l’arbre B-Tree s’effectue en temps logarithmique O(log_B N), ce qui représente un nombre d’I/O fixe minime.'
     }
   ],

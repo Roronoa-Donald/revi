@@ -4,6 +4,8 @@
  */
 'use strict';
 
+const { box } = require('../../../scripts/course-kit');
+
 module.exports = {
   n: 1,
   title: 'Fondements d\'AWS, Infrastructure Globale & Modèle de Responsabilité Partagée',
@@ -25,6 +27,13 @@ module.exports = {
   ],
 
   sections: [
+    {
+      title: 'Rappel du Socle Cloud Computing B3 (/b3-cloud-computing/) &amp; Périmètre Spécifique AWS',
+      html: [
+        box('tech', 'Ancrage sur le cours fondamental Cloud Computing B3 (/b3-cloud-computing/)', 'compass',
+          '    <p>Les modèles <strong>IaaS / PaaS / SaaS</strong>, la matrice de <strong>responsabilité partagée</strong>, la gouvernance <strong>FinOps</strong> et les patrons <strong>Multi-cloud</strong> sont définis dans le cours de référence <a href="/b3-cloud-computing/index.html"><strong>Cloud Computing B3 (<code>/b3-cloud-computing/</code>)</strong></a>. Ce cours <strong>Cloud AWS B3 (<code>/b3-cloud-aws/</code>)</strong> se concentre directement sur l’implémentation propre à Amazon Web Services : politiques JSON et rôles <strong>IAM</strong> (STS <code>AssumeRole</code>), topologie réseau <strong>VPC</strong> (sous-réseaux publics/privés, Internet Gateway, NAT Gateway, Security Groups vs NACLs), automatisation par la CLI <code>aws</code> et services managés (EC2, S3, RDS Multi-AZ, ECS/Lambda).</p>')
+      ].join('\n')
+    },
     {
       title: 'Le Cloud Computing & les Avantages Stratégiques d\'AWS',
       html: [
@@ -210,14 +219,14 @@ module.exports = {
     },
     {
       stem: 'Dans le modèle de responsabilité partagée d\'AWS, qui est responsable de l\'application des correctifs de sécurité sur l\'OS d\'une instance EC2 ?',
-      opts: ['AWS exclusivement', 'Le client exclusivement', 'Le fournisseur d\'accès Internet', 'Amazon EC2 Auto Scaling'],
-      correct: 1,
+      opts: ['AWS exclusivement', 'Amazon EC2 Auto Scaling', 'Le fournisseur d\'accès Internet', 'Le client exclusivement'],
+      correct: 3,
       exp: 'Sur une instance IaaS comme EC2, le client a le contrôle total du système d\'exploitation invité : il est donc exclusivement responsable de ses mises à jour et correctifs de sécurité.'
     },
     {
       stem: 'Quel service mondial AWS utilise principalement le réseau des Edge Locations pour diffuser du contenu web avec une très faible latence ?',
-      opts: ['Amazon EC2', 'Amazon CloudFront', 'Amazon EBS', 'AWS Storage Gateway'],
-      correct: 1,
+      opts: ['Amazon CloudFront', 'Amazon EC2', 'Amazon EBS', 'AWS Storage Gateway'],
+      correct: 0,
       exp: 'Amazon CloudFront est le réseau de diffusion de contenu (CDN) mondial d\'AWS qui s\'appuie sur plus de 400 Edge Locations pour mettre en cache les données au plus près des utilisateurs.'
     },
     {
@@ -228,20 +237,20 @@ module.exports = {
     },
     {
       stem: 'Lequel de ces principes N\'EST PAS l\'un des six piliers du AWS Well-Architected Framework ?',
-      opts: ['Excellence opérationnelle', 'Verrouillage propriétaire (Vendor Lock-in)', 'Optimisation des coûts', 'Fiabilité'],
-      correct: 1,
+      opts: ["Excellence opérationnelle (amélioration continue)","Optimisation des coûts (chasse au gaspillage)","Verrouillage propriétaire (Vendor Lock-in)","Fiabilité (reprise après défaillance)"],
+      correct: 2,
       exp: 'Les 6 piliers sont l\'Excellence opérationnelle, la Sécurité, la Fiabilité, l\'Efficacité des performances, l\'Optimisation des coûts et la Durabilité. Le verrouillage propriétaire n\'en fait évidemment pas partie.'
     },
     {
       stem: 'Pourquoi est-il formellement déconseillé d\'utiliser les identifiants du compte AWS Root au quotidien ?',
-      opts: ['Car le compte Root ne peut pas démarrer d\'instances EC2', 'Car le compte Root possède des privilèges absolus et irrévocables qui augmentent considérablement le risque d\'impact en cas de compromission', 'Car le compte Root facture chaque clic de souris dans la console', 'Car le compte Root expire automatiquement après 24 heures'],
-      correct: 1,
+      opts: ["Car le compte Root ne peut pas démarrer d'instances EC2 ni créer de buckets S3, ses actions étant limitées à la seule facturation","Car le compte Root facture chaque clic de souris dans la console et chaque commande CLI exécutée sur le compte","Car le compte Root expire automatiquement après 24 heures d'inactivité et doit être recréé par le support AWS","Car le compte Root possède des privilèges absolus et irrévocables qui augmentent considérablement le risque d'impact en cas de compromission"],
+      correct: 3,
       exp: 'Le compte Root détient un accès irrévocable à toutes les ressources et facturations. Les bonnes pratiques exigent de verrouiller le compte Root avec du MFA et d\'utiliser des comptes IAM restreints.'
     },
     {
       stem: 'Que désigne l\'acronyme ARN dans l\'écosystème Amazon Web Services ?',
-      opts: ['Amazon Routing Network', 'Amazon Resource Name', 'Automated Relay Node', 'Advanced Resilience Number'],
-      correct: 1,
+      opts: ['Amazon Resource Name', 'Amazon Routing Network', 'Automated Relay Node', 'Advanced Resilience Number'],
+      correct: 0,
       exp: 'ARN signifie Amazon Resource Name. C\'est l\'identifiant unique universel permettant de désigner toute ressource dans AWS (ex: arn:aws:s3:::mon-bucket).'
     },
     {

@@ -26,8 +26,9 @@ module.exports = [
       'Affichez le chemin normalisé.</p>',
     starter: `chemin = input().strip()\n\n# À compléter : normaliser le chemin REST et afficher le résultat.\n`,
     hints: [
-      'Vous pouvez découper la chaîne avec .split("/") et filtrer les segments non vides avec [s for s in ... if s].',
-      'Reconstitue le chemin avec "/" + "/".join(segments).'
+      "Vous pouvez découper la chaîne avec .split(\"/\") et filtrer les segments non vides avec [s for s in ... if s].",
+      "Reconstitue le chemin avec \"/\" + \"/\".join(segments).",
+      "Étapes : découper le chemin sur les slashes en ignorant les segments vides ; tout passer en minuscules ; aucun segment → « / » ; sinon « / » suivi des segments joints par « / »."
     ],
     examples: [
       {
@@ -59,7 +60,8 @@ if not segments:
     print('/')
 else:
     print('/' + '/'.join(segments))
-`
+`,
+    takeaway: "Normaliser minuscules et slashs évite les routes en double et stabilise les URIs REST canoniques."
   },
   {
     id: 'fl2-c2-e2',
@@ -80,8 +82,9 @@ else:
       'Pour toute autre action non reconnue, affiche <code>INCONNU</code>.</p>',
     starter: `action = input().strip().lower()\n\n# À compléter : afficher le verbe HTTP correspondant.\n`,
     hints: [
-      'Utilisez un dictionnaire Python associant chaque mot-clé à son verbe HTTP.',
-      'Utilisez .get(action, "INCONNU") pour gérer les valeurs hors table.'
+      "Utilisez un dictionnaire Python associant chaque mot-clé à son verbe HTTP.",
+      "Utilisez .get(action, \"INCONNU\") pour gérer les valeurs hors table.",
+      "Étapes : lire l’action et la passer en minuscules ; la chercher dans la table des verbes ; trouvée → afficher le verbe ; inconnue → afficher « INCONNU »."
     ],
     examples: [
       {
@@ -125,7 +128,8 @@ table = {
 }
 
 print(table.get(action, 'INCONNU'))
-`
+`,
+    takeaway: "En REST, GET lit (sûr/idempotent), POST crée, PUT remplace intégralement, PATCH modifie partiellement et DELETE supprime."
   },
   {
     id: 'fl2-c2-e3',
@@ -143,8 +147,9 @@ print(table.get(action, 'INCONNU'))
       'Ignore les préfixes éventuels comme <code>/api</code> ou <code>/v1</code> pour trouver la collection ciblée.</p>',
     starter: `uri = input().strip()\n\n# À compléter : analyser l'URI et afficher le type et la cible.\n`,
     hints: [
-      'Découpez l’URI en segments non vides avec [s for s in uri.split("/") if s].',
-      'Vérifiez si le dernier segment est composé uniquement de chiffres avec segment.isdigit().'
+      "Découpez l’URI en segments non vides avec [s for s in uri.split(\"/\") if s].",
+      "Vérifiez si le dernier segment est composé uniquement de chiffres avec segment.isdigit().",
+      "Étapes : découper l’URI en segments non vides ; dernier segment numérique → ressource (cible = segment précédent, ID = dernier) ; sinon → collection (cible = dernier segment)."
     ],
     examples: [
       {
@@ -182,6 +187,7 @@ else:
         print(f"Type: ressource | Cible: {cible} | ID: {dernier}")
     else:
         print(f"Type: collection | Cible: {dernier}")
-`
+`,
+    takeaway: "Une URI REST cible soit une collection (/items), soit une ressource identifiée (/items/42) jamais un verbe d action."
   }
 ];

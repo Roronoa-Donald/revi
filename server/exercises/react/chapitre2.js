@@ -22,8 +22,9 @@ const [nom, role] = lignes[0].split(' ');
 // À compléter : gérer le rôle par défaut et afficher le résultat
 `,
     hints: [
-      'Vérifiez si role est falsy ou égal à "-" avec une ternaire ou l\'opérateur ||.',
-      'Affichez la chaîne formatée avec un gabarit littéral.'
+      "Vérifiez si role est falsy ou égal à \"-\" avec une ternaire ou l'opérateur ||.",
+      "Affichez la chaîne formatée avec un gabarit littéral.",
+      "Lire le nom et le rôle ; remplacer le rôle tiret ou absent par invite, puis afficher la ligne Utilisateur et Role au gabarit demandé."
     ],
     examples: [
       { stdin: 'Sophie admin\n', expected: 'Utilisateur : Sophie | Role : admin', note: 'Rôle explicite admin.' }
@@ -39,7 +40,8 @@ const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
 const [nom, rawRole] = (lignes[0] || '').trim().split(' ');
 const role = (!rawRole || rawRole === '-') ? 'invite' : rawRole;
 console.log(\`Utilisateur : \${nom} | Role : \${role}\`);
-`
+`,
+    takeaway: "La déstructuration avec valeur par défaut ({ role = \"invite\" }) protège le composant contre les props undefined."
   },
   {
     id: 'rx2-c2-e2',
@@ -58,8 +60,9 @@ const texte = lignes[1];
 // À compléter : afficher le composant conteneur avec sa prop children
 `,
     hints: [
-      'Nettoyez les éventuels espaces avec trim().',
-      'Injectez la variante dans la classe et le texte enfant dans le paragraphe interne.'
+      "Nettoyez les éventuels espaces avec trim().",
+      "Injectez la variante dans la classe et le texte enfant dans le paragraphe interne.",
+      "Lire la variante puis le texte ; composer la div avec la classe card suivie de la variante, et le paragraphe contenant le texte nettoyé."
     ],
     examples: [
       { stdin: 'info\nMise a jour disponible\n', expected: '<div class="card card-info"><p>Mise a jour disponible</p></div>', note: 'Carte de notification info.' }
@@ -75,7 +78,8 @@ const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
 const variante = (lignes[0] || '').trim();
 const texte = (lignes[1] || '').trim();
 console.log(\`<div class="card card-\${variante}"><p>\${texte}</p></div>\`);
-`
+`,
+    takeaway: "La prop children permet de concevoir des conteneurs génériques (Card, Modal) agnostiques du contenu encapsulé."
   },
   {
     id: 'rx2-c2-e3',
@@ -93,8 +97,9 @@ const paires = lignes[0].split(' ');
 // À compléter : déstructurer les props et afficher id, theme et active
 `,
     hints: [
-      'Stockez les paires dans un objet ou une Map en découpant chaque terme au signe =.',
-      'Assignez la valeur par défaut "none" pour les trois propriétés attendues.'
+      "Stockez les paires dans un objet ou une Map en découpant chaque terme au signe =.",
+      "Assignez la valeur par défaut \"none\" pour les trois propriétés attendues.",
+      "Découper la ligne en paires cle=valeur ; relever id, theme et active, appliquer none aux absentes, puis afficher la ligne récapitulative."
     ],
     examples: [
       { stdin: 'id=btn1 theme=dark active=true onClick=handleClick\n', expected: 'Props filtrees : id=btn1 theme=dark active=true', note: 'Extraction de 3 props en ignorant onClick.' }
@@ -118,6 +123,7 @@ const theme = props.theme || 'none';
 const active = props.active || 'none';
 
 console.log(\`Props filtrees : id=\${id} theme=\${theme} active=\${active}\`);
-`
+`,
+    takeaway: "Filtrer via l opérateur reste (...rest) empêche de propager des props métier inconnues jusque sur les balises DOM."
   }
 ];

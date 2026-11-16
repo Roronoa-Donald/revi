@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c5-e1) — Filtrage de domaines DNS & inspection du Server Name Indication (SNI TLS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Blocage des réseaux sociaux et sites de jeux]\n# Données : SNI_EVENT id=E1 client_ip=10.0.0.5 host=www.facebook.com\n# Données : SNI_EVENT id=E2 client_ip=10.0.0.5 host=sports.bet365.com\n# Données : SNI_EVENT id=E3 client_ip=10.0.0.5 host=api.github.com\nA_COMPLETER\n\n[Cas 2 — Détection de malware avec extension spéciale]\n# Données : SNI_EVENT id=M1 client_ip=172.16.1.20 host=trojan-downloader.evil\n# Données : SNI_EVENT id=M2 client_ip=172.16.1.20 host=roulette.online.gamble\nA_COMPLETER\n\n[Cas 3 — Trafic légitime professionnel varié]\n# Données : SNI_EVENT id=B1 client_ip=192.168.1.15 host=pypi.org\n# Données : SNI_EVENT id=B2 client_ip=192.168.1.15 host=stackoverflow.com\nA_COMPLETER\n",
     "hints": [
       "Convertir l’hôte en minuscules avant l’analyse.",
-      "Tester dans l’ordre : MALWARE, GAMBLING, SOCIAL_MEDIA, puis défaut BUSINESS_TECH."
+      "Tester dans l’ordre : MALWARE, GAMBLING, SOCIAL_MEDIA, puis défaut BUSINESS_TECH.",
+      "Mettre l’hôte en minuscules puis tester les motifs dans l’ordre : malware, gambling, réseaux sociaux (tous bloqués) ; à défaut BUSINESS_TECH avec autorisation."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "SNI_INSPECT id=B1 host=pypi.org category=BUSINESS_TECH action=ALLOW\nSNI_INSPECT id=B2 host=stackoverflow.com category=BUSINESS_TECH action=ALLOW"
       }
     ],
-    "solution": "[Exemple]\nSNI_INSPECT id=1 host=login-bank.phishing-portal.com category=MALWARE action=BLOCK\nSNI_INSPECT id=2 host=docs.python.org category=BUSINESS_TECH action=ALLOW\n\n[Cas 1 — Blocage des réseaux sociaux et sites de jeux]\nSNI_INSPECT id=E1 host=www.facebook.com category=SOCIAL_MEDIA action=BLOCK\nSNI_INSPECT id=E2 host=sports.bet365.com category=GAMBLING action=BLOCK\nSNI_INSPECT id=E3 host=api.github.com category=BUSINESS_TECH action=ALLOW\n\n[Cas 2 — Détection de malware avec extension spéciale]\nSNI_INSPECT id=M1 host=trojan-downloader.evil category=MALWARE action=BLOCK\nSNI_INSPECT id=M2 host=roulette.online.gamble category=GAMBLING action=BLOCK\n\n[Cas 3 — Trafic légitime professionnel varié]\nSNI_INSPECT id=B1 host=pypi.org category=BUSINESS_TECH action=ALLOW\nSNI_INSPECT id=B2 host=stackoverflow.com category=BUSINESS_TECH action=ALLOW"
+    "solution": "[Exemple]\nSNI_INSPECT id=1 host=login-bank.phishing-portal.com category=MALWARE action=BLOCK\nSNI_INSPECT id=2 host=docs.python.org category=BUSINESS_TECH action=ALLOW\n\n[Cas 1 — Blocage des réseaux sociaux et sites de jeux]\nSNI_INSPECT id=E1 host=www.facebook.com category=SOCIAL_MEDIA action=BLOCK\nSNI_INSPECT id=E2 host=sports.bet365.com category=GAMBLING action=BLOCK\nSNI_INSPECT id=E3 host=api.github.com category=BUSINESS_TECH action=ALLOW\n\n[Cas 2 — Détection de malware avec extension spéciale]\nSNI_INSPECT id=M1 host=trojan-downloader.evil category=MALWARE action=BLOCK\nSNI_INSPECT id=M2 host=roulette.online.gamble category=GAMBLING action=BLOCK\n\n[Cas 3 — Trafic légitime professionnel varié]\nSNI_INSPECT id=B1 host=pypi.org category=BUSINESS_TECH action=ALLOW\nSNI_INSPECT id=B2 host=stackoverflow.com category=BUSINESS_TECH action=ALLOW",
+    "takeaway": "L’inspection du champ SNI TLS et des requêtes DNS permet un filtrage par nom de domaine sans déchiffrer systématiquement le flux TLS."
   },
   {
     "id": "fw3-c5-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c5-e2) — Limiteur de débit et protection anti-DoS par fenêtre glissante\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]\n# Données : REQ ts=1 ip=10.0.0.1\n# Données : REQ ts=2 ip=10.0.0.1\n# Données : REQ ts=3 ip=10.0.0.1\n# Données : REQ ts=4 ip=10.0.0.1\n# Données : REQ ts=6 ip=10.0.0.1\nA_COMPLETER\n\n[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]\n# Données : REQ ts=10 ip=192.168.1.1\n# Données : REQ ts=10 ip=192.168.1.2\n# Données : REQ ts=11 ip=192.168.1.1\n# Données : REQ ts=11 ip=192.168.1.2\n# Données : REQ ts=12 ip=192.168.1.1\n# Données : REQ ts=12 ip=192.168.1.1\nA_COMPLETER\n\n[Cas 3 — Trafic régulier et espacé sans dépassement]\n# Données : REQ ts=10 ip=10.0.0.8\n# Données : REQ ts=15 ip=10.0.0.8\n# Données : REQ ts=20 ip=10.0.0.8\nA_COMPLETER\n",
     "hints": [
       "Maintenez l’historique horodaté des requêtes acceptées pour chaque adresse IP source.",
-      "Rejetez toute requête excédant le seuil de débit maximal autorisé dans la fenêtre glissante d’observation."
+      "Rejetez toute requête excédant le seuil de débit maximal autorisé dans la fenêtre glissante d’observation.",
+      "À chaque requête : compter les requêtes antérieures de la même IP dans les 5 dernières secondes ; si le quota de 3 est atteint, rejeter, sinon accepter et enregistrer l’horodatage."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "RATE_LIMIT ip=10.0.0.8 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=15 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=20 status=PASSED active_in_window=1"
       }
     ],
-    "solution": "[Exemple]\nRATE_LIMIT ip=192.168.1.5 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.5 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.5 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.5 ts=13 status=DROPPED active_in_window=4\n\n[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]\nRATE_LIMIT ip=10.0.0.1 ts=1 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.1 ts=2 status=PASSED active_in_window=2\nRATE_LIMIT ip=10.0.0.1 ts=3 status=PASSED active_in_window=3\nRATE_LIMIT ip=10.0.0.1 ts=4 status=DROPPED active_in_window=4\nRATE_LIMIT ip=10.0.0.1 ts=6 status=PASSED active_in_window=3\n\n[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]\nRATE_LIMIT ip=192.168.1.1 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.2 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.1 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.2 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.1 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.1 ts=12 status=DROPPED active_in_window=4\n\n[Cas 3 — Trafic régulier et espacé sans dépassement]\nRATE_LIMIT ip=10.0.0.8 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=15 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=20 status=PASSED active_in_window=1"
+    "solution": "[Exemple]\nRATE_LIMIT ip=192.168.1.5 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.5 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.5 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.5 ts=13 status=DROPPED active_in_window=4\n\n[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]\nRATE_LIMIT ip=10.0.0.1 ts=1 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.1 ts=2 status=PASSED active_in_window=2\nRATE_LIMIT ip=10.0.0.1 ts=3 status=PASSED active_in_window=3\nRATE_LIMIT ip=10.0.0.1 ts=4 status=DROPPED active_in_window=4\nRATE_LIMIT ip=10.0.0.1 ts=6 status=PASSED active_in_window=3\n\n[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]\nRATE_LIMIT ip=192.168.1.1 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.2 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.1 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.2 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.1 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.1 ts=12 status=DROPPED active_in_window=4\n\n[Cas 3 — Trafic régulier et espacé sans dépassement]\nRATE_LIMIT ip=10.0.0.8 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=15 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=20 status=PASSED active_in_window=1",
+    "takeaway": "La limitation de débit par fenêtre glissante bloque les rafales excessives par IP source avant qu’elles ne saturent les services."
   },
   {
     "id": "fw3-c5-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c5-e3) — Moteur Deep Packet Inspection (DPI) et détection de signatures L7\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection XSS et Path Traversal]\n# Données : PAYLOAD id=X1 payload=name=<script>alert(document.cookie)</script>\n# Données : PAYLOAD id=T1 payload=file=../../etc/passwd\nA_COMPLETER\n\n[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]\n# Données : PAYLOAD id=S1 payload=user=' OR '1'='1\n# Données : PAYLOAD id=S2 payload=benchmark(10000000,MD5(1)) OR SLEEP(5)\nA_COMPLETER\n\n[Cas 3 — Payloads légitimes avec du texte complexe]\n# Données : PAYLOAD id=C1 payload=message=Bonjour, voici mon rapport mensuel.\n# Données : PAYLOAD id=C2 payload=path=/var/www/html/index.php\nA_COMPLETER\n",
     "hints": [
       "Normaliser la charge utile en minuscules.",
-      "Tester dans l’ordre de la spécification : SQLi, XSS, Path Traversal, puis CLEAN."
+      "Tester dans l’ordre de la spécification : SQLi, XSS, Path Traversal, puis CLEAN.",
+      "Normaliser la charge en minuscules, chercher successivement les signatures SQLi, XSS puis Path Traversal ; la première trouvée fixe la menace et l’action, sinon autoriser."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "DPI_ALERT id=C1 threat=CLEAN action=ALLOW\nDPI_ALERT id=C2 threat=CLEAN action=ALLOW"
       }
     ],
-    "solution": "[Exemple]\nDPI_ALERT id=P1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=P2 threat=CLEAN action=ALLOW\n\n[Cas 1 — Détection XSS et Path Traversal]\nDPI_ALERT id=X1 threat=XSS_ATTACK action=BLOCK\nDPI_ALERT id=T1 threat=PATH_TRAVERSAL action=BLOCK\n\n[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]\nDPI_ALERT id=S1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=S2 threat=SQL_INJECTION action=BLOCK\n\n[Cas 3 — Payloads légitimes avec du texte complexe]\nDPI_ALERT id=C1 threat=CLEAN action=ALLOW\nDPI_ALERT id=C2 threat=CLEAN action=ALLOW"
+    "solution": "[Exemple]\nDPI_ALERT id=P1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=P2 threat=CLEAN action=ALLOW\n\n[Cas 1 — Détection XSS et Path Traversal]\nDPI_ALERT id=X1 threat=XSS_ATTACK action=BLOCK\nDPI_ALERT id=T1 threat=PATH_TRAVERSAL action=BLOCK\n\n[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]\nDPI_ALERT id=S1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=S2 threat=SQL_INJECTION action=BLOCK\n\n[Cas 3 — Payloads légitimes avec du texte complexe]\nDPI_ALERT id=C1 threat=CLEAN action=ALLOW\nDPI_ALERT id=C2 threat=CLEAN action=ALLOW",
+    "takeaway": "Le DPI L7 identifie le protocole applicatif réel indépendamment du port utilisé pour bloquer tunnels ou outils contournant le filtrage."
   }
 ];

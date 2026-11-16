@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -177,32 +175,31 @@
      data-exercise="ws3-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="GROUP name=GG_Compta type=GLOBAL member_of=DL_Factures_Modif&#10;GROUP name=DL_Factures_Modif type=DOMAIN_LOCAL member_of=NONE&#10;USER name=Alice member_of=GG_Compta&#10;RESOURCE name=DossierFactures acl_group=DL_Factures_Modif permission=MODIFY">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c2-e1) — Vérificateur de conformité de structure de groupes AGDLP / AGUDLP
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le partage Ventes$ (D:\Partages\Ventes) est réservé aux commerciaux :&#10;marc.dupont et eva.leroy sont membres de GG_Ventes (groupe global), lui-même membre de&#10;DL_Ventes_Lecture (groupe local de domaine), qui porte l'autorisation NTFS « Lecture ».&#10;&#10;1) Les comptes sont placés dans GG_Ventes.&#10;2) Type : global.&#10;3) L'autorisation est portée par DL_Ventes_Lecture.&#10;4) Type : local de domaine.&#10;5) Droit effectif de marc.dupont : Lecture.&#10;6) Méthode : AGDLP.">
+  <script type="text/plain" data-lab-starter># Exercice — Le partage Compta$ du groupe Marnier
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 et 6 : noms exacts ou type. Question 5 : le droit.
 
-[Cas 1 — Utilisateur rattaché directement à un groupe Domain Local]
-# Données : GROUP name=DL_AdminLocal type=DOMAIN_LOCAL member_of=NONE
-# Données : USER name=Bob member_of=DL_AdminLocal
-# Données : RESOURCE name=PartageIT acl_group=DL_AdminLocal permission=FULL
+[Question 1 — Groupe recevant les comptes]
 A_COMPLETER
 
-[Cas 2 — Ressource avec ACL pointant directement sur un groupe Global]
-# Données : GROUP name=GG_Devs type=GLOBAL member_of=NONE
-# Données : USER name=Charlie member_of=GG_Devs
-# Données : RESOURCE name=DepotGit acl_group=GG_Devs permission=READ
+[Question 2 — Type de ce groupe]
 A_COMPLETER
 
-[Cas 3 — Mauvaise imbrication d’un groupe global dans un autre groupe global]
-# Données : GROUP name=GG_Junior type=GLOBAL member_of=GG_Senior
-# Données : GROUP name=GG_Senior type=GLOBAL member_of=NONE
-# Données : USER name=David member_of=GG_Junior
-# Données : RESOURCE name=PartageDocs acl_group=DL_Docs permission=READ
-# Données : GROUP name=DL_Docs type=DOMAIN_LOCAL member_of=NONE
+[Question 3 — Groupe portant l'autorisation NTFS]
+A_COMPLETER
+
+[Question 4 — Type de ce groupe]
+A_COMPLETER
+
+[Question 5 — Droit effectif de léa.martin]
+A_COMPLETER
+
+[Question 6 — Acronyme de la méthode]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Vérificateur de conformité de structure de groupes AGDLP / AGUDLP</h3>
+    <h3 class="lab__title">Exercice 1 — Le partage Compta$ du groupe Marnier</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -211,39 +208,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de l’arborescence des identités au standard Microsoft AGDLP (Comptes -&gt; Groupes Globaux -&gt; Groupes Locaux de Domaine -&gt; ACLs).</p>
-    <div class="lab__brief">Dans une forêt Active Directory, Microsoft préconise la règle d’or AGDLP pour l’attribution des permissions :
-- Les comptes utilisateurs (`USER`) doivent appartenir à des groupes globaux (`GLOBAL`).
-- Les groupes globaux (`GLOBAL`) doivent appartenir à des groupes locaux de domaine (`DOMAIN_LOCAL`) ou universels (`UNIVERSAL`).
-- Les ressources partagées (`RESOURCE`) doivent accorder leurs permissions exclusivement à des groupes `DOMAIN_LOCAL`.
-
-Entrée :
-`USER name=&lt;NOM&gt; member_of=&lt;GROUPE&gt;`
-`GROUP name=&lt;NOM&gt; type=&lt;GLOBAL|DOMAIN_LOCAL|UNIVERSAL&gt; member_of=&lt;PARENT_GROUPE|NONE&gt;`
-`RESOURCE name=&lt;NOM&gt; acl_group=&lt;GROUPE&gt; permission=&lt;READ|MODIFY|FULL&gt;`
-
-Infractions détectées :
-- `INFRACTION_USER user=&lt;U&gt; group=&lt;G&gt; type=&lt;TYPE&gt;` : si un utilisateur est rattaché directement à un groupe qui n’est pas GLOBAL.
-- `INFRACTION_NESTING group=&lt;G&gt; parent=&lt;P&gt; parent_type=&lt;TYPE&gt;` : si un groupe GLOBAL est imbriqué dans autre chose qu’un DOMAIN_LOCAL ou UNIVERSAL (ou si parent inconnu).
-- `INFRACTION_ACL resource=&lt;R&gt; group=&lt;G&gt; type=&lt;TYPE&gt;` : si une ressource applique une ACL avec un groupe qui n’est pas DOMAIN_LOCAL.
-
-Résultat d’analyse attendu :
-- Liste des infractions ordonnées par type puis nom de l’objet :
-  `INFRACTION_...`
-- Bilan :
-  `SUMMARY total_objets=&lt;N&gt; infractions=&lt;I&gt; conformite=&lt;CONFORME|NON_CONFORME&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une imbrication de groupes conforme à AGDLP et en déduire le droit effectif d'un utilisateur.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le groupe Marnier (fonderie, 350 salariés) gère l'annuaire du domaine <strong>marnier.local</strong>. L'arborescence du siège est la suivante : sous le domaine, l'OU <strong>Siège</strong> contient les OU <strong>Comptabilité</strong>, <strong>Ventes</strong> et <strong>Production</strong>. Le serveur SRV-FICHIER héberge le dossier D:\Partages\Compta, partagé en <strong>Compta$</strong> pour les cinq comptables. L'administrateur applique la méthode AGDLP :</p><table><tr><th>Objet</th><th>Nature</th><th>Appartenance / autorisation</th></tr><tr><th>léa.martin, hugo.bernard, sara.dubois (comptables)</th><td>comptes utilisateurs</td><td>membres de GG_Compta</td></tr><tr><th>GG_Compta</th><td>groupe global</td><td>membre de DL_Compta_Modif</td></tr><tr><th>DL_Compta_Modif</th><td>groupe local de domaine</td><td>autorisation NTFS « Modifier » sur D:\Partages\Compta</td></tr></table><p>Répondez de façon courte ; la question 5 appelle un niveau de droit.</p><ol><li>Dans quel groupe les comptes des comptables sont-ils placés ?</li><li>Quel est le type de ce groupe ?</li><li>Quel groupe reçoit l'autorisation NTFS sur le dossier ?</li><li>Quel est le type de ce groupe ?</li><li>Quel est le droit effectif de léa.martin sur le dossier ?</li><li>Quel acronyme du cours résume cette chaîne d'imbrication ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GROUP name=GG_Compta type=GLOBAL member_of=DL_Factures_Modif
-GROUP name=DL_Factures_Modif type=DOMAIN_LOCAL member_of=NONE
-USER name=Alice member_of=GG_Compta
-RESOURCE name=DossierFactures acl_group=DL_Factures_Modif permission=MODIFY</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le partage Ventes$ (D:\Partages\Ventes) est réservé aux commerciaux :
+marc.dupont et eva.leroy sont membres de GG_Ventes (groupe global), lui-même membre de
+DL_Ventes_Lecture (groupe local de domaine), qui porte l'autorisation NTFS « Lecture ».
+
+1) Les comptes sont placés dans GG_Ventes.
+2) Type : global.
+3) L'autorisation est portée par DL_Ventes_Lecture.
+4) Type : local de domaine.
+5) Droit effectif de marc.dupont : Lecture.
+6) Méthode : AGDLP.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Indexer les types des groupes dans un dictionnaire {nom: type}.</li>
-        <li>Vérifier les utilisateurs, les imbrications de groupes et les ACLs des ressources.</li>
-        <li>Trier les infractions pour produire une sortie stable.</li>
+        <li>En AGDLP, les comptes (A) entrent dans des groupes globaux (G) qui regroupent un service.</li>
+        <li>Les groupes globaux entrent dans des groupes locaux de domaine (L) ; seuls ces derniers portent les autorisations sur les ressources (P).</li>
+        <li>Le droit effectif d'un utilisateur suit toute la chaîne : comptes, puis global, puis local de domaine, puis autorisation sur la ressource.</li>
       </ol>
     </details>
   </div>
@@ -253,35 +237,31 @@ RESOURCE name=DossierFactures acl_group=DL_Factures_Modif permission=MODIFY</pre
      data-exercise="ws3-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="FSMO role=SCHEMA_MASTER dc=DC01&#10;FSMO role=DOMAIN_NAMING dc=DC01&#10;FSMO role=PDC_EMULATOR dc=DC01&#10;FSMO role=RID_MASTER dc=DC02&#10;FSMO role=INFRASTRUCTURE dc=DC02&#10;DC_STATUS name=DC01 state=ONLINE&#10;DC_STATUS name=DC02 state=OFFLINE&#10;OP type=CHANGE_PASSWORD&#10;OP type=CREATE_USER">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c2-e2) — Simulateur de topologie FSMO et routage des opérations AD DS
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le cabinet Alizeo gère deux contrôleurs :&#10;DC-A : Schema Master, Domain Naming Master ; DC-B : PDC Emulator, RID Master, Infrastructure Master.&#10;DC-A tombe hors service pour une semaine.&#10;&#10;1) Cinq rôles FSMO au total.&#10;2) DC-A hébergeait Schema Master et Domain Naming Master.&#10;3) Le traitement des mots de passe (PDC Emulator sur DC-B) reste possible : Oui.&#10;4) La création de comptes (RID Master sur DC-B) reste possible : Oui.&#10;5) Le schéma ne peut plus être modifié.&#10;6) Récupération : la saisie de rôle (seize).">
+  <script type="text/plain" data-lab-starter># Exercice — La panne du contrôleur DC-01 chez Marnier
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 3 et 4 : Oui ou Non. Question 6 : le nom de l'opération.
 
-[Cas 1 — Toutes les opérations exécutées avec succès]
-# Données : FSMO role=SCHEMA_MASTER dc=DC-PDC
-# Données : FSMO role=DOMAIN_NAMING dc=DC-PDC
-# Données : FSMO role=PDC_EMULATOR dc=DC-PDC
-# Données : FSMO role=RID_MASTER dc=DC-PDC
-# Données : FSMO role=INFRASTRUCTURE dc=DC-PDC
-# Données : DC_STATUS name=DC-PDC state=ONLINE
-# Données : OP type=UPDATE_SCHEMA
-# Données : OP type=ADD_DOMAIN
+[Question 1 — Nombre total de rôles FSMO]
 A_COMPLETER
 
-[Cas 2 — Panne totale du contrôleur hébergeant le PDC Emulator]
-# Données : FSMO role=PDC_EMULATOR dc=DC-CRITIQUE
-# Données : DC_STATUS name=DC-CRITIQUE state=OFFLINE
-# Données : OP type=CHANGE_PASSWORD
+[Question 2 — Rôles hébergés par DC-01]
 A_COMPLETER
 
-[Cas 3 — Opération inter-domaine avec infrastructure master séparé]
-# Données : FSMO role=INFRASTRUCTURE dc=DC-RODC
-# Données : DC_STATUS name=DC-RODC state=ONLINE
-# Données : OP type=INTER_DOMAIN_REF
+[Question 3 — Changement de mot de passe possible ?]
+A_COMPLETER
+
+[Question 4 — Création de compte possible ?]
+A_COMPLETER
+
+[Question 5 — Contrôleur du schéma]
+A_COMPLETER
+
+[Question 6 — Opération de récupération des rôles]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Simulateur de topologie FSMO et routage des opérations AD DS</h3>
+    <h3 class="lab__title">Exercice 2 — La panne du contrôleur DC-01 chez Marnier</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -290,46 +270,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Acheminer les opérations Active Directory vers le contrôleur détenteur du rôle FSMO correspondant et gérer les pannes de contrôleur.</p>
-    <div class="lab__brief">Active Directory repose sur 5 rôles FSMO (Flexible Single Master Operations) indispensables aux opérations sensibles :
-- `UPDATE_SCHEMA` -&gt; `SCHEMA_MASTER` (forêt)
-- `ADD_DOMAIN` -&gt; `DOMAIN_NAMING` (forêt)
-- `CHANGE_PASSWORD` -&gt; `PDC_EMULATOR` (domaine)
-- `CREATE_USER` -&gt; `RID_MASTER` (domaine)
-- `INTER_DOMAIN_REF` -&gt; `INFRASTRUCTURE` (domaine)
-
-Entrée :
-`FSMO role=&lt;ROLE&gt; dc=&lt;DC_NAME&gt;` (définition des 5 rôles)
-`DC_STATUS name=&lt;DC_NAME&gt; state=&lt;ONLINE|OFFLINE&gt;`
-`OP type=&lt;UPDATE_SCHEMA|ADD_DOMAIN|CHANGE_PASSWORD|CREATE_USER|INTER_DOMAIN_REF&gt;`
-
-Règles :
-- Identifier le contrôleur assigné au rôle FSMO de l’opération demandée.
-- Si ce DC est `ONLINE`, le statut est `EXECUTE`.
-- Si ce DC est `OFFLINE`, le statut est `BLOQUE` (opération impossible sans transfert/saisie de rôle).
-
-Résultat d’analyse attendu :
-- Pour chaque opération demandée :
-  `OP_RESULT type=&lt;OP&gt; role=&lt;ROLE&gt; dc=&lt;DC&gt; statut=&lt;EXECUTE|BLOQUE&gt;`
-- Bilan :
-  `SUMMARY total_ops=&lt;N&gt; executees=&lt;E&gt; bloquees=&lt;B&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Localiser les rôles FSMO, mesurer l'impact d'une panne de contrôleur et connaître la récupération par saisie.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le domaine <strong>marnier.local</strong> s'appuie sur deux contrôleurs de domaine. La répartition des cinq rôles FSMO est la suivante :</p><ul><li><strong>DC-01</strong> : PDC Emulator, RID Master ;</li><li><strong>DC-02</strong> : Schema Master, Domain Naming Master, Infrastructure Master.</li></ul><p>Samedi matin, DC-01 tombe en panne matérielle ; le fournisseur annonce plusieurs jours de réparation. Ce week-end, l'équipe doit traiter des changements de mot de passe et prépare la rentrée des nouveaux salariés (créations de comptes). Répondez de façon courte ; les questions 3 et 4 appellent « Oui » ou « Non ».</p><ol><li>Combien de rôles FSMO l'infrastructure compte-t-elle au total ?</li><li>Quels rôles DC-01 hébergeait-il ?</li><li>Le traitement d'un changement de mot de passe est-il possible pendant la panne ?</li><li>La création d'un nouveau compte est-elle possible pendant la panne ?</li><li>Sur quel contrôleur peut-on encore modifier le schéma ?</li><li>Quelle opération attribue les rôles de DC-01 à DC-02 sans attendre sa remise en service ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FSMO role=SCHEMA_MASTER dc=DC01
-FSMO role=DOMAIN_NAMING dc=DC01
-FSMO role=PDC_EMULATOR dc=DC01
-FSMO role=RID_MASTER dc=DC02
-FSMO role=INFRASTRUCTURE dc=DC02
-DC_STATUS name=DC01 state=ONLINE
-DC_STATUS name=DC02 state=OFFLINE
-OP type=CHANGE_PASSWORD
-OP type=CREATE_USER</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le cabinet Alizeo gère deux contrôleurs :
+DC-A : Schema Master, Domain Naming Master ; DC-B : PDC Emulator, RID Master, Infrastructure Master.
+DC-A tombe hors service pour une semaine.
+
+1) Cinq rôles FSMO au total.
+2) DC-A hébergeait Schema Master et Domain Naming Master.
+3) Le traitement des mots de passe (PDC Emulator sur DC-B) reste possible : Oui.
+4) La création de comptes (RID Master sur DC-B) reste possible : Oui.
+5) Le schéma ne peut plus être modifié.
+6) Récupération : la saisie de rôle (seize).</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Créer une table de correspondance opération -&gt; rôle FSMO.</li>
-        <li>Associer chaque rôle à son contrôleur de domaine (DC).</li>
-        <li>Consulter l’état ONLINE/OFFLINE du DC pour décider du statut.</li>
+        <li>Le PDC Emulator traite les changements de mot de passe ; le RID Master distribue les pools d'identifiants nécessaires aux créations de comptes.</li>
+        <li>Un rôle FSMO indisponible bloque l'opération qui en dépend : identifiez le contrôleur propriétaire, puis son état.</li>
+        <li>Lorsqu'un contrôleur ne reviendra pas à temps, la saisie de rôle (seize) transfère le rôle de force, contrairement au transfert simple.</li>
       </ol>
     </details>
   </div>
@@ -339,28 +299,31 @@ OP type=CREATE_USER</pre></div>
      data-exercise="ws3-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="EVENT id=4720 user=jdoe actor=admin01&#10;EVENT id=4728 user=jdoe group=Domain Admins actor=admin01&#10;EVENT id=4720 user=stewart actor=admin02&#10;EVENT id=4726 user=stewart actor=admin02">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c2-e3) — Parseur de journaux d’audit de sécurité Active Directory (Event IDs 4720, 4726, 4728)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Journal du domaine fil-nord.local :&#10;08:15 4720 création de jdoe par admin01 ; 08:40 4728 jdoe ajouté à Domain Admins par admin01 ;&#10;09:00 4720 création de stewart par admin02 ; 09:30 4726 suppression de stewart par admin02.&#10;&#10;1) Création : 4720.&#10;2) Ajout dans un groupe : 4728.&#10;3) Un seul ajout figure au journal.&#10;4) Groupe à haut privilège : Domain Admins.&#10;5) Oui : stewart avait bien été créé à 09:00 avant sa suppression.&#10;6) Comptes créés actifs : 1 (jdoe).">
+  <script type="text/plain" data-lab-starter># Exercice — L'audit du journal de sécurité après l'alerte svc-backup
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 5 : Oui ou Non. Les autres : valeurs courtes.
 
-[Cas 1 — Suppression d’un utilisateur orphelin sans création préalable]
-# Données : EVENT id=4726 user=fantome actor=hacker
-# Données : EVENT id=4720 user=alice actor=secadmin
+[Question 1 — Event ID de création de compte]
 A_COMPLETER
 
-[Cas 2 — Ajouts dans groupes non critiques (aucune alerte)]
-# Données : EVENT id=4720 user=bob actor=admin
-# Données : EVENT id=4728 user=bob group=Compta actor=admin
-# Données : EVENT id=4728 user=bob group=Marketing actor=admin
+[Question 2 — Event ID d'ajout dans un groupe]
 A_COMPLETER
 
-[Cas 3 — Multiples alertes de privilèges dans Enterprise Admins et Schema Admins]
-# Données : EVENT id=4728 user=eva group=Enterprise Admins actor=root
-# Données : EVENT id=4728 user=david group=Schema Admins actor=root
+[Question 3 — Nombre d'ajouts dans un groupe]
+A_COMPLETER
+
+[Question 4 — Groupe à haut privilège visé]
+A_COMPLETER
+
+[Question 5 — Suppression de stage-temp cohérente ?]
+A_COMPLETER
+
+[Question 6 — Comptes créés encore actifs]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Parseur de journaux d’audit de sécurité Active Directory (Event IDs 4720, 4726, 4728)</h3>
+    <h3 class="lab__title">Exercice 3 — L'audit du journal de sécurité après l'alerte svc-backup</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -369,37 +332,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Détecter les ajouts suspects de membres dans les groupes à haut privilège et reconstituer l’état des comptes créés.</p>
-    <div class="lab__brief">Dans le journal de sécurité Windows Server, les événements d’audit des comptes et groupes sont cruciaux :
-- `EVENT id=4720 user=&lt;U&gt; actor=&lt;A&gt;` : Création d’un compte utilisateur.
-- `EVENT id=4726 user=&lt;U&gt; actor=&lt;A&gt;` : Suppression d’un compte utilisateur.
-- `EVENT id=4728 user=&lt;U&gt; group=&lt;G&gt; actor=&lt;A&gt;` : Ajout d’un membre dans un groupe.
-- `EVENT id=4729 user=&lt;U&gt; group=&lt;G&gt; actor=&lt;A&gt;` : Retrait d’un membre d’un groupe.
-
-Groupes d’administration critique surveillés :
-`Domain Admins`, `Enterprise Admins`, `Schema Admins`, `Administrators`.
-
-Règles d’alerte :
-- Tout événement 4728 ciblant un groupe critique déclenche : `ALERTE_PRIVILEGE user=&lt;U&gt; group=&lt;G&gt; actor=&lt;A&gt;`.
-- Un événement 4726 sur un utilisateur qui n’a jamais été créé (événement 4720 préalable) dans ce flux déclenche : `ANOMALIE_ORPHELIN user=&lt;U&gt; actor=&lt;A&gt;`.
-
-Résultat d’analyse attendu :
-- Lignes d’alertes triées par type d’alerte puis nom d’utilisateur :
-  `ALERTE_...` ou `ANOMALIE_...`
-- Bilan :
-  `SUMMARY total_events=&lt;N&gt; users_crees_actifs=&lt;U&gt; alertes_securite=&lt;A&gt;` (où users_crees_actifs = nb de comptes créés par 4720 et non supprimés par 4726).</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire un journal de sécurité Active Directory, repérer les ajouts à haut privilège et les suppressions orphelines.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Chez Marnier, l'audit des comptes est activé sur le contrôleur de domaine. À la suite d'une alerte, l'équipe relève le journal de sécurité du 12 mars :</p><table><tr><th>Heure</th><th>Event ID</th><th>Détail</th><th>Auteur</th></tr><tr><th>09:12</th><td>4720</td><td>création du compte svc-backup</td><td>admin.sys</td></tr><tr><th>09:40</th><td>4728</td><td>svc-backup ajouté au groupe Domain Admins</td><td>admin.sys</td></tr><tr><th>10:05</th><td>4726</td><td>suppression du compte stage-temp</td><td>admin.sys</td></tr><tr><th>10:30</th><td>4728</td><td>martine.l ajoutée au groupe Salaires</td><td>rh.admin</td></tr></table><p>Groupes considérés à haut privilège : Domain Admins, Enterprise Admins, Schema Admins, Administrators. Aucun événement 4720 ne concerne stage-temp dans la période couverte par le journal. Répondez de façon courte ; la question 5 appelle « Oui » ou « Non ».</p><ol><li>Quel Event ID correspond à la création d'un compte ?</li><li>Quel Event ID correspond à l'ajout d'un membre dans un groupe ?</li><li>Combien d'événements d'ajout dans un groupe figurent au journal ?</li><li>Dans quel groupe à haut privilège svc-backup a-t-il été ajouté ?</li><li>La suppression de stage-temp est-elle cohérente avec le journal ?</li><li>Combien de comptes créés restent actifs à la fin de la période ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EVENT id=4720 user=jdoe actor=admin01
-EVENT id=4728 user=jdoe group=Domain Admins actor=admin01
-EVENT id=4720 user=stewart actor=admin02
-EVENT id=4726 user=stewart actor=admin02</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Journal du domaine fil-nord.local :
+08:15 4720 création de jdoe par admin01 ; 08:40 4728 jdoe ajouté à Domain Admins par admin01 ;
+09:00 4720 création de stewart par admin02 ; 09:30 4726 suppression de stewart par admin02.
+
+1) Création : 4720.
+2) Ajout dans un groupe : 4728.
+3) Un seul ajout figure au journal.
+4) Groupe à haut privilège : Domain Admins.
+5) Oui : stewart avait bien été créé à 09:00 avant sa suppression.
+6) Comptes créés actifs : 1 (jdoe).</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Garder un ensemble des utilisateurs créés par Event ID 4720.</li>
-        <li>Sur 4726, retirer le compte de l’ensemble ou lever une anomalie s’il n’y était pas.</li>
-        <li>Sur 4728, tester si le groupe fait partie des groupes critiques.</li>
+        <li>4720 = création, 4726 = suppression, 4728 = ajout dans un groupe : mémorisez cette correspondance avant de compter.</li>
+        <li>Un ajout dans un groupe à haut privilège constitue une alerte ; un ajout dans un groupe métier non.</li>
+        <li>Une suppression cohérente suppose une création préalable dans le journal ; sans création, il s'agit d'une anomalie orpheline.</li>
       </ol>
     </details>
   </div>
@@ -423,9 +375,9 @@ EVENT id=4726 user=stewart actor=admin02</pre></div>
       <p class="q__stem">Quel rôle FSMO est chargé de délivrer des blocs d’identifiants pour la création de nouveaux objets ?</p>
       <div class="opts">
         <button class="opt">Le Schema Master</button>
-        <button class="opt" data-correct="1">Le RID Master</button>
-        <button class="opt">Le Domain Naming Master</button>
         <button class="opt">L’Infrastructure Master</button>
+        <button class="opt">Le Domain Naming Master</button>
+        <button class="opt" data-correct="1">Le RID Master</button>
       </div>
       <div class="q__exp">Le RID Master distribue des blocs de 500 RIDs à chaque DC pour composer les SIDs uniques des nouveaux utilisateurs, groupes et ordinateurs.</div>
     </div>
@@ -433,8 +385,8 @@ EVENT id=4726 user=stewart actor=admin02</pre></div>
       <p class="q__stem">Dans la méthodologie AGDLP, à quel type de groupe accorde-t-on directement les permissions (ACLs) sur les fichiers ?</p>
       <div class="opts">
         <button class="opt">Aux groupes Globaux (GG)</button>
-        <button class="opt">Aux groupes Universels (UG)</button>
         <button class="opt" data-correct="1">Aux groupes Locaux de Domaine (DL)</button>
+        <button class="opt">Aux groupes Universels (UG)</button>
         <button class="opt">Directement aux comptes d’utilisateurs</button>
       </div>
       <div class="q__exp">Les permissions sont toujours affectées exclusivement aux groupes Locaux de Domaine (DL), qui accueillent ensuite les groupes globaux métier.</div>
@@ -442,9 +394,9 @@ EVENT id=4726 user=stewart actor=admin02</pre></div>
     <div class="q">
       <p class="q__stem">Quel rôle FSMO fait office d’horloge de référence NTP pour tous les ordinateurs et serveurs du domaine ?</p>
       <div class="opts">
-        <button class="opt">L’Infrastructure Master</button>
-        <button class="opt">Le Schema Master</button>
         <button class="opt" data-correct="1">Le PDC Emulator</button>
+        <button class="opt">Le Schema Master</button>
+        <button class="opt">L’Infrastructure Master</button>
         <button class="opt">Le Global Catalog</button>
       </div>
       <div class="q__exp">Le PDC Emulator est la source de temps faisant autorité dans le domaine pour respecter la tolérance de synchronisation Kerberos (5 min).</div>
@@ -454,18 +406,18 @@ EVENT id=4726 user=stewart actor=admin02</pre></div>
       <div class="opts">
         <button class="opt">Event ID 4624</button>
         <button class="opt">Event ID 4720</button>
-        <button class="opt" data-correct="1">Event ID 4728</button>
         <button class="opt">Event ID 7036</button>
+        <button class="opt" data-correct="1">Event ID 4728</button>
       </div>
       <div class="q__exp">L’Event ID 4728 enregistre spécifiquement l’ajout d’un compte dans un groupe de sécurité avec le nom de l’acteur ayant effectué l’action.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que doit-on impérativement faire d’un contrôleur dont le rôle FSMO a été saisi de force (seize) après un crash ?</p>
       <div class="opts">
-        <button class="opt">Le redémarrer simplement en mode sans échec</button>
+        <button class="opt">Le redémarrer simplement en mode sans échec pour restaurer les rôles</button>
+        <button class="opt">Le promouvoir contrôleur secondaire dans une nouvelle branche</button>
         <button class="opt" data-correct="1">Le formater et ne JAMAIS le reconnecter au réseau Active Directory</button>
-        <button class="opt">Le promouvoir contrôleur secondaire</button>
-        <button class="opt">Changer son adresse IP</button>
+        <button class="opt">Changer son adresse IP pour éviter tout conflit d’identification</button>
       </div>
       <div class="q__exp">Un contrôleur dont les rôles ont été saisis de force ne doit jamais réapparaître dans l’annuaire car il contiendrait des métadonnées obsolètes créant des conflits USN.</div>
     </div>
@@ -482,8 +434,8 @@ EVENT id=4726 user=stewart actor=admin02</pre></div>
     <div class="q">
       <p class="q__stem">Quel événement du journal de sécurité Windows trace la suppression d’un compte utilisateur dans l’annuaire ?</p>
       <div class="opts">
-        <button class="opt">Event ID 4720</button>
         <button class="opt" data-correct="1">Event ID 4726</button>
+        <button class="opt">Event ID 4720</button>
         <button class="opt">Event ID 4738</button>
         <button class="opt">Event ID 4768</button>
       </div>
@@ -611,7 +563,7 @@ EVENT id=4726 user=stewart actor=admin02</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

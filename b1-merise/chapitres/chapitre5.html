@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -187,10 +185,11 @@ EMETTRE assoc n 1 non
 </pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Deux maximums n demandent une liaison, que l’association porte ou non des propriétés.</li>
         <li>Avec un seul maximum 1, la clé migre du côté qui porte ce maximum ; avec deux, discutez le choix.</li>
+        <li>Une entité devient toujours une TABLE ; une association max (n,n) devient TABLE_LIAISON tandis qu une (1,n) migre comme CLE_MIGREE.</li>
       </ol>
     </details>
   </div>
@@ -200,32 +199,31 @@ EMETTRE assoc n 1 non
      data-exercise="mr-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="4&#10;CLIENT NumClt pk&#10;COMMANDE NumCde pk&#10;COMMANDE NumClt fk:CLIENT&#10;LIVRAISON NumClt fk:FOURNISSEUR&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c5-e2) — La clé primaire et les étrangères
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un garage : CLIENT (NumClient, NomClient), VOITURE (NumVoiture, MarqueVoiture), REPARATION (NumRep, DateRep). Confier : CLIENT 0,n — 1,1 REPARATION. Concerner : VOITURE 0,n — 1,1 REPARATION.&#10;&#10;1) Nombre de tables : 3.&#10;2) Clé primaire de REPARATION : NumRep.&#10;3) Clés étrangères reçues par REPARATION : 2.&#10;4) Ces clés : NumClient NumVoiture.&#10;5) L'association 1–n devient-elle une table de liaison ? non.&#10;6) Une réparation référant le client n° 40, inexistant : integrite referentielle.">
+  <script type="text/plain" data-lab-starter># Exercice — Le schéma relationnel du camping Les Pins Bleus
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par un nombre, un nom exact, oui/non ou un mot selon la question.
 
-[Cas 1 — Une seule pk]
-# Données : 1
-# Données : PRODUIT NumPrdt pk
+[Question 1 — Nombre de tables du MLD]
 A_COMPLETER
 
-[Cas 2 — Doublon de pk]
-# Données : 2
-# Données : CLIENT NumClt pk
-# Données : CLIENT NumClt pk
+[Question 2 — Clé primaire de la table SEJOUR]
 A_COMPLETER
 
-[Cas 3 — Cinq lignes mixtes]
-# Données : 5
-# Données : CLIENT NumClt pk
-# Données : CLIENT NumClt pk
-# Données : COMMANDE NumCde pk
-# Données : COMMANDE NumClt fk:CLIENT
-# Données : PAIEMENT NumCde fk:ORDER
+[Question 3 — Clés étrangères reçues par SEJOUR]
+A_COMPLETER
+
+[Question 4 — Les deux clés étrangères de SEJOUR]
+A_COMPLETER
+
+[Question 5 — Occuper devient-elle une table de liaison ?]
+A_COMPLETER
+
+[Question 6 — Intégrité violée par le campeur n° 25]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — La clé primaire et les étrangères</h3>
+    <h3 class="lab__title">Exercice 2 — Le schéma relationnel du camping Les Pins Bleus</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -234,21 +232,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="mr-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider les clés : unicité des primaires, références des étrangères (intégrité référentielle).</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « table cle type » : type vaut <code>pk</code> (clé primaire à déclarer) ou <code>fk:REF</code> (clé étrangère référençant la table REF). Pour chaque ligne, indiquez <code>table : cle ok</code>, ou <code>table : doublon</code> si la même clé primaire est déclarée deux fois, ou <code>table : REF inconnue</code> si la table référencée n'a pas (encore ou jamais) de clé primaire déclarée. Terminez par <code>lignes valides : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dériver le MLD d'un MCD : tables, clés primaires, clés étrangères et intégrité référentielle.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le camping <strong>Les Pins Bleus</strong> a validé le MCD de ses séjours :</p><ul><li>CAMPEUR (NumCampeur, NomCampeur, TelCampeur) ;</li><li>EMPLACEMENT (NumEmpl, SurfaceEmpl, TarifEmpl) ;</li><li>SEJOUR (NumSejour, DateArrivee, NbNuits) ;</li><li>association <strong>Effectuer</strong> : CAMPEUR 0,n — 1,1 SEJOUR (« un campeur du fichier peut ne rien avoir réservé ; chaque séjour est effectué par un et un seul campeur ») ;</li><li>association <strong>Occuper</strong> : EMPLACEMENT 0,n — 1,1 SEJOUR (« un emplacement peut être libre ; chaque séjour occupe un et un seul emplacement »).</li></ul><p>Rappel du cours : toute entité devient une table ; une association 1–n ne devient pas une table : la clé de l'autre table migre comme clé étrangère (#) dans la table du côté maximum 1. L'intégrité référentielle impose qu'une clé étrangère référence une clé existante de la table visée.</p><ol><li>Combien de tables compte le MLD du camping ? (un nombre)</li><li>Quelle est la clé primaire de la table SEJOUR ? (nom exact)</li><li>Combien de clés étrangères la table SEJOUR reçoit-elle ? (un nombre)</li><li>Donnez les deux attributs de SEJOUR qui sont des clés étrangères (noms exacts, séparés par un espace).</li><li>L'association Occuper, binaire 1–n, devient-elle une table de liaison ? (oui/non)</li><li>On enregistre le séjour n° 30 pour le campeur n° 25 alors que les campeurs du fichier vont de 1 à 12 : quelle intégrité est violée ? (un mot : référentielle, domaine ou relation)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
-CLIENT NumClt pk
-COMMANDE NumCde pk
-COMMANDE NumClt fk:CLIENT
-LIVRAISON NumClt fk:FOURNISSEUR
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un garage : CLIENT (NumClient, NomClient), VOITURE (NumVoiture, MarqueVoiture), REPARATION (NumRep, DateRep). Confier : CLIENT 0,n — 1,1 REPARATION. Concerner : VOITURE 0,n — 1,1 REPARATION.
+
+1) Nombre de tables : 3.
+2) Clé primaire de REPARATION : NumRep.
+3) Clés étrangères reçues par REPARATION : 2.
+4) Ces clés : NumClient NumVoiture.
+5) L'association 1–n devient-elle une table de liaison ? non.
+6) Une réparation référant le client n° 40, inexistant : integrite referentielle.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un tableau associatif primaires[REF] est rempli par les lignes pk ; les fk consultent ce même tableau.</li>
-        <li>L'ordre compte : une fk qui référence une table dont la pk arrive plus tard est « inconnue » à cette ligne.</li>
+        <li>Règle 1 : chaque entité devient une table. Les associations 1–n, elles, ne deviennent jamais des tables.</li>
+        <li>Chaque association 1–n fait migrer la clé de l'autre table dans SEJOUR, précédée de #.</li>
+        <li>Une clé étrangère qui pointe vers une ligne inexistante de la table visée viole l'intégrité qui contrôle les liens entre tables.</li>
       </ol>
     </details>
   </div>
@@ -258,39 +259,31 @@ LIVRAISON NumClt fk:FOURNISSEUR
      data-exercise="mr-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="2&#10;CLIENT NumClt&#10;COMMANDE NumCde&#10;4&#10;CLIENT NomClt&#10;COMMANDE NumCde&#10;COMMANDE NumClt&#10;COMMANDE DateCde&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (mr-c5-e3) — Le schéma relationnel complet
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un loueur de matériel de ski : CLIENT (NumClient, NomClient), LOCATION (NumLocation, DateLocation), MATERIEL (RefMateriel, TailleMateriel). Effectuer : CLIENT 0,n — 1,1 LOCATION. Contenir : LOCATION 1,n — 0,n MATERIEL, porte CautionMateriel.&#10;&#10;1) Nombre de tables : 4.&#10;2) Clé primaire de LOCATION : NumLocation.&#10;3) NumClient migre dans : LOCATION.&#10;4) Clé de la table de liaison : NumLocation RefMateriel.&#10;5) MATERIEL reçoit-elle une clé étrangère ? non.&#10;6) CautionMateriel se retrouve dans : la table de liaison.">
+  <script type="text/plain" data-lab-starter># Exercice — Le schéma relationnel complet du vidéoclub CinéPalmes
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par un nombre, un nom exact, oui/non ou un mot selon la question.
 
-[Cas 1 — Table inconnue]
-# Données : 1
-# Données : CLIENT NumClt
-# Données : 2
-# Données : FOURNISSEUR NumFou
-# Données : CLIENT NomClt
+[Question 1 — Nombre de tables du MLD complet]
 A_COMPLETER
 
-[Cas 2 — Une seule table, que sa clé]
-# Données : 1
-# Données : PRODUIT NumPrdt
-# Données : 1
-# Données : PRODUIT NumPrdt
+[Question 2 — Clé primaire de la table EMPRUNT]
 A_COMPLETER
 
-[Cas 3 — Trois tables et quatre champs]
-# Données : 3
-# Données : CLIENT NumClt
-# Données : COMMANDE NumCde
-# Données : PRODUIT NumPrdt
-# Données : 4
-# Données : COMMANDE NumCde
-# Données : COMMANDE NumClt
-# Données : PRODUIT PrixPrdt
-# Données : PRODUIT NumPrdt
+[Question 3 — Table qui reçoit NumClient comme clé étrangère]
+A_COMPLETER
+
+[Question 4 — Clé de la table de liaison de Contenir]
+A_COMPLETER
+
+[Question 5 — La table FILM reçoit-elle une clé étrangère ?]
+A_COMPLETER
+
+[Question 6 — Où se retrouve la propriété portée DureeLocation]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Le schéma relationnel complet</h3>
+    <h3 class="lab__title">Exercice 3 — Le schéma relationnel complet du vidéoclub CinéPalmes</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -299,24 +292,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="mr-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Assembler un schéma relationnel : table (cle, attributs..., fk#) vérifiée champ par champ.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Puis il lit <code>n_attrs</code> lignes « table champ » où champ est soit la clé de la table (il devient <code>#pk</code> dans l'affichage), soit une clé étrangère référençant une table déclarée (affichée <code>champ#</code>), soit un attribut simple (affiché tel quel). Chaque champ connu est affiché <code>table : champ_role</code> où role vaut <code>pk</code>, <code>fk</code> ou <code>attr</code>. Un champ appartenant à une table non déclarée produit <code>champ : table inconnue</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire le MLD complet d'un MCD à quatre tables : clés primaires, clés étrangères et propriétés portées.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le vidéoclub <strong>CinéPalmes</strong> a validé son MCD :</p><ul><li>CLIENT (NumClient, NomClient, TelClient) ;</li><li>EMPRUNT (NumEmprunt, DateEmprunt) ;</li><li>FILM (NumFilm, TitreFilm, SupportFilm) ;</li><li>association <strong>Effectuer</strong> : CLIENT 0,n — 1,1 EMPRUNT (« un client peut ne rien avoir emprunté ; chaque emprunt est effectué par un et un seul client ») ;</li><li>association <strong>Contenir</strong> : EMPRUNT 1,n — 0,n FILM, porte DureeLocation (« chaque emprunt concerne au moins un film ; un film peut être disponible, sans emprunt en cours ; pour chaque film emprunté, on note la durée de location en jours »).</li></ul><p>Rappel du cours : entité → table ; association binaire n–n → table de liaison (même sans propriété), dont la clé est le couple des identifiants ; association 1–n → migration de la clé (#) dans la table du côté maximum 1, avec les propriétés portées.</p><ol><li>Combien de tables compte le MLD complet du vidéoclub ? (un nombre)</li><li>Quelle est la clé primaire de la table EMPRUNT ? (nom exact)</li><li>Dans quelle table la clé NumClient migre-t-elle comme clé étrangère ? (nom de la table)</li><li>La table de liaison de Contenir a pour clé le couple des deux identifiants : donnez ces deux attributs (noms exacts, séparés par un espace).</li><li>La table FILM reçoit-elle une clé étrangère ? (oui/non)</li><li>La propriété portée DureeLocation se retrouve-t-elle dans la table FILM, dans la table EMPRUNT ou dans la table de liaison ? (répondez : FILM, EMPRUNT ou liaison)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>2
-CLIENT NumClt
-COMMANDE NumCde
-4
-CLIENT NomClt
-COMMANDE NumCde
-COMMANDE NumClt
-COMMANDE DateCde
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un loueur de matériel de ski : CLIENT (NumClient, NomClient), LOCATION (NumLocation, DateLocation), MATERIEL (RefMateriel, TailleMateriel). Effectuer : CLIENT 0,n — 1,1 LOCATION. Contenir : LOCATION 1,n — 0,n MATERIEL, porte CautionMateriel.
+
+1) Nombre de tables : 4.
+2) Clé primaire de LOCATION : NumLocation.
+3) NumClient migre dans : LOCATION.
+4) Clé de la table de liaison : NumLocation RefMateriel.
+5) MATERIEL reçoit-elle une clé étrangère ? non.
+6) CautionMateriel se retrouve dans : la table de liaison.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Premier test : la table est-elle déclarée ? Deuxième : le champ est-il la clé de sa table ? Troisième : le champ est-il la clé d'une autre table (donc fk) ? Sinon attribut.</li>
-        <li>Parcourez le tableau des clés déclarées pour savoir si le champ en est une.</li>
+        <li>Comptez les tables : une par entité, plus une table de liaison pour l'association n–n Contenir.</li>
+        <li>Effectuer est une association 1–n : la clé de CLIENT migre dans la table du côté maximum 1. FILM, lui, n'est le côté maximum 1 d'aucune association.</li>
+        <li>La table de liaison de Contenir porte la clé composée des deux identifiants et récupère la propriété portée : elle décrit chaque couple (emprunt, film).</li>
       </ol>
     </details>
   </div>
@@ -329,18 +322,18 @@ COMMANDE DateCde
     <div class="q">
       <p class="q__stem">Le MLD est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la forme machinale du MCD</button>
-        <button class="opt">une copie du MCD</button>
         <button class="opt">le modèle physique</button>
+        <button class="opt">une copie du MCD</button>
+        <button class="opt" data-correct="1">la forme machinale du MCD</button>
       </div>
       <div class="q__exp">Le MCD n'est pas compréhensible par l'ordinateur ; le MLD est sa forme machinale (relationnelle).</div>
     </div>
     <div class="q">
       <p class="q__stem">Une clé étrangère est…</p>
       <div class="opts">
+        <button class="opt">un attribut purement décoratif sans contrainte</button>
+        <button class="opt">une clé obligatoirement composée de plusieurs attributs</button>
         <button class="opt" data-correct="1">un ou plusieurs attributs référençant une clé primaire ou unique</button>
-        <button class="opt">un attribut décoratif</button>
-        <button class="opt">toujours composée</button>
       </div>
       <div class="q__exp">Elle référence une clé primaire ou unique admissible, dans la même table ou une autre ; elle peut être simple ou composée.</div>
     </div>
@@ -365,17 +358,17 @@ COMMANDE DateCde
     <div class="q">
       <p class="q__stem">Une association binaire n–n sans propriété devient…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">une table de liaison</button>
-        <button class="opt">rien</button>
         <button class="opt">une vue obligatoire</button>
+        <button class="opt">rien</button>
+        <button class="opt" data-correct="1">une table de liaison</button>
       </div>
       <div class="q__exp">La table de liaison est nécessaire même sans propriété portée ; le couple d’identifiants peut être sa clé.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pour une association 1–n, où migre la clé étrangère ?</p>
       <div class="opts">
-        <button class="opt">Dans une table de liaison obligatoire</button>
         <button class="opt" data-correct="1">Dans la table côté maximum 1</button>
+        <button class="opt">Dans une table de liaison obligatoire</button>
         <button class="opt">Nulle part</button>
       </div>
       <div class="q__exp">La clé de l’autre entité migre côté maximum 1 avec les éventuelles propriétés de l’association.</div>
@@ -383,9 +376,9 @@ COMMANDE DateCde
     <div class="q">
       <p class="q__stem">L'intégrité référentielle impose…</p>
       <div class="opts">
+        <button class="opt">que la table référencée soit toujours triée selon sa clé primaire</button>
         <button class="opt" data-correct="1">que la fk référence une clé primaire ou unique existante, sous réserve des règles NULL</button>
-        <button class="opt">que la table soit triée</button>
-        <button class="opt">que les champs soient textes</button>
+        <button class="opt">que tous les champs liés soient obligatoirement de type texte</button>
       </div>
       <div class="q__exp">Pas de NumClt 25 si les clients s'arrêtent à 15 ; une clé unique admissible peut aussi être référencée.</div>
     </div>
@@ -514,7 +507,7 @@ COMMANDE DateCde
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

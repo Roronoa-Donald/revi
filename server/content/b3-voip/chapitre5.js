@@ -136,14 +136,14 @@ module.exports = {
   questions: [
     {
       stem: 'Une entreprise enregistre 120 appels d\'une durée moyenne de 180 secondes pendant l\'heure de pointe. Quel est le trafic téléphonique offert A exprimé en Erlangs ?',
-      opts: ['3.00 Erlangs', '6.00 Erlangs', '10.00 Erlangs', '21.60 Erlangs'],
-      correct: 1,
+      opts: ['6.00 Erlangs', '3.00 Erlangs', '10.00 Erlangs', '21.60 Erlangs'],
+      correct: 0,
       exp: 'A = (Nb_appels * Duree_sec) / 3600 = (120 * 180) / 3600 = 21 600 / 3600 = 6.00 Erlangs.'
     },
     {
       stem: 'Quelle valeur décimale de marquage DSCP (Differentiated Services Code Point) est standardisée par l\'IETF pour les flux voix temps réel RTP (classe Expedited Forwarding EF) ?',
-      opts: ['0 (CS0)', '24 (CS3)', '34 (AF41)', '46 (EF)'],
-      correct: 3,
+      opts: ['0 (CS0)', '46 (EF)', '34 (AF41)', '24 (CS3)'],
+      correct: 1,
       exp: 'La classe Expedited Forwarding (EF) correspond à la valeur décimale 46 (binaire 101110), décalée de 2 bits dans le champ ToS (valeur 184 soit 0xB8).'
     },
     {
@@ -154,32 +154,32 @@ module.exports = {
     },
     {
       stem: 'Quel est le seuil maximal de délai de transmission unidirectionnel (One-Way Latency) recommandé par l\'ITU-T G.114 pour préserver une conversation téléphonique naturelle ?',
-      opts: ['50 ms', '150 ms', '300 ms', '500 ms'],
-      correct: 1,
+      opts: ['50 ms', '500 ms', '300 ms', '150 ms'],
+      correct: 3,
       exp: 'L\'ITU-T G.114 recommande un délai unidirectionnel inférieur ou égal à 150 ms pour que la communication reste interactive sans que les locuteurs ne se coupent la parole.'
     },
     {
       stem: 'Quelle anomalie typique de téléphonie IP se produit lorsqu\'un routeur NAT ne traduit pas l\'adresse IP privée insérée dans le corps SDP d\'une réponse 200 OK ?',
-      opts: ['Le téléphone refuse de sonner', 'L\'appel est redirigé vers la police', 'Le phénomène de One-Way Audio (audio unidirectionnel)', 'Le combiné redémarre en boucle'],
-      correct: 2,
+      opts: ['Le phénomène de One-Way Audio (audio unidirectionnel)', 'L\'appel est redirigé vers la police', 'Le téléphone refuse de sonner', 'Le combiné redémarre en boucle'],
+      correct: 0,
       exp: 'L\'émetteur externe tente d\'envoyer son flux RTP vers l\'IP privée non routable du récepteur, causant une absence totale de son dans un sens (One-Way Audio).'
     },
     {
       stem: 'Deux serveurs STUN observent le même mappage pour un client. Que peut-on en conclure pour la communication avec un pair ?',
-      opts: ['Le pair est nécessairement joignable directement', 'Les mappages observés sont identiques, mais la connectivité doit être vérifiée', 'Aucun pare-feu ne filtre le trafic', 'Le client ne traverse aucun NAT'],
+      opts: ["Le pair distant est nécessairement joignable directement sans relais","Les mappages observés sont identiques, mais la connectivité doit être vérifiée","Aucun pare-feu ne filtre le trafic UDP entre les deux correspondants","Le client ne traverse aucun dispositif NAT sur son accès Internet"],
       correct: 1,
       exp: 'La comparaison de ces deux observations ne prouve ni le filtrage ni la joignabilité du pair ; ICE vérifie des paires de candidats et TURN peut fournir un relais.'
     },
     {
       stem: 'Quelle action d\'administration réseau est fortement recommandée sur les passerelles Internet pour éviter que les messages SIP ne soient altérés ou corrompus ?',
-      opts: ['Activer le proxy transparent', 'Désactiver le module SIP ALG (Application Layer Gateway)', 'Bloquer les paquets UDP', 'Réduire la MTU à 500 octets'],
-      correct: 1,
+      opts: ["Activer le proxy transparent du routeur pour les flux SIP","Bloquer tous les paquets UDP entrants sur la box Internet","Désactiver le module SIP ALG (Application Layer Gateway)","Réduire la MTU des trames à 500 octets sur le lien WAN"],
+      correct: 2,
       exp: 'Les implémentations de SIP ALG sur les routeurs sont fréquemment boguées et altèrent les paquets SIP. Il est recommandé de désactiver SIP ALG.'
     },
     {
       stem: 'Quel protocole réseau permet à un commutateur Ethernet d\'informer automatiquement un téléphone IP du numéro de Voice VLAN et des paramètres PoE à utiliser dès son raccordement ?',
-      opts: ['SNMP', 'LLDP-MED (ou CDP)', 'BGP', 'OSPF'],
-      correct: 1,
+      opts: ['SNMP', 'OSPF', 'BGP', 'LLDP-MED (ou CDP)'],
+      correct: 3,
       exp: 'LLDP-MED (Link Layer Discovery Protocol - Media Endpoint Discovery) et CDP (Cisco) configurent automatiquement le Voice VLAN et l\'alimentation PoE du combiné.'
     }
   ],

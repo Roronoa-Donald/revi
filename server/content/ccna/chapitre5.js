@@ -195,29 +195,29 @@ module.exports = {
     {
       stem: 'Soit deux routes dans la table : 192.168.1.0/24 via 10.0.0.1 (AD 1) et 192.168.1.128/25 via 10.0.0.2 (AD 110). Vers quelle adresse IP un paquet destiné à 192.168.1.150 est-il acheminé ?',
       opts: [
-        'Vers 10.0.0.1 car la Distance Administrative 1 est meilleure que 110',
         'Vers 10.0.0.2 car le préfixe /25 est plus spécifique (Longest Prefix Match)',
+        'Vers 10.0.0.1 car la Distance Administrative 1 est meilleure que 110',
         'Le paquet est équilibré 50/50 entre les deux prochains sauts',
         'Le paquet est rejeté pour ambiguïté de routage'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’algorithme Longest Prefix Match s’applique en premier : /25 est plus long que /24. La Distance Administrative ne sert qu’à départager des routes de même longueur de masque.'
     },
     {
       stem: 'Quelle est la syntaxe correcte pour configurer une route par défaut vers la passerelle 203.0.113.1 sous Cisco IOS ?',
       opts: [
         'ip route default 203.0.113.1',
-        'ip route 0.0.0.0 0.0.0.0 203.0.113.1',
+        'ip route *.*.*.* 203.0.113.1',
         'ip default-gateway 203.0.113.1',
-        'ip route *.*.*.* 203.0.113.1'
+        'ip route 0.0.0.0 0.0.0.0 203.0.113.1'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La route par défaut sous Cisco IOS est définie par le préfixe 0.0.0.0 avec le masque 0.0.0.0, soit la commande « ip route 0.0.0.0 0.0.0.0 203.0.113.1 ».'
     },
     {
       stem: 'Quelle est la valeur de la Distance Administrative par défaut attribuée à une route directement connectée (C) ?',
-      opts: ['0', '1', '90', '110'],
-      correct: 0,
+      opts: ['90', '1', '0', '110'],
+      correct: 2,
       exp: 'Une route directement connectée a une Distance Administrative de 0, ce qui en fait la source d’information la plus fiable possible.'
     },
     {
@@ -236,17 +236,17 @@ module.exports = {
       stem: 'Que se passe-t-il si un routeur reçoit un paquet destiné à une adresse IP pour laquelle aucune route spécifique n’existe et qu’aucune route par défaut n’est configurée ?',
       opts: [
         'Le routeur diffuse le paquet sur tous ses ports',
-        'Le routeur détruit le paquet et renvoie un message ICMP Destination Unreachable à l’émetteur',
+        'Le routeur renvoie le paquet à l’émetteur sans modification',
         'Le routeur met le paquet en attente pendant 30 secondes',
-        'Le routeur renvoie le paquet à l’émetteur sans modification'
+        'Le routeur détruit le paquet et renvoie un message ICMP Destination Unreachable à l’émetteur'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Sans route correspondante ni route par défaut (0.0.0.0/0), le paquet est silencieusement détruit et le routeur émet un message ICMP type 3 code 0 (Network Unreachable) vers l’adresse IP source.'
     },
     {
       stem: 'Quelle Distance Administrative possède une route apprise via le protocole EIGRP interne ?',
-      opts: ['20', '90', '110', '120'],
-      correct: 1,
+      opts: ['20', '110', '90', '120'],
+      correct: 2,
       exp: 'EIGRP interne possède une Distance Administrative par défaut de 90. (OSPF est à 110, RIP à 120 et eBGP à 20).'
     }
   ],

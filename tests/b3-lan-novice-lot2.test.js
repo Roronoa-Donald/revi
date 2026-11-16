@@ -51,7 +51,7 @@ test('La situation, le résumé et la checklist évitent la comparaison absolue 
 test('Le QCM conserve une réponse juste et expose les conditions de diffusion', () => {
   assert.equal(chapter.questions.length, 8);
   assert.equal(question.opts.length, 4);
-  assert.equal(question.correct, 1);
+  assert.ok(Number.isInteger(question.correct) && question.correct >= 0 && question.correct < question.opts.length);
   assert.match(question.opts[question.correct], /tenter[^.]*certaines trames[^.]*destinations? inconnues/i);
   assert.equal(question.opts.filter(option => /destinations? inconnues/i.test(option)).length, 1);
   assert.match(question.exp, /apprentissage/i);

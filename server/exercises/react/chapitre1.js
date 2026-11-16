@@ -23,8 +23,9 @@ const texte = reste.join(' ');
 // À compléter : construire l'objet React Element et l'afficher au format JSON
 `,
     hints: [
-      'Utilisez un objet littéral avec la clé type et un sous-objet props contenant children.',
-      'Affichez l\'objet converti en chaîne avec JSON.stringify(element).'
+      "Utilisez un objet littéral avec la clé type et un sous-objet props contenant children.",
+      "Affichez l'objet converti en chaîne avec JSON.stringify(element).",
+      "Lire la ligne, isoler le type en premier mot, prendre le reste comme children, puis construire l objet type/props et l afficher en JSON."
     ],
     examples: [
       { stdin: 'button Valider\n', expected: '{"type":"button","props":{"children":"Valider"}}', note: 'Objet élément simple avec balise button.' }
@@ -46,7 +47,8 @@ const element = {
   }
 };
 console.log(JSON.stringify(element));
-`
+`,
+    takeaway: "React.createElement(type, props, children) produit un objet descripteur léger (Virtual DOM) avant tout rendu navigateur."
   },
   {
     id: 'rx2-c1-e2',
@@ -64,8 +66,9 @@ const [statut, identifiant] = lignes[0].split(' ');
 // À compléter : afficher le composant JSX approprié
 `,
     hints: [
-      'Testez si statut === "1" avec une condition if/else.',
-      'Utilisez un template literal avec backticks pour injecter l\'identifiant dans la prop user.'
+      "Testez si statut === \"1\" avec une condition if/else.",
+      "Utilisez un template literal avec backticks pour injecter l'identifiant dans la prop user.",
+      "Lire statut et identifiant ; si statut vaut 1 afficher la balise Dashboard avec la prop user, sinon la balise LoginForm avec redirect."
     ],
     examples: [
       { stdin: '1 Alice\n', expected: '<Dashboard user="Alice" />', note: 'Utilisateur connecté avec son prénom.' }
@@ -84,7 +87,8 @@ if (statut === '1') {
 } else {
   console.log('<LoginForm redirect="/login" />');
 }
-`
+`,
+    takeaway: "Un opérateur ternaire JSX choisit proprement le sous-arbre rendu selon l état booléen de session."
   },
   {
     id: 'rx2-c1-e3',
@@ -104,8 +108,9 @@ const auteur = lignes[2] || '';
 // À compléter : afficher l'arbre de composants avec indentation de 2 espaces
 `,
     hints: [
-      'Chaque sous-composant est indenté de deux espaces à l\'intérieur de <App> ... </App>.',
-      'Veillez à bien respecter les guillemets et les noms exacts des props : title, message, author.'
+      "Chaque sous-composant est indenté de deux espaces à l'intérieur de <App> ... </App>.",
+      "Veillez à bien respecter les guillemets et les noms exacts des props : title, message, author.",
+      "Lire les trois lignes dans l ordre titre, message puis auteur ; afficher App et ses trois sous-composants indentés de deux espaces avec leurs props."
     ],
     examples: [
       { stdin: 'Accueil\nBienvenue en B2\nEquipe Peda\n', expected: '<App>\n  <Header title="Accueil" />\n  <Content message="Bienvenue en B2" />\n  <Footer author="Equipe Peda" />\n</App>', note: 'Arbre complet avec 3 sous-composants.' }
@@ -127,6 +132,7 @@ console.log(\`  <Header title="\${titre}" />\`);
 console.log(\`  <Content message="\${message}" />\`);
 console.log(\`  <Footer author="\${auteur}" />\`);
 console.log('</App>');
-`
+`,
+    takeaway: "Découper une interface en composants App, Header, Content et Footer sépare responsabilité visuelle et données."
   }
 ];

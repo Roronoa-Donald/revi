@@ -161,43 +161,43 @@ module.exports = {
     {
       stem: 'Combien de VLANs distincts peuvent être théoriquement codés sur le champ VID de 12 bits de la norme 802.1Q ?',
       opts: [
-        '256',
-        '1024',
         '4096 (dont 4094 utilisables)',
+        '1024',
+        '256',
         '65536'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Un champ de 12 bits permet 2^12 = 4096 valeurs (les identifiants 0 et 4095 étant réservés, 4094 VLANs sont exploitables).'
     },
     {
       stem: 'Comment une sous-interface VLAN est-elle nommée sous le noyau FreeBSD/pfSense pour la carte em0 sur le VLAN 30 ?',
       opts: [
         'vlan30@em0',
-        'em0.30',
+        'trunk0-vlan30',
         'eth0:30',
-        'trunk0-vlan30'
+        'em0.30'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Sous FreeBSD/pfSense, la convention de nommage des sous-interfaces 802.1Q est <nom_interface_parente>.<vlan_id>, soit em0.30.'
     },
     {
       stem: 'Quelle règle de sécurité fondamentale régit l’accès entre une DMZ publique et le réseau interne (LAN) ?',
       opts: [
         'Le LAN ne peut jamais communiquer avec la DMZ',
-        'La DMZ ne doit jamais pouvoir initier de nouvelle connexion vers le LAN',
         'Tout le trafic entre la DMZ et le LAN doit être non filtré pour la performance',
+        'La DMZ ne doit jamais pouvoir initier de nouvelle connexion vers le LAN',
         'La DMZ doit partager le même serveur DHCP que le LAN'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Pour éviter qu’un pirate ayant compromis un serveur Web public ne pivote vers le système d’information interne, toute initiation DMZ vers LAN est bloquée.'
     },
     {
       stem: 'Comment un serveur Web situé en DMZ peut-il répondre aux requêtes HTTP formulées par un poste du réseau LAN ?',
       opts: [
-        'En créant une règle autorisant tout le trafic de la DMZ vers le LAN',
-        'Automatiquement grâce à la table d’états (Stateful Inspection) qui autorise les paquets retour',
-        'En désactivant le pare-feu pfSense',
-        'En utilisant le protocole RIP'
+        "En créant une règle autorisant tout le trafic de la DMZ vers le LAN",
+        "Automatiquement grâce à la table d’états (Stateful Inspection) qui autorise les paquets retour",
+        "En désactivant le pare-feu pfSense le temps de la transaction HTTP entre les deux zones",
+        "En utilisant le protocole de routage RIP pour annoncer le sous-réseau DMZ au LAN"
       ],
       correct: 1,
       exp: 'Le pare-feu à état conserve la trace de la session ouverte par le LAN et laisse passer les paquets réponses de la DMZ sans nécessiter de règle d’initiation.'
@@ -205,34 +205,34 @@ module.exports = {
     {
       stem: 'Quelle faille de configuration de commutateur est exploitée lors d’une attaque par Double Tagging (VLAN Hopping) ?',
       opts: [
-        'L’absence de mot de passe administrateur',
-        'Le stripping (retrait) du tag externe par le switch lorsque celui-ci correspond au VLAN natif non étiqueté du Trunk',
-        'L’utilisation de câbles réseau trop longs',
-        'Une saturation de la bande passante du pare-feu'
+        "Le stripping (retrait) du tag externe par le switch lorsque celui-ci correspond au VLAN natif non étiqueté du Trunk",
+        "L’absence de mot de passe administrateur sur la console de gestion du commutateur Cisco",
+        "L’utilisation de câbles réseau cuivre dépassant la longueur maximale recommandée",
+        "Une saturation de la bande passante du pare-feu par le trafic de diffusion inter-VLANs"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le switch supprime le tag externe correspondant à son VLAN natif et envoie la trame sur le trunk avec le tag interne cible sans ré-inspection.'
     },
     {
       stem: 'Quelle est la première recommandation pour contrer l’attaque par Double Tagging sur un commutateur ?',
       opts: [
-        'Remplacer tous les câbles RJ45 par de la fibre',
-        'Définir un VLAN natif dédié et inutilisé (ex: VLAN 999) différent du VLAN 1 par défaut',
-        'Augmenter le MTU à 9000 octets',
-        'Bloquer les requêtes DNS sur le port 53'
+        "Remplacer tous les câbles RJ45 du réseau par des liaisons fibre optique monomode",
+        "Augmenter le MTU des trames du trunk à 9000 octets pour accélérer les échanges",
+        "Définir un VLAN natif dédié et inutilisé (ex: VLAN 999) différent du VLAN 1 par défaut",
+        "Bloquer les requêtes DNS émises sur le port 53 depuis les ports utilisateurs"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Attribuer un VLAN natif fictif non affecté aux ports utilisateurs empêche les postes d’émettre des trames avec le tag externe natif requis pour l’attaque.'
     },
     {
       stem: 'Quel protocole propriétaire Cisco de négociation automatique de port Trunk doit être impérativement désactivé sur les ports utilisateurs ?',
       opts: [
         'CDP (Cisco Discovery Protocol)',
-        'DTP (Dynamic Trunking Protocol)',
+        'HSRP',
         'VTP (VLAN Trunking Protocol)',
-        'HSRP'
+        'DTP (Dynamic Trunking Protocol)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'DTP permet à un poste malveillant de négocier un lien Trunk avec le switch si le port est en mode dynamic auto/desirable, donnant accès à tous les VLANs.'
     }
   ],

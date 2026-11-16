@@ -149,33 +149,33 @@ module.exports = {
       stem: 'Quelle option de la commande EXPLAIN permet d’afficher les blocs de mémoire tampon (Buffer Pool) consultés et lus sur disque ?',
       opts: [
         'EXPLAIN (VERBOSE)',
-        'EXPLAIN (BUFFERS)',
         'EXPLAIN (TIMING)',
+        'EXPLAIN (BUFFERS)',
         'EXPLAIN (MEMORY)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’option BUFFERS (utilisée conjointement avec ANALYZE) détaille les blocs partagés trouvés en cache (shared hit) ou lus sur disque (read).'
     },
     {
       stem: 'Dans la sortie « (cost=0.42..8.44 rows=10 width=48) », que représente la valeur 0.42 ?',
       opts: [
-        'Le temps d’exécution en millisecondes',
-        'Le coût estimé de démarrage (startup cost) avant de produire la première ligne',
-        'Le nombre d’index utilisés',
-        'Le pourcentage d’utilisation du processeur'
+        "Le temps d’exécution réel de la requête exprimé en millisecondes",
+        "Le nombre total d’index utilisés par le plan d’exécution",
+        "Le pourcentage moyen d’utilisation du processeur pendant l’exécution",
+        "Le coût estimé de démarrage (startup cost) avant de produire la première ligne"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La première valeur du couple de coûts correspond au coût de démarrage (startup cost), c’est-à-dire le travail préalable requis pour renvoyer le premier tuple.'
     },
     {
       stem: 'Dans quel scénario l’optimiseur privilégie-t-il un algorithme de jointure Nested Loop Join ?',
       opts: [
-        'Lorsque les deux tables contiennent plus de 10 millions de lignes sans aucun index',
-        'Lorsque la table externe est très petite et que la table interne dispose d’un index performant sur la clé de jointure',
-        'Uniquement sur les requêtes avec la clause GROUP BY',
-        'Lorsque la mémoire work_mem est totalement saturée'
+        "Lorsque la table externe est très petite et que la table interne dispose d’un index performant sur la clé de jointure",
+        "Lorsque les deux tables contiennent plus de dix millions de lignes chacune et sans aucun index de jointure",
+        "Uniquement sur les requêtes comportant une clause GROUP BY avec agrégats de regroupement",
+        "Uniquement lorsque la mémoire de travail work_mem du serveur est totalement saturée"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Nested Loop est optimal pour une petite relation externe bouclant sur un index sélectif de la table interne.'
     },
     {
@@ -192,10 +192,10 @@ module.exports = {
     {
       stem: 'Que signifie la mention « Sort Method: external merge Disk: 1840kB » dans un rapport EXPLAIN ANALYZE ?',
       opts: [
-        'Le tri a été accéléré par le contrôleur RAID',
-        'Le tri n’a pas pu tenir dans la mémoire work_mem et a dû déborder temporairement sur le disque',
-        'Le disque dur est défectueux',
-        'L’index est corrompu'
+        "Le tri a été accéléré par le contrôleur RAID matériel de la baie de disques",
+        "Le tri n’a pas pu tenir dans la mémoire work_mem et a dû déborder temporairement sur le disque",
+        "Le disque dur de stockage des données est défectueux et doit être remplacé",
+        "L’index utilisé par la requête est corrompu et doit être reconstruit"
       ],
       correct: 1,
       exp: 'La mention external merge Disk indique un manque de work_mem : le moteur a écrit des fichiers temporaires sur disque pour trier les données.'
@@ -203,12 +203,12 @@ module.exports = {
     {
       stem: 'Quel nœud d’accès combine les résultats d’un ou plusieurs index sous la forme d’un vecteur de bits avant de lire la table physique ?',
       opts: [
-        'Seq Scan',
-        'Bitmap Heap Scan (alimenté par Bitmap Index Scan)',
-        'Index Only Scan',
-        'TID Scan'
+        "Bitmap Heap Scan (alimenté par Bitmap Index Scan)",
+        "Seq Scan, le balayage séquentiel complet de la table",
+        "Index Only Scan, la lecture sans accès à la table",
+        "TID Scan, l’accès direct par identifiant de ligne"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Bitmap Heap Scan utilise un masque de bits produit par un Bitmap Index Scan pour lire les blocs physiques de table dans l’ordre séquentiel du disque.'
     },
     {
@@ -216,21 +216,21 @@ module.exports = {
       opts: [
         'REINDEX DATABASE',
         'VACUUM FULL',
-        'ANALYZE',
-        'CHECKPOINT'
+        'CHECKPOINT',
+        'ANALYZE'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La commande ANALYZE échantillonne les lignes des tables et met à jour les métadonnées de distribution stockées dans pg_statistic pour le CBO.'
     },
     {
       stem: 'Si un plan indique « rows=1 » alors que l’exécution réelle affiche « actual rows=500000 », quelle est la conséquence probable sur le choix de jointure ?',
       opts: [
-        'Le CBO choisira à tort un Nested Loop inadapté au lieu d’un Hash Join ou Merge Join performant',
-        'La requête sera automatiquement annulée',
-        'Le serveur redémarrera',
-        'Aucune conséquence, l’optimiseur s’adapte automatiquement au runtime'
+        "La requête sera automatiquement annulée par le serveur dès la détection de l’écart",
+        "Le serveur PostgreSQL redémarrera de lui-même pour recalculer le plan",
+        "Le CBO choisira à tort un Nested Loop inadapté au lieu d’un Hash Join ou Merge Join performant",
+        "Aucune conséquence réelle, l’optimiseur s’adaptant automatiquement aux cardinalités au runtime"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Une sous-estimation massive de cardinalité conduit l’optimiseur à choisir un Nested Loop désastreux qui va boucler des centaines de milliers de fois.'
     }
   ],

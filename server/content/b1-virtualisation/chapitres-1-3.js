@@ -107,13 +107,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Pourquoi le serveur est-il qualifié de « fainéant » ?', opts: ['il passait 80 % de son temps à ne rien faire', 'il refusait les mises à jour', 'il était trop lent'], correct: 0, exp: 'Un seul système, un seul service, 80 % d’inactivité : la définition exacte de l’histoire.' },
-      { q: 'Que faisait le serveur avec son temps libre ?', opts: ['il dormait et mangeait de l’électricité pour rien', 'il compilait des projets', 'il aidait les autres serveurs'], correct: 0, exp: 'L’histoire insiste : il s’ennuyait et coûtait de l’électricité à vide.' },
-      { q: '80 % d’une heure, c’est…', opts: ['48 minutes', '60 minutes', '30 minutes'], correct: 0, exp: '0,8 × 60 = 48 minutes — le seuil du calcul du fainéant.' },
-      { q: 'Un serveur mono-service héberge…', opts: ['un seul service', 'exactement dix services', 'aucun service'], correct: 0, exp: 'Mono-service signifie un seul service ; cela ne détermine pas son taux de charge.' },
-      { q: 'L’énergie consommée par 500 W pendant 720 h vaut…', opts: ['360 kWh', '360 000 W', '36 kWh'], correct: 0, exp: '500 × 720 / 1000 = 360 kWh.' },
+      { q: 'Pourquoi le serveur est-il qualifié de « fainéant » ?', opts: ["il refusait d’installer les mises à jour proposées","il passait 80 % de son temps à ne rien faire","il était trop lent pour traiter les demandes"], correct: 1, exp: 'Un seul système, un seul service, 80 % d’inactivité : la définition exacte de l’histoire.' },
+      { q: 'Que faisait le serveur avec son temps libre ?', opts: ["il dormait et mangeait de l’électricité pour rien","il compilait des projets pour les autres services","il aidait les autres serveurs à finir leur travail"], correct: 0, exp: 'L’histoire insiste : il s’ennuyait et coûtait de l’électricité à vide.' },
+      { q: '80 % d’une heure, c’est…', opts: ['30 minutes', '60 minutes', '48 minutes'], correct: 2, exp: '0,8 × 60 = 48 minutes — le seuil du calcul du fainéant.' },
+      { q: 'Un serveur mono-service héberge…', opts: ['aucun service', 'exactement dix services', 'un seul service'], correct: 2, exp: 'Mono-service signifie un seul service ; cela ne détermine pas son taux de charge.' },
+      { q: 'L’énergie consommée par 500 W pendant 720 h vaut…', opts: ['360 000 W', '360 kWh', '36 kWh'], correct: 1, exp: "Energie = puissance × durée : 500 W × 720 h = 360 000 Wh, soit 360 kWh ; 36 kWh oublie la division par 1000 et 360 000 W confond watts et wattheures." },
       { q: 'Le service hébergé en premier dans l’histoire…', opts: ['un site web ou une base de données', 'un jeu vidéo', 'un serveur de mail'], correct: 0, exp: 'L’histoire cite « un site web ou une base de données » comme unique service.' },
-      { q: 'Que déduit-on d’une inactivité mesurée de 80 % ?', opts: ['Le coût perdu ne se déduit pas sans autre analyse', '80 % du coût est forcément perdu', 'Tout le coût est forcément perdu'], correct: 0, exp: 'Charge, disponibilité, coûts fixes et consommation doivent être étudiés séparément.' },
+      { q: 'Que déduit-on d’une inactivité mesurée de 80 % ?', opts: ['Tout le coût est forcément perdu', '80 % du coût est forcément perdu', 'Le coût perdu ne se déduit pas sans autre analyse'], correct: 2, exp: 'Charge, disponibilité, coûts fixes et consommation doivent être étudiés séparément.' },
       { q: 'Qui a l’idée de la virtualisation dans l’histoire ?', opts: ['un ingénieur IT', 'le serveur lui-même', 'les machines virtuelles'], correct: 0, exp: 'Un jour, un ingénieur IT eut cette idée.' }
     ],
 
@@ -261,14 +261,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La virtualisation permet de…', opts: ['faire tourner plusieurs machines sur un seul matériel', 'acheter plus de serveurs', 'supprimer les sauvegardes'], correct: 0, exp: 'Plusieurs machines indépendantes, un seul serveur physique, des ressources partagées.' },
+      { q: 'La virtualisation permet de…', opts: ["acheter plus de serveurs physiques pour chaque service","faire tourner plusieurs machines sur un seul matériel","supprimer les sauvegardes pour libérer de l’espace disque"], correct: 1, exp: 'Plusieurs machines indépendantes, un seul serveur physique, des ressources partagées.' },
       { q: 'Les ressources partagées de l’histoire sont…', opts: ['mémoire, processeur, disque', 'clavier, écran, souris', 'réseau seul'], correct: 0, exp: 'La promesse des VM : « votre mémoire, votre processeur et même votre disque dur ».' },
-      { q: 'La règle d’allocation des VM est…', opts: ['ne prendre que ce dont on a besoin', 'prendre tout ce qui reste', 'prendre sans déclarer'], correct: 0, exp: '« On ne prendra chacun que ce dont on a besoin » — et le total tient dans la capacité.' },
-      { q: 'Une VM refusée…', opts: ['ne consomme rien', 'consomme quand même', 'détruit les autres VM'], correct: 0, exp: 'Contrôler d’abord, allouer ensuite : le refus ne touche pas aux restes.' },
-      { q: 'La première réaction du serveur est…', opts: ['la colère — « C’est de la folie ! »', 'la joie', 'l’indifférence'], correct: 0, exp: 'Il se réveille en sursaut et refuse, avant d’accepter à l’étape 4.' },
-      { q: 'Qui propose le partage des ressources ?', opts: ['les machines virtuelles', 'l’ingénieur', 'le disque'], correct: 0, exp: 'Les VM, très enthousiastes, répondent au serveur fâché.' },
+      { q: 'La règle d’allocation des VM est…', opts: ['prendre tout ce qui reste', 'ne prendre que ce dont on a besoin', 'prendre sans déclarer'], correct: 1, exp: '« On ne prendra chacun que ce dont on a besoin » — et le total tient dans la capacité.' },
+      { q: 'Une VM refusée…', opts: ['détruit les autres VM', 'consomme quand même', 'ne consomme rien'], correct: 2, exp: 'Contrôler d’abord, allouer ensuite : le refus ne touche pas aux restes.' },
+      { q: 'La première réaction du serveur est…', opts: ['l’indifférence', 'la joie', 'la colère — « C’est de la folie ! »'], correct: 2, exp: 'Il se réveille en sursaut et refuse, avant d’accepter à l’étape 4.' },
+      { q: 'Qui propose le partage des ressources ?', opts: ['l’ingénieur', 'les machines virtuelles', 'le disque'], correct: 1, exp: 'Les VM, très enthousiastes, répondent au serveur fâché.' },
       { q: '64 Go, 500 Go : web (16/50) puis base (32/200) laissent…', opts: ['16 Go et 250 Go', '0 Go et 0 Go', '32 Go et 250 Go'], correct: 0, exp: '64−16−32 = 16 Go ; 500−50−200 = 250 Go — la VM test (32/400) sera refusée.' },
-      { q: 'Le partage est…', opts: ['une règle par défaut qui admet des exceptions', 'un dogme absolu', 'une option payante'], correct: 0, exp: 'Certaines ressources peuvent rester dédiées à une VM : le partage reste la règle par défaut.' }
+      { q: 'Le partage est…', opts: ["un dogme absolu sans exception possible","une règle par défaut qui admet des exceptions","une option payante des licences haut de gamme"], correct: 1, exp: 'Certaines ressources peuvent rester dédiées à une VM : le partage reste la règle par défaut.' }
     ],
 
     pitfalls: [
@@ -411,14 +411,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le site web sert à…', opts: ['la publication', 'la protection', 'la recette'], correct: 0, exp: 'Publication vers les utilisateurs ; la base porte les données, le pare-feu protège, le test recette.' },
+      { q: 'Le site web sert à…', opts: ['la recette', 'la protection', 'la publication'], correct: 2, exp: 'Publication vers les utilisateurs ; la base porte les données, le pare-feu protège, le test recette.' },
       { q: 'Le pare-feu virtuel assure…', opts: ['la protection du parc', 'la publication du site', 'le stockage des données'], correct: 0, exp: 'C’est son rôle dans l’inventaire des quatre services.' },
-      { q: 'Le serveur de test illustre…', opts: ['la recette sans machine physique dédiée', 'la sauvegarde automatique', 'la réplication'], correct: 0, exp: 'Une VM s’allume pour essayer, puis s’éteint — grand bénéfice du partage.' },
-      { q: 'L’inventaire par service se fait…', opts: ['dans l’ordre de première apparition', 'par ordre alphabétique', 'au hasard'], correct: 0, exp: 'L’ordre du fichier d’inventaire — celui dans lequel le parc a grandi.' },
-      { q: 'La zone « à surveiller » commence…', opts: ['au-delà de 70 % de charge cumulée', 'à 0 %', 'après 100 %'], correct: 0, exp: 'Au-delà de 70 % cumulés, la marge s’amincit : à surveiller.' },
-      { q: 'Le service le plus chargé se choisit…', opts: ['en strictement supérieur, le premier arrivé gagne à égalité', 'en alphabétique', 'au hasard'], correct: 0, exp: 'Test strict : à égalité, le premier rencontré garde le titre.' },
-      { q: 'La charge d’un service est…', opts: ['la somme des charges de ses VM', 'le maximum de ses VM', 'la moyenne de ses VM'], correct: 0, exp: 'Chaque VM déclare sa part ; le service additionne.' },
-      { q: 'Les quatre services de l’histoire sont…', opts: ['base de données, site web, pare-feu, serveur de test', 'DNS, DHCP, web, mail', 'proxy, VPN, web, FTP'], correct: 0, exp: 'L’inventaire exact de la fin de l’histoire.' }
+      { q: 'Le serveur de test illustre…', opts: ["la recette sans machine physique dédiée","la sauvegarde automatique de chaque machine","la réplication des disques entre serveurs"], correct: 0, exp: 'Une VM s’allume pour essayer, puis s’éteint — grand bénéfice du partage.' },
+      { q: 'L’inventaire par service se fait…', opts: ['par ordre alphabétique', 'dans l’ordre de première apparition', 'au hasard'], correct: 1, exp: 'L’ordre du fichier d’inventaire — celui dans lequel le parc a grandi.' },
+      { q: 'La zone « à surveiller » commence…', opts: ['après 100 %', 'à 0 %', 'au-delà de 70 % de charge cumulée'], correct: 2, exp: 'Au-delà de 70 % cumulés, la marge s’amincit : à surveiller.' },
+      { q: 'Le service le plus chargé se choisit…', opts: ["en strictement supérieur, le premier arrivé gagne à égalité","par ordre alphabétique des noms des services","au hasard, en tirant un service parmi les actifs"], correct: 0, exp: 'Test strict : à égalité, le premier rencontré garde le titre.' },
+      { q: 'La charge d’un service est…', opts: ['la moyenne de ses VM', 'le maximum de ses VM', 'la somme des charges de ses VM'], correct: 2, exp: 'Chaque VM déclare sa part ; le service additionne.' },
+      { q: 'Les quatre services de l’histoire sont…', opts: ["DNS, DHCP, serveur web et serveur de messagerie","base de données, site web, pare-feu, serveur de test","proxy, VPN, serveur web et serveur FTP"], correct: 1, exp: 'L’inventaire exact de la fin de l’histoire.' }
     ],
 
     pitfalls: [

@@ -23,8 +23,9 @@ const url = (lignes[1] || '').trim().split('/').filter(Boolean);
 // À compléter : extraire les paramètres dynamiques
 `,
     hints: [
-      'Comparez pattern.length et url.length.',
-      'Si un segment de pattern commence par ":", stockez url[i] avec la clé sans le deux-points.'
+      "Comparez pattern.length et url.length.",
+      "Si un segment de pattern commence par \":\", stockez url[i] avec la clé sans le deux-points.",
+      "Découper modèle et URL en segments ; vérifier la même longueur, associer chaque segment deux-points à sa valeur, sinon conclure à l absence de correspondance."
     ],
     examples: [
       { stdin: '/users/:id/profile\n/users/42/profile\n', expected: '{"id":"42"}', note: 'Paramètre id extrait avec succès.' }
@@ -51,7 +52,8 @@ if (pattern.length === url.length) {
   }
 }
 console.log(JSON.stringify(params));
-`
+`,
+    takeaway: "useParams() extrait les segments dynamiques :id d une route React Router sous forme de chaînes prêtes à exploiter."
   },
   {
     id: 'rx2-c6-e2',
@@ -69,8 +71,9 @@ const [auth, composant] = lignes[0].split(' ');
 // À compléter : afficher le composant ou rediriger vers /login
 `,
     hints: [
-      'Si auth === "1", affichez le composant cible avec des balises auto-fermantes.',
-      'Si auth === "0", affichez la balise Navigate avec to="/login" et replace.'
+      "Si auth === \"1\", affichez le composant cible avec des balises auto-fermantes.",
+      "Si auth === \"0\", affichez la balise Navigate avec to=\"/login\" et replace.",
+      "Lire auth et le composant cible ; auth à 1 affiche la balise auto-fermante cible, auth à 0 affiche Navigate vers login avec replace."
     ],
     examples: [
       { stdin: '1 Dashboard\n', expected: '<Dashboard />', note: 'Composant affiché côté client ; aucun droit serveur n\'est démontré.' }
@@ -89,7 +92,8 @@ if (auth === '1') {
 } else {
   console.log('<Navigate to="/login" replace />');
 }
-`
+`,
+    takeaway: "Un composant garde d authentification redirige déclaratiment via <Navigate replace /> dès que la session manque."
   },
   {
     id: 'rx2-c6-e3',
@@ -108,8 +112,9 @@ const actions = (lignes[1] || '').split(' ');
 // À compléter : appliquer le reducer sur la séquence d'actions
 `,
     hints: [
-      'Découpez chaque action sur le deux-points pour séparer le type et le montant.',
-      'Utilisez Math.max(0, total - val) pour éviter un panier négatif.'
+      "Découpez chaque action sur le deux-points pour séparer le type et le montant.",
+      "Utilisez Math.max(0, total - val) pour éviter un panier négatif.",
+      "Partir du total initial, appliquer chaque action dans l ordre : AJOUT additionne, REMISE soustrait sans descendre sous zéro, puis afficher le total."
     ],
     examples: [
       { stdin: '50\nAJOUT:20 REMISE:10\n', expected: 'Total panier : 60', note: '50 + 20 - 10 = 60' }
@@ -135,6 +140,7 @@ for (const act of actions) {
   }
 }
 console.log(\`Total panier : \${total}\`);
-`
+`,
+    takeaway: "useReducer centralise des transitions complexes dans une fonction pure (state, action) => newState sans effet de bord."
   }
 ];

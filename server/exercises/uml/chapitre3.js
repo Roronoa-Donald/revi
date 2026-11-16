@@ -4,118 +4,172 @@ module.exports = [
   {
     "id": "um2-c3-e1",
     "chapter": 3,
-    "title": "Décodeur de signatures UML (attributs et méthodes)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Parser la syntaxe formelle d'un membre de classe UML : visibilité, nom, type de retour, paramètres et valeur par défaut.",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br>\nSymboles de visibilité standard :<br>\n- <code>+</code> : Public<br>\n- <code>-</code> : Private<br>\n- <code>#</code> : Protected<br>\n- <code>~</code> : Package<br>\nDeux formats possibles :<br>\n1. <strong>Attribut :</strong> <code>&lt;visibilite&gt; &lt;nom&gt; : &lt;type&gt; [= &lt;valeur_defaut&gt;]</code><br>\n   Exemple : <code>- solde : Decimal = 0.0</code><br>\n   Résultat d’analyse attendu : <code>[ATTRIBUT] &lt;nom&gt; | Visibilite: &lt;Vis&gt; | Type: &lt;type&gt; [| Defaut: &lt;val&gt;]</code><br>\n2. <strong>Opération / Méthode :</strong> <code>&lt;visibilite&gt; &lt;nom&gt;(&lt;param1&gt;: &lt;t1&gt;, ...): &lt;type_retour&gt;</code><br>\n   Exemple : <code>+ crediter(montant: Decimal): Void</code><br>\n   Résultat d’analyse attendu : <code>[METHODE] &lt;nom&gt; | Visibilite: &lt;Vis&gt; | Params: &lt;nb&gt; | Retour: &lt;type_retour&gt;</code></p>",
-    "starter": "# Grille d'analyse (um2-c3-e1) — Décodeur de signatures UML (attributs et méthodes)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Méthode sans paramètre et visibilité package]\n# Données : ~ getDetails(): String\n# Données : + calculerTotal(): Double\nA_COMPLETER\n\n[Cas 2 — Méthode avec plusieurs paramètres]\n# Données : + transferer(src: Compte, dst: Compte, montant: Decimal): Void\nA_COMPLETER\n\n[Cas 3 — Attributs sans valeur par défaut]\n# Données : - email : String\n# Données : # dateCreation : DateTime\nA_COMPLETER\n",
+    "title": "La classe Adhérent de la médiathèque de Clavières",
+    "exampleTitle": "Exemple résolu — la classe Chambre de la société Brillance",
+    "goal": "Lire la carte d'une classe UML : attributs, opérations, visibilités, paramètres et type de retour.",
+    "brief": "<p><strong>Énoncé.</strong> La médiathèque de Clavières modélise sa classe <code>Adhérent</code>. Voici la carte de classe telle qu'elle figure dans le diagramme :</p><p><code>- numero : Integer<br>+ nom : String<br># dateInscription : Date<br>+ emprunter(ouvrage : Ouvrage, jours : Integer) : Boolean<br>~ relancer() : Void</code></p><p>Rappel de la notation UML : <code>+</code> public, <code>-</code> privé, <code>#</code> protégé, <code>~</code> package ; une opération se reconnaît à ses parenthèses. Répondez par des nombres, un nom exact, un type ou le symbole demandé.</p><ol><li>Combien d'attributs compte la classe Adhérent ?</li><li>Quel est le nom de l'unique attribut privé ?</li><li>Quel symbole représente la visibilité protégée ?</li><li>Combien de paramètres l'opération « emprunter » possède-t-elle ?</li><li>Quel est le type de retour de l'opération « relancer » ?</li><li>Quel symbole représente la visibilité package ?</li></ol>",
+    "starter": "# Exercice — La classe Adhérent de la médiathèque de Clavières\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Pour les questions 3 et 6, répondez par le seul symbole (+, -, # ou ~).\n\n[Question 1 — Nombre d'attributs de la classe]\nA_COMPLETER\n\n[Question 2 — Nom de l'attribut privé]\nA_COMPLETER\n\n[Question 3 — Symbole de la visibilité protégée]\nA_COMPLETER\n\n[Question 4 — Nombre de paramètres de « emprunter »]\nA_COMPLETER\n\n[Question 5 — Type de retour de « relancer »]\nA_COMPLETER\n\n[Question 6 — Symbole de la visibilité package]\nA_COMPLETER\n",
     "hints": [
-      "La présence de parenthèses ( ) distingue une méthode d'un attribut.",
-      "Les symboles +, -, #, ~ déterminent la visibilité."
+      "La carte d'une classe comporte trois compartiments : le nom, les attributs (sans parenthèses) et les opérations (avec parenthèses).",
+      "Le symbole de visibilité ouvre chaque ligne : + public, - privé, # protégé, ~ package ; le type suit les deux-points.",
+      "Comptez d'abord les lignes sans parenthèses (attributs), isolez celle qui commence par le tiret, puis examinez les parenthèses de « emprunter » pour compter les paramètres séparés par des virgules."
     ],
     "examples": [
       {
-        "stdin": "+ id : Integer\n- solde : Decimal = 0.0\n# verifierPlafond(m: Decimal): Boolean",
-        "expected": "[ATTRIBUT] id | Visibilite: Public | Type: Integer\n[ATTRIBUT] solde | Visibilite: Private | Type: Decimal | Defaut: 0.0\n[METHODE] verifierPlafond | Visibilite: Protected | Params: 1 | Retour: Boolean",
-        "note": "Attribut simple, attribut avec valeur initiale et méthode à 1 paramètre."
+        "stdin": "La société de nettoyage Brillance modélise sa classe Chambre :\n- superficie : Double\n+ etage : Integer\n~ statut : String\n# attribuer(agent : Agent) : Void\n+ nettoyer() : Boolean\n\n1) La classe compte 3 attributs : superficie, etage, statut.\n2) L'unique attribut privé est superficie.\n3) La classe compte 2 opérations : attribuer et nettoyer.\n4) « attribuer » possède 1 paramètre (agent : Agent).\n5) Le type de retour de « nettoyer » est Boolean.\n6) La visibilité protégée se note #.",
+        "expected": "3 attributs — privé : superficie — 2 opérations — attribuer : 1 paramètre — Boolean — protégé : #",
+        "note": "Les parenthèses distinguent l'opération de l'attribut ; le type de retour figure après les deux-points finals."
       }
     ],
     "tests": [
       {
-        "label": "Méthode sans paramètre et visibilité package",
-        "stdin": "cas:1",
-        "expected": "[METHODE] getDetails | Visibilite: Package | Params: 0 | Retour: String\n[METHODE] calculerTotal | Visibilite: Public | Params: 0 | Retour: Double"
+        "label": "Question 1 — Nombre d'attributs de la classe",
+        "stdin": "q:1",
+        "expected": "3"
       },
       {
-        "label": "Méthode avec plusieurs paramètres",
-        "stdin": "cas:2",
-        "expected": "[METHODE] transferer | Visibilite: Public | Params: 3 | Retour: Void"
+        "label": "Question 2 — Nom de l'attribut privé",
+        "stdin": "q:2",
+        "expected": "numero||numéro||le numero||le numéro"
       },
       {
-        "label": "Attributs sans valeur par défaut",
-        "stdin": "cas:3",
-        "expected": "[ATTRIBUT] email | Visibilite: Private | Type: String\n[ATTRIBUT] dateCreation | Visibilite: Protected | Type: DateTime"
+        "label": "Question 3 — Symbole de la visibilité protégée",
+        "stdin": "q:3",
+        "expected": "#||protege||protégé"
+      },
+      {
+        "label": "Question 4 — Nombre de paramètres de « emprunter »",
+        "stdin": "q:4",
+        "expected": "2"
+      },
+      {
+        "label": "Question 5 — Type de retour de « relancer »",
+        "stdin": "q:5",
+        "expected": "Void||void"
+      },
+      {
+        "label": "Question 6 — Symbole de la visibilité package",
+        "stdin": "q:6",
+        "expected": "~"
       }
     ],
-    "solution": "[Exemple]\n[ATTRIBUT] id | Visibilite: Public | Type: Integer\n[ATTRIBUT] solde | Visibilite: Private | Type: Decimal | Defaut: 0.0\n[METHODE] verifierPlafond | Visibilite: Protected | Params: 1 | Retour: Boolean\n\n[Cas 1 — Méthode sans paramètre et visibilité package]\n[METHODE] getDetails | Visibilite: Package | Params: 0 | Retour: String\n[METHODE] calculerTotal | Visibilite: Public | Params: 0 | Retour: Double\n\n[Cas 2 — Méthode avec plusieurs paramètres]\n[METHODE] transferer | Visibilite: Public | Params: 3 | Retour: Void\n\n[Cas 3 — Attributs sans valeur par défaut]\n[ATTRIBUT] email | Visibilite: Private | Type: String\n[ATTRIBUT] dateCreation | Visibilite: Protected | Type: DateTime"
+    "solution": "[Question 1 — Nombre d'attributs de la classe]\n3\n\n[Question 2 — Nom de l'attribut privé]\nnumero\n\n[Question 3 — Symbole de la visibilité protégée]\nprotege\n\n[Question 4 — Nombre de paramètres de « emprunter »]\n2\n\n[Question 5 — Type de retour de « relancer »]\nVoid\n\n[Question 6 — Symbole de la visibilité package]\n~",
+    "takeaway": "1) La classe compte 3 attributs : numero, nom, dateInscription.\n2) L'unique attribut privé est numero (précédé du tiret -).\n3) La visibilité protégée se note #.\n4) « emprunter(ouvrage : Ouvrage, jours : Integer) » possède 2 paramètres : ouvrage et jours.\n5) Le type de retour de « relancer » est Void.\n6) La visibilité package se note ~.\nContrôle : 3 attributs + 2 opérations = 5 membres au total dans la carte de la classe."
   },
   {
     "id": "um2-c3-e2",
     "chapter": 3,
-    "title": "Analyseur de multiplicités et cardinalités d'associations",
     "level": "n2",
     "language": "analyse",
-    "goal": "Vérifier la validité d'une association binaire entre deux classes selon leurs contraintes de multiplicité (0..1, 1..1, 0..*, 1..*).",
-    "brief": "<p>Analysez les données fournies pour chaque cas..1</code>), <code>0..1</code>, <code>*</code> (ou <code>0..*</code>), <code>1..*</code>, ou borne exacte <code>min..max</code>.<br>\nLes lignes suivantes décrivent les liens réels instanciés :<br>\n<code>LINK &lt;InstanceA&gt; &lt;InstanceB&gt;</code>.<br>\nLe script doit vérifier pour chaque instance si le nombre d'objets associés respecte sa borne autorisée :<br>\n- Si une instance viole sa multiplicité :<br>\n  <code>[VIOLATION] &lt;Instance&gt; (&lt;Classe&gt;) associee a &lt;N&gt; &lt;Cible&gt; (attendu &lt;Mult&gt;)</code><br>\nSi toutes les instances respectent leurs contraintes :<br>\n<code>CARDINALITES CONFORMES</code>.<br>\nTerminer par le nombre d'instances en anomalie : <code>ANOMALIES: &lt;X&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c3-e2) — Analyseur de multiplicités et cardinalités d'associations\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes multiplicités respectées]\n# Données : ASSOC Auteur 1 ---- 0..* Livre\n# Données : LINK a1 l1\n# Données : LINK a1 l2\n# Données : LINK a2 l3\nA_COMPLETER\n\n[Cas 2 — Violation 1..* avec aucune cible associée]\n# Données : ASSOC Dossier 1 ---- 1..* Fichier\n# Données : LINK d1 f1\n# Données : LINK d1 f2\n# Données : LINK d2\nA_COMPLETER\n\n[Cas 3 — Association 0..1 violée par 2 liaisons]\n# Données : ASSOC Employe 1 ---- 0..1 Bureau\n# Données : LINK e1 b1\n# Données : LINK e1 b2\nA_COMPLETER\n",
+    "title": "Les multiplicités de l'agence immobilière Toit & Clef",
+    "exampleTitle": "Exemple résolu — les multiplicités de l'auto-école AutoPlus",
+    "goal": "Lire des multiplicités d'associations et vérifier ce qu'elles autorisent ou interdisent.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence immobilière « Toit &amp; Clef » modélise ses visites. Les associations entre les classes <code>Client</code>, <code>Bien</code>, <code>Visite</code>, <code>Agent</code> et <code>Mandat</code> sont résumées ci-dessous :</p><table><tr><th>Association</th><th>Lecture des multiplicités</th></tr><tr><td>Client — Visite</td><td>Un client passe 0..* visites ; chaque visite est passée par exactement 1 client.</td></tr><tr><td>Bien — Visite</td><td>Un bien est concerné par 0..* visites ; chaque visite concerne exactement 1 bien.</td></tr><tr><td>Agent — Visite</td><td>Un agent conduit 0..* visites ; chaque visite est conduite par exactement 1 agent.</td></tr><tr><td>Mandat — Bien</td><td>Un mandat porte sur 1..* biens ; chaque bien est couvert par exactement 1 mandat.</td></tr></table><p>Rappel : « 0..* » se lit « zéro ou plusieurs », « 1 » se lit « exactement un », « 1..* » se lit « au moins un ». Répondez par oui/non, un nombre, ou la multiplicité au format UML (par exemple 0..1).</p><ol><li>Un bien jamais visité est-il autorisé par l'association Bien — Visite ?</li><li>Une visite peut-elle concerner deux biens à la fois ?</li><li>Combien d'agents conduisent une visite donnée ?</li><li>Combien de biens, au minimum, un mandat doit-il porter ?</li><li>Un bien peut-il être couvert par deux mandats différents ?</li><li>Quelle est la multiplicité côté Visite de l'association Client — Visite (combien de visites un client peut-il passer) ?</li></ol>",
+    "starter": "# Exercice — Les multiplicités de l'agence immobilière Toit & Clef\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Les questions fermées se répondent par oui ou non ; la question 6 attend le format UML (ex. 0..1).\n\n[Question 1 — Un bien jamais visité est-il autorisé ?]\nA_COMPLETER\n\n[Question 2 — Une visite peut-elle concerner deux biens ?]\nA_COMPLETER\n\n[Question 3 — Nombre d'agents par visite]\nA_COMPLETER\n\n[Question 4 — Nombre minimal de biens par mandat]\nA_COMPLETER\n\n[Question 5 — Un bien peut-il avoir deux mandats ?]\nA_COMPLETER\n\n[Question 6 — Multiplicité côté Visite de Client — Visite]\nA_COMPLETER\n",
     "hints": [
-      "Attention à la lecture de la multiplicité : la multiplicité MultB située côté ClasseB indique combien d'instances de B sont liées à UNE instance de A.",
-      "La multiplicité MultA située côté ClasseA indique combien d'instances de A sont liées à UNE instance de B."
+      "Une multiplicité indique combien d'instances de l'autre classe peuvent être reliées à une instance donnée : lisez-la du côté où elle est écrite.",
+      "0..* autorise l'absence totale de lien ; 1 impose exactement un lien ; 1..* impose au moins un lien.",
+      "Pour chaque question, placez-vous du côté de la classe concernée (le bien, la visite, le mandat) et relisez la multiplicité qui la concerne dans le tableau."
     ],
     "examples": [
       {
-        "stdin": "ASSOC Client 1 ---- 1..* Commande\nLINK c1 cmd1\nLINK c1 cmd2\nLINK c2 cmd3\nLINK c3 cmd3",
-        "expected": "[VIOLATION] cmd3 (Commande) associee a 2 Client (attendu 1)\nANOMALIES: 1",
-        "note": "Une commande est raccordée à 2 clients alors que la multiplicité côté Client est 1."
+        "stdin": "L'auto-école AutoPlus modélise ses leçons :\nUn élève prend 0..* leçons ; chaque leçon est suivie par exactement 1 élève.\nUn moniteur donne 1..* leçons ; chaque leçon est donnée par exactement 1 moniteur.\nUn véhicule sert à 0..* leçons ; chaque leçon utilise exactement 1 véhicule.\n\n1) Un moniteur ne peut pas être sans leçon : 1..* impose au moins une leçon.\n2) Une leçon utilise exactement 1 véhicule : jamais deux.\n3) Un élève sans leçon est autorisé : 0..* accepte zéro.\n4) La multiplicité côté Leçon de l'association Élève — Leçon est 0..*.",
+        "expected": "moniteur : au moins 1 leçon (1..*) — 1 véhicule par leçon — élève sans leçon autorisé — multiplicité 0..*",
+        "note": "Le sens d'une multiplicité dépend du côté où l'on se place : 0..* côté Leçon concerne le nombre de leçons d'un élève."
       }
     ],
     "tests": [
       {
-        "label": "Toutes multiplicités respectées",
-        "stdin": "cas:1",
-        "expected": "CARDINALITES CONFORMES\nANOMALIES: 0"
+        "label": "Question 1 — Un bien jamais visité est-il autorisé ?",
+        "stdin": "q:1",
+        "expected": "oui"
       },
       {
-        "label": "Violation 1..* avec aucune cible associée",
-        "stdin": "cas:2",
-        "expected": "[VIOLATION] d2 (Dossier) associee a 0 Fichier (attendu 1..*)\nANOMALIES: 1"
+        "label": "Question 2 — Une visite peut-elle concerner deux biens ?",
+        "stdin": "q:2",
+        "expected": "non"
       },
       {
-        "label": "Association 0..1 violée par 2 liaisons",
-        "stdin": "cas:3",
-        "expected": "[VIOLATION] e1 (Employe) associee a 2 Bureau (attendu 0..1)\nANOMALIES: 1"
+        "label": "Question 3 — Nombre d'agents par visite",
+        "stdin": "q:3",
+        "expected": "1"
+      },
+      {
+        "label": "Question 4 — Nombre minimal de biens par mandat",
+        "stdin": "q:4",
+        "expected": "1"
+      },
+      {
+        "label": "Question 5 — Un bien peut-il avoir deux mandats ?",
+        "stdin": "q:5",
+        "expected": "non"
+      },
+      {
+        "label": "Question 6 — Multiplicité côté Visite de Client — Visite",
+        "stdin": "q:6",
+        "expected": "0..*||*"
       }
     ],
-    "solution": "[Exemple]\n[VIOLATION] cmd3 (Commande) associee a 2 Client (attendu 1)\nANOMALIES: 1\n\n[Cas 1 — Toutes multiplicités respectées]\nCARDINALITES CONFORMES\nANOMALIES: 0\n\n[Cas 2 — Violation 1..* avec aucune cible associée]\n[VIOLATION] d2 (Dossier) associee a 0 Fichier (attendu 1..*)\nANOMALIES: 1\n\n[Cas 3 — Association 0..1 violée par 2 liaisons]\n[VIOLATION] e1 (Employe) associee a 2 Bureau (attendu 0..1)\nANOMALIES: 1"
+    "solution": "[Question 1 — Un bien jamais visité est-il autorisé ?]\noui\n\n[Question 2 — Une visite peut-elle concerner deux biens ?]\nnon\n\n[Question 3 — Nombre d'agents par visite]\n1\n\n[Question 4 — Nombre minimal de biens par mandat]\n1\n\n[Question 5 — Un bien peut-il avoir deux mandats ?]\nnon\n\n[Question 6 — Multiplicité côté Visite de Client — Visite]\n0..*",
+    "takeaway": "1) Oui : côté Bien, la multiplicité 0..* autorise un bien sans aucune visite.\n2) Non : chaque visite concerne exactement 1 bien (multiplicité 1 côté Bien).\n3) Exactement 1 agent conduit chaque visite.\n4) Un mandat porte sur 1..* biens : au minimum 1 bien.\n5) Non : chaque bien est couvert par exactement 1 mandat.\n6) Un client peut passer 0..* visites : la multiplicité côté Visite est 0..*.\nContrôle : une visite relie 1 client, 1 bien et 1 agent ; un mandat regroupe 1 à plusieurs biens, chaque bien relevant d'un seul mandat."
   },
   {
     "id": "um2-c3-e3",
     "chapter": 3,
-    "title": "Différenciateur d'agrégation faible vs composition forte",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler la gestion du cycle de vie des objets : survie des composants en agrégation faible (losange blanc) vs destruction en cascade en composition forte (losange noir).",
-    "brief": "<p>Analysez les données fournies pour chaque cas...</code><br>\n- L'ordre de suppression : <code>DELETE &lt;Conteneur&gt;</code>.<br>\nPour chaque suppression, le script détermine l'impact :<br>\n- Si <code>COMPOSITION</code> : Le conteneur et tous ses composants enfants sont détruits.<br>\n  Afficher : <code>[CASCADE] Destruction de &lt;Conteneur&gt; et de ses composants : &lt;liste_enfants&gt;</code>.<br>\n- Si <code>AGREGATION</code> : Seul le conteneur est détruit, ses éléments composants survivent dans le système.<br>\n  Afficher : <code>[SURVIE] Destruction de &lt;Conteneur&gt; seule ; les composants survivent : &lt;liste_enfants&gt;</code>.<br>\nÀ la commande finale <code>STATUT</code>, afficher la liste des objets encore vivants triés :<br>\n<code>OBJETS VIVANTS: &lt;liste_triee&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c3-e3) — Différenciateur d'agrégation faible vs composition forte\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Agrégation faible avec survie des composants]\n# Données : AGREGATION Departement o-- Enseignant\n# Données : INSTANCE depInfo E1,E2\n# Données : DELETE depInfo\n# Données : STATUT\nA_COMPLETER\n\n[Cas 2 — Suppression partielle sur deux conteneurs]\n# Données : COMPOSITION Livre *-- Chapitre\n# Données : INSTANCE l1 ch1,ch2\n# Données : INSTANCE l2 ch3,ch4\n# Données : DELETE l1\n# Données : STATUT\nA_COMPLETER\n\n[Cas 3 — Suppression d agrégat sans enfant]\n# Données : AGREGATION Equipe o-- Joueur\n# Données : INSTANCE teamA \n# Données : DELETE teamA\n# Données : STATUT\nA_COMPLETER\n",
+    "title": "Composition et agrégation dans la plateforme Melodix",
+    "exampleTitle": "Exemple résolu — le garage PneusPlus",
+    "goal": "Trancher entre composition et agrégation à partir du cycle de vie des composants.",
+    "brief": "<p><strong>Énoncé.</strong> La plateforme de streaming Melodix modélise trois relations à partir de ses classes <code>Album</code>, <code>Piste</code>, <code>Playlist</code>, <code>Compte</code> et <code>Profil</code> :</p><ul><li><strong>Relation 1 (Album — Piste)</strong> : chaque piste appartient à un seul album ; si l'album est supprimé, ses pistes disparaissent avec lui ;</li><li><strong>Relation 2 (Playlist — Piste)</strong> : une même piste peut figurer dans plusieurs playlists ; supprimer une playlist ne supprime pas la piste ;</li><li><strong>Relation 3 (Compte — Profil)</strong> : chaque compte possède exactement un profil, détruit en même temps que lui.</li></ul><p>Rappel : la composition (losange plein) lie des composants qui partagent le cycle de vie du composite ; l'agrégation (losange vide) relie des éléments capables de survivre à leur agrégat. Répondez par composition ou agrégation, oui ou non, un nombre, ou le symbole demandé.</p><ol><li>La relation 1 (Album — Piste) est-elle une composition ou une agrégation ?</li><li>Si une playlist est supprimée, la piste survit-elle ?</li><li>Combien d'albums peuvent partager une même piste dans la relation 1 ?</li><li>La relation 2 (Playlist — Piste) est-elle une composition ou une agrégation ?</li><li>Quel symbole représente la composition : losange plein ou losange vide ?</li><li>La relation 3 (Compte — Profil) est-elle une composition ou une agrégation ?</li></ol>",
+    "starter": "# Exercice — Composition et agrégation dans la plateforme Melodix\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Type de la relation 1 (Album — Piste)]\nA_COMPLETER\n\n[Question 2 — La piste survit-elle à la playlist ?]\nA_COMPLETER\n\n[Question 3 — Nombre d'albums par piste dans la relation 1]\nA_COMPLETER\n\n[Question 4 — Type de la relation 2 (Playlist — Piste)]\nA_COMPLETER\n\n[Question 5 — Symbole de la composition]\nA_COMPLETER\n\n[Question 6 — Type de la relation 3 (Compte — Profil)]\nA_COMPLETER\n",
     "hints": [
-      "En composition forte, un composant ne peut appartenir qu'à un seul composite à la fois et disparaît avec lui.",
-      "En agrégation, les éléments peuvent exister indépendamment de l'agrégat."
+      "La question clé est celle du cycle de vie : le composant disparaît-il avec son conteneur (composition) ou peut-il lui survivre (agrégation) ?",
+      "Un composant de composition n'appartient qu'à un seul composite à la fois ; un élément d'agrégation peut être partagé entre plusieurs agrégats.",
+      "Pour chaque relation, appliquez le test de suppression du conteneur, puis traduisez la conclusion en symbole UML (losange plein ou vide)."
     ],
     "examples": [
       {
-        "stdin": "COMPOSITION Facture *-- LigneFacture\nINSTANCE fact1 L1,L2\nDELETE fact1\nSTATUT",
-        "expected": "[CASCADE] Destruction de fact1 et de ses composants : L1, L2\nOBJETS VIVANTS: AUCUN",
-        "note": "Composition : la suppression de la facture supprime toutes ses lignes en cascade."
+        "stdin": "Le garage PneusPlus modélise deux relations :\nRelation 1 (Voiture — Roue) : chaque roue d'origine appartient à une seule voiture et part à la casse avec elle.\nRelation 2 (Équipe — Mécanicien) : un mécanicien peut changer d'équipe ; dissoudre une équipe ne licencie personne.\n\n1) Voiture — Roue : la roue disparaît avec la voiture, c'est une composition.\n2) Équipe dissoute : les mécaniciens survivent.\n3) Une roue d'origine appartient à exactement 1 voiture.\n4) La composition se représente par un losange plein.\n5) Équipe — Mécanicien : les mécaniciens survivent à l'équipe, c'est une agrégation.",
+        "expected": "Voiture — Roue : composition — mécaniciens survivent à l'équipe — 1 voiture par roue — composition : losange plein — Équipe — Mécanicien : agrégation",
+        "note": "Le test de suppression du conteneur tranche : destruction en cascade pour la composition, survie des éléments pour l'agrégation."
       }
     ],
     "tests": [
       {
-        "label": "Agrégation faible avec survie des composants",
-        "stdin": "cas:1",
-        "expected": "[SURVIE] Destruction de depInfo seule ; les composants survivent : E1, E2\nOBJETS VIVANTS: E1, E2"
+        "label": "Question 1 — Type de la relation 1 (Album — Piste)",
+        "stdin": "q:1",
+        "expected": "composition"
       },
       {
-        "label": "Suppression partielle sur deux conteneurs",
-        "stdin": "cas:2",
-        "expected": "[CASCADE] Destruction de l1 et de ses composants : ch1, ch2\nOBJETS VIVANTS: ch3, ch4, l2"
+        "label": "Question 2 — La piste survit-elle à la playlist ?",
+        "stdin": "q:2",
+        "expected": "oui"
       },
       {
-        "label": "Suppression d agrégat sans enfant",
-        "stdin": "cas:3",
-        "expected": "[SURVIE] Destruction de teamA seule ; les composants survivent : AUCUN\nOBJETS VIVANTS: AUCUN"
+        "label": "Question 3 — Nombre d'albums par piste dans la relation 1",
+        "stdin": "q:3",
+        "expected": "1"
+      },
+      {
+        "label": "Question 4 — Type de la relation 2 (Playlist — Piste)",
+        "stdin": "q:4",
+        "expected": "agregation||agrégation"
+      },
+      {
+        "label": "Question 5 — Symbole de la composition",
+        "stdin": "q:5",
+        "expected": "losange plein||un losange plein||le losange plein"
+      },
+      {
+        "label": "Question 6 — Type de la relation 3 (Compte — Profil)",
+        "stdin": "q:6",
+        "expected": "composition"
       }
     ],
-    "solution": "[Exemple]\n[CASCADE] Destruction de fact1 et de ses composants : L1, L2\nOBJETS VIVANTS: AUCUN\n\n[Cas 1 — Agrégation faible avec survie des composants]\n[SURVIE] Destruction de depInfo seule ; les composants survivent : E1, E2\nOBJETS VIVANTS: E1, E2\n\n[Cas 2 — Suppression partielle sur deux conteneurs]\n[CASCADE] Destruction de l1 et de ses composants : ch1, ch2\nOBJETS VIVANTS: ch3, ch4, l2\n\n[Cas 3 — Suppression d agrégat sans enfant]\n[SURVIE] Destruction de teamA seule ; les composants survivent : AUCUN\nOBJETS VIVANTS: AUCUN"
+    "solution": "[Question 1 — Type de la relation 1 (Album — Piste)]\ncomposition\n\n[Question 2 — La piste survit-elle à la playlist ?]\noui\n\n[Question 3 — Nombre d'albums par piste dans la relation 1]\n1\n\n[Question 4 — Type de la relation 2 (Playlist — Piste)]\nagregation\n\n[Question 5 — Symbole de la composition]\nlosange plein\n\n[Question 6 — Type de la relation 3 (Compte — Profil)]\ncomposition",
+    "takeaway": "1) Relation 1 : les pistes disparaissent avec l'album, cycle de vie partagé : composition.\n2) Oui : la piste survit à la suppression de la playlist.\n3) Chaque piste appartient à un seul album : 1 album par piste.\n4) Relation 2 : la piste survit à la playlist : agrégation.\n5) La composition se représente par un losange plein (l'agrégation par un losange vide).\n6) Relation 3 : le profil est détruit avec le compte : composition.\nContrôle : deux compositions (Album — Piste, Compte — Profil) pour une agrégation (Playlist — Piste) ; seule la piste partagée échappe au cycle de vie de son conteneur."
   }
 ];

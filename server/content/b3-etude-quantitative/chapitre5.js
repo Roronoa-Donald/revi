@@ -167,32 +167,32 @@ module.exports = {
     {
       stem: 'Pourquoi la médiane est-elle considérée comme un indicateur de tendance centrale plus robuste que la moyenne arithmétique ?',
       opts: [
-        'Parce que la médiane est toujours égale à zéro',
-        'Parce que la médiane n’est pas influencée par les valeurs extrêmes ou aberrantes (outliers), représentant fidèlement le centre de la distribution',
-        'Parce que la médiane ne s’applique qu’aux ordinateurs portables',
-        'Parce que la formule de la médiane est secrète'
+        "Parce que la médiane d’une série statistique est, par définition même, une valeur systématiquement égale à zéro",
+        "Parce que la médiane ne s’applique qu’aux mesures de performance technique des ordinateurs et de leurs composants",
+        "Parce que la formule exacte de calcul de la médiane est tenue secrète par les instituts de sondage et de statistique",
+        "Parce que la médiane n’est pas influencée par les valeurs extrêmes ou aberrantes (outliers), représentant fidèlement le centre de la distribution"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une seule valeur aberrante géante (ex: un salaire de 2 millions d’euros dans une PME) tire artificiellement la moyenne vers le haut, alors que la médiane reste parfaitement stable.'
     },
     {
       stem: 'Dans un test d’indépendance du Chi-deux sur un tableau de contingence 2x2, quelle est la valeur critique théorique au seuil de risque α = 0.05 pour 1 degré de liberté ?',
       opts: [
         '1.00',
-        '3.84',
         '10.50',
+        '3.84',
         '100.00'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Pour 1 ddl à α = 0.05, la table de la loi du Chi-deux donne la valeur critique canonique de 3.841 (arrondie à 3.84).'
     },
     {
       stem: 'Si un test du Chi-deux produit une statistique calculée χ² = 16.67 sur un tableau 2x2, quelle est la conclusion méthodologique rigoureuse ?',
       opts: [
-        'On accepte l’hypothèse nulle et on conclut que les variables sont totalement indépendantes',
-        'La statistique χ² (16.67) étant très supérieure au seuil critique de 3.84, on rejette H0 avec p < 0.05 : il existe une relation statistiquement significative entre les deux variables',
-        'L’enquête doit être annulée car le chiffre dépasse 10',
-        'On en déduit que l’une des deux variables est fausse'
+        "On accepte l’hypothèse nulle H0 et l’on conclut que les deux variables étudiées dans l’enquête sont rigoureusement indépendantes l’une de l’autre",
+        "La statistique χ² (16.67) étant très supérieure au seuil critique de 3.84, on rejette H0 avec p < 0.05 : il existe une relation statistiquement significative entre les deux variables",
+        "L’enquête doit être purement et simplement annulée puis intégralement refaite, car la statistique calculée dépasse la valeur symbolique de 10",
+        "On en déduit que l’une des deux variables mesurées dans l’enquête est nécessairement erronée et qu’elle doit être écartée définitivement de l’analyse"
       ],
       correct: 1,
       exp: 'Sous H0 et les hypothèses du test, une statistique au moins aussi grande a une probabilité inférieure à 5% ; on rejette H0 au seuil choisi.'
@@ -200,43 +200,43 @@ module.exports = {
     {
       stem: 'Que signifie un coefficient de corrélation linéaire de Pearson r = -0.85 entre l’âge d’un serveur et sa disponibilité annuelle ?',
       opts: [
-        'Que le calcul est faux car un coefficient ne peut pas être négatif',
-        'Qu’il existe une relation linéaire forte et négative (inverse) : plus le serveur est âgé, plus son taux de disponibilité a tendance à diminuer',
-        'Que le serveur va s’éteindre dans 85 jours',
-        'Qu’il n’existe aucune relation entre l’âge et la disponibilité'
+        "Qu’il existe une relation linéaire forte et négative (inverse) : plus le serveur est âgé, plus son taux de disponibilité a tendance à diminuer",
+        "Que le calcul est nécessairement faux, car un coefficient de corrélation ne peut jamais prendre une valeur négative",
+        "Que le serveur concerné va définitivement s’éteindre dans exactement 85 jours d’après le modèle statistique",
+        "Qu’il n’existe absolument aucune relation décelable entre l’âge du serveur et son taux de disponibilité observé"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le signe négatif indique une évolution en sens inverse (l’un monte quand l’autre descend), et la valeur absolue 0.85 ≥ 0.70 atteste d’une liaison forte.'
     },
     {
       stem: 'Quelle formule permet de calculer l’effectif théorique E(i,j) d’une cellule dans un tableau croisé de contingence sous hypothèse d’indépendance H0 ?',
       opts: [
         '(Total Ligne i + Total Colonne j) / 2',
-        '(Total Ligne i * Total Colonne j) / N total',
+        'N total divisé par le nombre de cellules',
         'Total Ligne i - Total Colonne j',
-        'N total divisé par le nombre de cellules'
+        '(Total Ligne i * Total Colonne j) / N total'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Sous H0, la probabilité conjointe est le produit des probabilités marginales, soit E(i,j) = (Ligne i * Colonne j) / Total N.'
     },
     {
       stem: 'Pourquoi l’affirmation « Le nombre de parapluies ouverts est corrélé aux accidents de voiture, donc ouvrir un parapluie provoque des accidents » est-elle un sophisme ?',
       opts: [
-        'Parce que les parapluies n’ont pas de roues',
-        'Parce qu’elle confond corrélation et causalité en ignorant une variable confondante sous-jacente (la pluie battante)',
-        'Parce que le coefficient de Pearson est obligatoirement nul sous la pluie',
-        'Parce que les accidents de voiture ne sont pas quantifiables'
+        "Parce que les parapluies, dépourvus de roues, ne peuvent pas causer matériellement d’accident",
+        "Parce que le coefficient de Pearson est obligatoirement nul dès qu’il pleut sur la zone étudiée",
+        "Parce qu’elle confond corrélation et causalité en ignorant une variable confondante sous-jacente (la pluie battante)",
+        "Parce que les accidents de voiture ne sont pas quantifiables avec une mesure statistique fiable"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La corrélation mesure une co-variation mathématique mais pas un lien causal : c’est la pluie qui provoque à la fois l’ouverture des parapluies et les accidents.'
     },
     {
       stem: 'Dans un test d’hypothèses statistiques, qu’indique formellement une « p-valeur » inférieure à 0.05 (p < 0.05) ?',
       opts: [
-        'Que la probabilité d’erreur de calcul est de 100%',
-        'Que, sous H0 et les hypothèses du modèle, la probabilité d’obtenir une statistique au moins aussi extrême que celle observée est inférieure à 5%',
-        'Que 5% des répondants ont refusé de répondre',
-        'Que le projet coûte moins de 5 000 euros'
+        "Que la probabilité que le chercheur ait commis une erreur de calcul dans l’exécution de son test statistique est de 5 %",
+        "Que, sous H0 et les hypothèses du modèle, la probabilité d’obtenir une statistique au moins aussi extrême que celle observée est inférieure à 5%",
+        "Que 5 % de l’ensemble des répondants interrogés ont refusé de répondre à la question précise concernée par le test",
+        "Que le budget total du projet de recherche est inférieur à la somme de 5 000 euros qui lui a été allouée au départ"
       ],
       correct: 1,
       exp: 'La p-valeur est conditionnée par H0 et le modèle ; elle ne mesure pas la probabilité que H0 soit vraie. Si p < 0.05, on rejette H0 au seuil de 5%.'
@@ -244,12 +244,12 @@ module.exports = {
     {
       stem: 'Quelle condition minimale sur les effectifs théoriques (règle de Cochran) doit être satisfaite pour que le test du Chi-deux soit valide ?',
       opts: [
-        'Tous les effectifs théoriques doivent être égaux à 0',
         'Chaque effectif théorique doit être supérieur ou égal à 5 (Eij ≥ 5)',
+        'Tous les effectifs théoriques doivent être égaux à 0',
         'L’échantillon total doit comporter au moins 1 million de personnes',
         'Il n’y a aucune condition d’effectif'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Pour que l’approximation par la loi continue du Chi-deux soit légitime, la règle empirique de Cochran exige que chaque case théorique compte au moins 5 individus (Eij ≥ 5).'
     }
   ],

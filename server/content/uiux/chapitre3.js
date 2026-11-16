@@ -210,22 +210,22 @@ module.exports = {
       stem: 'Selon la loi de Fitts, quels sont les deux facteurs qui influencent directement le temps de pointage vers un bouton ?',
       opts: [
         'La couleur du bouton et son ombre portée',
-        'La distance du curseur à la cible (D) et la largeur de la cible (W)',
+        'Le débit de la connexion Internet et la version du navigateur',
         'Le nombre d’images affichées sur la page et la mémoire RAM',
-        'Le débit de la connexion Internet et la version du navigateur'
+        'La distance du curseur à la cible (D) et la largeur de la cible (W)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La loi de Fitts stipule mathématiquement que le temps d’atteinte dépend du rapport entre la distance (D) et la taille de la cible (W) : ID = log2(D/W + 1).'
     },
     {
       stem: 'Pourquoi les coins d’un écran d’ordinateur (desktop) sont-ils considérés par les ergonomes comme les emplacements les plus faciles et rapides à atteindre ?',
       opts: [
-        'Parce qu’ils sont plus lumineux',
-        'Parce que le curseur est arrêté par les limites physiques de l’écran, ce qui leur confère une taille théorique virtuellement infinie',
-        'Parce que la souris pèse moins lourd dans les coins',
-        'Parce qu’ils ne sont jamais masqués par des fenêtres'
+        "Parce qu’ils bénéficient d’un rétroéclairage plus intense que le reste de la surface d’affichage",
+        "Parce que la souris y est plus légère à déplacer, le pointeur glissant sans effort vers les bords",
+        "Parce que le curseur est arrêté par les limites physiques de l’écran, ce qui leur confère une taille théorique virtuellement infinie",
+        "Parce qu’ils ne sont jamais recouverts par les fenêtres des autres applications ouvertes du système"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Puisque la souris ne peut pas sortir de l’écran, un geste brusque vers un coin atterrira toujours exactement dans le coin sans risque de dépassement (largeur infinie W = &infin;).'
     },
     {
@@ -242,12 +242,12 @@ module.exports = {
     {
       stem: 'Comment utiliser avec prudence le repère historique de Miller dans la conception des interfaces ?',
       opts: [
-        'Un site ne doit pas comporter plus de 7 pages au total',
-        'Le regroupement peut aider à structurer l’information, sans fixer une limite universelle de capacité ou de nombre de menus',
-        'Il faut 7 couleurs différentes par écran pour stimuler la créativité',
-        'Les boutons doivent avoir 7 pixels d’épaisseur'
+        "Le regroupement peut aider à structurer l’information, sans fixer une limite universelle de capacité ou de nombre de menus",
+        "Un site ne doit jamais comporter plus de sept pages au total, au-delà l’utilisateur est perdu",
+        "Chaque écran doit afficher exactement sept couleurs différentes pour stimuler la créativité visuelle",
+        "Tous les boutons doivent avoir une épaisseur de sept pixels pour respecter la mémoire visuelle"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le regroupement peut aider selon la tâche et les personnes ; le nombre historique ne garantit ni une capacité universelle ni l’absence de surcharge.'
     },
     {
@@ -264,34 +264,34 @@ module.exports = {
     {
       stem: 'Un formulaire valide immédiatement une saisie et permet de revenir en arrière facilement avec un bouton «Annuler». Quelle heuristique est respectée ?',
       opts: [
-        'H3 : Contrôle et liberté de l’utilisateur',
         'H6 : Reconnaissance plutôt que rappel',
+        'H3 : Contrôle et liberté de l’utilisateur',
         'H8 : Design sobre et minimaliste',
         'H2 : Correspondance avec le monde réel'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’heuristique H3 impose de fournir une «issue de secours» claire et immédiate en cas de fausse manipulation de l’utilisateur.'
     },
     {
       stem: 'Un bouton de suppression définitive de base de données ne demande aucune confirmation. Quelle heuristique de Nielsen est bafouée en priorité ?',
       opts: [
         'H2 : Correspondance monde réel',
-        'H5 : Prévention des erreurs',
         'H7 : Flexibilité et efficacité',
+        'H5 : Prévention des erreurs',
         'H4 : Cohérence et standards'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’heuristique H5 (Prévention des erreurs) impose d’empêcher les catastrophes avant qu’elles ne surviennent en demandant une confirmation explicite.'
     },
     {
       stem: 'Quels critères ergonomiques développés par l’INRIA font autorité dans la recherche francophone aux côtés des heuristiques de Nielsen ?',
       opts: [
-        'Les critères de Bastien &amp; Scapin',
+        'Les règles de Gutenberg',
         'Les critères de Taylor &amp; Ford',
         'Les principes de Le Corbusier',
-        'Les règles de Gutenberg'
+        'Les critères de Bastien &amp; Scapin'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Les critères ergonomiques de J.M. Christian Bastien et Dominique L. Scapin (1993, INRIA) constituent le standard scientifique français d’évaluation des IHM.'
     }
   ],

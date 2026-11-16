@@ -156,55 +156,55 @@ module.exports = {
   questions: [
     {
       stem: 'Sur quel port de transport et quel protocole un agent SNMP écoute-t-il les requêtes de scrutation Get / Walk envoyées par le serveur de supervision ?',
-      opts: ['Port 161 en UDP', 'Port 162 en TCP', 'Port 514 en UDP', 'Port 10050 en TCP'],
-      correct: 0,
+      opts: ['Port 162 en TCP', 'Port 161 en UDP', 'Port 514 en UDP', 'Port 10050 en TCP'],
+      correct: 1,
       exp: 'Les requêtes de scrutation SNMP sont émises vers le port 161/UDP de l\'agent, tandis que les Traps spontanés sont envoyés au serveur sur le port 162/UDP.'
     },
     {
       stem: 'Quel niveau de sécurité SNMPv3 USM assure à la fois l\'authentification cryptographique par hachage ET le chiffrement symétrique des données (confidentialité) ?',
-      opts: ['noAuthNoPriv', 'authNoPriv', 'authPriv', 'CommunityStringV2'],
-      correct: 2,
+      opts: ['authPriv', 'authNoPriv', 'noAuthNoPriv', 'CommunityStringV2'],
+      correct: 0,
       exp: 'Le niveau authPriv combine l\'authentification (SHA/MD5) et le chiffrement (AES/DES) pour garantir la confidentialité et l\'intégrité totale des échanges.'
     },
     {
       stem: 'Dans l\'arborescence MIB-2, à quoi correspond l\'OID standard 1.3.6.1.2.1.1.3.0 ?',
-      opts: ['Au nom de machine sysName', 'À la description matérielle sysDescr', 'Au temps de fonctionnement sysUpTime', 'À l\'adresse IP de la passerelle'],
-      correct: 2,
+      opts: ['Au nom de machine sysName', 'À la description matérielle sysDescr', 'À l\'adresse IP de la passerelle', 'Au temps de fonctionnement sysUpTime'],
+      correct: 3,
       exp: 'sysUpTime mesure les centièmes de seconde depuis la réinitialisation de la gestion réseau, pas nécessairement depuis le démarrage de l’OS ; TimeTicks est modulo 2^32.'
     },
     {
       stem: 'Une trame Syslog RFC 5424 débute par la priorité <30>. Quels sont la Facility et la Severity correspondantes ?',
-      opts: ['Facility 3 (daemon), Severity 6 (Informational)', 'Facility 3 (daemon), Severity 0 (Emergency)', 'Facility 4 (auth), Severity 2 (Critical)', 'Facility 30 (local), Severity 0 (Emergency)'],
-      correct: 0,
+      opts: ['Facility 4 (auth), Severity 2 (Critical)', 'Facility 3 (daemon), Severity 0 (Emergency)', 'Facility 3 (daemon), Severity 6 (Informational)', 'Facility 30 (local), Severity 0 (Emergency)'],
+      correct: 2,
       exp: 'Facility = 30 // 8 = 3 (daemon). Severity = 30 % 8 = 6 (Informational).'
     },
     {
       stem: 'Pourquoi une architecture de supervision distribuée utilise-t-elle des proxys locaux sur des sites distants ?',
-      opts: ['Pour remplacer définitivement le serveur de supervision central', 'Pour exécuter les scrutations locales sans saturer le lien WAN et tamponner les données en cas de coupure', 'Pour supprimer l\'obligation d\'utiliser des adresses IP', 'Pour bloquer les alertes par email'],
+      opts: ["Pour remplacer définitivement le serveur de supervision central par des instances locales","Pour exécuter les scrutations locales sans saturer le lien WAN et tamponner les données en cas de coupure","Pour supprimer l'obligation d'utiliser des adresses IP sur les équipements supervisés","Pour bloquer automatiquement toutes les alertes par email envoyées depuis le site distant"],
       correct: 1,
       exp: 'Les proxys effectuent les interrogations localement, évitant des milliers de requêtes UDP sur le lien WAN, et conservent les métriques si la liaison internet est temporairement coupée.'
     },
     {
       stem: 'Quelle différence existe-t-il entre un SNMP Trap et un SNMP Inform ?',
-      opts: ['Le Trap utilise TCP alors que l\'Inform utilise ICMP', 'L\'Inform exige un accusé de réception applicatif de la part du serveur, contrairement au Trap qui est non acquitté', 'Le Trap chiffre les données alors que l\'Inform est en clair', 'L\'Inform ne fonctionne que sous Linux'],
-      correct: 1,
+      opts: ["L'Inform exige un accusé de réception applicatif de la part du serveur, contrairement au Trap qui est non acquitté","Le Trap repose sur le protocole TCP orienté connexion, alors que l'Inform s'appuie exclusivement sur ICMP","Le Trap chiffre nativement les données transportées alors que l'Inform circule en clair","L'Inform ne fonctionne que sur les équipements exécutant un système Linux ou Unix"],
+      correct: 0,
       exp: 'SNMP Inform (introduit en SNMPv2c/v3) fiabilise les alertes en exigeant une réponse de confirmation du gestionnaire, renvoyant l\'alerte en cas de non-réception.'
     },
     {
       stem: 'Dans la table Syslog, quelle sévérité correspond au code 0 ?',
-      opts: ['Emergency (système inutilisable)', 'Debug (débogage détaillé)', 'Warning (avertissement)', 'Informational (information courante)'],
-      correct: 0,
+      opts: ['Informational (information courante)', 'Debug (débogage détaillé)', 'Warning (avertissement)', 'Emergency (système inutilisable)'],
+      correct: 3,
       exp: 'La sévérité 0 est Emergency, le niveau le plus critique signalant une panique totale du système d\'exploitation.'
     },
     {
       stem: 'Quelle différence entre TCP 514 sans TLS et Syslog sur TLS 6514 ?',
-      opts: ['TLS correctement configuré protège la confidentialité en transit ; TCP seul ne chiffre pas', 'TCP seul chiffre et prouve la non-répudiation', 'TLS garantit toujours le stockage final', 'Les deux transports sont nécessairement chiffrés'],
-      correct: 0,
+      opts: ["TCP seul chiffre les échanges et apporte la preuve de non-répudiation","TLS garantit systématiquement la sécurité du stockage final des journaux","TLS correctement configuré protège la confidentialité en transit ; TCP seul ne chiffre pas","Les deux transports sont nécessairement chiffrés par défaut dans la RFC"],
+      correct: 2,
       exp: 'TLS peut protéger et authentifier les pairs en transit ; la livraison durable et la non-répudiation exigent d’autres mesures.'
     },
     {
       stem: 'Quel est l\'inconvénient majeur du transport Syslog historique sur UDP 514 ?',
-      opts: ['Il consomme trop de bande passante', 'Il ne garantit pas la livraison des paquets et n\'offre aucun chiffrement en transit', 'Il nécessite une licence payante', 'Il est limité à 10 messages par heure'],
+      opts: ["Il consomme une part excessive de la bande passante du réseau local","Il ne garantit pas la livraison des paquets et n'offre aucun chiffrement en transit","Il nécessite impérativement l'achat d'une licence logicielle payante","Il est artificiellement limité à dix messages par heure et par équipement"],
       correct: 1,
       exp: 'UDP est un protocole sans connexion : en cas de saturation réseau, des paquets de logs critiques peuvent être perdus sans qu\'aucun avertissement ne soit émis.'
     }

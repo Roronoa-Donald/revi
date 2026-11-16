@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 6 — Boîtes de dialogue (MsgBox, InputBox), Gestion des erreurs (On Error GoTo) et Formulaires (UserForm) | VB Excel B1</title>
+<meta name="description" content="Chapitre 6 du cours de Programmation VBA sous Excel B1 : Dialoguer avec l’utilisateur : MsgBox (boutons vbYesNo, retour vbYes/vbNo, arguments nommés :=) et InputBox ; intercepter les erreurs d’exécution (On Error GoTo, On Error Resume Next, objet Err) ; concevoir et piloter un formulaire UserForm (Label, TextBox, ComboBox, CommandButton, Show, Hide vs Unload Me). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-vb-excel/chapitres/chapitre6.html">
+<meta property="og:title" content="Chapitre 6 — Boîtes de dialogue (MsgBox, InputBox), Gestion des erreurs (On Error GoTo) et Formulaires (UserForm) | VB Excel B1">
+<meta property="og:description" content="Chapitre 6 du cours de Programmation VBA sous Excel B1 : Dialoguer avec l’utilisateur : MsgBox (boutons vbYesNo, retour vbYes/vbNo, arguments nommés :=) et InputBox ; intercepter les erreurs d’exécution (On Error GoTo, On Error Resume Next, objet Err) ; concevoir et piloter un formulaire UserForm (Label, TextBox, ComboBox, CommandButton, Show, Hide vs Unload Me). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="6" class="page page--chapter">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<header class="vbanav"><div class="vbanav__in">
+  <a class="vbanav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
+    <span class="vbanav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
+    <span class="vbanav__word">cours.interactifs</span>
+  </a>
+  <div class="vbanav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="vbanav__chip" href="../index.html">VB Excel B1</a></div>
+  <nav class="vbanav__links" aria-label="Navigation du cours">
+      <a href="../sommaire.html">Sommaire</a>
+      <a href="../chapitres/chapitre1.html">Ch. 1</a>
+      <a href="../chapitres/chapitre2.html">Ch. 2</a>
+      <a href="../chapitres/chapitre3.html">Ch. 3</a>
+      <a href="../chapitres/chapitre4.html">Ch. 4</a>
+      <a href="../chapitres/chapitre5.html">Ch. 5</a>
+      <a href="../chapitres/chapitre6.html" class="is-active">Ch. 6</a>
+      <a href="../chapitres/cartes.html">Cartes</a>
+      <a href="../chapitres/formules.html">Mémo</a>
+      <a href="../exercices/exercices.html">Exercices</a>
+      <a href="../atelier.html">Atelier</a>
+      <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </nav>
+  <div class="vbanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></header>
+
+<main id="content" class="vbawrap">
+<p class="crumb"><a href="../index.html">VB Excel B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 6</p>
+
+<div class="chapmeta">
+    <span class="tag tag--module">Module 6</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--lock">Réservé B1 et plus</span>
+  </div>
+
+<h1>Chapitre 6 — Boîtes de dialogue (MsgBox, InputBox), Gestion des erreurs (On Error GoTo) et Formulaires (UserForm)</h1>
+
+<div class="lead">  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Pour qu’un outil Excel devienne une véritable application métier utilisable par des collègues non informaticiens, il doit dialoguer clairement avec l’utilisateur (demander une confirmation, recueillir un paramètre, proposer un formulaire de saisie guidé UserForm) et ne jamais planter brutalement sur un message d’erreur technique incompréhensible.</p>
+  </div></div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
+    <ol>
+      <li>afficher des messages et récupérer le choix de l’utilisateur avec MsgBox (vbYesNo, vbInformation, vbYes, vbNo) et les arguments nommés (:=) ;</li>
+      <li>recueillir une saisie utilisateur avec InputBox et contrôler les cas d’annulation ou de saisie vide ;</li>
+      <li>mettre en place une gestion d’erreurs robuste avec On Error GoTo Etiquette, Exit Sub, On Error Resume Next et l’objet Err (Err.Number, Err.Description) ;</li>
+      <li>concevoir un formulaire UserForm dans VBE avec ses contrôles (Label, TextBox, ComboBox/ListBox, CommandButton) ;</li>
+      <li>coder les événements du formulaire (UserForm_Initialize, AddItem, CommandButton_Click) et maîtriser son cycle de vie (Load, Show, Hide vs Unload Me).</li>
+    </ol>
+  </div>
+
+<section class="sec">
+
+<h2>1. Les boîtes de dialogue natives : MsgBox et InputBox</h2>
+
+<p>La fonction <strong><code>MsgBox(prompt, [buttons], [title])</code></strong> affiche une boîte de dialogue modale. Le support du Dr TCHAZINO Tchamiè distingue deux façons de l’appeler :</p>
+<ul>
+  <li><strong>Comme simple instruction d’information (sans valeur de retour)</strong> : on n’utilise <strong>pas de parenthèses</strong> autour des arguments (sauf si l’on utilise <code>Call</code>). Ex. : <code>MsgBox "Sauvegarde effectuée !", vbInformation, "Bilan"</code>.</li>
+  <li><strong>Comme fonction (pour savoir sur quel bouton l’utilisateur a cliqué)</strong> : on place les arguments <strong>entre parenthèses</strong> et on affecte le retour à une variable entière. On combine le choix des boutons (<code>vbOKOnly</code> = 0, <code>vbOKCancel</code> = 1, <code>vbYesNo</code> = 4, <code>vbYesNoCancel</code> = 3) et l’icône (<code>vbCritical</code> = 16, <code>vbQuestion</code> = 32, <code>vbExclamation</code> = 48, <code>vbInformation</code> = 64) avec le signe <code>+</code>, puis on teste la réponse (<code>vbOK</code> = 1, <code>vbCancel</code> = 2, <code>vbYes</code> = 6, <code>vbNo</code> = 7).</li>
+</ul>
+<p>On peut passer les arguments par position (dans l’ordre exact) ou <strong>par nom</strong> avec l’opérateur <strong><code>:=</code></strong> (dans n’importe quel ordre, par ex. <code>MsgBox Title:="Alerte", Prompt:="Vérifiez la ligne"</code>). Pour demander à l’utilisateur de saisir une valeur, on utilise <strong><code>InputBox(prompt, [title], [default])</code></strong>, qui renvoie toujours une chaîne de caractères <code>String</code> (vide <code>""</code> si l’utilisateur clique sur Annuler) :</p>
+<pre><code>Dim nomClient As String, rep As Integer
+nomClient = InputBox("Entrez le nom du client :", "Nouveau dossier", "SARL Togo")
+If nomClient = "" Then Exit Sub  ' Annulation ou saisie vide
+
+rep = MsgBox("Créer la fiche de " &amp; nomClient &amp; " ?", vbYesNo + vbQuestion, "Confirmation")
+If rep = vbYes Then
+    Range("A2").Value = nomClient
+End If</code></pre>
+
+</section>
+
+<section class="sec">
+
+<h2>2. La gestion des erreurs d’exécution : On Error GoTo et l’objet Err</h2>
+
+<p>Une erreur d’exécution survient lorsqu’une instruction valide syntaxiquement échoue face aux données réelles : division par zéro (<strong>erreur 11</strong>), feuille ou classeur introuvable dans une collection (<strong>erreur 9</strong> <em>Indice en dehors de la plage / Subscript out of range</em>), texte saisi au lieu d’un nombre (<strong>erreur 13</strong> <em>Incompatibilité de type / Type mismatch</em>), ou action interdite sur une feuille protégée (<strong>erreur 1004</strong>).</p>
+<p>Pour éviter l’arrêt brutal d’Excel, on place en début de procédure une instruction <strong><code>On Error</code></strong> :</p>
+<ul>
+  <li><strong><code>On Error GoTo GestionErreur</code></strong> : dès qu’une erreur survient, VBA saute immédiatement à l’étiquette <code>GestionErreur:</code> placée en fin de procédure. Il faut impérativement placer <strong><code>Exit Sub</code></strong> (ou <code>Exit Function</code>) juste avant l’étiquette pour que l’exécution normale ne tombe pas dans le bloc d’erreur !</li>
+  <li><strong><code>On Error Resume Next</code></strong> : ignore l’erreur et passe à la ligne suivante (utile pour tenter une opération optionnelle puis tester <code>If Err.Number &lt;&gt; 0 Then</code>).</li>
+  <li><strong><code>On Error GoTo 0</code></strong> : désactive le gestionnaire courant et rétablit le comportement standard de VBA.</li>
+</ul>
+<pre><code>Sub ActiverFeuilleClient(nomFeuille As String)
+    On Error GoTo FeuilleAbsente
+    Worksheets(nomFeuille).Select
+    Exit Sub  ' Sortie normale avant le gestionnaire !
+
+FeuilleAbsente:
+    MsgBox "Erreur " &amp; Err.Number &amp; " : la feuille [" &amp; nomFeuille &amp; "] n'existe pas." &amp; _
+           vbCrLf &amp; "Détail : " &amp; Err.Description, vbCritical, "Feuille introuvable"
+End Sub</code></pre>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Les formulaires personnalisés (UserForm) : contrôles, initialisation et cycle de vie</h2>
+
+<p>Lorsque <code>InputBox</code> ne suffit plus (saisie simultanée d’un nom, d’une catégorie dans une liste déroulante et d’un montant), on crée un <strong>formulaire personnalisé (<code>UserForm</code>)</strong> dans VBE via <em>Insertion → UserForm</em>. À l’aide de la <strong>Boîte à outils Contrôles</strong>, on y dépose :</p>
+<ul>
+  <li><strong>Intitulé (<code>Label</code>)</strong> : étiquette de texte fixe (propriété <code>Caption</code>).</li>
+  <li><strong>Zone de texte (<code>TextBox</code>)</strong> : champ de saisie libre (propriété <code>Value</code> ou <code>Text</code>).</li>
+  <li><strong>Zone de liste modifiable (<code>ComboBox</code>) / Zone de liste (<code>ListBox</code>)</strong> : liste déroulante alimentée soit par la propriété <code>RowSource</code> (ex. <code>Feuil1!A2:A10</code>), soit par programmation avec la méthode <strong><code>.AddItem</code></strong> dans l’événement <strong><code>UserForm_Initialize()</code></strong>.</li>
+  <li><strong>Case à cocher (<code>CheckBox</code>)</strong>, <strong>Bouton d’option (<code>OptionButton</code>)</strong> et <strong>Cadre (<code>Frame</code>)</strong>.</li>
+  <li><strong>Bouton de commande (<code>CommandButton</code>)</strong> : bouton Valider ou Annuler (propriétés <code>Caption</code>, <code>Default = True</code> pour la touche Entrée, <code>Cancel = True</code> pour Échap).</li>
+</ul>
+<p>Le support insiste sur le cycle de vie du <code>UserForm</code> et la différence cruciale entre <code>Hide</code> et <code>Unload</code> :</p>
+<ul>
+  <li><strong><code>MonForm.Show</code></strong> : charge (en déclenchant <code>Private Sub UserForm_Initialize()</code>) et affiche le formulaire à l’écran.</li>
+  <li><strong><code>MonForm.Hide</code> (ou <code>Me.Hide</code>)</strong> : masque visuellement le formulaire mais <strong>le conserve en mémoire vive</strong>, ce qui permet à la macro appelante de lire encore le contenu de <code>MonForm.TextBoxNom.Value</code>.</li>
+  <li><strong><code>Unload MonForm</code> (ou <code>Unload Me</code>)</strong> : ferme le formulaire et <strong>le décharge complètement de la mémoire</strong> (toutes les valeurs saisies dans les contrôles sont effacées).</li>
+</ul>
+<pre><code>' Dans le module de code du UserForm (FrmSaisie) :
+Private Sub UserForm_Initialize()
+    ComboBoxService.AddItem "Comptabilité"
+    ComboBoxService.AddItem "Logistique"
+    ComboBoxService.AddItem "Direction"
+End Sub
+
+Private Sub ButtonOK_Click()
+    If TextBoxNom.Value = "" Then
+        MsgBox "Veuillez saisir un nom.", vbExclamation, "Champ requis"
+        Exit Sub
+    End If
+    Range("A2").Value = TextBoxNom.Value
+    Range("B2").Value = ComboBoxService.Value
+    Unload Me
+End Sub</code></pre>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Ouverture d’autres applications Office depuis VBA (Automation)</div>
+    <p>Comme le montre la fin du support de cours, VBA peut aussi piloter Word ou un navigateur depuis Excel grâce à <code>CreateObject("Word.Application")</code> (automation COM/OLE) ou ouvrir un document/site avec <code>ActiveWorkbook.FollowHyperlink</code>.</p>
+  </div>
+
+</section>
+
+  <section class="sec">
+
+<!-- code-labs:start -->
+  <div id="exercices">
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
+<div class="lab" id="vba-c6-e1" data-lab
+     data-exercise="vba-c6-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Si l'utilisateur clique sur Non dans MsgBox(..., vbYesNo) :&#10;- reponse reçoit la constante vbNo (valeur 7)&#10;- Le test If reponse = vbYes est faux : ArchiverFactures n'est pas appelée.">
+  <script type="text/plain" data-lab-starter># Exercice — Dialogue utilisateur avec InputBox et MsgBox
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Fonction de saisie de texte au clavier]
+A_COMPLETER
+
+[Question 2 — Valeur renvoyée par InputBox sur clic Annuler]
+A_COMPLETER
+
+[Question 3 — Opérateur d'affectation d'un argument nommé]
+A_COMPLETER
+
+[Question 4 — Constante affichant les boutons Oui et Non]
+A_COMPLETER
+
+[Question 5 — Constante testant le clic sur le bouton Oui]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Dialogue utilisateur avec InputBox et MsgBox</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Maîtriser les constantes de boutons et de retour de MsgBox, le comportement d’InputBox et les arguments nommés (:=).</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Avant d’archiver les factures du mois, la macro interroge l’utilisateur :</p><pre><code>Dim mois As String, reponse As Integer
+mois = InputBox(Prompt:="Mois à clôturer :", Title:="Clôture")
+If mois = "" Then Exit Sub
+
+reponse = MsgBox("Archiver le mois de " &amp; mois &amp; " ?", vbYesNo + vbQuestion, "Confirmation")
+If reponse = vbYes Then
+    Call ArchiverFactures(mois)
+End If</code></pre><ol>  <li>Quelle fonction VBA ouvre une boîte de dialogue permettant à l’utilisateur de saisir un texte au clavier ?</li>  <li>Que renvoie <code>InputBox</code> si l’utilisateur clique sur le bouton <strong>Annuler</strong> : <code>""</code> (chaîne vide) ou <code>0</code> ?</li>  <li>Quel opérateur de deux caractères (utilisé après <code>Prompt</code> et <code>Title</code>) permet de passer un argument par son nom ?</li>  <li>Quelle constante VBA passée à <code>MsgBox</code> affiche les deux boutons <strong>Oui</strong> et <strong>Non</strong> ?</li>  <li>Quelle constante VBA renvoyée dans <code>reponse</code> indique que l’utilisateur a cliqué sur le bouton <strong>Oui</strong> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Si l'utilisateur clique sur Non dans MsgBox(..., vbYesNo) :
+- reponse reçoit la constante vbNo (valeur 7)
+- Le test If reponse = vbYes est faux : ArchiverFactures n'est pas appelée.</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>InputBox saisit une entrée (Input) et MsgBox affiche un message (Message).</li>
+        <li>Pour les arguments nommés, regardez les deux caractères collés entre Prompt et "Mois à clôturer :".</li>
+        <li>Étapes : citer InputBox ; répondre "" (chaîne vide) en cas d’annulation ; noter l’opérateur := ; relever vbYesNo pour afficher Oui/Non et vbYes pour tester la réponse Oui.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c6-e2" data-lab
+     data-exercise="vba-c6-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Codes d'erreur classiques en VBA Excel :&#10;- Erreur 9 : Indice en dehors de la plage (ex. Worksheets(&quot;Inconnue&quot;))&#10;- Erreur 11 : Division par zéro&#10;- Erreur 13 : Incompatibilité de type (Type mismatch)">
+  <script type="text/plain" data-lab-starter># Exercice — Gestion des erreurs d'exécution avec On Error GoTo et l'objet Err
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Instruction activant le branchement sur erreur]
+A_COMPLETER
+
+[Question 2 — Instruction empêchant d'entrer dans GestionErreur hors erreur]
+A_COMPLETER
+
+[Question 3 — Objet VBA portant les détails de l'erreur]
+A_COMPLETER
+
+[Question 4 — Propriété donnant le code numérique de l'erreur]
+A_COMPLETER
+
+[Question 5 — Numéro de l'erreur VBA « Division par zéro » (9 ou 11)]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Gestion des erreurs d’exécution avec On Error GoTo et l’objet Err</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Structurer un gestionnaire d’erreur On Error GoTo et identifier les propriétés de l’objet Err ainsi que les codes d’erreur classiques.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pour éviter qu’une erreur d’exécution n’interrompe brutalement le travail de l’utilisateur, Kofi protège sa procédure avec un gestionnaire d’erreur :</p><pre><code>Sub CalculerRatio( nomFeuille As String )
+    On Error GoTo GestionErreur
+    Worksheets(nomFeuille).Activate
+    Range("D2").Value = Range("B2").Value / Range("C2").Value
+    Exit Sub
+
+GestionErreur:
+    MsgBox "Erreur n° " &amp; Err.Number &amp; " : " &amp; Err.Description, vbCritical, "Anomalie"
+End Sub</code></pre><ol>  <li>Quelle instruction de trois mots en début de procédure branche l’exécution vers l’étiquette <code>GestionErreur</code> en cas d’anomalie ?</li>  <li>Quelle instruction de deux mots placée juste avant <code>GestionErreur:</code> est indispensable pour que la procédure s’arrête normalement quand aucune erreur ne survient ?</li>  <li>Quel est le nom de l’objet VBA qui stocke les informations sur l’erreur qui vient de se produire ?</li>  <li>Quelle propriété de cet objet renvoie le code numérique de l’erreur (par ex. <code>9</code> ou <code>11</code>) ?</li>  <li>Si <code>Range("C2").Value</code> vaut <code>0</code>, quel est le numéro de l’erreur VBA « Division par zéro » (<code>9</code> ou <code>11</code>) ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Codes d'erreur classiques en VBA Excel :
+- Erreur 9 : Indice en dehors de la plage (ex. Worksheets("Inconnue"))
+- Erreur 11 : Division par zéro
+- Erreur 13 : Incompatibilité de type (Type mismatch)</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Lisez les deux premières lignes et la ligne située juste au-dessus de l’étiquette GestionErreur:.</li>
+        <li>Dans le MsgBox final, l’objet d’erreur expose deux propriétés : son numéro (Number) et son texte (Description).</li>
+        <li>Étapes : relever On Error GoTo ; noter Exit Sub avant l’étiquette ; citer l’objet Err ; indiquer la propriété Number (Err.Number) ; retenir le code 11 pour la division par zéro (9 étant l’indice en dehors de la plage).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c6-e3" data-lab
+     data-exercise="vba-c6-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Cycle de vie d'un UserForm :&#10;1) FrmClient.Show -&gt; déclenche UserForm_Initialize() et affiche la fenêtre&#10;2) Saisie par l'utilisateur puis clic sur ButtonOK -&gt; copie dans Range(&quot;A2:B2&quot;)&#10;3) Unload Me -&gt; ferme la fenêtre et libère la mémoire.">
+  <script type="text/plain" data-lab-starter># Exercice — Concevoir et piloter un formulaire UserForm de saisie client
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Méthode affichant le UserForm à l'écran]
+A_COMPLETER
+
+[Question 2 — Méthode ajoutant un élément à une ComboBox]
+A_COMPLETER
+
+[Question 3 — Contrôle de saisie libre de texte (Label ou TextBox)]
+A_COMPLETER
+
+[Question 4 — Méthode masquant le formulaire en gardant la mémoire (Hide ou Unload)]
+A_COMPLETER
+
+[Question 5 — Effet de Unload Me sur la mémoire (decharge ou conserve)]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Concevoir et piloter un formulaire UserForm de saisie client</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier les contrôles d’un UserForm, initialiser une ComboBox avec AddItem et distinguer Show, Hide et Unload Me.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Conformément au dernier chapitre du support du Dr TCHAZINO Tchamiè, vous créez un formulaire personnalisé <code>FrmClient</code> contenant une zone de texte <code>TextBoxNom</code>, une liste déroulante <code>ComboBoxVille</code> et un bouton <code>ButtonOK</code> :</p><pre><code>Private Sub UserForm_Initialize()
+    ComboBoxVille.AddItem "Lomé"
+    ComboBoxVille.AddItem "Kara"
+    ComboBoxVille.AddItem "Sokodé"
+End Sub
+
+Private Sub ButtonOK_Click()
+    Range("A2").Value = TextBoxNom.Value
+    Range("B2").Value = ComboBoxVille.Value
+    Unload Me
+End Sub</code></pre><ol>  <li>Quelle méthode appliquée à <code>FrmClient</code> (ex. <code>FrmClient.______</code>) permet d’afficher le formulaire à l’écran depuis un module standard ?</li>  <li>Dans l’événement <code>UserForm_Initialize()</code>, quelle méthode permet d’ajouter chacune des villes à la liste déroulante <code>ComboBoxVille</code> ?</li>  <li>Quel type de contrôle de la Boîte à outils (en anglais : <code>Label</code> ou <code>TextBox</code>) permet à l’utilisateur de saisir librement son nom au clavier ?</li>  <li>Quelle méthode (<code>Hide</code> ou <code>Unload</code>) masque visuellement le formulaire tout en <strong>conservant ses valeurs en mémoire vive</strong> ?</li>  <li>Que fait l’instruction finale <code>Unload Me</code> : conserve-t-elle le formulaire en mémoire ou le <strong>décharge-t-elle complètement de la mémoire</strong> ? (répondez <code>decharge</code> ou <code>conserve</code>)</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Cycle de vie d'un UserForm :
+1) FrmClient.Show -&gt; déclenche UserForm_Initialize() et affiche la fenêtre
+2) Saisie par l'utilisateur puis clic sur ButtonOK -&gt; copie dans Range("A2:B2")
+3) Unload Me -&gt; ferme la fenêtre et libère la mémoire.</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>En anglais, afficher se dit Show et masquer se dit Hide.</li>
+        <li>Dans UserForm_Initialize, regardez la méthode appelée après ComboBoxVille. pour insérer "Lomé", "Kara" et "Sokodé".</li>
+        <li>Étapes : noter Show pour afficher le formulaire ; relever AddItem pour remplir la ComboBox ; choisir TextBox pour la zone de saisie ; indiquer Hide pour masquer en mémoire ; répondre decharge pour Unload Me.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  </div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle constante VBA faut-il passer au paramètre buttons de MsgBox pour afficher les boutons Oui et Non, et quelle constante teste le clic sur Oui ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Boutons : vbYesNo — Test du clic Oui : vbYes</button>
+        <button class="opt">Boutons : vbOKCancel — Test du clic Oui : True</button>
+        <button class="opt">Boutons : vbOuiNon — Test du clic Oui : 1</button>
+        <button class="opt">Boutons : vbQuestion — Test du clic Oui : "Oui"</button>
+      </div>
+      <div class="q__exp">vbYesNo (valeur 4) affiche les boutons Oui et Non ; lorsque l’utilisateur clique sur Oui, la fonction MsgBox renvoie la constante vbYes (valeur 6, et vbNo = 7 pour Non).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une procédure utilisant On Error GoTo GestionErreur, pourquoi faut-il placer Exit Sub juste avant l’étiquette GestionErreur: ?</p>
+      <div class="opts">
+        <button class="opt">Pour supprimer automatiquement les variables locales</button>
+        <button class="opt" data-correct="1">Pour éviter que le bloc GestionErreur ne s’exécute aussi lorsque la procédure se déroule normalement sans aucune erreur</button>
+        <button class="opt">Parce que VBE refuse de compiler une étiquette sans Exit Sub</button>
+        <button class="opt">Pour enregistrer le classeur avant d’afficher le message d’erreur</button>
+      </div>
+      <div class="q__exp">Une étiquette (GestionErreur:) n’arrête pas le flux séquentiel du programme : sans Exit Sub juste au-dessus, la macro exécuterait le code d’erreur même quand tout s’est bien passé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans un formulaire UserForm, quel événement s’exécute automatiquement au chargement du formulaire et permet de remplir une ComboBox avec .AddItem ?</p>
+      <div class="opts">
+        <button class="opt">Private Sub UserForm_Terminate()</button>
+        <button class="opt">Private Sub ComboBox1_Change()</button>
+        <button class="opt" data-correct="1">Private Sub UserForm_Initialize()</button>
+        <button class="opt">Private Sub Workbook_Open()</button>
+      </div>
+      <div class="q__exp">L’événement Private Sub UserForm_Initialize() se déclenche lors du chargement en mémoire du formulaire (Load ou Show) avant son affichage : c’est l’endroit idéal pour initialiser les listes avec .AddItem.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence fondamentale entre Me.Hide et Unload Me dans le code d’un UserForm ?</p>
+      <div class="opts">
+        <button class="opt">Me.Hide supprime le UserForm du projet VBA alors que Unload Me le réduit dans la barre des tâches</button>
+        <button class="opt">Unload Me conserve toutes les valeurs saisies alors que Me.Hide les efface</button>
+        <button class="opt">Me.Hide ne fonctionne que sur les feuilles de calcul</button>
+        <button class="opt" data-correct="1">Me.Hide masque le formulaire en conservant ses valeurs en mémoire, tandis que Unload Me le ferme et libère la mémoire en réinitialisant ses contrôles</button>
+      </div>
+      <div class="q__exp">Hide masque simplement la fenêtre (les valeurs des TextBox et ComboBox restent lisibles en mémoire), tandis que Unload décharge complètement l’objet de la mémoire vive.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que renvoie la fonction standard InputBox("Votre âge ?") si l’utilisateur clique sur le bouton Annuler ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Une chaîne de caractères vide ""</button>
+        <button class="opt">La valeur booléenne False</button>
+        <button class="opt">Le nombre -1</button>
+        <button class="opt">L’erreur d’exécution 1004</button>
+      </div>
+      <div class="q__exp">La fonction VBA InputBox renvoie toujours une chaîne String : si l’utilisateur clique sur Annuler, elle renvoie la chaîne vide "".</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel opérateur permet de passer des arguments par leur nom (par exemple Prompt:="Bonjour", Title:="Info") lors de l’appel d’une procédure ou de MsgBox ?</p>
+      <div class="opts">
+        <button class="opt">L’opérateur =&gt;</button>
+        <button class="opt" data-correct="1">L’opérateur deux-points égal :=</button>
+        <button class="opt">L’opérateur double égal ==</button>
+        <button class="opt">L’opérateur flèche -&gt;</button>
+      </div>
+      <div class="q__exp">En VBA, le passage d’arguments nommés utilise l’opérateur := (deux-points suivi de égal), ce qui permet de fournir les arguments dans n’importe quel ordre.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel objet VBA contient le numéro (Number) et le texte explicatif (Description) de la dernière erreur d’exécution interceptée ?</p>
+      <div class="opts">
+        <button class="opt">L’objet Debug</button>
+        <button class="opt">L’objet Application.Alert</button>
+        <button class="opt" data-correct="1">L’objet Err (Err.Number et Err.Description)</button>
+        <button class="opt">L’objet Target</button>
+      </div>
+      <div class="q__exp">L’objet intrinsèque Err stocke les informations de la dernière erreur d’exécution : Err.Number donne son code numérique (ex. 9, 11, 13, 1004) et Err.Description son libellé.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode d’un contrôle ComboBox permet d’ajouter par programmation un choix supplémentaire dans sa liste déroulante ?</p>
+      <div class="opts">
+        <button class="opt">ComboBox1.InsertRow</button>
+        <button class="opt">ComboBox1.AppendText</button>
+        <button class="opt">ComboBox1.NewValue</button>
+        <button class="opt" data-correct="1">ComboBox1.AddItem</button>
+      </div>
+      <div class="q__exp">La méthode .AddItem (par ex. ComboBox1.AddItem "Lomé") ajoute un nouvel élément à la liste d’un contrôle ComboBox ou ListBox.</div>
+    </div>
+  </div>
+
+  </section>
+
+<section class="sec">
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Mettre des parenthèses à MsgBox("Bonjour", vbInformation) sans récupérer la valeur de retour ni utiliser Call : VBE génère une erreur de syntaxe.</li>
+      <li>Oublier Exit Sub juste avant l’étiquette du gestionnaire d’erreur On Error GoTo.</li>
+      <li>Décharger un formulaire avec Unload Me avant d’avoir copié les valeurs de ses TextBox dans la feuille Excel.</li>
+      <li>Oublier de vérifier si InputBox a renvoyé "" (clic sur Annuler) avant de convertir la saisie en nombre.</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — construire une interface utilisateur fiable sous Excel</div>
+    <ol>
+      <li>Pour une simple question Oui/Non ou une saisie unique, utiliser MsgBox(..., vbYesNo + vbQuestion) et InputBox en testant le cas d’annulation ("").</li>
+      <li>Pour une saisie multi-champs, créer un UserForm, remplir ses ComboBox dans UserForm_Initialize() avec .AddItem et valider les champs dans CommandButtonOK_Click().</li>
+      <li>Transférer les valeurs des contrôles (TextBox.Value, ComboBox.Value) vers les cellules de la feuille avant d’appeler Unload Me.</li>
+      <li>Protéger les opérations sensibles (ouverture de fichier, sélection de feuille, division) par On Error GoTo Etiquette précédé de Exit Sub.</li>
+    </ol>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>MsgBox affiche un message ou pose une question (vbYesNo, retour vbYes/vbNo) ; InputBox recueille une chaîne String.</li>
+      <li>Les arguments nommés s’écrivent avec := (Prompt:="...", Title:="...").</li>
+      <li>On Error GoTo Etiquette (avec Exit Sub avant l’étiquette) et l’objet Err (Err.Number, Err.Description) interceptent proprement les erreurs.</li>
+      <li>Un UserForm réunit Label, TextBox, ComboBox (.AddItem dans UserForm_Initialize) et CommandButton ; Show l’affiche, Hide le masque en mémoire et Unload Me le décharge.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais utiliser MsgBox en instruction simple et en fonction avec vbYesNo / vbYes.</li>
+      <li>Je sais structurer un gestionnaire d’erreur complet avec On Error GoTo, Exit Sub et Err.Number.</li>
+      <li>Je sais initialiser une ComboBox avec .AddItem dans UserForm_Initialize().</li>
+      <li>Je sais expliquer la différence entre Me.Hide et Unload Me.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong><code>MsgBox</code></strong> : boîte de message modale (constantes <code>vbYesNo</code>, <code>vbInformation</code>, retours <code>vbYes</code>, <code>vbNo</code>).</li><li><strong><code>InputBox</code></strong> : boîte de saisie renvoyant la chaîne entrée par l’utilisateur (ou <code>""</code> sur Annuler).</li><li><strong>Arguments nommés (<code>:=</code>)</strong> : syntaxe permettant de passer les paramètres d’une procédure par leur nom.</li><li><strong><code>On Error GoTo</code> / <code>Resume Next</code></strong> : instructions de branchement ou de poursuite en cas d’erreur d’exécution.</li><li><strong>Objet <code>Err</code></strong> : porte le code (<code>Err.Number</code>) et le message (<code>Err.Description</code>) de l’erreur active.</li><li><strong><code>UserForm</code></strong> : boîte de dialogue personnalisée dotée de contrôles graphiques (<code>Label</code>, <code>TextBox</code>, <code>ComboBox</code>, <code>CommandButton</code>).</li><li><strong><code>UserForm_Initialize()</code> &amp; <code>.AddItem</code></strong> : événement de chargement du formulaire et méthode d’ajout dans une liste.</li><li><strong><code>Show</code>, <code>Hide</code> vs <code>Unload Me</code></strong> : afficher, masquer en gardant les données en mémoire, ou décharger complètement de la mémoire.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>revoyez la syntaxe de MsgBox/InputBox, On Error GoTo et les contrôles de UserForm.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>attention au rôle de Exit Sub avant l’étiquette d’erreur et à Hide vs Unload Me.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, S’entraîner sur les études de cas de validation de formulaires.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise complète des boîtes de dialogue, de la gestion d’erreurs et des UserForms.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+</section>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="../atelier.html">Atelier d’analyse VBA <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
+  Sources : Programmation VBA sous Excel (Dr TCHAZINO Tchamiè, 47 pages, support1.pdf — programme officiel B1 IT).</p>
+</main>
+
+<footer class="cfoot">
+  <div class="cfoot__in">
+    <a class="cfoot__brand" href="/">cours.interactifs</a>
+    <p class="cfoot__copy">© 2025-2026 Cours Interactifs — RD4SLOQ · VB Excel B1</p>
+    <nav class="cfoot__links" aria-label="Liens utiles">
+      <a href="/">Tous les cours</a>
+      <a href="/epreuves/index.html">Épreuves</a>
+      <a href="/preparation-web/index.html">Atelier Web</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

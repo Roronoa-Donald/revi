@@ -19,7 +19,9 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
 const exercises = require('../server/exercises');
+const { matchOutputs } = require('../server/exercises/runner');
 const { normalizeOutput } = require('../server/services/execution');
+const localRunner = require('../server/services/execution/local-runner');
 
 function findTool(candidates) {
   for (const candidate of candidates.filter(Boolean)) {
@@ -46,6 +48,19 @@ const NODE = findTool([process.env.NODE_BIN, 'node']);
 // Bash est présent sur les systèmes Unix (Git Bash sous Windows) : les labs
 // shell s'exécutent en réel comme les autres langages.
 const BASH = findTool([process.env.BASH_BIN, '/bin/bash', 'bash']);
+const JAVAC = findTool([
+  process.env.JAVAC_BIN,
+  'javac',
+  path.join(os.homedir(), '.local/share/mise/installs/java/21/bin/javac'),
+  path.join(os.homedir(), '.local/share/mise/installs/java/latest/bin/javac')
+]);
+const JAVA = findTool([
+  process.env.JAVA_BIN,
+  'java',
+  path.join(os.homedir(), '.local/share/mise/installs/java/21/bin/java'),
+  path.join(os.homedir(), '.local/share/mise/installs/java/latest/bin/java')
+]);
+const DOTNET = findTool([process.env.DOTNET_BIN, 'dotnet', '/usr/local/bin/dotnet']);
 const SqlWasmEngine = require('../assets/js/engines/sql-wasm-engine');
 
 /** Outil disponible pour un langage donné, ou null. */
@@ -56,7 +71,10 @@ function toolFor(language) {
   if (language === 'cpp') return CXX && { kind: 'compile', bin: CXX, std: 'c++17', ext: 'cpp' };
   if (language === 'php') return PHP && { kind: 'php', bin: PHP };
   if (language === 'javascript') return NODE && { kind: 'node', bin: NODE };
+  if (language === 'java') return JAVAC && JAVA && { kind: 'java', javac: JAVAC, java: JAVA };
+  if (language === 'csharp') return DOTNET && { kind: 'csharp', bin: DOTNET };
   if (language === 'sql') return { kind: 'sql' };
+  if (language === 'algo') return { kind: 'algo' };
   if (language === 'analyse') return { kind: 'analyse' };
   return null;
 }
@@ -75,6 +93,20 @@ function prepareSql(code) {
   };
 }
 
+function prepareAlgo(code) {
+  return {
+    run: async stdin => {
+      const res = await localRunner.runPseudoCode(code, stdin);
+      return {
+        ok: Boolean(res && res.ok),
+        stdout: (res && res.data && res.data.stdout) || '',
+        stderr: (res && res.data && res.data.stderr) || '',
+        exitCode: res && res.data && typeof res.data.exit_code === 'number' ? res.data.exit_code : 1
+      };
+    }
+  };
+}
+
 const TEMP_DIRS = [];
 
 process.on('exit', () => {
@@ -84,41 +116,15 @@ process.on('exit', () => {
 });
 
 function prepareAnalyse(code) {
-  const rawLines = String(code || '').replace(/\r\n?/g, '\n').split('\n');
-  const headerRe = /^\[(?:cas\s*(\d+)|exemple)\b.*\]$/i;
-  const sections = new Map();
-  const allSectionLines = [];
-  let currentKey = null;
-
-  for (const rawLine of rawLines) {
-    const rtrim = rawLine.replace(/\s+$/, '');
-    const trimmed = rtrim.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const m = headerRe.exec(trimmed);
-    if (m) {
-      currentKey = m[1] ? `cas:${m[1]}` : 'cas:exemple';
-      if (!sections.has(currentKey)) sections.set(currentKey, []);
-      continue;
-    }
-    if (currentKey !== null) {
-      sections.get(currentKey).push(rtrim);
-    }
-    allSectionLines.push(rtrim);
-  }
-
   return {
-    run: stdin => {
-      const sel = String(stdin || '').trim();
-      let out = '';
-      if (/^cas\s*:/i.test(sel)) {
-        const key = sel.toLowerCase().replace(/\s+/g, '');
-        out = (sections.get(key) || []).join('\n');
-      } else if (sections.has('cas:exemple')) {
-        out = sections.get('cas:exemple').join('\n');
-      } else {
-        out = allSectionLines.join('\n');
-      }
-      return { ok: true, stdout: out, stderr: '', exitCode: 0 };
+    run: async stdin => {
+      const res = await localRunner.runAnalyse(code, stdin);
+      return {
+        ok: Boolean(res && res.ok),
+        stdout: (res && res.data && res.data.stdout) || '',
+        stderr: (res && res.data && res.data.stderr) || '',
+        exitCode: res && res.data && typeof res.data.exit_code === 'number' ? res.data.exit_code : 0
+      };
     }
   };
 }
@@ -134,6 +140,9 @@ function prepare(language, code) {
 
   if (tool.kind === 'analyse') {
     return prepareAnalyse(code);
+  }
+  if (tool.kind === 'algo') {
+    return prepareAlgo(code);
   }
   if (tool.kind === 'sql') {
     return prepareSql(code);
@@ -153,6 +162,14 @@ function prepare(language, code) {
 
   if (tool.kind === 'shell') {
     return prepareShell(tool.bin, code);
+  }
+
+  if (tool.kind === 'java') {
+    return prepareJava(tool.javac, tool.java, code);
+  }
+
+  if (tool.kind === 'csharp') {
+    return prepareCsharp(tool.bin, code);
   }
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), `exo-${language}-`));
@@ -205,6 +222,39 @@ function prepareShell(bin, code) {
   return { run: stdin => runProcess(bin, [source], stdin, dir) };
 }
 
+/** Java : Main.java compilé puis exécuté sur le JDK local. */
+function prepareJava(javacBin, javaBin, code) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exo-java-'));
+  TEMP_DIRS.push(dir);
+  const source = path.join(dir, 'Main.java');
+  fs.writeFileSync(source, code, 'utf8');
+  try {
+    execFileSync(javacBin, ['-encoding', 'UTF-8', source], { cwd: dir, stdio: 'pipe' });
+  } catch (error) {
+    return { compileError: String(error.stderr || error.message) };
+  }
+  return { run: stdin => runProcess(javaBin, ['-cp', dir, 'Main'], stdin, dir) };
+}
+
+/** C# : Program.cs compilé en net10.0 (ou SDK courant) avec dotnet. */
+function prepareCsharp(dotnetBin, code) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'exo-cs-'));
+  TEMP_DIRS.push(dir);
+  const outDir = path.join(dir, 'out');
+  fs.writeFileSync(
+    path.join(dir, 'exo.csproj'),
+    '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>disable</ImplicitUsings><Nullable>disable</Nullable></PropertyGroup></Project>',
+    'utf8'
+  );
+  fs.writeFileSync(path.join(dir, 'Program.cs'), code, 'utf8');
+  try {
+    execFileSync(dotnetBin, ['build', '--nologo', '-v', 'q', '-o', outDir], { cwd: dir, stdio: 'pipe', timeout: 30000 });
+  } catch (error) {
+    return { compileError: String(error.stderr || error.stdout || error.message) };
+  }
+  return { run: stdin => runProcess(dotnetBin, [path.join(outDir, 'exo.dll')], stdin, dir) };
+}
+
 function runProcess(command, args, stdin, cwd) {
   try {
     const stdout = execFileSync(command, args, {
@@ -230,6 +280,37 @@ test("outillage : au moins un langage vérifiable en local", () => {
   assert.ok(PYTHON || NODE || CC || CXX || PHP, 'aucun interpréteur ni compilateur disponible');
 });
 
+test('intégrité corrigés : aucune table de correspondance base64 (in_b64) ni triche par lookup de stdin', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const offenders = [];
+  for (const exercise of CATALOGUE) {
+    const sol = String(exercise.solution || '');
+    if (/\bin_b64\b/.test(sol) || (/base64\s+-d/.test(sol) && /\bcase\s+"\$in_b64"/.test(sol))) {
+      offenders.push(`${exercise.course}/${exercise.id}`);
+    }
+  }
+  const exRoot = path.join(__dirname, '..', 'server', 'exercises');
+  function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith('.js')) {
+        const raw = fs.readFileSync(full, 'utf8');
+        if (/\bin_b64\b/.test(raw) || /base64\s+-d/.test(raw)) {
+          offenders.push(`file:${path.relative(exRoot, full)}`);
+        }
+      }
+    }
+  }
+  walk(exRoot);
+  assert.deepEqual(
+    offenders,
+    [],
+    `Solutions factices in_b64 détectées (${offenders.length}) : ${offenders.join(', ')}`
+  );
+});
+
 test('corrigés : chaque solution passe ses propres tests', async t => {
   assert.ok(CATALOGUE.length >= 42, `catalogue trop court : ${CATALOGUE.length}`);
 
@@ -244,10 +325,9 @@ test('corrigés : chaque solution passe ses propres tests', async t => {
       await t.test(`${exercise.id} · ${testCase.label}`, async () => {
         const run = await prepared.run(testCase.stdin);
         assert.ok(run.ok, `échec d'exécution : ${run.stderr.split('\n').slice(-3).join(' ')}`);
-        assert.strictEqual(
-          normalizeOutput(run.stdout),
-          normalizeOutput(testCase.expected),
-          `sortie inattendue pour l'entrée « ${(testCase.stdin || '(vide)').replace(/\n/g, ' / ')} »`
+        assert.ok(
+          matchOutputs(run.stdout, testCase.expected, testCase, exercise),
+          `sortie inattendue pour l'entrée « ${(testCase.stdin || '(vide)').replace(/\n/g, ' / ')} » : reçu ${JSON.stringify(normalizeOutput(run.stdout))}, attendu ${JSON.stringify(normalizeOutput(testCase.expected))}`
         );
         checks++;
       });
@@ -262,7 +342,10 @@ test('corrigés : chaque solution passe ses propres tests', async t => {
         }
         const run = await prepared.run(example.stdin);
         assert.ok(run.ok, `échec d'exécution : ${run.stderr.split('\n').slice(-3).join(' ')}`);
-        assert.strictEqual(normalizeOutput(run.stdout), normalizeOutput(example.expected));
+        assert.ok(
+          matchOutputs(run.stdout, example.expected, example, exercise),
+          `sortie exemple inattendue : reçu ${JSON.stringify(normalizeOutput(run.stdout))}, attendu ${JSON.stringify(normalizeOutput(example.expected))}`
+        );
         checks++;
       });
     }
@@ -280,7 +363,7 @@ test('corrigés : le code de départ échoue au moins un test', async t => {
       const outcomes = [];
       for (const testCase of exercise.tests) {
         const run = await prepared.run(testCase.stdin);
-        outcomes.push(run.ok && normalizeOutput(run.stdout) === normalizeOutput(testCase.expected));
+        outcomes.push(run.ok && matchOutputs(run.stdout, testCase.expected, testCase, exercise));
       }
       assert.ok(
         outcomes.some(ok => !ok),

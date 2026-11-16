@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -136,11 +134,27 @@
 
 </section>
 
+<section class="sec">
+
+<h2>5. Du besoin au SQL : MCD, MLD, script</h2>
+
+<p>La démarche de conception relie trois niveaux. Le <strong>MCD</strong> (modèle conceptuel) décrit le monde réel : l’entité <code>PRODUIT</code> a un identifiant, un nom, une catégorie, une quantité et un prix. Le <strong>MLD</strong> (modèle logique) la traduit en relation : <code>produits(<u>id</u>, nom, categorie, quantite, prix)</code>, la clé primaire étant soulignée. Le <strong>script SQL</strong> (modèle physique) donne les types :</p>
+<pre><code>CREATE TABLE IF NOT EXISTS produits (
+    id        SERIAL PRIMARY KEY,
+    nom       VARCHAR(100) NOT NULL,
+    categorie VARCHAR(50),
+    quantite  INTEGER NOT NULL CHECK (quantite &gt;= 0),
+    prix      DECIMAL(10,2) NOT NULL
+);</code></pre>
+<p>Piste d’évolution : si la catégorie devient une entité à part entière (<code>CATEGORIE</code>), le MLD gagne une clé étrangère <code>produits.categorie_id</code> vers <code>categories(id)</code>. Chaque association se traduit toujours de la même façon : la clé primaire du côté « un » devient clé étrangère du côté « plusieurs ».</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -148,38 +162,30 @@
      data-exercise="pr-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;id serial&#10;quantite integer&#10;prix decimal&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c2-e1) — La table produits
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Une quincaillerie crée sa table articles :&#10;id SERIAL PRIMARY KEY — designation VARCHAR(80) — rayon VARCHAR(40) —&#10;stock INTEGER — tarif DECIMAL(10,2).&#10;&#10;1) La table compte 5 colonnes.&#10;2) id est un SERIAL, auto-incrémenté par PostgreSQL.&#10;3) Le tarif est un DECIMAL : deux décimales exactes pour l'argent.&#10;4) La clé primaire est id.&#10;5) Le stock est un INTEGER : des unités entières.">
+  <script type="text/plain" data-lab-starter># Exercice — La table produits de la librairie
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Les cinq colonnes]
-# Données : 5
-# Données : id serial
-# Données : nom varchar
-# Données : categorie varchar
-# Données : quantite integer
-# Données : prix decimal
+[Question 1 — Nombre de colonnes]
 A_COMPLETER
 
-[Cas 2 — Trois erreurs de type]
-# Données : 4
-# Données : id integer
-# Données : quantite serial
-# Données : prix integer
-# Données : nom varchar
+[Question 2 — Type auto-incrémenté de id]
 A_COMPLETER
 
-[Cas 3 — Schema complet]
-# Données : 5
-# Données : prix decimal
-# Données : nom varchar
-# Données : id serial
-# Données : categorie varchar
-# Données : quantite integer
+[Question 3 — Type du prix]
+A_COMPLETER
+
+[Question 4 — Clé primaire de la table]
+A_COMPLETER
+
+[Question 5 — La table contient-elle une clé étrangère]
+A_COMPLETER
+
+[Question 6 — Nombre de produits de l'extrait]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — La table produits</h3>
+    <h3 class="lab__title">Exercice 1 — La table produits de la librairie</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -188,20 +194,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="pr-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider le type PostgreSQL de chaque colonne de la table produits.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « colonne type » : type est un code parmi <code>serial</code>, <code>varchar</code>, <code>integer</code> ou <code>decimal</code>. Table du tutoriel : <code>id</code> clé primaire auto-incrémentée → <code>serial</code> ; <code>nom</code> et <code>categorie</code> → <code>varchar</code> ; <code>quantite</code> → <code>integer</code> ; <code>prix</code> → <code>decimal</code> (10,2). Pour chaque ligne, indiquez <code>colonne : OK</code> ou <code>colonne : ERREUR</code>, puis <code>corrects : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Décrire la table produits : nommer ses colonnes, leurs types, sa clé primaire, et dire si elle porte une clé étrangère.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Deuxième étape : la base de données. Kofi crée la base <code>gestion_stock</code>, puis la table <strong>produits</strong>, la seule table du projet. Sa structure compte cinq colonnes :</p><table><tr><th>Colonne</th><th>Type</th><th>Rôle</th></tr><tr><td>id</td><td>SERIAL PRIMARY KEY</td><td>identifiant unique, auto-incrémenté</td></tr><tr><td>nom</td><td>VARCHAR(100) NOT NULL</td><td>nom du produit</td></tr><tr><td>categorie</td><td>VARCHAR(50)</td><td>rayon du produit</td></tr><tr><td>quantite</td><td>INTEGER NOT NULL</td><td>nombre d'unités en stock</td></tr><tr><td>prix</td><td>DECIMAL(10,2) NOT NULL</td><td>prix unitaire, deux décimales exactes</td></tr></table><p>Pour vérifier la table, Kofi y insère les quatre premiers produits de la librairie :</p><table><tr><th>id</th><th>nom</th><th>categorie</th><th>quantite</th><th>prix (FCFA)</th></tr><tr><td>1</td><td>Cahier 200 pages</td><td>Papeterie</td><td>40</td><td>500,00</td></tr><tr><td>2</td><td>Roman policier</td><td>Livres</td><td>12</td><td>4500,00</td></tr><tr><td>3</td><td>Stylo bleu</td><td>Papeterie</td><td>150</td><td>350,00</td></tr><tr><td>4</td><td>Calculatrice</td><td>Fournitures</td><td>8</td><td>8500,00</td></tr></table><ol><li>Combien de colonnes compte la table produits ?</li><li>Quel type auto-incrémenté porte la colonne id ? (un seul mot)</li><li>Quel type stocke le prix avec exactement deux décimales ? (un seul mot)</li><li>Quelle colonne sert de clé primaire ?</li><li>La table produits contient-elle une clé étrangère ? Répondez par oui ou non.</li><li>Combien de produits l'extrait contient-il ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-id serial
-quantite integer
-prix decimal
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Une quincaillerie crée sa table articles :
+id SERIAL PRIMARY KEY — designation VARCHAR(80) — rayon VARCHAR(40) —
+stock INTEGER — tarif DECIMAL(10,2).
+
+1) La table compte 5 colonnes.
+2) id est un SERIAL, auto-incrémenté par PostgreSQL.
+3) Le tarif est un DECIMAL : deux décimales exactes pour l'argent.
+4) La clé primaire est id.
+5) Le stock est un INTEGER : des unités entières.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur la colonne : id → serial, nom/categorie → varchar, quantite → integer, prix → decimal.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>La structure d'une table se lit colonne par colonne : le premier tableau donne le type exact de chaque colonne.</li>
+        <li>Deux types numériques se distinguent : celui qui compte les unités en stock, et celui qui garde l'argent exact à deux décimales.</li>
+        <li>La clé primaire est la colonne qui identifie chaque ligne de façon unique ; une clé étrangère relie deux tables — comptez les tables de cette base.</li>
       </ol>
     </details>
   </div>
@@ -211,30 +222,30 @@ prix decimal
      data-exercise="pr-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="serveur ok&#10;mdp ok&#10;base ok&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c2-e2) — Connexion PostgreSQL : oui ou non ?
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La pizzeria du coin tient sa table pizzas.&#10;- INSERT de la pizza « 4 fromages » : la méthode appelle commit(), sinon la ligne disparaît à la déconnexion.&#10;- SELECT des pizzas : le cursor rend les lignes avec fetchall().&#10;- Serveur éteint : psycopg2 lève une erreur, le except l'attrape, la méthode renvoie False.&#10;- Fermeture : cursor.close() puis connection.close().&#10;&#10;1) Validation d'une écriture : commit.&#10;2) Lecture des lignes : fetchall.&#10;3) Échec de connexion : la méthode renvoie False, sans planter.&#10;4) Ordre de fermeture : le cursor, puis la connexion.">
+  <script type="text/plain" data-lab-starter># Exercice — Connexion, commit et bonne fermeture
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Serveur eteint]
-# Données : serveur ko
-# Données : mdp ok
-# Données : base ok
+[Question 1 — Méthode qui valide une écriture]
 A_COMPLETER
 
-[Cas 2 — Base absente]
-# Données : serveur ok
-# Données : mdp ok
-# Données : base ko
+[Question 2 — Méthode qui récupère les lignes d'un SELECT]
 A_COMPLETER
 
-[Cas 3 — Double defaut]
-# Données : serveur ko
-# Données : mdp ko
-# Données : base ok
+[Question 3 — Retour de connecter en cas d'échec]
+A_COMPLETER
+
+[Question 4 — Objet qui exécute les requêtes]
+A_COMPLETER
+
+[Question 5 — Mot-clé qui attrape l'erreur]
+A_COMPLETER
+
+[Question 6 — Objet fermé en premier]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Connexion PostgreSQL : oui ou non ?</h3>
+    <h3 class="lab__title">Exercice 2 — Connexion, commit et bonne fermeture</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -243,19 +254,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="pr-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Décider si la connexion peut s'établir et réagir comme la méthode connecter().</p>
-    <div class="lab__brief"><p>La méthode <code>connecter()</code> du tutoriel tente la connexion et renvoie True en cas de succès, False en cas d'échec (exception Error). Analysez chaque ligne proposée « service etat » : service est un code parmi <code>serveur</code>, <code>mdp</code>, <code>base</code> — etat vaut <code>ok</code> ou <code>ko</code>. Si les trois services sont ok,, indiquez <code>connexion reussie</code> ; dès qu'un service est ko,, indiquez <code>erreur : service</code> et s'arrête (comme le try/except qui renvoie False au premier problème).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les règles de la classe Database : commit après écriture, fetchall après lecture, try/except et ordre de fermeture.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La classe <code>Database</code> de Kofi suit des règles strictes, répétées dans chaque méthode : la connexion passe par <code>psycopg2.connect()</code> puis un <code>cursor</code> ; chaque requête vit dans un bloc <code>try / except</code> ; en cas d'erreur, la méthode affiche le problème et renvoie False — l'application ne plante jamais. Kofi résume les règles dans son carnet :</p><table><tr><th>Situation</th><th>Règle à appliquer</th></tr><tr><td>Après un INSERT, un UPDATE ou un DELETE</td><td>appeler la méthode qui valide l'écriture</td></tr><tr><td>Après un SELECT</td><td>récupérer les lignes avec la méthode du cursor</td></tr><tr><td>Une requête échoue</td><td>l'exception est attrapée par le bloc ...</td></tr><tr><td>Fermeture de la base</td><td>fermer ... en premier, puis la connexion</td></tr></table><ol><li>Quelle méthode valide une écriture dans la base ? (un seul mot)</li><li>Quelle méthode récupère toutes les lignes d'un SELECT ? (un seul mot)</li><li>Que renvoie connecter() quand le serveur PostgreSQL est éteint : True ou False ?</li><li>Quel objet exécute les requêtes SQL et lit les résultats ? (un seul mot)</li><li>Quel mot-clé du try/except attrape l'erreur ? (un seul mot anglais)</li><li>À la fermeture, quel objet ferme-t-on en premier ? (un seul mot)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>serveur ok
-mdp ok
-base ok
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La pizzeria du coin tient sa table pizzas.
+- INSERT de la pizza « 4 fromages » : la méthode appelle commit(), sinon la ligne disparaît à la déconnexion.
+- SELECT des pizzas : le cursor rend les lignes avec fetchall().
+- Serveur éteint : psycopg2 lève une erreur, le except l'attrape, la méthode renvoie False.
+- Fermeture : cursor.close() puis connection.close().
+
+1) Validation d'une écriture : commit.
+2) Lecture des lignes : fetchall.
+3) Échec de connexion : la méthode renvoie False, sans planter.
+4) Ordre de fermeture : le cursor, puis la connexion.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Dès que etat vaut ko : echo "erreur : $service" puis exit 0.</li>
-        <li>Si la boucle se termine sans défaut, afficher le verdict de succès.</li>
+        <li>Deux familles de requêtes : les lectures rapportent des lignes, les écritures demandent une validation.</li>
+        <li>Sans validation, PostgreSQL annule la modification à la déconnexion : la ligne n'est jamais vraiment écrite.</li>
+        <li>À la fermeture, on démonte dans l'ordre inverse du montage : l'outil qui exécute les requêtes d'abord, la connexion ensuite.</li>
       </ol>
     </details>
   </div>
@@ -265,33 +283,30 @@ base ok
      data-exercise="pr-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="create insert&#10;read select&#10;update update&#10;delete delete&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c2-e3) — L'ordre des opérations SQL
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Catalogue d'une quincaillerie :&#10;id 1 Clous (Bois, 500 unités), id 2 Scie (Bois, 3 unités),&#10;id 3 Peinture blanche (Peinture, 12 unités), id 4 Pinceau (Peinture, 30 unités).&#10;&#10;1) SELECT * FROM articles : 4 lignes.&#10;2) SELECT * FROM articles WHERE rayon = 'Peinture' : 2 lignes (peinture, pinceau).&#10;3) DELETE FROM articles WHERE id = 2 : 1 ligne retirée (la scie).&#10;4) La clause de filtrage : WHERE.">
+  <script type="text/plain" data-lab-starter># Exercice — Les premières requêtes de la vendeuse
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Dernieres etapes inversees]
-# Données : create insert
-# Données : read select
-# Données : delete delete
-# Données : update update
+[Question 1 — Clause qui filtre les lignes]
 A_COMPLETER
 
-[Cas 2 — Requetes echangees]
-# Données : create select
-# Données : read insert
-# Données : update update
-# Données : delete delete
+[Question 2 — Lignes de SELECT * FROM produits]
 A_COMPLETER
 
-[Cas 3 — Operations dans le desordre]
-# Données : read select
-# Données : create insert
-# Données : update update
-# Données : delete delete
+[Question 3 — Lignes du filtre Papeterie]
+A_COMPLETER
+
+[Question 4 — Requête qui ajoute une ligne]
+A_COMPLETER
+
+[Question 5 — Lignes supprimées par DELETE WHERE id = 3]
+A_COMPLETER
+
+[Question 6 — Colonne qui cible une seule ligne]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — L'ordre des opérations SQL</h3>
+    <h3 class="lab__title">Exercice 3 — Les premières requêtes de la vendeuse</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -300,44 +315,48 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="pr-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Remettre chaque ordre CRUD devant sa requête SQL et valider l'ordre du cycle.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas. Pour chaque ligne, indiquez <code>etape N : OK</code> quand l'opération ET sa requête sont justes, sinon <code>etape N : NON</code>, puis <code>etapes correctes : X/4</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire des requêtes SQL simples (SELECT, INSERT, DELETE) et prévoir leur effet sur un petit tableau de données.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pour former la vendeuse, Kofi branche un petit outil SQL sur la base et lui fait lire le catalogue du matin :</p><table><tr><th>id</th><th>nom</th><th>categorie</th><th>quantite</th><th>prix (FCFA)</th></tr><tr><td>1</td><td>Cahier 200 pages</td><td>Papeterie</td><td>40</td><td>500</td></tr><tr><td>2</td><td>Roman policier</td><td>Livres</td><td>6</td><td>4500</td></tr><tr><td>3</td><td>Stylo rouge</td><td>Papeterie</td><td>0</td><td>350</td></tr><tr><td>4</td><td>Atlas scolaire</td><td>Livres</td><td>9</td><td>6500</td></tr><tr><td>5</td><td>Gomme</td><td>Papeterie</td><td>25</td><td>200</td></tr></table><p>Il lui enseigne quatre requêtes : <code>SELECT * FROM produits</code> (tout lire), <code>SELECT * FROM produits WHERE categorie = 'Papeterie'</code> (filtrer), <code>INSERT INTO produits ...</code> (ajouter une ligne), <code>DELETE FROM produits WHERE id = 3</code> (retirer une ligne). La vendeuse s'entraîne :</p><ol><li>Quelle clause SQL filtre les lignes d'une requête ? (un mot anglais)</li><li>Combien de lignes renvoie « SELECT * FROM produits » sur le catalogue du matin ?</li><li>Combien de lignes renvoie « SELECT * FROM produits WHERE categorie = 'Papeterie' » ?</li><li>Quelle requête ajoute une nouvelle ligne : SELECT, INSERT, UPDATE ou DELETE ?</li><li>Combien de lignes supprime « DELETE FROM produits WHERE id = 3 » ?</li><li>Quelle colonne sert à cibler une seule ligne dans un UPDATE ou un DELETE ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>create insert
-read select
-update update
-delete delete
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Catalogue d'une quincaillerie :
+id 1 Clous (Bois, 500 unités), id 2 Scie (Bois, 3 unités),
+id 3 Peinture blanche (Peinture, 12 unités), id 4 Pinceau (Peinture, 30 unités).
+
+1) SELECT * FROM articles : 4 lignes.
+2) SELECT * FROM articles WHERE rayon = 'Peinture' : 2 lignes (peinture, pinceau).
+3) DELETE FROM articles WHERE id = 2 : 1 ligne retirée (la scie).
+4) La clause de filtrage : WHERE.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur le numéro : 1 → create/insert, 2 → read/select, 3 → update/update, 4 → delete/delete.</li>
-        <li>Les deux conditions doivent être vraies en même temps : operation ET sql.</li>
+        <li>Lisez le tableau ligne par ligne : chaque requête n'agit que sur les lignes qui vérifient sa condition.</li>
+        <li>La clause de filtrage suit immédiatement le nom de la table dans la requête ; sans elle, toutes les lignes répondent.</li>
+        <li>Pour cibler une seule ligne, on appelle la colonne qui ne se répète jamais dans la table.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Le type de id dans la table produits :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">SERIAL PRIMARY KEY</button>
-        <button class="opt">VARCHAR(100)</button>
         <button class="opt">INTEGER simple</button>
+        <button class="opt">VARCHAR(100)</button>
+        <button class="opt" data-correct="1">SERIAL PRIMARY KEY</button>
       </div>
-      <div class="q__exp">Auto-incrémenté et clé primaire.</div>
+      <div class="q__exp">id est déclaré SERIAL PRIMARY KEY : PostgreSQL l'auto-incrémente à chaque insertion et garantit son unicité ; un INTEGER simple ne ferait ni l'un ni l'autre.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le type du champ prix :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">DECIMAL(10,2)</button>
-        <button class="opt">FLOAT</button>
         <button class="opt">INTEGER</button>
+        <button class="opt">FLOAT</button>
+        <button class="opt" data-correct="1">DECIMAL(10,2)</button>
       </div>
       <div class="q__exp">Deux décimales exactes : la précision monétaire.</div>
     </div>
@@ -353,8 +372,8 @@ delete delete
     <div class="q">
       <p class="q__stem">La méthode qui valide une écriture :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">commit()</button>
         <button class="opt">fetchall()</button>
+        <button class="opt" data-correct="1">commit()</button>
         <button class="opt">close()</button>
       </div>
       <div class="q__exp">Sans commit, PostgreSQL annule à la déconnexion.</div>
@@ -371,8 +390,8 @@ delete delete
     <div class="q">
       <p class="q__stem">Les %s dans les requêtes servent à…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">paramétrer et échapper les valeurs</button>
         <button class="opt">commenter le SQL</button>
+        <button class="opt" data-correct="1">paramétrer et échapper les valeurs</button>
         <button class="opt">compter les lignes</button>
       </div>
       <div class="q__exp">Requêtes paramétrées : protection contre l'injection SQL.</div>
@@ -380,18 +399,18 @@ delete delete
     <div class="q">
       <p class="q__stem">CREATE TABLE IF NOT EXISTS garantit…</p>
       <div class="opts">
+        <button class="opt">le vidage de la table à chaque lancement</button>
+        <button class="opt">la création d'un index automatique sur id</button>
         <button class="opt" data-correct="1">la création seulement si la table manque</button>
-        <button class="opt">de vider la table</button>
-        <button class="opt">un index automatique</button>
       </div>
-      <div class="q__exp">Le premier lancement crée, les suivants passent.</div>
+      <div class="q__exp">IF NOT EXISTS ne crée la table que si elle manque : le premier lancement crée, les suivants passent, sans vider ni indexer quoi que ce soit.</div>
     </div>
     <div class="q">
       <p class="q__stem">Ordre de fermeture :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">cursor puis connection</button>
-        <button class="opt">connection puis cursor</button>
         <button class="opt">peu importe</button>
+        <button class="opt">connection puis cursor</button>
+        <button class="opt" data-correct="1">cursor puis connection</button>
       </div>
       <div class="q__exp">deconnecter() ferme le cursor, puis la connexion.</div>
     </div>
@@ -401,7 +420,7 @@ delete delete
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -417,7 +436,7 @@ delete delete
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — écrire une méthode Database en trois gestes</div>
@@ -432,7 +451,7 @@ delete delete
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -461,7 +480,7 @@ delete delete
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -510,7 +529,7 @@ delete delete
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

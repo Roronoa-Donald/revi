@@ -13,6 +13,15 @@
   }
 })();
 
+function syncThemeToggle(theme) {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  var current = theme || document.documentElement.getAttribute('data-theme') || 'light';
+  var isDark = current === 'dark';
+  btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+  btn.setAttribute('aria-label', isDark ? 'Activer le mode clair' : 'Activer le mode sombre');
+}
+
 /* Toggle handler — appelé par le bouton */
 function toggleTheme() {
   var html = document.documentElement;
@@ -25,8 +34,7 @@ function toggleTheme() {
   localStorage.setItem('theme', next);
 
   // Update toggle button icon visibility & accessibility label
-  var btn = document.getElementById('themeToggle');
-  if (btn) btn.setAttribute('aria-label', next === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre');
+  syncThemeToggle(next);
 
   // Retire la classe après l'animation pour libérer les performances de rendu
   setTimeout(function() {
@@ -34,11 +42,10 @@ function toggleTheme() {
   }, 220);
 }
 window.toggleTheme = toggleTheme;
+window.syncThemeToggle = syncThemeToggle;
 
-/* Init: set initial aria-label on toggle button */
-(function() {
-  var btn = document.getElementById('themeToggle');
-  if (!btn) return;
-  var current = document.documentElement.getAttribute('data-theme') || 'light';
-  btn.setAttribute('aria-label', current === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre');
-})();
+/* Init: set initial aria-label + aria-pressed on toggle button */
+syncThemeToggle();
+if (typeof document !== 'undefined' && document.addEventListener) {
+  document.addEventListener('DOMContentLoaded', function() { syncThemeToggle(); });
+}

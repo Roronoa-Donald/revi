@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -269,10 +267,11 @@ Format TLS 1.2 : <code>SUITE: &lt;nom&gt; ver=TLS1.2 kex=&lt;échange&gt; enc=&l
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARSE_SUITE suite=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le nom TLS 1.3 indique l’AEAD et le hachage, mais ne révèle pas le mode d’échange ni le groupe.</li>
         <li>Distinguez les données 0-RTT, le mode PSK seul et le mode PSK avec échange éphémère en 1-RTT ; ne concluez pas à une sécurité globale.</li>
+        <li>Extrayez échange de clés, authentification, chiffrement symétrique et condensat depuis le nom de la suite ; ne concluez à la PFS qu en présence explicite d ECDHE/DHE.</li>
       </ol>
     </details>
   </div>
@@ -337,10 +336,11 @@ Format : <code>TLS1.3: phase=&lt;phase&gt; mode=&lt;mode&gt; group=&lt;grp&gt; p
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Distinguez la phase des données du mode d’échange négocié ; 0-RTT ne termine pas le handshake et ne garantit pas la PFS.</li>
         <li>Pour l’identifiant public uniquement, concaténez client_share, server_share et group avec « : », puis prenez les 16 premiers caractères hexadécimaux de SHA-256.</li>
+        <li>Vérifiez la combinaison version/mode/groupe (TLS 1.3 n impose PFS que si PSK-only n est pas utilisé seul) et respectez le format exact de la ligne illustrative.</li>
       </ol>
     </details>
   </div>
@@ -350,28 +350,31 @@ Format : <code>TLS1.3: phase=&lt;phase&gt; mode=&lt;mode&gt; group=&lt;grp&gt; p
      data-exercise="cr3-c6-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="AUDIT_ALGO name=RSA key_size=2048 type=ASYMMETRIC">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cr3-c6-e3) — Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un ministère dresse le même plan : liaisons en RSA-3072, archives en AES-192, condensés en SHA-256.&#10;1) RSA-3072 tombe sous l'algorithme de Shor.&#10;2) Le symétrique est affaibli par l'algorithme de Grover.&#10;3) AES-192 sous Grover : environ 96 bits de sécurité.&#10;4) Le NIST a standardisé ML-KEM (issu de Kyber) pour les échanges de clés.&#10;5) « Harvest now, decrypt later » : les captures d'aujourd'hui seront ouvertes demain.&#10;6) Mesure symétrique : passer à AES-256 (doubler la marge).">
+  <script type="text/plain" data-lab-starter># Exercice — Préparer la migration post-quantique du groupe Meridor
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nom ou le nombre. Questions 4 à 6 : quelques mots.
 
-[Cas 1 — Clé symétrique 128 bits vulnérable à l accélération de Grover]
-# Données : AUDIT_ALGO name=AES_128 key_size=128 type=SYMMETRIC
+[Question 1 — Algorithme quantique menaçant RSA et ECC]
 A_COMPLETER
 
-[Cas 2 — AES-256 résistant à Grover avec 128 bits de sécurité résiduelle]
-# Données : AUDIT_ALGO name=AES_256 key_size=256 type=SYMMETRIC
+[Question 2 — Algorithme quantique affaiblissant le symétrique]
 A_COMPLETER
 
-[Cas 3 — Algorithme post-quantique basé sur les réseaux euclidiens standardisé]
-# Données : AUDIT_ALGO name=ML_KEM_768 key_size=768 type=PQC
+[Question 3 — Sécurité effective d'AES-128 sous Grover]
 A_COMPLETER
 
-[Cas 4 — Empreinte courte dépréciée et non post-quantique]
-# Données : AUDIT_ALGO name=SHA_1 key_size=160 type=HASH
+[Question 4 — Famille post-quantique standardisée par le NIST en 2024]
+A_COMPLETER
+
+[Question 5 — Risque résumé par harvest now, decrypt later]
+A_COMPLETER
+
+[Question 6 — Mesure symétrique simple pour la marge post-quantique]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)</h3>
+    <h3 class="lab__title">Exercice 3 — Préparer la migration post-quantique du groupe Meridor</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -380,22 +383,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="cr3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer l'inventaire cryptographique d'une organisation et planifier la migration vers les standards post-quantiques NIST.</p>
-    <div class="lab__brief"><p>L'ordinateur quantique menace les fondations asymétriques (Shor) et affaiblit les clés symétriques (Grover) :<br>
-Règles d'audit :<br>
-1. <code>ASYMMETRIC</code> (RSA, ECC, DH) : <code>pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA</code>.<br>
-2. <code>SYMMETRIC</code> : si <code>key_size &lt; 256</code> -&gt; <code>pqc_ready=NO status=INSUFFICIENT_SECURITY action=UPGRADE_TO_AES_256</code> ; sinon -&gt; <code>pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN</code>.<br>
-3. <code>HASH</code> : si <code>key_size &lt; 256</code> -&gt; <code>pqc_ready=NO status=DEPRECATED action=MIGRATE_TO_SHA_256_OR_SHA_3</code> ; sinon -&gt; <code>pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN</code>.<br>
-4. <code>PQC</code> (ML-KEM, ML-DSA, SLH-DSA) : <code>pqc_ready=YES status=NIST_STANDARDIZED action=PRODUCTION_READY</code>.<br><br>
-Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt; key_size=&lt;key_size&gt; pqc_ready=&lt;pqc&gt; status=&lt;status&gt; action=&lt;action&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer l'impact des algorithmes quantiques de Shor et de Grover et proposer des mesures de migration post-quantique.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le RSSI du groupe industriel Meridor prépare la migration cryptographique post-quantique. Le comité de sécurité rappelle deux faits : l'algorithme de <strong>Shor</strong> factorise les entiers et résout les logarithmes discrets, mettant RSA, DH et ECC à terre dès qu'un ordinateur quantique suffisant existera ; l'algorithme de <strong>Grover</strong> accélère la recherche exhaustive d'un facteur racine carrée, affaiblissant le symétrique de moitié en bits de sécurité. Le groupe chiffre aujourd'hui ses liaisons en RSA-2048 et ses archives en AES-128.</p><ol><li>Quel algorithme quantique menace directement RSA-2048 et ECC ?</li><li>Quel algorithme quantique réduit la sécurité des clés symétriques ?</li><li>Sous Grover, la sécurité effective d'AES-128 tombe à environ combien de bits ?</li><li>Quelle famille d'algorithmes, standardisée par le NIST en 2024 pour remplacer les échanges de clés RSA et ECC, porte un nom en ML- (un nom suffit) ?</li><li>Quel risque, résumé par la formule « harvest now, decrypt later », impose de migrer avant l'arrivée de l'ordinateur quantique ?</li><li>Quelle mesure simple, côté symétrique, conserve une marge post-quantique confortable pour les archives ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUDIT_ALGO name=RSA key_size=2048 type=ASYMMETRIC</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un ministère dresse le même plan : liaisons en RSA-3072, archives en AES-192, condensés en SHA-256.
+1) RSA-3072 tombe sous l'algorithme de Shor.
+2) Le symétrique est affaibli par l'algorithme de Grover.
+3) AES-192 sous Grover : environ 96 bits de sécurité.
+4) Le NIST a standardisé ML-KEM (issu de Kyber) pour les échanges de clés.
+5) « Harvest now, decrypt later » : les captures d'aujourd'hui seront ouvertes demain.
+6) Mesure symétrique : passer à AES-256 (doubler la marge).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Branchez selon t == "ASYMMETRIC", "SYMMETRIC", "HASH", "PQC".</li>
-        <li>Pour SYMMETRIC et HASH, comparez key_size &lt; 256 vs key_size &gt;= 256.</li>
+        <li>Shor s'attaque aux problèmes structurels (factorisation, logarithme discret) ; Grover accélère la recherche exhaustive d'un facteur racine carrée.</li>
+        <li>Un standard du NIST publié en 2024 pour l'échange de clés, issu de la soumission Kyber, porte un nom commençant par ML-.</li>
+        <li>1. La factorisation est le talon d'Achille de RSA. 2. La recherche exhaustive concerne les clés symétriques. 3. 128 / 2. 4. Le standard s'appelle ML-KEM. 5. Des captures réseau sont stockées en attendant le calculateur capable de les ouvrir. 6. Doubler la taille de clé annule l'effet de Grover.</li>
       </ol>
     </details>
   </div>
@@ -409,17 +413,17 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
       <p class="q__stem">Pourquoi le protocole TLS 1.3 a-t-il totalement interdit l'échange de clés basé sur le chiffrement RSA statique ?</p>
       <div class="opts">
         <button class="opt">Parce que RSA ne fonctionne pas avec le protocole TCP</button>
-        <button class="opt" data-correct="1">Parce que RSA statique ne fournit pas la confidentialité persistante (PFS)</button>
-        <button class="opt">Parce que RSA consomme trop d'électricité</button>
         <button class="opt">Parce que RSA a été racheté par une entreprise privée</button>
+        <button class="opt">Parce que RSA consomme trop d'électricité</button>
+        <button class="opt" data-correct="1">Parce que RSA statique ne fournit pas la confidentialité persistante (PFS)</button>
       </div>
       <div class="q__exp">Avec RSA statique, une fuite ultérieure de la clé privée peut exposer les sessions enregistrées. TLS 1.3 retire cet échange ; sa PFS reste conditionnée au mode négocié et à la phase des données.</div>
     </div>
     <div class="q">
       <p class="q__stem">Lors d'une connexion TLS 1.3 initiale, combien d'allers-retours réseau (RTT) sont nécessaires si les paramètres proposés conviennent dès le départ, sans HelloRetryRequest ?</p>
       <div class="opts">
-        <button class="opt">0-RTT</button>
         <button class="opt" data-correct="1">1-RTT</button>
+        <button class="opt">0-RTT</button>
         <button class="opt">2-RTT</button>
         <button class="opt">3-RTT</button>
       </div>
@@ -439,9 +443,9 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
       <p class="q__stem">Quel algorithme quantique constitue une menace existentielle pour RSA et les courbes elliptiques (ECC) en résolvant la factorisation et le logarithme discret en temps polynomial ?</p>
       <div class="opts">
         <button class="opt">L'algorithme de Grover</button>
-        <button class="opt" data-correct="1">L'algorithme de Shor</button>
-        <button class="opt">L'algorithme de Dijkstra</button>
         <button class="opt">L'algorithme A*</button>
+        <button class="opt">L'algorithme de Dijkstra</button>
+        <button class="opt" data-correct="1">L'algorithme de Shor</button>
       </div>
       <div class="q__exp">Publié en 1994 par Peter Shor, cet algorithme quantique factorise les entiers et calcule les logarithmes discrets en temps polynomial, réduisant à néant la sécurité de RSA et d'ECC.</div>
     </div>
@@ -573,7 +577,7 @@ Résultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt;
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

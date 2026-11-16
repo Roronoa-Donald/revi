@@ -12,7 +12,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Créez la table collaborateurs avec ses contraintes\nSELECT 'A_COMPLETER';",
     "hints": [
       "Ajoutez UNIQUE NOT NULL sur la colonne email.",
-      "Ajoutez CHECK (salaire >= 100000) sur la colonne salaire."
+      "Ajoutez CHECK (salaire >= 100000) sur la colonne salaire.",
+      "Assemblez la déclaration : nom de la table, colonnes typées, puis contraintes de colonnes ; terminez par un point-virgule avant exécution."
     ],
     "examples": [
       {
@@ -48,7 +49,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (0 lignes modifiées).\n\n+-------+\n| total |\n+-------+\n| 1     |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c1-e1\nCREATE TABLE collaborateurs (\n  id INT PRIMARY KEY,\n  email TEXT UNIQUE NOT NULL,\n  salaire INT CHECK (salaire >= 100000)\n);"
+    "solution": "-- Corrigé officiel sql2-c1-e1\nCREATE TABLE collaborateurs (\n  id INT PRIMARY KEY,\n  email TEXT UNIQUE NOT NULL,\n  salaire INT CHECK (salaire >= 100000)\n);",
+    "takeaway": "PRIMARY KEY garantit l unicité non nulle de chaque ligne tandis que UNIQUE et CHECK font appliquer les invariants par le SGBD."
   },
   {
     "id": "sql2-c1-e2",
@@ -61,7 +63,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Créez la table projets référençant services(id)\nSELECT 'A_COMPLETER';",
     "hints": [
       "Utilisez service_id INT REFERENCES services(id) ou FOREIGN KEY (service_id) REFERENCES services(id).",
-      "Déclarez code TEXT PRIMARY KEY."
+      "Déclarez code TEXT PRIMARY KEY.",
+      "Assemblez la déclaration de projets : code en clé primaire, titre obligatoire, puis la référence vers services en dernière colonne."
     ],
     "examples": [
       {
@@ -102,7 +105,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-------+\n| total |\n+-------+\n| 1     |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c1-e2\nCREATE TABLE projets (\n  code TEXT PRIMARY KEY,\n  titre TEXT NOT NULL,\n  service_id INT REFERENCES services(id)\n);"
+    "solution": "-- Corrigé officiel sql2-c1-e2\nCREATE TABLE projets (\n  code TEXT PRIMARY KEY,\n  titre TEXT NOT NULL,\n  service_id INT REFERENCES services(id)\n);",
+    "takeaway": "Une clé étrangère FOREIGN KEY empêche l insertion de références orphelines et encadre le comportement en suppression."
   },
   {
     "id": "sql2-c1-e3",
@@ -115,7 +119,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Créez la table affectations avec clé primaire composite\nSELECT 'A_COMPLETER';",
     "hints": [
       "Ajoutez PRIMARY KEY (employe_id, projet_id) en fin de déclaration de table.",
-      "N’oubliez pas la colonne heures INT NOT NULL."
+      "N’oubliez pas la colonne heures INT NOT NULL.",
+      "Assemblez la table : les deux colonnes identifiantes, la colonne heures obligatoire, puis la clé primaire composite en fin de déclaration."
     ],
     "examples": [
       {
@@ -151,7 +156,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-------+\n| total |\n+-------+\n| 2     |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c1-e3\nCREATE TABLE affectations (\n  employe_id INT,\n  projet_id INT,\n  heures INT NOT NULL,\n  PRIMARY KEY (employe_id, projet_id)\n);"
+    "solution": "-- Corrigé officiel sql2-c1-e3\nCREATE TABLE affectations (\n  employe_id INT,\n  projet_id INT,\n  heures INT NOT NULL,\n  PRIMARY KEY (employe_id, projet_id)\n);",
+    "takeaway": "Une clé primaire composite (col1, col2) interdit les associations dupliquées dans une table de liaison N–N."
   },
   {
     "id": "sql2-c2-e1",
@@ -164,7 +170,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Utilisez UPPER(nom) et LENGTH(nom)\nSELECT id, nom FROM clients;",
     "hints": [
       "Utilisez UPPER(nom) AS nom_maj pour mettre en majuscules.",
-      "Utilisez LENGTH(nom) AS nb_caracteres pour compter les caractères."
+      "Utilisez LENGTH(nom) AS nb_caracteres pour compter les caractères.",
+      "Écrivez une seule requête SELECT listant id, nom_maj et nb_caracteres, close par ORDER BY id ASC."
     ],
     "examples": [
       {
@@ -200,7 +207,8 @@ const SQL2_EXERCISES = [
         "expected": "+----+---------+---------------+\n| id | nom_maj | nb_caracteres |\n+----+---------+---------------+\n| 52 | SOREN   | 5             |\n+----+---------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c2-e1\nSELECT id, UPPER(nom) AS nom_maj, LENGTH(nom) AS nb_caracteres FROM clients ORDER BY id ASC;"
+    "solution": "-- Corrigé officiel sql2-c2-e1\nSELECT id, UPPER(nom) AS nom_maj, LENGTH(nom) AS nb_caracteres FROM clients ORDER BY id ASC;",
+    "takeaway": "UPPER() normalise la casse pour les comparaisons et LENGTH() mesure le nombre exact de caractères d une chaîne."
   },
   {
     "id": "sql2-c2-e2",
@@ -213,7 +221,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Calculez montant_net en remplaçant remise NULL par 0 avec COALESCE\nSELECT id, montant_ht FROM factures;",
     "hints": [
       "En SQL, 10000 - NULL vaut NULL ! Utilisez COALESCE(remise, 0) pour obtenir 0 lorsque remise est NULL.",
-      "Nommez la colonne calculée AS montant_net."
+      "Nommez la colonne calculée AS montant_net.",
+      "Composez la requête : sélectionnez id, calculez montant_ht moins la remise neutralisée, nommez la colonne, puis ordonnez par id."
     ],
     "examples": [
       {
@@ -244,7 +253,8 @@ const SQL2_EXERCISES = [
         "expected": "+----+-------------+\n| id | montant_net |\n+----+-------------+\n| 52 | 68          |\n+----+-------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c2-e2\nSELECT id, montant_ht - COALESCE(remise, 0) AS montant_net FROM factures ORDER BY id ASC;"
+    "solution": "-- Corrigé officiel sql2-c2-e2\nSELECT id, montant_ht - COALESCE(remise, 0) AS montant_net FROM factures ORDER BY id ASC;",
+    "takeaway": "COALESCE(val, repli) retourne le premier argument non NULL et évite qu un champ manquant n annule toute une expression."
   },
   {
     "id": "sql2-c2-e3",
@@ -257,7 +267,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Calculez libelle et ROUND(prix_ht * 1.18, 2) AS prix_ttc\nSELECT libelle, prix_ht FROM articles;",
     "hints": [
       "Utilisez la fonction ROUND(prix_ht * 1.18, 2) AS prix_ttc.",
-      "Triez par id ASC."
+      "Triez par id ASC.",
+      "Composez le SELECT : libellé, prix multiplié par le taux puis arrondi à deux décimales, et triez par identifiant croissant."
     ],
     "examples": [
       {
@@ -293,7 +304,8 @@ const SQL2_EXERCISES = [
         "expected": "+---------+----------+\n| libelle | prix_ttc |\n+---------+----------+\n| Agrafe  | 0.01     |\n+---------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c2-e3\nSELECT libelle, ROUND(prix_ht * 1.18, 2) AS prix_ttc FROM articles ORDER BY id ASC;"
+    "solution": "-- Corrigé officiel sql2-c2-e3\nSELECT libelle, ROUND(prix_ht * 1.18, 2) AS prix_ttc FROM articles ORDER BY id ASC;",
+    "takeaway": "ROUND(expr, 2) stabilise l affichage financier après multiplication ou calcul de remise."
   },
   {
     "id": "sql2-c3-e1",
@@ -306,7 +318,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Utilisez CASE WHEN pour calculer la colonne etat\nSELECT nom, cpu_pct FROM serveurs;",
     "hints": [
       "Écrivez CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat.",
-      "Triez par nom ASC."
+      "Triez par nom ASC.",
+      "Ordonnez les branches du CASE de la condition la plus sévère à la moins sévère, terminez par ELSE, puis triez par nom."
     ],
     "examples": [
       {
@@ -342,7 +355,8 @@ const SQL2_EXERCISES = [
         "expected": "+-------+---------+-----------+\n| nom   | cpu_pct | etat      |\n+-------+---------+-----------+\n| Borax | 60      | ATTENTION |\n+-------+---------+-----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c3-e1\nSELECT nom, cpu_pct, CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat FROM serveurs ORDER BY nom ASC;"
+    "solution": "-- Corrigé officiel sql2-c3-e1\nSELECT nom, cpu_pct, CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat FROM serveurs ORDER BY nom ASC;",
+    "takeaway": "CASE WHEN ... THEN ... ELSE ... END évalue les branches dans l ordre et classe directement les lignes dans le SELECT."
   },
   {
     "id": "sql2-c3-e2",
@@ -355,7 +369,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Sélectionnez les employés gagnant plus que la moyenne\nSELECT nom, salaire FROM employes;",
     "hints": [
       "Utilisez la sous-requête (SELECT AVG(salaire) FROM employes) à droite de l’opérateur >.",
-      "Triez avec ORDER BY salaire DESC."
+      "Triez avec ORDER BY salaire DESC.",
+      "Écrivez le SELECT des employés, filtrez avec le salaire supérieur à la sous-requête de moyenne, puis triez par salaire décroissant."
     ],
     "examples": [
       {
@@ -386,7 +401,8 @@ const SQL2_EXERCISES = [
         "expected": "+------+---------+\n| nom  | salaire |\n+------+---------+\n| Naya | 350000  |\n| Fode | 300000  |\n| Yara | 270000  |\n+------+---------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c3-e2\nSELECT nom, salaire FROM employes WHERE salaire > (SELECT AVG(salaire) FROM employes) ORDER BY salaire DESC;"
+    "solution": "-- Corrigé officiel sql2-c3-e2\nSELECT nom, salaire FROM employes WHERE salaire > (SELECT AVG(salaire) FROM employes) ORDER BY salaire DESC;",
+    "takeaway": "Une sous-requête scalaire (SELECT AVG(...) FROM ...) permet de comparer chaque ligne à une statistique globale."
   },
   {
     "id": "sql2-c3-e3",
@@ -399,7 +415,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Trouvez les clients sans commande avec NOT EXISTS\nSELECT id, nom FROM clients;",
     "hints": [
       "Écrivez WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id).",
-      "Triez par c.id ASC."
+      "Triez par c.id ASC.",
+      "Parcourez chaque client et ne retenez que ceux pour qui la sous-requête corrélée sur commandes ne renvoie aucune ligne."
     ],
     "examples": [
       {
@@ -430,7 +447,8 @@ const SQL2_EXERCISES = [
         "expected": "+----+------+\n| id | nom  |\n+----+------+\n| 41 | Irma |\n+----+------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c3-e3\nSELECT c.id, c.nom FROM clients c WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id) ORDER BY c.id ASC;"
+    "solution": "-- Corrigé officiel sql2-c3-e3\nSELECT c.id, c.nom FROM clients c WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id) ORDER BY c.id ASC;",
+    "takeaway": "NOT EXISTS est sûr face aux NULL, contrairement à NOT IN qui échoue silencieusement si la sous-requête contient un NULL."
   },
   {
     "id": "sql2-c4-e1",
@@ -443,7 +461,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Calculez le rang par département avec RANK() OVER (...)\nSELECT nom, departement, salaire FROM employes;",
     "hints": [
       "Utilisez RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang.",
-      "Triez par departement ASC, rang ASC, nom ASC."
+      "Triez par departement ASC, rang ASC, nom ASC.",
+      "Écrivez le SELECT des colonnes demandées puis la fonction de rang partitionnée ; l ordre final combine département, rang et nom."
     ],
     "examples": [
       {
@@ -469,7 +488,8 @@ const SQL2_EXERCISES = [
         "expected": "+-----+-------------+---------+------+\n| nom | departement | salaire | rang |\n+-----+-------------+---------+------+\n| E2  | A           | 200     | 1    |\n| E1  | A           | 100     | 2    |\n| E3  | B           | 150     | 1    |\n+-----+-------------+---------+------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c4-e1\nSELECT nom, departement, salaire, RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang FROM employes ORDER BY departement ASC, rang ASC, nom ASC;"
+    "solution": "-- Corrigé officiel sql2-c4-e1\nSELECT nom, departement, salaire, RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang FROM employes ORDER BY departement ASC, rang ASC, nom ASC;",
+    "takeaway": "Les fonctions de fenêtre OVER (PARTITION BY ... ORDER BY ...) classent les lignes sans réduire le résultat à une ligne par groupe."
   },
   {
     "id": "sql2-c4-e2",
@@ -482,7 +502,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Calculez le cumul progressif avec SUM(montant) OVER (ORDER BY jour ASC)\nSELECT jour, montant FROM recettes;",
     "hints": [
       "SUM(montant) OVER (ORDER BY jour ASC) additionne toutes les lignes du début jusqu’à la ligne courante.",
-      "Nommez la colonne AS cumul."
+      "Nommez la colonne AS cumul.",
+      "Écrivez le SELECT du jour et du montant, ajoutez la somme fenêtrée ordonnée par jour, sans clause GROUP BY."
     ],
     "examples": [
       {
@@ -518,7 +539,8 @@ const SQL2_EXERCISES = [
         "expected": "+------+---------+-------+\n| jour | montant | cumul |\n+------+---------+-------+\n| 18   | 1       | 1     |\n| 19   | 1       | 2     |\n+------+---------+-------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c4-e2\nSELECT jour, montant, SUM(montant) OVER (ORDER BY jour ASC) AS cumul FROM recettes ORDER BY jour ASC;"
+    "solution": "-- Corrigé officiel sql2-c4-e2\nSELECT jour, montant, SUM(montant) OVER (ORDER BY jour ASC) AS cumul FROM recettes ORDER BY jour ASC;",
+    "takeaway": "SUM(x) OVER (ORDER BY date) calcule un cumul glissant chronologique impossible à obtenir simplement par GROUP BY."
   },
   {
     "id": "sql2-c4-e3",
@@ -531,7 +553,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Utilisez WITH totaux AS (...) SELECT ...\nSELECT vendeur, montant FROM ventes;",
     "hints": [
       "Définissez WITH totaux AS (SELECT vendeur, SUM(montant) AS ca_total FROM ventes GROUP BY vendeur).",
-      "Interrogez ensuite totaux avec WHERE ca_total >= 50000 ORDER BY ca_total DESC."
+      "Interrogez ensuite totaux avec WHERE ca_total >= 50000 ORDER BY ca_total DESC.",
+      "Définissez la CTE d agrégation par vendeur, puis écrivez la requête finale filtrant et triant les totaux obtenus."
     ],
     "examples": [
       {
@@ -567,7 +590,8 @@ const SQL2_EXERCISES = [
         "expected": "+---------+----------+\n| vendeur | ca_total |\n+---------+----------+\n| Rama    | 61000    |\n| Dede    | 53000    |\n+---------+----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c4-e3\nWITH totaux AS (\n  SELECT vendeur, SUM(montant) AS ca_total\n  FROM ventes\n  GROUP BY vendeur\n)\nSELECT vendeur, ca_total FROM totaux WHERE ca_total >= 50000 ORDER BY ca_total DESC;"
+    "solution": "-- Corrigé officiel sql2-c4-e3\nWITH totaux AS (\n  SELECT vendeur, SUM(montant) AS ca_total\n  FROM ventes\n  GROUP BY vendeur\n)\nSELECT vendeur, ca_total FROM totaux WHERE ca_total >= 50000 ORDER BY ca_total DESC;",
+    "takeaway": "Une CTE (WITH nom AS (...)) nomme des sous-ensembles intermédiaires pour rendre lisibles les requêtes analytiques à étapes."
   },
   {
     "id": "sql2-c5-e1",
@@ -580,7 +604,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Débitez 15000 sur id=1 et créditez 15000 sur id=2\nUPDATE comptes SET solde = solde WHERE id = 1;",
     "hints": [
       "Écrivez deux instructions UPDATE séparées par un point-virgule.",
-      "La première soustrait 15000 sur WHERE id = 1, la seconde ajoute 15000 sur WHERE id = 2."
+      "La première soustrait 15000 sur WHERE id = 1, la seconde ajoute 15000 sur WHERE id = 2.",
+      "Enchaînez dans l ordre : débit du compte émetteur, crédit du compte destinataire, chaque UPDATE ciblé par son identifiant."
     ],
     "examples": [
       {
@@ -606,7 +631,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+-----------+-------+\n| id | titulaire | solde |\n+----+-----------+-------+\n| 1  | Afi       | 85000 |\n| 2  | Binta     | 55000 |\n| 3  | Epargne   | 90000 |\n+----+-----------+-------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c5-e1\nUPDATE comptes SET solde = solde - 15000 WHERE id = 1;\nUPDATE comptes SET solde = solde + 15000 WHERE id = 2;"
+    "solution": "-- Corrigé officiel sql2-c5-e1\nUPDATE comptes SET solde = solde - 15000 WHERE id = 1;\nUPDATE comptes SET solde = solde + 15000 WHERE id = 2;",
+    "takeaway": "Encapsuler débit et crédit dans une transaction ACID (BEGIN/COMMIT) préserve l invariant comptable même en cas de panne."
   },
   {
     "id": "sql2-c5-e2",
@@ -619,7 +645,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Validez la commande id=10 et décrémentez de 3 le stock de l’article id=1\nUPDATE commandes SET statut = statut WHERE id = 10;",
     "hints": [
       "Exécutez UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;",
-      "Puis exécutez UPDATE articles SET stock = stock - 3 WHERE id = 1;"
+      "Puis exécutez UPDATE articles SET stock = stock - 3 WHERE id = 1;",
+      "Enchaînez la mise à jour du statut de la commande puis la décrémentation du stock, chacune filtrée par son identifiant."
     ],
     "examples": [
       {
@@ -645,7 +672,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+------------+-------+\n| id | statut     | stock |\n+----+------------+-------+\n| 10 | VALIDEE    | 22    |\n| 20 | EN_ATTENTE | 22    |\n+----+------------+-------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c5-e2\nUPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;\nUPDATE articles SET stock = stock - 3 WHERE id = 1;"
+    "solution": "-- Corrigé officiel sql2-c5-e2\nUPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;\nUPDATE articles SET stock = stock - 3 WHERE id = 1;",
+    "takeaway": "Vérifier et décrémenter le stock atomiquement (WHERE stock >= qte) évite les conditions de concurrence (overselling)."
   },
   {
     "id": "sql2-c5-e3",
@@ -658,7 +686,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Calculez total_debit et total_credit par tx_id\nSELECT tx_id FROM ecritures GROUP BY tx_id;",
     "hints": [
       "Utilisez SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit.",
-      "Faites de même pour CREDIT et regroupez avec GROUP BY tx_id ORDER BY tx_id ASC."
+      "Faites de même pour CREDIT et regroupez avec GROUP BY tx_id ORDER BY tx_id ASC.",
+      "Groupez les écritures par transaction, calculez les deux totaux conditionnels, puis triez par identifiant de transaction croissant."
     ],
     "examples": [
       {
@@ -689,7 +718,8 @@ const SQL2_EXERCISES = [
         "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 71    | 0           | 1            |\n+-------+-------------+--------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c5-e3\nSELECT tx_id, SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit, SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit FROM ecritures GROUP BY tx_id ORDER BY tx_id ASC;"
+    "solution": "-- Corrigé officiel sql2-c5-e3\nSELECT tx_id, SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit, SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit FROM ecritures GROUP BY tx_id ORDER BY tx_id ASC;",
+    "takeaway": "Une écriture comptable équilibrée vérifie par agrégation GROUP BY que SUM(debit) == SUM(credit) sur chaque lot."
   },
   {
     "id": "sql2-c6-e1",
@@ -702,7 +732,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Créez la vue vue_cadres(id, nom, departement)\nCREATE VIEW vue_cadres AS SELECT id, nom, departement FROM employes WHERE salaire >= 9999999;",
     "hints": [
       "Utilisez la syntaxe CREATE VIEW vue_cadres AS SELECT ...",
-      "Sélectionnez id, nom, departement FROM employes WHERE salaire >= 300000;"
+      "Sélectionnez id, nom, departement FROM employes WHERE salaire >= 300000;",
+      "Nommez la vue, exposez les trois colonnes filtrées par le seuil de salaire ; la vue s interroge ensuite comme une table."
     ],
     "examples": [
       {
@@ -733,7 +764,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+------+-------------+\n| id | nom  | departement |\n+----+------+-------------+\n| 71 | Sana | IT          |\n+----+------+-------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c6-e1\nCREATE VIEW vue_cadres AS\nSELECT id, nom, departement FROM employes WHERE salaire >= 300000;"
+    "solution": "-- Corrigé officiel sql2-c6-e1\nCREATE VIEW vue_cadres AS\nSELECT id, nom, departement FROM employes WHERE salaire >= 300000;",
+    "takeaway": "CREATE VIEW factorise une requête métier filtrée ou jointe derrière un nom virtuel toujours synchronisé avec les tables sources."
   },
   {
     "id": "sql2-c6-e2",
@@ -746,7 +778,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Créez le trigger trg_audit_solde AFTER UPDATE ON comptes\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez CREATE TRIGGER trg_audit_solde AFTER UPDATE ON comptes FOR EACH ROW BEGIN ... END;",
-      "Dans le corps, écrivez INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);"
+      "Dans le corps, écrivez INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);",
+      "Déclarez le déclencheur sur UPDATE pour chaque ligne, puis dans son corps insérez l ancien et le nouveau solde dans le journal."
     ],
     "examples": [
       {
@@ -782,7 +815,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+---------------+\n| nouveau_solde |\n+---------------+\n| 31            |\n+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c6-e2\nCREATE TRIGGER trg_audit_solde\nAFTER UPDATE ON comptes\nFOR EACH ROW\nBEGIN\n  INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);\nEND;"
+    "solution": "-- Corrigé officiel sql2-c6-e2\nCREATE TRIGGER trg_audit_solde\nAFTER UPDATE ON comptes\nFOR EACH ROW\nBEGIN\n  INSERT INTO journal_audit VALUES (OLD.id, OLD.solde, NEW.solde);\nEND;",
+    "takeaway": "Un trigger AFTER UPDATE utilisant OLD et NEW automatise la traçabilité d audit sans dépendre du code applicatif."
   },
   {
     "id": "sql2-c6-e3",
@@ -795,7 +829,8 @@ const SQL2_EXERCISES = [
     "starter": "-- Créez l’index idx_journaux_service_niveau puis sélectionnez id, message\nSELECT id, message FROM journaux;",
     "hints": [
       "Écrivez CREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);",
-      "Suivez par SELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;"
+      "Suivez par SELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;",
+      "Créez d abord l index sur le couple de colonnes, puis exécutez la sélection filtrée triée par identifiant."
     ],
     "examples": [
       {
@@ -831,7 +866,8 @@ const SQL2_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+\n| id | message |\n+----+---------+\n| 81 | trace-b |\n+----+---------+\n(1 ligne retournée)\n\n+-------------+\n| est_partiel |\n+-------------+\n| 0           |\n+-------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql2-c6-e3\nCREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);\nSELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;"
+    "solution": "-- Corrigé officiel sql2-c6-e3\nCREATE INDEX idx_journaux_service_niveau ON journaux(service, niveau);\nSELECT id, message FROM journaux WHERE service = 'auth' AND niveau = 'ERROR' ORDER BY id ASC;",
+    "takeaway": "L ordre des colonnes dans un index composite (col_egalite, col_plage) est crucial pour accélérer sélectivement les filtres WHERE."
   }
 ];
 

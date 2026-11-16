@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -214,28 +212,31 @@ $ nmap -p 443 --script ssl-enum-ciphers target.com</code></pre>
      data-exercise="hk3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e1) — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La boulangerie Lemieux fait auditer son serveur 10.0.5.21. Extrait de nmap -sV :&#10;21/tcp open ftp vsftpd 3.0.5 ; 22/tcp open ssh OpenSSH 9.2 ; 80/tcp open http nginx 1.25 ;&#10;443/tcp filtered https ; 3306/tcp closed mysql.&#10;&#10;1) 3 ports ouverts. 2) Le service du port 21 est ftp. 3) Le port 443 est filtré.&#10;4) 2 ports non ouverts. 5) nginx 1.25. 6) Le scan complet s'appelle le scan connect.">
+  <script type="text/plain" data-lab-starter># Exercice — Le scan Nmap autorisé du serveur de la scierie Dumoulin
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 5 : un nombre, un mot ou une version. Question 6 : le nom d'un scan.
 
-[Cas 1 — Sonde SYN recevant un paquet de réinitialisation RST]
-# Données : TCP_PROBE scan_type=SYN port=21 reply=RST
+[Question 1 — Ports à l'état open]
 A_COMPLETER
 
-[Cas 2 — Sonde furtive XMAS sans réponse face à une pile TCP conforme RFC 793]
-# Données : TCP_PROBE scan_type=XMAS port=80 reply=TIMEOUT
+[Question 2 — Service écoutant sur le port 22]
 A_COMPLETER
 
-[Cas 3 — Sonde ACK cartographiant un pare-feu avec paquet RST de retour]
-# Données : TCP_PROBE scan_type=ACK port=8080 reply=RST
+[Question 3 — État du port 3306]
 A_COMPLETER
 
-[Cas 4 — Sonde SYN filtrée par pare-feu silencieux (Drop/Timeout)]
-# Données : TCP_PROBE scan_type=SYN port=3389 reply=TIMEOUT
+[Question 4 — Ports non ouverts (fermés ou filtrés)]
+A_COMPLETER
+
+[Question 5 — Version d'Apache révélée]
+A_COMPLETER
+
+[Question 6 — Scan Nmap établissant une connexion TCP complète]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan</h3>
+    <h3 class="lab__title">Exercice 1 — Le scan Nmap autorisé du serveur de la scierie Dumoulin</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -244,30 +245,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les paquets de réponse TCP pour déterminer l'état d'un port selon la RFC 793 et le type de scan Nmap.</p>
-    <div class="lab__brief"><p>Nmap utilise différents types de sondes TCP pour sonder l'état des ports et cartographier les pare-feux :<br><br>
-Règles de diagnostic selon le scan et la réponse reçue :<br>
-1. <code>SYN</code> (SYN Stealth scan <code>-sS</code>) :<br>
-   - Réponse <code>SYN+ACK</code> : <code>state=OPEN</code><br>
-   - Réponse <code>RST</code> ou <code>RST+ACK</code> : <code>state=CLOSED</code><br>
-   - Réponse <code>TIMEOUT</code> : <code>state=FILTERED</code><br>
-2. <code>FIN</code>, <code>NULL</code>, <code>XMAS</code> (scans furtifs inverses) :<br>
-   - Réponse <code>RST</code> : <code>state=CLOSED</code><br>
-   - Réponse <code>TIMEOUT</code> : <code>state=OPEN|FILTERED</code><br>
-3. <code>ACK</code> (Window/Firewall scan <code>-sA</code>) :<br>
-   - Réponse <code>RST</code> : <code>state=UNFILTERED</code><br>
-   - Réponse <code>TIMEOUT</code> : <code>state=FILTERED</code><br><br>
-Données du cas : <code>TCP_PROBE scan_type=&lt;SYN|FIN|NULL|XMAS|ACK&gt; port=&lt;p&gt; reply=&lt;SYN+ACK|RST|TIMEOUT|RST+ACK&gt;</code>.<br>
-Résultat d’analyse attendu : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;type&gt; reply=&lt;reply&gt; state=&lt;state&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire un résultat Nmap : compter les ports ouverts, identifier les services et distinguer filtré et fermé.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La scierie Dumoulin confie à l'ESN Cortège le test d'intrusion de son serveur d'hébergement interne, <code>10.20.30.5</code>, depuis le réseau de test prévu au contrat. L'auditeur lance <code>nmap -sV 10.20.30.5</code> et obtient l'extrait suivant :</p><table><tr><th>Port</th><th>État</th><th>Service et version</th></tr><tr><th>22/tcp</th><td>open</td><td>ssh — OpenSSH 8.9p1</td></tr><tr><th>80/tcp</th><td>open</td><td>http — Apache httpd 2.4.54</td></tr><tr><th>443/tcp</th><td>open</td><td>https — Apache httpd 2.4.54</td></tr><tr><th>3306/tcp</th><td>filtered</td><td>mysql — filtré par le pare-feu</td></tr><tr><th>8080/tcp</th><td>closed</td><td>http-proxy — aucun service</td></tr></table><ol><li>Combien de ports sont à l'état « open » ?</li><li>Quel service écoute sur le port 22 ?</li><li>Quel est l'état du port 3306 ?</li><li>Combien de ports ne sont pas ouverts (fermés ou filtrés) ?</li><li>Quelle version d'Apache le scan révèle-t-il ?</li><li>Comment se nomme le type de scan Nmap qui établit une connexion TCP complète, utilisable sans privilèges root mais peu furtif ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La boulangerie Lemieux fait auditer son serveur 10.0.5.21. Extrait de nmap -sV :
+21/tcp open ftp vsftpd 3.0.5 ; 22/tcp open ssh OpenSSH 9.2 ; 80/tcp open http nginx 1.25 ;
+443/tcp filtered https ; 3306/tcp closed mysql.
+
+1) 3 ports ouverts. 2) Le service du port 21 est ftp. 3) Le port 443 est filtré.
+4) 2 ports non ouverts. 5) nginx 1.25. 6) Le scan complet s'appelle le scan connect.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Gérez les cas selon scan_type (SYN, FIN/NULL/XMAS, ACK).</li>
-        <li>Pour SYN, SYN+ACK signifie OPEN et RST signifie CLOSED.</li>
-        <li>Pour FIN/NULL/XMAS, TIMEOUT signifie OPEN|FILTERED et RST signifie CLOSED.</li>
+        <li>Parcourez la colonne « État » : open, filtered et closed ne racontent pas la même histoire (service joignable, pare-feu silencieux, port vide).</li>
+        <li>Un port filtré ne répond pas franchement au scanner : c'est souvent un pare-feu qui laisse la requête sans réponse.</li>
+        <li>Le scan furtif de référence (-sS) n'achève pas la poignée de main TCP ; celui qui l'achève s'appelle tout simplement « connect ».</li>
       </ol>
     </details>
   </div>
@@ -277,28 +270,31 @@ Résultat d’analyse attendu : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;t
      data-exercise="hk3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c3-e2) — Analyseur de Bannières de Services Réseau et Détection de Failles Connues
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La mairie de Fressin audite son serveur. Bannières relevées :&#10;SSH OpenSSH 8.2 (stable 9.6 — énumération d'utilisateurs) ;&#10;FTP vsftpd 3.0.5 (stable 3.0.5 — aucune) ;&#10;SMB Samba 4.17 (stable 4.19 — exécution de commande à distance) ;&#10;HTTP Apache 2.4.49 (stable 2.4.58 — traversée de chemin).&#10;&#10;1) 3 services obsolètes. 2) Le FTP est à jour. 3) 1 seul service expose une exécution de commande (Samba).&#10;4) Samba 4.17. 5) SMB. 6) --script vuln.">
+  <script type="text/plain" data-lab-starter># Exercice — Les bannières obsolètes du serveur de recette de DevFan
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 3 : un nombre. Question 2, 5 : un service. Question 4 : une version. Question 6 : une option.
 
-[Cas 1 — Serveur HTTP Apache vulnérable à la traversée de répertoire critique]
-# Données : BANNER_SCAN port=80 service=http banner=Server: Apache/2.4.49 (Unix)
+[Question 1 — Services en version obsolète]
 A_COMPLETER
 
-[Cas 2 — Démon SSH vulnérable à l'énumération de comptes utilisateurs]
-# Données : BANNER_SCAN port=22 service=ssh banner=SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8
+[Question 2 — Service à jour]
 A_COMPLETER
 
-[Cas 3 — Service FTP ProFTPD avec module mod_copy vulnérable]
-# Données : BANNER_SCAN port=2121 service=ftp banner=220 ProFTPD 1.3.5 Server
+[Question 3 — Services obsolètes avec exécution de code]
 A_COMPLETER
 
-[Cas 4 — Version récente sans vulnérabilité connue répertoriée]
-# Données : BANNER_SCAN port=443 service=https banner=Server: nginx/1.24.0
+[Question 4 — Version de Samba en service]
+A_COMPLETER
+
+[Question 5 — Protocole de partage de fichiers concerné]
+A_COMPLETER
+
+[Question 6 — Option Nmap des scripts de vulnérabilités]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Analyseur de Bannières de Services Réseau et Détection de Failles Connues</h3>
+    <h3 class="lab__title">Exercice 2 — Les bannières obsolètes du serveur de recette de DevFan</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -307,25 +303,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Extraire les versions logicielles des bannières de services réseau et identifier les vulnérabilités critiques associées.</p>
-    <div class="lab__brief"><p>Le banner grabbing permet de repérer des versions logicielles vulnérables avant toute phase d'exploitation.<br><br>
-Base de signatures connues :<br>
-- <code>vsFTPd 2.3.4</code> -&gt; <code>cve=CVE-2011-2523</code>, <code>severity=CRITICAL</code>, <code>desc=Backdoor_Command_Execution</code><br>
-- <code>Apache/2.4.49</code> -&gt; <code>cve=CVE-2021-41773</code>, <code>severity=CRITICAL</code>, <code>desc=Path_Traversal_RCE</code><br>
-- <code>OpenSSH_7.2p2</code> -&gt; <code>cve=CVE-2016-6210</code>, <code>severity=MEDIUM</code>, <code>desc=User_Enumeration</code><br>
-- <code>ProFTPD 1.3.5</code> -&gt; <code>cve=CVE-2015-3306</code>, <code>severity=HIGH</code>, <code>desc=mod_copy_Arbitrary_Copy</code><br>
-- Autre version -&gt; <code>cve=NONE</code>, <code>severity=INFO</code>, <code>desc=UP_TO_DATE_OR_CUSTOM</code><br><br>
-Données du cas : <code>BANNER_SCAN port=&lt;p&gt; service=&lt;svc&gt; banner=&lt;texte_banniere&gt;</code>.<br>
-Résultat d’analyse attendu : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc&gt; cve=&lt;cve&gt; severity=&lt;sev&gt; desc=&lt;desc&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Comparer les bannières de services aux versions stables pour chiffrer l'exposition aux failles connues.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'agence DevFan fait auditer son serveur de recette, isolé de la production, dans le cadre d'un test d'intrusion contracté. L'auditeur collecte les bannières des services et les compare aux dernières versions stables :</p><table><tr><th>Service</th><th>Bannière relevée</th><th>Version stable</th><th>Faille connue sur la version</th></tr><tr><th>SSH</th><td>OpenSSH 7.4p1</td><td>9.6p1</td><td>Énumération d'utilisateurs</td></tr><tr><th>FTP</th><td>vsftpd 2.3.4</td><td>3.0.5</td><td>Porte dérobée menant à une exécution de code</td></tr><tr><th>SMB</th><td>Samba 3.0.20</td><td>4.19.0</td><td>Exécution de commande à distance</td></tr><tr><th>HTTP</th><td>nginx 1.25.3</td><td>1.25.3</td><td>Aucune connue</td></tr></table><ol><li>Combien de services tournent sur une version obsolète ?</li><li>Quel service est à jour ?</li><li>Combien de services obsolètes exposent une exécution de code à distance ?</li><li>Quelle version de Samba est en service ?</li><li>Quel protocole de partage de fichiers, historiquement lié à Windows, est concerné ?</li><li>Quelle option de Nmap exécute les scripts NSE de détection de vulnérabilités ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La mairie de Fressin audite son serveur. Bannières relevées :
+SSH OpenSSH 8.2 (stable 9.6 — énumération d'utilisateurs) ;
+FTP vsftpd 3.0.5 (stable 3.0.5 — aucune) ;
+SMB Samba 4.17 (stable 4.19 — exécution de commande à distance) ;
+HTTP Apache 2.4.49 (stable 2.4.58 — traversée de chemin).
+
+1) 3 services obsolètes. 2) Le FTP est à jour. 3) 1 seul service expose une exécution de commande (Samba).
+4) Samba 4.17. 5) SMB. 6) --script vuln.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez l’extraction des champs pour préserver les espaces dans le texte de la bannière.</li>
-        <li>Vérifiez la présence des sous-chaînes de versions critiques dans la bannière.</li>
-        <li>Générez la sortie standardisée VULN_MATCH.</li>
+        <li>Comparez colonne « Bannière relevée » et colonne « Version stable » : un service est à jour quand les deux coïncident.</li>
+        <li>Ne comptez que les failles qui mènent à une exécution de code : l'énumération d'utilisateurs est gênante mais n'exécute rien.</li>
+        <li>Le protocole de partage de fichiers de l'écosystème Windows porte un sigle de trois lettres ; les scripts NSE de vulnérabilités se lancent avec l'option --script vuln.</li>
       </ol>
     </details>
   </div>
@@ -367,10 +362,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMP_TEST target=192.168.1.1 wordlist=public,private,cisco,admin target_community=public target_perm=RO sys_descr=Cisco_IOS_Software_C2960</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Compter les essais jusqu’à la première correspondance, ou toute la liste si aucune chaîne ne correspond.</li>
         <li>Ne déduire aucun risque global du seul résultat.</li>
+        <li>Balayez la liste fournie et signalez uniquement les chaînes de communauté présentes ; l absence ou présence dans cette liste fictive ne suffit pas à auditer un hôte.</li>
       </ol>
     </details>
   </div>
@@ -383,8 +379,8 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Pourquoi le scan Nmap SYN (-sS) est-il qualifié de "Stealth" ou "demi-ouvert" ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Parce qu'il envoie un paquet RST immédiatement après avoir reçu le SYN+ACK sans jamais envoyer le ACK final qui finaliserait la connexion</button>
         <button class="opt">Parce qu'il chiffre l'intégralité des paquets transmis avec une clé AES 256 bits</button>
+        <button class="opt" data-correct="1">Parce qu'il envoie un paquet RST immédiatement après avoir reçu le SYN+ACK sans jamais envoyer le ACK final qui finaliserait la connexion</button>
         <button class="opt">Parce qu'il masque l'adresse IP de l'auditeur en usurpant automatiquement celle de la passerelle</button>
         <button class="opt">Parce qu'il utilise exclusivement des ports sources inférieurs à 1024</button>
       </div>
@@ -403,29 +399,29 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle est la valeur typique de Time to Live (TTL) initial observée lors d'une capture réseau sur une machine Linux par rapport à Windows ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">TTL 64 pour Linux contre TTL 128 pour Windows</button>
+        <button class="opt">Le TTL est strictement identique sur tous les systèmes d'exploitation</button>
         <button class="opt">TTL 255 pour Linux contre TTL 32 pour Windows</button>
         <button class="opt">TTL 128 pour Linux contre TTL 64 pour Windows</button>
-        <button class="opt">Le TTL est strictement identique sur tous les systèmes d'exploitation</button>
+        <button class="opt" data-correct="1">TTL 64 pour Linux contre TTL 128 pour Windows</button>
       </div>
       <div class="q__exp">Par défaut, la pile réseau du noyau Linux initialise le champ TTL à 64, tandis que la pile réseau de Microsoft Windows l'initialise à 128 (et les équipements réseau Cisco/Solaris à 255).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l'objectif principal d'un scan Nmap avec l'option -sA (TCP ACK Scan) ?</p>
       <div class="opts">
+        <button class="opt">Identifier les versions exactes des logiciels serveurs web tournant sur les ports ouverts</button>
+        <button class="opt">Déchiffrer les communications HTTPS en cours entre le client et le serveur distant</button>
         <button class="opt" data-correct="1">Cartographier les règles de pare-feu et déterminer s'il s'agit d'un pare-feu avec état (Stateful)</button>
-        <button class="opt">Identifier les versions des logiciels serveurs web</button>
-        <button class="opt">Déchiffrer les communications HTTPS en cours</button>
-        <button class="opt">Énumérer les utilisateurs du domaine Active Directory</button>
+        <button class="opt">Énumérer les utilisateurs du domaine Active Directory via le protocole LDAP</button>
       </div>
       <div class="q__exp">L'ACK scan envoie des paquets ACK hors session pour analyser si le pare-feu filtre les paquets non sollicités (Timeout/Filtered) ou s'il laisse passer les paquets vers l'hôte qui répond RST (Unfiltered).</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi les scans furtifs FIN (-sF), Null (-sN) et Xmas (-sX) échouent-ils systématiquement face à des cibles sous Microsoft Windows ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Parce que la pile TCP de Windows ne respecte pas la RFC 793 et répond systématiquement par un RST sur tous les ports</button>
-        <button class="opt">Parce que Windows bloque physiquement la carte réseau dès qu'un paquet suspect est détecté</button>
         <button class="opt">Parce que ces scans exigent le protocole IPv6 qui est désactivé sous Windows</button>
+        <button class="opt">Parce que Windows bloque physiquement la carte réseau dès qu'un paquet suspect est détecté</button>
+        <button class="opt" data-correct="1">Parce que la pile TCP de Windows ne respecte pas la RFC 793 et répond systématiquement par un RST sur tous les ports</button>
         <button class="opt">Parce que Nmap refuse d'exécuter ces scans sur des systèmes Windows</button>
       </div>
       <div class="q__exp">Windows ne respecte pas la disposition de la RFC 793 stipulant qu'un port ouvert ne doit pas répondre à un paquet invalide : Windows renvoie un RST que le port soit ouvert ou fermé.</div>
@@ -433,10 +429,10 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quel risque critique de sécurité présente un service SNMP v1 ou v2c configuré avec la chaîne de communauté par défaut "public" ?</p>
       <div class="opts">
+        <button class="opt">Le serveur SNMP est immédiatement formaté par l'attaquant distant et rendu totalement inaccessible aux équipes</button>
+        <button class="opt">Les clés privées SSH du serveur sont automatiquement écrites en clair sur le port série de la machine</button>
+        <button class="opt">Aucun risque réel, car les échanges de la communauté public du protocole SNMP sont chiffrés par défaut</button>
         <button class="opt" data-correct="1">Un attaquant peut interroger la base MIB et extraire la liste complète des processus, interfaces réseau, utilisateurs et logiciels installés</button>
-        <button class="opt">Le serveur est immédiatement formaté et rendu inaccessible</button>
-        <button class="opt">Les clés privées SSH du serveur sont écrites en clair sur le port série</button>
-        <button class="opt">Aucun risque, la communauté public est chiffrée par défaut</button>
       </div>
       <div class="q__exp">En SNMP v1/v2c, la communauté "public" transmet en clair et accorde un accès en lecture (RO) permettant d'énumérer toute la MIB-2 système (processus, interfaces, tables de routage, utilisateurs).</div>
     </div>
@@ -444,17 +440,17 @@ A_COMPLETER
       <p class="q__stem">Qu'est-ce qu'une "session nulle" (Null Session) dans le protocole SMB (port 445/139) ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Une connexion établie anonymement sans nom d'utilisateur ni mot de passe permettant d'énumérer les partages et comptes</button>
-        <button class="opt">Une coupure brutale de la connexion réseau par le pare-feu</button>
-        <button class="opt">Une session dont les données ont été corrompues par des zéros binaires</button>
-        <button class="opt">Une commande de redémarrage automatique du contrôleur de domaine</button>
+        <button class="opt">Une coupure brutale et définitive de la connexion réseau provoquée par le pare-feu de périmètre</button>
+        <button class="opt">Une session dont les données ont été corrompues par des zéros binaires injectés dans le flux</button>
+        <button class="opt">Une commande de redémarrage automatique et planifié du contrôleur de domaine Active Directory</button>
       </div>
       <div class="q__exp">Une session nulle SMB permet à un utilisateur anonyme de s'authentifier avec des identifiants vides pour interroger les partages IPC$ et énumérer les comptes d'utilisateurs et de groupes du système.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle catégorie de scripts du Nmap Scripting Engine (NSE) permet d'identifier les vulnérabilités de sécurité connues sur une cible ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">--script vuln</button>
         <button class="opt">--script discovery</button>
+        <button class="opt" data-correct="1">--script vuln</button>
         <button class="opt">--script broadcast</button>
         <button class="opt">--script brute</button>
       </div>
@@ -578,7 +574,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

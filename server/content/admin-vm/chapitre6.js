@@ -93,14 +93,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que garantit une réservation ?', opts: ['Un minimum de ressource', 'Un maximum', 'Une priorité'], correct: 0, exp: 'Elle réserve une part de CPU ou de RAM.' },
-    { stem: 'Que fait une limite ?', opts: ['Plafonne une ressource', 'Réserve un minimum', 'Priorise'], correct: 0, exp: 'Elle empêche une VM de consommer au-delà.' },
-    { stem: 'À quoi servent les shares ?', opts: ['Priorité relative entre VM', 'Chiffrer', 'Segmenter'], correct: 0, exp: 'Elles départagent la contention.' },
-    { stem: 'Que garantit le quorum ?', opts: ['La prise de décision', 'Le chiffrement', 'La migration'], correct: 0, exp: 'La majorité des nœuds décide.' },
-    { stem: 'Que fait le fencing ?', opts: ['Isole un nœud instable', 'Sauvegarde les VM', 'Monitore'], correct: 0, exp: 'Il évite le split brain.' },
-    { stem: 'Que facilite le stockage partagé ?', opts: ['La migration', 'Le chiffrement', 'Le NAT'], correct: 0, exp: 'Il rend la VM mobile entre nœuds.' },
-    { stem: 'Que réduit la déduplication ?', opts: ['L’espace de sauvegarde', 'La latence', 'Les VLAN'], correct: 0, exp: 'Elle élimine les données redondantes.' },
-    { stem: 'Que protège une sauvegarde chiffrée ?', opts: ['Les données sauvegardées', 'Le réseau', 'Les vCPU'], correct: 0, exp: 'Le chiffrement protège la sauvegarde elle-même.' }
+    { stem: 'Que garantit une réservation ?', opts: ['Un minimum de ressource', 'Un maximum', 'Une priorité'], correct: 0, exp: "Une réservation garantit un minimum de ressource : la VM reçoit ce quota quoi qu’il arrive. Un maximum, c’est la limite ; une priorité, ce sont les shares." },
+    { stem: 'Que fait une limite ?', opts: ['Réserve un minimum', 'Plafonne une ressource', 'Priorise'], correct: 1, exp: 'Elle empêche une VM de consommer au-delà.' },
+    { stem: 'À quoi servent les shares ?', opts: ['Priorité relative entre VM', 'Chiffrer', 'Segmenter'], correct: 0, exp: "Les shares fixent la priorité relative entre VM lors de la contention : plus de shares, plus de part. Ils ne chiffrent ni ne segmentent quoi que ce soit." },
+    { stem: 'Que garantit le quorum ?', opts: ['Le chiffrement', 'La prise de décision', 'La migration'], correct: 1, exp: "Le quorum garantit la prise de décision : seule la majorité des nœuds tranche, protégeant du split brain. Il ne chiffre rien et ne migre rien." },
+    { stem: 'Que fait le fencing ?', opts: ['Monitore', 'Sauvegarde les VM', 'Isole un nœud instable'], correct: 2, exp: "Le fencing isole un nœud instable en le coupant du cluster, évitant le split brain. Il ne sauvegarde pas les VM et ne les surveille pas." },
+    { stem: 'Que facilite le stockage partagé ?', opts: ['Le NAT', 'Le chiffrement', 'La migration'], correct: 2, exp: "Le stockage partagé facilite la migration : la VM devient mobile d’un nœud à l’autre sans déplacer ses disques. Ni chiffrement, ni NAT ici." },
+    { stem: 'Que réduit la déduplication ?', opts: ['L’espace de sauvegarde', 'La latence', 'Les VLAN'], correct: 0, exp: "La déduplication réduit l’espace de sauvegarde en éliminant les données redondantes. Elle n’agit ni sur la latence ni sur les VLAN." },
+    { stem: 'Que protège une sauvegarde chiffrée ?', opts: ['Le réseau', 'Les données sauvegardées', 'Les vCPU'], correct: 1, exp: 'Le chiffrement protège la sauvegarde elle-même.' }
   ],
 
   pitfalls: [

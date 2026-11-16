@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -215,10 +213,11 @@ PACKET id=2 src=192.168.1.10 dst=10.0.0.2 sport=80 dport=54321 flags=SYN_ACK
 PACKET id=3 src=10.0.0.2 dst=192.168.1.10 sport=54321 dport=80 flags=ACK</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Normaliser la clé de session pour identifier la connexion dans les deux sens.</li>
         <li>Suivre les étapes du handshake : SYN -&gt; SYN_ACK -&gt; ACK avant de passer en ESTABLISHED.</li>
+        <li>Pour chaque paquet : un SYN inédit crée NEW ; le SYN_ACK en sens inverse maintient NEW ; l’ACK final fait passer en ESTABLISHED ; tout paquet hors session attendue est INVALID.</li>
       </ol>
     </details>
   </div>
@@ -280,10 +279,11 @@ SESSION id=S2 proto=UDP state=GENERIC last_seen=4800
 PURGE now=5000</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Associer chaque couple (proto, state) à sa durée limite.</li>
         <li>Calculer l’inactivité : now - last_seen.</li>
+        <li>Pour chaque session : si now - last_seen dépasse le timeout du couple (protocole, état), la purger ; compter ensuite les sessions purgées et les sessions restantes.</li>
       </ol>
     </details>
   </div>
@@ -336,10 +336,11 @@ Pour chaque ligne, afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROBE src=192.168.1.100 dst=10.0.0.1 dport=22 flags=FIN,PSH,URG</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Découper la chaîne flags par virgule et manipuler un set de flags.</li>
         <li>Comparer les ensembles pour gérer l’ordre des flags dans Xmas Scan.</li>
+        <li>Convertir les flags en ensemble : SYN et FIN réunis donnent anomalie ; FIN, PSH et URG réunis donnent Xmas ; aucun flag donne Null ; FIN seul donne FIN ; l’ordre est indifférent.</li>
       </ol>
     </details>
   </div>
@@ -352,20 +353,20 @@ Pour chaque ligne, afficher :<br>
     <div class="q">
       <p class="q__stem">Quel événement déclenche le passage d’une session TCP à l’état conntrack ESTABLISHED ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">La réception du paquet ACK final du client concluant le 3-Way Handshake</button>
+        <button class="opt">La fermeture de la connexion par un paquet RST</button>
         <button class="opt">L’émission du premier paquet SYN par le client</button>
         <button class="opt">La réception de la réponse SYN-ACK émise par le serveur</button>
-        <button class="opt">La fermeture de la connexion par un paquet RST</button>
+        <button class="opt" data-correct="1">La réception du paquet ACK final du client concluant le 3-Way Handshake</button>
       </div>
       <div class="q__exp">C’est la réception de l’ACK de confirmation confirmant que le client et le serveur sont synchronisés qui fait basculer la session en ESTABLISHED.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi place-t-on la règle autorisant l’état ESTABLISHED,RELATED en toute première ligne d’un pare-feu ?</p>
       <div class="opts">
+        <button class="opt">Parce que le noyau Linux refuse formellement de démarrer si cette règle d’acceptation n’occupe pas la première position</button>
+        <button class="opt">Pour permettre aux nouveaux paquets SYN d’initier des connexions sans aucune vérification du pare-feu</button>
         <button class="opt" data-correct="1">Pour optimiser les performances : plus de 90% des paquets en transit appartiennent à des sessions déjà validées et sont traités immédiatement</button>
-        <button class="opt">Parce que le noyau Linux refuse de démarrer si cette règle n’est pas en position 1</button>
-        <button class="opt">Pour permettre aux paquets SYN de traverser sans être filtrés</button>
-        <button class="opt">Pour désactiver le chiffrement TLS sur les paquets de retour</button>
+        <button class="opt">Pour désactiver systématiquement le chiffrement TLS appliqué aux paquets de retour des sessions déjà établies</button>
       </div>
       <div class="q__exp">Placer cette règle en tête évite d’évaluer la liste complète des règles pour chaque paquet d’une session établie, ce qui réduit drastiquement l’utilisation du CPU.</div>
     </div>
@@ -373,19 +374,19 @@ Pour chaque ligne, afficher :<br>
       <p class="q__stem">À quoi correspond l’état conntrack RELATED ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">À une nouvelle connexion logiquement liée à une session existante (ex: canal de données passif FTP ou erreur ICMP)</button>
-        <button class="opt">À une connexion suspecte qui doit être mise en quarantaine</button>
-        <button class="opt">À un paquet ayant subi une altération de somme de contrôle (Checksum)</button>
-        <button class="opt">À une session redirigée vers un proxy de cache web</button>
+        <button class="opt">À une connexion jugée suspecte par l’administrateur et qui doit être mise en quarantaine</button>
+        <button class="opt">À un paquet ayant subi une altération de sa somme de contrôle (Checksum) en cours de routage</button>
+        <button class="opt">À une session client volontairement redirigée vers un proxy de cache web intermédiaire</button>
       </div>
       <div class="q__exp">L’état RELATED identifie les flux secondaires associés à une connexion maître autorisée (géré par les helpers du noyau).</div>
     </div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il si la table conntrack d’un pare-feu atteint sa capacité maximale (nf_conntrack_max) ?</p>
       <div class="opts">
+        <button class="opt">Le pare-feu bascule automatiquement en mode routage non filtré pour préserver la continuité de service</button>
         <button class="opt" data-correct="1">Le pare-feu rejette les nouvelles connexions (« table full, dropping packet ») provoquant un déni de service global</button>
-        <button class="opt">Le pare-feu bascule automatiquement en mode routage non filtré</button>
-        <button class="opt">Le système redémarre instantanément sans sauvegarder les logs</button>
-        <button class="opt">Les paquets sont compressés pour libérer de la mémoire</button>
+        <button class="opt">Le système d’exploitation redémarre instantanément sans prendre le temps de sauvegarder les journaux</button>
+        <button class="opt">Les paquets en attente sont compressés à la volée afin de libérer de la mémoire vive</button>
       </div>
       <div class="q__exp">Lorsque la table est saturée, le noyau ne peut plus allouer de mémoire pour de nouvelles sessions et rejette tous les paquets entrants non enregistrés.</div>
     </div>
@@ -402,19 +403,19 @@ Pour chaque ligne, afficher :<br>
     <div class="q">
       <p class="q__stem">Quel est l’objectif de la commande sysctl net.ipv4.tcp_syncookies = 1 ?</p>
       <div class="opts">
+        <button class="opt">Autoriser le stockage et la gestion centralisée des cookies HTTP sessions directement dans la mémoire du pare-feu</button>
         <button class="opt" data-correct="1">Mitiger les attaques SYN Flood en encodant les informations de session dans le numéro de séquence initial sans allouer d’état mémoire</button>
-        <button class="opt">Autoriser le stockage de cookies HTTP dans le pare-feu</button>
-        <button class="opt">Augmenter la taille du tampon d’émission des cartes réseau</button>
-        <button class="opt">Forcer la déconnexion automatique des utilisateurs inactifs</button>
+        <button class="opt">Augmenter considérablement la taille du tampon d’émission des cartes réseau physiques du serveur</button>
+        <button class="opt">Forcer la déconnexion automatique de tous les utilisateurs inactifs au bout de quelques minutes d’inactivité</button>
       </div>
       <div class="q__exp">Les SYN Cookies permettent au serveur de répondre aux demandes d’ouverture TCP sans consommer de mémoire conntrack tant que le client n’a pas renvoyé l’ACK final.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment le pare-feu stateful classe-t-il un paquet TCP contenant uniquement le drapeau FIN reçu en dehors de toute connexion active ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">INVALID</button>
-        <button class="opt">ESTABLISHED</button>
         <button class="opt">NEW</button>
+        <button class="opt">ESTABLISHED</button>
+        <button class="opt" data-correct="1">INVALID</button>
         <button class="opt">RELATED</button>
       </div>
       <div class="q__exp">Un paquet de fermeture reçu sans connexion préalable ne correspond à aucune session connue et doit être classé INVALID.</div>
@@ -422,10 +423,10 @@ Pour chaque ligne, afficher :<br>
     <div class="q">
       <p class="q__stem">Combien de mémoire vive consomme approximativement une entrée dans la table conntrack du noyau Linux ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Environ 300 octets</button>
+        <button class="opt">Plus de 64 kilo-octets</button>
         <button class="opt">Environ 4 mégaoctets</button>
         <button class="opt">Exactement 1 bit</button>
-        <button class="opt">Plus de 64 kilo-octets</button>
+        <button class="opt" data-correct="1">Environ 300 octets</button>
       </div>
       <div class="q__exp">Une entrée conntrack (structure nf_conn) occupe environ 300 octets de mémoire noyau non swappable.</div>
     </div>
@@ -550,7 +551,7 @@ Pour chaque ligne, afficher :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

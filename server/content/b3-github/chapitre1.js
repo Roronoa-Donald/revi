@@ -184,88 +184,88 @@ module.exports = {
       stem: 'Quelles informations sont réellement conservées à l’intérieur d’un objet Git de type « blob » ?',
       opts: [
         'Le nom du fichier, ses permissions Unix et son contenu brut',
-        'Uniquement le contenu brut du fichier, sans nom ni droits d’accès',
         'Le chemin d’accès relatif, la date de modification et le hash SHA-1',
+        'Uniquement le contenu brut du fichier, sans nom ni droits d’accès',
         'L’historique des deltas et modifications ligne par ligne du fichier'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un blob ne contient que le contenu brut en octets du fichier. Le nom du fichier et les droits d’accès (permissions Unix) sont exclusivement portés par l’objet tree parent.'
     },
     {
       stem: 'Quelle formule correspond exactement à la chaîne d’octets hachée par Git pour un objet blob de 10 octets ?',
       opts: [
         'sha1("blob 10:" + contenu)',
-        'sha1("blob 10\\0" + contenu)',
+        'sha1("file 10\n" + contenu)',
         'sha1(contenu + "\\0blob 10")',
-        'sha1("file 10\n" + contenu)'
+        'sha1("blob 10\\0" + contenu)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le standard Git injecte toujours le préambule : type + espace + taille_en_octets + octet_nul (\\0) suivi du contenu brut avant d’appliquer la fonction de hachage cryptographique.'
     },
     {
       stem: 'Dans quelle structure Git les permissions d’accès Unix d’un fichier (ex: 100644 ou 100755) sont-elles enregistrées ?',
       opts: [
-        'Dans le fichier .git/config du dépôt local',
-        'Dans l’en-tête de l’objet blob lui-même',
         'Dans les entrées de l’objet tree parent',
+        'Dans l’en-tête de l’objet blob lui-même',
+        'Dans le fichier .git/config du dépôt local',
         'Dans les métadonnées de l’objet commit'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'C’est l’objet tree qui référence chaque blob en lui associant son mode Unix (100644 pour un fichier normal, 100755 pour un exécutable, 120000 pour un lien symbolique) et son nom.'
     },
     {
       stem: 'À quoi sert la commande de plomberie « git cat-file -t <hash> » ?',
       opts: [
-        'À afficher le type de l’objet Git (blob, tree, commit ou tag)',
         'À imprimer le contenu formatté du fichier',
+        'À afficher le type de l’objet Git (blob, tree, commit ou tag)',
         'À tester si le hash correspond à une branche distante',
         'À transformer un objet SHA-1 en objet SHA-256'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’option -t (type) de git cat-file retourne le nom du type de l’objet correspondant au hash dans la base de données Git (blob, tree, commit ou tag).'
     },
     {
       stem: 'Que contient le fichier spécial « .git/HEAD » dans un état normal sur la branche principale « main » ?',
       opts: [
         'Le hash SHA-1 direct du dernier commit de la branche',
-        'La chaîne « ref: refs/heads/main »',
         'L’arbre racine (root tree) de la copie de travail',
+        'La chaîne « ref: refs/heads/main »',
         'La liste de tous les commits créés au cours de la session courante'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'HEAD est une référence symbolique pointant vers la branche active. Son contenu est textuellement « ref: refs/heads/main » (sauf en état de tête détachée / detached HEAD où il contient un SHA-1 direct).'
     },
     {
       stem: 'Quel est l’impact de la modification d’un seul octet dans un fichier sur l’arbre de Merkle du dépôt ?',
       opts: [
         'Seul le hash du blob est modifié, le reste du dépôt conserve les mêmes hashes',
-        'Le hash du blob, du tree parent et de tous les commits ancêtres subséquents sont recalculés',
+        'Git stocke un patch de différence sans toucher à la chaîne des objets SHA',
         'Le fichier .git/index est corrompu et doit être réinitialisé via git init',
-        'Git stocke un patch de différence sans toucher à la chaîne des objets SHA'
+        'Le hash du blob, du tree parent et de tous les commits ancêtres subséquents sont recalculés'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’arbre de Merkle garantit l’intégrité en cascade : changer le blob modifie le tree qui le contient, ce qui modifie le commit qui référence ce tree, garantissant l’immuabilité de l’historique.'
     },
     {
       stem: 'Quelle commande de plomberie permet d’écrire directement un nouvel objet blob dans le magasin .git/objects/ ?',
       opts: [
-        'git commit-tree',
-        'git write-tree',
         'git hash-object -w',
+        'git write-tree',
+        'git commit-tree',
         'git update-ref'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'L’option -w (write) de git hash-object ordonne à Git de calculer le hash et d’enregistrer physiquement l’objet compressé dans le répertoire .git/objects/.'
     },
     {
       stem: 'Combien de parents possède le tout premier commit (commit initial) créé dans un dépôt Git ?',
       opts: [
-        'Aucun parent (0 parent)',
         'Exactement 1 parent pointant sur HEAD',
+        'Aucun parent (0 parent)',
         '2 parents pointant vers le système de fichiers',
         '1 parent fictif constitué de 40 zéros'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le commit initial (root commit) n’a aucun commit parent. Un commit standard en possède un, et un commit de fusion en possède au moins deux.'
     }
   ],

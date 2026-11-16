@@ -17,10 +17,12 @@
  */
 'use strict';
 
+const enrichissements = require('./b1-virtualisation/enrichissements');
+
 const chapitres = [
   ...require('./b1-virtualisation/chapitres-1-3'),
   ...require('./b1-virtualisation/chapitres-4-6')
-];
+].map(enrichissements.enrich);
 
 const pages = require('./b1-virtualisation/pages');
 

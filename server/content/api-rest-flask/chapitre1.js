@@ -98,18 +98,51 @@ module.exports = {
         '  <li><strong>Nul</strong> : <code>null</code> (absence de valeur).</li>\n' +
         '</ul>'
       ].join('\n')
+    },
+    {
+      title: 'Implémentation Flask complète : négociation JSON, statuts HTTP et test_client()',
+      html: [
+        '<p>Voici une application Flask complète illustrant l’inspection des en-têtes HTTP, la lecture du corps JSON via ' +
+        '<code>request.get_json()</code>, la sérialisation avec <code>jsonify()</code> (codes <code>200</code>, <code>201</code>, <code>400</code>, <code>404</code>, <code>422</code>) ' +
+        'et la vérification automatisée avec <code>app.test_client()</code> :</p>',
+        '<pre><code class="language-python">from flask import Flask, request, jsonify\n\n' +
+        'app = Flask(__name__)\n' +
+        ' COMMANDES = {1: {"id": 1, "client": "Alice", "montant": 120.0}}\n\n' +
+        '@app.route("/api/v1/commandes/<int:cmd_id>", methods=["GET"])\n' +
+        'def lire_commande(cmd_id):\n' +
+        '    if cmd_id not in COMMANDES:\n' +
+        '        return jsonify({"error": "Not Found", "code": 404}), 404\n' +
+        '    return jsonify(COMMANDES[cmd_id]), 200\n\n' +
+        '@app.route("/api/v1/commandes", methods=["POST"])\n' +
+        'def creer_commande():\n' +
+        '    payload = request.get_json(silent=True)\n' +
+        '    if payload is None:\n' +
+        '        return jsonify({"error": "Corps JSON requis (Content-Type: application/json)"}), 400\n' +
+        '    if "client" not in payload or "montant" not in payload:\n' +
+        '        return jsonify({"error": "Champs client et montant obligatoires"}), 422\n' +
+        '    new_id = max(COMMANDES.keys(), default=0) + 1\n' +
+        '    COMMANDES[new_id] = {"id": new_id, "client": str(payload["client"]), "montant": float(payload["montant"])}\n' +
+        '    return jsonify(COMMANDES[new_id]), 201\n\n' +
+        '# Vérification avec le client de test intégré Flask\n' +
+        'if __name__ == "__main__":\n' +
+        '    client = app.test_client()\n' +
+        '    r_ok = client.post("/api/v1/commandes", json={"client": "Bob", "montant": 85.5})\n' +
+        '    assert r_ok.status_code == 201 and r_ok.get_json()["id"] == 2\n' +
+        '    r_404 = client.get("/api/v1/commandes/999")\n' +
+        '    assert r_404.status_code == 404</code></pre>'
+      ].join('\n')
     }
   ],
 
   questions: [
-    { stem: 'Une API Web repose principalement sur quel protocole de communication ?', opts: ['HTTP / HTTPS', 'FTP', 'SMTP'], correct: 0, exp: 'HTTP (et sa variante chiffrée HTTPS) est le protocole de transport fondamental des API Web.' },
-    { stem: 'Quelle partie d’une requête HTTP contient les données envoyées lors d’un POST ?', opts: ['Le corps (Body)', 'La chaîne de requête (Query string)', 'La ligne de statut'], correct: 0, exp: 'Le corps de la requête transporte la charge utile (payload) envoyée au serveur.' },
+    { stem: 'Une API Web repose principalement sur quel protocole de communication ?', opts: ['SMTP', 'FTP', 'HTTP / HTTPS'], correct: 2, exp: 'HTTP (et sa variante chiffrée HTTPS) est le protocole de transport fondamental des API Web.' },
+    { stem: 'Quelle partie d’une requête HTTP contient les données envoyées lors d’un POST ?', opts: ['La chaîne de requête (Query string)', 'Le corps (Body)', 'La ligne de statut'], correct: 1, exp: 'Le corps de la requête transporte la charge utile (payload) envoyée au serveur.' },
     { stem: 'Quel en-tête informe le serveur que les données soumises sont au format JSON ?', opts: ['Content-Type: application/json', 'Accept: text/html', 'Host: api.local'], correct: 0, exp: 'Content-Type décrit le format des données contenues dans le corps de la requête.' },
-    { stem: 'En syntaxe JSON stricte, les clés d’un objet doivent obligatoirement être…', opts: ['Entourées de guillemets doubles ""', 'Entourées de guillemets simples \'\'', 'Écrites sans aucun guillemet'], correct: 0, exp: 'La spécification RFC 8259 impose des guillemets doubles pour toutes les clés JSON.' },
-    { stem: 'Quel en-tête le client transmet-il pour indiquer le format attendu en réponse ?', opts: ['Accept', 'Content-Type', 'User-Agent'], correct: 0, exp: 'Accept permet la négociation de contenu pour spécifier le format de réponse désiré.' },
-    { stem: 'Que contient la toute première ligne d’une requête HTTP standard ?', opts: ['La méthode, le chemin cible et la version du protocole', 'Le code d’état et le message de statut', 'Le token d’authentification Bearer'], correct: 0, exp: 'Exemple : GET /api/v1/users HTTP/1.1.' },
+    { stem: 'En syntaxe JSON stricte, les clés d’un objet doivent obligatoirement être…', opts: ['Entourées de guillemets simples \'\'', 'Entourées de guillemets doubles ""', 'Écrites sans aucun guillemet'], correct: 1, exp: 'La spécification RFC 8259 impose des guillemets doubles pour toutes les clés JSON.' },
+    { stem: 'Quel en-tête le client transmet-il pour indiquer le format attendu en réponse ?', opts: ['User-Agent', 'Content-Type', 'Accept'], correct: 2, exp: 'Accept permet la négociation de contenu pour spécifier le format de réponse désiré.' },
+    { stem: 'Que contient la toute première ligne d’une requête HTTP standard ?', opts: ['La méthode, le chemin cible et la version du protocole', 'Le code d’état et le message de statut', 'Le token d’authentification Bearer'], correct: 0, exp: "La première ligne est la ligne de requête : méthode, chemin, version — GET /api/v1/users HTTP/1.1. Le code d’état n’apparaît que dans la réponse, jamais dans la requête." },
     { stem: 'Lequel de ces types de données est invalide en JSON standard ?', opts: ['Une fonction JavaScript', 'Un tableau de nombres', 'Une valeur booléenne false'], correct: 0, exp: 'JSON est un format de données pur ; il ne peut pas sérialiser de code exécutable ou de fonctions.' },
-    { stem: 'Dans une URL, où se situe la query string ?', opts: ['Après le point d’interrogation ?', 'Avant le nom de domaine', 'Dans les en-têtes HTTP'], correct: 0, exp: 'La query string commence immédiatement après le caractère ? dans l’URL.' }
+    { stem: 'Dans une URL, où se situe la query string ?', opts: ['Avant le nom de domaine', 'Après le point d’interrogation ?', 'Dans les en-têtes HTTP'], correct: 1, exp: 'La query string commence immédiatement après le caractère ? dans l’URL.' }
   ],
 
   pitfalls: [

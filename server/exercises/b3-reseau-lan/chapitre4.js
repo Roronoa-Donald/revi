@@ -39,87 +39,111 @@ module.exports = [
         "expected": "OSPF_PATH id=DETOUR_FAST total_cost=20 hops_count=2 status=BEST_PATH\nOSPF_PATH id=DIRECT_SLOW total_cost=500 hops_count=1 status=BACKUP_PATH\nOSPF_ROUTE best_path=DETOUR_FAST metric=20"
       }
     ],
-    "solution": "[Exemple]\nOSPF_PATH id=PATH_A total_cost=30 hops_count=3 status=BACKUP_PATH\nOSPF_PATH id=PATH_B total_cost=101 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=PATH_C total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_ROUTE best_path=PATH_C metric=2\n\n[Cas 1 — Bande passante de référence par défaut 100 Mbps sans différenciation au-delà]\nOSPF_PATH id=P1 total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_PATH id=P2 total_cost=2 hops_count=2 status=BACKUP_PATH\nOSPF_ROUTE best_path=P1 metric=2\n\n[Cas 2 — Chemin à saut unique très rapide surpassant un chemin multi-sauts]\nOSPF_PATH id=CUIVRE total_cost=20 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=FIBRE total_cost=1 hops_count=1 status=BEST_PATH\nOSPF_ROUTE best_path=FIBRE metric=1\n\n[Cas 3 — Liaisons lentes pénalisées (T1/E1)]\nOSPF_PATH id=DETOUR_FAST total_cost=20 hops_count=2 status=BEST_PATH\nOSPF_PATH id=DIRECT_SLOW total_cost=500 hops_count=1 status=BACKUP_PATH\nOSPF_ROUTE best_path=DETOUR_FAST metric=20"
+    "solution": "[Exemple]\nOSPF_PATH id=PATH_A total_cost=30 hops_count=3 status=BACKUP_PATH\nOSPF_PATH id=PATH_B total_cost=101 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=PATH_C total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_ROUTE best_path=PATH_C metric=2\n\n[Cas 1 — Bande passante de référence par défaut 100 Mbps sans différenciation au-delà]\nOSPF_PATH id=P1 total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_PATH id=P2 total_cost=2 hops_count=2 status=BACKUP_PATH\nOSPF_ROUTE best_path=P1 metric=2\n\n[Cas 2 — Chemin à saut unique très rapide surpassant un chemin multi-sauts]\nOSPF_PATH id=CUIVRE total_cost=20 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=FIBRE total_cost=1 hops_count=1 status=BEST_PATH\nOSPF_ROUTE best_path=FIBRE metric=1\n\n[Cas 3 — Liaisons lentes pénalisées (T1/E1)]\nOSPF_PATH id=DETOUR_FAST total_cost=20 hops_count=2 status=BEST_PATH\nOSPF_PATH id=DIRECT_SLOW total_cost=500 hops_count=1 status=BACKUP_PATH\nOSPF_ROUTE best_path=DETOUR_FAST metric=20",
+    "takeaway": "À retenir : Calculer le coût OSPF cumulé de chemins concurrents à partir de la bande passante de référence.\nRepère : PATH_C traverse deux liens 10G (coût 1 + 1 = 2) et bat PATH_A (coût 10+10+10 = 30)."
   },
   {
     "id": "lan3-c4-e2",
     "chapter": 4,
-    "title": "Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Classer les annonces d'état de liens (LSA) selon leur type, leur portée de diffusion et leur rôle émetteur.",
-    "brief": "<p>Dans une architecture OSPF multi-aires, différents types de <strong>Link-State Advertisements (LSA)</strong> circulent pour construire la base de données topologique (LSDB) :<br><br>\nClassification officielle des LSAs :<br>\n- <strong>Type 1 (Router LSA) :</strong> Émis par <em>chaque routeur interne</em>, portée <code>INTRA_AREA</code>.<br>\n- <strong>Type 2 (Network LSA) :</strong> Émis par le <em>Designated Router (DR)</em> sur réseau multi-accès broadcast, portée <code>INTRA_AREA</code>.<br>\n- <strong>Type 3 (Summary LSA) :</strong> Émis par un <em>ABR (Area Border Router)</em> pour annoncer des réseaux d'autres aires, portée <code>INTER_AREA</code>.<br>\n- <strong>Type 4 (ASBR Summary LSA) :</strong> Émis par un <em>ABR</em> pour indiquer la route vers un ASBR, portée <code>INTER_AREA</code>.<br>\n- <strong>Type 5 (AS External LSA) :</strong> Émis par un <em>ASBR (Autonomous System Boundary Router)</em> pour injecter des routes redistribuées (BGP, RIP, statique), portée <code>EXTERNAL_AS</code>.<br>\n- <strong>Type 7 (NSSA External LSA) :</strong> Émis par un <em>ASBR</em> dans une aire NSSA, portée <code>NSSA_LOCAL</code>.<br><br>\nl’étude de cas comporte dans l’énoncé du cas des annonces LSA capturées :<br>\n<code>LSA id=&lt;nom&gt; type=&lt;1|2|3|4|5|7&gt; adv_router=&lt;ip&gt; area=&lt;int&gt;</code><br><br>\nPour chaque LSA, afficher :<br>\n<code>LSA_REPORT id={id} type={type} name={lsa_name} emitter={emitter_role} scope={scope}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c4-e2) — Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Annonces de Type 4 et Type 7 NSSA]\n# Données : LSA id=L_ASBR type=4 adv_router=10.0.0.254 area=2\n# Données : LSA id=L_NSSA type=7 adv_router=172.16.50.1 area=10\nA_COMPLETER\n\n[Cas 2 — Plusieurs LSAs Type 1 dans différentes aires]\n# Données : LSA id=R_BB type=1 adv_router=1.1.1.1 area=0\n# Données : LSA id=R_A1 type=1 adv_router=2.2.2.2 area=1\nA_COMPLETER\n\n[Cas 3 — LSA Type 5 traversant le backbone]\n# Données : LSA id=EXT_ROUTE type=5 adv_router=198.51.100.1 area=0\nA_COMPLETER\n",
+    "title": "La lecture des LSAs du siège de Calorix",
+    "exampleTitle": "Exemple résolu — les LSAs du réseau de la mairie de Tréville",
+    "goal": "Classer les LSAs d'une base d'états de liens par type (1 à 5) à partir de leur contenu et de leur émetteur.",
+    "brief": "<p><strong>Énoncé.</strong> Calorix, fabricant de matériel de chauffage, exploite un domaine OSPF à deux aires : l'aire 0 (cœur, siège) et l'aire 1 (usine). Le routeur interne R-INT1, situé dans l'aire 1, affiche sa base d'états de liens. L'ingénieur relève les cinq entrées suivantes :</p><table><tr><th>Entrée</th><th>Contenu</th><th>Émise par</th></tr><tr><th>LSA-a</th><td>Les liens de R-INT1 dans l'aire 1</td><td>R-INT1</td></tr><tr><th>LSA-b</th><td>Les routeurs raccordés au réseau multi-accès 10.1.1.0/24 (segment dont R-ABR1 est le DR)</td><td>R-ABR1</td></tr><tr><th>LSA-c</th><td>Le réseau 10.20.0.0/16 de l'aire 0, annoncé à l'aire 1</td><td>R-ABR1</td></tr><tr><th>LSA-d</th><td>La localisation de l'ASBR R-ASBR (situé dans l'aire 0) pour les routeurs de l'aire 1</td><td>R-ABR1</td></tr><tr><th>LSA-e</th><td>La route externe 0.0.0.0/0 vers le fournisseur Internet, redistribuée</td><td>R-ASBR</td></tr></table><p>Rappel du cours : type 1 (Router LSA, un routeur décrit ses liens dans son aire) ; type 2 (Network LSA, le DR décrit un segment multi-accès) ; type 3 (Network Summary, un ABR annonce un réseau d'une autre aire) ; type 4 (ASBR Summary, un ABR annonce la route vers un ASBR) ; type 5 (AS External, un ASBR annonce une route externe). Les types 1 et 2 ne quittent jamais leur aire de départ.</p><p>Répondez par le numéro du type (un chiffre entre 1 et 5).</p><ol><li>Quel est le type du LSA-a ?</li><li>Quel est le type du LSA-b ?</li><li>Quel est le type du LSA-c ?</li><li>Quel est le type du LSA-d ?</li><li>Quel est le type du LSA-e ?</li></ol>",
+    "starter": "# Exercice — La lecture des LSAs du siège de Calorix\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Chaque réponse est le numéro du type de LSA (1 à 5).\n\n[Question 1 — Type du LSA-a]\nA_COMPLETER\n\n[Question 2 — Type du LSA-b]\nA_COMPLETER\n\n[Question 3 — Type du LSA-c]\nA_COMPLETER\n\n[Question 4 — Type du LSA-d]\nA_COMPLETER\n\n[Question 5 — Type du LSA-e]\nA_COMPLETER\n",
     "hints": [
-      "Gérer un dictionnaire de mapping pour les types 1, 2, 3, 4, 5, 7.",
-      "Exemple: 1 -> (\"Router LSA\", \"INTERNAL_ROUTER\", \"INTRA_AREA\")."
+      "Identifiez l'émetteur : un routeur ordinaire, un DR, un ABR ou un ASBR n'émettent pas les mêmes types.",
+      "Un LSA dont le contenu est un réseau situé dans une autre aire est un résumé d'ABR ; s'il décrit un segment local multi-accès, c'est le DR qui parle.",
+      "1. LSA-a : un routeur décrit ses propres liens dans son aire. 2. LSA-b : un DR décrit son segment. 3. LSA-c : un ABR résume un réseau d'une autre aire. 4. LSA-d : un ABR indique où trouver un ASBR. 5. LSA-e : un ASBR redistribue une route externe."
     ],
     "examples": [
       {
-        "stdin": "LSA id=L1 type=1 adv_router=1.1.1.1 area=0\nLSA id=L2 type=2 adv_router=2.2.2.2 area=0\nLSA id=L3 type=3 adv_router=10.0.0.1 area=1\nLSA id=L4 type=5 adv_router=192.168.1.1 area=0",
-        "expected": "LSA_REPORT id=L1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=L2 type=2 name=Network_LSA emitter=DR scope=INTRA_AREA\nLSA_REPORT id=L3 type=3 name=Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L4 type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS",
-        "note": "L1 est un LSA Type 1 intra-zone ; L3 est un Type 3 inter-zone émis par un ABR ; L4 est un Type 5 externe."
+        "stdin": "La mairie de Tréville exploite un domaine OSPF à deux aires.\nLSA-x : les liens de R-Mairie dans l'aire 1.\nLSA-y : les routeurs du segment 10.9.9.0/24, émis par le DR.\nLSA-z : le réseau 10.8.0.0/16 de l'aire 0, annoncé dans l'aire 1 par R-ABR.\nLSA-w : la route vers l'ASBR du siège, annoncée dans l'aire 1 par R-ABR.\nLSA-v : la route externe du réseau des écoles, redistribuée par l'ASBR.\n\n1) LSA-x : type 1 (Router LSA).\n2) LSA-y : type 2 (Network LSA du DR).\n3) LSA-z : type 3 (résumé de réseau par l'ABR).\n4) LSA-w : type 4 (résumé vers l'ASBR).\n5) LSA-v : type 5 (route externe).",
+        "expected": "x : type 1 — y : type 2 — z : type 3 — w : type 4 — v : type 5",
+        "note": "Les types 1 et 2 restent confinés dans leur aire ; seuls les résumés (types 3 et 4) et les externes (type 5) traversent les frontières."
       }
     ],
     "tests": [
       {
-        "label": "Annonces de Type 4 et Type 7 NSSA",
-        "stdin": "cas:1",
-        "expected": "LSA_REPORT id=L_ASBR type=4 name=ASBR_Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L_NSSA type=7 name=NSSA_External_LSA emitter=ASBR scope=NSSA_LOCAL"
+        "label": "Question 1 — Type du LSA-a",
+        "stdin": "q:1",
+        "expected": "1||type 1||LSA 1||le type 1"
       },
       {
-        "label": "Plusieurs LSAs Type 1 dans différentes aires",
-        "stdin": "cas:2",
-        "expected": "LSA_REPORT id=R_BB type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=R_A1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA"
+        "label": "Question 2 — Type du LSA-b",
+        "stdin": "q:2",
+        "expected": "2||type 2||LSA 2||le type 2"
       },
       {
-        "label": "LSA Type 5 traversant le backbone",
-        "stdin": "cas:3",
-        "expected": "LSA_REPORT id=EXT_ROUTE type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS"
+        "label": "Question 3 — Type du LSA-c",
+        "stdin": "q:3",
+        "expected": "3||type 3||LSA 3||le type 3"
+      },
+      {
+        "label": "Question 4 — Type du LSA-d",
+        "stdin": "q:4",
+        "expected": "4||type 4||LSA 4||le type 4"
+      },
+      {
+        "label": "Question 5 — Type du LSA-e",
+        "stdin": "q:5",
+        "expected": "5||type 5||LSA 5||le type 5"
       }
     ],
-    "solution": "[Exemple]\nLSA_REPORT id=L1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=L2 type=2 name=Network_LSA emitter=DR scope=INTRA_AREA\nLSA_REPORT id=L3 type=3 name=Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L4 type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS\n\n[Cas 1 — Annonces de Type 4 et Type 7 NSSA]\nLSA_REPORT id=L_ASBR type=4 name=ASBR_Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L_NSSA type=7 name=NSSA_External_LSA emitter=ASBR scope=NSSA_LOCAL\n\n[Cas 2 — Plusieurs LSAs Type 1 dans différentes aires]\nLSA_REPORT id=R_BB type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=R_A1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\n\n[Cas 3 — LSA Type 5 traversant le backbone]\nLSA_REPORT id=EXT_ROUTE type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS"
+    "solution": "[Question 1 — Type du LSA-a]\n1\n\n[Question 2 — Type du LSA-b]\n2\n\n[Question 3 — Type du LSA-c]\n3\n\n[Question 4 — Type du LSA-d]\n4\n\n[Question 5 — Type du LSA-e]\n5",
+    "takeaway": "1) LSA-a : un routeur décrit ses liens dans sa propre aire : Router LSA, type 1.\n2) LSA-b : le DR du segment multi-accès 10.1.1.0/24 décrit les routeurs raccordés : Network LSA, type 2.\n3) LSA-c : l'ABR annonce à l'aire 1 un réseau de l'aire 0 : Network Summary, type 3.\n4) LSA-d : l'ABR annonce la localisation d'un ASBR : ASBR Summary, type 4.\n5) LSA-e : l'ASBR redistribue une route externe (0.0.0.0/0 vers Internet) : AS External, type 5.\nContrôle : les cinq types majeurs sont présents une fois chacun ; les types 1 et 2 ne quittent pas l'aire 1, les types 3, 4 et 5 y arrivent par l'ABR ou l'ASBR."
   },
   {
     "id": "lan3-c4-e3",
     "chapter": 4,
-    "title": "Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby & NSSA",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer l'acceptation ou le filtrage des LSAs selon la politique de zone OSPF configurée sur l'ABR.",
-    "brief": "<p>Pour alléger la table de routage et préserver la mémoire des routeurs de succursales, OSPF définit des types de zones spéciales :<br><br>\nRègles de filtrage des LSAs selon le type de zone :<br>\n- <strong>STANDARD (Zone normale) :</strong> Accepte tous les types de LSA (1, 2, 3, 4, 5).<br>\n- <strong>STUB :</strong> Bloque les routes externes (Type 4 et 5 rejetés) ; accepte Type 1, 2, 3.<br>\n- <strong>TOTALLY_STUBBY (Spécifique Cisco) :</strong> Bloque les routes externes (Type 4 et 5) ET les routes inter-zones (Type 3 rejetés) ; n'accepte que Type 1 et 2.<br>\n- <strong>NSSA (Not-So-Stubby Area) :</strong> Bloque les routes externes Type 4 et 5 classiques, mais accepte les Type 7 générés localement ; accepte Type 1, 2, 3, 7.<br><br>\nAnalysez les paramètres du problème pour chaque cas.<br>\n- Si bloqué : <code>action=DROP result=BLOCKED_BY_AREA_POLICY</code>.<br><br>\nAfficher :<br>\n<code>OSPF_FILTER id={id} area={area_id} lsa_type={lsa_type} action={action} result={result}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c4-e3) — Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby & NSSA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Zone Totally Stubby bloquant même les Summary Type 3]\n# Données : AREA_CONFIG area_id=20 type=TOTALLY_STUBBY\n# Données : INCOMING_LSA id=T1 lsa_type=1 prefix=10.20.0.0/16\n# Données : INCOMING_LSA id=T3 lsa_type=3 prefix=172.16.0.0/16\n# Données : INCOMING_LSA id=T5 lsa_type=5 prefix=8.8.8.8/32\nA_COMPLETER\n\n[Cas 2 — Zone NSSA autorisant le Type 7 et bloquant le Type 5]\n# Données : AREA_CONFIG area_id=30 type=NSSA\n# Données : INCOMING_LSA id=N7 lsa_type=7 prefix=198.51.100.0/24\n# Données : INCOMING_LSA id=N5 lsa_type=5 prefix=203.0.113.0/24\nA_COMPLETER\n\n[Cas 3 — Zone standard acceptant tout]\n# Données : AREA_CONFIG area_id=0 type=STANDARD\n# Données : INCOMING_LSA id=S3 lsa_type=3 prefix=10.0.0.0/8\n# Données : INCOMING_LSA id=S4 lsa_type=4 prefix=1.1.1.1/32\n# Données : INCOMING_LSA id=S5 lsa_type=5 prefix=100.64.0.0/10\nA_COMPLETER\n",
+    "title": "Les aires spéciales de l'agence de Montferand",
+    "exampleTitle": "Exemple résolu — les aires OSPF du groupement Verchant",
+    "goal": "Choisir une aire OSPF spéciale (stub, totally stubby, NSSA) selon les besoins d'une agence et compter les LSAs restants.",
+    "brief": "<p><strong>Énoncé.</strong> Montferand est une agence bancaire reliée au siège par un lien de 20 Mbit/s. Son aire OSPF 51 reçoit aujourd'hui : 12 LSAs de type 3 (réseaux des autres aires), 4 LSAs de type 4 (localisations d'ASBR) et 6 LSAs de type 5 (routes externes), en plus des LSAs internes de l'agence. Le responsable réseau veut alléger la table de routage des routeurs de l'agence, avec deux contraintes : les postes de l'agence ne consomment aucune route externe, mais l'agence doit pouvoir annoncer une route externe vers un partenaire de sauvegarde qui y est raccordé.</p><p>Rappel du cours : une aire stub supprime les LSAs de type 5 (routes externes) et conserve les types 3 ; une aire totalement stub (totally stubby) supprime aussi les types 3 et 4, ne laissant qu'une route par défaut injectée par l'ABR ; une aire NSSA autorise un ASBR interne : les routes externes y entrent sous forme de LSAs de type 7, que l'ABR convertit en type 5 vers le reste du domaine.</p><p>Répondez par le nom de l'aire (questions 1 à 3), le nombre seul (question 4) ou un court libellé (question 5).</p><ol><li>L'agence n'a besoin d'aucune route externe mais souhaite garder les routes inter-aires : quelle aire spéciale suffit ?</li><li>Pour supprimer aussi les LSAs de type 3 et 4, quel type d'aire l'administrateur configure-t-il ?</li><li>L'agence doit annoncer sa route externe vers le partenaire : quelle aire spéciale le permet ?</li><li>Après passage en aire totalement stub, combien de LSAs de type 3 décrivant les réseaux des autres aires restent-ils dans l'aire 51 ?</li><li>Quelle route l'ABR injecte-t-il dans une aire totalement stub pour assurer la sortie vers le reste du domaine ?</li></ol>",
+    "starter": "# Exercice — Les aires spéciales de l'agence de Montferand\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : le nom de l'aire. Question 4 : le nombre seul.\n# Question 5 : un court libellé.\n\n[Question 1 — Aire spéciale supprimant les types 5 seulement]\nA_COMPLETER\n\n[Question 2 — Aire supprimant aussi les types 3 et 4]\nA_COMPLETER\n\n[Question 3 — Aire autorisant un ASBR interne]\nA_COMPLETER\n\n[Question 4 — LSAs de type 3 restants en aire totalement stub]\nA_COMPLETER\n\n[Question 5 — Route injectée par l'ABR dans une aire totalement stub]\nA_COMPLETER\n",
     "hints": [
-      "Créer un set de types LSA autorisés selon le type d'aire.",
-      "STANDARD: {1, 2, 3, 4, 5}.",
-      "STUB: {1, 2, 3}.",
-      "TOTALLY_STUBBY: {1, 2}.",
-      "NSSA: {1, 2, 3, 7}."
+      "Classez les besoins : supprimer les externes (stub), supprimer aussi les inter-aires (totally stubby), ou injecter des externes locales (NSSA).",
+      "L'aire totalement stub remplace tous les résumés par une unique route vers l'ABR.",
+      "1. L'agence garde les types 3 : l'aire stub suffit. 2. Totally stubby chasse aussi les types 3 et 4. 3. Le type 7 est propre aux NSSA. 4. Aucun résumé de réseau distant ne survit. 5. Une seule route suffit à sortir de l'aire."
     ],
     "examples": [
       {
-        "stdin": "AREA_CONFIG area_id=10 type=STUB\nINCOMING_LSA id=L1 lsa_type=1 prefix=10.10.0.0/16\nINCOMING_LSA id=L2 lsa_type=3 prefix=192.168.0.0/24\nINCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0",
-        "expected": "OSPF_FILTER id=L1 area=10 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L2 area=10 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L3 area=10 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY",
-        "note": "L1 (Type 1) et L2 (Type 3) entrent dans la zone Stub ; L3 (Type 5 externe) est bloqué."
+        "stdin": "Le groupement Verchant exploite une aire distante 60.\nBesoins : supprimer les routes externes (LSA type 5) tout en gardant les réseaux\nintersites (type 3), puis annoncer une route externe d'un partenaire local.\n\n1) Supprimer les types 5 seulement : aire stub.\n2) Supprimer aussi les types 3 et 4 : aire totalement stub.\n3) Annoncer une externe locale : aire NSSA (LSA type 7 converti en type 5 par l'ABR).\n4) En aire totalement stub, aucun LSA de type 3 de réseau distant ne reste.\n5) L'ABR injecte une route par défaut (0.0.0.0/0).",
+        "expected": "stub — totally stub — NSSA (type 7) — 0 LSA de type 3 restant — route par défaut",
+        "note": "Le type 7 n'existe que dans les NSSA : c'est le véhicule local des routes externes, converti en type 5 au passage de l'ABR."
       }
     ],
     "tests": [
       {
-        "label": "Zone Totally Stubby bloquant même les Summary Type 3",
-        "stdin": "cas:1",
-        "expected": "OSPF_FILTER id=T1 area=20 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=T3 area=20 lsa_type=3 action=DROP result=BLOCKED_BY_AREA_POLICY\nOSPF_FILTER id=T5 area=20 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY"
+        "label": "Question 1 — Aire spéciale supprimant les types 5 seulement",
+        "stdin": "q:1",
+        "expected": "stub||aire stub||une aire stub||stub area"
       },
       {
-        "label": "Zone NSSA autorisant le Type 7 et bloquant le Type 5",
-        "stdin": "cas:2",
-        "expected": "OSPF_FILTER id=N7 area=30 lsa_type=7 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=N5 area=30 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY"
+        "label": "Question 2 — Aire supprimant aussi les types 3 et 4",
+        "stdin": "q:2",
+        "expected": "totally stubby||totally stub||aire totalement stub||totalement stub||aire totally stubby||totally stubby area"
       },
       {
-        "label": "Zone standard acceptant tout",
-        "stdin": "cas:3",
-        "expected": "OSPF_FILTER id=S3 area=0 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S4 area=0 lsa_type=4 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S5 area=0 lsa_type=5 action=PERMIT result=INJECTED_INTO_AREA"
+        "label": "Question 3 — Aire autorisant un ASBR interne",
+        "stdin": "q:3",
+        "expected": "NSSA||aire NSSA||une aire NSSA||not-so-stubby"
+      },
+      {
+        "label": "Question 4 — LSAs de type 3 restants en aire totalement stub",
+        "stdin": "q:4",
+        "expected": "0||aucun||aucun LSA"
+      },
+      {
+        "label": "Question 5 — Route injectée par l'ABR dans une aire totalement stub",
+        "stdin": "q:5",
+        "expected": "une route par défaut||la route par défaut||0.0.0.0/0||une route par defaut||route par défaut"
       }
     ],
-    "solution": "[Exemple]\nOSPF_FILTER id=L1 area=10 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L2 area=10 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L3 area=10 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY\n\n[Cas 1 — Zone Totally Stubby bloquant même les Summary Type 3]\nOSPF_FILTER id=T1 area=20 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=T3 area=20 lsa_type=3 action=DROP result=BLOCKED_BY_AREA_POLICY\nOSPF_FILTER id=T5 area=20 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY\n\n[Cas 2 — Zone NSSA autorisant le Type 7 et bloquant le Type 5]\nOSPF_FILTER id=N7 area=30 lsa_type=7 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=N5 area=30 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY\n\n[Cas 3 — Zone standard acceptant tout]\nOSPF_FILTER id=S3 area=0 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S4 area=0 lsa_type=4 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S5 area=0 lsa_type=5 action=PERMIT result=INJECTED_INTO_AREA"
+    "solution": "[Question 1 — Aire spéciale supprimant les types 5 seulement]\nstub\n\n[Question 2 — Aire supprimant aussi les types 3 et 4]\ntotally stubby\n\n[Question 3 — Aire autorisant un ASBR interne]\nNSSA\n\n[Question 4 — LSAs de type 3 restants en aire totalement stub]\n0\n\n[Question 5 — Route injectée par l'ABR dans une aire totalement stub]\nune route par défaut",
+    "takeaway": "1) L'aire stub supprime les LSAs de type 5 (routes externes) tout en conservant les types 3 : elle suffit au besoin décrit.\n2) Pour chasser aussi les types 3 et 4, il faut une aire totalement stub (totally stubby).\n3) L'agence doit annoncer une route externe locale : seule l'aire NSSA autorise un ASBR interne (routes portées en type 7, converties en type 5 par l'ABR).\n4) En aire totalement stub, aucun LSA de type 3 décrivant les réseaux d'autres aires n'est admis : il en reste 0.\n5) L'ABR injecte une route par défaut, qui dirige vers lui tout le trafic sortant de l'aire.\nContrôle : l'agence de Montferand combine les deux contraintes en choisissant une NSSA si la route du partenaire doit être annoncée ; sinon une aire totalement stub serait la plus légère."
   }
 ];

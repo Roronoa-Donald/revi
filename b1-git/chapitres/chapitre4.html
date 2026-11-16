@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -166,24 +164,31 @@ git commit -m "Résolution du conflit entre A et B"</code></pre>
      data-language="shell"
      data-height="300"
      data-stdin="4&#10;branch feature&#10;checkout feature&#10;branches&#10;checkout main&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
-branches=(main)
-courante=main
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+git commit --allow-empty -q -m "init"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op nom
-  # À compléter : créer, basculer, lister.
+  # À compléter : git branch, git checkout -q, et affichage git branch.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Créer et basculer</h3>
+    <h3 class="lab__title">Exercice 1 — git branch et git checkout réels</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler git branch et git checkout : la branche courante et la liste des branches.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>branch nom</code> (crée une branche ; si elle existe déjà, affiche <code>existe</code>), <code>checkout nom</code> (basculer ; si la branche n’existe pas, affiche <code>inconnue</code>), ou <code>branches</code> (affiche la liste des branches, une par ligne, dans l’ordre de création, la courante marquée d’une étoile : <code>* nom</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Créer des branches, changer de branche courante et lister avec l’étoile réelle de git branch.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt initialisé avec un commit racine sur <code>main</code>, le script lit <strong>n opérations</strong> : <code>branch nom</code> (exécute <code>git branch "$nom"</code> ; si la branche existe déjà, affiche <code>existe</code>), <code>checkout nom</code> (bascule avec <code>git checkout -q "$nom"</code> ; si inconnue, affiche <code>inconnue</code>), ou <code>branches</code> (exécute directement <code>git branch</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 branch feature
@@ -191,14 +196,15 @@ checkout feature
 branches
 checkout main
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>  main
-* feature</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>* feature
+  main</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le dépôt démarre avec une branche main, qui est la courante.</li>
-        <li>Pour lister : étoile si le nom vaut la courante, deux espaces sinon.</li>
+        <li>git branch "$nom" retourne un code de sortie non nul si la branche existe déjà : redirigez stderr vers /dev/null et testez son retour.</li>
+        <li>De même, git checkout -q "$nom" &gt;/dev/null 2&gt;&amp;1 échoue si la branche n’existe pas.</li>
+        <li>git branch sans argument marque automatiquement la branche active avec un astérisque (* ) et trie les autres par ordre alphabétique.</li>
       </ol>
     </details>
   </div>
@@ -209,23 +215,33 @@ checkout main
      data-language="shell"
      data-height="300"
      data-stdin="7&#10;commit&#10;commit&#10;branch feature&#10;checkout feature&#10;commit&#10;commit&#10;bilan&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+git commit --allow-empty -q -m "init"
+
+branches=(main)
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op nom
-  # À compléter : hériter le compte à la création, incrémenter la courante.
+  # À compléter : branch, checkout, commit.
 done
-# À compléter : afficher les comptes.
+# À compléter : afficher nom : $(( $(git rev-list --count "$b") - 1 )) pour chaque branche.
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Commits par branche</h3>
+    <h3 class="lab__title">Exercice 2 — Commits par branche avec git rev-list</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Chaque branche garde son propre historique : compter les commits par branche.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>branch nom</code> (crée, sans bascule), <code>checkout nom</code> (bascule), ou <code>commit</code> (ajoute un commit sur la branche courante). Puis il affiche, dans l’ordre de création des branches, <code>nom : K</code> pour chacune. Toute branche démarre avec le nombre de commits de la branche depuis laquelle elle est créée (checkout courant au moment du branch). Un éventuel <code>bilan</code> en fin de liste sert de repère : l’affichage a toujours lieu après les opérations.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier avec de vrais commits sur plusieurs branches que chaque branche hérite de son point de départ.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt initialisé avec un commit racine <code>init</code> sur <code>main</code>, le script lit <strong>n opérations</strong> : <code>branch nom</code> (<code>git branch "$nom"</code>), <code>checkout nom</code> (<code>git checkout -q "$nom"</code>), <code>commit</code> (<code>git commit --allow-empty -q -m "msg"</code>), ou <code>bilan</code>. À la fin des opérations, affichez pour chaque branche (dans l’ordre de création, en commençant par <code>main</code>) <code>nom : K</code> où K est le nombre de commits hors racine : <code>$(( $(git rev-list --count "$nom") - 1 ))</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>7
 commit
@@ -239,12 +255,13 @@ bilan
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>main : 2
 feature : 4</pre></div>
     </div>
-    <p class="lab__note">feature hérite des 2 commits de main à sa création, puis en gagne 2.</p>
+    <p class="lab__note">feature hérite des 2 commits de main puis en reçoit 2 propres.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Deux tableaux parallèles : noms des branches et leurs comptes de commits.</li>
-        <li>À la création : le compte de la nouvelle branche est celui de la courante (historique hérité).</li>
+        <li>Mémorisez l’ordre de création dans le tableau branches=() chaque fois que branch crée une nouvelle branche.</li>
+        <li>commit s’exécute directement via git commit --allow-empty -q -m "c-$i" sur la branche active.</li>
+        <li>git rev-list --count "$b" compte les commits accessibles depuis la pointe de la branche b, racine incluse.</li>
       </ol>
     </details>
   </div>
@@ -254,40 +271,52 @@ feature : 4</pre></div>
      data-exercise="gt-c4-e3"
      data-language="shell"
      data-height="300"
-     data-stdin="7&#10;branch feature&#10;touch taches.py&#10;commit&#10;checkout main&#10;touch main.py&#10;commit&#10;merge feature&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+     data-stdin="7&#10;branch feature&#10;modifie taches.py v1&#10;commit&#10;checkout main&#10;modifie autre.py v2&#10;commit&#10;merge feature&#10;">
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+echo "base" > main.py
+git add main.py
+git commit -q -m "init"
+
+read -r n
 for ((i=0; i<n; i++)); do
-  read -r op a
-  # À compléter : suivre par branche les fichiers touchés, puis comparer.
+  read -r op arg1 arg2
+  # À compléter : branch (-b), checkout, modifie, commit, et git merge --no-edit.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — merge et conflit</h3>
+    <h3 class="lab__title">Exercice 3 — git merge réel et détection de conflit</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler la fusion de deux branches et détecter le conflit sur fichier commun.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>branch nom</code> + bascule immédiate (comme checkout -b), <code>checkout nom</code>, <code>touch fichier</code> (modifie un fichier sur la branche courante), <code>commit</code> (valide les modifications de la branche courante), ou <code>merge nom</code>. La fusion réussit (<code>fast-forward</code>) si les deux branches n’ont modifié aucun fichier en commun depuis leur séparation ; elle échoue (<code>conflit</code>) si un même fichier a été modifié des deux côtés. La fusion ramène sur la branche cible. Une branche créée hérite des fichiers modifiés non commités ? Non : chaque <code>touch</code> ne concerne que la branche courante.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exécuter un vrai git merge entre deux branches divergentes et observer fast-forward, fusion à 3 voies ou conflit.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt initialisé avec un commit racine contenant <code>main.py</code>, le script lit <strong>n opérations</strong> : <code>branch nom</code> (<code>git checkout -q -b "$nom"</code>), <code>checkout nom</code> (<code>git checkout -q "$nom"</code>), <code>modifie fichier valeur</code> (remplace le contenu de <code>fichier</code> par <code>valeur</code> et le prépare), <code>commit</code> (<code>git add -A &amp;&amp; git commit -q -m "maj"</code>), ou <code>merge nom</code> (exécute <code>git merge -q --no-edit "$nom"</code>). Si la fusion échoue par conflit, annulez avec <code>git merge --abort</code> et affichez <code>conflit</code> ; sinon affichez <code>fusion réussie</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>7
 branch feature
-touch taches.py
+modifie taches.py v1
 commit
 checkout main
-touch main.py
+modifie autre.py v2
 commit
 merge feature
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fast-forward</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fusion réussie</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Repérer les événements communs au moment de la séparation sans attribuer les anciennes modifications à la nouvelle branche.</li>
-        <li>Au merge, comparer les fichiers modifiés de chaque côté depuis leur séparation.</li>
+        <li>modifie ecrit simplement echo "$arg2" &gt; "$arg1" ; commit fait git add -A &amp;&amp; git diff --cached --quiet || git commit -q -m "maj-$i".</li>
+        <li>Pour détecter le conflit réel : if git merge -q --no-edit "$arg1" &gt;/dev/null 2&gt;&amp;1; then echo "fusion réussie"; else echo "conflit"; git merge --abort &gt;/dev/null 2&gt;&amp;1 || true; fi.</li>
+        <li>Un même fichier modifié avec des valeurs différentes sur deux branches divergentes déclenche un vrai conflit de fusion Git.</li>
       </ol>
     </details>
   </div>
@@ -301,16 +330,16 @@ merge feature
       <p class="q__stem">Que fait git checkout -b nom ?</p>
       <div class="opts">
         <button class="opt">Supprime la branche</button>
-        <button class="opt" data-correct="1">Crée la branche et s'y déplace</button>
         <button class="opt">Renomme la branche courante</button>
+        <button class="opt" data-correct="1">Crée la branche et s'y déplace</button>
       </div>
       <div class="q__exp">-b combine branch (créer) et checkout (basculer).</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le fast-forward, que devient la branche fusionnée dans l'historique ?</p>
       <div class="opts">
-        <button class="opt">Elle reste visible</button>
         <button class="opt" data-correct="1">Il n'y a plus trace d'elle</button>
+        <button class="opt">Elle reste visible</button>
         <button class="opt">Elle devient une étiquette</button>
       </div>
       <div class="q__exp">Les commits s'enchaînent comme s'ils avaient toujours été sur main : plus de trace de la branche.</div>
@@ -336,17 +365,17 @@ merge feature
     <div class="q">
       <p class="q__stem">Un conflit naît quand…</p>
       <div class="opts">
-        <button class="opt">deux branches existent</button>
+        <button class="opt">deux branches coexistent, même sans modification</button>
+        <button class="opt">un push est rejeté par le dépôt distant</button>
         <button class="opt" data-correct="1">deux modifications touchent la même zone d'un même fichier</button>
-        <button class="opt">un push est refusé</button>
       </div>
       <div class="q__exp">Git ne choisit pas à votre place entre deux versions d'une même zone.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans les marqueurs de conflit, HEAD désigne…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la version de la branche courante</button>
         <button class="opt">la version de la branche fusionnée</button>
+        <button class="opt" data-correct="1">la version de la branche courante</button>
         <button class="opt">le dernier push</button>
       </div>
       <div class="q__exp">HEAD est la version courante ; la section après ======= vient de la branche fusionnée.</div>
@@ -354,8 +383,8 @@ merge feature
     <div class="q">
       <p class="q__stem">Que fait git branch -d nom ?</p>
       <div class="opts">
-        <button class="opt">Bascule dessus</button>
         <button class="opt" data-correct="1">Supprime la branche</button>
+        <button class="opt">Bascule dessus</button>
         <button class="opt">La fusionne</button>
       </div>
       <div class="q__exp">branch -d supprime — le TP3 le fait après fusion de la branche.</div>
@@ -365,7 +394,7 @@ merge feature
       <div class="opts">
         <button class="opt">la branche n'existe pas</button>
         <button class="opt" data-correct="1">la copie de travail porte des modifications</button>
-        <button class="opt">il y a un dépôt distant</button>
+        <button class="opt">un dépôt distant est configuré pour le projet</button>
       </div>
       <div class="q__exp">Changer de branche écraserait les modifications : -f les perd, stash les garde.</div>
     </div>
@@ -488,7 +517,7 @@ merge feature
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

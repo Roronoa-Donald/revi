@@ -73,12 +73,12 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Un tableau a…', opts: ['une taille fixe', 'une taille variable', 'aucune taille'], correct: 0, exp: 'new int[n] alloue exactement n cases.' },
-    { stem: 'Premier indice d’un tableau ?', opts: ['0', '1', '−1'], correct: 0, exp: 'Les indices vont de 0 à length−1.' },
-    { stem: 'Que fait valeurs.length ?', opts: ['Renvoie la taille', 'Trie', 'Copie'], correct: 0, exp: 'length donne le nombre de cases du tableau.' },
-    { stem: 'Quand préférer ArrayList ?', opts: ['Quand la taille varie', 'Quand elle est fixe', 'Jamais'], correct: 0, exp: 'ArrayList s’agrandit dynamiquement.' },
+    { stem: 'Un tableau a…', opts: ['une taille variable', 'une taille fixe', 'aucune taille'], correct: 1, exp: "new int[n] alloue exactement n cases : la taille d’un tableau est fixée à la création. Une taille variable relève d’ArrayList, pas du tableau natif." },
+    { stem: 'Premier indice d’un tableau ?', opts: ['0', '1', '−1'], correct: 0, exp: "Les indices courent de 0 à length−1 : le premier est 0, le dernier length−1. Commencer à 1, comme le suggère le distracteur, décale tout d’un rang." },
+    { stem: 'Que fait valeurs.length ?', opts: ['Copie', 'Trie', 'Renvoie la taille'], correct: 2, exp: 'length donne le nombre de cases du tableau.' },
+    { stem: 'Quand préférer ArrayList ?', opts: ['Quand la taille varie', 'Quand elle est fixe', 'Jamais'], correct: 0, exp: "ArrayList s’agrandit dynamiquement : on la préfère quand la taille varie. Pour une taille fixe, le tableau natif suffit — et « jamais » est faux." },
     { stem: 'Quel type stocke une ArrayList de nombres ?', opts: ['int', 'Integer', 'double'], correct: 1, exp: 'Les collections stockent des objets : Integer pour les entiers.' },
-    { stem: 'Comment renvoyer un résultat ?', opts: ['return', 'break', 'print'], correct: 0, exp: 'return transmet la valeur à l’appelant.' },
+    { stem: 'Comment renvoyer un résultat ?', opts: ['print', 'break', 'return'], correct: 2, exp: "return transmet la valeur à l’appelant et quitte la méthode. break ne sort que d’une boucle ; print affiche sans rien renvoyer." },
     { stem: 'Que vaut le type d’une méthode qui ne renvoie rien ?', opts: ['void', 'null', 'int'], correct: 0, exp: 'void signifie « aucune valeur renvoyée ».' },
     { stem: 'Comment initialiser un maximum ?', opts: ['Avec 0', 'Avec la première valeur', 'Avec length'], correct: 1, exp: 'La première valeur évite d’ignorer des valeurs négatives.' }
   ],

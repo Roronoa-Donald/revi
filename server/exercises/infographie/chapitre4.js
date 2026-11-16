@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (ig2-c4-e1) — Calculateur de normale d’un triangle 3D (Produit vectoriel)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Triangle incliné dans l’espace]\n# Données : A=(1,1,1) B=(2,1,1) C=(1,2,2)\nA_COMPLETER\n\n[Cas 2 — Triangle vertical plan YZ]\n# Données : A=(0,0,0) B=(0,1,0) C=(0,0,1)\nA_COMPLETER\n\n[Cas 3 — Triangle oblique 3D quelconque]\n# Données : A=(0,0,0) B=(2,0,1) C=(1,2,0)\nA_COMPLETER\n",
     "hints": [
       "L’ordre des sommets (sens trigonométrique CCW) détermine l’orientation de la normale.",
-      "Arrondir à 3 décimales."
+      "Arrondir à 3 décimales.",
+      "Calculez les vecteurs AB = B - A et AC = C - A, prenez le produit vectoriel AB x AC puis divisez chaque composante par sa norme euclidienne (3 décimales)."
     ],
     "examples": [
       {
@@ -38,84 +39,111 @@ module.exports = [
         "expected": "TRIANGLE: -> NORMALE: (-0.436, 0.218, 0.873)"
       }
     ],
-    "solution": "[Exemple]\nTRIANGLE: -> NORMALE: (0.000, 0.000, 1.000)\nTRIANGLE: -> NORMALE: (-1.000, 0.000, 0.000)\n\n[Cas 1 — Triangle incliné dans l’espace]\nTRIANGLE: -> NORMALE: (0.000, -0.707, 0.707)\n\n[Cas 2 — Triangle vertical plan YZ]\nTRIANGLE: -> NORMALE: (1.000, 0.000, 0.000)\n\n[Cas 3 — Triangle oblique 3D quelconque]\nTRIANGLE: -> NORMALE: (-0.436, 0.218, 0.873)"
+    "solution": "[Exemple]\nTRIANGLE: -> NORMALE: (0.000, 0.000, 1.000)\nTRIANGLE: -> NORMALE: (-1.000, 0.000, 0.000)\n\n[Cas 1 — Triangle incliné dans l’espace]\nTRIANGLE: -> NORMALE: (0.000, -0.707, 0.707)\n\n[Cas 2 — Triangle vertical plan YZ]\nTRIANGLE: -> NORMALE: (1.000, 0.000, 0.000)\n\n[Cas 3 — Triangle oblique 3D quelconque]\nTRIANGLE: -> NORMALE: (-0.436, 0.218, 0.873)",
+    "takeaway": "À retenir : Calculer le vecteur normal unitaire perpendiculaire à une face polygonale 3D pour le calcul d’ombrage.\nRepère : Le triangle dans le plan XY pointe selon l’axe Z positif."
   },
   {
     "id": "ig2-c4-e2",
     "chapter": 4,
-    "title": "Applicateur de transformations affines 3D (Scale puis Translation)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Calculer la position finale d’un sommet 3D après mise à l’échelle (Scale) puis déplacement (Translation).",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br>\nRègles matricielles (Scale puis Translation) :<br>\n- <code>x' = x * sx + tx</code><br>\n- <code>y' = y * sy + ty</code><br>\n- <code>z' = z * sz + tz</code><br>\nAfficher :<br>\n<code>TRANSFORMATION: P=(&lt;x:.2f&gt;, &lt;y:.2f&gt;, &lt;z:.2f&gt;) -&gt; P'=(&lt;x':.2f&gt;, &lt;y':.2f&gt;, &lt;z':.2f&gt;)</code></p>",
-    "starter": "# Grille d'analyse (ig2-c4-e2) — Applicateur de transformations affines 3D (Scale puis Translation)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Agrandissement x10 sans déplacement]\n# Données : P=(2.5,1.0,-3.2) S=(10,10,10) T=(0,0,0)\nA_COMPLETER\n\n[Cas 2 — Échelle nulle ramenant à la translation]\n# Données : P=(100,200,300) S=(0,0,0) T=(12,34,56)\nA_COMPLETER\n\n[Cas 3 — Facteurs négatifs (inversion d’axe)]\n# Données : P=(5,10,15) S=(-1,1,-1) T=(0,0,0)\nA_COMPLETER\n",
+    "title": "Le lampadaire du quartier virtuel",
+    "exampleTitle": "Exemple résolu — le banc public du parc",
+    "goal": "Composer les transformations affines d'un objet 3D dans l'ordre canonique et mesurer l'effet d'un ordre erroné.",
+    "brief": "<p><strong>Énoncé.</strong> Tom habille une maquette 3D de quartier. Le lampadaire est modélisé autour de son origine locale ; le sommet du luminaire a pour coordonnées locales <strong>P = (2, 3, −1)</strong> (en mètres). Tom applique l'ordre canonique du cours : une mise à l'échelle uniforme de facteur <strong>3</strong> (Scale), aucune rotation, puis une translation de vecteur <strong>(10, 0, 5)</strong> pour poser le lampadaire au bord du trottoir. La formule du pipeline est <code>P' = T · R · S · P</code>.</p><p>Répondez aux questions 1 à 3 par le vecteur au format (6, 9, -3) ; les questions 4 et 5 appellent quelques mots.</p><ol><li>Quelles sont les coordonnées de P après la mise à l'échelle seule ?</li><li>Quelles sont les coordonnées finales de P avec l'ordre canonique ?</li><li>Quelles seraient les coordonnées finales si Tom appliquait la translation AVANT la mise à l'échelle ?</li><li>Dans l'ordre canonique, autour de quel point l'objet pivote-t-il lors d'une rotation ?</li><li>Citez les trois transformations dans l'ordre où le pipeline les applique aux sommets (format : Scale, Rotation, Translation).</li></ol>",
+    "starter": "# Exercice — Le lampadaire du quartier virtuel\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : vecteur au format (6, 9, -3). Questions 4 et 5 : quelques mots.\n\n[Question 1 — Coordonnées après le Scale]\nA_COMPLETER\n\n[Question 2 — Coordonnées finales (ordre canonique)]\nA_COMPLETER\n\n[Question 3 — Coordonnées finales (translation avant échelle)]\nA_COMPLETER\n\n[Question 4 — Point de pivot de la rotation]\nA_COMPLETER\n\n[Question 5 — Ordre du pipeline]\nA_COMPLETER\n",
     "hints": [
-      "Multiplier chaque composante par son facteur d’échelle avant d’ajouter le décalage de translation.",
-      "Arrondir à 2 décimales."
+      "L'ordre P' = T · R · S · P signifie que le Scale touche le point en premier, la Translation en dernier.",
+      "L'échelle est relative à l'origine locale : appliquée après la translation, elle éloigne l'objet du centre du monde.",
+      "1. P × 3 = (6, 9, −3). 2. Puis (6 + 10, 9 + 0, −3 + 5) = (16, 9, 2). 3. Dans l'autre sens : (2 + 10, 3 + 0, −1 + 5) = (12, 3, 4), puis × 3 = (36, 9, 12). 4. La rotation se fait autour de l'origine locale. 5. Scale, Rotation, Translation."
     ],
     "examples": [
       {
-        "stdin": "P=(1,2,3) S=(2,2,2) T=(10,0,-5)\nP=(0,0,0) S=(1,1,1) T=(5,5,5)\nP=(4,-2,8) S=(0.5,3,-1) T=(0,10,2)",
-        "expected": "TRANSFORMATION: P=(1.00, 2.00, 3.00) -> P'=(12.00, 4.00, 1.00)\nTRANSFORMATION: P=(0.00, 0.00, 0.00) -> P'=(5.00, 5.00, 5.00)\nTRANSFORMATION: P=(4.00, -2.00, 8.00) -> P'=(2.00, 4.00, -6.00)",
-        "note": "Application séquentielle rigoureuse de la mise à l’échelle et de la translation."
+        "stdin": "Le parc place un banc de sommet local P = (1, 2, 4), mis à l'échelle × 2 puis translaté de (4, 1, 1).\n\n1) Après le Scale : (2, 4, 8).\n2) Ordre canonique : (2 + 4, 4 + 1, 8 + 1) = (6, 5, 9).\n3) Translation d'abord : (1 + 4, 2 + 1, 4 + 1) = (5, 3, 5), puis × 2 = (10, 6, 10).\n4) La rotation pivote l'objet autour de son origine locale.\n5) Ordre du pipeline : Scale, Rotation, Translation.",
+        "expected": "(2, 4, 8) — (6, 5, 9) — (10, 6, 10) dans le mauvais ordre — rotation autour de l'origine locale — Scale, Rotation, Translation",
+        "note": "L'échelle multiplie aussi la position : appliquée en dernier, elle projette l'objet loin de sa place. Le pipeline impose donc Scale, puis Rotation, puis Translation."
       }
     ],
     "tests": [
       {
-        "label": "Agrandissement x10 sans déplacement",
-        "stdin": "cas:1",
-        "expected": "TRANSFORMATION: P=(2.50, 1.00, -3.20) -> P'=(25.00, 10.00, -32.00)"
+        "label": "Question 1 — Coordonnées après le Scale",
+        "stdin": "q:1",
+        "expected": "(6, 9, -3)||(6,9,-3)||(6, 9, −3)||(6 ; 9 ; -3)||6 9 -3"
       },
       {
-        "label": "Échelle nulle ramenant à la translation",
-        "stdin": "cas:2",
-        "expected": "TRANSFORMATION: P=(100.00, 200.00, 300.00) -> P'=(12.00, 34.00, 56.00)"
+        "label": "Question 2 — Coordonnées finales (ordre canonique)",
+        "stdin": "q:2",
+        "expected": "(16, 9, 2)||(16,9,2)||(16 ; 9 ; 2)||16 9 2"
       },
       {
-        "label": "Facteurs négatifs (inversion d’axe)",
-        "stdin": "cas:3",
-        "expected": "TRANSFORMATION: P=(5.00, 10.00, 15.00) -> P'=(-5.00, 10.00, -15.00)"
+        "label": "Question 3 — Coordonnées finales (translation avant échelle)",
+        "stdin": "q:3",
+        "expected": "(36, 9, 12)||(36,9,12)||(36 ; 9 ; 12)||36 9 12"
+      },
+      {
+        "label": "Question 4 — Point de pivot de la rotation",
+        "stdin": "q:4",
+        "expected": "son origine locale||l'origine locale||origine locale||lui-même"
+      },
+      {
+        "label": "Question 5 — Ordre du pipeline",
+        "stdin": "q:5",
+        "expected": "Scale, Rotation, Translation||SRT||Scale puis Rotation puis Translation||scale, rotation, translation"
       }
     ],
-    "solution": "[Exemple]\nTRANSFORMATION: P=(1.00, 2.00, 3.00) -> P'=(12.00, 4.00, 1.00)\nTRANSFORMATION: P=(0.00, 0.00, 0.00) -> P'=(5.00, 5.00, 5.00)\nTRANSFORMATION: P=(4.00, -2.00, 8.00) -> P'=(2.00, 4.00, -6.00)\n\n[Cas 1 — Agrandissement x10 sans déplacement]\nTRANSFORMATION: P=(2.50, 1.00, -3.20) -> P'=(25.00, 10.00, -32.00)\n\n[Cas 2 — Échelle nulle ramenant à la translation]\nTRANSFORMATION: P=(100.00, 200.00, 300.00) -> P'=(12.00, 34.00, 56.00)\n\n[Cas 3 — Facteurs négatifs (inversion d’axe)]\nTRANSFORMATION: P=(5.00, 10.00, 15.00) -> P'=(-5.00, 10.00, -15.00)"
+    "solution": "[Question 1 — Coordonnées après le Scale]\n(6, 9, -3)\n\n[Question 2 — Coordonnées finales (ordre canonique)]\n(16, 9, 2)\n\n[Question 3 — Coordonnées finales (translation avant échelle)]\n(36, 9, 12)\n\n[Question 4 — Point de pivot de la rotation]\nson origine locale\n\n[Question 5 — Ordre du pipeline]\nScale, Rotation, Translation",
+    "takeaway": "1) Scale seul : chaque coordonnée × 3, donc (2 × 3, 3 × 3, −1 × 3) = (6, 9, −3).\n2) Ordre canonique : après le Scale vient la Translation, donc (6 + 10, 9 + 0, −3 + 5) = (16, 9, 2).\n3) Translation d'abord : (2 + 10, 3 + 0, −1 + 5) = (12, 3, 4), puis échelle × 3 : (36, 9, 12). L'objet se retrouve repoussé bien plus loin.\n4) En ordre canonique, la rotation s'applique avant la translation : l'objet pivote sur lui-même, autour de son origine locale.\n5) Le pipeline applique Scale, puis Rotation, puis Translation (P' = T · R · S · P).\nContrôle : dans le mauvais ordre, le x final vaut 36 au lieu de 16 : l'échelle a multiplié une position déjà translatée."
   },
   {
     "id": "ig2-c4-e3",
     "chapter": 4,
-    "title": "Audit de niveau de détail géométrique (LOD) selon la distance",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer la charge polygonale d’un objet 3D en temps réel selon sa distance à la caméra et détecter les surcharges de rendu.",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br>\nGrille de tolérance des paliers LOD (Level of Detail) :<br>\n- <code>D &lt; 5.0m</code> : Palier <code>LOD 0 (Gros plan)</code> -&gt; Seuil maximal <code>50000</code> polygones.<br>\n- <code>5.0m &lt;= D &lt; 20.0m</code> : Palier <code>LOD 1 (Plan moyen)</code> -&gt; Seuil maximal <code>15000</code> polygones.<br>\n- <code>20.0m &lt;= D &lt; 50.0m</code> : Palier <code>LOD 2 (Plan lointain)</code> -&gt; Seuil maximal <code>3000</code> polygones.<br>\n- <code>D &gt;= 50.0m</code> : Palier <code>LOD 3 (Arriere-plan)</code> -&gt; Seuil maximal <code>500</code> polygones.<br>\nPour chaque objet :<br>\n- Si <code>N &lt;= Seuil</code> : afficher <code>&lt;Nom&gt; [D=&lt;D&gt;m, &lt;N&gt; poly] -&gt; &lt;Palier&gt;: OPTIMAL</code><br>\n- Si <code>N &gt; Seuil</code> : calculer le surplus <code>surplus = N - Seuil</code> et afficher :<br>\n  <code>&lt;Nom&gt; [D=&lt;D&gt;m, &lt;N&gt; poly] -&gt; &lt;Palier&gt;: SURCHARGE (Depassement de &lt;surplus&gt; polygones)</code></p>",
-    "starter": "# Grille d'analyse (ig2-c4-e3) — Audit de niveau de détail géométrique (LOD) selon la distance\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Frontières de distance exactes]\n# Données : OBJET=ObjetA POLYGONES=15000 DISTANCE=5.0\n# Données : OBJET=ObjetB POLYGONES=3000 DISTANCE=20.0\n# Données : OBJET=ObjetC POLYGONES=500 DISTANCE=50.0\nA_COMPLETER\n\n[Cas 2 — Gros dépassement en arrière-plan]\n# Données : OBJET=StatueFond POLYGONES=20000 DISTANCE=100.0\nA_COMPLETER\n\n[Cas 3 — Modèle optimal en gros plan]\n# Données : OBJET=HeroPrincipal POLYGONES=48000 DISTANCE=1.5\nA_COMPLETER\n",
+    "title": "Les LOD du château médiéval",
+    "exampleTitle": "Exemple résolu — les LOD de la forêt de pins",
+    "goal": "Auditer la charge polygonale d'une scène selon les distances d'activation des niveaux de détail et chiffrer l'économie obtenue.",
+    "brief": "<p><strong>Énoncé.</strong> Le jeu d'aventure « Fief » affiche <strong>8 exemplaires</strong> du même château médiéval dans sa scène d'ouverture. Le moteur active quatre niveaux de détail (LOD) selon la distance à la caméra :</p><table><tr><th>LOD</th><th>Triangles</th><th>Distance d'utilisation</th></tr><tr><th>LOD0</th><td>50 000</td><td>moins de 20 m</td></tr><tr><th>LOD1</th><td>12 000</td><td>de 20 m à 60 m</td></tr><tr><th>LOD2</th><td>3 000</td><td>de 60 m à 150 m</td></tr><tr><th>LOD3</th><td>400</td><td>au-delà de 150 m</td></tr></table><p>Les 8 châteaux se répartissent ainsi : 2 à 12 m, 3 à 35 m, 2 à 80 m et 1 à 200 m. Répondez par le nombre seul ; la question 5 par le code du LOD.</p><ol><li>Combien de châteaux sont rendus en LOD1 ?</li><li>Combien de triangles la scène rend-elle au total avec les LOD actifs ?</li><li>Combien de triangles faudrait-il si les 8 châteaux restaient en LOD0 ?</li><li>Quel pourcentage de triangles les LOD font-ils économiser (arrondi à l'unité) ?</li><li>Quel LOD est actif pour le château placé à 80 m ?</li></ol>",
+    "starter": "# Exercice — Les LOD du château médiéval\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : nombre seul. Question 5 : code du LOD.\n\n[Question 1 — Châteaux rendus en LOD1]\nA_COMPLETER\n\n[Question 2 — Total de triangles avec les LOD]\nA_COMPLETER\n\n[Question 3 — Total sans LOD (tout en LOD0)]\nA_COMPLETER\n\n[Question 4 — Pourcentage de triangles économisés]\nA_COMPLETER\n\n[Question 5 — LOD actif à 80 m]\nA_COMPLETER\n",
     "hints": [
-      "Tester les 4 paliers de distance : <5, <20, <50, >=50 mètres.",
-      "Calculer l’écart exact en cas de dépassement."
+      "Rangez chaque château dans sa tranche de distance avant tout calcul.",
+      "Le total multiplie le nombre de châteaux de chaque tranche par les triangles du LOD correspondant, puis additionne.",
+      "1. À 35 m, on est entre 20 et 60 m. 2. 2 × 50 000 + 3 × 12 000 + 2 × 3 000 + 1 × 400 = 142 400. 3. 8 × 50 000 = 400 000. 4. (400 000 − 142 400) / 400 000 = 64,4 %. 5. 80 m tombe entre 60 et 150 m."
     ],
     "examples": [
       {
-        "stdin": "OBJET=Personnage POLYGONES=35000 DISTANCE=3.2\nOBJET=ArbreLointain POLYGONES=8000 DISTANCE=25.0\nOBJET=MaisonArrierePlan POLYGONES=400 DISTANCE=60.0",
-        "expected": "Personnage [D=3.2m, 35000 poly] -> LOD 0 (Gros plan): OPTIMAL\nArbreLointain [D=25.0m, 8000 poly] -> LOD 2 (Plan lointain): SURCHARGE (Depassement de 5000 polygones)\nMaisonArrierePlan [D=60.0m, 400 poly] -> LOD 3 (Arriere-plan): OPTIMAL",
-        "note": "L’arbre à 25m avec 8000 polygones surcharge inutilement le GPU alors que 3000 suffisent."
+        "stdin": "Une forêt de pins utilise 3 LOD : LOD0 8 000 triangles (moins de 15 m), LOD1 2 000 (15 à 50 m), LOD2 500 (au-delà).\n17 arbres : 2 à 10 m, 5 à 30 m, 10 à 70 m.\n\n1) Les 5 arbres à 30 m passent en LOD1.\n2) Total : 2 × 8 000 + 5 × 2 000 + 10 × 500 = 31 000 triangles.\n3) Sans LOD : 17 × 8 000 = 136 000 triangles.\n4) Économie : (136 000 − 31 000) / 136 000 = 77 %.\n5) Les arbres à 70 m utilisent le LOD2.",
+        "expected": "5 arbres en LOD1 — 31 000 triangles — 136 000 sans LOD — 77 % d'économie — LOD2 à 70 m",
+        "note": "Un objet éloigné ne couvre que quelques dizaines de pixels à l'écran : lui donner des dizaines de milliers de triangles est un gaspillage que le LOD supprime."
       }
     ],
     "tests": [
       {
-        "label": "Frontières de distance exactes",
-        "stdin": "cas:1",
-        "expected": "ObjetA [D=5.0m, 15000 poly] -> LOD 1 (Plan moyen): OPTIMAL\nObjetB [D=20.0m, 3000 poly] -> LOD 2 (Plan lointain): OPTIMAL\nObjetC [D=50.0m, 500 poly] -> LOD 3 (Arriere-plan): OPTIMAL"
+        "label": "Question 1 — Châteaux rendus en LOD1",
+        "stdin": "q:1",
+        "expected": "3||trois"
       },
       {
-        "label": "Gros dépassement en arrière-plan",
-        "stdin": "cas:2",
-        "expected": "StatueFond [D=100.0m, 20000 poly] -> LOD 3 (Arriere-plan): SURCHARGE (Depassement de 19500 polygones)"
+        "label": "Question 2 — Total de triangles avec les LOD",
+        "stdin": "q:2",
+        "expected": "142400||142 400"
       },
       {
-        "label": "Modèle optimal en gros plan",
-        "stdin": "cas:3",
-        "expected": "HeroPrincipal [D=1.5m, 48000 poly] -> LOD 0 (Gros plan): OPTIMAL"
+        "label": "Question 3 — Total sans LOD (tout en LOD0)",
+        "stdin": "q:3",
+        "expected": "400000||400 000"
+      },
+      {
+        "label": "Question 4 — Pourcentage de triangles économisés",
+        "stdin": "q:4",
+        "expected": "64||64 %||64%"
+      },
+      {
+        "label": "Question 5 — LOD actif à 80 m",
+        "stdin": "q:5",
+        "expected": "LOD2||lod2||LOD 2"
       }
     ],
-    "solution": "[Exemple]\nPersonnage [D=3.2m, 35000 poly] -> LOD 0 (Gros plan): OPTIMAL\nArbreLointain [D=25.0m, 8000 poly] -> LOD 2 (Plan lointain): SURCHARGE (Depassement de 5000 polygones)\nMaisonArrierePlan [D=60.0m, 400 poly] -> LOD 3 (Arriere-plan): OPTIMAL\n\n[Cas 1 — Frontières de distance exactes]\nObjetA [D=5.0m, 15000 poly] -> LOD 1 (Plan moyen): OPTIMAL\nObjetB [D=20.0m, 3000 poly] -> LOD 2 (Plan lointain): OPTIMAL\nObjetC [D=50.0m, 500 poly] -> LOD 3 (Arriere-plan): OPTIMAL\n\n[Cas 2 — Gros dépassement en arrière-plan]\nStatueFond [D=100.0m, 20000 poly] -> LOD 3 (Arriere-plan): SURCHARGE (Depassement de 19500 polygones)\n\n[Cas 3 — Modèle optimal en gros plan]\nHeroPrincipal [D=1.5m, 48000 poly] -> LOD 0 (Gros plan): OPTIMAL"
+    "solution": "[Question 1 — Châteaux rendus en LOD1]\n3\n\n[Question 2 — Total de triangles avec les LOD]\n142400\n\n[Question 3 — Total sans LOD (tout en LOD0)]\n400000\n\n[Question 4 — Pourcentage de triangles économisés]\n64\n\n[Question 5 — LOD actif à 80 m]\nLOD2",
+    "takeaway": "1) Les châteaux à 35 m (3 exemplaires) tombent dans la tranche 20–60 m : 3 châteaux en LOD1.\n2) Total : 2 × 50 000 (LOD0) + 3 × 12 000 (LOD1) + 2 × 3 000 (LOD2) + 1 × 400 (LOD3) = 100 000 + 36 000 + 6 000 + 400 = 142 400 triangles.\n3) Sans LOD : 8 × 50 000 = 400 000 triangles.\n4) Économie : (400 000 − 142 400) / 400 000 = 257 600 / 400 000 = 64,4 %, arrondi à 64 %.\n5) 80 m se situe entre 60 et 150 m : c'est le LOD2 (3 000 triangles) qui est actif.\nContrôle : 2 + 3 + 2 + 1 = 8 châteaux, toutes les tranches sont couvertes."
   }
 ];

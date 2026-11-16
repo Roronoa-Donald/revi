@@ -23,8 +23,9 @@ const actions = (lignes[1] || '').split(' ');
 // À compléter : appliquer les transitions d'état
 `,
     hints: [
-      'Bouclez sur les actions en vérifiant act === "INC", "DEC" ou "RESET".',
-      'Nettoyez les entrées vides avec filter(Boolean).'
+      "Bouclez sur les actions en vérifiant act === \"INC\", \"DEC\" ou \"RESET\".",
+      "Nettoyez les entrées vides avec filter(Boolean).",
+      "Partir de la valeur initiale, parcourir les actions : INC incrémente, DEC décrémente, RESET remet à zéro, puis afficher l état final."
     ],
     examples: [
       { stdin: '5\nINC INC DEC\n', expected: 'Etat final : 6', note: '5 + 1 + 1 - 1 = 6' }
@@ -48,7 +49,8 @@ for (const act of actions) {
 }
 
 console.log(\`Etat final : \${count}\`);
-`
+`,
+    takeaway: "Chaque mise à jour d état via setter useState reste pure et détermine un nouveau rendu cohérent avec l historique d actions."
   },
   {
     id: 'rx2-c3-e2',
@@ -66,8 +68,9 @@ const saisie = lignes[0] || '';
 // À compléter : tester la longueur et la présence d'un chiffre
 `,
     hints: [
-      'Vérifiez saisie.length >= 8 pour le critère de taille.',
-      'Utilisez l\'expression régulière /[0-9]/.test(saisie) pour vérifier la présence d\'un chiffre.'
+      "Vérifiez saisie.length >= 8 pour le critère de taille.",
+      "Utilisez l'expression régulière /[0-9]/.test(saisie) pour vérifier la présence d'un chiffre.",
+      "Lire la saisie ; vérifier la longueur d au moins huit caractères et la présence d un chiffre ; les deux conditions réunies donnent VALIDE, sinon INVALIDE."
     ],
     examples: [
       { stdin: 'React2026\n', expected: 'Statut : VALIDE', note: '9 caractères dont 4 chiffres.' }
@@ -90,7 +93,8 @@ if (hasLen && hasNum) {
 } else {
   console.log('Statut : INVALIDE');
 }
-`
+`,
+    takeaway: "Dans un input contrôlé, la source de vérité reste le state React relu à chaque frappe onChange pour valider en direct."
   },
   {
     id: 'rx2-c3-e3',
@@ -110,8 +114,9 @@ const cible = reste.join(' ');
 // À compléter : produire le nouveau tableau immuable
 `,
     hints: [
-      'Pour ajouter sans muter : [...articles, cible].',
-      'Pour supprimer sans muter : articles.filter(item => item !== cible).'
+      "Pour ajouter sans muter : [...articles, cible].",
+      "Pour supprimer sans muter : articles.filter(item => item !== cible).",
+      "Lire la liste initiale et la commande ; AJOUTER construit un nouveau tableau avec l élément en plus, SUPPRIMER filtre, puis joindre par des virgules."
     ],
     examples: [
       { stdin: 'pomme,banane\nAJOUTER orange\n', expected: 'pomme,banane,orange', note: 'Ajout en fin de tableau par décomposition.' }
@@ -138,6 +143,7 @@ if (action === 'AJOUTER') {
 }
 
 console.log(nouveau.length ? nouveau.join(',') : '(vide)');
-`
+`,
+    takeaway: "En React, on ne mute jamais un tableau en place : map, filter et [...prev, item] créent de nouvelles références détectables."
   }
 ];

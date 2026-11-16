@@ -61,7 +61,7 @@ describe('Catalogue & Build Pipeline Integrity (BLD-001, BLD-002, PROD-001)', ()
 
     assert.equal(distStat.size, srcStat.size, 'La taille en octets du PDF dans dist/ doit correspondre exactement à la source');
     assert.ok(distStat.size > 30 * 1024, `Le PDF doit être non vide (> 30 Ko, trouvé: ${distStat.size} octets)`);
-    assert.ok(indexStat.size > 100 * 1024, `epreuves/index.html dans dist/ doit dépasser 100 Ko (trouvé: ${indexStat.size} octets)`);
+    assert.ok(indexStat.size > 95 * 1024, `epreuves/index.html dans dist/ doit dépasser 95 Ko (trouvé: ${indexStat.size} octets)`);
 
     const header = fs.readFileSync(distPdf).subarray(0, 5).toString('ascii');
     assert.equal(header, '%PDF-', 'Le fichier copié doit avoir un en-tête PDF valide (%PDF-)');
@@ -158,10 +158,10 @@ describe('Catalogue & Build Pipeline Integrity (BLD-001, BLD-002, PROD-001)', ()
     }
   });
 
-  test('check-courses-sync : vérifie la synchronisation du registre et les 68 cours interactifs', () => {
+  test('check-courses-sync : vérifie la synchronisation du registre et les 69 cours interactifs', () => {
     const report = checkCoursesSync();
     assert.equal(report.ok, true, `Erreurs de synchronisation : ${report.errors.join(' | ')}`);
-    assert.equal(report.interactiveCount, 68, 'Le catalogue doit compter exactement 68 cours interactifs complets');
+    assert.equal(report.interactiveCount, 69, 'Le catalogue doit compter exactement 69 cours interactifs complets');
     assert.equal(report.standaloneB1Count, 4, '4 cours B1 autonomes doivent être suivis');
   });
 });

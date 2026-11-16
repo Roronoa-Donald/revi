@@ -15,8 +15,9 @@ module.exports = [
     brief: "<p>Allan Paivio a démontré que l’information encodée à la fois sous forme <strong>verbale</strong> (mots) et <strong>visuelle</strong> (schémas, icônes) double la probabilité de rappel grâce à deux canaux mnésiques indépendants.</p><p>Analyse une ligne au format <code>mots_cles;schemas_visuels;liens_logiques</code> (entiers) fourni(e) dans les données du cas.<br>Le score d’ancrage vaut : $Score = (1 \\times mots\\_cles) + (3 \\times schemas\\_visuels) + (2 \\times liens\\_logiques)$.<br>- Si $schemas\\_visuels == 0$ : <code>Score: &lt;Score&gt; | Codage verbal pur (Risque d oubli eleve)</code>.<br>- Si $schemas\\_visuels &gt; 0$ et $Score &ge; 15$ : <code>Score: &lt;Score&gt; | Double codage optimal (Trace renforcee)</code>.<br>- Sinon : <code>Score: &lt;Score&gt; | Double codage partiel</code>.</p>",
     starter: "# Grille d'analyse (mc2-c4-e1) — Théorie du double codage de Paivio\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Codage purement textuel]\n# Données : 12;0;4\nA_COMPLETER\n\n[Cas 2 — Double codage partiel modeste]\n# Données : 4;1;2\nA_COMPLETER\n\n[Cas 3 — Équilibre visuo-spatial parfait]\n# Données : 5;4;3\nA_COMPLETER\n",
     hints: [
-          "Multiplie les schémas par 3 et les liens par 2.",
-          "Vérifiez d abord si le nombre de schémas est nul pour alerter sur le codage purement verbal."
+      "Rappelez-vous le double codage de Paivio : mots, schémas et liens contribuent inégalement à l’ancrage.",
+      "Appliquez la pondération 1-3-2 aux trois compteurs, puis examinez la présence de schémas visuels.",
+      "1. score = mots + 3 * schemas + 2 * liens. 2. Aucun schéma : codage verbal pur. 3. Score élevé avec schémas : double codage optimal. 4. Sinon : double codage partiel. 5. Affichez « Score: X | <verdict> »."
     ],
     examples: [
           {
@@ -42,7 +43,8 @@ module.exports = [
                 "expected": "Score: 23 | Double codage optimal (Trace renforcee)"
           }
     ],
-    solution: "[Exemple]\nScore: 19 | Double codage optimal (Trace renforcee)\n\n[Cas 1 — Codage purement textuel]\nScore: 20 | Codage verbal pur (Risque d oubli eleve)\n\n[Cas 2 — Double codage partiel modeste]\nScore: 11 | Double codage partiel\n\n[Cas 3 — Équilibre visuo-spatial parfait]\nScore: 23 | Double codage optimal (Trace renforcee)\n"
+    solution: "[Exemple]\nScore: 19 | Double codage optimal (Trace renforcee)\n\n[Cas 1 — Codage purement textuel]\nScore: 20 | Codage verbal pur (Risque d oubli eleve)\n\n[Cas 2 — Double codage partiel modeste]\nScore: 11 | Double codage partiel\n\n[Cas 3 — Équilibre visuo-spatial parfait]\nScore: 23 | Double codage optimal (Trace renforcee)\n",
+    takeaway: "Le double codage de Paivio associe trace verbale et représentation visuelle pour multiplier les chemins de récupération."
   },
   {
     id: "mc2-c4-e2",
@@ -54,8 +56,9 @@ module.exports = [
     brief: "<p>Une carte mentale organise les concepts en arborescence depuis un nœud central (niveau 0) vers des branches principales (niveau 1) et des sous-branches (niveau 2). Le préfixe de tirets indique la profondeur (<code>- </code> = niv 0, <code>-- </code> = niv 1, <code>--- </code> = niv 2).</p><p>Analyse plusieurs lignes fournies dans les données du cas représentant une arborescence indentée.<br>Pour chaque feuille de niveau le plus profond (niveau 2), affiche le chemin hiérarchique complet sous la forme :<br><code>[Niveau0] &gt; [Niveau1] &gt; [Niveau2]</code>.</p>",
     starter: "# Grille d'analyse (mc2-c4-e2) — Aplatisseur de carte mentale (Mind Map)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Arborescence à branche unique]\n# Données : - Algorithme\n# Données : -- Tri\n# Données : --- TriFusion\nA_COMPLETER\n\n[Cas 2 — Branches multiples imbriquées]\n# Données : - Sante\n# Données : -- Sport\n# Données : --- Cardio\n# Données : --- Renforcement\n# Données : -- Nutrition\n# Données : --- Proteines\nA_COMPLETER\n\n[Cas 3 — Arbre à sous-sections contrastées]\n# Données : - Python\n# Données : -- Types\n# Données : --- Entiers\n# Données : --- Listes\n# Données : -- Outils\n# Données : --- Pip\nA_COMPLETER\n",
     hints: [
-          "Gardez une liste contextuelle des nœuds parents courants : parents[0], parents[1], parents[2].",
-          "Lorsqu’un niveau 2 est rencontré, affichez \" > \".join([parents[0], parents[1], parents[2]])."
+      "Une carte mentale est une arborescence : le nombre de tirets en préfixe indique la profondeur du nœud.",
+      "Mémorisez le parent de chaque niveau ; en rencontrant une feuille de niveau 2, reconstituez le chemin complet.",
+      "1. Comptez les tirets pour obtenir le niveau. 2. Enregistrez le libellé comme parent courant de ce niveau. 3. Au niveau 2 : affichez les parents 0, 1 et 2 joints par « > ». 4. Poursuivez ligne à ligne."
     ],
     examples: [
           {
@@ -81,7 +84,8 @@ module.exports = [
                 "expected": "Python > Types > Entiers\nPython > Types > Listes\nPython > Outils > Pip"
           }
     ],
-    solution: "[Exemple]\nCerveau > Memoire > Travail\nCerveau > Memoire > LongTerme\nCerveau > Sommeil > Paradoxal\n\n[Cas 1 — Arborescence à branche unique]\nAlgorithme > Tri > TriFusion\n\n[Cas 2 — Branches multiples imbriquées]\nSante > Sport > Cardio\nSante > Sport > Renforcement\nSante > Nutrition > Proteines\n\n[Cas 3 — Arbre à sous-sections contrastées]\nPython > Types > Entiers\nPython > Types > Listes\nPython > Outils > Pip\n"
+    solution: "[Exemple]\nCerveau > Memoire > Travail\nCerveau > Memoire > LongTerme\nCerveau > Sommeil > Paradoxal\n\n[Cas 1 — Arborescence à branche unique]\nAlgorithme > Tri > TriFusion\n\n[Cas 2 — Branches multiples imbriquées]\nSante > Sport > Cardio\nSante > Sport > Renforcement\nSante > Nutrition > Proteines\n\n[Cas 3 — Arbre à sous-sections contrastées]\nPython > Types > Entiers\nPython > Types > Listes\nPython > Outils > Pip\n",
+    takeaway: "Aplatir une carte mentale révèle chaque chaîne de dépendances hiérarchiques de la notion racine jusqu aux feuilles."
   },
   {
     id: "mc2-c4-e3",
@@ -93,8 +97,9 @@ module.exports = [
     brief: "<p>La <strong>méthode des Loci</strong> (attribuée à Simonide de Céos) ancre des informations abstraites dans des emplacements spatiaux familiers le long d’un itinéraire mental ordonné.</p><p>Analyse deux lignes fournies dans les données du cas :<br>- Ligne 1 : catalogue des emplacements sous la forme <code>1:entree:clefs;2:salon:horloge;3:cuisine:pomme</code> (index:piece:objet).<br>- Ligne 2 : une commande de recherche au format <code>OU_EST &lt;objet&gt;</code> ou <code>DANS &lt;piece&gt;</code>.<br>Affiche :<br>- Si <code>OU_EST &lt;objet&gt;</code> trouvé : <code>&lt;objet&gt; se trouve dans &lt;piece&gt; (Etape &lt;index&gt;)</code>.<br>- Si <code>DANS &lt;piece&gt;</code> trouvée : <code>Dans &lt;piece&gt;, vous avez place : &lt;objet&gt; (Etape &lt;index&gt;)</code>.<br>- Si l’élément recherché n’existe pas dans le palais : <code>Objet ou piece introuvable dans le palais</code>.</p>",
     starter: "# Grille d'analyse (mc2-c4-e3) — Le Palais de la mémoire (Méthode des Loci)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Recherche par pièce]\n# Données : 1:hall:valise;2:bureau:ordinateur;3:chambre:oreiller\n# Données : DANS bureau\nA_COMPLETER\n\n[Cas 2 — Recherche d un objet inconnu]\n# Données : 1:couloir:lampe;2:terrasse:plante\n# Données : OU_EST parapluie\nA_COMPLETER\n\n[Cas 3 — Recherche première étape]\n# Données : 1:garage:velo;2:cave:bouteille\n# Données : OU_EST velo\nA_COMPLETER\n",
     hints: [
-          "Découpez les loci avec l’extraction des champs, puis chaque bloc avec l’extraction des champs.",
-          "Stocke les données dans deux dictionnaires par objet et par pièce."
+      "Le palais de mémoire associe chaque objet à une pièce et à un rang d’étape sur l’itinéraire.",
+      "Indexez les emplacements, puis interrogez cet index selon la commande reçue.",
+      "1. Indexez les emplacements sous la forme rang -> (pièce, objet). 2. OU_EST : cherchez l’objet et son étape. 3. DANS : cherchez l’objet de la pièce et son étape. 4. Introuvable : « Objet ou piece introuvable dans le palais »."
     ],
     examples: [
           {
@@ -120,6 +125,7 @@ module.exports = [
                 "expected": "velo se trouve dans garage (Etape 1)"
           }
     ],
-    solution: "[Exemple]\nhorloge se trouve dans salon (Etape 2)\n\n[Cas 1 — Recherche par pièce]\nDans bureau, vous avez place : ordinateur (Etape 2)\n\n[Cas 2 — Recherche d un objet inconnu]\nObjet ou piece introuvable dans le palais\n\n[Cas 3 — Recherche première étape]\nvelo se trouve dans garage (Etape 1)\n"
+    solution: "[Exemple]\nhorloge se trouve dans salon (Etape 2)\n\n[Cas 1 — Recherche par pièce]\nDans bureau, vous avez place : ordinateur (Etape 2)\n\n[Cas 2 — Recherche d un objet inconnu]\nObjet ou piece introuvable dans le palais\n\n[Cas 3 — Recherche première étape]\nvelo se trouve dans garage (Etape 1)\n",
+    takeaway: "La méthode des Loci ancre des éléments abstraits dans des repères spatiaux familiers pour fiabiliser l ordre de restitution."
   }
 ];

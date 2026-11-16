@@ -127,14 +127,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'L’administration système gère…', opts: ['les programmes donnant accès à la machine et à ses périphériques', 'uniquement les mots de passe', 'le courrier de l’entreprise'], correct: 0, exp: 'C’est la définition exacte du support : gérer l’ensemble des programmes permettant d’accéder à une machine et d’utiliser ses périphériques.' },
-      { q: 'L’administrateur qui gère aussi le réseau porte…', opts: ['une double casquette : système et réseau', 'un chapeau de sécurité', 'aucun titre particulier'], correct: 0, exp: 'On parle alors d’administrateur système et réseau.' },
+      { q: 'L’administration système gère…', opts: ["uniquement les mots de passe et les sessions des utilisateurs du domaine","le courrier électronique et les agendas partagés de l’entreprise","les programmes donnant accès à la machine et à ses périphériques"], correct: 2, exp: 'C’est la définition exacte du support : gérer l’ensemble des programmes permettant d’accéder à une machine et d’utiliser ses périphériques.' },
+      { q: 'L’administrateur qui gère aussi le réseau porte…', opts: ['un chapeau de sécurité', 'une double casquette : système et réseau', 'aucun titre particulier'], correct: 1, exp: 'On parle alors d’administrateur système et réseau.' },
       { q: 'Installer, configurer et patcher relève de…', opts: ['la gestion des logiciels', 'la gestion du matériel', 'l’assistance aux utilisateurs'], correct: 0, exp: 'Trois verbes de la famille « logiciels » ; patcher = mettre à jour.' },
-      { q: 'Les sauvegardes fiables et le contrôle d’accès relèvent…', opts: ['de la sécurité du système et des utilisateurs', 'de la gestion des comptes', 'du remplacement de matériel'], correct: 0, exp: 'Ce sont deux volets de la famille sécurité.' },
-      { q: 'Les trois qualités d’un administrateur sont…', opts: ['technicité, rigueur, bon sens', 'vitesse, silence, discrétion', 'curiosité, mémoire, patience'], correct: 0, exp: 'Le support les liste explicitement dans cet ordre.' },
+      { q: 'Les sauvegardes fiables et le contrôle d’accès relèvent…', opts: ['de la gestion des comptes', 'de la sécurité du système et des utilisateurs', 'du remplacement de matériel'], correct: 1, exp: 'Ce sont deux volets de la famille sécurité.' },
+      { q: 'Les trois qualités d’un administrateur sont…', opts: ['curiosité, mémoire, patience', 'vitesse, silence, discrétion', 'technicité, rigueur, bon sens'], correct: 2, exp: 'Le support les liste explicitement dans cet ordre.' },
       { q: 'Administrer les PC des utilisateurs est…', opts: ['l’administration de postes de travail', 'l’administration réseau', 'l’administration de serveurs'], correct: 0, exp: 'Le poste (station) de travail est le premier des trois types.' },
       { q: 'L’Observateur d’événements se trouve…', opts: ['dans le Gestionnaire de l’ordinateur', 'dans le Gestionnaire des tâches', 'dans le BIOS'], correct: 0, exp: 'Le Gestionnaire de l’ordinateur regroupe utilisateurs/groupes, événements, services et stockage.' },
-      { q: 'Identifier un goulot d’étranglement consiste à…', opts: ['vérifier l’adéquation du matériel à son utilisation', 'renommer la machine', 'créer une unité d’organisation'], correct: 0, exp: 'C’est une tâche explicite de l’administrateur : le matériel convient-il à ce qu’on lui demande ?' }
+      { q: 'Identifier un goulot d’étranglement consiste à…', opts: ["renommer la machine pour mieux répartir la charge réseau","vérifier l’adéquation du matériel à son utilisation","créer une unité d’organisation pour isoler le matériel"], correct: 1, exp: 'C’est une tâche explicite de l’administrateur : le matériel convient-il à ce qu’on lui demande ?' }
     ],
 
     pitfalls: [
@@ -308,13 +308,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Windows 1.0 sort en…', opts: ['1985', '1995', '2003'], correct: 0, exp: '1985 ; le nom fait référence au système de fenêtres, alors que tout passait par le shell DOS.' },
-      { q: 'La première version de Windows Server sort en…', opts: ['2003', '1990', '2012'], correct: 0, exp: 'Windows Server 2003, massivement adopté en entreprise.' },
-      { q: 'L’édition limitée à 15 utilisateurs est…', opts: ['Foundation', 'Essential', 'Standard'], correct: 0, exp: 'Foundation : TPE, 15 utilisateurs, pas de virtualisation, 1 processeur, machine physique.' },
+      { q: 'Windows 1.0 sort en…', opts: ['2003', '1995', '1985'], correct: 2, exp: '1985 ; le nom fait référence au système de fenêtres, alors que tout passait par le shell DOS.' },
+      { q: 'La première version de Windows Server sort en…', opts: ['2012', '1990', '2003'], correct: 2, exp: 'Windows Server 2003, massivement adopté en entreprise.' },
+      { q: 'L’édition limitée à 15 utilisateurs est…', opts: ['Essential', 'Foundation', 'Standard'], correct: 1, exp: 'Foundation : TPE, 15 utilisateurs, pas de virtualisation, 1 processeur, machine physique.' },
       { q: 'L’édition qui couvre 2 VM par licence est…', opts: ['Standard', 'Datacenter', 'Essential'], correct: 0, exp: 'Standard couvre 2 machines virtuelles ; Datacenter les couvre sans limite.' },
-      { q: 'L’installation Core présente l’avantage…', opts: ['de réduire la surface exposée aux attaques', 'd’ajouter des jeux Windows', 'de doubler la RAM'], correct: 0, exp: 'Moins d’espace disque, surface d’attaque réduite, maintenance allégée.' },
+      { q: 'L’installation Core présente l’avantage…', opts: ["d’installer des jeux et des outils multimédias","de doubler la RAM et le nombre de processeurs","de réduire la surface exposée aux attaques"], correct: 2, exp: 'Moins d’espace disque, surface d’attaque réduite, maintenance allégée.' },
       { q: 'La RAM minimale de 2012 R2 est…', opts: ['2 Go (8 Go recommandés)', '512 Mo', '32 Go'], correct: 0, exp: '2 Go minimum, 8 Go recommandés ; disque 60 Go ; Gigabit Ethernet.' },
-      { q: 'La SAM est…', opts: ['la base de données des comptes locaux de la machine', 'un serveur DNS', 'une licence d’activation'], correct: 0, exp: 'Security Account Manager : composant du registre contenant les comptes et mots de passe locaux.' },
+      { q: 'La SAM est…', opts: ["un service DNS annexe installé avec le rôle AD DS","la base de données des comptes locaux de la machine","une licence d’activation liée au numéro de série"], correct: 1, exp: 'Security Account Manager : composant du registre contenant les comptes et mots de passe locaux.' },
       { q: 'Pour se connecter au domaine, on tape…', opts: ['NETBIOS\\login ou login@domaine', 'domaine/login seulement', 'toujours machine\\utilisateur'], correct: 0, exp: 'Deux formes domaine : antislash avec le nom NETBIOS, ou arobase avec le nom DNS.' }
     ],
 
@@ -489,13 +489,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le point central d’administration de Windows Server est…', opts: ['le Gestionnaire de serveur', 'le Gestionnaire des tâches', 'le Panneau de configuration'], correct: 0, exp: 'Il affiche les informations, permet d’ajouter des rôles, de gérer les serveurs et d’accéder aux outils.' },
-      { q: 'Créer un groupe « Serveur Paris » se fait…', opts: ['dans le tableau de bord du Gestionnaire de serveur', 'dans l’Observateur d’événements', 'dans la SAM'], correct: 0, exp: 'Le tableau de bord permet d’ajouter des serveurs et de les regrouper en unités logiques.' },
-      { q: 'Les trois profils du pare-feu sont…', opts: ['domaine, privé, public', 'local, distant, hybride', 'inbound, outbound, proxy'], correct: 0, exp: 'Toute manipulation du pare-feu doit couvrir les trois profils.' },
-      { q: 'La commande PowerShell qui éteint le pare-feu sur tous les profils…', opts: ['Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False', 'net stop parefeu', 'Disable-Firewall -All'], correct: 0, exp: 'Équivalent netsh : netsh advfirewall set allprofiles state off.' },
-      { q: 'Pour renommer le serveur en ligne de commande…', opts: ['netdom renamecomputer NOMACTUEL /NewName:NOUVEAUNOM', 'rename serveur', 'set-hostname only'], correct: 0, exp: 'Puis redémarrer (shutdown /r) pour appliquer.' },
-      { q: 'Le numéro d’interface d’une carte s’obtient par…', opts: ['Get-NetAdapter (colonne ifIndex)', 'ipconfig /flushdns', 'net user'], correct: 0, exp: 'Get-NetAdapter ou Get-NetIPInterface ; l’ifIndex sert aux commandes de configuration.' },
-      { q: 'L’ActiveStore…', opts: ['applique immédiatement l’adresse IP définie', 'sauvegarde après redémarrage seulement', 'est un magasin d’applications'], correct: 0, exp: 'Le PersistentStore sauvegarde pour le redémarrage ; au boot, PersistentStore recopie dans ActiveStore.' },
+      { q: 'Le point central d’administration de Windows Server est…', opts: ['le Panneau de configuration', 'le Gestionnaire des tâches', 'le Gestionnaire de serveur'], correct: 2, exp: 'Il affiche les informations, permet d’ajouter des rôles, de gérer les serveurs et d’accéder aux outils.' },
+      { q: 'Créer un groupe « Serveur Paris » se fait…', opts: ["dans l’Observateur d’événements du serveur local","dans le tableau de bord du Gestionnaire de serveur","dans la SAM, avec les comptes locaux de la machine"], correct: 1, exp: 'Le tableau de bord permet d’ajouter des serveurs et de les regrouper en unités logiques.' },
+      { q: 'Les trois profils du pare-feu sont…', opts: ['local, distant, hybride', 'domaine, privé, public', 'inbound, outbound, proxy'], correct: 1, exp: 'Toute manipulation du pare-feu doit couvrir les trois profils.' },
+      { q: 'La commande PowerShell qui éteint le pare-feu sur tous les profils…', opts: ["Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False","net stop parefeu suivi de net stop sharedaccess sur chaque profil","Disable-Firewall -All -Profile Domain,Public,Private en PowerShell"], correct: 0, exp: 'Équivalent netsh : netsh advfirewall set allprofiles state off.' },
+      { q: 'Pour renommer le serveur en ligne de commande…', opts: ["hostname NOUVEAUNOM dans une invite de commandes classique","set-hostname NOUVEAUNOM -restart dans la console PowerShell","netdom renamecomputer NOMACTUEL /NewName:NOUVEAUNOM"], correct: 2, exp: 'Puis redémarrer (shutdown /r) pour appliquer.' },
+      { q: 'Le numéro d’interface d’une carte s’obtient par…', opts: ['ipconfig /flushdns', 'Get-NetAdapter (colonne ifIndex)', 'net user'], correct: 1, exp: 'Get-NetAdapter ou Get-NetIPInterface ; l’ifIndex sert aux commandes de configuration.' },
+      { q: 'L’ActiveStore…', opts: ['est un magasin d’applications', 'sauvegarde après redémarrage seulement', 'applique immédiatement l’adresse IP définie'], correct: 2, exp: 'Le PersistentStore sauvegarde pour le redémarrage ; au boot, PersistentStore recopie dans ActiveStore.' },
       { q: 'L’activation en ligne se lance par…', opts: ['slmgr.vbs /ato', 'net user administrateur *', 'ipconfig /renew'], correct: 0, exp: '/ipk installe la clé, /ato tente l’activation en ligne ; sconfig menu 11 exécute la même commande.' }
     ],
 

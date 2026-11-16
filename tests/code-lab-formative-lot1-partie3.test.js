@@ -155,9 +155,9 @@ function contrast(foreground, background, surface) {
   return (levels[0] + 0.05) / (levels[1] + 0.05);
 }
 
-test('les 830 analyses utilisent le composant et le nouveau gabarit ne rend que l’entrée d’exemple', testContext => {
+test('les 848 analyses utilisent le composant et le nouveau gabarit ne rend que l’entrée d’exemple', testContext => {
   const exercises = catalogue.listExercises().filter(exercise => exercise.language === 'analyse');
-  assert.equal(exercises.length, 830);
+  assert.equal(exercises.length, 848);
   const chapters = new Map();
   const repeatedLongAnswers = [];
 
@@ -203,8 +203,8 @@ test('les 830 analyses utilisent le composant et le nouveau gabarit ne rend que 
     if (expected.length >= 25 && text(lab).includes(expected)) repeatedLongAnswers.push(exercise.id);
   }
 
-  assert.equal(chapters.size, 276);
-  assert.equal(new Set(exercises.map(exercise => exercise.course)).size, 46);
+  assert.equal(chapters.size, 282);
+  assert.equal(new Set(exercises.map(exercise => exercise.course)).size, 47);
   if (repeatedLongAnswers.length) {
     testContext.diagnostic(`${repeatedLongAnswers.length} résolutions d’exemple longues réapparaissent dans d’autres contenus : ${repeatedLongAnswers.join(', ')}`);
   }

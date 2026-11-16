@@ -232,7 +232,7 @@ test('Architecture : Cloisonnement strict de Monaco Editor (10 programmation vs 
 
     if (PROGRAMMING_COURSES.has(courseId)) {
       assert.ok(
-        ['python', 'c', 'php', 'javascript', 'java', 'csharp', 'sql'].includes(lang),
+        ['python', 'c', 'php', 'javascript', 'java', 'csharp', 'sql', 'algo'].includes(lang),
         `${courseId} doit être un cours de programmation (actuel: ${lang})`
       );
     } else if (SHELL_COURSES.has(courseId)) {

@@ -178,21 +178,21 @@ module.exports = {
     {
       stem: 'Quel est l’intervalle temporel maximal préconisé pour intégrer son code sur le tronc dans une véritable démarche d’Intégration Continue ?',
       opts: [
-        'Une fois par mois à la fin du sprint',
         'Au minimum une fois par jour (idéalement plusieurs fois par jour)',
+        'Une fois par mois à la fin du sprint',
         'Uniquement lorsque la fonctionnalité complète est recettée par le client',
         'À chaque fin de trimestre'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’Intégration Continue exige des commits fréquents (au moins quotidiens) sur la branche commune pour éviter l’accumulation de divergences et le merge hell.'
     },
     {
       stem: 'Quelle caractéristique distingue le Trunk-Based Development de la stratégie GitFlow classique ?',
       opts: [
-        'L’absence totale de système de contrôle de version',
-        'L’utilisation d’une branche principale unique avec des branches de travail très courtes (moins de 24h) et des Feature Flags',
-        'L’interdiction formelle d’exécuter des tests automatisés',
-        'La conservation de branches de fonctionnalités pendant au moins six mois'
+        "L’absence totale de contrôle de version, chaque développeur modifiant le code en local sans historique partagé",
+        "L’utilisation d’une branche principale unique avec des branches de travail très courtes (moins de 24h) et des Feature Flags",
+        "L’interdiction formelle d’exécuter la moindre suite de tests automatisés au moment de la fusion du code",
+        "La conservation de branches de fonctionnalités longévives vivant jusqu’à six mois avant leur intégration"
       ],
       correct: 1,
       exp: 'Le Trunk-Based Development s’appuie sur des branches éphémères fusionnées rapidement sur le tronc principal, les fonctionnalités en cours de développement étant neutralisées via des Feature Flags.'
@@ -202,30 +202,30 @@ module.exports = {
       opts: [
         'PATCH',
         'MINOR',
-        'MAJOR',
-        'BUILD'
+        'BUILD',
+        'MAJOR'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Supprimer ou modifier un paramètre dans une API publique rompt la compatibilité ascendante pour les clients existants (Breaking Change) : la version MAJOR doit être incrémentée.'
     },
     {
       stem: 'Quelle est la répartition approximative recommandée des types de tests dans la pyramide des tests de Mike Cohn ?',
       opts: [
         '70% E2E, 20% Intégration, 10% Unitaires',
-        '70% Unitaires, 20% Intégration, 10% E2E / UI',
         '33% de chaque type à parts strictement égales',
+        '70% Unitaires, 20% Intégration, 10% E2E / UI',
         '90% manuels, 10% automatisés'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La pyramide préconise une large base de tests unitaires rapides et isolés (≈70%), complétée par des tests d’intégration (≈20%) et un sommet réduit de tests E2E coûteux (≈10%).'
     },
     {
       stem: 'Qu’est-ce qu’un « Flaky Test » dans un pipeline d’automatisation ?',
       opts: [
-        'Un test écrit en langage Perl déprécié',
-        'Un test qui réussit ou échoue de manière intermittente sur un même code source sans modification',
-        'Un test qui prend systématiquement plus d’une heure à s’exécuter',
-        'Un test unitaire qui ne teste aucune assertion'
+        "Un test hérité écrit en langage Perl déprécié que plus personne n’ose supprimer de la suite",
+        "Un test qui réussit ou échoue de manière intermittente sur un même code source sans modification",
+        "Un test d’intégration qui prend systématiquement plus d’une heure à s’exécuter la nuit",
+        "Un test unitaire qui s’exécute sans erreur mais ne vérifie aucune assertion à l’issue"
       ],
       correct: 1,
       exp: 'Un Flaky Test est instable : pour un même commit immuable, il passe ou échoue aléatoirement, souvent à cause de conditions de course (timing) ou d’état externe partagé.'
@@ -233,34 +233,34 @@ module.exports = {
     {
       stem: 'Quelle est la réaction appropriée lorsqu’un test est identifié comme « Flaky » sur le pipeline de CI principal ?',
       opts: [
-        'Relancer en boucle le pipeline jusqu’à ce qu’il devienne vert par hasard',
         'Mettre immédiatement le test en quarantaine hors du build bloquant et planifier sa correction',
+        'Relancer en boucle le pipeline jusqu’à ce qu’il devienne vert par hasard',
         'Supprimer la suite de tests complète du projet',
         'Désactiver la vérification des tests sur la branche de production'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La quarantaine évite de bloquer abusivement les déploiements légitimes tout en éliminant l’accoutumance toxique aux faux positifs qui décrédibilise l’outillage CI.'
     },
     {
       stem: 'Si une librairie passe de la version 1.4.2 à 1.5.0, quel type d’évolution ce changement représente-t-il obligatoirement selon SemVer ?',
       opts: [
         'Une refonte totale avec rupture de contrat',
-        'L’ajout d’une nouvelle fonctionnalité rétrocompatible sans breaking change',
+        'Une version de pré-développement instable',
         'Uniquement la correction d’un bogue de sécurité critique',
-        'Une version de pré-développement instable'
+        'L’ajout d’une nouvelle fonctionnalité rétrocompatible sans breaking change'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’incrément MINOR (1.4.2 -> 1.5.0) certifie contractuellement l’ajout de nouvelles capacités logicielles tout en maintenant une compatibilité ascendante absolue.'
     },
     {
       stem: 'Quel est le seuil de temps recommandé pour qu’un pipeline d’intégration continue retourne son feedback aux développeurs ?',
       opts: [
-        'Moins de 10 minutes',
-        'Environ 4 heures (pendant la pause déjeuner)',
         '24 heures (la nuit suivante)',
+        'Environ 4 heures (pendant la pause déjeuner)',
+        'Moins de 10 minutes',
         'Une semaine'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Un retour rapide en moins de 10 minutes permet au développeur de corriger immédiatement le bogue tant que le contexte mental du code modifié est encore parfaitement frais.'
     }
   ],

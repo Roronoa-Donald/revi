@@ -100,13 +100,13 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Le droit est…', opts: ['L’ensemble des règles régissant une société', 'Une science du calcul', 'Un logiciel'], correct: 0, exp: 'Définition classique du droit (Larousse).' },
+    { stem: 'Le droit est…', opts: ["Une science du calcul et des nombres","Un logiciel qui tranche les conflits","L’ensemble des règles régissant une société"], correct: 2, exp: "Le droit est l’ensemble des règles régissant une société (Larousse). Ni une science du calcul ni un logiciel : c’est un corpus de normes." },
     { stem: 'L’informatique traite…', opts: ['L’information de façon automatique', 'Les conflits sociaux', 'Les traités internationaux'], correct: 0, exp: 'Traitement automatique et rationnel des données.' },
-    { stem: 'Le droit de l’informatique est…', opts: ['Un domaine juridique émergent', 'Une technique de codage', 'Un impôt'], correct: 0, exp: 'Il s’est développé avec les technologies numériques.' },
-    { stem: 'Un fondement du droit de l’informatique ?', opts: ['La protection des données personnelles', 'La comptabilité analytique', 'La menuiserie'], correct: 0, exp: 'Avec la PI, les contrats et la responsabilité civile.' },
-    { stem: 'Le droit d’auteur protège…', opts: ['Une création intellectuelle', 'Un véhicule', 'Un local commercial'], correct: 0, exp: 'Œuvres, logiciels, marques, circuits intégrés.' },
-    { stem: 'La responsabilité civile vise…', opts: ['Le responsable d’un dommage causé par un système', 'Le prix du matériel', 'La vitesse du réseau'], correct: 0, exp: 'Qui répond d’un dommage ou d’une faille ?' },
-    { stem: 'Un droit numérique du cours ?', opts: ['Le droit à la vie privée', 'Le droit de cuissage', 'Le droit de chasse'], correct: 0, exp: 'Avec l’expression et l’accès à l’information.' },
+    { stem: 'Le droit de l’informatique est…', opts: ['Une technique de codage', 'Un domaine juridique émergent', 'Un impôt'], correct: 1, exp: 'Il s’est développé avec les technologies numériques.' },
+    { stem: 'Un fondement du droit de l’informatique ?', opts: ["La protection des données personnelles","La comptabilité analytique des sociétés","La menuiserie et les métiers manuels"], correct: 0, exp: "La protection des données personnelles est un fondement, avec la PI, les contrats et la responsabilité civile. Comptabilité et menuiserie n’en relèvent pas." },
+    { stem: 'Le droit d’auteur protège…', opts: ['Un local commercial', 'Un véhicule', 'Une création intellectuelle'], correct: 2, exp: 'Œuvres, logiciels, marques, circuits intégrés.' },
+    { stem: 'La responsabilité civile vise…', opts: ["Le prix du matériel informatique acquis","Le responsable d’un dommage causé par un système","La vitesse du réseau de l’entreprise"], correct: 1, exp: "La responsabilité civile vise le responsable d’un dommage : qui répond d’une faille ou d’un préjudice causé par un système. Ni le prix du matériel ni la vitesse du réseau." },
+    { stem: 'Un droit numérique du cours ?', opts: ['Le droit de cuissage', 'Le droit à la vie privée', 'Le droit de chasse'], correct: 1, exp: 'Avec l’expression et l’accès à l’information.' },
     { stem: 'Les droits numériques sont…', opts: ['Les mêmes droits fondamentaux adaptés au numérique', 'Des droits nouveaux sans rapport', 'Des privilèges réservés aux internautes'], correct: 0, exp: 'Ils prolongent les droits de l’homme hors ligne.' }
   ],
 

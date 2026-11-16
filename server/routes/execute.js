@@ -7,7 +7,37 @@
 
 const execution = require('../services/execution');
 const budget = require('../services/execution/budget');
-const { requireUser, quotaKey } = require('../utils/auth');
+const exercises = require('../exercises');
+const { requireActiveUser, requireCourseAccess, quotaKey } = require('../utils/auth');
+
+// Quota IP strict pour les exécutions anonymes (15 exécutions / heure / IP)
+const ANON_EXEC_LIMIT_PER_IP = 15;
+const ANON_EXEC_WINDOW_MS = 60 * 60 * 1000; // 1 heure
+
+const anonIpState = new Map(); // ip -> { count: number, resetAt: number }
+
+function checkAnonIpQuota(ip) {
+  const now = Date.now();
+  const entry = anonIpState.get(ip);
+  if (!entry || now >= entry.resetAt) {
+    return { allowed: true, remaining: ANON_EXEC_LIMIT_PER_IP };
+  }
+  if (entry.count >= ANON_EXEC_LIMIT_PER_IP) {
+    return { allowed: false, remaining: 0, resetAt: entry.resetAt };
+  }
+  return { allowed: true, remaining: ANON_EXEC_LIMIT_PER_IP - entry.count };
+}
+
+function consumeAnonIpQuota(ip) {
+  const now = Date.now();
+  let entry = anonIpState.get(ip);
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + ANON_EXEC_WINDOW_MS };
+  }
+  entry.count += 1;
+  anonIpState.set(ip, entry);
+  return entry.count;
+}
 
 async function executeRoutes(fastify) {
   // Catalogue affiché dans le sélecteur de langage. Recoupé avec ce que le
@@ -15,8 +45,14 @@ async function executeRoutes(fastify) {
   fastify.get('/execute/languages', {
     config: { rateLimit: { max: 30, timeWindow: '1 minute' } }
   }, async (request, reply) => {
-    const user = requireUser(request, reply);
-    if (!user) return;
+    const exerciseId = (request.query && request.query.exerciseId) ||
+      (request.headers && request.headers['x-exercise-id']);
+    const exercise = exerciseId ? exercises.getExercise(exerciseId) : null;
+
+    if (!exercise || exercise.chapter !== 1) {
+      const user = await requireActiveUser(request, reply);
+      if (!user) return;
+    }
 
     const catalogue = await execution.getLanguages();
     return reply.send({
@@ -29,10 +65,45 @@ async function executeRoutes(fastify) {
   // Une seule action d'exécution par clic : pas d'auto-run à la frappe,
   // pas de rafale (spec §22, §23, §38).
   fastify.post('/execute', {
-    config: { rateLimit: { max: 15, timeWindow: '1 minute' } }
+    config: { rateLimit: { max: 60, timeWindow: '1 minute' } }
   }, async (request, reply) => {
-    const user = requireUser(request, reply);
-    if (!user) return;
+    const body = request.body || {};
+    const exerciseId = body.exerciseId ||
+      (request.query && request.query.exerciseId) ||
+      (request.headers && request.headers['x-exercise-id']);
+    const exercise = exerciseId ? exercises.getExercise(exerciseId) : null;
+
+    let user = null;
+    if (exercise && exercise.chapter === 1) {
+      const access = await requireCourseAccess(request, reply, {
+        courseId: exercise.course,
+        chapter: exercise.chapter
+      });
+      if (!access) return;
+      user = access.user || null;
+      if (!user) {
+        const ip = request.ip || 'unknown';
+        const anonGuard = checkAnonIpQuota(ip);
+        if (!anonGuard.allowed) {
+          return reply.code(429).send({
+            status: 'rate_limited',
+            error: 'Limite d’exécutions anonymes atteinte pour cette heure (15 max). Connectez-vous ou réessayez plus tard.'
+          });
+        }
+      }
+    } else if (exercise) {
+      user = await requireCourseAccess(request, reply, {
+        courseId: exercise.course,
+        chapter: exercise.chapter
+      });
+      if (!user) return;
+    } else {
+      user = await requireCourseAccess(request, reply, {
+        courseId: body.courseId || null,
+        chapter: body.chapter != null ? body.chapter : null
+      });
+      if (!user) return;
+    }
 
     const key = quotaKey(user, request);
     const guard = budget.canExecute(key);
@@ -46,8 +117,10 @@ async function executeRoutes(fastify) {
       });
     }
 
-    const body = request.body || {};
     try {
+      if (!user) {
+        consumeAnonIpQuota(request.ip || 'unknown');
+      }
       budget.consume(key, 1);
       const result = await execution.execute({
         language: body.language,
@@ -65,5 +138,9 @@ async function executeRoutes(fastify) {
     }
   });
 }
+
+// Helpers de test
+executeRoutes._resetAnonIpQuota = () => anonIpState.clear();
+executeRoutes._getAnonIpState = () => anonIpState;
 
 module.exports = executeRoutes;

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -26,7 +24,7 @@
 
 <header class="alnav"><div class="alnav__in">
   <a class="alnav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
-    <span class="alnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-calculator"></use></svg></span>
+    <span class="alnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-calculator"></use></svg></span>
     <span class="alnav__word">cours.interactifs</span>
   </a>
   <div class="alnav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="alnav__chip" href="../index.html">Algèbre B1</a></div>
@@ -162,11 +160,43 @@ rang(M) = 2.  Les lignes de M engendrent un plan de ℝ³.</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>5. Labo Python appliqué</h2>
+
+<p>Le rang se calcule par élimination de Gauss. Les fractions exactes (<code>fractions.Fraction</code>) évitent les erreurs d’arrondi qui fausseraient le test « pivot nul ».</p>
+<pre><code class="language-python">from fractions import Fraction
+
+def rang(matrice):
+    """Rang par pivot de Gauss en fractions exactes."""
+    m = [[Fraction(x) for x in ligne] for ligne in matrice]
+    rang, colonnes = 0, len(m[0])
+    for c in range(colonnes):
+        pivot = next((i for i in range(rang, len(m)) if m[i][c] != 0), None)
+        if pivot is None:
+            continue
+        m[rang], m[pivot] = m[pivot], m[rang]
+        for i in range(rang + 1, len(m)):
+            f = m[i][c] / m[rang][c]
+            m[i] = [a - f * b for a, b in zip(m[i], m[rang])]
+        rang += 1
+    return rang
+
+A = [[1, 2, 3], [2, 4, 6], [1, 0, 1]]
+print("rang(A) =", rang(A))
+print("famille libre ?", rang([[1, 0, 1], [0, 1, 1], [1, 1, 2]]) == 3)</code></pre>
+<p><strong>Sortie attendue (CPython 3) :</strong></p>
+<pre><code>rang(A) = 2
+famille libre ? False</code></pre>
+<p>Une famille de <code>p</code> vecteurs est libre si et seulement si son rang vaut <code>p</code> ; ici la troisième ligne de <code>A</code> n’apporte rien, donc le rang est 2.</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -216,10 +246,11 @@ A_COMPLETER
 1 0 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le rang est le nombre de lignes non nulles une fois la matrice échelonnée par la méthode du pivot.</li>
         <li>À chaque colonne, cherche un coefficient non nul à partir de la ligne courante : c’est un pivot, et il en « consomme » une.</li>
+        <li>Après pivot de Gauss complet, ne comptez que les lignes contenant au moins un coefficient non nul : c est le rang exact.</li>
       </ol>
     </details>
   </div>
@@ -229,32 +260,31 @@ A_COMPLETER
      data-exercise="al-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3 3&#10;1 0 0&#10;0 1 0&#10;0 0 1">
-  <script type="text/plain" data-lab-starter># Grille de calcul (al-c5-e2) — Famille libre ou liée ?
-# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+     data-stdin="Un second réseau a pour matrice de flux N = [[1, 1, 2], [2, 2, 5], [1, 1, 1]].&#10;Échelonnement : L2 ← L2 - 2·L1 donne (0, 0, 1) ;&#10;L3 ← L3 - L1 donne (0, 0, -1) ; puis L3 ← L3 + L2 donne (0, 0, 0).&#10;&#10;1) Forme échelonnée : [[1, 1, 2], [0, 0, 1], [0, 0, 0]].&#10;2) Pivots : 2, donc rang(N) = 2.&#10;3) det(N) = 0 (une ligne nulle dans la forme échelonnée ; direct : 1×(2-5) - 1×(2-5) + 2×(2-2) = -3 + 3 + 0 = 0).&#10;4) Les colonnes n'engendrent qu'un plan : dimension 2.">
+  <script type="text/plain" data-lab-starter># Exercice — Le rang des flux de données du réseau
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Lignes de matrice : trois nombres séparés par des espaces.
 
-[Cas 1 — Troisième vecteur somme des deux premiers]
-# Données : 3 3
-# Données : 1 2 3
-# Données : 0 1 4
-# Données : 1 3 7
+[Question 1 — Ligne 2 après L2 <- L2 - 2·L1]
 A_COMPLETER
 
-[Cas 2 — Moins de vecteurs que la dimension]
-# Données : 3 2
-# Données : 1 0 0
-# Données : 0 1 0
+[Question 2 — Ligne 3 après L3 <- L3 - 3·L1 puis L3 <- L3 - L2]
 A_COMPLETER
 
-[Cas 3 — Vecteurs colinéaires]
-# Données : 2 3
-# Données : 1 2
-# Données : 2 4
-# Données : 3 6
+[Question 3 — Nombre de pivots]
+A_COMPLETER
+
+[Question 4 — Rang de M]
+A_COMPLETER
+
+[Question 5 — det(M)]
+A_COMPLETER
+
+[Question 6 — Dimension du sous-espace engendré par les colonnes]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Famille libre ou liée ?</h3>
+    <h3 class="lab__title">Exercice 2 — Le rang des flux de données du réseau</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -263,19 +293,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="al-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Comparer le rang d’une famille au nombre de ses vecteurs.</p>
-    <div class="lab__brief"><p>Dans cette étude, on considère deux entiers <code>d</code> (dimension) et <code>p</code> (nombre de vecteurs), puis <code>p</code> lignes de <code>d</code> entiers. Indiquez <code>libre</code> si la famille est linéairement indépendante, sinon <code>liee</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Échelonner une matrice 3 × 3 par opérations élémentaires, compter les pivots et en déduire rang et déterminant.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'ingénieure réseau note le tableau des flux de données entre trois serveurs (<code>m<sub>ij</sub></code> = volume en Go échangé du serveur i vers le serveur j sur une journée) :</p><table><tr><th></th><th>S1</th><th>S2</th><th>S3</th></tr><tr><th>S1</th><td>1</td><td>2</td><td>0</td></tr><tr><th>S2</th><td>2</td><td>4</td><td>1</td></tr><tr><th>S3</th><td>3</td><td>6</td><td>1</td></tr></table><p>c'est-à-dire <code>M = [[1, 2, 0], [2, 4, 1], [3, 6, 1]]</code>. Pour dimensionner la sauvegarde, elle cherche le rang : le nombre de flux réellement indépendants. Elle échelonne la matrice par opérations élémentaires, en commençant par <code>L2 ← L2 - 2·L1</code>. Puis elle traite la ligne 3 : <code>L3 ← L3 - 3·L1</code>, et enfin <code>L3 ← L3 - L2</code>.</p><ol><li>Après l'opération <code>L2 ← L2 - 2·L1</code>, que devient la ligne 2 ? (trois nombres séparés par des espaces)</li><li>Sur la matrice de départ, l'opération <code>L3 ← L3 - 3·L1</code> donne la ligne (0, 0, 1) ; on applique alors <code>L3 ← L3 - L2</code>. Que devient la ligne 3 ?</li><li>Combien de pivots (lignes non nulles) reste-t-il dans la forme échelonnée ?</li><li>Quel est le rang de M ?</li><li>Que vaut det(M) ? (vérifiez aussi par la formule de développement)</li><li>Quelle est la dimension du sous-espace de ℝ³ engendré par les colonnes de M ?</li></ol><p>Format : lignes en trois nombres séparés par des espaces ; nombres seuls sinon.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3 3
-1 0 0
-0 1 0
-0 0 1</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un second réseau a pour matrice de flux N = [[1, 1, 2], [2, 2, 5], [1, 1, 1]].
+Échelonnement : L2 ← L2 - 2·L1 donne (0, 0, 1) ;
+L3 ← L3 - L1 donne (0, 0, -1) ; puis L3 ← L3 + L2 donne (0, 0, 0).
+
+1) Forme échelonnée : [[1, 1, 2], [0, 0, 1], [0, 0, 0]].
+2) Pivots : 2, donc rang(N) = 2.
+3) det(N) = 0 (une ligne nulle dans la forme échelonnée ; direct : 1×(2-5) - 1×(2-5) + 2×(2-2) = -3 + 3 + 0 = 0).
+4) Les colonnes n'engendrent qu'un plan : dimension 2.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Une famille de p vecteurs est libre quand le rang de la matrice qu’ils forment vaut exactement p.</li>
-        <li>Si le rang est strictement inférieur à p, au moins un vecteur est combinaison des autres : la famille est liée.</li>
+        <li>L'échelonnement se fait par opérations élémentaires : L_i ← L_i + k·L_j ne change ni le rang ni le déterminant ; on annule les coefficients sous le pivot, colonne par colonne.</li>
+        <li>Après élimination, le rang est le nombre de pivots (lignes non nulles de la forme échelonnée) ; le déterminant se lit alors sur la forme échelonnée : une ligne nulle donne un déterminant nul.</li>
+        <li>Le rang des colonnes égale toujours le rang des lignes : la dimension du sous-espace engendré par les colonnes est donc la même. Contrôlez le déterminant par la formule de développement selon la première ligne.</li>
       </ol>
     </details>
   </div>
@@ -285,74 +320,81 @@ A_COMPLETER
      data-exercise="al-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="1 0 0&#10;0 1 0&#10;0 0 1">
-  <script type="text/plain" data-lab-starter># Grille de calcul (al-c5-e3) — Est-ce une base de ℝ³ ?
-# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :
+     data-stdin="Le repère d'un second objet est testé avec la famille :&#10;d1 = (1, 0, 1), d2 = (0, 2, 1), d3 = (1, 2, 2).&#10;Matrice (une ligne par vecteur) : [[1, 0, 1], [0, 2, 1], [1, 2, 2]].&#10;&#10;1) det = 1×(2×2 - 1×2) - 0 + 1×(0×2 - 2×1) = 2 + (-2) = 0.&#10;2) det = 0 : la famille n'est pas une base de R3.&#10;3) En fait d3 = d1 + d2 : (1, 0, 1) + (0, 2, 1) = (1, 2, 2).&#10;4) Rang de la famille : 2 (un plan).">
+  <script type="text/plain" data-lab-starter># Exercice — Le repère du moteur 3D du jeu vidéo
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions fermées : oui ou non. Determinants : nombre seul, avec le signe.
 
-[Cas 1 — Déterminant égal à 1]
-# Données : 1 2 3
-# Données : 0 1 4
-# Données : 5 6 0
+[Question 1 — det de la matrice de B]
 A_COMPLETER
 
-[Cas 2 — Vecteurs coplanaires]
-# Données : 1 2 3
-# Données : 2 4 6
-# Données : 1 0 1
+[Question 2 — B est-elle une base de R3 ?]
 A_COMPLETER
 
-[Cas 3 — Famille orthogonale]
-# Données : 2 0 0
-# Données : 0 3 0
-# Données : 0 0 5
+[Question 3 — det de la matrice de C]
+A_COMPLETER
+
+[Question 4 — C est-elle une base de R3 ?]
+A_COMPLETER
+
+[Question 5 — Coefficients (a, b) de c3 = a·c1 + b·c2]
+A_COMPLETER
+
+[Question 6 — Rang de la famille C]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Est-ce une base de ℝ³ ?</h3>
+    <h3 class="lab__title">Exercice 3 — Le repère du moteur 3D du jeu vidéo</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
-      <span class="badge badge--n4">Niveau 4 — Examen</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="al-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Utiliser le déterminant pour décider si trois vecteurs forment une base.</p>
-    <div class="lab__brief"><p>Dans cette étude, on considère trois lignes de trois entiers : trois vecteurs de ℝ³. Indiquez <code>base</code> s’ils forment une base de ℝ³, sinon <code>pas une base</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Décider si une famille de trois vecteurs de ℝ³ est une base, par le déterminant et par une relation de dépendance.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dans un jeu vidéo, le repère local d'un objet est défini par une famille de vecteurs de ℝ³. Le moteur exige une <strong>base</strong> : une famille libre et génératrice. Deux familles sont testées, une ligne par vecteur dans la matrice :</p><p><strong>Famille B</strong> : b<sub>1</sub> = (1, 1, 0), b<sub>2</sub> = (0, 1, 1), b<sub>3</sub> = (1, 0, 1) ;</p><p><strong>Famille C</strong> : c<sub>1</sub> = (1, 1, 0), c<sub>2</sub> = (0, 1, 1), c<sub>3</sub> = (1, 2, 1).</p><ol><li>Calculez le déterminant de la matrice de la famille B (vecteurs rangés en lignes).</li><li>La famille B est-elle une base de ℝ³ ?</li><li>Calculez le déterminant de la matrice de la famille C.</li><li>La famille C est-elle une base de ℝ³ ?</li><li>Quels coefficients (a, b) vérifient <code>c<sub>3</sub> = a·c<sub>1</sub> + b·c<sub>2</sub></code> ? (deux nombres séparés par un espace)</li><li>Quel est le rang de la famille C ?</li></ol><p>Format : déterminants en nombres seuls (avec le signe) ; les questions fermées se répondent par oui ou non.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>1 0 0
-0 1 0
-0 0 1</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le repère d'un second objet est testé avec la famille :
+d1 = (1, 0, 1), d2 = (0, 2, 1), d3 = (1, 2, 2).
+Matrice (une ligne par vecteur) : [[1, 0, 1], [0, 2, 1], [1, 2, 2]].
+
+1) det = 1×(2×2 - 1×2) - 0 + 1×(0×2 - 2×1) = 2 + (-2) = 0.
+2) det = 0 : la famille n'est pas une base de R3.
+3) En fait d3 = d1 + d2 : (1, 0, 1) + (0, 2, 1) = (1, 2, 2).
+4) Rang de la famille : 2 (un plan).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Trois vecteurs de ℝ³ forment une base si et seulement s’ils sont libres.</li>
-        <li>Avec trois vecteurs de ℝ³, liberté et déterminant non nul sont équivalents : c’est le calcul le plus rapide.</li>
+        <li>Rangez la famille en matrice, une ligne par vecteur. det ≠ 0 équivaut à : famille libre, rang 3, donc base de ℝ³ (trois vecteurs libres de ℝ³ engendrent tout l'espace).</li>
+        <li>Pour C, cherchez une relation simple entre les vecteurs : si l'un s'écrit comme combinaison des deux autres, le déterminant est nul et la famille n'est pas une base.</li>
+        <li>Le rang d'une famille liée de trois vecteurs dont deux sont indépendants vaut 2 : le sous-espace engendré est alors un plan, pas ℝ³.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Une famille est génératrice de E lorsque…</p>
       <div class="opts">
-        <button class="opt">elle est libre</button>
+        <button class="opt">elle est libre, donc ses vecteurs sont indépendants</button>
+        <button class="opt">le vecteur nul en fait partie, ce qui suffit à tout engendrer</button>
         <button class="opt" data-correct="1">tout vecteur de E s’écrit comme combinaison linéaire de la famille</button>
-        <button class="opt">elle contient le vecteur nul</button>
       </div>
       <div class="q__exp">C’est la définition : l’espace engendré est E tout entier.</div>
     </div>
     <div class="q">
       <p class="q__stem">Une famille est libre lorsque…</p>
       <div class="opts">
-        <button class="opt">aucun vecteur n’est nul</button>
         <button class="opt" data-correct="1">a₁v₁ + … + aₚvₚ = 0 impose tous les aᵢ nuls</button>
-        <button class="opt">elle a p ≤ n vecteurs</button>
+        <button class="opt">aucun vecteur de la famille n’est nul</button>
+        <button class="opt">elle compte au plus n vecteurs dans E</button>
       </div>
       <div class="q__exp">L’indépendance linéaire : l’équation n’a que la solution nulle.</div>
     </div>
@@ -360,8 +402,8 @@ A_COMPLETER
       <p class="q__stem">Une base est une famille…</p>
       <div class="opts">
         <button class="opt">libre seulement</button>
-        <button class="opt">génératrice seulement</button>
         <button class="opt" data-correct="1">libre et génératrice</button>
+        <button class="opt">génératrice seulement</button>
       </div>
       <div class="q__exp">Les deux propriétés ensemble, ce qui rend les coordonnées uniques.</div>
     </div>
@@ -369,28 +411,28 @@ A_COMPLETER
       <p class="q__stem">Que vaut <code>dim M<sub>2,3</sub>(ℝ)</code> ?</p>
       <div class="opts">
         <button class="opt">2</button>
-        <button class="opt">5</button>
         <button class="opt" data-correct="1">6</button>
+        <button class="opt">5</button>
       </div>
       <div class="q__exp">La dimension est le nombre de coefficients : 2 × 3 = 6.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment calcule-t-on le rang d’une matrice ?</p>
       <div class="opts">
-        <button class="opt">en comptant ses lignes</button>
+        <button class="opt">en comptant le nombre de ses lignes</button>
+        <button class="opt">en calculant la trace de la matrice</button>
         <button class="opt" data-correct="1">en échelonnant et en comptant les pivots</button>
-        <button class="opt">en calculant la trace</button>
       </div>
       <div class="q__exp">Le rang est le nombre de pivots après échelonnement.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pour A carrée d’ordre n, <code>rang(A) = n</code> équivaut à…</p>
       <div class="opts">
-        <button class="opt">det(A) = 0</button>
         <button class="opt" data-correct="1">A est inversible</button>
+        <button class="opt">det(A) = 0</button>
         <button class="opt">A est symétrique</button>
       </div>
-      <div class="q__exp">rang = n ⇔ det ≠ 0 ⇔ A inversible.</div>
+      <div class="q__exp">rang = n équivaut à déterminant non nul, donc A inversible ; det(A) = 0 donne un rang inférieur à n et la symétrie n’intervient pas.</div>
     </div>
   </div>
 
@@ -398,7 +440,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -415,7 +457,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Étudier une famille de vecteurs</div>
@@ -432,7 +474,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -462,7 +504,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -511,7 +553,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

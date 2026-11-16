@@ -149,34 +149,34 @@ module.exports = {
     {
       stem: 'Quelle information capitale le journal « git reflog » enregistre-t-il que « git log » n’affiche pas ?',
       opts: [
-        'Les mots de passe saisis lors du push distant',
-        'L’historique chronologique local de tous les mouvements du pointeur HEAD, y compris les commits orphelins',
-        'Les adresses IP des serveurs distants connectés',
-        'Les signatures cryptographiques GPG des tags annotés'
+        "Les identifiants et les jetons d’authentification saisis lors des opérations de push vers le serveur distant",
+        "Les adresses IP et les journaux de connexion des serveurs distants contactés par les commandes fetch et push",
+        "Les signatures cryptographiques GPG des tags annotés vérifiées lors des opérations de transfert",
+        "L’historique chronologique local de tous les mouvements du pointeur HEAD, y compris les commits orphelins"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'git log ne parcourt que les commits connectés à la branche courante. git reflog enregistre chronologiquement chaque déplacement de HEAD sur la machine locale, permettant de retrouver les commits détachés.'
     },
     {
       stem: 'Où les entrées du reflog pour le pointeur HEAD sont-elles physiquement stockées sur le disque ?',
       opts: [
-        'Dans le fichier .git/logs/HEAD',
-        'Dans .git/objects/reflog.db',
         'Sur le serveur distant GitHub dans l’API GraphQL',
+        'Dans .git/objects/reflog.db',
+        'Dans le fichier .git/logs/HEAD',
         'Dans le fichier binaire .git/index'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Git écrit chaque transition dans des fichiers texte situés dans le sous-dossier masqué .git/logs/ (notamment .git/logs/HEAD et .git/logs/refs/heads/).'
     },
     {
       stem: 'Combien d’étapes de test au maximum sont nécessaires avec « git bisect » pour localiser une régression parmi 500 commits ?',
       opts: [
         '500 étapes',
-        '250 étapes',
         '9 étapes',
+        '250 étapes',
         '50 étapes'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'La recherche dichotomique a une complexité logarithmique en ceil(log2(500)) = ceil(8.96) = 9 étapes.'
     },
     {
@@ -193,12 +193,12 @@ module.exports = {
     {
       stem: 'Par défaut, pendant combien de temps Git conserve-t-il les objets inaccessibles (unreachable/dangling) avant que « git gc » ne les purge définitivement ?',
       opts: [
-        '24 heures',
         '30 jours',
+        '24 heures',
         '1 an',
         'Ils ne sont jamais purgés'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Par défaut, la directive gc.reflogExpireUnreachable conserve les objets orphelins pendant 30 jours, offrant une marge de sécurité confortable pour récupérer une fausse manipulation.'
     },
     {
@@ -216,22 +216,22 @@ module.exports = {
       stem: 'À quoi sert la commande de plomberie « git fsck --lost-found » ?',
       opts: [
         'À supprimer tous les fichiers non suivis de la copie de travail',
-        'À vérifier l’intégrité de la base d’objets et copier les commits orphelins dans .git/lost-found/',
         'À réparer les dépendances corrompues dans package.json',
+        'À vérifier l’intégrité de la base d’objets et copier les commits orphelins dans .git/lost-found/',
         'À synchroniser les commits orphelins avec le miroir GitHub'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'git fsck (File System Check) contrôle la cohérence du magasin d’objets et l’option --lost-found extrait tous les objets orphelins inaccessibles pour permettre leur analyse.'
     },
     {
       stem: 'Si vous avez exécuté par erreur « git reset --hard HEAD~2 », quelle commande permet de revenir immédiatement à l’état antérieur ?',
       opts: [
-        'git reset --hard HEAD@{1}',
+        'git clean -fd',
         'git revert HEAD',
         'git checkout --undo',
-        'git clean -fd'
+        'git reset --hard HEAD@{1}'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'HEAD@{1} correspond à la position de HEAD juste avant l’exécution du reset. Faire un git reset --hard HEAD@{1} réaligne instantanément la branche sur son état précédent.'
     }
   ],

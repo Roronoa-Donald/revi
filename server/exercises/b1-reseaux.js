@@ -15,7 +15,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c1-e1) — LAN ou WAN\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série A]\n# Données : 1\n# Données : national etendu\nA_COMPLETER\n\n[Cas 2 — Série B]\n# Données : 2\n# Données : pmi local\n# Données : campus local\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : salle local\n# Données : pays etendu\n# Données : ville etendu\n# Données : classe local\n# Données : continent etendu\nA_COMPLETER\n",
     "hints": [
       "Quel critère de portée permet de distinguer les deux types de réseau présentés ?",
-      "Comptez les LAN et les WAN au fil des lignes ; les deux totaux s'écrivent à la fin, lan d'abord, wan ensuite."
+      "Comptez les LAN et les WAN au fil des lignes ; les deux totaux s'écrivent à la fin, lan d'abord, wan ensuite.",
+      "Ne vous fiez pas à une distance arbitraire en mètres : un réseau local sur un seul site reste LAN, l interconnexion inter-sites relève du WAN."
     ],
     "examples": [
       {
@@ -40,7 +41,8 @@ module.exports = [
         "expected": "salle : LAN\npays : WAN\nville : WAN\nclasse : LAN\ncontinent : WAN\nlan : 2\nwan : 3"
       }
     ],
-    "solution": "[Exemple]\natelier : LAN\nfiliale : WAN\nbureau : LAN\nlan : 2\nwan : 1\n\n[Cas 1 — Un seul etendu]\nnational : WAN\nlan : 0\nwan : 1\n\n[Cas 2 — Deux locaux]\npmi : LAN\ncampus : LAN\nlan : 2\nwan : 0\n\n[Cas 3 — Cinq reseaux]\nsalle : LAN\npays : WAN\nville : WAN\nclasse : LAN\ncontinent : WAN\nlan : 2\nwan : 3"
+    "solution": "[Exemple]\natelier : LAN\nfiliale : WAN\nbureau : LAN\nlan : 2\nwan : 1\n\n[Cas 1 — Un seul etendu]\nnational : WAN\nlan : 0\nwan : 1\n\n[Cas 2 — Deux locaux]\npmi : LAN\ncampus : LAN\nlan : 2\nwan : 0\n\n[Cas 3 — Cinq reseaux]\nsalle : LAN\npays : WAN\nville : WAN\nclasse : LAN\ncontinent : WAN\nlan : 2\nwan : 3",
+    "takeaway": "À retenir : Distinguer un réseau local d'une interconnexion de sites distants, sans seuil de distance imposé."
   },
   {
     "id": "re-c1-e2",
@@ -53,7 +55,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c1-e2) — Poste-à-poste ou client-serveur\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série A]\n# Données : 1\n# Données : agence centralise\nA_COMPLETER\n\n[Cas 2 — Série B]\n# Données : 2\n# Données : tpe pairapair\n# Données : cabine pairapair\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a pairapair\n# Données : b centralise\n# Données : c pairapair\n# Données : d pairapair\n# Données : e centralise\nA_COMPLETER\n",
     "hints": [
       "Le service est-il réparti entre les postes ou fourni par un serveur central ?",
-      "Après avoir classé chaque ligne, que faut-il constater pour conclure sur l’ensemble ?"
+      "Après avoir classé chaque ligne, que faut-il constater pour conclure sur l’ensemble ?",
+      "Comparez la présence d un serveur centralisé d annuaire ou de fichiers (« client-serveur ») à l administration poste par poste (« workgroup »)."
     ],
     "examples": [
       {
@@ -78,7 +81,8 @@ module.exports = [
         "expected": "a : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup\ne : client-serveur\ncentralises : oui"
       }
     ],
-    "solution": "[Exemple]\natelier : workgroup\ncentre : client-serveur\nsdb : workgroup\ncentralises : oui\n\n[Cas 1 — Un seul centralise]\nagence : client-serveur\ncentralises : oui\n\n[Cas 2 — Que du pairapair]\ntpe : workgroup\ncabine : workgroup\ncentralises : non\n\n[Cas 3 — Cinq reseaux]\na : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup\ne : client-serveur\ncentralises : oui"
+    "solution": "[Exemple]\natelier : workgroup\ncentre : client-serveur\nsdb : workgroup\ncentralises : oui\n\n[Cas 1 — Un seul centralise]\nagence : client-serveur\ncentralises : oui\n\n[Cas 2 — Que du pairapair]\ntpe : workgroup\ncabine : workgroup\ncentralises : non\n\n[Cas 3 — Cinq reseaux]\na : workgroup\nb : client-serveur\nc : workgroup\nd : workgroup\ne : client-serveur\ncentralises : oui",
+    "takeaway": "À retenir : Comparer le partage entre pairs et un service fourni par un serveur dans deux scénarios simplifiés."
   },
   {
     "id": "re-c1-e3",
@@ -91,7 +95,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c1-e3) — Les cinq types de réseaux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Série A]\n# Données : 1\n# Données : lycee w\nA_COMPLETER\n\n[Cas 2 — Série B]\n# Données : 2\n# Données : studio p\n# Données : campus m\nA_COMPLETER\n\n[Cas 3 — Six reseaux]\n# Données : 6\n# Données : a p\n# Données : b l\n# Données : c w\n# Données : d m\n# Données : e g\n# Données : f w\nA_COMPLETER\n",
     "hints": [
       "Pour chaque code, quelle portée ou quelle technologie caractérise le réseau ?",
-      "Quelle catégorie comptez-vous ici, et pourquoi ce nombre ne représente-t-il pas tous les réseaux sans fil possibles ?"
+      "Quelle catégorie comptez-vous ici, et pourquoi ce nombre ne représente-t-il pas tous les réseaux sans fil possibles ?",
+      "Distinguez Bluetooth/USB à courte portée (PAN), Wi-Fi sans fil local (WLAN), campus (LAN), métropole (MAN) et opérateur (WAN) avant le décompte WLAN."
     ],
     "examples": [
       {
@@ -116,7 +121,8 @@ module.exports = [
         "expected": "a : PAN\nb : LAN\nc : WLAN\nd : MAN\ne : WAN\nf : WLAN\nwlan : 2/6"
       }
     ],
-    "solution": "[Exemple]\niphone : PAN\nbox : LAN\nwifi : WLAN\nmairie : MAN\noperateur : WAN\nwlan : 1/5\n\n[Cas 1 — Un seul WLAN]\nlycee : WLAN\nwlan : 1/1\n\n[Cas 2 — Aucun WLAN]\nstudio : PAN\ncampus : MAN\nwlan : 0/2\n\n[Cas 3 — Six reseaux]\na : PAN\nb : LAN\nc : WLAN\nd : MAN\ne : WAN\nf : WLAN\nwlan : 2/6"
+    "solution": "[Exemple]\niphone : PAN\nbox : LAN\nwifi : WLAN\nmairie : MAN\noperateur : WAN\nwlan : 1/5\n\n[Cas 1 — Un seul WLAN]\nlycee : WLAN\nwlan : 1/1\n\n[Cas 2 — Aucun WLAN]\nstudio : PAN\ncampus : MAN\nwlan : 0/2\n\n[Cas 3 — Six reseaux]\na : PAN\nb : LAN\nc : WLAN\nd : MAN\ne : WAN\nf : WLAN\nwlan : 2/6",
+    "takeaway": "À retenir : Ranger les réseaux dans les cinq familles du support : PAN, LAN, WLAN, MAN, WAN."
   },
   {
     "id": "re-c2-e1",
@@ -125,15 +131,16 @@ module.exports = [
     "language": "analyse",
     "title": "Bus, anneau, étoile",
     "goal": "Caractériser les trois topologies : bus fragile, anneau en boucle, étoile centralisée.",
-    "brief": "<p>Analysez chaque ligne proposée « reseau topo » : topo vaut <code>bus</code> (un seul câble), <code>anneau</code> (boucle fermée à jeton) ou <code>etoile</code> (point central). Pour chaque ligne, indiquez <code>reseau : fragile</code> (bus), <code>reseau : boucle</code> (anneau) ou <code>reseau : centralise</code> (étoile). Terminez par <code>etoiles : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (re-c2-e1) — Bus, anneau, étoile\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule etoile]\n# Données : 1\n# Données : tour etoile\nA_COMPLETER\n\n[Cas 2 — Deux bus]\n# Données : 2\n# Données : usine bus\n# Données : labo bus\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a bus\n# Données : b etoile\n# Données : c anneau\n# Données : d etoile\n# Données : e bus\nA_COMPLETER\n",
+    "brief": "<p>Analysez l'architecture physique décrite pour chaque site (point central / commutateur → étoile, segment partagé unique → bus, chaîne fermée à jeton → anneau). Pour chaque ligne, indiquez <code>reseau : fragile</code> (bus), <code>reseau : boucle</code> (anneau) ou <code>reseau : centralise</code> (étoile). Terminez par <code>etoiles : X/n</code>.</p>",
+    "starter": "# Grille d'analyse (re-c2-e1) — Bus, anneau, étoile\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un point central]\n# Données : 1\n# Données : tour (liaisons individuelles vers un commutateur central)\nA_COMPLETER\n\n[Cas 2 — Deux segments partagés]\n# Données : 2\n# Données : usine (câble coaxial unique sans switch central)\n# Données : labo (support partagé terminé par deux bouchons 50 ohms)\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a (backbone coaxial partagé entre tous les postes)\n# Données : b (câblage dédié de chaque PC vers le switch d'étage)\n# Données : c (postes chaînés en cercle fermé avec passage de jeton)\n# Données : d (liaisons point à point vers un concentrateur central)\n# Données : e (câble linéaire partagé sensible à toute coupure)\nA_COMPLETER\n",
     "hints": [
-      "Un case à trois topologies, trois verdicts : fragile, boucle, centralise.",
-      "Le compteur suit exactement les lignes « etoile »."
+      "Identifiez la topologie décrite (bus linéaire partagé, anneau fermé, étoile autour d’un switch), puis traduisez en fragile, boucle ou centralise.",
+      "Le compteur final compte exactement les architectures centralisées (en étoile).",
+      "Si une rupture du média isole tous les postes, notez « fragile » ; si les postes forment une boucle à jeton, « boucle » ; sinon « centralise »."
     ],
     "examples": [
       {
-        "stdin": "3\nthinnet bus\ntokenring anneau\ncampus etoile\n",
+        "stdin": "3\nthinnet (câble coaxial unique 10Base2)\ntokenring (cercle fermé à jeton)\ncampus (liaison dédiée vers un switch central)\n",
         "expected": "thinnet : fragile\ntokenring : boucle\ncampus : centralise\netoiles : 1/3"
       }
     ],
@@ -154,7 +161,8 @@ module.exports = [
         "expected": "a : fragile\nb : centralise\nc : boucle\nd : centralise\ne : fragile\netoiles : 2/5"
       }
     ],
-    "solution": "[Exemple]\nthinnet : fragile\ntokenring : boucle\ncampus : centralise\netoiles : 1/3\n\n[Cas 1 — Une seule etoile]\ntour : centralise\netoiles : 1/1\n\n[Cas 2 — Deux bus]\nusine : fragile\nlabo : fragile\netoiles : 0/2\n\n[Cas 3 — Cinq reseaux]\na : fragile\nb : centralise\nc : boucle\nd : centralise\ne : fragile\netoiles : 2/5"
+    "solution": "[Exemple]\nthinnet : fragile\ntokenring : boucle\ncampus : centralise\netoiles : 1/3\n\n[Cas 1 — Une seule etoile]\ntour : centralise\netoiles : 1/1\n\n[Cas 2 — Deux bus]\nusine : fragile\nlabo : fragile\netoiles : 0/2\n\n[Cas 3 — Cinq reseaux]\na : fragile\nb : centralise\nc : boucle\nd : centralise\ne : fragile\netoiles : 2/5",
+    "takeaway": "À retenir : Caractériser les trois topologies : bus fragile, anneau en boucle, étoile centralisée."
   },
   {
     "id": "re-c2-e2",
@@ -163,16 +171,17 @@ module.exports = [
     "language": "analyse",
     "title": "Choisir le support",
     "goal": "Conseiller le bon support de transmission : UTP 100 m, STP blindé, fibre longue distance, Wi-Fi sans fil.",
-    "brief": "<p>Analysez chaque ligne proposée « reseau support » : support vaut <code>utp</code> (paire torsadée non blindée, 100 m max), <code>stp</code> (blindé contre les interférences), <code>fibre</code> (longue distance, haut débit) ou <code>wifi</code> (ondes radio 802.11). Pour chaque ligne, indiquez <code>reseau : conseille</code> (utp, stp, fibre), <code>reseau : sans fil</code> (wifi) ou <code>reseau : support inconnu</code>. Terminez par <code>blindes : X/n</code> (les STP).</p>",
-    "starter": "# Grille d'analyse (re-c2-e2) — Choisir le support\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul blindé]\n# Données : 1\n# Données : chaudiere stp\nA_COMPLETER\n\n[Cas 2 — Support inconnu]\n# Données : 2\n# Données : bureau coaxial\n# Données : salle utp\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a utp\n# Données : b wifi\n# Données : c stp\n# Données : d fibre\n# Données : e stp\nA_COMPLETER\n",
+    "brief": "<p>Analysez chaque contrainte de déploiement et indiquez <code>reseau : conseille</code> (paire torsadée UTP &le; 100 m, paire torsadée blindée STP anti-interférences, ou fibre optique longue distance), <code>reseau : sans fil</code> (radio 802.11 / mobilité) ou <code>reseau : support inconnu</code> (support hors référentiel, ex. coaxial obsolète). Terminez par <code>blindes : X/n</code> (nombre de liaisons nécessitant un câble blindé STP).</p>",
+    "starter": "# Grille d'analyse (re-c2-e2) — Choisir le support\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul blindé]\n# Données : 1\n# Données : chaudiere (paires torsadées blindées anti-moteurs EM)\nA_COMPLETER\n\n[Cas 2 — Support hors référentiel]\n# Données : 2\n# Données : bureau (ancien câble coaxial BNC 10Base2)\n# Données : salle (câble RJ45 Cat6 non blindé sur 35 m)\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a (paire torsadée standard 50 m en open-space calme)\n# Données : b (couverture radio 802.11 pour tablettes mobiles)\n# Données : c (liaison cuivre blindée près d'armoires électriques)\n# Données : d (liaison inter-bâtiments 2 km très haut débit optique)\n# Données : e (paire torsadée avec écran métallique anti-bruit)\nA_COMPLETER\n",
     "hints": [
-      "Un case à quatre supports, plus le cas par défaut pour l'inconnu.",
-      "Seul le support stp est blindé dans ce contrôle."
+      "Distinguez les supports cuivre (UTP non blindé, STP blindé), la fibre optique, les ondes radio 802.11 (« sans fil ») et le coaxial hors référentiel (« support inconnu »).",
+      "Seuls les déploiements nécessitant un blindage contre les perturbations électromagnétiques comptent dans « blindes : X/n ».",
+      "Répondez strictement par « nom : conseille », « nom : sans fil » ou « nom : support inconnu », suivi du décompte des liens blindés."
     ],
     "examples": [
       {
-        "stdin": "4\nbureau utp\natelier stp\ncities fibre\nreunion wifi\n",
-        "expected": "bureau : conseille\natelier : conseille\ncities : conseille\nreunion : sans fil\nblindes : 1/4"
+        "stdin": "4\nbureau (RJ45 non blindé < 100 m)\natelier (paire torsadée avec blindage EM)\ncampus (fibre monomode 800 m)\nreunion (borne radio 802.11)\n",
+        "expected": "bureau : conseille\natelier : conseille\ncampus : conseille\nreunion : sans fil\nblindes : 1/4"
       }
     ],
     "tests": [
@@ -192,7 +201,8 @@ module.exports = [
         "expected": "a : conseille\nb : sans fil\nc : conseille\nd : conseille\ne : conseille\nblindes : 2/5"
       }
     ],
-    "solution": "[Exemple]\nbureau : conseille\natelier : conseille\ncities : conseille\nreunion : sans fil\nblindes : 1/4\n\n[Cas 1 — Un seul blindé]\nchaudiere : conseille\nblindes : 1/1\n\n[Cas 2 — Support inconnu]\nbureau : support inconnu\nsalle : conseille\nblindes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : conseille\nb : sans fil\nc : conseille\nd : conseille\ne : conseille\nblindes : 2/5"
+    "solution": "[Exemple]\nbureau : conseille\natelier : conseille\ncities : conseille\nreunion : sans fil\nblindes : 1/4\n\n[Cas 1 — Un seul blindé]\nchaudiere : conseille\nblindes : 1/1\n\n[Cas 2 — Support inconnu]\nbureau : support inconnu\nsalle : conseille\nblindes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : conseille\nb : sans fil\nc : conseille\nd : conseille\ne : conseille\nblindes : 2/5",
+    "takeaway": "À retenir : Conseiller le bon support de transmission : UTP 100 m, STP blindé, fibre longue distance, Wi-Fi sans fil."
   },
   {
     "id": "re-c2-e3",
@@ -205,7 +215,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c2-e3) — La panne de câble\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Anneau double]\n# Données : 1\n# Données : r1 anneau coupe\nA_COMPLETER\n\n[Cas 2 — Rien ne casse]\n# Données : 2\n# Données : a etoile ok\n# Données : b anneau ok\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a bus coupe\n# Données : b etoile ok\n# Données : c bus ok\n# Données : d etoile coupe\n# Données : e anneau coupe\nA_COMPLETER\n",
     "hints": [
       "Un if sur panne, puis un case sur topo : ok court-circuite tout.",
-      "Le compteur suit exactement les lignes « coupe », quelle que soit la topologie."
+      "Le compteur suit exactement les lignes « coupe », quelle que soit la topologie.",
+      "Testez d abord si la liaison est intacte (« liaison correcte ») ; en cas de coupure, appliquez l effet propre à bus, étoile ou double anneau redondant."
     ],
     "examples": [
       {
@@ -230,7 +241,8 @@ module.exports = [
         "expected": "a : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole\ne : bascule anneau secondaire\npannes : 3/5"
       }
     ],
-    "solution": "[Exemple]\na : liaison correcte\nb : reseau hors service\nc : bascule anneau secondaire\nd : un poste isole\npannes : 3/4\n\n[Cas 1 — Anneau double]\nr1 : bascule anneau secondaire\npannes : 1/1\n\n[Cas 2 — Rien ne casse]\na : liaison correcte\nb : liaison correcte\npannes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole\ne : bascule anneau secondaire\npannes : 3/5"
+    "solution": "[Exemple]\na : liaison correcte\nb : reseau hors service\nc : bascule anneau secondaire\nd : un poste isole\npannes : 3/4\n\n[Cas 1 — Anneau double]\nr1 : bascule anneau secondaire\npannes : 1/1\n\n[Cas 2 — Rien ne casse]\na : liaison correcte\nb : liaison correcte\npannes : 0/2\n\n[Cas 3 — Cinq reseaux]\na : reseau hors service\nb : liaison correcte\nc : liaison correcte\nd : un poste isole\ne : bascule anneau secondaire\npannes : 3/5",
+    "takeaway": "À retenir : Simuler une coupure dans un bus, un double anneau redondant compatible et une étoile."
   },
   {
     "id": "re-c3-e1",
@@ -243,7 +255,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c3-e1) — Les sept couches OSI\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul c3]\n# Données : 1\n# Données : paquet c3\nA_COMPLETER\n\n[Cas 2 — Couche 2]\n# Données : 2\n# Données : trame c1\n# Données : mac c2\nA_COMPLETER\n\n[Cas 3 — Cinq objets]\n# Données : 5\n# Données : a c7\n# Données : b c2\n# Données : c c3\n# Données : d c5\n# Données : e c6\nA_COMPLETER\n",
     "hints": [
       "Un case à sept valeurs, chaque valeur donnant « N-nom ».",
-      "La couche 3 (reseau) est celle des routeurs : c'est elle qu'on compte."
+      "La couche 3 (reseau) est celle des routeurs : c'est elle qu'on compte.",
+      "Reliez signal/câble à 1-physique, trame/MAC à 2-liaison, paquet/IP à 3-reseau, port/TCP à 4-transport et protocole métier à 7-application."
     ],
     "examples": [
       {
@@ -268,45 +281,65 @@ module.exports = [
         "expected": "a : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session\ne : 6-presentation\nrouteurs : 1/5"
       }
     ],
-    "solution": "[Exemple]\ncable : 1-physique\nadresse : 3-reseau\nport : 4-transport\nnavigateur : 7-application\nrouteurs : 1/4\n\n[Cas 1 — Un seul c3]\npaquet : 3-reseau\nrouteurs : 1/1\n\n[Cas 2 — Couche 2]\ntrame : 1-physique\nmac : 2-liaison\nrouteurs : 0/2\n\n[Cas 3 — Cinq objets]\na : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session\ne : 6-presentation\nrouteurs : 1/5"
+    "solution": "[Exemple]\ncable : 1-physique\nadresse : 3-reseau\nport : 4-transport\nnavigateur : 7-application\nrouteurs : 1/4\n\n[Cas 1 — Un seul c3]\npaquet : 3-reseau\nrouteurs : 1/1\n\n[Cas 2 — Couche 2]\ntrame : 1-physique\nmac : 2-liaison\nrouteurs : 0/2\n\n[Cas 3 — Cinq objets]\na : 7-application\nb : 2-liaison\nc : 3-reseau\nd : 5-session\ne : 6-presentation\nrouteurs : 1/5",
+    "takeaway": "À retenir : Ranger chaque élément dans sa couche OSI, de la couche 1 physique à la couche 7 application."
   },
   {
     "id": "re-c3-e2",
     "chapter": 3,
     "level": "n2",
     "language": "analyse",
-    "title": "Où travaille l'équipement",
-    "goal": "Placer les équipements dans leurs couches : câble (1), commutateur (2), routeur (3), application (7).",
-    "brief": "<p>Analysez chaque ligne proposée « equipement couche » : couche vaut <code>c1</code> (câble, connecteur), <code>c2</code> (commutateur), <code>c3</code> (routeur) ou <code>c7</code> (navigateur, messagerie). Pour chaque ligne, indiquez <code>equipement : couche N</code> si l'équipement correspond bien à cette couche, <code>equipement : hors couche</code> sinon. Terminez par <code>routeurs : X/n</code> (les équipements placés correctement en couche 3).</p>",
-    "starter": "# Grille d'analyse (re-c3-e2) — Où travaille l'équipement\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un routeur bien placé]\n# Données : 1\n# Données : routeur c3\nA_COMPLETER\n\n[Cas 2 — Hors couche]\n# Données : 2\n# Données : switch c3\n# Données : navigateur c2\nA_COMPLETER\n\n[Cas 3 — Cinq equipements]\n# Données : 5\n# Données : routeur c3\n# Données : switch c2\n# Données : cable c1\n# Données : application c7\n# Données : switch c3\nA_COMPLETER\n",
+    "title": "L'inventaire du local réseau de l'agence",
+    "exampleTitle": "Exemple résolu — l'inventaire du CDI du collège",
+    "goal": "Associer chaque équipement du local réseau à sa couche OSI.",
+    "brief": "<p><strong>Énoncé.</strong> À l'agence bancaire du centre-ville, le technicien dresse l'inventaire du local technique et de ses logiciels :</p><table><tr><th>Élément inventorié</th><th>Rôle constaté</th></tr><tr><td>Câble RJ45 et connecteurs</td><td>relier physiquement les prises des guichets</td></tr><tr><td>Commutateur (switch)</td><td>acheminer les trames entre guichets</td></tr><tr><td>Routeur</td><td>acheminer les paquets vers le réseau de la banque</td></tr><tr><td>Serveur de messagerie et navigateurs</td><td>services utilisés par les conseillers</td></tr><tr><td>Logiciel de session à distance</td><td>ouvrir, coordonner et terminer les sessions des conseillers</td></tr></table><p>Répondez par le numéro de la couche (1 à 7), sauf la question 5 : les deux sigles séparés par un espace.</p><ol><li>À quelle couche OSI travaille le commutateur ?</li><li>À quelle couche OSI travaille le routeur ?</li><li>Le câble RJ45 et ses connecteurs appartiennent à quelle couche ?</li><li>Le serveur de messagerie et le navigateur appartiennent à quelle couche ?</li><li>Les adresses IP travaillent en couche 3 ; quels sont les deux protocoles de la couche 4, celle des ports ?</li><li>Le logiciel qui ouvre, coordonne et termine les sessions illustre quelle couche ?</li></ol>",
+    "starter": "# Exercice — L'inventaire du local réseau de l'agence\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Numéro de la couche (1 à 7) ; question 5 : les deux sigles séparés par un espace.\n\n[Question 1 — Couche du commutateur]\nA_COMPLETER\n\n[Question 2 — Couche du routeur]\nA_COMPLETER\n\n[Question 3 — Couche du câble RJ45]\nA_COMPLETER\n\n[Question 4 — Couche de la messagerie et des navigateurs]\nA_COMPLETER\n\n[Question 5 — Les deux protocoles de la couche 4]\nA_COMPLETER\n\n[Question 6 — Couche des sessions]\nA_COMPLETER\n",
     "hints": [
-      "Un case sur la couche donne l'équipement attendu : c1 cable, c2 commutateur, c3 routeur, c7 application.",
-      "La comparaison équipement reçu contre équipement attendu décide du verdict."
+      "Chaque couche héberge ses équipements : câble en 1, commutateur en 2, routeur en 3 ; les adresses IP accompagnent le routeur en 3, les ports vivent en 4.",
+      "Les couches hautes se partagent les logiciels : la session synchronise le dialogue, la présentation met en forme, l'application sert directement l'utilisateur.",
+      "Contrôle : le routeur et les adresses IP partagent la même couche, celle des chemins entre réseaux ; le commutateur reste en dessous, avec les trames."
     ],
     "examples": [
       {
-        "stdin": "4\nrouteur c3\nswitch c2\ncable c1\nrouteur c2\n",
-        "expected": "routeur : couche 3\nswitch : couche 2\ncable : couche 1\nrouteur : hors couche\nrouteurs : 1/4"
+        "stdin": "Au CDI d'un collège, on inventorie : le commutateur du CDI, le routeur du fournisseur d'accès, les prises câblées des salles, le serveur web du CDI.\n\n1) Commutateur : couche 2.\n2) Routeur : couche 3.\n3) Prises câblées : couche 1.\n4) Serveur web : couche 7.\n5) Les ports TCP et UDP vivent en couche 4.",
+        "expected": "commutateur : 2 — routeur : 3 — prises : 1 — serveur web : 7 — ports : 4",
+        "note": "Commutateur 2, routeur 3 : c'est l'inversion classique à éviter ; les adresses IP accompagnent le routeur en 3."
       }
     ],
     "tests": [
       {
-        "label": "Un routeur bien placé",
-        "stdin": "cas:1",
-        "expected": "routeur : couche 3\nrouteurs : 1/1"
+        "label": "Question 1 — Couche du commutateur",
+        "stdin": "q:1",
+        "expected": "2||couche 2||liaison||liaison de donnees"
       },
       {
-        "label": "Hors couche",
-        "stdin": "cas:2",
-        "expected": "switch : hors couche\nnavigateur : hors couche\nrouteurs : 0/2"
+        "label": "Question 2 — Couche du routeur",
+        "stdin": "q:2",
+        "expected": "3||couche 3||reseau"
       },
       {
-        "label": "Cinq equipements",
-        "stdin": "cas:3",
-        "expected": "routeur : couche 3\nswitch : couche 2\ncable : couche 1\napplication : couche 7\nswitch : hors couche\nrouteurs : 1/5"
+        "label": "Question 3 — Couche du câble RJ45",
+        "stdin": "q:3",
+        "expected": "1||couche 1||physique"
+      },
+      {
+        "label": "Question 4 — Couche de la messagerie et des navigateurs",
+        "stdin": "q:4",
+        "expected": "7||couche 7||application"
+      },
+      {
+        "label": "Question 5 — Les deux protocoles de la couche 4",
+        "stdin": "q:5",
+        "expected": "tcp udp||tcp et udp||udp tcp||udp et tcp"
+      },
+      {
+        "label": "Question 6 — Couche des sessions",
+        "stdin": "q:6",
+        "expected": "5||couche 5||session"
       }
     ],
-    "solution": "[Exemple]\nrouteur : couche 3\nswitch : couche 2\ncable : couche 1\nrouteur : hors couche\nrouteurs : 1/4\n\n[Cas 1 — Un routeur bien placé]\nrouteur : couche 3\nrouteurs : 1/1\n\n[Cas 2 — Hors couche]\nswitch : hors couche\nnavigateur : hors couche\nrouteurs : 0/2\n\n[Cas 3 — Cinq equipements]\nrouteur : couche 3\nswitch : couche 2\ncable : couche 1\napplication : couche 7\nswitch : hors couche\nrouteurs : 1/5"
+    "solution": "[Question 1 — Couche du commutateur]\n2\n\n[Question 2 — Couche du routeur]\n3\n\n[Question 3 — Couche du câble RJ45]\n1\n\n[Question 4 — Couche de la messagerie et des navigateurs]\n7\n\n[Question 5 — Les deux protocoles de la couche 4]\ntcp udp\n\n[Question 6 — Couche des sessions]\n5",
+    "takeaway": "1) Le commutateur achemine les trames (sous-couches MAC et LLC) : couche 2, liaison de données.\n2) Le routeur achemine les paquets entre réseaux : couche 3, réseau.\n3) Le câble RJ45 et ses connecteurs décrivent le support : couche 1, physique.\n4) Le serveur de messagerie et le navigateur servent directement les conseillers : couche 7, application.\n5) Les deux protocoles de la couche 4 (transport), celle des ports : TCP et UDP.\n6) Le logiciel qui ouvre, coordonne et termine les sessions : couche 5, session.\nContrôle : câble (1), commutateur (2), routeur (3), TCP/UDP et ports (4), session (5), présentation (6), application (7) — six des sept couches de l'inventaire sont nommées, seule la présentation (6) n'y figure pas."
   },
   {
     "id": "re-c3-e3",
@@ -319,7 +352,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c3-e3) — Le dépannage par couches\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cable debranche]\n# Données : 1\n# Données : imprimante c1\nA_COMPLETER\n\n[Cas 2 — Routage absent]\n# Données : 2\n# Données : vlan c3\n# Données : appli c7\nA_COMPLETER\n\n[Cas 3 — Cinq incidents]\n# Données : 5\n# Données : a c1\n# Données : b c3\n# Données : c c2\n# Données : d c1\n# Données : e c7\nA_COMPLETER\n",
     "hints": [
       "Un case à quatre couches, quatre gestes : cables, carte, routage, applications.",
-      "Le compteur suit exactement les incidents de couche 1."
+      "Le compteur suit exactement les incidents de couche 1.",
+      "Partez toujours du symptôme indiqué (c1 -> cables, c2 -> carte, c3 -> routage, c7 -> applications) sans oublier le décompte final « physiques : X/n »."
     ],
     "examples": [
       {
@@ -344,7 +378,8 @@ module.exports = [
         "expected": "a : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables\ne : verifier les applications\nphysiques : 2/5"
       }
     ],
-    "solution": "[Exemple]\npc1 : verifier les cables\npc2 : verifier la carte\nsrv : verifier le routage\nweb : verifier les applications\nphysiques : 1/4\n\n[Cas 1 — Cable debranche]\nimprimante : verifier les cables\nphysiques : 1/1\n\n[Cas 2 — Routage absent]\nvlan : verifier le routage\nappli : verifier les applications\nphysiques : 0/2\n\n[Cas 3 — Cinq incidents]\na : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables\ne : verifier les applications\nphysiques : 2/5"
+    "solution": "[Exemple]\npc1 : verifier les cables\npc2 : verifier la carte\nsrv : verifier le routage\nweb : verifier les applications\nphysiques : 1/4\n\n[Cas 1 — Cable debranche]\nimprimante : verifier les cables\nphysiques : 1/1\n\n[Cas 2 — Routage absent]\nvlan : verifier le routage\nappli : verifier les applications\nphysiques : 0/2\n\n[Cas 3 — Cinq incidents]\na : verifier les cables\nb : verifier le routage\nc : verifier la carte\nd : verifier les cables\ne : verifier les applications\nphysiques : 2/5",
+    "takeaway": "À retenir : Appliquer la méthode du professionnel : en cas de panne, remonter les couches OSI depuis la couche physique."
   },
   {
     "id": "re-c4-e1",
@@ -353,15 +388,16 @@ module.exports = [
     "language": "analyse",
     "title": "Les quatre couches TCP/IP",
     "goal": "Ranger chaque élément dans les quatre couches du modèle TCP/IP : accès réseau, internet, transport, application.",
-    "brief": "<p>Analysez chaque ligne proposée « objet couche » : couche vaut <code>ac</code> (accès réseau), <code>in</code> (internet), <code>tr</code> (transport) ou <code>ap</code> (application). Pour chaque ligne, indiquez <code>objet : acces-reseau</code>, <code>objet : internet</code>, <code>objet : transport</code> ou <code>objet : application</code>. Terminez par <code>transport : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (re-c4-e1) — Les quatre couches TCP/IP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul transport]\n# Données : 1\n# Données : udp tr\nA_COMPLETER\n\n[Cas 2 — Couche internet]\n# Données : 2\n# Données : icmp in\n# Données : arp in\nA_COMPLETER\n\n[Cas 3 — Cinq objets]\n# Données : 5\n# Données : a ac\n# Données : b ap\n# Données : c in\n# Données : d tr\n# Données : e ap\nA_COMPLETER\n",
+    "brief": "<p>Associez chaque protocole ou mécanisme réseau à sa couche du modèle TCP/IP : <code>objet : acces-reseau</code>, <code>objet : internet</code>, <code>objet : transport</code> ou <code>objet : application</code>. Terminez par <code>transport : X/n</code>.</p>",
+    "starter": "# Grille d'analyse (re-c4-e1) — Les quatre couches TCP/IP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un protocole sans connexion]\n# Données : 1\n# Données : udp (acheminement par numéros de port sans ACK)\nA_COMPLETER\n\n[Cas 2 — Diagnostics et résolution locale]\n# Données : 2\n# Données : icmp (paquets echo-request de commande ping)\n# Données : arp (correspondance adresse IP vers adresse MAC)\nA_COMPLETER\n\n[Cas 3 — Cinq objets]\n# Données : 5\n# Données : a (trames IEEE 802.3 et adresses MAC RJ45)\n# Données : b (requêtes web HTTP GET/POST)\n# Données : c (paquets IPv4 et tables de routage)\n# Données : d (segments TCP numérotés de bout en bout)\n# Données : e (requêtes DNS de résolution de noms)\nA_COMPLETER\n",
     "hints": [
-      "Un case à quatre codes : ac, in, tr, ap.",
-      "Le compteur suit exactement les lignes « transport »."
+      "Situez le rôle : média/MAC (acces-reseau), adressage/routage IP (internet), ports/fiabilité de bout en bout (transport) ou service utilisateur (application).",
+      "Le compteur final ne retient que les éléments de couche transport.",
+      "Écrivez exactement « objet : acces-reseau | internet | transport | application » puis « transport : X/n »."
     ],
     "examples": [
       {
-        "stdin": "4\nethernet ac\nip in\ntcp tr\nhttp ap\n",
+        "stdin": "4\nethernet (trames MAC)\nip (adressage et routage)\ntcp (segments fiables sur port 443)\nhttp (pages Web)\n",
         "expected": "ethernet : acces-reseau\nip : internet\ntcp : transport\nhttp : application\ntransport : 1/4"
       }
     ],
@@ -382,45 +418,60 @@ module.exports = [
         "expected": "a : acces-reseau\nb : application\nc : internet\nd : transport\ne : application\ntransport : 1/5"
       }
     ],
-    "solution": "[Exemple]\nethernet : acces-reseau\nip : internet\ntcp : transport\nhttp : application\ntransport : 1/4\n\n[Cas 1 — Un seul transport]\nudp : transport\ntransport : 1/1\n\n[Cas 2 — Couche internet]\nicmp : internet\narp : internet\ntransport : 0/2\n\n[Cas 3 — Cinq objets]\na : acces-reseau\nb : application\nc : internet\nd : transport\ne : application\ntransport : 1/5"
+    "solution": "[Exemple]\nethernet : acces-reseau\nip : internet\ntcp : transport\nhttp : application\ntransport : 1/4\n\n[Cas 1 — Un seul transport]\nudp : transport\ntransport : 1/1\n\n[Cas 2 — Couche internet]\nicmp : internet\narp : internet\ntransport : 0/2\n\n[Cas 3 — Cinq objets]\na : acces-reseau\nb : application\nc : internet\nd : transport\ne : application\ntransport : 1/5",
+    "takeaway": "À retenir : Ranger chaque élément dans les quatre couches du modèle TCP/IP : accès réseau, internet, transport, application."
   },
   {
     "id": "re-c4-e2",
     "chapter": 4,
     "level": "n2",
     "language": "analyse",
-    "title": "Le three-way handshake",
-    "goal": "Vérifier la séquence TCP : SYN, puis SYN-ACK, puis ACK — sinon la connexion échoue.",
-    "brief": "<p>Analysez chaque ligne proposée « paquet etape » : etape vaut <code>syn</code>, <code>synack</code> ou <code>ack</code>. La connexion est correcte si les paquets arrivent dans l'ordre syn, puis synack, puis ack. Pour chaque ligne, indiquez <code>paquet : etape N</code> (1, 2 ou 3) si le paquet est dans l'ordre, <code>paquet : hors sequence</code> sinon. Final : <code>connexion : etablie</code> si les trois étapes sont passées dans l'ordre, <code>connexion : echouee</code> sinon.</p>",
-    "starter": "# Grille d'analyse (re-c4-e2) — Le three-way handshake\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Ack sans syn]\n# Données : 1\n# Données : p1 ack\nA_COMPLETER\n\n[Cas 2 — Syn repete]\n# Données : 2\n# Données : p1 syn\n# Données : p2 syn\nA_COMPLETER\n\n[Cas 3 — Cinq paquets]\n# Données : 5\n# Données : p1 syn\n# Données : p2 synack\n# Données : p3 ack\n# Données : p4 syn\n# Données : p5 ack\nA_COMPLETER\n",
+    "title": "Le three-way handshake de la banque en ligne",
+    "exampleTitle": "Exemple résolu — la connexion FTP du photographe",
+    "goal": "Dérouler le three-way handshake de TCP avec les numéros de séquence et d'acquittement.",
+    "brief": "<p><strong>Énoncé.</strong> Le navigateur de Marc ouvre une connexion TCP vers le serveur de sa banque en ligne. Le three-way handshake commence : le navigateur envoie un premier paquet portant le numéro de séquence aléatoire <strong>A = 500</strong>. Le serveur répond par un SYN-ACK : il accuse la séquence du client et propose la sienne, <strong>B = 800</strong>. Le navigateur conclut par un ACK.</p><p>Questions 1 et 5 : un seul mot. Questions 2, 3 et 4 : le nombre seul.</p><ol><li>Comment s'appelle le premier paquet envoyé par le navigateur ?</li><li>Dans son SYN-ACK, le serveur accuse la séquence du client : quel numéro envoie-t-il (A + 1) ?</li><li>Le navigateur conclut par un ACK : quel numéro envoie-t-il pour acquitter la séquence B du serveur ?</li><li>Combien d'étapes compte le three-way handshake ?</li><li>Une fois le handshake terminé, la communication établie est-elle half-duplex ou full-duplex ?</li></ol>",
+    "starter": "# Exercice — Le three-way handshake de la banque en ligne\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 5 : un seul mot. Questions 2, 3, 4 : le nombre seul.\n\n[Question 1 — Le premier paquet du navigateur]\nA_COMPLETER\n\n[Question 2 — L'acquittement du SYN-ACK]\nA_COMPLETER\n\n[Question 3 — L'acquittement de l'ACK final]\nA_COMPLETER\n\n[Question 4 — Le nombre d'étapes]\nA_COMPLETER\n\n[Question 5 — Le mode de la communication établie]\nA_COMPLETER\n",
     "hints": [
-      "Trois étapes numérotées : syn avance à 1, synack avance à 2 (seulement si on est à 1), ack avance à 3.",
-      "Un drapeau rompu : toute sortie d'ordre casse la connexion pour la suite."
+      "L'ouverture TCP se déroule en trois temps : SYN (séquence A), SYN-ACK (acquittement A + 1 et séquence B), ACK (B + 1).",
+      "Chaque numéro d'acquittement vaut la séquence reçue augmentée de un : le serveur accuse la séquence du client, puis le client accuse celle du serveur.",
+      "Les étapes 1 et 2 fixent la séquence dans un sens, les étapes 2 et 3 dans l'autre : une fois les trois échanges passés, le dialogue est établi dans les deux sens."
     ],
     "examples": [
       {
-        "stdin": "3\np1 syn\np2 synack\np3 ack\n",
-        "expected": "p1 : etape 1\np2 : etape 2\np3 : etape 3\nconnexion : etablie"
+        "stdin": "Un photographe ouvre une connexion FTP vers son studio. Le client envoie SYN avec la séquence A = 2000 ; le serveur répond SYN-ACK avec sa séquence B = 300 ; le client conclut par ACK.\n\n1) Premier paquet : SYN.\n2) Acquittement du SYN-ACK : 2001.\n3) Acquittement de l'ACK final : 301.\n4) Le handshake compte 3 étapes.\n5) La communication est full-duplex.",
+        "expected": "SYN — acquittement : 2001 — ACK final : 301 — 3 étapes — full-duplex",
+        "note": "Le SYN-ACK porte deux numéros : l'acquittement de la séquence reçue et une nouvelle séquence ; l'ACK final la dépasse d'un."
       }
     ],
     "tests": [
       {
-        "label": "Ack sans syn",
-        "stdin": "cas:1",
-        "expected": "p1 : hors sequence\nconnexion : echouee"
+        "label": "Question 1 — Le premier paquet du navigateur",
+        "stdin": "q:1",
+        "expected": "syn||le syn"
       },
       {
-        "label": "Syn repete",
-        "stdin": "cas:2",
-        "expected": "p1 : etape 1\np2 : hors sequence\nconnexion : echouee"
+        "label": "Question 2 — L'acquittement du SYN-ACK",
+        "stdin": "q:2",
+        "expected": "501"
       },
       {
-        "label": "Cinq paquets",
-        "stdin": "cas:3",
-        "expected": "p1 : etape 1\np2 : etape 2\np3 : etape 3\np4 : hors sequence\np5 : hors sequence\nconnexion : echouee"
+        "label": "Question 3 — L'acquittement de l'ACK final",
+        "stdin": "q:3",
+        "expected": "801"
+      },
+      {
+        "label": "Question 4 — Le nombre d'étapes",
+        "stdin": "q:4",
+        "expected": "3||trois"
+      },
+      {
+        "label": "Question 5 — Le mode de la communication établie",
+        "stdin": "q:5",
+        "expected": "full-duplex||full duplex||full-duplexe||full duplexe"
       }
     ],
-    "solution": "[Exemple]\np1 : etape 1\np2 : etape 2\np3 : etape 3\nconnexion : etablie\n\n[Cas 1 — Ack sans syn]\np1 : hors sequence\nconnexion : echouee\n\n[Cas 2 — Syn repete]\np1 : etape 1\np2 : hors sequence\nconnexion : echouee\n\n[Cas 3 — Cinq paquets]\np1 : etape 1\np2 : etape 2\np3 : etape 3\np4 : hors sequence\np5 : hors sequence\nconnexion : echouee"
+    "solution": "[Question 1 — Le premier paquet du navigateur]\nsyn\n\n[Question 2 — L'acquittement du SYN-ACK]\n501\n\n[Question 3 — L'acquittement de l'ACK final]\n801\n\n[Question 4 — Le nombre d'étapes]\n3\n\n[Question 5 — Le mode de la communication établie]\nfull-duplex",
+    "takeaway": "1) Le client ouvre la connexion par un paquet SYN portant la séquence aléatoire A = 500.\n2) Le SYN-ACK du serveur accuse la séquence reçue : ACK = A + 1 = 500 + 1 = 501, et propose sa propre séquence B = 800.\n3) L'ACK final du client acquitte la séquence du serveur : B + 1 = 800 + 1 = 801.\n4) Le three-way handshake compte 3 étapes : SYN, SYN-ACK, ACK — dans cet ordre.\n5) Les séquences sont fixées dans les deux sens (étapes 1-2 dans un sens, étapes 2-3 dans l'autre) : la communication établie est full-duplex.\nContrôle : chaque acquittement vaut la séquence reçue plus un — 500 donne 501, 800 donne 801."
   },
   {
     "id": "re-c4-e3",
@@ -429,15 +480,16 @@ module.exports = [
     "language": "analyse",
     "title": "TCP contre UDP",
     "goal": "Choisir entre TCP (fiable, accusés de réception, full-duplex) et UDP (rapide, sans accusé).",
-    "brief": "<p>Analysez chaque ligne proposée « flux protocole » : protocole vaut <code>tcp</code> (transferts exigeant la fiabilité) ou <code>udp</code> (flux temps réel tolérant aux pertes). Pour chaque ligne, indiquez <code>flux : fiable</code> (tcp) ou <code>flux : rapide</code> (udp). Terminez par <code>fiables : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (re-c4-e3) — TCP contre UDP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul UDP]\n# Données : 1\n# Données : voix udp\nA_COMPLETER\n\n[Cas 2 — Que du TCP]\n# Données : 2\n# Données : site tcp\n# Données : banque tcp\nA_COMPLETER\n\n[Cas 3 — Cinq flux]\n# Données : 5\n# Données : a tcp\n# Données : b udp\n# Données : c udp\n# Données : d tcp\n# Données : e tcp\nA_COMPLETER\n",
+    "brief": "<p>Évaluez la priorité de chaque flux réseau : intégrité garantie avec accusés de réception (<code>flux : fiable</code>, via TCP) ou latence minimale en temps réel sans retransmission (<code>flux : rapide</code>, via UDP). Terminez par <code>fiables : X/n</code>.</p>",
+    "starter": "# Grille d'analyse (re-c4-e3) — TCP contre UDP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un flux temps réel]\n# Données : 1\n# Données : voix (appel audio temps réel tolérant de micro-pertes)\nA_COMPLETER\n\n[Cas 2 — Transactions critiques]\n# Données : 2\n# Données : site (page HTTPS exigeant intégrité complète)\n# Données : banque (virement bancaire à acquitter sans erreur)\nA_COMPLETER\n\n[Cas 3 — Cinq flux]\n# Données : 5\n# Données : a (téléchargement d'archive ZIP sans corruption)\n# Données : b (requête DNS en un datagramme minimal)\n# Données : c (flux vidéo conférencier temps réel)\n# Données : d (session SSH interactive chiffrée fiable)\n# Données : e (envoi de courriel SMTP avec acquittements)\nA_COMPLETER\n",
     "hints": [
-      "Un if sur le protocole suffit : tcp et udp sont les deux seules valeurs.",
-      "Le compteur suit exactement les flux « fiable »."
+      "Un transfert de fichier, une page web ou une transaction ne tolèrent aucune perte (« fiable ») ; la voix/vidéo directe ou un ping/DNS simple privilégient la vitesse (« rapide »).",
+      "Le compteur « fiables : X/n » totalise les flux devant reposer sur TCP.",
+      "Indiquez « flux : fiable » ou « flux : rapide » pour chaque ligne, puis « fiables : X/n »."
     ],
     "examples": [
       {
-        "stdin": "3\ncourriel tcp\ndns udp\ntransfert tcp\n",
+        "stdin": "3\ncourriel (pièce jointe SMTP complète)\ndns (résolution simple sans session)\ntransfert (sauvegarde binaire critique)\n",
         "expected": "courriel : fiable\ndns : rapide\ntransfert : fiable\nfiables : 2/3"
       }
     ],
@@ -458,7 +510,8 @@ module.exports = [
         "expected": "a : fiable\nb : rapide\nc : rapide\nd : fiable\ne : fiable\nfiables : 3/5"
       }
     ],
-    "solution": "[Exemple]\ncourriel : fiable\ndns : rapide\ntransfert : fiable\nfiables : 2/3\n\n[Cas 1 — Un seul UDP]\nvoix : rapide\nfiables : 0/1\n\n[Cas 2 — Que du TCP]\nsite : fiable\nbanque : fiable\nfiables : 2/2\n\n[Cas 3 — Cinq flux]\na : fiable\nb : rapide\nc : rapide\nd : fiable\ne : fiable\nfiables : 3/5"
+    "solution": "[Exemple]\ncourriel : fiable\ndns : rapide\ntransfert : fiable\nfiables : 2/3\n\n[Cas 1 — Un seul UDP]\nvoix : rapide\nfiables : 0/1\n\n[Cas 2 — Que du TCP]\nsite : fiable\nbanque : fiable\nfiables : 2/2\n\n[Cas 3 — Cinq flux]\na : fiable\nb : rapide\nc : rapide\nd : fiable\ne : fiable\nfiables : 3/5",
+    "takeaway": "À retenir : Choisir entre TCP (fiable, accusés de réception, full-duplex) et UDP (rapide, sans accusé)."
   },
   {
     "id": "re-c5-e1",
@@ -471,7 +524,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c5-e1) — Lire une adresse MAC\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule valide]\n# Données : 1\n# Données : srv 001A2B3C4D5E\nA_COMPLETER\n\n[Cas 2 — Trop longue]\n# Données : 2\n# Données : pc1 aabbccddeeff1\n# Données : pc2 aabbccddeeff\nA_COMPLETER\n\n[Cas 3 — Cinq cartes]\n# Données : 5\n# Données : a aabbccddeeff\n# Données : b AABBCCDDEEFF\n# Données : c aabbccddeegf\n# Données : d aabbccddee\n# Données : e zzbccddeeff1\nA_COMPLETER\n",
     "hints": [
       "Un case avec douze classes [0-9a-fA-F] de suite valide la forme : le motif doit couvrir tout le mot.",
-      "Trop courte, trop longue ou avec un caractère étranger : tout tombe dans le cas invalide."
+      "Trop courte, trop longue ou avec un caractère étranger : tout tombe dans le cas invalide.",
+      "Après retrait éventuel des séparateurs, vérifiez que l adresse compte strictement 12 chiffres hexadécimaux (0-9, a-f/A-F) soit 48 bits."
     ],
     "examples": [
       {
@@ -496,45 +550,60 @@ module.exports = [
         "expected": "a : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide\ne : mac invalide\ninvalides : 3/5"
       }
     ],
-    "solution": "[Exemple]\npc1 : mac valide\npc2 : mac invalide\npc3 : mac invalide\ninvalides : 2/3\n\n[Cas 1 — Une seule valide]\nsrv : mac valide\ninvalides : 0/1\n\n[Cas 2 — Trop longue]\npc1 : mac invalide\npc2 : mac valide\ninvalides : 1/2\n\n[Cas 3 — Cinq cartes]\na : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide\ne : mac invalide\ninvalides : 3/5"
+    "solution": "[Exemple]\npc1 : mac valide\npc2 : mac invalide\npc3 : mac invalide\ninvalides : 2/3\n\n[Cas 1 — Une seule valide]\nsrv : mac valide\ninvalides : 0/1\n\n[Cas 2 — Trop longue]\npc1 : mac invalide\npc2 : mac valide\ninvalides : 1/2\n\n[Cas 3 — Cinq cartes]\na : mac valide\nb : mac valide\nc : mac invalide\nd : mac invalide\ne : mac invalide\ninvalides : 3/5",
+    "takeaway": "À retenir : Valider une adresse MAC : 48 bits, soit exactement 12 chiffres hexadécimaux."
   },
   {
     "id": "re-c5-e2",
     "chapter": 5,
     "level": "n2",
     "language": "analyse",
-    "title": "Réseau ou hôte",
-    "goal": "Découper une adresse IP selon sa classe : quel octet appartient à la partie réseau, lequel à la partie hôte.",
-    "brief": "<p>Analysez chaque ligne proposée « classe octet » : classe vaut <code>a</code> (1 octet réseau), <code>b</code> (2 octets réseau) ou <code>c</code> (3 octets réseau) ; octet vaut <code>o1</code>, <code>o2</code>, <code>o3</code> ou <code>o4</code>. Pour chaque ligne, indiquez <code>octet : reseau</code> si l'octet appartient à la partie réseau de cette classe, <code>octet : hote</code> sinon. Terminez par <code>reseau : X/n</code>.</p>",
-    "starter": "# Grille d'analyse (re-c5-e2) — Réseau ou hôte\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Classe A, premier octet]\n# Données : 1\n# Données : a o1\nA_COMPLETER\n\n[Cas 2 — Classe C, tout le dernier]\n# Données : 2\n# Données : c o3\n# Données : c o4\nA_COMPLETER\n\n[Cas 3 — Six lignes]\n# Données : 6\n# Données : b o1\n# Données : b o3\n# Données : b o4\n# Données : a o4\n# Données : a o1\n# Données : c o2\nA_COMPLETER\n",
+    "title": "Réseau ou hôte : le masque du bureau Nuit et Jour",
+    "exampleTitle": "Exemple résolu — le réseau du gîte rural",
+    "goal": "Décomposer une adresse IPv4 en partie réseau et partie hôte avec le masque, puis choisir ARP ou le routeur.",
+    "brief": "<p><strong>Énoncé.</strong> Le bureau de la PME <strong>Nuit et Jour</strong> occupe le réseau <strong>192.168.10.0/24</strong>, de masque <strong>255.255.255.0</strong>. Le poste d'Inès porte l'adresse 192.168.10.25 ; le serveur de fichiers, 192.168.10.40 ; l'imprimante, 192.168.10.50. Inès travaille toute la journée avec le serveur et l'imprimante, puis consulte le site web d'un fournisseur, hébergé à distance.</p><p>Questions 1 et 2 : le nombre seul. Questions 3 à 5 : le terme ou le sigle exact.</p><ol><li>Avec le masque 255.255.255.0, combien d'octets de l'adresse identifient le réseau ?</li><li>Combien d'octets restent pour identifier les hôtes de ce réseau ?</li><li>Dans le masque, les bits à 0 marquent quelle partie de l'adresse : le réseau ou l'hôte ?</li><li>Pour joindre le serveur 192.168.10.40, situé sur le même réseau, quel protocole traduit son IP en adresse MAC (sigle) ?</li><li>Pour joindre le site web distant du fournisseur, le poste d'Inès encapsule le paquet vers l'adresse MAC de quel équipement (un mot) ?</li></ol>",
+    "starter": "# Exercice — Réseau ou hôte : le masque du bureau Nuit et Jour\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 : le nombre seul. Questions 3 à 5 : le terme ou le sigle exact.\n\n[Question 1 — Les octets du réseau]\nA_COMPLETER\n\n[Question 2 — Les octets des hôtes]\nA_COMPLETER\n\n[Question 3 — Ce que marquent les bits à 0]\nA_COMPLETER\n\n[Question 4 — Le traducteur vers le serveur local]\nA_COMPLETER\n\n[Question 5 — L'équipement pour le site distant]\nA_COMPLETER\n",
     "hints": [
-      "Un case sur la classe fixe le nombre d'octets réseau : a 1, b 2, c 3.",
-      "Un second case sur l'octet (o1 à o4) compare son rang à ce nombre."
+      "Le masque partage les 32 bits de l'adresse : bits à 1 = réseau, bits à 0 = hôte. Le masque 255.255.255.0 réserve trois octets complets à la partie réseau.",
+      "Même réseau : la trame part directement, après la traduction de l'IP en MAC ; réseau distant : la trame s'adresse à l'équipement qui relaie d'un réseau à l'autre.",
+      "Comparez chaque destination au réseau du bureau : si ses trois premiers octets coïncident, l'envoi reste local ; sinon le paquet prend la porte de sortie."
     ],
     "examples": [
       {
-        "stdin": "5\nc o1\nc o2\nc o4\na o2\nb o2\n",
-        "expected": "o1 : reseau\no2 : reseau\no4 : hote\no2 : hote\no2 : reseau\nreseau : 3/5"
+        "stdin": "Un gîte rural exploite le réseau 192.168.50.0/24 (masque 255.255.255.0). La réception (192.168.50.10) joint le disque multimédia (192.168.50.20), puis un site de météo distant.\n\n1) Octets du réseau : 3.\n2) Octets des hôtes : 1.\n3) Les bits à 0 marquent l'hôte.\n4) Vers le disque local : ARP.\n5) Vers le site distant : le routeur.",
+        "expected": "réseau : 3 octets — hôte : 1 octet — bits à 0 : hôte — local : ARP — distant : routeur",
+        "note": "Un masque n'est qu'une frontière : derrière elle, tout reste local (ARP) ; devant elle, tout passe par le routeur."
       }
     ],
     "tests": [
       {
-        "label": "Classe A, premier octet",
-        "stdin": "cas:1",
-        "expected": "o1 : reseau\nreseau : 1/1"
+        "label": "Question 1 — Les octets du réseau",
+        "stdin": "q:1",
+        "expected": "3||trois||3 octets"
       },
       {
-        "label": "Classe C, tout le dernier",
-        "stdin": "cas:2",
-        "expected": "o3 : reseau\no4 : hote\nreseau : 1/2"
+        "label": "Question 2 — Les octets des hôtes",
+        "stdin": "q:2",
+        "expected": "1||un||1 octet"
       },
       {
-        "label": "Six lignes",
-        "stdin": "cas:3",
-        "expected": "o1 : reseau\no3 : hote\no4 : hote\no4 : hote\no1 : reseau\no2 : reseau\nreseau : 3/6"
+        "label": "Question 3 — Ce que marquent les bits à 0",
+        "stdin": "q:3",
+        "expected": "hote||hotes||l'hote||l'hôte"
+      },
+      {
+        "label": "Question 4 — Le traducteur vers le serveur local",
+        "stdin": "q:4",
+        "expected": "arp||le protocole arp||protocole arp"
+      },
+      {
+        "label": "Question 5 — L'équipement pour le site distant",
+        "stdin": "q:5",
+        "expected": "routeur||le routeur||passerelle"
       }
     ],
-    "solution": "[Exemple]\no1 : reseau\no2 : reseau\no4 : hote\no2 : hote\no2 : reseau\nreseau : 3/5\n\n[Cas 1 — Classe A, premier octet]\no1 : reseau\nreseau : 1/1\n\n[Cas 2 — Classe C, tout le dernier]\no3 : reseau\no4 : hote\nreseau : 1/2\n\n[Cas 3 — Six lignes]\no1 : reseau\no3 : hote\no4 : hote\no4 : hote\no1 : reseau\no2 : reseau\nreseau : 3/6"
+    "solution": "[Question 1 — Les octets du réseau]\n3\n\n[Question 2 — Les octets des hôtes]\n1\n\n[Question 3 — Ce que marquent les bits à 0]\nhote\n\n[Question 4 — Le traducteur vers le serveur local]\narp\n\n[Question 5 — L'équipement pour le site distant]\nrouteur",
+    "takeaway": "1) Le masque 255.255.255.0 met à 1 les 24 premiers bits : les trois premiers octets (192.168.10) identifient le réseau.\n2) Le dernier octet (8 bits) reste pour les hôtes : 1 octet.\n3) Bits à 1 = réseau, bits à 0 = hôte : les bits à 0 marquent la partie hôte.\n4) Le serveur 192.168.10.40 fait partie du réseau 192.168.10.0/24 : envoi local — ARP (Address Resolution Protocol) traduit son IP en adresse MAC.\n5) Le site du fournisseur est hors du réseau local : le paquet est encapsulé vers la MAC du routeur (la passerelle), qui consulte sa table de routage et relaie.\nContrôle : Inès (192.168.10.25), le serveur (.40) et l'imprimante (.50) partagent les trois mêmes octets réseau — tout échange entre eux reste local."
   },
   {
     "id": "re-c5-e3",
@@ -547,7 +616,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c5-e3) — La classe de l'adresse\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Boucle locale]\n# Données : 1\n# Données : localhost 127\nA_COMPLETER\n\n[Cas 2 — Classe E]\n# Données : 2\n# Données : labo 240\n# Données : pmi 193\nA_COMPLETER\n\n[Cas 3 — Six adresses]\n# Données : 6\n# Données : a 1\n# Données : b 126\n# Données : c 128\n# Données : d 191\n# Données : e 255\n# Données : f 0\nA_COMPLETER\n",
     "hints": [
       "Une suite de if/elif avec -le et -ge évite le case : les tranches sont numériques.",
-      "Boucle locale (127), 0 et 255 sont les cas « speciales » à compter."
+      "Boucle locale (127), 0 et 255 sont les cas « speciales » à compter.",
+      "Lisez uniquement le premier octet : 1-126 -> classe A, 128-191 -> classe B, 192-223 -> classe C, >=224 ou 127 -> reservee."
     ],
     "examples": [
       {
@@ -572,7 +642,8 @@ module.exports = [
         "expected": "a : classe A\nb : classe A\nc : classe B\nd : classe B\ne : reservee\nf : reservee\nspeciales : 2/6"
       }
     ],
-    "solution": "[Exemple]\nrc : classe A\nuni : classe B\npmi : classe C\ngroupe : classe D\nspeciales : 0/4\n\n[Cas 1 — Boucle locale]\nlocalhost : boucle locale\nspeciales : 1/1\n\n[Cas 2 — Classe E]\nlabo : classe E\npmi : classe C\nspeciales : 0/2\n\n[Cas 3 — Six adresses]\na : classe A\nb : classe A\nc : classe B\nd : classe B\ne : reservee\nf : reservee\nspeciales : 2/6"
+    "solution": "[Exemple]\nrc : classe A\nuni : classe B\npmi : classe C\ngroupe : classe D\nspeciales : 0/4\n\n[Cas 1 — Boucle locale]\nlocalhost : boucle locale\nspeciales : 1/1\n\n[Cas 2 — Classe E]\nlabo : classe E\npmi : classe C\nspeciales : 0/2\n\n[Cas 3 — Six adresses]\na : classe A\nb : classe A\nc : classe B\nd : classe B\ne : reservee\nf : reservee\nspeciales : 2/6",
+    "takeaway": "À retenir : Identifier la classe IPv4 par le premier octet : A (1-126), B (128-191), C (192-223), D et E réservées."
   },
   {
     "id": "re-c6-e1",
@@ -585,7 +656,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c6-e1) — Emprunter des bits\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Emprunt d un bit]\n# Données : 1\n# Données : res1 1\nA_COMPLETER\n\n[Cas 2 — Emprunt trop grand]\n# Données : 2\n# Données : res1 7\n# Données : res2 3\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a 1\n# Données : b 2\n# Données : c 3\n# Données : d 4\n# Données : e 5\nA_COMPLETER\n",
     "hints": [
       "Le nombre d’adresses IP d’un bloc CIDR de préfixe /p vaut 2^(32 - p).",
-      "Dans cette grille /25 à /30, retirer l’adresse réseau et l’adresse de diffusion : N_hôtes = 2^k - 2 ; le /31 point-à-point est hors grille."
+      "Dans cette grille /25 à /30, retirer l’adresse réseau et l’adresse de diffusion : N_hôtes = 2^k - 2 ; le /31 point-à-point est hors grille.",
+      "Calculez /24+k, le nombre de sous-réseaux 2^k et les hôtes utilisables 2^(8-k) - 2 en respectant le format exact « /XX (R sous-reseaux, H hotes) »."
     ],
     "examples": [
       {
@@ -610,7 +682,8 @@ module.exports = [
         "expected": "a : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)\ne : /29 (32 sous-reseaux, 6 hotes)"
       }
     ],
-    "solution": "[Exemple]\nagence : /27 (8 sous-reseaux, 30 hotes)\nagence2 : /26 (4 sous-reseaux, 62 hotes)\nagence3 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 1 — Emprunt d un bit]\nres1 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : /27 (8 sous-reseaux, 30 hotes)\n\n[Cas 3 — Cinq reseaux]\na : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)\ne : /29 (32 sous-reseaux, 6 hotes)"
+    "solution": "[Exemple]\nagence : /27 (8 sous-reseaux, 30 hotes)\nagence2 : /26 (4 sous-reseaux, 62 hotes)\nagence3 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 1 — Emprunt d un bit]\nres1 : /25 (2 sous-reseaux, 126 hotes)\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : /27 (8 sous-reseaux, 30 hotes)\n\n[Cas 3 — Cinq reseaux]\na : /25 (2 sous-reseaux, 126 hotes)\nb : /26 (4 sous-reseaux, 62 hotes)\nc : /27 (8 sous-reseaux, 30 hotes)\nd : /28 (16 sous-reseaux, 14 hotes)\ne : /29 (32 sous-reseaux, 6 hotes)",
+    "takeaway": "À retenir : Calculer l'effet de l'emprunt de bits d'hôte : combien de sous-réseaux créés, combien d'hôtes valides chacun."
   },
   {
     "id": "re-c6-e2",
@@ -623,7 +696,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c6-e2) — Le nouveau masque\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Un seul bit]\n# Données : 1\n# Données : res1 1\nA_COMPLETER\n\n[Cas 2 — Emprunt trop grand]\n# Données : 2\n# Données : res1 8\n# Données : res2 2\nA_COMPLETER\n\n[Cas 3 — Cinq reseaux]\n# Données : 5\n# Données : a 1\n# Données : b 2\n# Données : c 3\n# Données : d 4\n# Données : e 6\nA_COMPLETER\n",
     "hints": [
       "L'octet vaut 256 moins la puissance de deux restante : 256 - (1 << (8 - emprunt)).",
-      "L'emprunt de 4 bits donne 240 : c'est le /28 à compter."
+      "L'emprunt de 4 bits donne 240 : c'est le /28 à compter.",
+      "Additionnez les k bits à 1 de poids fort sur le 4e octet (128, 192, 224, 240, 248, 252) et accolez le suffixe « (/prefix) »."
     ],
     "examples": [
       {
@@ -648,7 +722,8 @@ module.exports = [
         "expected": "a : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)\ne : 255.255.255.252 (/30)\nslash28 : 1/5"
       }
     ],
-    "solution": "[Exemple]\nagence : 255.255.255.224 (/27)\nagence2 : 255.255.255.192 (/26)\nagence3 : 255.255.255.240 (/28)\nslash28 : 1/3\n\n[Cas 1 — Un seul bit]\nres1 : 255.255.255.128 (/25)\nslash28 : 0/1\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : 255.255.255.192 (/26)\nslash28 : 0/2\n\n[Cas 3 — Cinq reseaux]\na : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)\ne : 255.255.255.252 (/30)\nslash28 : 1/5"
+    "solution": "[Exemple]\nagence : 255.255.255.224 (/27)\nagence2 : 255.255.255.192 (/26)\nagence3 : 255.255.255.240 (/28)\nslash28 : 1/3\n\n[Cas 1 — Un seul bit]\nres1 : 255.255.255.128 (/25)\nslash28 : 0/1\n\n[Cas 2 — Emprunt trop grand]\nres1 : emprunt trop grand\nres2 : 255.255.255.192 (/26)\nslash28 : 0/2\n\n[Cas 3 — Cinq reseaux]\na : 255.255.255.128 (/25)\nb : 255.255.255.192 (/26)\nc : 255.255.255.224 (/27)\nd : 255.255.255.240 (/28)\ne : 255.255.255.252 (/30)\nslash28 : 1/5",
+    "takeaway": "À retenir : Convertir l'emprunt de bits en masque décimal : 3 bits empruntés sur le 4e octet donnent 255.255.255.224."
   },
   {
     "id": "re-c6-e3",
@@ -661,7 +736,8 @@ module.exports = [
     "starter": "# Grille d'analyse (re-c6-e3) — Le plan d'adressage VLSM\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Une seule liaison]\n# Données : 1\n# Données : routeurs 2\nA_COMPLETER\n\n[Cas 2 — Besoin impossible]\n# Données : 2\n# Données : datacenter 500\n# Données : bureau 10\nA_COMPLETER\n\n[Cas 3 — Cinq sites]\n# Données : 5\n# Données : a 2\n# Données : b 10\n# Données : c 50\n# Données : d 1\n# Données : e 200\nA_COMPLETER\n",
     "hints": [
       "Une boucle while augmente k tant que (2^k - 2) est inférieur au besoin ; le préfixe vaut 32 - k.",
-      "Dans ce modèle, comptez comme « liaisons » les blocs /30 de capacité 2."
+      "Dans ce modèle, comptez comme « liaisons » les blocs /30 de capacité 2.",
+      "Prenez la plus petite puissance de 2 telle que 2^h - 2 >= besoin (ex. 2 hôtes -> /30, 30 hôtes -> /27) et vérifiez le décompte des liaisons /30."
     ],
     "examples": [
       {
@@ -686,6 +762,7 @@ module.exports = [
         "expected": "a : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)\ne : /24 (254 hotes)\nliaisons : 2/5"
       }
     ],
-    "solution": "[Exemple]\nbureau1 : /27 (30 hotes)\nbureau2 : /29 (6 hotes)\nliaison : /30 (2 hotes)\nsiege : /25 (126 hotes)\nliaisons : 1/4\n\n[Cas 1 — Une seule liaison]\nrouteurs : /30 (2 hotes)\nliaisons : 1/1\n\n[Cas 2 — Besoin impossible]\ndatacenter : impossible\nbureau : /28 (14 hotes)\nliaisons : 0/2\n\n[Cas 3 — Cinq sites]\na : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)\ne : /24 (254 hotes)\nliaisons : 2/5"
+    "solution": "[Exemple]\nbureau1 : /27 (30 hotes)\nbureau2 : /29 (6 hotes)\nliaison : /30 (2 hotes)\nsiege : /25 (126 hotes)\nliaisons : 1/4\n\n[Cas 1 — Une seule liaison]\nrouteurs : /30 (2 hotes)\nliaisons : 1/1\n\n[Cas 2 — Besoin impossible]\ndatacenter : impossible\nbureau : /28 (14 hotes)\nliaisons : 0/2\n\n[Cas 3 — Cinq sites]\na : /30 (2 hotes)\nb : /28 (14 hotes)\nc : /26 (62 hotes)\nd : /30 (2 hotes)\ne : /24 (254 hotes)\nliaisons : 2/5",
+    "takeaway": "À retenir : Dimensionner les sous-réseaux de chaque site : le plus petit bloc dont la capacité couvre les hôtes demandés."
   }
 ];

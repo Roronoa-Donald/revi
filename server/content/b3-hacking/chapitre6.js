@@ -104,43 +104,43 @@ module.exports = {
     {
       "stem": "Quel mécanisme sous Linux permet à un attaquant de maintenir un accès persistant en s'authentifiant par clé publique sans mot de passe ?",
       "opts": [
-        "L'ajout de sa clé publique dans le fichier ~/.ssh/authorized_keys",
         "La modification du fichier /etc/resolv.conf",
+        "L'ajout de sa clé publique dans le fichier ~/.ssh/authorized_keys",
         "L'effacement du binaire /bin/bash",
         "L'activation du protocole Telnet sur le port 23"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Le fichier authorized_keys répertorie les clés publiques autorisées à ouvrir une session SSH : y déposer sa clé garantit un accès persistant immédiat sans nécessiter le mot de passe du compte."
     },
     {
       "stem": "Quelle clé de registre Windows est couramment exploitée par les malwares pour persister et s'exécuter automatiquement à l'ouverture de session utilisateur ?",
       "opts": [
-        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-        "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip",
         "HKCR\\.txt",
+        "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip",
+        "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
         "HKLM\\SOFTWARE\\Policies\\Microsoft\\WindowsFirewall"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Les clés de registre Run et RunOnce exécutent les programmes qui y sont référencés à chaque ouverture de session de l'utilisateur, constituant le vecteur de persistance le plus classique sous Windows."
     },
     {
       "stem": "Qu'est-ce que la technique d'anti-forensics appelée \"Timestomping\" ?",
       "opts": [
-        "La modification volontaire des dates et heures de création/modification d'un fichier malveillant pour le fondre parmi les fichiers système légitimes",
-        "L'accélération de l'horloge matérielle du processeur pour dépasser les quotas réseau",
-        "L'effacement physique des disques durs à l'aide d'un aimant",
-        "Le blocage des requêtes NTP sur le réseau local"
+        "L'accélération frauduleuse de l'horloge matérielle du processeur afin de dépasser les quotas réseau de l'opérateur",
+        "L'effacement physique complet des disques durs de la machine compromise à l'aide d'un aimant de démagnétisation",
+        "Le blocage systématique de l'ensemble des requêtes NTP émises sur le réseau local de l'entreprise ciblée",
+        "La modification volontaire des dates et heures de création/modification d'un fichier malveillant pour le fondre parmi les fichiers système légitimes"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Le timestomping altère les attributs d'horodatage (MACB) d'un implant pour lui donner la même date qu'un fichier système voisin (ex: 2018), trompant les recherches par date des analystes de réponse à incident."
     },
     {
       "stem": "Quel est le rôle d'une règle YARA en cybersécurité défensive ?",
       "opts": [
         "Identifier et classifier des fichiers malveillants ou web shells en analysant la présence de chaînes textuelles ou motifs binaires spécifiques",
-        "Chiffrer les disques durs des serveurs de production",
-        "Créer des tunnels VPN entre deux datacenters distants",
-        "Générer des clés d'activation logicielles"
+        "Chiffrer de bout en bout les disques durs de l'ensemble des serveurs de production de l'entreprise auditée",
+        "Créer des tunnels VPN chiffrés et permanents entre les deux datacenters distants de l'organisation ciblée",
+        "Générer automatiquement des clés d'activation logicielles pour l'ensemble des postes de travail du parc informatique"
       ],
       "correct": 0,
       "exp": "YARA est l'outil de référence pour la détection de malwares : il permet aux analystes de concevoir des signatures identifiant des familles d'implants sur la base de chaînes de caractères et de motifs hexadécimaux."
@@ -148,34 +148,34 @@ module.exports = {
     {
       "stem": "Pourquoi l'effacement brutal de l'intégralité des journaux de sécurité Windows (wevtutil cl Security) est-il paradoxalement très risqué pour un attaquant furtif ?",
       "opts": [
+        "Parce que cette commande réinitialise immédiatement le mot de passe administrateur de l'ensemble du domaine Active Directory",
         "Parce que le vidage d'un journal génère obligatoirement l'événement critique 1102 (\"The audit log was cleared\") qui alerte immédiatement le SIEM/SOC",
-        "Parce que cette commande réinitialise immédiatement le mot de passe du domaine",
-        "Parce que Windows refuse d'exécuter cette commande même avec des privilèges SYSTEM",
-        "Parce que cela supprime les fichiers système Windows et fait crasher l'ordinateur"
+        "Parce que Windows refuse catégoriquement d'exécuter cette commande même lorsque les privilèges SYSTEM sont acquis",
+        "Parce que cela supprime les fichiers système critiques de Windows et provoque le crash complet de l'ordinateur"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Le vidage du journal d'audit de sécurité génère un événement spécifique (Event ID 1102) que tout SOC surveille avec la plus haute priorité : c'est un indicateur de compromission (IoC) flagrant."
     },
     {
       "stem": "À quel horizon de temps les recommandations qualifiées de \"Quick Wins\" dans un plan de remédiation doivent-elles être appliquées ?",
       "opts": [
-        "Immédiat (moins de 24 à 48 heures) car elles sont simples à déployer et neutralisent les risques critiques majeurs",
-        "Dans 3 à 5 ans après renouvellement complet du parc informatique",
         "Uniquement si le budget annuel de sécurité est excédentaire",
+        "Dans 3 à 5 ans après renouvellement complet du parc informatique",
+        "Immédiat (moins de 24 à 48 heures) car elles sont simples à déployer et neutralisent les risques critiques majeurs",
         "Après avoir réécrit entièrement l'application en langage assembleur"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Les Quick Wins représentent des actions correctives à très fort impact et faible complexité (ex: révoquer un binaire SUID inutile, corriger un enregistrement SPF) à déployer sous 24 à 48 heures."
     },
     {
       "stem": "Pourquoi la phase de nettoyage (Cleanup) des artefacts est-elle une exigence éthique et contractuelle absolue pour l'auditeur de sécurité ?",
       "opts": [
-        "Pour ne laisser aucune porte dérobée, compte de test ou binaire malveillant susceptible d'être réexploité ultérieurement par un véritable cybercriminel",
-        "Pour que le client ne puisse pas reproduire les tests effectués",
-        "Pour économiser de l'espace disque sur le serveur du client",
-        "Pour éviter de devoir rédiger les fiches techniques du rapport"
+        "Pour que le client ne puisse pas reproduire par lui-même les tests d'intrusion réalisés par l'équipe d'audit externe",
+        "Pour économiser de l'espace disque disponible sur les serveurs et les postes de travail du client après la mission",
+        "Pour éviter de devoir rédiger l'intégralité des fiches techniques détaillées du rapport final de la mission",
+        "Pour ne laisser aucune porte dérobée, compte de test ou binaire malveillant susceptible d'être réexploité ultérieurement par un véritable cybercriminel"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Tout implant, compte ou web shell oublié par l'auditeur devient une vulnérabilité supplémentaire sur le système client qui pourrait être découverte et exploitée par un acteur malveillant."
     }
   ],

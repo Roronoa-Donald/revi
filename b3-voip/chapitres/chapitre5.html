@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -161,22 +159,28 @@ B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))    pour k = 1, 2, ..., N</code><
      data-exercise="vo3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="CALLS_PER_HOUR=120 DURATION_SEC=180 CHANNELS=10 TARGET_GOS_PCT=1.0&#10;CALLS_PER_HOUR=200 DURATION_SEC=120 CHANNELS=8 TARGET_GOS_PCT=2.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c5-e1) — Calculateur d'Erlang B & Dimensionnement de Trunks Téléphoniques
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le garage AutoMillau reçoit 60 appels à l'heure de pointe, d'une durée moyenne de 2 minutes.&#10;Trafic : A = 60 × 120 / 3600 = 2 Erlangs. Table d'Erlang B pour A = 2 :&#10;N = 4 : 9,5 % — N = 5 : 3,7 % — N = 6 : 1,2 % — N = 7 : 0,34 %.&#10;GoS visé : 1 %.&#10;&#10;1) Trafic : 2 Erlangs.&#10;2) 1 Erlang : un canal occupé à 100 % pendant une heure.&#10;3) 6 canaux donnent 1,2 % (trop) ; il faut 7 canaux (0,34 % ≤ 1 %).&#10;4) Avec 5 canaux : 3,7 % des appels refusés.">
+  <script type="text/plain" data-lab-starter># Exercice — Le dimensionnement du standard de la clinique Saint-Roch
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le nombre ou la phrase brève attendus.
 
-[Cas 1 — Cas de test 1]
-# Données : CALLS_PER_HOUR=50 DURATION_SEC=60 CHANNELS=5 TARGET_GOS_PCT=1.0
-# Données : CALLS_PER_HOUR=300 DURATION_SEC=180 CHANNELS=25 TARGET_GOS_PCT=1.0
+[Question 1 — Trafic de l'heure de pointe (en Erlangs)]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : CALLS_PER_HOUR=60 DURATION_SEC=120 CHANNELS=4 TARGET_GOS_PCT=5.0
-# Données : CALLS_PER_HOUR=10 DURATION_SEC=300 CHANNELS=2 TARGET_GOS_PCT=2.0
+[Question 2 — Signification d'un trafic de 1 Erlang]
+A_COMPLETER
+
+[Question 3 — Nombre minimal de canaux pour un GoS de 1 %]
+A_COMPLETER
+
+[Question 4 — Pourcentage d'appels refusés avec 6 canaux]
+A_COMPLETER
+
+[Question 5 — Devenir d'un appel quand tous les canaux sont occupés]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur d'Erlang B &amp; Dimensionnement de Trunks Téléphoniques</h3>
+    <h3 class="lab__title">Exercice 1 — Le dimensionnement du standard de la clinique Saint-Roch</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -185,21 +189,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la probabilité de blocage GoS par la formule récursive d'Erlang B et dimensionner le nombre de canaux requis.</p>
-    <div class="lab__brief"><p>La loi d'Erlang B modélise la probabilité de blocage d'appels téléphoniques (Grade of Service, GoS) sur un faisceau (trunk) de <code>N</code> canaux sans mise en attente (appels rejetés si tous les canaux sont occupés).<br>Le trafic offert <code>A</code> (en Erlangs) est calculé par :<br><code>A = (CALLS_PER_HOUR * DURATION_SEC) / 3600.0</code></p>
-<p>La formule récursive d'Erlang B pour calculer la probabilité de blocage <code>B(N, A)</code> est :</p><ul><li><code>B(0, A) = 1.0</code></li><li><code>B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))</code> pour <code>k = 1, 2, ..., N</code>.</li></ul>
-<p>Format d'entrée :<br>Lignes de la forme :<br>CALLS_PER_HOUR=&lt;nb&gt; DURATION_SEC=&lt;duree_moyenne&gt; CHANNELS=&lt;nb_canaux&gt; TARGET_GOS_PCT=&lt;seuil_gos_max_pct&gt;</p>
-<p>Règles de calcul :<br>1. Calculer le trafic offert <code>A</code> en Erlangs.<br>2. Calculer la probabilité de blocage réelle <code>B(N, A)</code> en pourcentage (<code>B * 100.0</code>).<br>3. Comparer avec le seuil cible <code>TARGET_GOS_PCT</code> :<br>   - Si <code>blocage_pct &lt;= TARGET_GOS_PCT</code> -&gt; <code>CONFORME:OUI</code><br>   - Sinon -&gt; <code>CONFORME:NON</code><br>4. Déterminer le nombre minimal de canaux <code>N_MIN</code> nécessaires pour que <code>B(N_MIN, A) * 100.0 &lt;= TARGET_GOS_PCT</code>.</p>
-<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>TRAFIC:&lt;A:.2f&gt;E | CANAUX:&lt;N&gt; | BLOCAGE:&lt;blocage_pct:.2f&gt;% | TARGET:&lt;target:.2f&gt;% | CONFORME:&lt;OUI|NON&gt; | CANAUX_REQUIS:&lt;N_MIN&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer un trafic en Erlangs et lire une table d'Erlang B pour dimensionner un trunk téléphonique.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La clinique Saint-Roch veut souscrire un trunk SIP pour son standard. À l'heure de pointe, le standard reçoit <strong>90 appels</strong>, d'une durée moyenne de <strong>2 minutes</strong>. Le trafic s'écrit A = (nombre d'appels à l'heure × durée moyenne en secondes) / 3600. La direction exige un taux de blocage (GoS) d'au plus 1 %. Le tableau d'Erlang B pour le trafic de la pointe est le suivant :</p><table><tr><th>Canaux N</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr><tr><th>Blocage B(N, A)</th><td>11,0 %</td><td>5,2 %</td><td>2,2 %</td><td>0,8 %</td><td>0,3 %</td></tr></table><p>Rappel du cours : en régime Erlang B, tout appel qui arrive alors que les N canaux sont occupés est immédiatement rejeté, sans file d'attente.</p><ol><li>Quel est le trafic de l'heure de pointe, en Erlangs ?</li><li>Que représente exactement un trafic de 1 Erlang ?</li><li>Combien de canaux la clinique doit-elle au minimum souscrire pour respecter le GoS de 1 % ?</li><li>Si la clinique ne souscrivait que 6 canaux, quel pourcentage d'appels serait refusé à l'heure de pointe ?</li><li>Dans le modèle d'Erlang B, que devient un appel qui arrive quand tous les canaux sont occupés ?</li></ol><p>Répondez par le nombre ou la phrase brève attendus.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CALLS_PER_HOUR=120 DURATION_SEC=180 CHANNELS=10 TARGET_GOS_PCT=1.0
-CALLS_PER_HOUR=200 DURATION_SEC=120 CHANNELS=8 TARGET_GOS_PCT=2.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le garage AutoMillau reçoit 60 appels à l'heure de pointe, d'une durée moyenne de 2 minutes.
+Trafic : A = 60 × 120 / 3600 = 2 Erlangs. Table d'Erlang B pour A = 2 :
+N = 4 : 9,5 % — N = 5 : 3,7 % — N = 6 : 1,2 % — N = 7 : 0,34 %.
+GoS visé : 1 %.
+
+1) Trafic : 2 Erlangs.
+2) 1 Erlang : un canal occupé à 100 % pendant une heure.
+3) 6 canaux donnent 1,2 % (trop) ; il faut 7 canaux (0,34 % ≤ 1 %).
+4) Avec 5 canaux : 3,7 % des appels refusés.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Appliquez la formule récursive : B(k) = (A * B(k-1)) / (k + A * B(k-1)) avec B(0) = 1.0.</li>
-        <li>Incrémentez le nombre de canaux k jusqu'à atteindre un blocage inférieur au seuil GoS.</li>
+        <li>Convertissez tout en secondes : 90 appels de 120 secondes, divisés par 3600, donnent le trafic en Erlangs.</li>
+        <li>Dans la table, cherchez la première colonne où le blocage tombe à 1 % ou moins : c'est le nombre de canaux minimal.</li>
+        <li>1. A = 90 × 120 / 3600. 2. Un Erlang, c'est un canal occupé sans interruption pendant une heure. 3. Parcourez la table jusqu'à un blocage inférieur ou égal à 1 %. 4. Lisez la colonne N = 6. 5. Erlang B ne met personne en attente : l'appel excédentaire est perdu.</li>
       </ol>
     </details>
   </div>
@@ -209,23 +217,31 @@ CALLS_PER_HOUR=200 DURATION_SEC=120 CHANNELS=8 TARGET_GOS_PCT=2.0</pre></div>
      data-exercise="vo3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="FLUX=RTP_VOICE DSCP_DEC=46 COS_OBSERVED=5&#10;FLUX=RTP_VOICE DSCP_DEC=0 COS_OBSERVED=0&#10;FLUX=SIP_SIGNALING DSCP_DEC=26 COS_OBSERVED=3&#10;FLUX=SIP_SIGNALING DSCP_DEC=24 COS_OBSERVED=5">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c5-e2) — Validateur de Marquage QoS & Mappage DSCP / CoS 802.1p
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le groupe hôtelier Les Pins audite son réseau ToIP.&#10;Flux RTP : DSCP EF 46 ; signalisation : AF31 26 ; bureautique : DSCP 0 ; Voice VLAN 60, CoS 5.&#10;Mesures : délai unidirectionnel 190 ms, gigue 12 ms, pertes 0,2 %.&#10;&#10;1) Le PHB de la voix : EF.&#10;2) Valeur décimale : 46.&#10;3) La signalisation est marquée AF31 (26).&#10;4) CoS voix : 5.&#10;5) Seuil G.114 : 150 ms ; les 190 ms mesurés le dépassent : la voix est coupée malgré une gigue et des pertes conformes.">
+  <script type="text/plain" data-lab-starter># Exercice — L'audit QoS du lycée technique Vercors
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le nom, le nombre ou oui/non.
 
-[Cas 1 — Cas de test 1]
-# Données : FLUX=DATA_DEFAULT DSCP_DEC=0 COS_OBSERVED=0
-# Données : FLUX=DATA_DEFAULT DSCP_DEC=46 COS_OBSERVED=5
-# Données : FLUX=RTP_VOICE DSCP_DEC=46 COS_OBSERVED=0
+[Question 1 — PHB DiffServ du flux voix RTP]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : FLUX=SIP_SIGNALING DSCP_DEC=46 COS_OBSERVED=3
-# Données : FLUX=SIP_SIGNALING DSCP_DEC=0 COS_OBSERVED=0
+[Question 2 — Valeur décimale DSCP de EF]
+A_COMPLETER
+
+[Question 3 — Marquage DiffServ de la signalisation SIP]
+A_COMPLETER
+
+[Question 4 — Valeur de CoS 802.1p des postes voix]
+A_COMPLETER
+
+[Question 5 — Seuil de délai unidirectionnel G.114 (en ms)]
+A_COMPLETER
+
+[Question 6 — Les mesures respectent-elles les trois seuils]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validateur de Marquage QoS &amp; Mappage DSCP / CoS 802.1p</h3>
+    <h3 class="lab__title">Exercice 2 — L'audit QoS du lycée technique Vercors</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -234,22 +250,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité du marquage QoS (CoS 5, DSCP EF 46) et la ségrégation en Voice VLAN pour les flux ToIP.</p>
-    <div class="lab__brief"><p>Dans les réseaux d'entreprise, la qualité de service (QoS) est indispensable pour préserver la voix en temps réel de la gigue et de la congestion. Les standards IETF et IEEE recommandent :   Dans l'en-tête IP (champ ToS / DiffServ), la valeur DSCP est décalée de 2 bits à gauche : <code>ToS = DSCP &lt;&lt; 2</code> (ex: 46 &lt;&lt; 2 = 184 soit 0xB8).   Le marquage de niveau 2 (802.1p CoS) associé est <code>CoS = 5</code> (Voice).   ToS = 24 &lt;&lt; 2 = 96 (0x60) ou 26 &lt;&lt; 2 = 104 (0x68).   Le marquage CoS associé est <code>CoS = 3</code> (Call Signaling).</p><ul><li>Médias vocaux RTP : DSCP EF (Expedited Forwarding = valeur décimale 46, binaire 101110)</li><li>Signalisation SIP : DSCP CS3 (valeur 24) ou AF31 (valeur 26)</li><li>Trafic Best-Effort (données web/bureautique) : DSCP CS0 (0, ToS = 0, CoS = 0).</li></ul>
-<p>Format d'entrée :<br>Lignes décrivant des flux réseau observés :<br>FLUX=&lt;RTP_VOICE|SIP_SIGNALING|DATA_DEFAULT&gt; DSCP_DEC=&lt;valeur&gt; COS_OBSERVED=&lt;cos&gt;</p>
-<p>Règles de validation :<br>1. Calculer la valeur théorique du champ ToS (hexadécimal 0x..) : <code>tos = dscp &lt;&lt; 2</code>.<br>2. Vérifier la conformité du marquage DSCP et CoS selon le type de flux :<br>   - RTP_VOICE : attendu DSCP == 46 et CoS == 5<br>   - SIP_SIGNALING : attendu DSCP in {24, 26} et CoS == 3<br>   - DATA_DEFAULT : attendu DSCP == 0 et CoS == 0<br>3. Si tout correspond -&gt; <code>STATUT:CONFORME</code><br>   Sinon -&gt; <code>STATUT:NON_CONFORME</code> (préciser l'anomalie : DSCP_INCORRECT, COS_INCORRECT ou TOUS_DEUX_INCORRECTS).</p>
-<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>FLUX:&lt;nom&gt; | DSCP:&lt;val&gt; | TOS:0x&lt;hex&gt; | COS:&lt;cos&gt; | STATUT:&lt;statut&gt; | ANOMALIE:&lt;AUCUNE|anomalie&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier le marquage QoS d'un réseau ToIP (DSCP EF, CS3, CoS, Voice VLAN) et confronter les mesures aux seuils G.114.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le lycée technique Vercors bascule sa téléphonie sur IP. Le professeur réseau relève la configuration en production :</p><table><tr><th>Flux ou équipement</th><th>Configuration observée</th></tr><tr><th>Flux voix RTP</th><td>DSCP EF, valeur décimale 46</td></tr><tr><th>Signalisation SIP</th><td>DSCP CS3, valeur décimale 24</td></tr><tr><th>Trafic web et messagerie</th><td>DSCP 0 (best effort)</td></tr><tr><th>Ports des postes IP</th><td>Voice VLAN 20, CoS 802.1p = 5</td></tr><tr><th>Mesures sur la liaison</th><td>délai unidirectionnel 40 ms, gigue 9 ms, pertes 0,1 %</td></tr></table><p>Rappels du cours : la voix supporte au plus 150 ms de délai unidirectionnel, 30 ms de gigue et 1 % de pertes (ITU-T G.114) ; le champ ToS de l'en-tête IPv4 est réinterprété par DiffServ.</p><ol><li>Quel PHB DiffServ marque le flux voix RTP ?</li><li>Quelle valeur décimale du champ DSCP correspond à EF ?</li><li>Quel marquage DiffServ protège la signalisation SIP ?</li><li>Quelle valeur de CoS 802.1p les postes voix portent-ils dans le Voice VLAN ?</li><li>Quel est le seuil de délai unidirectionnel recommandé par la G.114, en ms ?</li><li>Les mesures de la liaison respectent-elles les trois seuils de la G.114 (oui ou non) ?</li></ol><p>Répondez par le nom, le nombre ou oui/non.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLUX=RTP_VOICE DSCP_DEC=46 COS_OBSERVED=5
-FLUX=RTP_VOICE DSCP_DEC=0 COS_OBSERVED=0
-FLUX=SIP_SIGNALING DSCP_DEC=26 COS_OBSERVED=3
-FLUX=SIP_SIGNALING DSCP_DEC=24 COS_OBSERVED=5</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le groupe hôtelier Les Pins audite son réseau ToIP.
+Flux RTP : DSCP EF 46 ; signalisation : AF31 26 ; bureautique : DSCP 0 ; Voice VLAN 60, CoS 5.
+Mesures : délai unidirectionnel 190 ms, gigue 12 ms, pertes 0,2 %.
+
+1) Le PHB de la voix : EF.
+2) Valeur décimale : 46.
+3) La signalisation est marquée AF31 (26).
+4) CoS voix : 5.
+5) Seuil G.114 : 150 ms ; les 190 ms mesurés le dépassent : la voix est coupée malgré une gigue et des pertes conformes.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Contrôlez que les flux RTP sont marqués avec DSCP 46 (Expedited Forwarding).</li>
-        <li>Vérifiez que la signalisation SIP est protégée par un marquage CS3 (24) ou AF31 (26).</li>
+        <li>Relisez le tableau : le flux RTP porte le marquage réservé à la priorité stricte, la signalisation un marquage de classe CS.</li>
+        <li>Les seuils G.114 : 150 ms de délai unidirectionnel, 30 ms de gigue, 1 % de pertes.</li>
+        <li>1. Le PHB de la voix est EF (Expedited Forwarding). 2. Sa valeur décimale figure dans le tableau. 3. La signalisation est marquée CS3. 4. La CoS voix vaut 5. 5. Le seuil de délai est 150 ms. 6. Comparez 40 ms, 9 ms et 0,1 % aux trois seuils.</li>
       </ol>
     </details>
   </div>
@@ -293,10 +312,11 @@ CLIENT_LOCAL=192.168.1.15:5060 STUN1_MAPPED=198.51.100.42:10500 STUN2_MAPPED=198
 CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0.113.10:5060</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparez les deux couples adresse et port observés par les serveurs.</li>
         <li>Les observations seules ne démontrent pas que le trafic entre les pairs est autorisé.</li>
+        <li>Comparez l adresse IP et le port renvoyés par les deux serveurs STUN : un port différent trahit un NAT symétrique, sans prouver l établisssement de flux média.</li>
       </ol>
     </details>
   </div>
@@ -309,8 +329,8 @@ CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0
     <div class="q">
       <p class="q__stem">Une entreprise enregistre 120 appels d'une durée moyenne de 180 secondes pendant l'heure de pointe. Quel est le trafic téléphonique offert A exprimé en Erlangs ?</p>
       <div class="opts">
-        <button class="opt">3.00 Erlangs</button>
         <button class="opt" data-correct="1">6.00 Erlangs</button>
+        <button class="opt">3.00 Erlangs</button>
         <button class="opt">10.00 Erlangs</button>
         <button class="opt">21.60 Erlangs</button>
       </div>
@@ -320,9 +340,9 @@ CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0
       <p class="q__stem">Quelle valeur décimale de marquage DSCP (Differentiated Services Code Point) est standardisée par l'IETF pour les flux voix temps réel RTP (classe Expedited Forwarding EF) ?</p>
       <div class="opts">
         <button class="opt">0 (CS0)</button>
-        <button class="opt">24 (CS3)</button>
-        <button class="opt">34 (AF41)</button>
         <button class="opt" data-correct="1">46 (EF)</button>
+        <button class="opt">34 (AF41)</button>
+        <button class="opt">24 (CS3)</button>
       </div>
       <div class="q__exp">La classe Expedited Forwarding (EF) correspond à la valeur décimale 46 (binaire 101110), décalée de 2 bits dans le champ ToS (valeur 184 soit 0xB8).</div>
     </div>
@@ -340,18 +360,18 @@ CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0
       <p class="q__stem">Quel est le seuil maximal de délai de transmission unidirectionnel (One-Way Latency) recommandé par l'ITU-T G.114 pour préserver une conversation téléphonique naturelle ?</p>
       <div class="opts">
         <button class="opt">50 ms</button>
-        <button class="opt" data-correct="1">150 ms</button>
-        <button class="opt">300 ms</button>
         <button class="opt">500 ms</button>
+        <button class="opt">300 ms</button>
+        <button class="opt" data-correct="1">150 ms</button>
       </div>
       <div class="q__exp">L'ITU-T G.114 recommande un délai unidirectionnel inférieur ou égal à 150 ms pour que la communication reste interactive sans que les locuteurs ne se coupent la parole.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle anomalie typique de téléphonie IP se produit lorsqu'un routeur NAT ne traduit pas l'adresse IP privée insérée dans le corps SDP d'une réponse 200 OK ?</p>
       <div class="opts">
-        <button class="opt">Le téléphone refuse de sonner</button>
-        <button class="opt">L'appel est redirigé vers la police</button>
         <button class="opt" data-correct="1">Le phénomène de One-Way Audio (audio unidirectionnel)</button>
+        <button class="opt">L'appel est redirigé vers la police</button>
+        <button class="opt">Le téléphone refuse de sonner</button>
         <button class="opt">Le combiné redémarre en boucle</button>
       </div>
       <div class="q__exp">L'émetteur externe tente d'envoyer son flux RTP vers l'IP privée non routable du récepteur, causant une absence totale de son dans un sens (One-Way Audio).</div>
@@ -359,20 +379,20 @@ CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0
     <div class="q">
       <p class="q__stem">Deux serveurs STUN observent le même mappage pour un client. Que peut-on en conclure pour la communication avec un pair ?</p>
       <div class="opts">
-        <button class="opt">Le pair est nécessairement joignable directement</button>
+        <button class="opt">Le pair distant est nécessairement joignable directement sans relais</button>
         <button class="opt" data-correct="1">Les mappages observés sont identiques, mais la connectivité doit être vérifiée</button>
-        <button class="opt">Aucun pare-feu ne filtre le trafic</button>
-        <button class="opt">Le client ne traverse aucun NAT</button>
+        <button class="opt">Aucun pare-feu ne filtre le trafic UDP entre les deux correspondants</button>
+        <button class="opt">Le client ne traverse aucun dispositif NAT sur son accès Internet</button>
       </div>
       <div class="q__exp">La comparaison de ces deux observations ne prouve ni le filtrage ni la joignabilité du pair ; ICE vérifie des paires de candidats et TURN peut fournir un relais.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle action d'administration réseau est fortement recommandée sur les passerelles Internet pour éviter que les messages SIP ne soient altérés ou corrompus ?</p>
       <div class="opts">
-        <button class="opt">Activer le proxy transparent</button>
+        <button class="opt">Activer le proxy transparent du routeur pour les flux SIP</button>
+        <button class="opt">Bloquer tous les paquets UDP entrants sur la box Internet</button>
         <button class="opt" data-correct="1">Désactiver le module SIP ALG (Application Layer Gateway)</button>
-        <button class="opt">Bloquer les paquets UDP</button>
-        <button class="opt">Réduire la MTU à 500 octets</button>
+        <button class="opt">Réduire la MTU des trames à 500 octets sur le lien WAN</button>
       </div>
       <div class="q__exp">Les implémentations de SIP ALG sur les routeurs sont fréquemment boguées et altèrent les paquets SIP. Il est recommandé de désactiver SIP ALG.</div>
     </div>
@@ -380,9 +400,9 @@ CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0
       <p class="q__stem">Quel protocole réseau permet à un commutateur Ethernet d'informer automatiquement un téléphone IP du numéro de Voice VLAN et des paramètres PoE à utiliser dès son raccordement ?</p>
       <div class="opts">
         <button class="opt">SNMP</button>
-        <button class="opt" data-correct="1">LLDP-MED (ou CDP)</button>
-        <button class="opt">BGP</button>
         <button class="opt">OSPF</button>
+        <button class="opt">BGP</button>
+        <button class="opt" data-correct="1">LLDP-MED (ou CDP)</button>
       </div>
       <div class="q__exp">LLDP-MED (Link Layer Discovery Protocol - Media Endpoint Discovery) et CDP (Cisco) configurent automatiquement le Voice VLAN et l'alimentation PoE du combiné.</div>
     </div>
@@ -504,7 +524,7 @@ CLIENT_LOCAL=203.0.113.10:5060 STUN1_MAPPED=203.0.113.10:5060 STUN2_MAPPED=203.0
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

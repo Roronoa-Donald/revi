@@ -36,7 +36,8 @@
     COMPILE_ERROR: 'compile_error',
     TIMEOUT: 'timeout',
     CANCELLED: 'cancelled',
-    API_ERROR: 'api_error'
+    API_ERROR: 'api_error',
+    RATE_LIMITED: 'rate_limited'
   };
   var createResult = ExecutionInterface ? ExecutionInterface.createResult : function (result) { return result; };
 
@@ -116,7 +117,7 @@
         mode: 'browser',
         label: 'Navigateur',
         title: 'Exécuté localement dans votre navigateur — 0 latence, aucun quota consommé.',
-        icon: 'lightning'
+        icon: 'bolt'
       };
     }
     return {

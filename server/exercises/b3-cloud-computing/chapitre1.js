@@ -39,7 +39,8 @@ module.exports = [
         "expected": "RESP: nom=salesforce TYPE=SaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CSP DATA=CSP"
       }
     ],
-    "solution": "[Exemple]\nRESP: nom=ec2 TYPE=IaaS | INFRA=CSP OS=CLIENT RUNTIME=CLIENT APP=CLIENT DATA=CLIENT\nRESP: nom=elastic_beanstalk TYPE=PaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CLIENT DATA=CLIENT\nRESP: nom=office365 TYPE=SaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CSP DATA=CSP\n\n[Cas 1 — Machine virtuelle brute IaaS]\nRESP: nom=vm_compute TYPE=IaaS | INFRA=CSP OS=CLIENT RUNTIME=CLIENT APP=CLIENT DATA=CLIENT\n\n[Cas 2 — Plateforme managée PaaS]\nRESP: nom=app_engine TYPE=PaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CLIENT DATA=CLIENT\n\n[Cas 3 — Logiciel clé en main SaaS]\nRESP: nom=salesforce TYPE=SaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CSP DATA=CSP"
+    "solution": "[Exemple]\nRESP: nom=ec2 TYPE=IaaS | INFRA=CSP OS=CLIENT RUNTIME=CLIENT APP=CLIENT DATA=CLIENT\nRESP: nom=elastic_beanstalk TYPE=PaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CLIENT DATA=CLIENT\nRESP: nom=office365 TYPE=SaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CSP DATA=CSP\n\n[Cas 1 — Machine virtuelle brute IaaS]\nRESP: nom=vm_compute TYPE=IaaS | INFRA=CSP OS=CLIENT RUNTIME=CLIENT APP=CLIENT DATA=CLIENT\n\n[Cas 2 — Plateforme managée PaaS]\nRESP: nom=app_engine TYPE=PaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CLIENT DATA=CLIENT\n\n[Cas 3 — Logiciel clé en main SaaS]\nRESP: nom=salesforce TYPE=SaaS | INFRA=CSP OS=CSP RUNTIME=CSP APP=CSP DATA=CSP",
+    "takeaway": "IaaS délègue le matériel, PaaS ajoute l’OS et le runtime, tandis que SaaS fournit l’application complète gérée par le fournisseur."
   },
   {
     "id": "cc3-c1-e2",
@@ -52,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c1-e2) — Auditeur des 5 caractéristiques essentielles NIST (SP 800-145)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cloud conforme aux 5 critères]\n# Données : AUDIT composant=openstack_prod CARACS=ON_DEMAND_SELF_SERVICE,BROAD_NETWORK_ACCESS,RESOURCE_POOLING,RAPID_ELASTICITY,MEASURED_SERVICE\nA_COMPLETER\n\n[Cas 2 — Hébergement sans élasticité ni mesure]\n# Données : AUDIT composant=serveur_dedie CARACS=ON_DEMAND_SELF_SERVICE,BROAD_NETWORK_ACCESS,RESOURCE_POOLING\nA_COMPLETER\n\n[Cas 3 — Environnement isolé sans libre service]\n# Données : AUDIT composant=mainframe CARACS=RESOURCE_POOLING,MEASURED_SERVICE\nA_COMPLETER\n",
     "hints": [
       "Garder la liste ordonnée des 5 caractéristiques officielles pour générer les manques dans l'ordre.",
-      "Un Cloud privé conforme doit également respecter l'intégralité des 5 caractéristiques."
+      "Un Cloud privé conforme doit également respecter l'intégralité des 5 caractéristiques.",
+      "1. Compter les critères présents parmi les cinq. 2. Score sur 5, pourcentage = score × 20. 3. Lister les manques dans l’ordre officiel. 4. CONFORME seulement si aucun manque."
     ],
     "examples": [
       {
@@ -78,7 +80,8 @@ module.exports = [
         "expected": "CONFORMITE: nom=mainframe SCORE=2/5 (40%) STATUT=NON_CONFORME MANQUES=ON_DEMAND_SELF_SERVICE,BROAD_NETWORK_ACCESS,RAPID_ELASTICITY"
       }
     ],
-    "solution": "[Exemple]\nCONFORMITE: nom=aws_ec2 SCORE=5/5 (100%) STATUT=CONFORME MANQUES=AUCUN\nCONFORMITE: nom=vps_statique SCORE=2/5 (40%) STATUT=NON_CONFORME MANQUES=ON_DEMAND_SELF_SERVICE,RAPID_ELASTICITY,MEASURED_SERVICE\n\n[Cas 1 — Cloud conforme aux 5 critères]\nCONFORMITE: nom=openstack_prod SCORE=5/5 (100%) STATUT=CONFORME MANQUES=AUCUN\n\n[Cas 2 — Hébergement sans élasticité ni mesure]\nCONFORMITE: nom=serveur_dedie SCORE=3/5 (60%) STATUT=NON_CONFORME MANQUES=RAPID_ELASTICITY,MEASURED_SERVICE\n\n[Cas 3 — Environnement isolé sans libre service]\nCONFORMITE: nom=mainframe SCORE=2/5 (40%) STATUT=NON_CONFORME MANQUES=ON_DEMAND_SELF_SERVICE,BROAD_NETWORK_ACCESS,RAPID_ELASTICITY"
+    "solution": "[Exemple]\nCONFORMITE: nom=aws_ec2 SCORE=5/5 (100%) STATUT=CONFORME MANQUES=AUCUN\nCONFORMITE: nom=vps_statique SCORE=2/5 (40%) STATUT=NON_CONFORME MANQUES=ON_DEMAND_SELF_SERVICE,RAPID_ELASTICITY,MEASURED_SERVICE\n\n[Cas 1 — Cloud conforme aux 5 critères]\nCONFORMITE: nom=openstack_prod SCORE=5/5 (100%) STATUT=CONFORME MANQUES=AUCUN\n\n[Cas 2 — Hébergement sans élasticité ni mesure]\nCONFORMITE: nom=serveur_dedie SCORE=3/5 (60%) STATUT=NON_CONFORME MANQUES=RAPID_ELASTICITY,MEASURED_SERVICE\n\n[Cas 3 — Environnement isolé sans libre service]\nCONFORMITE: nom=mainframe SCORE=2/5 (40%) STATUT=NON_CONFORME MANQUES=ON_DEMAND_SELF_SERVICE,BROAD_NETWORK_ACCESS,RAPID_ELASTICITY",
+    "takeaway": "Les cinq critères NIST (libre-service, accès réseau large, mutualisation, élasticité rapide, service mesuré) qualifient un vrai Cloud."
   },
   {
     "id": "cc3-c1-e3",
@@ -91,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c1-e3) — Évaluateur de modèles de déploiement Cloud (Public, Privé, Hybride, Communautaire)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Groupement inter-hospitalier communautaire]\n# Données : DEPL nom=sante_region TENANT=MULTI RESEAU=VPN_PRIVE DONNEES=SENSIBLE PARTAGE=COMMUNAUTE\nA_COMPLETER\n\n[Cas 2 — Environnement de dev public]\n# Données : DEPL nom=dev_sandbox TENANT=MULTI RESEAU=INTERNET DONNEES=STANDARD PARTAGE=OUVERT\nA_COMPLETER\n\n[Cas 3 — Système d’armes militaire dédié]\n# Données : DEPL nom=defense_ops TENANT=DEDIE RESEAU=VPN_PRIVE DONNEES=SECRET PARTAGE=EXCLUSIF\nA_COMPLETER\n",
     "hints": [
       "Appliquer les règles dans l’ordre strict : Communauté puis Hybride puis Privé puis Public.",
-      "Le Cloud communautaire fédère plusieurs organisations partageant des exigences communes (ex: secteur bancaire ou recherche)."
+      "Le Cloud communautaire fédère plusieurs organisations partageant des exigences communes (ex: secteur bancaire ou recherche).",
+      "1. PARTAGE=COMMUNAUTE : communautaire. 2. RESEAU=HYBRIDE : hybride. 3. TENANT=DEDIE, DONNEES=SECRET ou PARTAGE=EXCLUSIF : privé. 4. SINON public ou privé, puis déduire le niveau d’isolation."
     ],
     "examples": [
       {
@@ -117,6 +121,7 @@ module.exports = [
         "expected": "MODELE: defense_ops -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE"
       }
     ],
-    "solution": "[Exemple]\nMODELE: startup_web -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\nMODELE: hopital_chru -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE\nMODELE: banque_core -> DEPL=HYBRIDE | HYPOTHESE_ISOLATION=SEGMENTE_VPN\n\n[Cas 1 — Groupement inter-hospitalier communautaire]\nMODELE: sante_region -> DEPL=COMMUNAUTAIRE | HYPOTHESE_ISOLATION=RESTREINT_PAIRS\n\n[Cas 2 — Environnement de dev public]\nMODELE: dev_sandbox -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\n\n[Cas 3 — Système d’armes militaire dédié]\nMODELE: defense_ops -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE"
+    "solution": "[Exemple]\nMODELE: startup_web -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\nMODELE: hopital_chru -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE\nMODELE: banque_core -> DEPL=HYBRIDE | HYPOTHESE_ISOLATION=SEGMENTE_VPN\n\n[Cas 1 — Groupement inter-hospitalier communautaire]\nMODELE: sante_region -> DEPL=COMMUNAUTAIRE | HYPOTHESE_ISOLATION=RESTREINT_PAIRS\n\n[Cas 2 — Environnement de dev public]\nMODELE: dev_sandbox -> DEPL=PUBLIC | HYPOTHESE_ISOLATION=LOGIQUE_MULTI_TENANT\n\n[Cas 3 — Système d’armes militaire dédié]\nMODELE: defense_ops -> DEPL=PRIVE | HYPOTHESE_ISOLATION=ISOLE_PHYSIQUE",
+    "takeaway": "Le choix Public, Privé ou Hybride arbitre entre élasticité économique, souveraineté réglementaire et continuité sur site."
   }
 ];

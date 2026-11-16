@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cr3-c6-e1) — Analyseur de Suite Cryptographique TLS (Cipher Suite Parser)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Suite TLS 1.3 sans paramètres négociés]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384\nA_COMPLETER\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\n# Données : PARSE_SUITE suite=TLS_RSA_WITH_AES_256_CBC_SHA256\nA_COMPLETER\n\n[Cas 3 — Suite TLS avec chiffrement déprécié]\n# Données : PARSE_SUITE suite=TLS_RSA_WITH_RC4_128_SHA\nA_COMPLETER\n\n[Cas 4 — TLS 1.3 avec PSK seul en 1-RTT]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_ke group=none phase=1-rtt\nA_COMPLETER\n\n[Cas 5 — TLS 1.3 avec PSK et échange éphémère en 1-RTT]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_dhe_ke group=x25519 phase=1-rtt\nA_COMPLETER\n\n[Cas 6 — Même suite et échange, données anticipées 0-RTT]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=psk_dhe_ke group=x25519 phase=0-rtt\nA_COMPLETER\n\n[Cas 7 — Handshake initial TLS 1.3 avec échange éphémère]\n# Données : PARSE_SUITE suite=TLS_AES_256_GCM_SHA384 mode=dhe group=x25519 phase=1-rtt\nA_COMPLETER\n",
     "hints": [
       "Le nom TLS 1.3 indique l’AEAD et le hachage, mais ne révèle pas le mode d’échange ni le groupe.",
-      "Distinguez les données 0-RTT, le mode PSK seul et le mode PSK avec échange éphémère en 1-RTT ; ne concluez pas à une sécurité globale."
+      "Distinguez les données 0-RTT, le mode PSK seul et le mode PSK avec échange éphémère en 1-RTT ; ne concluez pas à une sécurité globale.",
+      "Extrayez échange de clés, authentification, chiffrement symétrique et condensat depuis le nom de la suite ; ne concluez à la PFS qu en présence explicite d ECDHE/DHE."
     ],
     "examples": [
       {
@@ -58,7 +59,8 @@ module.exports = [
         "expected": "SUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=dhe group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY"
       }
     ],
-    "solution": "[Exemple]\nSUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM hash=SHA256 pfs=CONDITIONAL status=PARAMETERS_ONLY\n\n[Cas 1 — Suite TLS 1.3 sans paramètres négociés]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=UNKNOWN group=UNKNOWN phase=UNKNOWN enc=AES_256_GCM hash=SHA384 pfs=UNKNOWN status=PARAMETERS_REQUIRED\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\nSUITE: TLS_RSA_WITH_AES_256_CBC_SHA256 ver=TLS1.2 kex=RSA enc=AES_256_CBC hash=SHA256 pfs=NO status=WEAK_NO_PFS\n\n[Cas 3 — Suite TLS avec chiffrement déprécié]\nSUITE: TLS_RSA_WITH_RC4_128_SHA ver=TLS1.2 kex=RSA enc=RC4_128 hash=SHA pfs=NO status=INSECURE\n\n[Cas 4 — TLS 1.3 avec PSK seul en 1-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_ke group=none phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=NO status=PARAMETERS_ONLY\n\n[Cas 5 — TLS 1.3 avec PSK et échange éphémère en 1-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY\n\n[Cas 6 — Même suite et échange, données anticipées 0-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=0-rtt enc=AES_256_GCM hash=SHA384 pfs=NOT_GUARANTEED status=PARAMETERS_ONLY\n\n[Cas 7 — Handshake initial TLS 1.3 avec échange éphémère]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=dhe group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY"
+    "solution": "[Exemple]\nSUITE: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 ver=TLS1.2 kex=ECDHE_RSA enc=AES_128_GCM hash=SHA256 pfs=CONDITIONAL status=PARAMETERS_ONLY\n\n[Cas 1 — Suite TLS 1.3 sans paramètres négociés]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=UNKNOWN group=UNKNOWN phase=UNKNOWN enc=AES_256_GCM hash=SHA384 pfs=UNKNOWN status=PARAMETERS_REQUIRED\n\n[Cas 2 — Suite TLS 1.2 sans confidentialité persistante]\nSUITE: TLS_RSA_WITH_AES_256_CBC_SHA256 ver=TLS1.2 kex=RSA enc=AES_256_CBC hash=SHA256 pfs=NO status=WEAK_NO_PFS\n\n[Cas 3 — Suite TLS avec chiffrement déprécié]\nSUITE: TLS_RSA_WITH_RC4_128_SHA ver=TLS1.2 kex=RSA enc=RC4_128 hash=SHA pfs=NO status=INSECURE\n\n[Cas 4 — TLS 1.3 avec PSK seul en 1-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_ke group=none phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=NO status=PARAMETERS_ONLY\n\n[Cas 5 — TLS 1.3 avec PSK et échange éphémère en 1-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY\n\n[Cas 6 — Même suite et échange, données anticipées 0-RTT]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=psk_dhe_ke group=x25519 phase=0-rtt enc=AES_256_GCM hash=SHA384 pfs=NOT_GUARANTEED status=PARAMETERS_ONLY\n\n[Cas 7 — Handshake initial TLS 1.3 avec échange éphémère]\nSUITE: TLS_AES_256_GCM_SHA384 ver=TLS1.3 kex=dhe group=x25519 phase=1-rtt enc=AES_256_GCM hash=SHA384 pfs=CONDITIONAL status=PARAMETERS_ONLY",
+    "takeaway": "À retenir : Analyser une suite et les paramètres TLS négociés sans déduire la PFS du seul nom TLS 1.3.\nRepère : L’échange ECDHE permet la PFS sous hypothèses ; la configuration complète n’est pas auditée."
   },
   {
     "id": "cr3-c6-e2",
@@ -71,7 +73,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cr3-c6-e2) — Analyse illustrative des phases TLS 1.3 et de la confidentialité persistante (PFS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Données anticipées 0-RTT avec PSK et échange ultérieur]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=psk_dhe_ke phase=0-rtt\nA_COMPLETER\n\n[Cas 2 — Handshake initial TLS 1.2 avec RSA statique]\n# Données : TLS_HANDSHAKE client_version=TLSv1.2 server_version=TLSv1.2 group=none client_share=none server_share=none mode=rsa phase=1-rtt\nA_COMPLETER\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\n# Données : TLS_HANDSHAKE client_version=TLSv1.0 server_version=TLSv1.0 group=none client_share=none server_share=none mode=none phase=1-rtt\nA_COMPLETER\n\n[Cas 4 — Données 1-RTT avec PSK et échange éphémère]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=x25519 client_share=A1B2 server_share=C3D4 mode=psk_dhe_ke phase=1-rtt\nA_COMPLETER\n\n[Cas 5 — Données 1-RTT avec PSK seul]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=none client_share=none server_share=none mode=psk_ke phase=1-rtt\nA_COMPLETER\n\n[Cas 6 — Données anticipées 0-RTT avec PSK seul]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=none client_share=none server_share=none mode=psk_ke phase=0-rtt\nA_COMPLETER\n\n[Cas 7 — Groupe non pris en charge par le modèle]\n# Données : TLS_HANDSHAKE client_version=TLSv1.3 server_version=TLSv1.3 group=legacy1024 client_share=A1B2 server_share=C3D4 mode=dhe phase=1-rtt\nA_COMPLETER\n",
     "hints": [
       "Distinguez la phase des données du mode d’échange négocié ; 0-RTT ne termine pas le handshake et ne garantit pas la PFS.",
-      "Pour l’identifiant public uniquement, concaténez client_share, server_share et group avec « : », puis prenez les 16 premiers caractères hexadécimaux de SHA-256."
+      "Pour l’identifiant public uniquement, concaténez client_share, server_share et group avec « : », puis prenez les 16 premiers caractères hexadécimaux de SHA-256.",
+      "Vérifiez la combinaison version/mode/groupe (TLS 1.3 n impose PFS que si PSK-only n est pas utilisé seul) et respectez le format exact de la ligne illustrative."
     ],
     "examples": [
       {
@@ -117,50 +120,64 @@ module.exports = [
         "expected": "STATUS=REJECTED (unsupported elliptic group: legacy1024)"
       }
     ],
-    "solution": "[Exemple]\nTLS1.3: phase=1-rtt mode=dhe group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 1 — Données anticipées 0-RTT avec PSK et échange ultérieur]\nTLS1.3: phase=0-rtt mode=psk_dhe_ke group=x25519 pfs=NOT_GUARANTEED demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 2 — Handshake initial TLS 1.2 avec RSA statique]\nTLS1.2: rtt=2-RTT pfs=NO status=MODEL_ONLY\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\nSTATUS=REJECTED (TLS version unsupported: TLSv1.0)\n\n[Cas 4 — Données 1-RTT avec PSK et échange éphémère]\nTLS1.3: phase=1-rtt mode=psk_dhe_ke group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 5 — Données 1-RTT avec PSK seul]\nTLS1.3: phase=1-rtt mode=psk_ke group=none pfs=NO demo_id=882e45d0b744de68 status=MODEL_ONLY\n\n[Cas 6 — Données anticipées 0-RTT avec PSK seul]\nTLS1.3: phase=0-rtt mode=psk_ke group=none pfs=NOT_GUARANTEED demo_id=882e45d0b744de68 status=MODEL_ONLY\n\n[Cas 7 — Groupe non pris en charge par le modèle]\nSTATUS=REJECTED (unsupported elliptic group: legacy1024)"
+    "solution": "[Exemple]\nTLS1.3: phase=1-rtt mode=dhe group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 1 — Données anticipées 0-RTT avec PSK et échange ultérieur]\nTLS1.3: phase=0-rtt mode=psk_dhe_ke group=x25519 pfs=NOT_GUARANTEED demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 2 — Handshake initial TLS 1.2 avec RSA statique]\nTLS1.2: rtt=2-RTT pfs=NO status=MODEL_ONLY\n\n[Cas 3 — Rejet version obsolète TLS 1.0]\nSTATUS=REJECTED (TLS version unsupported: TLSv1.0)\n\n[Cas 4 — Données 1-RTT avec PSK et échange éphémère]\nTLS1.3: phase=1-rtt mode=psk_dhe_ke group=x25519 pfs=CONDITIONAL demo_id=f91a13a53fa8daae status=MODEL_ONLY\n\n[Cas 5 — Données 1-RTT avec PSK seul]\nTLS1.3: phase=1-rtt mode=psk_ke group=none pfs=NO demo_id=882e45d0b744de68 status=MODEL_ONLY\n\n[Cas 6 — Données anticipées 0-RTT avec PSK seul]\nTLS1.3: phase=0-rtt mode=psk_ke group=none pfs=NOT_GUARANTEED demo_id=882e45d0b744de68 status=MODEL_ONLY\n\n[Cas 7 — Groupe non pris en charge par le modèle]\nSTATUS=REJECTED (unsupported elliptic group: legacy1024)",
+    "takeaway": "À retenir : Comparer les phases TLS 1.3 et calculer un identifiant public purement illustratif, sans dériver de secret TLS.\nRepère : Échange éphémère illustratif ; le hachage public n’est pas un secret TLS."
   },
   {
     "id": "cr3-c6-e3",
     "chapter": 6,
-    "title": "Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer l'inventaire cryptographique d'une organisation et planifier la migration vers les standards post-quantiques NIST.",
-    "brief": "<p>L'ordinateur quantique menace les fondations asymétriques (Shor) et affaiblit les clés symétriques (Grover) :<br>\nRègles d'audit :<br>\n1. <code>ASYMMETRIC</code> (RSA, ECC, DH) : <code>pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA</code>.<br>\n2. <code>SYMMETRIC</code> : si <code>key_size &lt; 256</code> -&gt; <code>pqc_ready=NO status=INSUFFICIENT_SECURITY action=UPGRADE_TO_AES_256</code> ; sinon -&gt; <code>pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN</code>.<br>\n3. <code>HASH</code> : si <code>key_size &lt; 256</code> -&gt; <code>pqc_ready=NO status=DEPRECATED action=MIGRATE_TO_SHA_256_OR_SHA_3</code> ; sinon -&gt; <code>pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN</code>.<br>\n4. <code>PQC</code> (ML-KEM, ML-DSA, SLH-DSA) : <code>pqc_ready=YES status=NIST_STANDARDIZED action=PRODUCTION_READY</code>.<br><br>\nRésultat d’analyse attendu : <code>AUDIT: algo=&lt;name&gt; type=&lt;type&gt; key_size=&lt;key_size&gt; pqc_ready=&lt;pqc&gt; status=&lt;status&gt; action=&lt;action&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (cr3-c6-e3) — Auditeur de Conformité Cryptographique et Transition Post-Quantique (NIST PQC)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Clé symétrique 128 bits vulnérable à l accélération de Grover]\n# Données : AUDIT_ALGO name=AES_128 key_size=128 type=SYMMETRIC\nA_COMPLETER\n\n[Cas 2 — AES-256 résistant à Grover avec 128 bits de sécurité résiduelle]\n# Données : AUDIT_ALGO name=AES_256 key_size=256 type=SYMMETRIC\nA_COMPLETER\n\n[Cas 3 — Algorithme post-quantique basé sur les réseaux euclidiens standardisé]\n# Données : AUDIT_ALGO name=ML_KEM_768 key_size=768 type=PQC\nA_COMPLETER\n\n[Cas 4 — Empreinte courte dépréciée et non post-quantique]\n# Données : AUDIT_ALGO name=SHA_1 key_size=160 type=HASH\nA_COMPLETER\n",
+    "title": "Préparer la migration post-quantique du groupe Meridor",
+    "exampleTitle": "Exemple résolu — le plan post-quantique du ministère",
+    "goal": "Évaluer l'impact des algorithmes quantiques de Shor et de Grover et proposer des mesures de migration post-quantique.",
+    "brief": "<p><strong>Énoncé.</strong> Le RSSI du groupe industriel Meridor prépare la migration cryptographique post-quantique. Le comité de sécurité rappelle deux faits : l'algorithme de <strong>Shor</strong> factorise les entiers et résout les logarithmes discrets, mettant RSA, DH et ECC à terre dès qu'un ordinateur quantique suffisant existera ; l'algorithme de <strong>Grover</strong> accélère la recherche exhaustive d'un facteur racine carrée, affaiblissant le symétrique de moitié en bits de sécurité. Le groupe chiffre aujourd'hui ses liaisons en RSA-2048 et ses archives en AES-128.</p><ol><li>Quel algorithme quantique menace directement RSA-2048 et ECC ?</li><li>Quel algorithme quantique réduit la sécurité des clés symétriques ?</li><li>Sous Grover, la sécurité effective d'AES-128 tombe à environ combien de bits ?</li><li>Quelle famille d'algorithmes, standardisée par le NIST en 2024 pour remplacer les échanges de clés RSA et ECC, porte un nom en ML- (un nom suffit) ?</li><li>Quel risque, résumé par la formule « harvest now, decrypt later », impose de migrer avant l'arrivée de l'ordinateur quantique ?</li><li>Quelle mesure simple, côté symétrique, conserve une marge post-quantique confortable pour les archives ?</li></ol>",
+    "starter": "# Exercice — Préparer la migration post-quantique du groupe Meridor\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : le nom ou le nombre. Questions 4 à 6 : quelques mots.\n\n[Question 1 — Algorithme quantique menaçant RSA et ECC]\nA_COMPLETER\n\n[Question 2 — Algorithme quantique affaiblissant le symétrique]\nA_COMPLETER\n\n[Question 3 — Sécurité effective d'AES-128 sous Grover]\nA_COMPLETER\n\n[Question 4 — Famille post-quantique standardisée par le NIST en 2024]\nA_COMPLETER\n\n[Question 5 — Risque résumé par harvest now, decrypt later]\nA_COMPLETER\n\n[Question 6 — Mesure symétrique simple pour la marge post-quantique]\nA_COMPLETER\n",
     "hints": [
-      "Branchez selon t == \"ASYMMETRIC\", \"SYMMETRIC\", \"HASH\", \"PQC\".",
-      "Pour SYMMETRIC et HASH, comparez key_size < 256 vs key_size >= 256."
+      "Shor s'attaque aux problèmes structurels (factorisation, logarithme discret) ; Grover accélère la recherche exhaustive d'un facteur racine carrée.",
+      "Un standard du NIST publié en 2024 pour l'échange de clés, issu de la soumission Kyber, porte un nom commençant par ML-.",
+      "1. La factorisation est le talon d'Achille de RSA. 2. La recherche exhaustive concerne les clés symétriques. 3. 128 / 2. 4. Le standard s'appelle ML-KEM. 5. Des captures réseau sont stockées en attendant le calculateur capable de les ouvrir. 6. Doubler la taille de clé annule l'effet de Grover."
     ],
     "examples": [
       {
-        "stdin": "AUDIT_ALGO name=RSA key_size=2048 type=ASYMMETRIC",
-        "expected": "AUDIT: algo=RSA type=ASYMMETRIC key_size=2048 pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA",
-        "note": "RSA repose sur la factorisation entière cassée par l algorithme de Shor."
+        "stdin": "Un ministère dresse le même plan : liaisons en RSA-3072, archives en AES-192, condensés en SHA-256.\n1) RSA-3072 tombe sous l'algorithme de Shor.\n2) Le symétrique est affaibli par l'algorithme de Grover.\n3) AES-192 sous Grover : environ 96 bits de sécurité.\n4) Le NIST a standardisé ML-KEM (issu de Kyber) pour les échanges de clés.\n5) « Harvest now, decrypt later » : les captures d'aujourd'hui seront ouvertes demain.\n6) Mesure symétrique : passer à AES-256 (doubler la marge).",
+        "expected": "Shor — Grover — 96 bits — ML-KEM — les captures stockées seront déchiffrées plus tard — AES-256",
+        "note": "Grover enlève la moitié des bits de sécurité : doubler les clés symétriques suffit à le neutraliser, contrairement à Shor qui impose de changer de famille."
       }
     ],
     "tests": [
       {
-        "label": "Clé symétrique 128 bits vulnérable à l accélération de Grover",
-        "stdin": "cas:1",
-        "expected": "AUDIT: algo=AES_128 type=SYMMETRIC key_size=128 pqc_ready=NO status=INSUFFICIENT_SECURITY action=UPGRADE_TO_AES_256"
+        "label": "Question 1 — Algorithme quantique menaçant RSA et ECC",
+        "stdin": "q:1",
+        "expected": "Shor||l'algorithme de Shor||shor"
       },
       {
-        "label": "AES-256 résistant à Grover avec 128 bits de sécurité résiduelle",
-        "stdin": "cas:2",
-        "expected": "AUDIT: algo=AES_256 type=SYMMETRIC key_size=256 pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN"
+        "label": "Question 2 — Algorithme quantique affaiblissant le symétrique",
+        "stdin": "q:2",
+        "expected": "Grover||l'algorithme de Grover||grover"
       },
       {
-        "label": "Algorithme post-quantique basé sur les réseaux euclidiens standardisé",
-        "stdin": "cas:3",
-        "expected": "AUDIT: algo=ML_KEM_768 type=PQC key_size=768 pqc_ready=YES status=NIST_STANDARDIZED action=PRODUCTION_READY"
+        "label": "Question 3 — Sécurité effective d'AES-128 sous Grover",
+        "stdin": "q:3",
+        "expected": "64||64 bits"
       },
       {
-        "label": "Empreinte courte dépréciée et non post-quantique",
-        "stdin": "cas:4",
-        "expected": "AUDIT: algo=SHA_1 type=HASH key_size=160 pqc_ready=NO status=DEPRECATED action=MIGRATE_TO_SHA_256_OR_SHA_3"
+        "label": "Question 4 — Famille post-quantique standardisée par le NIST en 2024",
+        "stdin": "q:4",
+        "expected": "ML-KEM||ml-kem||Kyber||kyber||ML-KEM (Kyber)"
+      },
+      {
+        "label": "Question 5 — Risque résumé par harvest now, decrypt later",
+        "stdin": "q:5",
+        "expected": "les captures actuelles seront déchiffrées plus tard||des adversaires enregistrent les communications chiffrées aujourd'hui pour les déchiffrer plus tard||l'enregistrement des communications chiffrées pour déchiffrement futur||harvest now decrypt later||récolter maintenant, déchiffrer plus tard"
+      },
+      {
+        "label": "Question 6 — Mesure symétrique simple pour la marge post-quantique",
+        "stdin": "q:6",
+        "expected": "passer à AES-256||AES-256||aes-256||doubler la taille de clé||utiliser AES-256"
       }
     ],
-    "solution": "[Exemple]\nAUDIT: algo=RSA type=ASYMMETRIC key_size=2048 pqc_ready=NO status=VULNERABLE_QUANTUM action=MIGRATE_TO_ML_KEM_OR_ML_DSA\n\n[Cas 1 — Clé symétrique 128 bits vulnérable à l accélération de Grover]\nAUDIT: algo=AES_128 type=SYMMETRIC key_size=128 pqc_ready=NO status=INSUFFICIENT_SECURITY action=UPGRADE_TO_AES_256\n\n[Cas 2 — AES-256 résistant à Grover avec 128 bits de sécurité résiduelle]\nAUDIT: algo=AES_256 type=SYMMETRIC key_size=256 pqc_ready=YES status=QUANTUM_SAFE action=MAINTAIN\n\n[Cas 3 — Algorithme post-quantique basé sur les réseaux euclidiens standardisé]\nAUDIT: algo=ML_KEM_768 type=PQC key_size=768 pqc_ready=YES status=NIST_STANDARDIZED action=PRODUCTION_READY\n\n[Cas 4 — Empreinte courte dépréciée et non post-quantique]\nAUDIT: algo=SHA_1 type=HASH key_size=160 pqc_ready=NO status=DEPRECATED action=MIGRATE_TO_SHA_256_OR_SHA_3"
+    "solution": "[Question 1 — Algorithme quantique menaçant RSA et ECC]\nShor\n\n[Question 2 — Algorithme quantique affaiblissant le symétrique]\nGrover\n\n[Question 3 — Sécurité effective d'AES-128 sous Grover]\n64\n\n[Question 4 — Famille post-quantique standardisée par le NIST en 2024]\nML-KEM\n\n[Question 5 — Risque résumé par harvest now, decrypt later]\nles captures actuelles seront déchiffrées plus tard\n\n[Question 6 — Mesure symétrique simple pour la marge post-quantique]\npasser à AES-256",
+    "takeaway": "1) L'algorithme de Shor, qui factorise les entiers et résout les logarithmes discrets.\n2) L'algorithme de Grover, qui accélère la recherche exhaustive d'un facteur racine carrée.\n3) 128 / 2 = 64 bits de sécurité effective.\n4) ML-KEM (Module-Lattice Key Encapsulation Mechanism, issu de Kyber), standardisé par le NIST en 2024 pour l'échange de clés.\n5) Des adversaires enregistrent aujourd'hui les communications chiffrées pour les déchiffrer dès qu'un ordinateur quantique suffisant existera : les données à longue durée de vie sont déjà exposées.\n6) Passer à AES-256 : doubler la taille de clé restaure la marge face à Grover.\nContrôle : Shor impose de changer de famille (RSA vers ML-KEM) ; Grover se neutralise en doublant les clés (AES-128 vers AES-256)."
   }
 ];

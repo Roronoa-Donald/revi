@@ -137,6 +137,21 @@ self.onmessage = function (event) {
     return readline();
   }
 
+  // Pont Node-compatible minimal pour les ateliers utilisant fs.readFileSync(0, 'utf8')
+  var stdinStr = typeof stdin === 'string' ? stdin : '';
+  var fsShim = {
+    readFileSync: function (fd) {
+      if (fd === 0 || fd === '/dev/stdin') {
+        return stdinStr;
+      }
+      throw new Error('Lecture de fichier non supportée dans le navigateur : ' + String(fd));
+    }
+  };
+  function localRequire(name) {
+    if (name === 'fs' || name === 'node:fs') return fsShim;
+    throw new Error('Module "' + String(name) + '" non disponible dans le bac à sable navigateur.');
+  }
+
   // Exécution du code utilisateur
   try {
     // Vérification de syntaxe préliminaire
@@ -147,6 +162,7 @@ self.onmessage = function (event) {
         'readline',
         'prompt',
         'stdin',
+        'require',
         '"use strict";\n' + code
       );
     } catch (syntaxErr) {
@@ -169,7 +185,7 @@ self.onmessage = function (event) {
     }
 
     // Exécution
-    var retVal = fn(customConsole, readline, prompt, stdin);
+    var retVal = fn(customConsole, readline, prompt, stdin, localRequire);
 
     // Si le code renvoie une Promise (code asynchrone)
     if (retVal && typeof retVal.then === 'function') {

@@ -85,14 +85,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La personnalité juridique est…', opts: ['le droit de voter', 'l\'aptitude à être titulaire de droits et soumis à des obligations', 'une carte d\'identité'], correct: 1, exp: 'Définition du support : aptitude à être titulaire de droits et soumis à des obligations.' },
-      { q: 'Elle s\'acquiert à…', opts: ['la conception toujours', 'la naissance (exception : conception dans l\'intérêt de l\'enfant)', 'la majorité'], correct: 1, exp: 'Principe : naissance ; exception repoussée à la conception pour la succession du père décédé.' },
-      { q: 'Elle se perd au…', opts: ['mariage', 'décès', 'déménagement'], correct: 1, exp: 'Le décès marque la fin de la personnalité juridique.' },
-      { q: 'L\'absence suppose…', opts: ['un naufrage certain', 'être sans nouvelles d\'une personne éloignée de son domicile pendant un long délai (5 ans)', 'un procès perdu'], correct: 1, exp: 'Sans nouvelles, sans certitude de décès : situation d\'attente.' },
-      { q: 'La disparition suppose…', opts: ['le corps introuvable mais le décès probable (naufrage, crash)', 'une simple fugue', 'un emprisonnement'], correct: 0, exp: 'Circonstances accidentelles rendant le décès probable : présomption de décès.' },
-      { q: 'L\'État et les communes sont des personnes morales…', opts: ['de droit privé', 'de droit public', 'sans personnalité'], correct: 1, exp: 'Collectivités publiques et établissements publics : droit public.' },
-      { q: 'Une société commerciale est une personne morale…', opts: ['de droit public', 'de droit privé', 'physique'], correct: 1, exp: 'Sociétés commerciales et entreprises privées : droit privé.' },
-      { q: 'Le patrimoine de la personne morale est…', opts: ['confondu avec celui du gérant', 'propre et distinct de celui de ses membres', 'nul'], correct: 1, exp: 'Elle contracte et plaide en son nom, avec son patrimoine.' }
+      { q: 'La personnalité juridique est…', opts: ["le droit de prendre part aux élections comme électeur","l'aptitude à être titulaire de droits et soumis à des obligations","un document d'identité délivré par l'administration"], correct: 1, exp: 'Définition du support : aptitude à être titulaire de droits et soumis à des obligations.' },
+      { q: 'Elle s\'acquiert à…', opts: ["la naissance (exception : conception dans l'intérêt de l'enfant)","la conception, en toute hypothèse et sans exception","la majorité, seul âge où l'on devient sujet de droit"], correct: 0, exp: 'Principe : naissance ; exception repoussée à la conception pour la succession du père décédé.' },
+      { q: 'Elle se perd au…', opts: ['mariage', 'déménagement', 'décès'], correct: 2, exp: 'Le décès marque la fin de la personnalité juridique.' },
+      { q: 'L\'absence suppose…', opts: ["un naufrage certain : le décès est constaté et le corps est retrouvé","un procès perdu qui priverait la personne de l'ensemble de ses droits","être sans nouvelles d'une personne éloignée de son domicile pendant un long délai (5 ans)"], correct: 2, exp: 'Sans nouvelles, sans certitude de décès : situation d\'attente.' },
+      { q: 'La disparition suppose…', opts: ["une fugue volontaire de la personne loin de son domicile","le corps introuvable mais le décès probable (naufrage, crash)","un emprisonnement de la personne à l'étranger"], correct: 1, exp: 'Circonstances accidentelles rendant le décès probable : présomption de décès.' },
+      { q: 'L\'État et les communes sont des personnes morales…', opts: ['de droit public', 'de droit privé', 'sans personnalité'], correct: 0, exp: 'Collectivités publiques et établissements publics : droit public.' },
+      { q: 'Une société commerciale est une personne morale…', opts: ['de droit public', 'physique', 'de droit privé'], correct: 2, exp: 'Sociétés commerciales et entreprises privées : droit privé.' },
+      { q: 'Le patrimoine de la personne morale est…', opts: ["confondu avec celui de son gérant majoritaire","propre et distinct de celui de ses membres","inexistant, la société ne pouvant rien détenir"], correct: 1, exp: 'Elle contracte et plaide en son nom, avec son patrimoine.' }
     ],
 
     pitfalls: [
@@ -218,14 +218,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le jour franc court à partir de…', opts: ['du vote de la loi', 'de la promulgation', 'de la parution au journal officiel'], correct: 2, exp: '24 h consécutives après la parution, puis la loi entre en vigueur.' },
+      { q: 'Le jour franc court à partir de…', opts: ['de la parution au journal officiel', 'de la promulgation', 'du vote de la loi'], correct: 0, exp: '24 h consécutives après la parution, puis la loi entre en vigueur.' },
       { q: '« Nul n\'est censé ignorer la loi » vaut…', opts: ['dès le vote', 'après le jour franc', 'jamais'], correct: 1, exp: 'Après l\'écoulement du jour franc, chacun est réputé connaître la loi.' },
-      { q: 'La loi nouvelle s\'applique…', opts: ['à tout le passé', 'aux situations éteintes avant elle', 'aux situations en cours et aux situations nouvelles'], correct: 2, exp: 'Effet immédiat ; les situations éteintes restent sous l\'ancienne loi.' },
-      { q: '« La loi ne dispose que pour l\'avenir » est…', opts: ['l\'article 2 du code civil', 'un règlement européen', 'une coutume'], correct: 0, exp: 'Fondement de la non-rétroactivité.' },
+      { q: 'La loi nouvelle s\'applique…', opts: ["à tout le passé, y compris les effets déjà produits","aux situations éteintes avant son entrée en vigueur","aux situations en cours et aux situations nouvelles"], correct: 2, exp: 'Effet immédiat ; les situations éteintes restent sous l\'ancienne loi.' },
+      { q: '« La loi ne dispose que pour l\'avenir » est…', opts: ['l\'article 2 du code civil', 'un règlement européen', 'une coutume'], correct: 0, exp: "C'est l'article 2 du code civil qui fonde la non-rétroactivité : la loi ne dispose que pour l'avenir et n'a point d'effet rétroactif. Ni un règlement européen ni une coutume n'énoncent ce principe." },
       { q: 'L\'abrogation expresse est…', opts: ['énoncée par le texte nouveau', 'déduite d\'une incompatibilité', 'décidée par le juge'], correct: 0, exp: 'Le texte nouveau la déclare ; sinon, l\'incompatibilité crée l\'abrogation tacite.' },
-      { q: 'L\'abrogation tacite résulte de…', opts: ['du silence du journal officiel', 'l\'introduction d\'une disposition incompatible avec l\'ancienne', 'd\'un référendum'], correct: 1, exp: 'Aucune déclaration : l\'incompatibilité suffit.' },
-      { q: 'Une loi abrogée avant un litige…', opts: ['peut encore être appliquée', 'ne fonde plus la décision', 'revient automatiquement'], correct: 1, exp: 'Sa force obligatoire a cessé : le juge applique le droit en vigueur.' },
-      { q: 'L\'application dans l\'espace pose…', opts: ['le même problème que dans le temps', 'peu de problèmes : la loi s\'applique sur le territoire national', 'des conflits de frontières quotidiens'], correct: 1, exp: 'Le vrai champ de difficultés est l\'application dans le temps.' }
+      { q: 'L\'abrogation tacite résulte de…', opts: ["du silence prolongé du journal officiel sur le texte","l'introduction d'une disposition incompatible avec l'ancienne","d'une décision du peuple exprimée par référendum"], correct: 1, exp: 'Aucune déclaration : l\'incompatibilité suffit.' },
+      { q: 'Une loi abrogée avant un litige…', opts: ['peut encore être appliquée', 'revient automatiquement', 'ne fonde plus la décision'], correct: 2, exp: 'Sa force obligatoire a cessé : le juge applique le droit en vigueur.' },
+      { q: 'L\'application dans l\'espace pose…', opts: ['le même problème que dans le temps', 'des conflits de frontières quotidiens', 'peu de problèmes : la loi s\'applique sur le territoire national'], correct: 2, exp: 'Le vrai champ de difficultés est l\'application dans le temps.' }
     ],
 
     pitfalls: [
@@ -351,14 +351,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Les quatre conditions de validité du contrat sont…', opts: ['capacité, consentement, objet, cause', 'date, lieu, signature, témoin', 'offre, demande, prix, livraison'], correct: 0, exp: 'C-C-O-C : capacité, consentement, objet, cause.' },
-      { q: 'Le dol est…', opts: ['une erreur de calcul', 'des manœuvres frauduleuses destinées à tromper', 'un accident'], correct: 1, exp: 'Vice du consentement : manœuvre frauduleuse ; sanction : nullité relative.' },
+      { q: 'Les quatre conditions de validité du contrat sont…', opts: ['date, lieu, signature, témoin', 'capacité, consentement, objet, cause', 'offre, demande, prix, livraison'], correct: 1, exp: 'C-C-O-C : capacité, consentement, objet, cause.' },
+      { q: 'Le dol est…', opts: ["des manœuvres frauduleuses destinées à tromper","une simple erreur de calcul dans le prix stipulé","un accident survenu lors de l'exécution du contrat"], correct: 0, exp: 'Vice du consentement : manœuvre frauduleuse ; sanction : nullité relative.' },
       { q: 'Les vices du consentement emportent…', opts: ['la nullité absolue', 'la nullité relative', 'une simple amende'], correct: 1, exp: 'Seule la victime peut agir : le contrat est anéanti pour la protéger.' },
-      { q: 'La lésion…', opts: ['annule toujours le contrat', 'n\'est sanctionnée que dans les cas prévus par la loi', 'est un vice de capacité'], correct: 1, exp: 'Déséquilibre excessif : sanction légale, cas par cas.' },
-      { q: 'La force majeure libère le débiteur si l\'événement est…', opts: ['annoncé à la télévision', 'imprévisible, irrésistible et extérieur', 'fiscal'], correct: 1, exp: 'Trois critères cumulatifs : sinon, pas de dispense.' },
-      { q: 'Si le dommage est modéré, le créancier peut surtout demander…', opts: ['l\'emprisonnement du débiteur', 'l\'exécution forcée', 'la révision de la Constitution'], correct: 1, exp: 'Exécution forcée et/ou dommages-intérêts selon le préjudice.' },
+      { q: 'La lésion…', opts: ["n'est sanctionnée que dans les cas prévus par la loi","annule systématiquement le contrat déséquilibré","est un vice de capacité du contractant mineur"], correct: 0, exp: 'Déséquilibre excessif : sanction légale, cas par cas.' },
+      { q: 'La force majeure libère le débiteur si l\'événement est…', opts: ["annoncé à l'avance par les autorités publiques","d'ordre purement fiscal et pécuniaire","imprévisible, irrésistible et extérieur"], correct: 2, exp: 'Trois critères cumulatifs : sinon, pas de dispense.' },
+      { q: 'Si le dommage est modéré, le créancier peut surtout demander…', opts: ['l\'emprisonnement du débiteur', 'la révision de la Constitution', 'l\'exécution forcée'], correct: 2, exp: 'Exécution forcée et/ou dommages-intérêts selon le préjudice.' },
       { q: 'Un accident entre deux inconnus relève de la responsabilité…', opts: ['contractuelle', 'délictuelle', 'disciplinaire'], correct: 1, exp: 'Aucun contrat entre les parties : responsabilité délictuelle.' },
-      { q: 'Sans personnalité juridique, une partie…', opts: ['peut contracter librement', 'manque de capacité, le contrat est exposé à la nullité', 'devient personne morale'], correct: 1, exp: 'Chaîne : personnalité → capacité → contrat.' }
+      { q: 'Sans personnalité juridique, une partie…', opts: ["manque de capacité, le contrat est exposé à la nullité","peut contracter librement, sans aucune limite de droit","devient aussitôt une personne morale de droit privé"], correct: 0, exp: 'Chaîne : personnalité → capacité → contrat.' }
     ],
 
     pitfalls: [

@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c1-e1) — Classificateur de génération et d’architecture de pare-feu\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Appliance UTM intégrée FortiGate]\n# Données : EQUIPEMENT nom=FortiGate60F couche_max=L7 suivi_etat=OUI utm_modules=OUI ia_zero_day=NON\nA_COMPLETER\n\n[Cas 2 — Pare-feu stateful classique Cisco ASA]\n# Données : EQUIPEMENT nom=CiscoASA5505 couche_max=L4 suivi_etat=OUI utm_modules=NON ia_zero_day=NON\nA_COMPLETER\n\n[Cas 3 — Routeur avec simples ACLs stateless]\n# Données : EQUIPEMENT nom=RouteurBorder couche_max=L3 suivi_etat=NON utm_modules=NON ia_zero_day=NON\nA_COMPLETER\n",
     "hints": [
       "Évaluer les critères dans l’ordre de la spécification.",
-      "Extraire les arguments par découpage ou regex."
+      "Extraire les arguments par découpage ou regex.",
+      "Tester les critères dans l’ordre : ia_zero_day avant utm_modules, puis suivi_etat, sinon pare-feu stateless ; afficher la génération et le type correspondants."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "FIREWALL_CLASS: RouteurBorder -> GEN1_STATELESS | FILTRAGE_PAQUETS_STATIQUE"
       }
     ],
-    "solution": "[Exemple]\nFIREWALL_CLASS: PaloAlto5200 -> GEN4_NGFW | PAREFEU_NOUVELLE_GENERATION\n\n[Cas 1 — Appliance UTM intégrée FortiGate]\nFIREWALL_CLASS: FortiGate60F -> GEN3_UTM | GESTION_UNIFIEE_MENACES\n\n[Cas 2 — Pare-feu stateful classique Cisco ASA]\nFIREWALL_CLASS: CiscoASA5505 -> GEN2_STATEFUL | INSPECTION_AVEC_ETAT\n\n[Cas 3 — Routeur avec simples ACLs stateless]\nFIREWALL_CLASS: RouteurBorder -> GEN1_STATELESS | FILTRAGE_PAQUETS_STATIQUE"
+    "solution": "[Exemple]\nFIREWALL_CLASS: PaloAlto5200 -> GEN4_NGFW | PAREFEU_NOUVELLE_GENERATION\n\n[Cas 1 — Appliance UTM intégrée FortiGate]\nFIREWALL_CLASS: FortiGate60F -> GEN3_UTM | GESTION_UNIFIEE_MENACES\n\n[Cas 2 — Pare-feu stateful classique Cisco ASA]\nFIREWALL_CLASS: CiscoASA5505 -> GEN2_STATEFUL | INSPECTION_AVEC_ETAT\n\n[Cas 3 — Routeur avec simples ACLs stateless]\nFIREWALL_CLASS: RouteurBorder -> GEN1_STATELESS | FILTRAGE_PAQUETS_STATIQUE",
+    "takeaway": "Distinguant filtrage L3/L4 stateless, pare-feu stateful et NGFW L7, on choisit le moteur adapté au risque et au débit visé."
   },
   {
     "id": "fw3-c1-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c1-e2) — Auditeur de séparation des zones de confiance réseau\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trafic web public entrant vers serveur DMZ]\n# Données : FLUX src_zone=WAN dst_zone=DMZ port=443 proto=TCP\nA_COMPLETER\n\n[Cas 2 — Tentative directe WAN vers LAN bloquée]\n# Données : FLUX src_zone=WAN dst_zone=LAN port=22 proto=TCP\nA_COMPLETER\n\n[Cas 3 — Administration légitime depuis LAN vers MGMT]\n# Données : FLUX src_zone=LAN dst_zone=MGMT port=22 proto=TCP\nA_COMPLETER\n",
     "hints": [
       "Traiter en priorité l’interdiction absolue de DMZ vers LAN.",
-      "Valider les ports autorisés vers la DMZ et vers MGMT."
+      "Valider les ports autorisés vers la DMZ et vers MGMT.",
+      "1. DMZ vers LAN : rejet critique. 2. WAN vers LAN : rejet. 3. WAN vers DMZ : accepté uniquement en TCP sur port 80 ou 443. 4. Sinon appliquer la matrice restante du brief."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "ZONE_AUDIT: LAN->MGMT:TCP/22 -> AUTORISE_ADMINISTRATION_MGMT"
       }
     ],
-    "solution": "[Exemple]\nZONE_AUDIT: DMZ->LAN:TCP/3306 -> REJET_CRITIQUE_VIOLATION_DMZ_VERS_LAN\n\n[Cas 1 — Trafic web public entrant vers serveur DMZ]\nZONE_AUDIT: WAN->DMZ:TCP/443 -> AUTORISE_SERVICE_PUBLIC_DMZ\n\n[Cas 2 — Tentative directe WAN vers LAN bloquée]\nZONE_AUDIT: WAN->LAN:TCP/22 -> REJET_SECURITE_WAN_DIRECT_VERS_LAN\n\n[Cas 3 — Administration légitime depuis LAN vers MGMT]\nZONE_AUDIT: LAN->MGMT:TCP/22 -> AUTORISE_ADMINISTRATION_MGMT"
+    "solution": "[Exemple]\nZONE_AUDIT: DMZ->LAN:TCP/3306 -> REJET_CRITIQUE_VIOLATION_DMZ_VERS_LAN\n\n[Cas 1 — Trafic web public entrant vers serveur DMZ]\nZONE_AUDIT: WAN->DMZ:TCP/443 -> AUTORISE_SERVICE_PUBLIC_DMZ\n\n[Cas 2 — Tentative directe WAN vers LAN bloquée]\nZONE_AUDIT: WAN->LAN:TCP/22 -> REJET_SECURITE_WAN_DIRECT_VERS_LAN\n\n[Cas 3 — Administration légitime depuis LAN vers MGMT]\nZONE_AUDIT: LAN->MGMT:TCP/22 -> AUTORISE_ADMINISTRATION_MGMT",
+    "takeaway": "Le cloisonnement par zones (WAN, DMZ, LAN, Admin) limite la surface d’attaque latérale dès qu’un serveur exposé est compromis."
   },
   {
     "id": "fw3-c1-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c1-e3) — Moteur de filtrage de paquets sans état (Stateless Packet Filter)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Paquet bloqué par règle drop explicite]\n# Données : RULE id=10 src=203.0.113.5 dst=ANY proto=ANY dport=ANY action=DROP\n# Données : RULE id=20 src=ANY dst=ANY proto=TCP dport=22 action=ACCEPT\n# Données : PACKET src=203.0.113.5 dst=192.168.1.1 proto=TCP dport=22\nA_COMPLETER\n\n[Cas 2 — Paquet tombant sur la politique par défaut]\n# Données : RULE id=100 src=192.168.1.0/24 dst=ANY proto=UDP dport=53 action=ACCEPT\n# Données : PACKET src=10.0.0.1 dst=8.8.8.8 proto=TCP dport=80\nA_COMPLETER\n\n[Cas 3 — Règle Reject avec code d’erreur simulé]\n# Données : RULE id=50 src=ANY dst=192.168.1.254 proto=TCP dport=23 action=REJECT\n# Données : RULE id=60 src=ANY dst=ANY proto=ANY dport=ANY action=DROP\n# Données : PACKET src=172.16.0.4 dst=192.168.1.254 proto=TCP dport=23\nA_COMPLETER\n",
     "hints": [
       "Gérer ANY comme joker universel sur chaque critère.",
-      "Arrêter l’évaluation dès la première règle correspondante."
+      "Arrêter l’évaluation dès la première règle correspondante.",
+      "Pour chaque paquet, parcourir les règles dans l’ordre ; dès que tous les champs concordent (ANY accepte tout), appliquer l’action trouvée et citer l’index de la règle."
     ],
     "examples": [
       {
@@ -116,7 +121,8 @@ module.exports = [
         "expected": "PACKET_DECISION: REJECT (MATCH_RULE=50) -> 172.16.0.4:TCP/23->192.168.1.254"
       }
     ],
-    "solution": "[Exemple]\nPACKET_DECISION: ACCEPT (MATCH_RULE=1) -> 10.0.0.5:TCP/80->192.168.1.10\n\n[Cas 1 — Paquet bloqué par règle drop explicite]\nPACKET_DECISION: DROP (MATCH_RULE=10) -> 203.0.113.5:TCP/22->192.168.1.1\n\n[Cas 2 — Paquet tombant sur la politique par défaut]\nPACKET_DECISION: DEFAULT_DROP (MATCH_RULE=NONE) -> 10.0.0.1:TCP/80->8.8.8.8\n\n[Cas 3 — Règle Reject avec code d’erreur simulé]\nPACKET_DECISION: REJECT (MATCH_RULE=50) -> 172.16.0.4:TCP/23->192.168.1.254"
+    "solution": "[Exemple]\nPACKET_DECISION: ACCEPT (MATCH_RULE=1) -> 10.0.0.5:TCP/80->192.168.1.10\n\n[Cas 1 — Paquet bloqué par règle drop explicite]\nPACKET_DECISION: DROP (MATCH_RULE=10) -> 203.0.113.5:TCP/22->192.168.1.1\n\n[Cas 2 — Paquet tombant sur la politique par défaut]\nPACKET_DECISION: DEFAULT_DROP (MATCH_RULE=NONE) -> 10.0.0.1:TCP/80->8.8.8.8\n\n[Cas 3 — Règle Reject avec code d’erreur simulé]\nPACKET_DECISION: REJECT (MATCH_RULE=50) -> 172.16.0.4:TCP/23->192.168.1.254",
+    "takeaway": "Un filtre sans état inspecte chaque paquet isolément selon 5-tuple IP/port/protocole sans mémoriser les flux de retour légitimes."
   },
   {
     "id": "fw3-c2-e1",
@@ -129,7 +135,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c2-e1) — Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]\n# Données : PACKET id=1 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=SYN\n# Données : PACKET id=2 src=203.0.113.1 dst=10.0.0.5 sport=443 dport=4000 flags=SYN_ACK\n# Données : PACKET id=3 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=ACK\n# Données : PACKET id=4 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=DATA\n# Données : PACKET id=5 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=FIN\n# Données : PACKET id=6 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=DATA\nA_COMPLETER\n\n[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]\n# Données : PACKET id=10 src=198.51.100.22 dst=10.0.0.1 sport=60000 dport=22 flags=ACK\n# Données : PACKET id=11 src=198.51.100.22 dst=10.0.0.1 sport=60000 dport=22 flags=RST\nA_COMPLETER\n\n[Cas 3 — Multiples sessions concurrentes avec rejet hors session]\n# Données : PACKET id=A1 src=10.1.1.1 dst=8.8.8.8 sport=1000 dport=53 flags=SYN\n# Données : PACKET id=B1 src=10.2.2.2 dst=1.1.1.1 sport=2000 dport=80 flags=SYN\n# Données : PACKET id=A2 src=8.8.8.8 dst=10.1.1.1 sport=53 dport=1000 flags=SYN_ACK\n# Données : PACKET id=A3 src=10.1.1.1 dst=8.8.8.8 sport=1000 dport=53 flags=ACK\n# Données : PACKET id=C1 src=172.16.0.4 dst=10.1.1.1 sport=3000 dport=22 flags=DATA\nA_COMPLETER\n",
     "hints": [
       "Normaliser la clé de session pour identifier la connexion dans les deux sens.",
-      "Suivre les étapes du handshake : SYN -> SYN_ACK -> ACK avant de passer en ESTABLISHED."
+      "Suivre les étapes du handshake : SYN -> SYN_ACK -> ACK avant de passer en ESTABLISHED.",
+      "Pour chaque paquet : un SYN inédit crée NEW ; le SYN_ACK en sens inverse maintient NEW ; l’ACK final fait passer en ESTABLISHED ; tout paquet hors session attendue est INVALID."
     ],
     "examples": [
       {
@@ -155,7 +162,8 @@ module.exports = [
         "expected": "CONNTRACK id=A1 state=NEW\nCONNTRACK id=B1 state=NEW\nCONNTRACK id=A2 state=NEW\nCONNTRACK id=A3 state=ESTABLISHED\nCONNTRACK id=C1 state=INVALID"
       }
     ],
-    "solution": "[Exemple]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\n\n[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\nCONNTRACK id=4 state=ESTABLISHED\nCONNTRACK id=5 state=ESTABLISHED\nCONNTRACK id=6 state=INVALID\n\n[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]\nCONNTRACK id=10 state=INVALID\nCONNTRACK id=11 state=INVALID\n\n[Cas 3 — Multiples sessions concurrentes avec rejet hors session]\nCONNTRACK id=A1 state=NEW\nCONNTRACK id=B1 state=NEW\nCONNTRACK id=A2 state=NEW\nCONNTRACK id=A3 state=ESTABLISHED\nCONNTRACK id=C1 state=INVALID"
+    "solution": "[Exemple]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\n\n[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\nCONNTRACK id=4 state=ESTABLISHED\nCONNTRACK id=5 state=ESTABLISHED\nCONNTRACK id=6 state=INVALID\n\n[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]\nCONNTRACK id=10 state=INVALID\nCONNTRACK id=11 state=INVALID\n\n[Cas 3 — Multiples sessions concurrentes avec rejet hors session]\nCONNTRACK id=A1 state=NEW\nCONNTRACK id=B1 state=NEW\nCONNTRACK id=A2 state=NEW\nCONNTRACK id=A3 state=ESTABLISHED\nCONNTRACK id=C1 state=INVALID",
+    "takeaway": "La table conntrack associe chaque paquet à un état (NEW, ESTABLISHED, RELATED, INVALID) pour autoriser automatiquement le trafic retour."
   },
   {
     "id": "fw3-c2-e2",
@@ -168,7 +176,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c2-e2) — Purge et gestion des délais d’expiration (Timeouts) conntrack\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]\n# Données : SESSION id=S10 proto=TCP state=ESTABLISHED last_seen=3000\n# Données : SESSION id=S11 proto=ICMP state=ECHO last_seen=7195\n# Données : SESSION id=S12 proto=TCP state=SYN_SENT last_seen=7100\n# Données : PURGE now=7200\nA_COMPLETER\n\n[Cas 2 — Aucune session expirée]\n# Données : SESSION id=A1 proto=TCP state=ESTABLISHED last_seen=1000\n# Données : SESSION id=A2 proto=UDP state=GENERIC last_seen=1020\n# Données : PURGE now=1030\nA_COMPLETER\n\n[Cas 3 — Toutes les sessions conservées et expirées en chaîne]\n# Données : SESSION id=U1 proto=UDP state=GENERIC last_seen=100\n# Données : SESSION id=T1 proto=TCP state=SYN_SENT last_seen=100\n# Données : SESSION id=I1 proto=ICMP state=ECHO last_seen=100\n# Données : PURGE now=200\nA_COMPLETER\n",
     "hints": [
       "Associer chaque couple (proto, state) à sa durée limite.",
-      "Calculer l’inactivité : now - last_seen."
+      "Calculer l’inactivité : now - last_seen.",
+      "Pour chaque session : si now - last_seen dépasse le timeout du couple (protocole, état), la purger ; compter ensuite les sessions purgées et les sessions restantes."
     ],
     "examples": [
       {
@@ -194,7 +203,8 @@ module.exports = [
         "expected": "PURGED: U1, T1, I1\nREMAINING: 0 sessions actives"
       }
     ],
-    "solution": "[Exemple]\nPURGED: S1, S2\nREMAINING: 0 sessions actives\n\n[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]\nPURGED: S10, S12\nREMAINING: 1 sessions actives\n\n[Cas 2 — Aucune session expirée]\nPURGED: NONE\nREMAINING: 2 sessions actives\n\n[Cas 3 — Toutes les sessions conservées et expirées en chaîne]\nPURGED: U1, T1, I1\nREMAINING: 0 sessions actives"
+    "solution": "[Exemple]\nPURGED: S1, S2\nREMAINING: 0 sessions actives\n\n[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]\nPURGED: S10, S12\nREMAINING: 1 sessions actives\n\n[Cas 2 — Aucune session expirée]\nPURGED: NONE\nREMAINING: 2 sessions actives\n\n[Cas 3 — Toutes les sessions conservées et expirées en chaîne]\nPURGED: U1, T1, I1\nREMAINING: 0 sessions actives",
+    "takeaway": "Des timeouts conntrack trop longs sur les connexions inactives exposent la table d’états à l’épuisement lors d’inondations TCP."
   },
   {
     "id": "fw3-c2-e3",
@@ -207,7 +217,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c2-e3) — Détecteur de balayages furtifs (Scans Xmas, Null, FIN & Syn-Fin)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection Null scan et Syn-Fin anomaly]\n# Données : PROBE src=198.51.100.5 dst=10.0.0.10 dport=80 flags=NONE\n# Données : PROBE src=198.51.100.6 dst=10.0.0.10 dport=443 flags=SYN,FIN\nA_COMPLETER\n\n[Cas 2 — Détection FIN scan isolé et trafic standard]\n# Données : PROBE src=203.0.113.8 dst=10.0.0.2 dport=3306 flags=FIN\n# Données : PROBE src=10.0.0.20 dst=172.16.0.5 dport=80 flags=SYN\nA_COMPLETER\n\n[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]\n# Données : PROBE src=192.0.2.1 dst=192.168.1.1 dport=8080 flags=URG,FIN,PSH\nA_COMPLETER\n",
     "hints": [
       "Découper la chaîne flags par virgule et manipuler un set de flags.",
-      "Comparer les ensembles pour gérer l’ordre des flags dans Xmas Scan."
+      "Comparer les ensembles pour gérer l’ordre des flags dans Xmas Scan.",
+      "Convertir les flags en ensemble : SYN et FIN réunis donnent anomalie ; FIN, PSH et URG réunis donnent Xmas ; aucun flag donne Null ; FIN seul donne FIN ; l’ordre est indifférent."
     ],
     "examples": [
       {
@@ -233,7 +244,8 @@ module.exports = [
         "expected": "SCAN_ALERT: 192.0.2.1 -> 192.168.1.1:8080 [URG,FIN,PSH] => XMAS_TREE_SCAN"
       }
     ],
-    "solution": "[Exemple]\nSCAN_ALERT: 192.168.1.100 -> 10.0.0.1:22 [FIN,PSH,URG] => XMAS_TREE_SCAN\n\n[Cas 1 — Détection Null scan et Syn-Fin anomaly]\nSCAN_ALERT: 198.51.100.5 -> 10.0.0.10:80 [NONE] => NULL_SCAN\nSCAN_ALERT: 198.51.100.6 -> 10.0.0.10:443 [SYN,FIN] => SYN_FIN_ANOMALY\n\n[Cas 2 — Détection FIN scan isolé et trafic standard]\nSCAN_ALERT: 203.0.113.8 -> 10.0.0.2:3306 [FIN] => FIN_SCAN\nSCAN_ALERT: 10.0.0.20 -> 172.16.0.5:80 [SYN] => TRAFIC_STANDARD\n\n[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]\nSCAN_ALERT: 192.0.2.1 -> 192.168.1.1:8080 [URG,FIN,PSH] => XMAS_TREE_SCAN"
+    "solution": "[Exemple]\nSCAN_ALERT: 192.168.1.100 -> 10.0.0.1:22 [FIN,PSH,URG] => XMAS_TREE_SCAN\n\n[Cas 1 — Détection Null scan et Syn-Fin anomaly]\nSCAN_ALERT: 198.51.100.5 -> 10.0.0.10:80 [NONE] => NULL_SCAN\nSCAN_ALERT: 198.51.100.6 -> 10.0.0.10:443 [SYN,FIN] => SYN_FIN_ANOMALY\n\n[Cas 2 — Détection FIN scan isolé et trafic standard]\nSCAN_ALERT: 203.0.113.8 -> 10.0.0.2:3306 [FIN] => FIN_SCAN\nSCAN_ALERT: 10.0.0.20 -> 172.16.0.5:80 [SYN] => TRAFIC_STANDARD\n\n[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]\nSCAN_ALERT: 192.0.2.1 -> 192.168.1.1:8080 [URG,FIN,PSH] => XMAS_TREE_SCAN",
+    "takeaway": "Les combinaisons illégales de drapeaux TCP (Null, Xmas, SYN+FIN) trahissent des scans furtifs et doivent être rejetées d’emblée."
   },
   {
     "id": "fw3-c3-e1",
@@ -273,7 +285,8 @@ module.exports = [
         "expected": "EVAL packet=IC1 action=PERMIT matched=PING\nEVAL packet=IC2 action=DENY matched=DEFAULT_DROP"
       }
     ],
-    "solution": "[Exemple]\nEVAL packet=P1 action=PERMIT matched=R1\nEVAL packet=P2 action=DENY matched=R2\n\n[Cas 1 — Paquet ne correspondant à aucune règle menant au DEFAULT_DROP]\nEVAL packet=P3 action=DENY matched=DEFAULT_DROP\n\n[Cas 2 — Filtrage par adresses IP spécifiques et ANY sur le port]\nEVAL packet=T1 action=PERMIT matched=ADM1\nEVAL packet=T2 action=DENY matched=BLOCK_ADM\nEVAL packet=T3 action=PERMIT matched=WEB\n\n[Cas 3 — Protocole ICMP sans numéro de port]\nEVAL packet=IC1 action=PERMIT matched=PING\nEVAL packet=IC2 action=DENY matched=DEFAULT_DROP"
+    "solution": "[Exemple]\nEVAL packet=P1 action=PERMIT matched=R1\nEVAL packet=P2 action=DENY matched=R2\n\n[Cas 1 — Paquet ne correspondant à aucune règle menant au DEFAULT_DROP]\nEVAL packet=P3 action=DENY matched=DEFAULT_DROP\n\n[Cas 2 — Filtrage par adresses IP spécifiques et ANY sur le port]\nEVAL packet=T1 action=PERMIT matched=ADM1\nEVAL packet=T2 action=DENY matched=BLOCK_ADM\nEVAL packet=T3 action=PERMIT matched=WEB\n\n[Cas 3 — Protocole ICMP sans numéro de port]\nEVAL packet=IC1 action=PERMIT matched=PING\nEVAL packet=IC2 action=DENY matched=DEFAULT_DROP",
+    "takeaway": "L’évaluation séquentielle First-Match-Wins applique la première règle correspondante et termine impérativement par un blocage explicite."
   },
   {
     "id": "fw3-c3-e2",
@@ -286,7 +299,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c3-e2) — Détecteur d’anomalies et masquage de règles (Rule Shadowing)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection d’une redondance parfaite entre deux règles]\n# Données : RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.5 dport=443\n# Données : RULE id=R2 action=PERMIT proto=TCP src=192.168.1.1 dst=10.0.0.5 dport=443\n# Données : RULE id=R3 action=PERMIT proto=TCP src=ANY dst=10.0.0.5 dport=80\nA_COMPLETER\n\n[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]\n# Données : RULE id=R1 action=PERMIT proto=TCP src=10.0.0.50 dst=10.0.0.1 dport=22\n# Données : RULE id=R2 action=DENY proto=TCP src=ANY dst=10.0.0.1 dport=22\n# Données : RULE id=R3 action=PERMIT proto=TCP src=ANY dst=ANY dport=80\nA_COMPLETER\n\n[Cas 3 — Multiples masquages en cascade]\n# Données : RULE id=A1 action=DENY proto=TCP src=ANY dst=ANY dport=22\n# Données : RULE id=A2 action=PERMIT proto=TCP src=192.168.1.1 dst=ANY dport=22\n# Données : RULE id=A3 action=DENY proto=TCP src=192.168.1.2 dst=ANY dport=22\nA_COMPLETER\n",
     "hints": [
       "Parcourir chaque règle i et vérifier si une règle j antérieure (j < i) englobe tous ses critères.",
-      "S’arrêter au premier antécédent j qui englobe la règle i."
+      "S’arrêter au premier antécédent j qui englobe la règle i.",
+      "Pour chaque règle i, chercher un antécédent j dont protocole, source, destination et port l’englobent (égalité ou ANY) ; noter SHADOWED by j, sinon OK."
     ],
     "examples": [
       {
@@ -312,7 +326,8 @@ module.exports = [
         "expected": "ANALYZE rule=A1 status=OK\nANALYZE rule=A2 status=SHADOWED by A1\nANALYZE rule=A3 status=REDUNDANT with A1"
       }
     ],
-    "solution": "[Exemple]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=SHADOWED by R1\n\n[Cas 1 — Détection d’une redondance parfaite entre deux règles]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=REDUNDANT with R1\nANALYZE rule=R3 status=OK\n\n[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=OK\nANALYZE rule=R3 status=OK\n\n[Cas 3 — Multiples masquages en cascade]\nANALYZE rule=A1 status=OK\nANALYZE rule=A2 status=SHADOWED by A1\nANALYZE rule=A3 status=REDUNDANT with A1"
+    "solution": "[Exemple]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=SHADOWED by R1\n\n[Cas 1 — Détection d’une redondance parfaite entre deux règles]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=REDUNDANT with R1\nANALYZE rule=R3 status=OK\n\n[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=OK\nANALYZE rule=R3 status=OK\n\n[Cas 3 — Multiples masquages en cascade]\nANALYZE rule=A1 status=OK\nANALYZE rule=A2 status=SHADOWED by A1\nANALYZE rule=A3 status=REDUNDANT with A1",
+    "takeaway": "Une règle générale placée trop haut masque les règles plus spécifiques en aval (shadowing) et crée des failles silencieuses."
   },
   {
     "id": "fw3-c3-e3",
@@ -325,7 +340,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c3-e3) — Simulateur de translation d’adresses NAT (SNAT Masquerade & DNAT)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]\n# Données : CONFIG_DNAT ext_ip=198.51.100.1 ext_port=80 int_ip=10.0.0.10 int_port=8080\n# Données : PACKET dir=INBOUND src=203.0.113.5:12345 dst=198.51.100.1:80\nA_COMPLETER\n\n[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]\n# Données : CONFIG_SNAT public_ip=198.51.100.1 start_port=50000\n# Données : PACKET dir=OUTBOUND src=192.168.1.10:4500 dst=8.8.8.8:53\n# Données : PACKET dir=INBOUND src=8.8.8.8:53 dst=198.51.100.1:50000\nA_COMPLETER\n\n[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]\n# Données : CONFIG_SNAT public_ip=198.51.100.1 start_port=40000\n# Données : PACKET dir=INBOUND src=1.2.3.4:9999 dst=198.51.100.1:22\nA_COMPLETER\n",
     "hints": [
       "Gérer un compteur incrémental pour les ports SNAT dynamiques.",
-      "Mémoriser les sessions SNAT : port_alloué -> (src_interne_ip, src_interne_port)."
+      "Mémoriser les sessions SNAT : port_alloué -> (src_interne_ip, src_interne_port).",
+      "Sortant : allouer séquentiellement le port public suivant et mémoriser la correspondance ; entrant : chercher la règle DNAT (ext_ip, ext_port) et réécrire vers (int_ip, int_port)."
     ],
     "examples": [
       {
@@ -351,7 +367,8 @@ module.exports = [
         "expected": "NAT dir=INBOUND in=1.2.3.4:9999->198.51.100.1:22 out=DROP_NO_ROUTE"
       }
     ],
-    "solution": "[Exemple]\nNAT dir=OUTBOUND in=192.168.1.50:52001->93.184.216.34:80 out=198.51.100.1:40000->93.184.216.34:80\n\n[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]\nNAT dir=INBOUND in=203.0.113.5:12345->198.51.100.1:80 out=203.0.113.5:12345->10.0.0.10:8080\n\n[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]\nNAT dir=OUTBOUND in=192.168.1.10:4500->8.8.8.8:53 out=198.51.100.1:50000->8.8.8.8:53\nNAT dir=INBOUND in=8.8.8.8:53->198.51.100.1:50000 out=8.8.8.8:53->192.168.1.10:4500\n\n[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]\nNAT dir=INBOUND in=1.2.3.4:9999->198.51.100.1:22 out=DROP_NO_ROUTE"
+    "solution": "[Exemple]\nNAT dir=OUTBOUND in=192.168.1.50:52001->93.184.216.34:80 out=198.51.100.1:40000->93.184.216.34:80\n\n[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]\nNAT dir=INBOUND in=203.0.113.5:12345->198.51.100.1:80 out=203.0.113.5:12345->10.0.0.10:8080\n\n[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]\nNAT dir=OUTBOUND in=192.168.1.10:4500->8.8.8.8:53 out=198.51.100.1:50000->8.8.8.8:53\nNAT dir=INBOUND in=8.8.8.8:53->198.51.100.1:50000 out=8.8.8.8:53->192.168.1.10:4500\n\n[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]\nNAT dir=INBOUND in=1.2.3.4:9999->198.51.100.1:22 out=DROP_NO_ROUTE",
+    "takeaway": "SNAT/Masquerade réécrit l’IP source des flux sortants privés, tandis que DNAT publie un service interne sur une IP publique."
   },
   {
     "id": "fw3-c4-e1",
@@ -364,7 +381,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c4-e1) — Contrôleur de conformité des flux de sécurité DMZ\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tentative de connexion WAN directe vers le LAN]\n# Données : FLOW id=W1 src_zone=WAN dst_zone=LAN dport=22\n# Données : FLOW id=W2 src_zone=WAN dst_zone=DMZ dport=80\nA_COMPLETER\n\n[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]\n# Données : FLOW id=L1 src_zone=LAN dst_zone=DMZ dport=3306\n# Données : FLOW id=L2 src_zone=LAN dst_zone=DMZ dport=139\n# Données : FLOW id=D1 src_zone=DMZ dst_zone=WAN dport=443\n# Données : FLOW id=D2 src_zone=DMZ dst_zone=WAN dport=22\nA_COMPLETER\n\n[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]\n# Données : FLOW id=N1 src_zone=LAN dst_zone=WAN dport=80\n# Données : FLOW id=N2 src_zone=LAN dst_zone=WAN dport=6667\nA_COMPLETER\n",
     "hints": [
       "Traiter en priorité les violations absolues (DMZ->LAN et WAN->LAN).",
-      "Vérifier si le port destination fait partie de la liste blanche autorisée pour le couple (src, dst)."
+      "Vérifier si le port destination fait partie de la liste blanche autorisée pour le couple (src, dst).",
+      "Traiter chaque flux : interdictions absolues d’abord (DMZ vers LAN, WAN vers LAN), puis contrôle du port destination contre la liste blanche du couple de zones pour statuer CONFORME ou non."
     ],
     "examples": [
       {
@@ -390,7 +408,8 @@ module.exports = [
         "expected": "AUDIT flow=N1 status=CONFORME\nAUDIT flow=N2 status=SERVICE_NON_AUTORISE"
       }
     ],
-    "solution": "[Exemple]\nAUDIT flow=F1 status=CONFORME\nAUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN\n\n[Cas 1 — Tentative de connexion WAN directe vers le LAN]\nAUDIT flow=W1 status=VIOLATION_WAN_VERS_LAN_INTERDIT\nAUDIT flow=W2 status=CONFORME\n\n[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]\nAUDIT flow=L1 status=CONFORME\nAUDIT flow=L2 status=SERVICE_NON_AUTORISE\nAUDIT flow=D1 status=CONFORME\nAUDIT flow=D2 status=SERVICE_NON_AUTORISE\n\n[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]\nAUDIT flow=N1 status=CONFORME\nAUDIT flow=N2 status=SERVICE_NON_AUTORISE"
+    "solution": "[Exemple]\nAUDIT flow=F1 status=CONFORME\nAUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN\n\n[Cas 1 — Tentative de connexion WAN directe vers le LAN]\nAUDIT flow=W1 status=VIOLATION_WAN_VERS_LAN_INTERDIT\nAUDIT flow=W2 status=CONFORME\n\n[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]\nAUDIT flow=L1 status=CONFORME\nAUDIT flow=L2 status=SERVICE_NON_AUTORISE\nAUDIT flow=D1 status=CONFORME\nAUDIT flow=D2 status=SERVICE_NON_AUTORISE\n\n[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]\nAUDIT flow=N1 status=CONFORME\nAUDIT flow=N2 status=SERVICE_NON_AUTORISE",
+    "takeaway": "En DMZ, aucun flux entrant non sollicité ne doit joindre directement le LAN sans traverser un relais applicatif ou une politique stricte."
   },
   {
     "id": "fw3-c4-e2",
@@ -403,7 +422,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c4-e2) — Évaluateur d’architectures et topologies pare-feu\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]\n# Données : TOPOLOGY nom=PME_Site firewalls=1 zones=LAN,DMZ,WAN constructeurs=1\nA_COMPLETER\n\n[Cas 2 — Routeur basique sans DMZ]\n# Données : TOPOLOGY nom=Agence_Locale firewalls=1 zones=LAN,WAN constructeurs=1\nA_COMPLETER\n\n[Cas 3 — Back-to-back avec équipements du même fabricant]\n# Données : TOPOLOGY nom=Campus_Univ firewalls=2 zones=LAN,DMZ,WAN constructeurs=1\nA_COMPLETER\n",
     "hints": [
       "Compter le nombre de pare-feux et la présence de la zone DMZ.",
-      "Distinguer les topologies Back-to-Back selon le nombre de constructeurs différents."
+      "Distinguer les topologies Back-to-Back selon le nombre de constructeurs différents.",
+      "Identifier le modèle : un pare-feu sans DMZ = dual-homed ; un pare-feu avec DMZ = triple-homed ; deux pare-feux = back-to-back, homogène ou hétérogène selon le nombre de constructeurs."
     ],
     "examples": [
       {
@@ -429,7 +449,8 @@ module.exports = [
         "expected": "TOPOLOGY_AUDIT nom=Campus_Univ arch=BACK_TO_BACK_HOMOGENE score=8/10 verdict=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE"
       }
     ],
-    "solution": "[Exemple]\nTOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR\n\n[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]\nTOPOLOGY_AUDIT nom=PME_Site arch=TRIPLE_HOMED score=7/10 verdict=ACCEPTABLE_SPOF_FIREWALL_UNIQUE\n\n[Cas 2 — Routeur basique sans DMZ]\nTOPOLOGY_AUDIT nom=Agence_Locale arch=DUAL_HOMED score=4/10 verdict=INSUFFISANT_PAS_DE_DMZ\n\n[Cas 3 — Back-to-back avec équipements du même fabricant]\nTOPOLOGY_AUDIT nom=Campus_Univ arch=BACK_TO_BACK_HOMOGENE score=8/10 verdict=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE"
+    "solution": "[Exemple]\nTOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR\n\n[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]\nTOPOLOGY_AUDIT nom=PME_Site arch=TRIPLE_HOMED score=7/10 verdict=ACCEPTABLE_SPOF_FIREWALL_UNIQUE\n\n[Cas 2 — Routeur basique sans DMZ]\nTOPOLOGY_AUDIT nom=Agence_Locale arch=DUAL_HOMED score=4/10 verdict=INSUFFISANT_PAS_DE_DMZ\n\n[Cas 3 — Back-to-back avec équipements du même fabricant]\nTOPOLOGY_AUDIT nom=Campus_Univ arch=BACK_TO_BACK_HOMOGENE score=8/10 verdict=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE",
+    "takeaway": "Une architecture multi-couches sépare filtrage périmétrique et pare-feu interne pour éviter tout point de défaillance sécuritaire unique."
   },
   {
     "id": "fw3-c4-e3",
@@ -442,7 +463,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c4-e3) — Passerelle d’administration sécurisée et Bastion SSH / Jump Host\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Connexion directe avec port non SSH]\n# Données : ACCESS_REQ id=T1 user=bob target_zone=PROD port=80 via_bastion=NON mfa_valid=NON\nA_COMPLETER\n\n[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]\n# Données : ACCESS_REQ id=T2 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=NON\n# Données : ACCESS_REQ id=T3 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=OUI\nA_COMPLETER\n\n[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]\n# Données : ACCESS_REQ id=T4 user=david target_zone=PROD port=22 via_bastion=OUI mfa_valid=NON\nA_COMPLETER\n",
     "hints": [
       "Vérifier d’abord le port SSH (22).",
-      "Exiger obligatoirement le passage par le bastion et le MFA valide pour la zone PROD."
+      "Exiger obligatoirement le passage par le bastion et le MFA valide pour la zone PROD.",
+      "1. Port différent de 22 : refus. 2. Zone PROD : exiger le passage par le bastion et un MFA valide. 3. Autres zones : appliquer les règles restantes du brief avant de trancher."
     ],
     "examples": [
       {
@@ -468,7 +490,8 @@ module.exports = [
         "expected": "BASTION_GATEWAY req=T4 decision=DENY motif=MFA_REQUIS"
       }
     ],
-    "solution": "[Exemple]\nBASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION\nBASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE\n\n[Cas 1 — Connexion directe avec port non SSH]\nBASTION_GATEWAY req=T1 decision=DENY motif=PORT_NON_ADMINISTRATIF\n\n[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]\nBASTION_GATEWAY req=T2 decision=DENY motif=MFA_REQUIS\nBASTION_GATEWAY req=T3 decision=PERMIT motif=AUTHENTIFICATION_BASTION_OK\n\n[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]\nBASTION_GATEWAY req=T4 decision=DENY motif=MFA_REQUIS"
+    "solution": "[Exemple]\nBASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION\nBASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE\n\n[Cas 1 — Connexion directe avec port non SSH]\nBASTION_GATEWAY req=T1 decision=DENY motif=PORT_NON_ADMINISTRATIF\n\n[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]\nBASTION_GATEWAY req=T2 decision=DENY motif=MFA_REQUIS\nBASTION_GATEWAY req=T3 decision=PERMIT motif=AUTHENTIFICATION_BASTION_OK\n\n[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]\nBASTION_GATEWAY req=T4 decision=DENY motif=MFA_REQUIS",
+    "takeaway": "Centraliser les connexions SSH d’administration via un bastion journalisé réduit l’exposition directe des serveurs critiques."
   },
   {
     "id": "fw3-c5-e1",
@@ -481,7 +504,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c5-e1) — Filtrage de domaines DNS & inspection du Server Name Indication (SNI TLS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Blocage des réseaux sociaux et sites de jeux]\n# Données : SNI_EVENT id=E1 client_ip=10.0.0.5 host=www.facebook.com\n# Données : SNI_EVENT id=E2 client_ip=10.0.0.5 host=sports.bet365.com\n# Données : SNI_EVENT id=E3 client_ip=10.0.0.5 host=api.github.com\nA_COMPLETER\n\n[Cas 2 — Détection de malware avec extension spéciale]\n# Données : SNI_EVENT id=M1 client_ip=172.16.1.20 host=trojan-downloader.evil\n# Données : SNI_EVENT id=M2 client_ip=172.16.1.20 host=roulette.online.gamble\nA_COMPLETER\n\n[Cas 3 — Trafic légitime professionnel varié]\n# Données : SNI_EVENT id=B1 client_ip=192.168.1.15 host=pypi.org\n# Données : SNI_EVENT id=B2 client_ip=192.168.1.15 host=stackoverflow.com\nA_COMPLETER\n",
     "hints": [
       "Convertir l’hôte en minuscules avant l’analyse.",
-      "Tester dans l’ordre : MALWARE, GAMBLING, SOCIAL_MEDIA, puis défaut BUSINESS_TECH."
+      "Tester dans l’ordre : MALWARE, GAMBLING, SOCIAL_MEDIA, puis défaut BUSINESS_TECH.",
+      "Mettre l’hôte en minuscules puis tester les motifs dans l’ordre : malware, gambling, réseaux sociaux (tous bloqués) ; à défaut BUSINESS_TECH avec autorisation."
     ],
     "examples": [
       {
@@ -507,7 +531,8 @@ module.exports = [
         "expected": "SNI_INSPECT id=B1 host=pypi.org category=BUSINESS_TECH action=ALLOW\nSNI_INSPECT id=B2 host=stackoverflow.com category=BUSINESS_TECH action=ALLOW"
       }
     ],
-    "solution": "[Exemple]\nSNI_INSPECT id=1 host=login-bank.phishing-portal.com category=MALWARE action=BLOCK\nSNI_INSPECT id=2 host=docs.python.org category=BUSINESS_TECH action=ALLOW\n\n[Cas 1 — Blocage des réseaux sociaux et sites de jeux]\nSNI_INSPECT id=E1 host=www.facebook.com category=SOCIAL_MEDIA action=BLOCK\nSNI_INSPECT id=E2 host=sports.bet365.com category=GAMBLING action=BLOCK\nSNI_INSPECT id=E3 host=api.github.com category=BUSINESS_TECH action=ALLOW\n\n[Cas 2 — Détection de malware avec extension spéciale]\nSNI_INSPECT id=M1 host=trojan-downloader.evil category=MALWARE action=BLOCK\nSNI_INSPECT id=M2 host=roulette.online.gamble category=GAMBLING action=BLOCK\n\n[Cas 3 — Trafic légitime professionnel varié]\nSNI_INSPECT id=B1 host=pypi.org category=BUSINESS_TECH action=ALLOW\nSNI_INSPECT id=B2 host=stackoverflow.com category=BUSINESS_TECH action=ALLOW"
+    "solution": "[Exemple]\nSNI_INSPECT id=1 host=login-bank.phishing-portal.com category=MALWARE action=BLOCK\nSNI_INSPECT id=2 host=docs.python.org category=BUSINESS_TECH action=ALLOW\n\n[Cas 1 — Blocage des réseaux sociaux et sites de jeux]\nSNI_INSPECT id=E1 host=www.facebook.com category=SOCIAL_MEDIA action=BLOCK\nSNI_INSPECT id=E2 host=sports.bet365.com category=GAMBLING action=BLOCK\nSNI_INSPECT id=E3 host=api.github.com category=BUSINESS_TECH action=ALLOW\n\n[Cas 2 — Détection de malware avec extension spéciale]\nSNI_INSPECT id=M1 host=trojan-downloader.evil category=MALWARE action=BLOCK\nSNI_INSPECT id=M2 host=roulette.online.gamble category=GAMBLING action=BLOCK\n\n[Cas 3 — Trafic légitime professionnel varié]\nSNI_INSPECT id=B1 host=pypi.org category=BUSINESS_TECH action=ALLOW\nSNI_INSPECT id=B2 host=stackoverflow.com category=BUSINESS_TECH action=ALLOW",
+    "takeaway": "L’inspection du champ SNI TLS et des requêtes DNS permet un filtrage par nom de domaine sans déchiffrer systématiquement le flux TLS."
   },
   {
     "id": "fw3-c5-e2",
@@ -520,7 +545,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c5-e2) — Limiteur de débit et protection anti-DoS par fenêtre glissante\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]\n# Données : REQ ts=1 ip=10.0.0.1\n# Données : REQ ts=2 ip=10.0.0.1\n# Données : REQ ts=3 ip=10.0.0.1\n# Données : REQ ts=4 ip=10.0.0.1\n# Données : REQ ts=6 ip=10.0.0.1\nA_COMPLETER\n\n[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]\n# Données : REQ ts=10 ip=192.168.1.1\n# Données : REQ ts=10 ip=192.168.1.2\n# Données : REQ ts=11 ip=192.168.1.1\n# Données : REQ ts=11 ip=192.168.1.2\n# Données : REQ ts=12 ip=192.168.1.1\n# Données : REQ ts=12 ip=192.168.1.1\nA_COMPLETER\n\n[Cas 3 — Trafic régulier et espacé sans dépassement]\n# Données : REQ ts=10 ip=10.0.0.8\n# Données : REQ ts=15 ip=10.0.0.8\n# Données : REQ ts=20 ip=10.0.0.8\nA_COMPLETER\n",
     "hints": [
       "Maintenez l’historique horodaté des requêtes acceptées pour chaque adresse IP source.",
-      "Rejetez toute requête excédant le seuil de débit maximal autorisé dans la fenêtre glissante d’observation."
+      "Rejetez toute requête excédant le seuil de débit maximal autorisé dans la fenêtre glissante d’observation.",
+      "À chaque requête : compter les requêtes antérieures de la même IP dans les 5 dernières secondes ; si le quota de 3 est atteint, rejeter, sinon accepter et enregistrer l’horodatage."
     ],
     "examples": [
       {
@@ -546,7 +572,8 @@ module.exports = [
         "expected": "RATE_LIMIT ip=10.0.0.8 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=15 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=20 status=PASSED active_in_window=1"
       }
     ],
-    "solution": "[Exemple]\nRATE_LIMIT ip=192.168.1.5 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.5 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.5 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.5 ts=13 status=DROPPED active_in_window=4\n\n[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]\nRATE_LIMIT ip=10.0.0.1 ts=1 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.1 ts=2 status=PASSED active_in_window=2\nRATE_LIMIT ip=10.0.0.1 ts=3 status=PASSED active_in_window=3\nRATE_LIMIT ip=10.0.0.1 ts=4 status=DROPPED active_in_window=4\nRATE_LIMIT ip=10.0.0.1 ts=6 status=PASSED active_in_window=3\n\n[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]\nRATE_LIMIT ip=192.168.1.1 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.2 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.1 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.2 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.1 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.1 ts=12 status=DROPPED active_in_window=4\n\n[Cas 3 — Trafic régulier et espacé sans dépassement]\nRATE_LIMIT ip=10.0.0.8 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=15 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=20 status=PASSED active_in_window=1"
+    "solution": "[Exemple]\nRATE_LIMIT ip=192.168.1.5 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.5 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.5 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.5 ts=13 status=DROPPED active_in_window=4\n\n[Cas 1 — Expiration de fenêtre permettant de nouvelles requêtes]\nRATE_LIMIT ip=10.0.0.1 ts=1 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.1 ts=2 status=PASSED active_in_window=2\nRATE_LIMIT ip=10.0.0.1 ts=3 status=PASSED active_in_window=3\nRATE_LIMIT ip=10.0.0.1 ts=4 status=DROPPED active_in_window=4\nRATE_LIMIT ip=10.0.0.1 ts=6 status=PASSED active_in_window=3\n\n[Cas 2 — Deux adresses IP distinctes avec quotas indépendants]\nRATE_LIMIT ip=192.168.1.1 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.2 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=192.168.1.1 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.2 ts=11 status=PASSED active_in_window=2\nRATE_LIMIT ip=192.168.1.1 ts=12 status=PASSED active_in_window=3\nRATE_LIMIT ip=192.168.1.1 ts=12 status=DROPPED active_in_window=4\n\n[Cas 3 — Trafic régulier et espacé sans dépassement]\nRATE_LIMIT ip=10.0.0.8 ts=10 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=15 status=PASSED active_in_window=1\nRATE_LIMIT ip=10.0.0.8 ts=20 status=PASSED active_in_window=1",
+    "takeaway": "La limitation de débit par fenêtre glissante bloque les rafales excessives par IP source avant qu’elles ne saturent les services."
   },
   {
     "id": "fw3-c5-e3",
@@ -559,7 +586,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c5-e3) — Moteur Deep Packet Inspection (DPI) et détection de signatures L7\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection XSS et Path Traversal]\n# Données : PAYLOAD id=X1 payload=name=<script>alert(document.cookie)</script>\n# Données : PAYLOAD id=T1 payload=file=../../etc/passwd\nA_COMPLETER\n\n[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]\n# Données : PAYLOAD id=S1 payload=user=' OR '1'='1\n# Données : PAYLOAD id=S2 payload=benchmark(10000000,MD5(1)) OR SLEEP(5)\nA_COMPLETER\n\n[Cas 3 — Payloads légitimes avec du texte complexe]\n# Données : PAYLOAD id=C1 payload=message=Bonjour, voici mon rapport mensuel.\n# Données : PAYLOAD id=C2 payload=path=/var/www/html/index.php\nA_COMPLETER\n",
     "hints": [
       "Normaliser la charge utile en minuscules.",
-      "Tester dans l’ordre de la spécification : SQLi, XSS, Path Traversal, puis CLEAN."
+      "Tester dans l’ordre de la spécification : SQLi, XSS, Path Traversal, puis CLEAN.",
+      "Normaliser la charge en minuscules, chercher successivement les signatures SQLi, XSS puis Path Traversal ; la première trouvée fixe la menace et l’action, sinon autoriser."
     ],
     "examples": [
       {
@@ -585,7 +613,8 @@ module.exports = [
         "expected": "DPI_ALERT id=C1 threat=CLEAN action=ALLOW\nDPI_ALERT id=C2 threat=CLEAN action=ALLOW"
       }
     ],
-    "solution": "[Exemple]\nDPI_ALERT id=P1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=P2 threat=CLEAN action=ALLOW\n\n[Cas 1 — Détection XSS et Path Traversal]\nDPI_ALERT id=X1 threat=XSS_ATTACK action=BLOCK\nDPI_ALERT id=T1 threat=PATH_TRAVERSAL action=BLOCK\n\n[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]\nDPI_ALERT id=S1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=S2 threat=SQL_INJECTION action=BLOCK\n\n[Cas 3 — Payloads légitimes avec du texte complexe]\nDPI_ALERT id=C1 threat=CLEAN action=ALLOW\nDPI_ALERT id=C2 threat=CLEAN action=ALLOW"
+    "solution": "[Exemple]\nDPI_ALERT id=P1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=P2 threat=CLEAN action=ALLOW\n\n[Cas 1 — Détection XSS et Path Traversal]\nDPI_ALERT id=X1 threat=XSS_ATTACK action=BLOCK\nDPI_ALERT id=T1 threat=PATH_TRAVERSAL action=BLOCK\n\n[Cas 2 — Variantes SQL Injection avec apostrophes et sleep]\nDPI_ALERT id=S1 threat=SQL_INJECTION action=BLOCK\nDPI_ALERT id=S2 threat=SQL_INJECTION action=BLOCK\n\n[Cas 3 — Payloads légitimes avec du texte complexe]\nDPI_ALERT id=C1 threat=CLEAN action=ALLOW\nDPI_ALERT id=C2 threat=CLEAN action=ALLOW",
+    "takeaway": "Le DPI L7 identifie le protocole applicatif réel indépendamment du port utilisé pour bloquer tunnels ou outils contournant le filtrage."
   },
   {
     "id": "fw3-c6-e1",
@@ -630,7 +659,8 @@ module.exports = [
         "expected": "ERREUR: proto=ANY incompatible avec dport precis"
       }
     ],
-    "solution": "[Exemple]\nIPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule ip filter input ip daddr 10.0.0.1 tcp dport 22 counter accept\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\nIPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule ip filter forward ip saddr 192.168.1.50 udp dport 53 counter drop\n\n[Cas 2 — Règle simple sans port spécifique]\nIPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule ip filter output ip daddr 198.51.100.2 ip protocol tcp counter accept\n\n[Cas 3 — Règle globale tout trafic]\nIPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule ip filter input counter drop\n\n[Cas 4 — Protocole ANY avec port précis]\nERREUR: proto=ANY incompatible avec dport precis"
+    "solution": "[Exemple]\nIPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule ip filter input ip daddr 10.0.0.1 tcp dport 22 counter accept\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\nIPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule ip filter forward ip saddr 192.168.1.50 udp dport 53 counter drop\n\n[Cas 2 — Règle simple sans port spécifique]\nIPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule ip filter output ip daddr 198.51.100.2 ip protocol tcp counter accept\n\n[Cas 3 — Règle globale tout trafic]\nIPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule ip filter input counter drop\n\n[Cas 4 — Protocole ANY avec port précis]\nERREUR: proto=ANY incompatible avec dport precis",
+    "takeaway": "Traduire une intention métier en règles iptables/nftables propres impose de spécifier interface, état conntrack, port cible et journalisation."
   },
   {
     "id": "fw3-c6-e2",
@@ -643,7 +673,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c6-e2) — Parseur et agrégateur statistique de journaux de pare-feu (Logs)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Scans massifs multi-ports avec une IP dominante]\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.88 DST=10.0.0.1 PROTO=TCP SPT=1000 DPT=23\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.88 DST=10.0.0.1 PROTO=TCP SPT=1001 DPT=23\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.99 DST=10.0.0.1 PROTO=TCP SPT=2000 DPT=445\n# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=10.0.0.50 DST=8.8.8.8 PROTO=UDP SPT=5300 DPT=53\nA_COMPLETER\n\n[Cas 2 — Trafic 100% accepté sans aucun drop]\n# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.1 DST=10.0.0.1 PROTO=TCP SPT=3000 DPT=443\n# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.2 DST=10.0.0.1 PROTO=TCP SPT=3001 DPT=443\nA_COMPLETER\n\n[Cas 3 — Départage d’égalité entre ports bloqués]\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=1.1.1.1 DST=10.0.0.1 PROTO=TCP SPT=10 DPT=80\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=2.2.2.2 DST=10.0.0.1 PROTO=TCP SPT=11 DPT=22\nA_COMPLETER\n",
     "hints": [
       "Utiliser des dictionnaires pour compter les occurrences de SRC et DPT pour les lignes DROP.",
-      "Trier par fréquence décroissante puis par la clé secondaire pour départager les égalités."
+      "Trier par fréquence décroissante puis par la clé secondaire pour départager les égalités.",
+      "1. Compter le total des lignes et les DROP. 2. Agréger par IP source et par port destination les paquets rejetés. 3. Élire le port le plus bloqué et l’IP la plus attaquante."
     ],
     "examples": [
       {
@@ -669,7 +700,8 @@ module.exports = [
         "expected": "LOG_SUMMARY total=2 dropped=2 accepted=0 top_blocked_port=22 top_attacker_ip=1.1.1.1"
       }
     ],
-    "solution": "[Exemple]\nLOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5\n\n[Cas 1 — Scans massifs multi-ports avec une IP dominante]\nLOG_SUMMARY total=4 dropped=3 accepted=1 top_blocked_port=23 top_attacker_ip=198.51.100.88\n\n[Cas 2 — Trafic 100% accepté sans aucun drop]\nLOG_SUMMARY total=2 dropped=0 accepted=2 top_blocked_port=NONE top_attacker_ip=NONE\n\n[Cas 3 — Départage d’égalité entre ports bloqués]\nLOG_SUMMARY total=2 dropped=2 accepted=0 top_blocked_port=22 top_attacker_ip=1.1.1.1"
+    "solution": "[Exemple]\nLOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5\n\n[Cas 1 — Scans massifs multi-ports avec une IP dominante]\nLOG_SUMMARY total=4 dropped=3 accepted=1 top_blocked_port=23 top_attacker_ip=198.51.100.88\n\n[Cas 2 — Trafic 100% accepté sans aucun drop]\nLOG_SUMMARY total=2 dropped=0 accepted=2 top_blocked_port=NONE top_attacker_ip=NONE\n\n[Cas 3 — Départage d’égalité entre ports bloqués]\nLOG_SUMMARY total=2 dropped=2 accepted=0 top_blocked_port=22 top_attacker_ip=1.1.1.1",
+    "takeaway": "Agréger les journaux DROP par source et port cible fait émerger balayages massifs et tentatives d’exploitation récurrentes."
   },
   {
     "id": "fw3-c6-e3",
@@ -682,7 +714,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c6-e3) — Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Événement ultérieur sur une IP déjà bannie]\n# Données : AUTH_FAIL ts=10 ip=198.51.100.1 service=ssh\n# Données : AUTH_FAIL ts=20 ip=198.51.100.1 service=ssh\n# Données : AUTH_FAIL ts=30 ip=198.51.100.1 service=ssh\n# Données : AUTH_FAIL ts=40 ip=198.51.100.1 service=ssh\nA_COMPLETER\n\n[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]\n# Données : AUTH_FAIL ts=10 ip=10.0.0.5 service=ssh\n# Données : AUTH_FAIL ts=80 ip=10.0.0.5 service=ssh\n# Données : AUTH_FAIL ts=150 ip=10.0.0.5 service=ssh\nA_COMPLETER\n\n[Cas 3 — Deux adresses IP attaquantes distinctes]\n# Données : AUTH_FAIL ts=50 ip=1.1.1.1 service=ssh\n# Données : AUTH_FAIL ts=51 ip=2.2.2.2 service=rdp\n# Données : AUTH_FAIL ts=52 ip=1.1.1.1 service=ssh\n# Données : AUTH_FAIL ts=53 ip=1.1.1.1 service=ssh\nA_COMPLETER\n",
     "hints": [
       "Garder la trace des IPs déjà bannies dans un ensemble (set).",
-      "Pour les IPs non bannies, filtrer les échecs récents où t >= ts - 59."
+      "Pour les IPs non bannies, filtrer les échecs récents où t >= ts - 59.",
+      "Pour chaque ligne : si l’IP est déjà bannie, afficher ALREADY_BANNED ; sinon compter ses échecs dans les 60 dernières secondes ; au troisième, bannir, sinon surveiller."
     ],
     "examples": [
       {
@@ -708,6 +741,7 @@ module.exports = [
         "expected": "BAN_ACTION ip=1.1.1.1 status=MONITORING attempts=1\nBAN_ACTION ip=2.2.2.2 status=MONITORING attempts=1\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=2\nBAN_ACTION ip=1.1.1.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 1.1.1.1 }\""
       }
     ],
-    "solution": "[Exemple]\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2\nBAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 203.0.113.50 }\"\n\n[Cas 1 — Événement ultérieur sur une IP déjà bannie]\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=1\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=2\nBAN_ACTION ip=198.51.100.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 198.51.100.1 }\"\nBAN_ACTION ip=198.51.100.1 status=ALREADY_BANNED\n\n[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\n\n[Cas 3 — Deux adresses IP attaquantes distinctes]\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=1\nBAN_ACTION ip=2.2.2.2 status=MONITORING attempts=1\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=2\nBAN_ACTION ip=1.1.1.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 1.1.1.1 }\""
+    "solution": "[Exemple]\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2\nBAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 203.0.113.50 }\"\n\n[Cas 1 — Événement ultérieur sur une IP déjà bannie]\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=1\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=2\nBAN_ACTION ip=198.51.100.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 198.51.100.1 }\"\nBAN_ACTION ip=198.51.100.1 status=ALREADY_BANNED\n\n[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\n\n[Cas 3 — Deux adresses IP attaquantes distinctes]\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=1\nBAN_ACTION ip=2.2.2.2 status=MONITORING attempts=1\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=2\nBAN_ACTION ip=1.1.1.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 1.1.1.1 }\"",
+    "takeaway": "Corréler les échecs répétés d’authentification dans les logs déclenche un bannissement temporaire ciblé sans bloquer les utilisateurs légitimes."
   }
 ];

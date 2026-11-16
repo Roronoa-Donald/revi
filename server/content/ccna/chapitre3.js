@@ -184,12 +184,12 @@ module.exports = {
     {
       stem: 'Sur quelle adresse figurant dans une trame Ethernet un commutateur s’appuie-t-il pour enrichir sa table CAM ?',
       opts: [
-        'L’adresse MAC source de la trame entrante',
+        'L’adresse de broadcast FF:FF:FF:FF:FF:FF',
         'L’adresse MAC destination de la trame entrante',
         'L’adresse IP source contenue dans le payload',
-        'L’adresse de broadcast FF:FF:FF:FF:FF:FF'
+        'L’adresse MAC source de la trame entrante'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le commutateur apprend la localisation des machines uniquement en observant l’adresse MAC source de chaque trame arrivant sur un port physique. L’adresse destination sert uniquement à décider où envoyer la trame.'
     },
     {
@@ -216,23 +216,23 @@ module.exports = {
     },
     {
       stem: 'Sur un commutateur non-racine, combien de ports peuvent obtenir le rôle de Root Port (RP) pour une instance STP donnée ?',
-      opts: ['Zéro', 'Exactement un seul port', 'Deux ports pour équilibrer la charge', 'Tous les ports connectés à la racine'],
-      correct: 1,
+      opts: ['Exactement un seul port', 'Zéro', 'Deux ports pour équilibrer la charge', 'Tous les ports connectés à la racine'],
+      correct: 0,
       exp: 'Par définition de l’arbre couvrant Spanning Tree, chaque commutateur non-racine possède exactement un seul Root Port (RP), qui est le port offrant le plus faible coût de chemin cumulé vers le Root Bridge.'
     },
     {
       stem: 'Quel est le coût Spanning Tree standard (802.1D) associé à un lien Gigabit Ethernet (1000 Mbps) ?',
-      opts: ['100', '19', '4', '2'],
-      correct: 2,
+      opts: ['4', '19', '100', '2'],
+      correct: 0,
       exp: 'Selon la norme STP 802.1D, un lien 10 Mbps a un coût de 100, un lien Fast Ethernet (100 Mbps) a un coût de 19, un lien Gigabit Ethernet a un coût de 4, et un lien 10 Gigabit a un coût de 2.'
     },
     {
       stem: 'Pourquoi une boucle physique sur un réseau de commutation L2 provoque-t-elle une tempête de diffusion alors qu’une boucle sur réseau IP L3 finit par s’arrêter ?',
       opts: [
-        'Parce que les routeurs ont plus de mémoire que les commutateurs',
-        'Parce que l’en-tête de trame Ethernet ne comporte aucun champ de durée de vie (TTL), contrairement au paquet IP',
-        'Parce que le protocole ARP force la duplication infinie des trames',
-        'Parce que les adresses MAC sont écrites en hexadécimal'
+        "Parce que les routeurs disposent de beaucoup plus de mémoire que les commutateurs",
+        "Parce que l’en-tête de trame Ethernet ne comporte aucun champ de durée de vie (TTL), contrairement au paquet IP",
+        "Parce que le protocole ARP force la duplication infinie de toutes les trames reçues",
+        "Parce que les adresses MAC sont toujours écrites en notation hexadécimale"
       ],
       correct: 1,
       exp: 'Le paquet IP contient un champ TTL (Time-To-Live) décrémenté par chaque routeur jusqu’à destruction du paquet à TTL=0. La trame Ethernet ne possède aucun TTL : sans STP, une trame Ethernet tourne indéfiniment en boucle.'
@@ -240,12 +240,12 @@ module.exports = {
     {
       stem: 'Quel est le rôle d’un port STP placé en état Blocking (Alternate) ?',
       opts: [
-        'Il est électriquement éteint et désactivé',
-        'Il ne transfère aucune donnée utilisateur mais continue d’écouter les BPDU pour réagir aux pannes',
-        'Il transfère uniquement les trames de broadcast',
-        'Il remplace la passerelle par défaut en mode secours actif'
+        "Il est physiquement éteint et totalement désactivé par l’administrateur",
+        "Il ne transfère que les trames de broadcast et de multicast sur le lien",
+        "Il ne transfère aucune donnée utilisateur mais continue d’écouter les BPDU pour réagir aux pannes",
+        "Il remplace automatiquement la passerelle par défaut dans un mode secours actif"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un port bloqué n’apprend pas les adresses MAC et ne transmet aucune trame utilisateur (rompant ainsi la boucle), mais il écoute en permanence les trames BPDU. Si la racine devient injoignable, il transite vers l’état Forwarding.'
     },
     {
@@ -253,10 +253,10 @@ module.exports = {
       opts: [
         'Un Root Port et plusieurs Designated Ports',
         'Uniquement des Blocking Ports',
-        'Tous ses ports actifs sont Designated Ports (DP)',
-        'Un Root Port et un Blocking Port'
+        'Un Root Port et un Blocking Port',
+        'Tous ses ports actifs sont Designated Ports (DP)'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Puisque le Root Bridge est la racine absolue de la topologie, son coût vers lui-même est 0. Sur chaque segment auquel il est connecté, il offre donc le meilleur chemin : tous ses ports actifs sont Designated Ports (DP).'
     }
   ],

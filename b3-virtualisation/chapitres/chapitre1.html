@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -220,6 +218,12 @@ A_COMPLETER
 # Données : HOST=border-3 SOCKETS=1 CORES=10 HT=1 VCPUS=60
 # Données : HOST=border-5 SOCKETS=1 CORES=10 HT=1 VCPUS=100
 A_COMPLETER
+
+[Cas 3 — Hôtes sans Hyper-Threading et ratios intermédiaires]
+# Données : HOST=r720-dense SOCKETS=1 CORES=8 HT=0 VCPUS=20
+# Données : HOST=xeon-lab SOCKETS=2 CORES=10 HT=0 VCPUS=45
+# Données : HOST=epyc-ht SOCKETS=1 CORES=6 HT=1 VCPUS=13
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Calculateur de Ratio de Surallocation CPU (vCPU-to-pCPU Overcommitment)</h3>
@@ -254,10 +258,11 @@ Format de sortie :<br>
 HOST=esxi-node02 SOCKETS=2 CORES=8 HT=0 VCPUS=72</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez le nombre de cœurs par sockets * cores, puis multipliez par 2 si HT=1.</li>
         <li>Formatez les ratios avec deux décimales suivies de ':1' (ex: 2.50:1).</li>
+        <li>1. pcpus = SOCKETS * CORES. 2. threads = pcpus * 2 si HT=1. 3. ratio_core = VCPUS / pcpus et ratio_thread = VCPUS / threads. 4. Statut selon ratio_thread (bornes 1, 3 et 5).</li>
       </ol>
     </details>
   </div>
@@ -278,6 +283,11 @@ A_COMPLETER
 
 [Cas 2 — Compression partielle et seuils mémoire]
 # Données : HOST=srv-mid RAM_GB=64 VMS_GB=80 TPS_PCT=10.0 BALLOON_GB=5
+A_COMPLETER
+
+[Cas 3 — Compression résiduelle et ballooning intégral]
+# Données : HOST=srv-app RAM_GB=64 VMS_GB=90 TPS_PCT=20.0 BALLOON_GB=6
+# Données : HOST=srv-edge RAM_GB=48 VMS_GB=50 TPS_PCT=10.0 BALLOON_GB=12
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -316,10 +326,11 @@ Format de sortie :<br>
 HOST=srv-virt-02 RAM_GB=64 VMS_GB=100 TPS_PCT=5.0 BALLOON_GB=15</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquez le gain TPS avant d'évaluer si un déficit existe par rapport à RAM_GB.</li>
         <li>Le swap sur fichier .vswp n'intervient que si le ballooning et la compression sont dépassés.</li>
+        <li>1. ram = VMS_GB * (1 - TPS_PCT/100). 2. deficit = max(0, ram - RAM_GB). 3. balloon = min(deficit, BALLOON_GB). 4. compressed = min(reste * 0.5, RAM_GB * 0.1). 5. swap = reste - compressed ; statut.</li>
       </ol>
     </details>
   </div>
@@ -340,6 +351,12 @@ A_COMPLETER
 
 [Cas 2 — Conteneurs et latence quasi nulle]
 # Données : WORKLOAD=microservice BASE_IOPS=120000 ARCH=CONTAINER VIRT_IOPS=118000 BASE_LAT_US=100 VIRT_LAT_US=104
+A_COMPLETER
+
+[Cas 3 — Frontières exactes des seuils d’évaluation]
+# Données : WORKLOAD=api-gw BASE_IOPS=50000 ARCH=TYPE_1 VIRT_IOPS=47500 BASE_LAT_US=250 VIRT_LAT_US=262.5
+# Données : WORKLOAD=cache-redis BASE_IOPS=80000 ARCH=TYPE_1 VIRT_IOPS=68000 BASE_LAT_US=200 VIRT_LAT_US=250
+# Données : WORKLOAD=analytics BASE_IOPS=30000 ARCH=TYPE_2 VIRT_IOPS=21000 BASE_LAT_US=500 VIRT_LAT_US=800
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -372,10 +389,11 @@ WORKLOAD=web-nginx BASE_IOPS=50000 ARCH=CONTAINER VIRT_IOPS=49500 BASE_LAT_US=15
 WORKLOAD=dev-lab BASE_IOPS=80000 ARCH=TYPE_2 VIRT_IOPS=62000 BASE_LAT_US=250 VIRT_LAT_US=350</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez l'accroissement relatif de latence par rapport à la base : ((virt - base) / base) * 100.0.</li>
         <li>Affichez le signe '+' explicitement devant la valeur d'overhead de latence.</li>
+        <li>1. efficiency = VIRT_IOPS / BASE_IOPS * 100. 2. overhead = (VIRT_LAT_US - BASE_LAT_US) / BASE_LAT_US * 100. 3. EXCELLENT si &gt;= 95 et &lt;= 5 ; ACCEPTABLE si &gt;= 85 et &lt;= 25 ; sinon DEGRADE.</li>
       </ol>
     </details>
   </div>
@@ -388,10 +406,10 @@ WORKLOAD=dev-lab BASE_IOPS=80000 ARCH=TYPE_2 VIRT_IOPS=62000 BASE_LAT_US=250 VIR
     <div class="q">
       <p class="q__stem">Quelle est la caractéristique fondamentale d'un hyperviseur de Type-1 par rapport à un hyperviseur de Type-2 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Il s'exécute directement sur le matériel physique sans OS hôte sous-jacent.</button>
+        <button class="opt">Il utilise exclusivement une émulation logicielle complète de processeur.</button>
         <button class="opt">Il nécessite obligatoirement Windows Server pour gérer ses pilotes d'E/S.</button>
         <button class="opt">Il ne permet de virtualiser que des conteneurs légers de type Docker.</button>
-        <button class="opt">Il utilise exclusivement une émulation logicielle complète de processeur.</button>
+        <button class="opt" data-correct="1">Il s'exécute directement sur le matériel physique sans OS hôte sous-jacent.</button>
       </div>
       <div class="q__exp">L'hyperviseur de Type-1 bare-metal (comme VMware ESXi ou XenServer) s'installe directement sur le serveur physique nu et contrôle directement les ressources sans système d'exploitation intermédiaire.</div>
     </div>
@@ -399,8 +417,8 @@ WORKLOAD=dev-lab BASE_IOPS=80000 ARCH=TYPE_2 VIRT_IOPS=62000 BASE_LAT_US=250 VIR
       <p class="q__stem">À quoi sert la technologie matérielle Intel EPT (Extended Page Tables) / AMD RVI ?</p>
       <div class="opts">
         <button class="opt">À chiffrer les disques durs virtuels à la volée sur le contrôleur SAS.</button>
-        <button class="opt" data-correct="1">À assurer la traduction matérielle d'adresses mémoire de l'OS invité vers l'hôte (SLAT).</button>
         <button class="opt">À émuler une carte graphique 3D dédiée pour chaque machine virtuelle.</button>
+        <button class="opt" data-correct="1">À assurer la traduction matérielle d'adresses mémoire de l'OS invité vers l'hôte (SLAT).</button>
         <button class="opt">À fusionner les cartes réseaux physiques en un agrégat de liens 802.3ad.</button>
       </div>
       <div class="q__exp">Intel EPT et AMD RVI (SLAT) fournissent une virtualisation matérielle de la mémoire (MMU) gérant la correspondance entre adresses mémoires virtuelles et physiques au niveau du processeur sans interception logicielle.</div>
@@ -429,18 +447,18 @@ WORKLOAD=dev-lab BASE_IOPS=80000 ARCH=TYPE_2 VIRT_IOPS=62000 BASE_LAT_US=250 VIR
       <p class="q__stem">Quelle est la conséquence si une machine virtuelle monopolise de la mémoire sur deux nœuds NUMA physiques distincts (accès cross-socket) ?</p>
       <div class="opts">
         <button class="opt">L'hyperviseur plante immédiatement avec un écran violet PSOD.</button>
-        <button class="opt" data-correct="1">Les accès mémoire distants traversent le bus inter-socket avec une latence accrue de 30% à 50%.</button>
-        <button class="opt">Le disque dur virtuel est automatiquement converti en format Thin.</button>
         <button class="opt">L'OS invité refuse de démarrer tant que le BIOS n'est pas mis à jour.</button>
+        <button class="opt">Le disque dur virtuel est automatiquement converti en format Thin.</button>
+        <button class="opt" data-correct="1">Les accès mémoire distants traversent le bus inter-socket avec une latence accrue de 30% à 50%.</button>
       </div>
       <div class="q__exp">Lorsque la mémoire d'une VM dépasse la capacité d'un nœud NUMA local, les accès aux banques de mémoire du second socket traversent le bus d'interconnexion (Intel UPI / AMD Infinity Fabric) avec une pénalité de latence mesurée de 30% à 50%.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la première technique activée par VMware ESXi pour récupérer de la mémoire vive en situation de surallocation avant de swapper sur disque ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le gonflage du pilote de Ballooning (vmmemctl) dans le système d'exploitation invité.</button>
-        <button class="opt">La suppression automatique des fichiers de snapshots différentiels.</button>
         <button class="opt">L'arrêt forcé sans préavis des machines virtuelles les moins prioritaires.</button>
+        <button class="opt">La suppression automatique des fichiers de snapshots différentiels.</button>
+        <button class="opt" data-correct="1">Le gonflage du pilote de Ballooning (vmmemctl) dans le système d'exploitation invité.</button>
         <button class="opt">La réinitialisation des cartes réseaux virtuelles VMXNET3.</button>
       </div>
       <div class="q__exp">Le mécanisme de Ballooning gonfle un faux pilote mémoire dans l'OS invité, ce qui pousse l'OS à vider ses propres caches disque et à libérer de la mémoire physique sans dégradation violente pour l'hyperviseur.</div>
@@ -449,8 +467,8 @@ WORKLOAD=dev-lab BASE_IOPS=80000 ARCH=TYPE_2 VIRT_IOPS=62000 BASE_LAT_US=250 VIR
       <p class="q__stem">Quel format de disque VMDK est obligatoirement requis par la fonctionnalité vSphere Fault Tolerance (FT) ?</p>
       <div class="opts">
         <button class="opt">Thin Provisioning dynamique.</button>
-        <button class="opt">Thick Provisioning Lazy Zeroed.</button>
         <button class="opt" data-correct="1">Thick Provisioning Eager Zeroed.</button>
+        <button class="opt">Thick Provisioning Lazy Zeroed.</button>
         <button class="opt">Raw Device Mapping (RDM) en mode virtuel.</button>
       </div>
       <div class="q__exp">vSphere FT requiert impérativement des disques Thick Eager Zeroed afin de garantir que tous les blocs sont immédiatement réservés et mis à zéro, interdisant toute latence d'allocation lors de la synchronisation Lockstep.</div>
@@ -583,7 +601,7 @@ WORKLOAD=dev-lab BASE_IOPS=80000 ARCH=TYPE_2 VIRT_IOPS=62000 BASE_LAT_US=250 VIR
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

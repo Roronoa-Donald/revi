@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -76,6 +74,7 @@
       <li>appliquer le seuil de saturation : une VM refusée plutôt qu’un serveur noyé ;</li>
       <li>détecter les symptômes de surcharge : CPU, RAM, temps de réponse ;</li>
       <li>conseiller l’action de secours : déplacer une VM.</li>
+      <li>utiliser snapshots, clones et exports OVA sans les confondre avec une sauvegarde.</li>
     </ol>
   </div>
 
@@ -140,11 +139,36 @@
 
 </section>
 
+<section class="sec">
+
+<h2>5. Snapshots, clones et OVA : puissants, mais pas des sauvegardes</h2>
+
+<p>La surcharge n’est pas le seul danger : les outils de confort de la virtualisation créent eux aussi des risques quand on les utilise mal. Trois mécanismes sont à connaître.</p>
+<h3>Le snapshot (instantané)</h3>
+<p>Un snapshot fige l’état d’une VM : le disque, et selon l’hyperviseur la mémoire et l’état des périphériques. À partir de ce point, les écritures vont dans un <strong>disque différentiel</strong> et le disque d’origine ne bouge plus. Revenir en arrière est instantané : on jette le différentiel. C’est idéal avant une mise à jour risquée ou un test de configuration.</p>
+<p>Trois limites à connaître. (1) Le disque différentiel grossit à chaque écriture : une chaîne de snapshots oubliée remplit le stockage et ralentit la VM. (2) Un snapshot dépend du disque d’origine : s’il se corrompt, tout est perdu, donc <strong>un snapshot n’est pas une sauvegarde</strong>. (3) Sous Hyper-V, les checkpoints de production ne capturent pas la mémoire, contrairement aux checkpoints standard.</p>
+<h3>Le clone</h3>
+<p>Un <strong>clone complet</strong> copie intégralement les disques : indépendant, mais lourd. Un <strong>clone lié</strong> part d’un snapshot de la VM d’origine et ne stocke que les différences : rapide et léger, mais dépendant du parent. Pour déployer dix serveurs identiques, on prépare un modèle, on le clone, puis on change nom d’hôte et adresse réseau de chaque copie (sinon dix machines portent la même identité).</p>
+<h3>L’export OVA</h3>
+<p>L’<strong>OVF</strong> (Open Virtualization Format) décrit une VM de manière neutre ; l’<strong>OVA</strong> est une archive unique (type tar) qui contient ce descripteur, les disques (souvent en VMDK) et un fichier de contrôle. C’est le format pratique pour déplacer une VM d’un poste à un autre ou la livrer à un enseignant ou un client.</p>
+<pre><code>VBoxManage snapshot "debian-lab" take "avant-maj" --description "avant apt upgrade"
+VBoxManage snapshot "debian-lab" list
+VBoxManage snapshot "debian-lab" restore "avant-maj"
+VBoxManage clonevm "debian-lab" --name "debian-lab-2" --register
+VBoxManage export "debian-lab" -o debian-lab.ova
+VBoxManage import debian-lab.ova</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — « j’ai un snapshot, donc je suis sauvegardé »</div>
+    <p>Une sauvegarde vit sur un autre support, indépendamment de la VM. Un snapshot reste sur le même disque que la VM : si l’hôte tombe, les deux disparaissent. Gardez les snapshots courts (quelques jours) et exportez une copie (OVA ou sauvegarde) pour ce qui compte.</p>
+  </div>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -152,34 +176,30 @@
      data-exercise="vt-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;rentabilisation avantage&#10;mutualisation partage&#10;surcharge risque&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c5-e1) — Les questions techniques de l’histoire
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La soirée des inventaires : un serveur héberge trop de VM.&#10;Relevé : CPU 95 % — RAM 93 % — temps de réponse 800 ms.&#10;&#10;1) CPU 95 &gt; 90 : seuil franchi.&#10;2) RAM 93 &gt; 90 : seuil franchi.&#10;3) 800 ms &gt; 500 ms : seuil franchi.&#10;4) Trois seuils à la fois : cas « multiple », priorité renforcée.&#10;5) L'action conseillée : déplacer une VM vers un hôte moins chargé.">
+  <script type="text/plain" data-lab-starter># Exercice — La question finale de l'histoire : la surcharge
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Les trois concepts]
-# Données : 3
-# Données : mutualisation partage
-# Données : rentabilisation avantage
-# Données : surcharge risque
+[Question 1 — Le concept illustré par la virtualisation]
 A_COMPLETER
 
-[Cas 2 — Trois confusions]
-# Données : 4
-# Données : mutualisation risque
-# Données : surcharge avantage
-# Données : rentabilisation partage
-# Données : mutualisation partage
+[Question 2 — Le risque principal (un mot)]
 A_COMPLETER
 
-[Cas 3 — Interro écrite]
-# Données : 3
-# Données : surcharge risque
-# Données : mutualisation partage
-# Données : rentabilisation avantage
+[Question 3 — Seuil d'alerte du processeur (%)]
+A_COMPLETER
+
+[Question 4 — Seuil d'alerte du temps de réponse (ms)]
+A_COMPLETER
+
+[Question 5 — La ressource qui sature en plus (un mot)]
+A_COMPLETER
+
+[Question 6 — L'action de secours (deux mots)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Les questions techniques de l’histoire</h3>
+    <h3 class="lab__title">Exercice 1 — La question finale de l'histoire : la surcharge</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -188,20 +208,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque concept de la question technique à sa définition.</p>
-    <div class="lab__brief"><p>L’histoire pose trois questions techniques : le concept illustré, les avantages, et les risques. Analysez chaque ligne proposée « concept role » : role est un code parmi <code>partage</code> (plusieurs VM sur un même serveur physique), <code>avantage</code> (rentabilisation, moins de machines) ou <code>risque</code> (surcharge, saturation des ressources). Pour chaque ligne, indiquez <code>concept : OK</code> ou <code>concept : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Nommer le concept de mutualisation, le risque de surcharge, les seuils d'alerte 90/90/500 et l'action de secours.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le soir, M. Fainéant pose la question qui l'inquiète : « Que se passerait-il si trop de machines ambitieuses étaient créées sur un seul serveur ? » La réponse du cours tient en un mot : la <strong>surcharge</strong>. La promesse du partage suppose que le total des besoins tient dans la capacité ; si les besoins s'additionnent trop, le processeur sature, la mémoire s'épuise, les temps de réponse s'effondrent pour tout le monde — et quand toutes les VM écrivent en même temps, le disque sature à son tour. Le cours fixe trois seuils d'alerte : <strong>CPU au-delà de 90 %</strong>, <strong>RAM au-delà de 90 %</strong>, <strong>temps de réponse au-delà de 500 ms</strong>. L'action de secours est le privilège de la virtualisation : <strong>déplacer une VM</strong> vers un hôte moins chargé.</p><ol><li>Quel concept la virtualisation illustre-t-elle : la mutualisation ou le chiffrement ?</li><li>Quel est le risque principal si l'on crée trop de VM sur un seul serveur ? (un mot)</li><li>Au-delà de quel pourcentage d'utilisation du processeur le seuil d'alerte est-il franchi ?</li><li>Au-delà de quel temps de réponse, en millisecondes, les utilisateurs commencent-ils à souffrir ?</li><li>Quand toutes les VM lisent et écrivent en même temps, quelle ressource sature en plus du processeur et de la mémoire ? (un mot)</li><li>Quelle action de secours le cours conseille-t-il ? (deux mots : « ... une VM »)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-rentabilisation avantage
-mutualisation partage
-surcharge risque
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La soirée des inventaires : un serveur héberge trop de VM.
+Relevé : CPU 95 % — RAM 93 % — temps de réponse 800 ms.
+
+1) CPU 95 &gt; 90 : seuil franchi.
+2) RAM 93 &gt; 90 : seuil franchi.
+3) 800 ms &gt; 500 ms : seuil franchi.
+4) Trois seuils à la fois : cas « multiple », priorité renforcée.
+5) L'action conseillée : déplacer une VM vers un hôte moins chargé.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur le concept : mutualisation → partage, rentabilisation → avantage, surcharge → risque.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>Le concept est celui du partage : plusieurs VM sur un même serveur, des ressources communes — un seul mot du cours.</li>
+        <li>Les trois seuils forment le repère mnémotechnique du cours : deux fois la même valeur en pourcentage, et une valeur en millisecondes.</li>
+        <li>Quand tout le monde écrit en même temps, c'est l'organe de stockage qui sature ; et le secours tient au privilège de la virtualisation : changer une VM d'hôte.</li>
       </ol>
     </details>
   </div>
@@ -211,36 +235,30 @@ surcharge risque
      data-exercise="vt-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="-&#10;3&#10;vm1 40&#10;vm2 40&#10;vm3 30&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c5-e2) — Le seuil de saturation du serveur
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un hôte de secours de 30 Go reçoit : vm-a (10 Go), vm-b (10 Go), vm-c (10 Go), puis vm-d (5 Go).&#10;&#10;1) vm-a acceptée : alloué 10, reste 20.&#10;2) vm-b acceptée : alloué 20, reste 10.&#10;3) vm-c acceptée : alloué 30, reste 0 : le serveur est plein (égalité exacte).&#10;4) vm-d : 30 + 5 &gt; 30 : refusée, et sa demande n'est pas comptée.">
+  <script type="text/plain" data-lab-starter># Exercice — Le seuil de saturation : une VM refusée plutôt qu'un serveur noyé
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Trop de machines ambitieuses]
-# Données : 100
-# Données : 4
-# Données : a 30
-# Données : b 30
-# Données : c 30
-# Données : d 30
+[Question 1 — Capacité allouée après les quatre VM (Go)]
 A_COMPLETER
 
-[Cas 2 — Capacité réduite]
-# Données : 50
-# Données : 3
-# Données : a 25
-# Données : b 25
-# Données : c 25
+[Question 2 — Capacité restante après les quatre VM (Go)]
 A_COMPLETER
 
-[Cas 3 — Rien à signaler]
-# Données : -
-# Données : 2
-# Données : a 10
-# Données : b 20
+[Question 3 — Le serveur est-il plein ?]
+A_COMPLETER
+
+[Question 4 — vm-5 est-elle acceptée ?]
+A_COMPLETER
+
+[Question 5 — vm-5 a-t-elle consommé ?]
+A_COMPLETER
+
+[Question 6 — Un serveur plein est-il forcément en panne ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Le seuil de saturation du serveur</h3>
+    <h3 class="lab__title">Exercice 2 — Le seuil de saturation : une VM refusée plutôt qu'un serveur noyé</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -249,21 +267,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Surveiller la charge totale et refuser les VM quand le serveur menace de saturer.</p>
-    <div class="lab__brief"><p>La dernière question de l’histoire : « que se passerait-il si trop de machines virtuelles étaient créées sur un seul serveur ? ». Analysez les données fournies pour chaque cas. La charge totale s’accumule : si elle reste &lt;= capacité, la VM est <code>vm : hebergee</code> ; si elle la dépasse, <code>vm : refusee (saturation)</code> et la charge n’est pas ajoutée. À la fin : <code>charge : X/capacite</code> et <code>hebergees : Y/n</code> — et si X atteint exactement la capacité, une dernière ligne <code>serveur plein</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer le contrôle avant ajout, reconnaître le serveur plein (égalité exacte) et refuser sans consommer.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pour respecter la promesse, le contrôle se fait <strong>AVANT l'ajout</strong> : si la capacité déjà allouée, augmentée de la demande, dépasse la capacité de l'hôte, la VM est <strong>refusée</strong> — et <strong>rien n'est consommé</strong>. Un hôte neuf de <strong>64 Go de RAM</strong> reçoit les demandes dans l'ordre : vm-1 (16 Go), vm-2 (16 Go), vm-3 (16 Go), vm-4 (16 Go), puis vm-5 (8 Go).</p><ol><li>Quelle capacité de RAM est allouée après les quatre premières VM, en Go ?</li><li>Combien de RAM reste-t-il après les quatre premières VM, en Go ?</li><li>Après vm-4, la capacité allouée égale exactement la capacité disponible : le serveur est-il plein ? (oui ou non)</li><li>La VM vm-5 (8 Go) est-elle acceptée ? (oui ou non)</li><li>vm-5 a-t-elle consommé de la capacité ? (oui ou non)</li><li>Dans ce modèle, un serveur plein (capacité allouée égale capacité disponible) est-il forcément en panne ? (oui ou non)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>-
-3
-vm1 40
-vm2 40
-vm3 30
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un hôte de secours de 30 Go reçoit : vm-a (10 Go), vm-b (10 Go), vm-c (10 Go), puis vm-d (5 Go).
+
+1) vm-a acceptée : alloué 10, reste 20.
+2) vm-b acceptée : alloué 20, reste 10.
+3) vm-c acceptée : alloué 30, reste 0 : le serveur est plein (égalité exacte).
+4) vm-d : 30 + 5 &gt; 30 : refusée, et sa demande n'est pas comptée.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Tester avant d’ajouter : si total + charge &lt;= capacite → hebergee et total augmente, sinon refusee.</li>
-        <li>Après la boucle : total -eq capacite → afficher « serveur plein ».</li>
+        <li>Additionnez les demandes acceptées au fur et à mesure : chacune doit tenir dans ce qui reste avant d'être allouée.</li>
+        <li>Le serveur est « plein » quand la capacité allouée atteint EXACTEMENT la capacité disponible : plus aucune réservation ne peut s'ajouter.</li>
+        <li>Pour les deux dernières questions, rappelez-vous la règle du cours : le refus ne consomme rien, et « plein » parle de réservation — l'utilisation réelle se mesure séparément.</li>
       </ol>
     </details>
   </div>
@@ -273,32 +292,30 @@ vm3 30
      data-exercise="vt-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;a 95 50 100&#10;b 60 95 200&#10;c 50 50 600&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c5-e3) — Les symptômes de la surcharge
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La plate-forme du labo : 8 cœurs, 32 Go de RAM.&#10;Trois VM : 4 + 4 + 4 = 12 vCPU et 8 + 8 + 8 = 24 Go.&#10;&#10;1) Ratio de surallocation CPU : 12/8 = 1,5.&#10;2) Ratio de RAM : 24/32 = 0,75 : pas de surallocation mémoire.&#10;3) Relevé du jour : CPU 91 % (franchi), RAM 85 % (non), 400 ms (non).&#10;4) Un seul seuil franchi : ce n'est pas le cas « multiple ».">
+  <script type="text/plain" data-lab-starter># Exercice — Surallocation et symptômes : la grille 90/90/500
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Serveur sain]
-# Données : 2
-# Données : a 50 60 100
-# Données : b 80 85 300
+[Question 1 — Total des vCPU demandés]
 A_COMPLETER
 
-[Cas 2 — Symptôme multiple]
-# Données : 2
-# Données : a 95 95 100
-# Données : b 99 99 999
+[Question 2 — Ratio de surallocation CPU]
 A_COMPLETER
 
-[Cas 3 — Mixte]
-# Données : 4
-# Données : a 95 60 100
-# Données : b 60 95 200
-# Données : c 60 60 600
-# Données : d 60 60 100
+[Question 3 — Total de RAM demandée (Go)]
+A_COMPLETER
+
+[Question 4 — Le seuil RAM est-il franchi (88 %) ?]
+A_COMPLETER
+
+[Question 5 — Nombre de seuils franchis]
+A_COMPLETER
+
+[Question 6 — Le cas de la grille (un mot)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Les symptômes de la surcharge</h3>
+    <h3 class="lab__title">Exercice 3 — Surallocation et symptômes : la grille 90/90/500</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -307,27 +324,30 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Détecter les symptômes de surcharge et conseiller l’action du support.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « serveur cpu ram reponses » : cpu et ram en %, reponses = temps de réponse en ms des services hébergés. Symptômes : cpu &gt; 90 OU ram &gt; 90 OU reponses &gt; 500 → le serveur est <code>serveur : surcharge (symptome)</code> avec symptome = <code>cpu</code>, <code>ram</code>, <code>reponses</code> ou <code>multiple</code> (dans cet ordre de détection) ; l’action conseillée est alors <code>serveur : action = deplacer une VM</code>. Sinon <code>serveur : sain</code>. Enfin <code>surcharges : X/n</code> et <code>deplacements : X</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer un ratio de surallocation (overcommitment) et compter les seuils d'alerte franchis d'un relevé de supervision.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le responsable informatique veut savoir si M. Fainéant peut porter trois VM gourmandes. M. Fainéant dispose de <strong>16 cœurs</strong> de processeur et de <strong>64 Go de RAM</strong>. Les VM demandent :</p><table><tr><th>VM</th><th>vCPU</th><th>RAM</th></tr><tr><td>vm-base</td><td>10 vCPU</td><td>32 Go</td></tr><tr><td>vm-site</td><td>8 vCPU</td><td>24 Go</td></tr><tr><td>vm-test</td><td>6 vCPU</td><td>8 Go</td></tr></table><p>On appelle <strong>ratio de surallocation (overcommitment) CPU</strong> le nombre total de vCPU demandés divisé par le nombre de cœurs physiques. Le même jour, la supervision relève : <strong>CPU 92 %</strong>, <strong>RAM 88 %</strong>, <strong>temps de réponse 620 ms</strong>. Rappel des seuils d'alerte du cours : CPU au-delà de 90 %, RAM au-delà de 90 %, temps de réponse au-delà de 500 ms. Plusieurs seuils franchis à la fois : c'est le cas <strong>« multiple »</strong> de la grille.</p><ol><li>Combien de vCPU les trois VM demandent-elles en tout ?</li><li>Quel est le ratio de surallocation CPU (vCPU demandés divisés par cœurs physiques) ?</li><li>Combien de RAM les trois VM demandent-elles en tout, en Go ?</li><li>Le seuil d'alerte de la RAM est-il franchi (relevé : 88 %) ? (oui ou non)</li><li>Combien de seuils d'alerte sont franchis au total (CPU, RAM, temps de réponse) ?</li><li>Quel cas de la grille correspond à plusieurs seuils franchis à la fois ? (un mot)</li></ol><p>Pour le ratio, écrivez le nombre décimal (par exemple 1,5).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-a 95 50 100
-b 60 95 200
-c 50 50 600
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La plate-forme du labo : 8 cœurs, 32 Go de RAM.
+Trois VM : 4 + 4 + 4 = 12 vCPU et 8 + 8 + 8 = 24 Go.
+
+1) Ratio de surallocation CPU : 12/8 = 1,5.
+2) Ratio de RAM : 24/32 = 0,75 : pas de surallocation mémoire.
+3) Relevé du jour : CPU 91 % (franchi), RAM 85 % (non), 400 ms (non).
+4) Un seul seuil franchi : ce n'est pas le cas « multiple ».</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Compter les symptômes : c=0 ; cpu -gt 90 → c+1 et nom cpu ; ram -gt 90 → idem ; reponses -gt 500 → idem.</li>
-        <li>c = 0 → sain ; c = 1 → le nom du symptôme ; c &gt;= 2 → multiple ; dans tous les cas de surcharge, action = deplacer une VM.</li>
+        <li>Additionnez d'abord les vCPU demandés, puis les Go de RAM demandés : ce sont les deux totaux du dimensionnement.</li>
+        <li>Le ratio de surallocation CPU divise le total des vCPU par le nombre de cœurs physiques ; un ratio de 1 signifie « exactement la capacité ».</li>
+        <li>Pour les seuils, comparez chaque relevé à sa limite : 92 contre 90, 88 contre 90, 620 contre 500 ; franchi signifie strictement au-delà.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -342,8 +362,8 @@ c 50 50 600
     <div class="q">
       <p class="q__stem">Le risque quand « trop de VM » sont créées…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la surcharge du serveur</button>
         <button class="opt">la perte de licence</button>
+        <button class="opt" data-correct="1">la surcharge du serveur</button>
         <button class="opt">la surchauffe du clavier</button>
       </div>
       <div class="q__exp">Mémoire épuisée, CPU saturé, réponses qui s’effondrent.</div>
@@ -351,9 +371,9 @@ c 50 50 600
     <div class="q">
       <p class="q__stem">Une VM qui dépasse la capacité est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">refusée, sa charge non comptée</button>
-        <button class="opt">hébergée quand même</button>
         <button class="opt">supprimée</button>
+        <button class="opt">hébergée quand même</button>
+        <button class="opt" data-correct="1">refusée, sa charge non comptée</button>
       </div>
       <div class="q__exp">Le contrôle précède l’ajout : refus sans consommation.</div>
     </div>
@@ -361,8 +381,8 @@ c 50 50 600
       <p class="q__stem">Dans le modèle, le serveur est « plein » quand…</p>
       <div class="opts">
         <button class="opt" data-correct="1">la capacité allouée atteint la capacité disponible</button>
-        <button class="opt">il s’éteint</button>
-        <button class="opt">aucune VM n’existe</button>
+        <button class="opt">il s’éteint dès que la première VM est posée</button>
+        <button class="opt">aucune VM n’existe encore sur cet hôte</button>
       </div>
       <div class="q__exp">Aucune réservation ne peut s’ajouter dans le modèle ; l’utilisation réelle se mesure séparément.</div>
     </div>
@@ -378,8 +398,8 @@ c 50 50 600
     <div class="q">
       <p class="q__stem">Plusieurs symptômes à la fois donnent…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">le cas « multiple »</button>
         <button class="opt">un faux positif</button>
+        <button class="opt" data-correct="1">le cas « multiple »</button>
         <button class="opt">une panne certaine</button>
       </div>
       <div class="q__exp">La grille classe ce cas « multiple » ; une investigation reste nécessaire.</div>
@@ -387,20 +407,38 @@ c 50 50 600
     <div class="q">
       <p class="q__stem">L’action conseillée en cas de surcharge est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">déplacer une VM</button>
-        <button class="opt">éteindre le serveur</button>
         <button class="opt">redémarrer tout</button>
+        <button class="opt">éteindre le serveur</button>
+        <button class="opt" data-correct="1">déplacer une VM</button>
       </div>
       <div class="q__exp">Une migration adaptée peut réduire la charge, avec une pause ou un impact possibles.</div>
     </div>
     <div class="q">
       <p class="q__stem">« Efficace mais pas surchargé » se obtient…</p>
       <div class="opts">
+        <button class="opt">en renonçant à toute virtualisation du parc</button>
+        <button class="opt">en remplissant chaque hôte à 100 % de sa capacité</button>
         <button class="opt" data-correct="1">en équilibrant les hôtes et en gardant les VM déplaçables</button>
-        <button class="opt">en ne virtualisant pas</button>
-        <button class="opt">en remplissant chaque hôte à 100 %</button>
       </div>
       <div class="q__exp">La réponse à la question de réflexion de l’histoire : charger, pas noyer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi un snapshot ne remplace-t-il pas une sauvegarde ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Il reste sur le même stockage que la VM et dépend du disque d’origine</button>
+        <button class="opt">Il ne peut pas être restauré</button>
+        <button class="opt">Il consomme toute la mémoire de l’hôte</button>
+      </div>
+      <div class="q__exp">Un snapshot dépend du disque d’origine et se trouve sur le même stockage : si celui-ci tombe ou se corrompt, la VM et son snapshot disparaissent ensemble.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Qu’est-ce qu’un fichier OVA ?</p>
+      <div class="opts">
+        <button class="opt">un format de disque propre à Hyper-V</button>
+        <button class="opt" data-correct="1">une archive portable contenant la description et les disques d’une VM</button>
+        <button class="opt">un journal des erreurs de l’hyperviseur</button>
+      </div>
+      <div class="q__exp">Une OVA regroupe en un seul fichier le descripteur OVF et les disques de la VM : c’est le format d’échange standard entre hyperviseurs.</div>
     </div>
   </div>
 
@@ -408,7 +446,7 @@ c 50 50 600
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -424,7 +462,7 @@ c 50 50 600
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Surveiller sans noyer</div>
@@ -439,7 +477,7 @@ c 50 50 600
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -456,9 +494,9 @@ c 50 50 600
       <li>Je détecte les symptômes dans l’ordre et je nomme le cas multiple.</li>
       <li>Je conseille le déplacement de VM comme action de secours.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 10 notions à connaître absolument</h3>
     <ol>
-      <li>mutualisation</li><li>surcharge</li><li>seuil de saturation</li><li>serveur plein</li><li>CPU</li><li>RAM</li><li>temps de réponse</li><li>déplacement de VM</li>
+      <li>mutualisation</li><li>surcharge</li><li>seuil de saturation</li><li>serveur plein</li><li>CPU</li><li>RAM</li><li>temps de réponse</li><li>déplacement de VM</li><li><strong>Snapshot</strong> : image de l’état d’une VM à un instant donné.</li><li><strong>Clone</strong> : copie d’une VM (complet ou lié). <strong>OVA</strong> : archive d’export portable d’une VM.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -468,7 +506,7 @@ c 50 50 600
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -517,7 +555,7 @@ c 50 50 600
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

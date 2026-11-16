@@ -161,23 +161,23 @@ module.exports = {
     {
       stem: 'Dans l’approche traditionnelle, comment le Triangle de Fer (Périmètre, Coûts, Délais) est-il traditionnellement contraint ?',
       opts: [
-        'Le périmètre est fixe, les coûts et délais sont des variables d’ajustement qui dérivent souvent',
         'Les délais sont fixes et le périmètre est totalement libre',
+        'Le périmètre est fixe, les coûts et délais sont des variables d’ajustement qui dérivent souvent',
         'Le budget est infini et le périmètre est nul',
         'Toutes les trois variables sont strictement impossibles à modifier'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'En gestion prédictive traditionnelle, le périmètre est contractuellement figé au départ (cahier des charges), ce qui reporte toute la dérive sur les coûts et les délais.'
     },
     {
       stem: 'Dans un graphe d’ordonnancement PERT, quelle est la caractéristique fondamentale d’une tâche située sur le chemin critique ?',
       opts: [
-        'Elle ne nécessite aucune ressource humaine',
         'Elle possède une marge totale et une marge libre strictement nulles',
+        'Elle ne nécessite aucune ressource humaine',
         'Elle s’exécute toujours en moins d’une journée',
         'Elle n’a aucun prédécesseur'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Sur le chemin critique, la marge de battement est nulle (ES = LS et EF = LF) : tout retard sur cette tâche décale immédiatement la date d’achèvement du projet entier.'
     },
     {
@@ -185,65 +185,65 @@ module.exports = {
       opts: [
         'Des logiciels opérationnels plus qu’une documentation exhaustive',
         'Les individus et leurs interactions plus que les processus et les outils',
-        'Le respect scrupuleux d’un plan initial plus que la flexibilité face aux imprévus',
-        'La collaboration avec les clients plus que la négociation contractuelle'
+        'La collaboration avec les clients plus que la négociation contractuelle',
+        'Le respect scrupuleux d’un plan initial plus que la flexibilité face aux imprévus'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La 4e valeur du Manifeste Agile est au contraire « L’adaptation au changement plus que le suivi d’un plan ».'
     },
     {
       stem: 'Quels sont les trois piliers théoriques du contrôle de processus empirique sur lesquels repose l’agilité ?',
       opts: [
         'Contrat, Audit, Pénalité',
-        'Transparence, Inspection, Adaptation',
         'Hiérarchie, Documentation, Validation',
+        'Transparence, Inspection, Adaptation',
         'Rapidité, Automatisation, Rentabilité'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’empirisme repose sur la Transparence (visibilité factuelle), l’Inspection (évaluation régulière) et l’Adaptation (ajustement immédiat des dérives).'
     },
     {
       stem: 'Dans le cycle en V, à quel niveau de conception les tests unitaires correspondent-ils directement ?',
       opts: [
         'Aux exigences métier globales',
-        'À l’expression des besoins utilisateurs',
         'À la conception détaillée et au codage des modules',
+        'À l’expression des besoins utilisateurs',
         'À la recette finale en production'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Dans la branche ascendante du cycle en V, les tests unitaires valident directement les composants issus du codage et de la conception détaillée.'
     },
     {
       stem: 'Qu’est-ce qu’un « jalon » (milestone) dans un diagramme de Gantt ?',
       opts: [
-        'Une phase de codage intensive de 3 semaines',
-        'Un point de contrôle ou événement clé à durée nulle matérialisant une décision ou une validation majeure',
-        'Une facture impayée',
-        'Un ticket de bug bloquant'
+        "Un point de contrôle ou événement clé à durée nulle matérialisant une décision ou une validation majeure",
+        "Une phase de codage intensive de trois semaines consacrée à la résorption de la dette technique",
+        "Un livrable intermédiaire partiellement testé, remis au client à la fin de chaque trimestre",
+        "Un ticket de bug bloquant prioritaire, traité en tête de file pendant tout le sprint"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un jalon est un marqueur temporel de durée nulle (durée = 0) signalant la fin d’une étape importante, une recette ou une décision de comité.'
     },
     {
       stem: 'Pour quel profil de projet l’approche prédictive (Waterfall) demeure-t-elle la plus pertinente et justifiée ?',
       opts: [
-        'Une application mobile grand public en constante évolution d’ergonomie',
-        'Un projet hautement innovant avec des technologies inconnues de l’équipe',
-        'Un projet aux exigences techniquement figées et soumises à des contraintes réglementaires et physiques strictes (ex: infrastructure lourde, matériel aéronautique certifié)',
-        'Une startup cherchant son Product-Market Fit'
+        "Une application mobile grand public en constante évolution d’ergonomie, dont les retours utilisateurs imposent des livraisons hebdomadaires",
+        "Un projet hautement innovant exploitant des technologies inconnues de l’équipe, exigeant de courts cycles d’expérimentation et d’apprentissage",
+        "Une startup cherchant son Product-Market Fit, qui doit tester au plus vite ses hypothèses de valeur auprès du marché",
+        "Un projet aux exigences techniquement figées et soumises à des contraintes réglementaires et physiques strictes (ex: infrastructure lourde, matériel aéronautique certifié)"
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Lorsque le produit est parfaitement connu à l’avance, qu’il existe peu d’incertitude et que le coût du changement matériel est prohibitif, la démarche prédictive linéaire est adaptée.'
     },
     {
       stem: 'D’après le 10e principe du Manifeste Agile, comment la « simplicité » est-elle définie ?',
       opts: [
-        'Écrire le moins de lignes de code possible par jour',
-        'L’art de maximiser la quantité de travail que l’on décide de ne pas faire',
-        'Supprimer tous les tests automatisés',
-        'Ne jamais concevoir d’architecture'
+        "Écrire le moins de lignes de code possible chaque jour pour réduire la maintenance",
+        "Supprimer tous les tests automatisés pour accélérer la vitesse de livraison",
+        "L’art de maximiser la quantité de travail que l’on décide de ne pas faire",
+        "Ne jamais concevoir d’architecture pour garder le code volontairement flexible"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le principe 10 formule : « La simplicité — c’est-à-dire l’art de maximiser la quantité de travail non fait — est essentielle. »'
     }
   ],

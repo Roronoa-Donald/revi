@@ -151,21 +151,21 @@ module.exports = {
     {
       stem: 'Selon la méthodologie d’analyse de contenu de Laurence Bardin, quelles sont les trois phases canoniques successives du traitement qualitatif ?',
       opts: [
-        'L’achat du logiciel, l’impression papier, le recyclage',
-        'La pré-analyse, l’exploitation du matériau (codage) et le traitement des résultats (inférence et interprétation)',
-        'L’envoi de courriels, la suppression des fichiers, la réunion d’équipe',
-        'La traduction, la mise en page, la vente du rapport'
+        "La pré-analyse, l’exploitation du matériau (codage) et le traitement des résultats (inférence et interprétation)",
+        "L’achat des licences de logiciel, l’impression papier et le recyclage des brouillons",
+        "L’envoi des courriels d’invitation, la suppression des fichiers et la réunion d’équipe hebdomadaire",
+        "La traduction des verbatims, la mise en page du document et la commercialisation du rapport final"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Bardin structure l’analyse de contenu en 3 étapes rigoureuses : la pré-analyse (organisation), l’exploitation du matériau (codage) et le traitement des résultats/inférence.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre une grille de codage déductive et une grille de codage inductive ?',
       opts: [
-        'La grille déductive est payante et l’inductive gratuite',
-        'La grille déductive utilise des catégories prédéfinies issues de la théorie préalable, tandis que la grille inductive fait émerger les catégories directement du texte analysé',
-        'La grille inductive ne s’applique qu’aux nombres pairs',
-        'Il n’y a aucune différence'
+        "La grille déductive est une prestation payante commercialisée par les instituts de sondage, tandis que la grille inductive reste libre d’utilisation",
+        "La grille déductive utilise des catégories prédéfinies issues de la théorie préalable, tandis que la grille inductive fait émerger les catégories directement du texte analysé",
+        "La grille inductive ne s’applique qu’aux corpus comportant un nombre pair d’entretiens retranscrits et codés préalablement par l’analyste principal",
+        "Il n’y a aucune différence réelle entre les deux grilles, qui constituent simplement deux appellations d’une seule et même méthode de codage"
       ],
       correct: 1,
       exp: 'Le codage déductif applique des concepts préexistants (A priori), tandis que le codage inductif découvre les thèmes dans le discours vivant (In vivo).'
@@ -173,43 +173,43 @@ module.exports = {
     {
       stem: 'Que mesure précisément l’indice de Jaccard J(A, B) = NAB / (NA + NB - NAB) entre deux codes thématiques qualitatifs ?',
       opts: [
-        'Le temps moyen de parole du modérateur de focus group',
-        'Le degré de proximité et de co-occurrence de deux concepts apparaissant conjointement dans les mêmes segments de discours',
-        'Le nombre de pages du mémoire professionnel',
-        'La vitesse de connexion internet'
+        "Le temps moyen de parole du modérateur lors des focus groups menés pour l’étude qualitative",
+        "Le nombre total de pages du mémoire professionnel final rendu par l’étudiant-chercheur à son jury",
+        "Le degré de proximité et de co-occurrence de deux concepts apparaissant conjointement dans les mêmes segments de discours",
+        "La vitesse de connexion internet des répondants au moment précis de la passation du questionnaire"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’indice de Jaccard mesure le rapport entre l’intersection et l’union de deux ensembles, quantifiant la force de co-occurrence de deux thèmes.'
     },
     {
       stem: 'Dans le mémoire professionnel (guide CDP Sup), quel est le rôle épistémologique exclusif de la section « Discussion » ?',
       opts: [
-        'Raconter l’ambiance de la pause café en entreprise',
-        'Confronter les résultats empiriques observés sur le terrain aux concepts et modèles théoriques de la revue de littérature, tout en explicitant les limites méthodologiques',
-        'Donner la liste des mots de passe des serveurs',
-        'Copier-coller le code source de l’application'
+        "Raconter en détail l’ambiance des pauses café partagées par les salariés de l’entreprise durant toute la période de collecte des données",
+        "Fournir la liste complète des mots de passe des serveurs interrogés afin de permettre la réplication intégrale de l’étude par les membres du jury",
+        "Reproduire intégralement le code source de l’application étudiée en annexe technique du mémoire professionnel de l’étudiant chercheur",
+        "Confronter les résultats empiriques observés sur le terrain aux concepts et modèles théoriques de la revue de littérature, tout en explicitant les limites méthodologiques"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La Discussion est le lieu de la mise en perspective intellectuelle : elle explique le « pourquoi » des convergences et divergences entre théorie et terrain.'
     },
     {
       stem: 'Quelle est la fourchette de pagination standard recommandée pour un mémoire professionnel de fin d’études de niveau Bachelor 3 ?',
       opts: [
-        '5 à 10 pages',
         '40 à 100 pages hors annexes',
+        '5 à 10 pages',
         '500 à 1 000 pages',
         'Exactement 1 page'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le guide académique fixe une volumétrie équilibrée de 40 à 100 pages pour approfondir le sujet sans tomber dans le verbiage dilatoire.'
     },
     {
       stem: 'Pourquoi est-il méthodologiquement indispensable d’inclure une sous-section consacrée aux « Limites de l’Étude » dans un mémoire ?',
       opts: [
-        'Pour s’excuser auprès du jury et demander l’indulgence',
-        'Pour faire preuve d’honnêteté et de rigueur scientifique en délimitant précisément la portée, le cadre de validité et la transférabilité des conclusions',
-        'Parce que le logiciel de traitement de texte l’exige',
-        'Pour remplir artificiellement les pages manquantes'
+        "Pour s’excuser platement auprès des membres du jury et leur demander de la bienveillance et de l’indulgence pour les imperfections",
+        "Pour faire preuve d’honnêteté et de rigueur scientifique en délimitant précisément la portée, le cadre de validité et la transférabilité des conclusions",
+        "Parce que le logiciel de traitement de texte exige impérativement une section de limites pour pouvoir générer la table des matières finale",
+        "Pour remplir artificiellement les dernières pages manquantes du mémoire et ainsi atteindre le volume de pages minimal exigé"
       ],
       correct: 1,
       exp: 'Toute recherche scientifique a des limites (taille d’échantillon, biais géographiques, temporalité). Les nommer atteste de la maturité critique de l’ingénieur.'
@@ -217,23 +217,23 @@ module.exports = {
     {
       stem: 'Que désigne une « unité d’enregistrement » dans le protocole de codage thématique d’un verbatim ?',
       opts: [
-        'Le disque dur de l’ordinateur',
-        'Le segment de texte unitaire (mot, proposition, phrase ou paragraphe) auquel est attribué un code thématique déterminé',
-        'Le magnétophone utilisé lors de l’entretien',
-        'L’heure précise à laquelle l’entretien a commencé'
+        "Le disque dur de l’ordinateur ayant servi à enregistrer les entretiens de la campagne",
+        "Le magnétophone ou l’enregistreur vocal utilisé pour capturer le son de l’entretien semi-directif",
+        "Le segment de texte unitaire (mot, proposition, phrase ou paragraphe) auquel est attribué un code thématique déterminé",
+        "L’heure et la date précises auxquelles chaque entretien de l’étude a réellement commencé"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’unité d’enregistrement est la portion textuelle de référence que l’analyste découpe pour lui assigner une étiquette thématique de sens.'
     },
     {
       stem: 'Quelle règle déontologique et scientifique lie les « Recommandations » aux « Résultats » d’une recherche appliquée ?',
       opts: [
-        'Les recommandations doivent être inventées sans aucun lien avec l’enquête',
-        'Chaque recommandation opérationnelle doit découler directement et logiquement des preuves empiriques démontrées dans les résultats',
-        'Les recommandations ne doivent concerner que le service des achats',
-        'Les recommandations doivent être rédigées par une personne extérieure'
+        "Les recommandations peuvent être librement inventées, sans lien direct avec les résultats de l’enquête",
+        "Les recommandations ne doivent concerner que le service des achats et la gestion des fournisseurs",
+        "Les recommandations doivent obligatoirement être rédigées par une personne extérieure à l’équipe de recherche",
+        "Chaque recommandation opérationnelle doit découler directement et logiquement des preuves empiriques démontrées dans les résultats"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Dans une démarche d’ingénieur, des recommandations non étayées par les résultats empiriques relèvent de l’opinion non fondée et décrédibilisent le mémoire.'
     }
   ],

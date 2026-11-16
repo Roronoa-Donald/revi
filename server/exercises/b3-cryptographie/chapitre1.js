@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cr3-c1-e1) — Chiffrement de César et substitution affine\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Déchiffrement de César]\n# Données : CAESAR DEC k=3 text=DWWDTXH D O'DXEH\nA_COMPLETER\n\n[Cas 2 — Opération B]\n# Données : AFFINE ENC a=5 b=8 text=SECRET\nA_COMPLETER\n\n[Cas 3 — Opération C]\n# Données : AFFINE DEC a=5 b=8 text=PCJW\nA_COMPLETER\n\n[Cas 4 — Opération D]\n# Données : AFFINE ENC a=4 b=3 text=HELLO\nA_COMPLETER\n",
     "hints": [
       "Comment associer chaque lettre à son indice sans modifier les espaces et la ponctuation ?",
-      "Pour le chiffre affine, que faut-il vérifier sur a et 26 avant de chercher l’inverse modulaire ?"
+      "Pour le chiffre affine, que faut-il vérifier sur a et 26 avant de chercher l’inverse modulaire ?",
+      "Pour le déchiffrement affine E(x)=a*x+b mod 26, trouvez l inverse modulaire a^-1 mod 26 tel que (a * a^-1) % 26 == 1, puis appliquez ((x - b) * a^-1) mod 26."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "ERROR: gcd(a,26)!=1"
       }
     ],
-    "solution": "[Exemple]\nOUT: ERQMRXU\n\n[Cas 1 — Déchiffrement de César]\nOUT: ATTAQUE A L'AUBE\n\n[Cas 2 — Chiffrement affine valide]\nOUT: UCSPCZ\n\n[Cas 3 — Déchiffrement affine valide]\nOUT: REVI\n\n[Cas 4 — Rejet clé affine non inversible]\nERROR: gcd(a,26)!=1"
+    "solution": "[Exemple]\nOUT: ERQMRXU\n\n[Cas 1 — Déchiffrement de César]\nOUT: ATTAQUE A L'AUBE\n\n[Cas 2 — Chiffrement affine valide]\nOUT: UCSPCZ\n\n[Cas 3 — Déchiffrement affine valide]\nOUT: REVI\n\n[Cas 4 — Rejet clé affine non inversible]\nERROR: gcd(a,26)!=1",
+    "takeaway": "À retenir : Analyser des cas de chiffrements de César et de substitution affine, avec calcul d’inverse modulaire.\nRepère : Chiffrement de César avec décalage de 3 positions."
   },
   {
     "id": "cr3-c1-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cr3-c1-e2) — Chiffre Polyalphabétique de Vigenère et Masque Jetable (OTP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Opération A]\n# Données : VIGENERE DEC key=SECRET text=EIUJEZW GQEJBVIPKMXD\nA_COMPLETER\n\n[Cas 2 — Opération B]\n# Données : OTP VERIFY key_len=64 text_len=64 reuse=false\nA_COMPLETER\n\n[Cas 3 — Opération C]\n# Données : OTP VERIFY key_len=32 text_len=64 reuse=false\nA_COMPLETER\n\n[Cas 4 — Opération D]\n# Données : OTP VERIFY key_len=128 text_len=64 reuse=true\nA_COMPLETER\n",
     "hints": [
       "Pour Vigenère, avancez dans la clé uniquement sur les lettres et conservez les espaces.",
-      "La longueur et le non-réemploi sont nécessaires mais ne prouvent ni le secret, ni l’uniformité, ni l’indépendance de la clé."
+      "La longueur et le non-réemploi sont nécessaires mais ne prouvent ni le secret, ni l’uniformité, ni l’indépendance de la clé.",
+      "Décalez chaque lettre par la position correspondante de la clé répétée (A=0..Z=25) ; pour OTP, contrôlez l égalité de longueur avec la clé et son usage unique."
     ],
     "examples": [
       {
@@ -87,7 +90,8 @@ module.exports = [
         "expected": "OTP: INVALID (key reused, vulnerable to two-time pad attack)"
       }
     ],
-    "solution": "[Exemple]\nOUT: MIANZOE\n\n[Cas 1 — Déchiffrement de Vigenère]\nOUT: MESSAGE CONFIDENTIEL\n\n[Cas 2 — Conditions nécessaires satisfaites, sécurité non vérifiée]\nOTP: CONDITIONS_NECESSAIRES_OK (perfect secrecy not verified)\n\n[Cas 3 — Clé OTP trop courte]\nOTP: INVALID (key shorter than message)\n\n[Cas 4 — Réutilisation de clé OTP interdite]\nOTP: INVALID (key reused, vulnerable to two-time pad attack)"
+    "solution": "[Exemple]\nOUT: MIANZOE\n\n[Cas 1 — Déchiffrement de Vigenère]\nOUT: MESSAGE CONFIDENTIEL\n\n[Cas 2 — Conditions nécessaires satisfaites, sécurité non vérifiée]\nOTP: CONDITIONS_NECESSAIRES_OK (perfect secrecy not verified)\n\n[Cas 3 — Clé OTP trop courte]\nOTP: INVALID (key shorter than message)\n\n[Cas 4 — Réutilisation de clé OTP interdite]\nOTP: INVALID (key reused, vulnerable to two-time pad attack)",
+    "takeaway": "À retenir : Analyser Vigenère et examiner deux conditions nécessaires déclarées sans prétendre prouver la sécurité d’un masque jetable.\nRepère : Chiffrement polyalphabétique avec la clé LUNE répétée."
   },
   {
     "id": "cr3-c1-e3",
@@ -100,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cr3-c1-e3) — Analyse Fréquentielle et Indice de Coïncidence (IC) pour Cryptanalyse\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Texte A]\n# Données : ANALYZE text=OH SHWLW FKDSHURQ URXJH VH SURPHQDLW GDQV OD IRUHW WRXW VHXO HW UHQFRQWUD OH ORXS\nA_COMPLETER\n\n[Cas 2 — Texte B]\n# Données : ANALYZE text=WZKX PLMZ OJQY RTVA BXZP QWMC VBNM LKJH GFDS AZXC VBNM QWER TYUI OPAS DFGH JKLL ZXC\nA_COMPLETER\n\n[Cas 3 — Texte C]\n# Données : ANALYZE text=A\nA_COMPLETER\n",
     "hints": [
       "Filtrez le texte pour ne conserver que les 26 lettres de l'alphabet en majuscules.",
-      "Classez les lettres par nombre d'occurrences décroissant, puis par ordre alphabétique en cas d'égalité."
+      "Classez les lettres par nombre d'occurrences décroissant, puis par ordre alphabétique en cas d'égalité.",
+      "Comptez uniquement les lettres A-Z normalisées (N), calculez IC = sum(f_i*(f_i-1)) / (N*(N-1)) avec 4 décimales et comparez au seuil mono/polyalphabétique."
     ],
     "examples": [
       {
@@ -126,6 +131,7 @@ module.exports = [
         "expected": "ERROR: TEXT_TOO_SHORT"
       }
     ],
-    "solution": "[Exemple]\nN=67 IC=0.0751 TYPE=MONOALPHABETIC TOP=E(11),T(8),O(7)\n\n[Cas 1 — Texte chiffré par César conservant l IC monoalphabétique]\nN=67 IC=0.0751 TYPE=MONOALPHABETIC TOP=H(11),W(8),R(7)\n\n[Cas 2 — Texte aplati polyalphabétique ou aléatoire]\nN=67 IC=0.0294 TYPE=POLYALPHABETIC_OR_RANDOM TOP=Z(5),L(4),M(4)\n\n[Cas 3 — Texte trop court pour le calcul d IC]\nERROR: TEXT_TOO_SHORT"
+    "solution": "[Exemple]\nN=67 IC=0.0751 TYPE=MONOALPHABETIC TOP=E(11),T(8),O(7)\n\n[Cas 1 — Texte chiffré par César conservant l IC monoalphabétique]\nN=67 IC=0.0751 TYPE=MONOALPHABETIC TOP=H(11),W(8),R(7)\n\n[Cas 2 — Texte aplati polyalphabétique ou aléatoire]\nN=67 IC=0.0294 TYPE=POLYALPHABETIC_OR_RANDOM TOP=Z(5),L(4),M(4)\n\n[Cas 3 — Texte trop court pour le calcul d IC]\nERROR: TEXT_TOO_SHORT",
+    "takeaway": "À retenir : Calculer l’indice de coïncidence et les fréquences, puis appliquer un barème indicatif sans identifier le chiffrement avec certitude.\nRepère : Distribution naturelle en français produisant un IC élevé (0.0751 > 0.065)."
   }
 ];

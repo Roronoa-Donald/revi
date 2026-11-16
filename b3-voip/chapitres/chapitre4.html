@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -196,25 +194,28 @@ exten =&gt; i,n,Goto(s,2)</code></pre>
      data-exercise="vo3-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="exten =&gt; 600,1,Answer()&#10;exten =&gt; 600,2,Playback(vm-intro)&#10;exten =&gt; 600,3,VoiceMailMain(${CALLERID(num)}@work)&#10;exten =&gt; 600,4,Hangup()">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c4-e1) — Parseur & Routeur de Dialplan Asterisk (extensions.conf)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le loueur Vél'Océan diffuse ce menu : [accueil]&#10;exten =&gt; s,1,Answer()&#10;exten =&gt; s,n,Background(bienvenue-velocean)&#10;exten =&gt; s,n,WaitExten(4)&#10;exten =&gt; 1,1,Dial(SIP/101,10)&#10;exten =&gt; 1,n,VoiceMail(101@velocean)&#10;exten =&gt; t,1,Playback(au-revoir)&#10;exten =&gt; t,n,Hangup()&#10;&#10;1) L'appel entre par l'extension s.&#10;2) Answer() décroche la ligne.&#10;3) Background(bienvenue-velocean) joue le menu en écoutant les touches.&#10;4) Sans touche pendant 4 s : extension t (Playback au-revoir puis Hangup).&#10;5) Poste 101 sans réponse pendant 10 s : l'appel part sur la boîte vocale 101.">
+  <script type="text/plain" data-lab-starter># Exercice — Le menu vocal du standard d'UrgenceFuite
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez de façon courte : une lettre, une application ou une phrase brève.
 
-[Cas 1 — Cas de test 1]
-# Données : exten => 101,1,Dial(SIP/101,15)
-# Données : exten => 101,2,GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
-# Données : exten => 101,3,Hangup()
+[Question 1 — Extension spéciale de point d'entrée]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : exten => s,1,Answer()
-# Données : exten => s,2,Background(menu-acceuil)
-# Données : exten => s,3,WaitExten(5)
-# Données : exten => s,4,Hangup()
+[Question 2 — Rôle de l'application Answer()]
+A_COMPLETER
+
+[Question 3 — Application qui joue le menu en écoutant les touches]
+A_COMPLETER
+
+[Question 4 — Extension spéciale déclenchée sans aucune touche]
+A_COMPLETER
+
+[Question 5 — Devenir de l'appel si le poste 301 ne répond pas]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Parseur &amp; Routeur de Dialplan Asterisk (extensions.conf)</h3>
+    <h3 class="lab__title">Exercice 1 — Le menu vocal du standard d'UrgenceFuite</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -223,23 +224,39 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer la logique séquentielle des règles d'extensions et priorités dans le Dialplan extensions.conf d'Asterisk.</p>
-    <div class="lab__brief"><p>Dans Asterisk, le plan de numérotation (Dialplan) est décrit dans <code>extensions.conf</code>.<br>Chaque ligne d'instruction suit la syntaxe :<br><code>exten =&gt; &lt;extension&gt;,&lt;priorite&gt;,&lt;application&gt;(&lt;arguments&gt;)</code></p>
-<p>Exemples :<br><code>exten =&gt; 100,1,Answer()</code><br><code>exten =&gt; 100,2,Playback(bienvenue)</code><br><code>exten =&gt; 100,3,Dial(SIP/100,20)</code><br><code>exten =&gt; 100,4,VoiceMail(100@default,u)</code><br><code>exten =&gt; 100,5,Hangup()</code></p>
-<p>Les applications courantes sont :</p><ul><li><code>Answer</code> : décroche l'appel</li><li><code>Playback</code> : joue un fichier son</li><li><code>Dial</code> : tente de joindre une cible (technologie/cible, timeout)</li><li><code>VoiceMail</code> : redirige vers la messagerie</li><li><code>Hangup</code> : raccroche la ligne</li></ul>
-<p>Format d'entrée :<br>Lignes de dialplan d'une extension donnée les données d’entrée.</p>
-<p>Format de sortie :<br>Pour chaque ligne :<br>1. Extraire : extension, numéro de priorité (ou 'n'), nom de l'application et arguments.<br>2. Déterminer la catégorie de l'application :<br>   - Answer -&gt; CALL_CONTROL<br>   - Playback, Background -&gt; MEDIA<br>   - Dial -&gt; ROUTING<br>   - VoiceMail -&gt; MESSAGING<br>   - Hangup -&gt; TERMINATION<br>   - Autre -&gt; MISC<br>3. Afficher :<br><code>EXT:&lt;ext&gt; | PRIO:&lt;prio&gt; | APP:&lt;app&gt; | ARGS:&lt;args&gt; | CATEGORIE:&lt;cat&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire un Dialplan Asterisk simple : extensions spéciales, applications Answer, Background, WaitExten et renvoi vers la boîte vocale.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La société de dépannage UrgenceFuite publie un numéro unique pour ses clients. Son IPBX Asterisk exécute le Dialplan suivant :</p><pre>[accueil]
+exten =&gt; s,1,Answer()
+exten =&gt; s,n,Background(bienvenue-urgencefuite)
+exten =&gt; s,n,WaitExten(6)
+exten =&gt; 1,1,Dial(SIP/301,15)
+exten =&gt; 1,n,VoiceMail(301@urgence)
+exten =&gt; 2,1,Queue(astreinte)
+exten =&gt; 2,n,Hangup()
+exten =&gt; t,1,Playback(merci-au-revoir)
+exten =&gt; t,n,Hangup()</pre><p>Rappel du cours : l'extension s (start) accueille un appel sans numéro composé ; l'extension t (timeout) est déclenchée quand aucune touche n'est pressée dans le délai imparti.</p><ol><li>Quelle extension spéciale sert de point d'entrée à l'appel entrant ?</li><li>Que fait l'application Answer() exécutée en priorité 1 ?</li><li>Quelle application diffuse le message d'accueil tout en restant à l'écoute des touches DTMF ?</li><li>Quelle extension spéciale est déclenchée si l'appelant ne presse aucune touche pendant les 6 secondes ?</li><li>Un client presse la touche 1 mais personne ne décroche au poste 301 pendant les 15 secondes : que devient l'appel ?</li></ol><p>Répondez de façon courte (une lettre, une application, une phrase brève pour la question 5).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>exten =&gt; 600,1,Answer()
-exten =&gt; 600,2,Playback(vm-intro)
-exten =&gt; 600,3,VoiceMailMain(${CALLERID(num)}@work)
-exten =&gt; 600,4,Hangup()</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le loueur Vél'Océan diffuse ce menu : [accueil]
+exten =&gt; s,1,Answer()
+exten =&gt; s,n,Background(bienvenue-velocean)
+exten =&gt; s,n,WaitExten(4)
+exten =&gt; 1,1,Dial(SIP/101,10)
+exten =&gt; 1,n,VoiceMail(101@velocean)
+exten =&gt; t,1,Playback(au-revoir)
+exten =&gt; t,n,Hangup()
+
+1) L'appel entre par l'extension s.
+2) Answer() décroche la ligne.
+3) Background(bienvenue-velocean) joue le menu en écoutant les touches.
+4) Sans touche pendant 4 s : extension t (Playback au-revoir puis Hangup).
+5) Poste 101 sans réponse pendant 10 s : l'appel part sur la boîte vocale 101.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Filtrez les règles appartenant au contexte de l'appelant.</li>
-        <li>Exécutez séquentiellement les priorités 1, 2, n associées à l'extension composée.</li>
+        <li>Suivez l'exécution dans l'ordre des priorités : 1, puis n (next) : Answer, Background, WaitExten.</li>
+        <li>Deux applications jouent des sons : Background écoute les touches pendant la diffusion, Playback ne les écoute pas.</li>
+        <li>1. Un appel entrant sans numéro composé démarre sur l'extension s. 2. Answer() décroche la ligne. 3. Le menu est diffusé par Background(). 4. Sans touche pendant 6 s, l'extension t prend le relais. 5. Après Dial(SIP/301,15) sans réponse, la priorité suivante VoiceMail(301@urgence) prend l'appel.</li>
       </ol>
     </details>
   </div>
@@ -249,24 +266,31 @@ exten =&gt; 600,4,Hangup()</pre></div>
      data-exercise="vo3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="PATTERN=_7XXXXXXXX NUM=706438029&#10;PATTERN=_7XXXXXXXX NUM=806438029&#10;PATTERN=_0[1-5]XXXXXXXX NUM=0140203040&#10;PATTERN=600 NUM=600">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c4-e2) — Matcher de Masques de Numérotation Asterisk (Pattern Matching)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le centre de formation Confluences utilise deux motifs :&#10;_3XXX pour les postes internes (Dial SIP) et _0[1-5]. pour le réseau public via le trunk.&#10;&#10;1) 3112 composé : quatre chiffres commençant par 3 : règle des postes internes (_3XXX).&#10;2) 0219876543 composé : 0 puis 2 (dans la liste 1 à 5) puis d'autres chiffres : règle du trunk (_0[1-5].).&#10;3) X représente un chiffre de 0 à 9.&#10;4) La plus grande extension interne interceptée : 3999.&#10;5) Le symbole [1-5] : un chiffre parmi 1, 2, 3, 4 ou 5.">
+  <script type="text/plain" data-lab-starter># Exercice — Les masques de numérotation de la mutuelle Solidia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par la lettre de la règle, le nombre ou le symbole attendus.
 
-[Cas 1 — Cas de test 1]
-# Données : PATTERN=_NXX NUM=250
-# Données : PATTERN=_NXX NUM=150
-# Données : PATTERN=_9. NUM=90123456789
-# Données : PATTERN=_9. NUM=9
+[Question 1 — Règle appliquée au numéro 4271]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : PATTERN=_ZXXX NUM=1000
-# Données : PATTERN=_ZXXX NUM=0500
+[Question 2 — Règle appliquée au numéro 0698765432]
+A_COMPLETER
+
+[Question 3 — Signification du symbole X]
+A_COMPLETER
+
+[Question 4 — Plus grande extension interne de la règle A]
+A_COMPLETER
+
+[Question 5 — Plus petite extension interne de la règle A]
+A_COMPLETER
+
+[Question 6 — Symbole des chiffres de 2 à 9]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Matcher de Masques de Numérotation Asterisk (Pattern Matching)</h3>
+    <h3 class="lab__title">Exercice 2 — Les masques de numérotation de la mutuelle Solidia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -275,23 +299,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Implémenter le moteur de pattern matching d'Asterisk avec masques _X, _Z, _N et extraction de variables ${EXTEN}.</p>
-    <div class="lab__brief"><p>Dans Asterisk, les extensions peuvent être définies par des motifs (patterns) débutant par un souligné <code>_</code>. La syntaxe standard des motifs de numérotation Asterisk est :</p><ul><li><code>X</code> : correspond à n'importe quel chiffre de 0 à 9</li><li><code>Z</code> : correspond à n'importe quel chiffre de 1 à 9</li><li><code>N</code> : correspond à n'importe quel chiffre de 2 à 9</li><li><code>[1357]</code> : correspond à l'un des chiffres entre crochets</li><li><code>.</code> (point) : joker correspondant à un ou plusieurs caractères quelconques (en fin de motif)</li><li><code>!</code> (point d'exclamation) : joker correspondant à zéro ou plusieurs caractères</li></ul>
-<p>Exemples :</p><ul><li><code>_7XXXXXXXX</code> : correspond aux numéros sénégalais de 9 chiffres débutant par 7 (de 700000000 à 799999999).</li><li><code>_0[1-5]XXXXXXXX</code> : numéros géographiques français fixes (10 chiffres).</li><li><code>_9.</code> : tout appel sortant avec préfixe 9.</li></ul>
-<p>Format d'entrée :<br>Lignes de la forme :<br>PATTERN=&lt;motif_asterisk&gt; NUM=&lt;numero_compose&gt;</p>
-<p>Règles :<br>1. Convertir le motif Asterisk en expression régulière équivalente.<br>2. Si le motif ne commence pas par <code>_</code>, il s'agit d'une correspondance littérale exacte.<br>3. Vérifier si NUM correspond au motif.<br>4. Si correspondance : extraire la valeur qui serait affectée à la variable <code>${EXTEN}</code> (soit le numéro entier) et indiquer <code>MATCH:OUI</code>.<br>5. Sinon indiquer <code>MATCH:NON</code>.</p>
-<p>Format de sortie :<br>Pour chaque test :<br>PATTERN:&lt;pattern&gt; | NUM:&lt;num&gt; | REGEX:&lt;regex&gt; | RESULTAT:&lt;MATCH:OUI|MATCH:NON&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Faire correspondre des numéros composés aux motifs Asterisk _X, _Z, _N et extraire ${EXTEN}.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La mutuelle Solidia regroupe 300 salariés derrière un IPBX Asterisk. Le Dialplan du contexte [work] ne contient que ces trois règles à motifs :</p><table><tr><th>Règle</th><th>Motif</th><th>Action</th></tr><tr><th>A</th><td>_4XXX</td><td>Dial(SIP/${EXTEN},15) — postes internes</td></tr><tr><th>B</th><td>_0Z.</td><td>Dial(SIP/trunk-solidia/${EXTEN},30) — réseau public</td></tr><tr><th>C</th><td>_99N</td><td>Queue(conseillers) — numéros courts du service conseil</td></tr></table><p>Rappel du cours : X correspond à un chiffre de 0 à 9 ; Z à un chiffre de 1 à 9 ; N à un chiffre de 2 à 9 ; le point correspond à un ou plusieurs caractères quelconques ; ${EXTEN} contient le numéro composé. La variable ${EXTEN} vaut exactement la chaîne composée.</p><ol><li>Un salarié compose 4271 : quelle règle (A, B ou C) s'applique ?</li><li>Un salarié compose 0698765432 : quelle règle s'applique ?</li><li>Dans le motif _4XXX, que représente le symbole X ?</li><li>Quelle est la plus grande extension interne interceptée par la règle A ?</li><li>Quelle est la plus petite extension interne interceptée par la règle A ?</li><li>Quel symbole de motif correspond uniquement aux chiffres de 2 à 9 ?</li></ol><p>Répondez par la lettre de la règle, le nombre ou le symbole attendus.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PATTERN=_7XXXXXXXX NUM=706438029
-PATTERN=_7XXXXXXXX NUM=806438029
-PATTERN=_0[1-5]XXXXXXXX NUM=0140203040
-PATTERN=600 NUM=600</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le centre de formation Confluences utilise deux motifs :
+_3XXX pour les postes internes (Dial SIP) et _0[1-5]. pour le réseau public via le trunk.
+
+1) 3112 composé : quatre chiffres commençant par 3 : règle des postes internes (_3XXX).
+2) 0219876543 composé : 0 puis 2 (dans la liste 1 à 5) puis d'autres chiffres : règle du trunk (_0[1-5].).
+3) X représente un chiffre de 0 à 9.
+4) La plus grande extension interne interceptée : 3999.
+5) Le symbole [1-5] : un chiffre parmi 1, 2, 3, 4 ou 5.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Les motifs de numérotation débutent obligatoirement par un caractère souligné _.</li>
-        <li>Traduisez X en [0-9], Z en [1-9] et N en [2-9] pour tester la correspondance.</li>
+        <li>Un motif Asterisk commence par le souligné : chaque caractère du motif (X, Z, N, chiffre littéral, point) doit correspondre au numéro composé, chiffre par chiffre.</li>
+        <li>La règle A _4XXX capture exactement quatre chiffres commençant par 4 ; la règle B _0Z. commence par 0 puis un chiffre non nul, suivi d'au moins un caractère.</li>
+        <li>1. 4271 : quatre chiffres commençant par 4. 2. 0698765432 : 0 puis 6 (non nul) puis huit chiffres. 3. X couvre 0 à 9. 4. et 5. Balayez 4000 à 4999. 6. Le symbole réservé aux chiffres 2 à 9 est N.</li>
       </ol>
     </details>
   </div>
@@ -301,23 +326,31 @@ PATTERN=600 NUM=600</pre></div>
      data-exercise="vo3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SESSION=S001 DTMF_INPUT=1 ATTEMPTS=0&#10;SESSION=S002 DTMF_INPUT=2 ATTEMPTS=0&#10;SESSION=S003 DTMF_INPUT=TIMEOUT ATTEMPTS=1&#10;SESSION=S004 DTMF_INPUT=TIMEOUT ATTEMPTS=2&#10;SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c4-e3) — Simulateur de Serveur Vocal Interactif SVI / IVR
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le théâtre du Quartz diffuse : [menu]&#10;exten =&gt; s,1,Answer()&#10;exten =&gt; s,n,Background(menu-quartz)&#10;exten =&gt; s,n,WaitExten(5)&#10;exten =&gt; 1,1,Queue(billetterie)&#10;exten =&gt; 2,1,Playback(programmation)&#10;exten =&gt; 2,n,Goto(s,2)&#10;exten =&gt; t,1,Playback(au-revoir)&#10;exten =&gt; t,n,Hangup()&#10;exten =&gt; i,1,Playback(touche-invalide)&#10;exten =&gt; i,n,Goto(s,2)&#10;&#10;M. Farid appelle à 18:00, presse 7 (message « touche invalide », menu rejoué),&#10;puis presse 2 à 18:01 : il entend la programmation puis le menu revient.&#10;&#10;1) La touche 7 est interceptée par l'extension i.&#10;2) Le menu est rejoué par Background (Goto(s,2) ramène à la priorité 2 de s).&#10;3) S'il n'avait rien pressé pendant 5 s : extension t (au-revoir puis Hangup).&#10;4) Goto(s,2) renvoie l'exécution au début du menu.">
+  <script type="text/plain" data-lab-starter># Exercice — La navigation dans le SVI d'AssurPharma
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez de façon courte : une lettre, une application, un nom de file, un nombre.
 
-[Cas 1 — Cas de test 1]
-# Données : SESSION=A10 DTMF_INPUT=3 ATTEMPTS=0
-# Données : SESSION=A11 DTMF_INPUT=9 ATTEMPTS=1
-# Données : SESSION=A12 DTMF_INPUT=t ATTEMPTS=3
+[Question 1 — Extension spéciale qui intercepte la touche 5]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : SESSION=B20 DTMF_INPUT=* ATTEMPTS=2
-# Données : SESSION=B21 DTMF_INPUT=# ATTEMPTS=0
+[Question 2 — Application qui rejoue le menu]
+A_COMPLETER
+
+[Question 3 — File d'attente choisie par la touche 2]
+A_COMPLETER
+
+[Question 4 — Extension spéciale déclenchée sans aucune touche]
+A_COMPLETER
+
+[Question 5 — Attente du conseiller (en secondes)]
+A_COMPLETER
+
+[Question 6 — Rôle de l'application Goto(s,2)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de Serveur Vocal Interactif SVI / IVR</h3>
+    <h3 class="lab__title">Exercice 3 — La navigation dans le SVI d'AssurPharma</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -326,23 +359,47 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler la navigation dans un serveur vocal interactif (SVI/IVR) avec gestion des touches DTMF, timeouts (t) et erreurs (i).</p>
-    <div class="lab__brief"><p>Un Serveur Vocal Interactif (SVI ou IVR) oriente automatiquement les appelants selon les touches DTMF saisies. Dans Asterisk, le menu d'accueil joue un message audio avec l'application <code>Background()</code> puis attend une saisie avec <code>WaitExten()</code>. Si l'appelant appuie sur :</p><ul><li><code>1</code> : Service Commercial (routage vers <code>Queue(commercial)</code>)</li><li><code>2</code> : Support Technique (routage vers <code>Queue(support)</code>)</li><li><code>3</code> : Facturation / Comptabilité (routage vers <code>Dial(SIP/301)</code>)</li><li><code>9</code> : Répéter le menu (redirection vers <code>Goto(menu,s,1)</code>)</li><li><code>t</code> (Timeout, aucune touche après 5 secondes) : rejoue le menu ou raccroche après 2 tentatives.</li><li><code>i</code> (Touche invalide) : joue un message d'erreur <code>Playback(invalid)</code> et réinvite l'utilisateur.</li></ul>
-<p>Format d'entrée :<br>Lignes simulant des sessions d'appelants sous la forme :<br>SESSION=&lt;id&gt; DTMF_INPUT=&lt;touche&gt; ATTEMPTS=&lt;nb_essais_deja_faits&gt;</p>
-<p>Règles de décision :   - Si ATTEMPTS &gt;= 2 -&gt; ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_TIMEOUT   - Sinon -&gt; ACTION:RELANCER | CIBLE:WaitExten(5) | SUITE:RETRY   - Si ATTEMPTS &gt;= 2 -&gt; ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_INVALID   - Sinon -&gt; ACTION:MESSAGE_ERREUR | CIBLE:Playback(pm-invalid-option) | SUITE:RETRY</p><ul><li>DTMF '1' -&gt; ACTION:ROUTER | CIBLE:Queue(commercial) | SUITE:SUCCES</li><li>DTMF '2' -&gt; ACTION:ROUTER | CIBLE:Queue(support) | SUITE:SUCCES</li><li>DTMF '3' -&gt; ACTION:ROUTER | CIBLE:Dial(SIP/301) | SUITE:SUCCES</li><li>DTMF '9' -&gt; ACTION:REPETER | CIBLE:Goto(menu,s,1) | SUITE:REJOUER</li><li>DTMF 'TIMEOUT' ou 't' :</li><li>Toute autre touche (invalide) :</li></ul>
-<p>Format de sortie :<br>Pour chaque session :<br>SESSION:&lt;id&gt; | TOUCHE:&lt;dtmf&gt; | ESSAIS:&lt;attempts&gt; | ACTION:&lt;action&gt; | CIBLE:&lt;cible&gt; | SUITE:&lt;suite&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre un appelant dans un SVI : extensions i et t, Goto, files d'attente et durées d'attente.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La mutuelle AssurPharma accueille ses adhérents par un serveur vocal interactif. Le Dialplan du contexte [menu] est le suivant :</p><pre>exten =&gt; s,1,Answer()
+exten =&gt; s,n,Background(menu-assurpharma)
+exten =&gt; s,n,WaitExten(8)
+exten =&gt; 1,1,Queue(ventes,rtt,,,60)
+exten =&gt; 1,n,Playback(repondeur-ventes)
+exten =&gt; 2,1,Queue(support,rtt,,,60)
+exten =&gt; 2,n,Playback(repondeur-support)
+exten =&gt; 3,1,Playback(horaires-agences)
+exten =&gt; 3,n,Goto(s,2)
+exten =&gt; t,1,Playback(merci-au-revoir)
+exten =&gt; t,n,Hangup()
+exten =&gt; i,1,Playback(touche-invalide)
+exten =&gt; i,n,Goto(s,2)</pre><p>Le menu diffusé annonce : « Tapez 1 pour les ventes, 2 pour le support, 3 pour les horaires des agences. »</p><p>Mme Costa appelle à 14:00. Elle écoute le menu, presse la touche 5 : un message lui signale que la touche est inconnue, puis le menu est rejoué. Elle presse alors la touche 2 à 14:02 et un conseiller du support décroche à 14:04.</p><ol><li>Quelle extension spéciale a intercepté la touche 5 ?</li><li>Quelle application rejoue le menu après le message « touche invalide » ?</li><li>Dans quelle file d'attente Mme Costa entre-t-elle en pressant la touche 2 ?</li><li>Quelle extension spéciale aurait été déclenchée si Mme Costa n'avait rien pressé pendant les 8 secondes ?</li><li>Combien de secondes Mme Costa a-t-elle attendu un conseiller, entre la pression sur la touche 2 et le décrochage ?</li><li>Que fait l'application Goto(s,2) ?</li></ol><p>Répondez de façon courte (une lettre, une application, un nom de file, un nombre, une phrase brève).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SESSION=S001 DTMF_INPUT=1 ATTEMPTS=0
-SESSION=S002 DTMF_INPUT=2 ATTEMPTS=0
-SESSION=S003 DTMF_INPUT=TIMEOUT ATTEMPTS=1
-SESSION=S004 DTMF_INPUT=TIMEOUT ATTEMPTS=2
-SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le théâtre du Quartz diffuse : [menu]
+exten =&gt; s,1,Answer()
+exten =&gt; s,n,Background(menu-quartz)
+exten =&gt; s,n,WaitExten(5)
+exten =&gt; 1,1,Queue(billetterie)
+exten =&gt; 2,1,Playback(programmation)
+exten =&gt; 2,n,Goto(s,2)
+exten =&gt; t,1,Playback(au-revoir)
+exten =&gt; t,n,Hangup()
+exten =&gt; i,1,Playback(touche-invalide)
+exten =&gt; i,n,Goto(s,2)
+
+M. Farid appelle à 18:00, presse 7 (message « touche invalide », menu rejoué),
+puis presse 2 à 18:01 : il entend la programmation puis le menu revient.
+
+1) La touche 7 est interceptée par l'extension i.
+2) Le menu est rejoué par Background (Goto(s,2) ramène à la priorité 2 de s).
+3) S'il n'avait rien pressé pendant 5 s : extension t (au-revoir puis Hangup).
+4) Goto(s,2) renvoie l'exécution au début du menu.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Aiguillez l'appelant vers l'extension correspondant au chiffre DTMF saisi.</li>
-        <li>Exécutez l'extension t en cas de timeout et l'extension i si la touche est invalide.</li>
+        <li>Les deux extensions spéciales du SVI : i (invalid) pour une touche inconnue, t (timeout) pour l'absence de touche.</li>
+        <li>Goto(s,2) ramène l'exécution à la priorité 2 de l'extension s : regardez ce que fait cette priorité.</li>
+        <li>1. La touche 5 n'existe pas dans le contexte : extension i. 2. La priorité 2 de s diffuse le menu. 3. La touche 2 mène à Queue(support). 4. Sans touche pendant 8 s : extension t. 5. De 14:02 à 14:04. 6. Goto(s,2) renvoie au début du menu.</li>
       </ol>
     </details>
   </div>
@@ -365,9 +422,9 @@ SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
     <div class="q">
       <p class="q__stem">Que désigne le méta-caractère N dans un motif de numérotation Asterisk (ex: _NXX) ?</p>
       <div class="opts">
-        <button class="opt">N'importe quel chiffre de 0 à 9</button>
-        <button class="opt">N'importe quel chiffre de 1 à 9</button>
         <button class="opt" data-correct="1">N'importe quel chiffre de 2 à 9</button>
+        <button class="opt">N'importe quel chiffre de 1 à 9</button>
+        <button class="opt">N'importe quel chiffre de 0 à 9</button>
         <button class="opt">N'importe quelle lettre de l'alphabet</button>
       </div>
       <div class="q__exp">Dans la convention Asterisk, X correspond à 0-9, Z à 1-9, et N correspond aux chiffres compris entre 2 et 9.</div>
@@ -376,9 +433,9 @@ SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
       <p class="q__stem">Quelle variable de canal contient la valeur exacte de l'extension ou du numéro de téléphone composé par l'appelant ?</p>
       <div class="opts">
         <button class="opt">${CALLERID(num)}</button>
-        <button class="opt" data-correct="1">${EXTEN}</button>
-        <button class="opt">${CHANNEL}</button>
         <button class="opt">${DIALSTATUS}</button>
+        <button class="opt">${CHANNEL}</button>
+        <button class="opt" data-correct="1">${EXTEN}</button>
       </div>
       <div class="q__exp">${EXTEN} est la variable interne qui stocke la chaîne de caractères de l'extension appelée (ex: 706438029).</div>
     </div>
@@ -386,8 +443,8 @@ SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
       <p class="q__stem">Dans un Serveur Vocal Interactif (SVI), quelle extension spéciale est automatiquement déclenchée lorsqu'un appelant n'appuie sur aucune touche pendant le délai d'attente imparti ?</p>
       <div class="opts">
         <button class="opt">Extension s</button>
-        <button class="opt" data-correct="1">Extension t</button>
         <button class="opt">Extension i</button>
+        <button class="opt" data-correct="1">Extension t</button>
         <button class="opt">Extension h</button>
       </div>
       <div class="q__exp">L'extension t (Timeout) est exécutée lorsque le délai d'attente de saisie fixé par WaitExten() expire sans action de l'appelant.</div>
@@ -405,19 +462,19 @@ SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il si un motif de numérotation est écrit sans le caractère souligné initial _ dans extensions.conf (ex: 7XXXXXXXX) ?</p>
       <div class="opts">
-        <button class="opt">Asterisk génère une erreur de syntaxe fatale</button>
         <button class="opt" data-correct="1">Asterisk considère le motif comme une extension littérale exacte "7XXXXXXXX" et non comme un masque générique</button>
-        <button class="opt">Asterisk ajoute automatiquement le souligné</button>
-        <button class="opt">L'appel est redirigé vers la messagerie vocale</button>
+        <button class="opt">Asterisk génère une erreur de syntaxe fatale au moment du rechargement du dialplan</button>
+        <button class="opt">Asterisk ajoute automatiquement le souligné manquant devant le motif déclaré</button>
+        <button class="opt">L'appel composé est automatiquement redirigé vers la messagerie vocale du poste</button>
       </div>
       <div class="q__exp">Sans le souligné _ au début, Asterisk interprète la chaîne comme le nom littéral exact de l'extension, et le pattern matching ne s'applique pas.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle extension spéciale est appelée par Asterisk dès qu'une communication est terminée ou qu'un correspondant raccroche la ligne ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Extension h</button>
-        <button class="opt">Extension e</button>
         <button class="opt">Extension b</button>
+        <button class="opt">Extension e</button>
+        <button class="opt" data-correct="1">Extension h</button>
         <button class="opt">Extension q</button>
       </div>
       <div class="q__exp">L'extension h (Hangup) est systématiquement exécutée lors de la libération du canal pour effectuer des opérations de clôture ou d'audit.</div>
@@ -426,9 +483,9 @@ SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
       <p class="q__stem">Quelle directive permet d'intégrer l'intégralité des extensions d'un contexte nommé [interne] à l'intérieur d'un autre contexte [direction] ?</p>
       <div class="opts">
         <button class="opt">import =&gt; interne</button>
-        <button class="opt" data-correct="1">include =&gt; interne</button>
-        <button class="opt">inherit =&gt; interne</button>
         <button class="opt">link =&gt; interne</button>
+        <button class="opt">inherit =&gt; interne</button>
+        <button class="opt" data-correct="1">include =&gt; interne</button>
       </div>
       <div class="q__exp">La directive include =&gt; nom_contexte permet d'inclure un contexte dans un autre, facilitant la composition modulaire des droits.</div>
     </div>
@@ -550,7 +607,7 @@ SESSION=S005 DTMF_INPUT=7 ATTEMPTS=0</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

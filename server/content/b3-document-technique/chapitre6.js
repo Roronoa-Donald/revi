@@ -159,31 +159,31 @@ module.exports = {
       stem: 'Dans l’évaluation ergonomique de la documentation technique, que mesure précisément l’indicateur ASL (Average Sentence Length) ?',
       opts: [
         'Le temps moyen d’exécution d’un script shell',
-        'Le nombre moyen de mots contenus par phrase dans le document',
+        'Le nombre d’images vectorielles présentes par chapitre',
         'La vitesse de compilation du serveur web statique',
-        'Le nombre d’images vectorielles présentes par chapitre'
+        'Le nombre moyen de mots contenus par phrase dans le document'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’ASL (Average Sentence Length) calcule le ratio entre le nombre total de mots et le nombre total de phrases, servant d’étalon de concision rédactionnelle.'
     },
     {
       stem: 'Au-delà de quelle longueur de phrase en mots considère-t-on que la lisibilité et l’assimilation d’une consigne technique critique chutent drastiquement ?',
       opts: [
         'Au-delà de 5 mots',
-        'Au-delà de 25 mots',
         'Au-delà de 250 mots',
+        'Au-delà de 25 mots',
         'Il n’y a aucune limite, les phrases de 100 mots sont idéales'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Au-delà de 25 mots par phrase, la mémoire de travail du lecteur est saturée, augmentant significativement le risque de mauvaise interprétation lors d’une intervention.'
     },
     {
       stem: 'Lorsqu’un rédacteur renomme le titre Markdown `## Sauvegarde BDD` en `## Sauvegarde Complète BDD`, quel incident survient pour le lien `[Voir](#sauvegarde-bdd)` ?',
       opts: [
-        'Le document est automatiquement effacé du serveur',
-        'Le lien devient brisé (ancre orpheline), ne pointant plus vers aucun titre valide et laissant le lecteur sans réaction au clic',
-        'Le navigateur affiche un écran bleu d’erreur système',
-        'Le fichier est converti automatiquement en PDF'
+        "Le document est automatiquement effacé du serveur lors de la prochaine génération du site statique",
+        "Le lien devient brisé (ancre orpheline), ne pointant plus vers aucun titre valide et laissant le lecteur sans réaction au clic",
+        "Le navigateur affiche un écran bleu d’erreur système à la place de la page demandée par le lecteur",
+        "Le fichier Markdown source est converti automatiquement en PDF par le moteur de génération"
       ],
       correct: 1,
       exp: 'Le lien d’ancre recherche un identifiant dérivé du nouveau titre (`#sauvegarde-complete-bdd`). L’ancienne anbre `#sauvegarde-bdd` n’existant plus, le lien est rompu.'
@@ -191,43 +191,43 @@ module.exports = {
     {
       stem: 'Pourquoi l’obsolescence documentaire (« Stale Documentation ») représente-t-elle un risque de sécurité et d’exploitation majeur ?',
       opts: [
-        'Car elle fait planter les disques durs des serveurs de bases de données',
-        'Car elle donne une illusion d’exactitude conduisant des ingénieurs d’astreinte à appliquer des commandes périmées provoquant des interruptions de service',
-        'Car elle est interdite par la Constitution',
-        'Car elle augmente la facture d’électricité de la salle informatique'
+        "Car elle donne une illusion d’exactitude conduisant des ingénieurs d’astreinte à appliquer des commandes périmées provoquant des interruptions de service",
+        "Car elle fait planter progressivement les disques durs des serveurs de bases de données hébergeant la production",
+        "Car elle constitue une infraction constitutionnelle punie par le code français de la propriété intellectuelle",
+        "Car elle augmente mécaniquement la facture d’électricité de la salle informatique de l’ensemble de l’entreprise"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une documentation obsolète induit en erreur les exploitants, qui appliquent des procédures caduques pensant suivre les recommandations officielles de l’entreprise.'
     },
     {
       stem: 'Quel mécanisme permet de renseigner proprement le responsable et la date limite de révision d’un document Markdown dans un cadre Docs-as-Code ?',
       opts: [
-        'Un commentaire manuscrit sur une feuille volante',
-        'Un bloc d’en-tête de métadonnées YAML frontmatter placé tout en haut du fichier entre des délimiteurs `---` (`owner`, `last_reviewed`, etc.)',
-        'Une image JPEG montrant la photo de l’auteur',
-        'Un message envoyé sur un forum de discussion privé'
+        "Un commentaire manuscrit apposé sur une feuille volante jointe au dossier papier du projet d’entreprise",
+        "Une image JPEG contenant la photographie officielle de l’auteur du document et sa date de prise de vue",
+        "Un message envoyé sur un forum de discussion privé accessible uniquement aux développeurs de l’équipe",
+        "Un bloc d’en-tête de métadonnées YAML frontmatter placé tout en haut du fichier entre des délimiteurs `---` (`owner`, `last_reviewed`, etc.)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le YAML frontmatter normalise les métadonnées de gouvernance en tête de fichier, permettant aux scripts automatisés de parser l’état de fraîcheur du document.'
     },
     {
       stem: 'Dans une équipe appliquant la méthodologie Scrum, que signifie inclure la documentation technique dans la « Definition of Done » (DoD) ?',
       opts: [
-        'Interdire de commencer à développer tant que le roman complet n’est pas rédigé',
-        'Considérer qu’une fonctionnalité n’est officiellement terminée et livrable que si sa documentation, ses schémas et ses runbooks associés sont à jour et validés',
-        'Obliger le chef de projet à écrire tout le code source',
-        'Supprimer la documentation dès que le sprint est clos'
+        "Interdire de commencer tout développement tant que la documentation complète du projet n’a pas été entièrement rédigée et validée",
+        "Obliger le chef de projet à rédiger personnellement l’intégralité du code source de l’application livrée au client",
+        "Considérer qu’une fonctionnalité n’est officiellement terminée et livrable que si sa documentation, ses schémas et ses runbooks associés sont à jour et validés",
+        "Supprimer automatiquement la documentation technique de l’équipe dès que le sprint en cours est officiellement clos"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La DoD garantit qu’aucune fonctionnalité n’est déclarée terminée si sa documentation associée n’a pas été mise à jour et vérifiée en intégration continue.'
     },
     {
       stem: 'Lorsqu’un service informatique est décommissionné, quelle est la bonne pratique concernant son ancienne documentation en ligne ?',
       opts: [
-        'Supprimer brutalement toutes les pages sans avertissement ni redirection',
-        'Maintenir la page avec un bandeau clair d’archivage/décommissionnement ou configurer une redirection HTTP 301 vers la documentation du nouveau service',
-        'Remplacer le texte par une page blanche',
-        'Modifier le mot de passe de tous les ingénieurs'
+        "Supprimer brutalement toutes les pages du site sans avertissement préalable ni redirection vers les nouvelles ressources",
+        "Maintenir la page avec un bandeau clair d’archivage/décommissionnement ou configurer une redirection HTTP 301 vers la documentation du nouveau service",
+        "Remplacer l’intégralité du texte par une page blanche informant simplement que le service n’existe plus",
+        "Modifier le mot de passe de tous les ingénieurs afin de couper définitivement l’accès à l’ancienne documentation"
       ],
       correct: 1,
       exp: 'Conserver l’URL avec un avertissement visible ou rediriger via un code HTTP 301 évite les erreurs 404 et oriente correctement les utilisateurs historiques.'

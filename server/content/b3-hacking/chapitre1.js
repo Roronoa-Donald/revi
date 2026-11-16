@@ -127,34 +127,34 @@ module.exports = {
     {
       "stem": "Quelle démarche réduit le risque juridique avant un test d'intrusion ?",
       "opts": [
-        "Obtenir une autorisation écrite d'une personne habilitée et définir le périmètre et les règles d'engagement",
         "Se contenter d'un accord oral sans vérifier l'autorité ni le périmètre",
+        "Obtenir une autorisation écrite d'une personne habilitée et définir le périmètre et les règles d'engagement",
         "L'utilisation exclusive d'outils open-source réputés sans exploitation de failles",
         "L'avertissement préalable de la police par simple courriel d'information"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Une autorisation écrite préalable d'une personne habilitée et des règles d'engagement précises aident à cadrer et à prouver la mission, mais cette autorisation ne garantit pas à elle seule l'absence de poursuites."
     },
     {
       "stem": "Quelle est la principale caractéristique d'un test d'intrusion conduit en mode \"Boîte Grise\" (Grey Box) ?",
       "opts": [
-        "L'auditeur dispose d'informations partielles, comme un compte utilisateur standard et un plan d'architecture haut niveau",
-        "L'auditeur ne dispose d'absolument aucune information et commence en aveugle",
         "L'auditeur possède un accès complet à l'ensemble des codes sources et comptes administrateurs",
+        "L'auditeur ne dispose d'absolument aucune information et commence en aveugle",
+        "L'auditeur dispose d'informations partielles, comme un compte utilisateur standard et un plan d'architecture haut niveau",
         "L'audit s'effectue exclusivement depuis l'extérieur sans aucun paquet réseau transmis"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Le mode Boîte Grise (Grey Box) fournit un accès restreint (compte standard) pour simuler le scénario le plus réaliste : un employé ou un utilisateur externe dont le compte a été compromis."
     },
     {
       "stem": "Quelle est la différence méthodologique fondamentale entre une équipe \"Red Team\" et un pentest classique ponctuel ?",
       "opts": [
-        "La Red Team simule un adversaire ciblé (APT) dans la durée en testant l'ensemble des défenses physiques, logiques et humaines sans avertir la Blue Team",
+        "La Red Team n'a pas le droit d'utiliser d'exploits et se contente d'audits documentaires",
         "La Red Team se limite uniquement à la recherche de vulnérabilités sur les applications web sans jamais tenter d'accès système",
         "La Red Team est une équipe d'analystes défensifs chargés de surveiller les tableaux de bord SIEM",
-        "La Red Team n'a pas le droit d'utiliser d'exploits et se contente d'audits documentaires"
+        "La Red Team simule un adversaire ciblé (APT) dans la durée en testant l'ensemble des défenses physiques, logiques et humaines sans avertir la Blue Team"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Une Red Team simule une menace avancée persistante (APT) dans des conditions réelles pour évaluer la capacité globale de détection et de réaction de l'organisation (SOC/Blue Team)."
     },
     {
@@ -171,34 +171,34 @@ module.exports = {
     {
       "stem": "Quelle phase de la Cyber Kill Chain de Lockheed Martin correspond à la création d'une charge utile malveillante couplée à un vecteur d'infection ?",
       "opts": [
-        "Weaponization (Arsenalisation)",
         "Reconnaissance",
+        "Weaponization (Arsenalisation)",
         "Delivery (Livraison)",
         "Command & Control (C2)"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "La Weaponization (arsenalisation) consiste à associer un exploit à une charge utile (payload) au sein d'un vecteur distribuable (ex: document piégé ou exécutable)."
     },
     {
       "stem": "Selon le standard CVSS v3.1, quelle note minimale qualifie une vulnérabilité de niveau \"CRITICAL\" ?",
       "opts": [
-        "9.0",
-        "7.0",
         "8.0",
+        "7.0",
+        "9.0",
         "10.0 uniquement"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "La classification qualitative CVSS v3.1 définit le niveau CRITICAL pour tout score de base compris entre 9.0 et 10.0 (High : 7.0 à 8.9, Medium : 4.0 à 6.9, Low : 0.1 à 3.9)."
     },
     {
       "stem": "Pourquoi le standard méthodologique PTES (Penetration Testing Execution Standard) insiste-t-il sur la phase de post-exploitation ?",
       "opts": [
-        "Pour démontrer la valeur métier et l'impact réel de la compromission (données sensibles atteignables, chemins de pivoting) plutôt que de s'arrêter au simple accès shell",
-        "Pour effacer définitivement toutes les données de l'entreprise cliente afin de tester les sauvegardes",
-        "Pour installer des logiciels malveillants permanents monétisables par l'auditeur",
-        "Pour éviter de rédiger le rapport final d'intrusion"
+        "Pour effacer définitivement toutes les données de l'entreprise cliente afin de tester la procédure de restauration des sauvegardes",
+        "Pour installer des logiciels malveillants permanents sur les serveurs afin de les monétiser auprès de commanditaires tiers",
+        "Pour éviter d'avoir à rédiger le rapport final d'intrusion qui détaille toutes les vulnérabilités découvertes chez le client",
+        "Pour démontrer la valeur métier et l'impact réel de la compromission (données sensibles atteignables, chemins de pivoting) plutôt que de s'arrêter au simple accès shell"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "La post-exploitation évalue la criticité réelle pour le métier : quelles données critiques sont exposées, quels serveurs internes peuvent être atteints par rebond, et quel est le risque opérationnel."
     }
   ],

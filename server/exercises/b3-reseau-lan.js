@@ -39,325 +39,429 @@ module.exports = [
         "expected": "STP_BRIDGE name=SW1 vlan=20 total_prio=32788 mac=00:1b:44:11:3a:b7 role=NON_ROOT\nSTP_BRIDGE name=SW2 vlan=20 total_prio=32788 mac=00:1b:44:11:3a:b6 role=ROOT\nROOT_WINNER name=SW2 total_prio=32788 mac=00:1b:44:11:3a:b6"
       }
     ],
-    "solution": "[Exemple]\nSTP_BRIDGE name=SW-ACCESS1 vlan=10 total_prio=32778 mac=00:11:22:11:22:33 role=NON_ROOT\nSTP_BRIDGE name=SW-CORE1 vlan=10 total_prio=32778 mac=00:11:22:33:44:55 role=NON_ROOT\nSTP_BRIDGE name=SW-CORE2 vlan=10 total_prio=4106 mac=00:aa:bb:cc:dd:ee role=ROOT\nROOT_WINNER name=SW-CORE2 total_prio=4106 mac=00:aa:bb:cc:dd:ee\n\n[Cas 1 — Départage sur adresse MAC en cas d'égalité parfaite de priorité]\nSTP_BRIDGE name=SW-A vlan=1 total_prio=32769 mac=00:50:56:00:00:02 role=NON_ROOT\nSTP_BRIDGE name=SW-B vlan=1 total_prio=32769 mac=00:50:56:00:00:01 role=ROOT\nROOT_WINNER name=SW-B total_prio=32769 mac=00:50:56:00:00:01\n\n[Cas 2 — Priorité racine explicite configurée à 0]\nSTP_BRIDGE name=CORE_PRIMARY vlan=100 total_prio=100 mac=02:00:00:aa:bb:cc role=ROOT\nSTP_BRIDGE name=CORE_SECONDARY vlan=100 total_prio=4196 mac=02:00:00:11:22:33 role=NON_ROOT\nROOT_WINNER name=CORE_PRIMARY total_prio=100 mac=02:00:00:aa:bb:cc\n\n[Cas 3 — Formats de MAC avec tirets ou points normalisés]\nSTP_BRIDGE name=SW1 vlan=20 total_prio=32788 mac=00:1b:44:11:3a:b7 role=NON_ROOT\nSTP_BRIDGE name=SW2 vlan=20 total_prio=32788 mac=00:1b:44:11:3a:b6 role=ROOT\nROOT_WINNER name=SW2 total_prio=32788 mac=00:1b:44:11:3a:b6"
+    "solution": "[Exemple]\nSTP_BRIDGE name=SW-ACCESS1 vlan=10 total_prio=32778 mac=00:11:22:11:22:33 role=NON_ROOT\nSTP_BRIDGE name=SW-CORE1 vlan=10 total_prio=32778 mac=00:11:22:33:44:55 role=NON_ROOT\nSTP_BRIDGE name=SW-CORE2 vlan=10 total_prio=4106 mac=00:aa:bb:cc:dd:ee role=ROOT\nROOT_WINNER name=SW-CORE2 total_prio=4106 mac=00:aa:bb:cc:dd:ee\n\n[Cas 1 — Départage sur adresse MAC en cas d'égalité parfaite de priorité]\nSTP_BRIDGE name=SW-A vlan=1 total_prio=32769 mac=00:50:56:00:00:02 role=NON_ROOT\nSTP_BRIDGE name=SW-B vlan=1 total_prio=32769 mac=00:50:56:00:00:01 role=ROOT\nROOT_WINNER name=SW-B total_prio=32769 mac=00:50:56:00:00:01\n\n[Cas 2 — Priorité racine explicite configurée à 0]\nSTP_BRIDGE name=CORE_PRIMARY vlan=100 total_prio=100 mac=02:00:00:aa:bb:cc role=ROOT\nSTP_BRIDGE name=CORE_SECONDARY vlan=100 total_prio=4196 mac=02:00:00:11:22:33 role=NON_ROOT\nROOT_WINNER name=CORE_PRIMARY total_prio=100 mac=02:00:00:aa:bb:cc\n\n[Cas 3 — Formats de MAC avec tirets ou points normalisés]\nSTP_BRIDGE name=SW1 vlan=20 total_prio=32788 mac=00:1b:44:11:3a:b7 role=NON_ROOT\nSTP_BRIDGE name=SW2 vlan=20 total_prio=32788 mac=00:1b:44:11:3a:b6 role=ROOT\nROOT_WINNER name=SW2 total_prio=32788 mac=00:1b:44:11:3a:b6",
+    "takeaway": "À retenir : Simuler l'élection du commutateur racine (Root Bridge) dans une instance Spanning Tree 802.1D / PVST+.\nRepère : SW-CORE2 a la plus faible priorité (4096 + 10 = 4106) et devient Root Bridge."
   },
   {
     "id": "lan3-c1-e2",
     "chapter": 1,
-    "title": "Simulateur de calcul de coût et sélection du Root Port STP",
     "level": "n2",
     "language": "analyse",
-    "goal": "Appliquer les règles de départage STP pour élire le port racine (Root Port) sur un commutateur non-racine.",
-    "brief": "<p>Sur chaque commutateur non-racine, un seul port est élu <strong>Root Port (RP)</strong> : c'est le port offrant le chemin le plus court vers le Root Bridge.<br><br>\nAnalysez les paramètres du problème pour chaque cas. <strong>Le plus faible coût de chemin (Lowest Path Cost) :</strong> <code>path_cost</code> minimal.<br>\n2. <strong>En cas d'égalité :</strong> Le plus faible Bridge ID du commutateur voisin émetteur (<code>sender_bid_prio</code>).<br>\n3. <strong>En cas d'égalité :</strong> Le plus faible Port ID de l'émetteur (<code>sender_port_id</code>).<br>\n4. <strong>En cas d'égalité :</strong> Le plus petit nom de port local dans l'ordre alphabétique (<code>port</code>).<br><br>\nAfficher d'abord l'évaluation de chaque port (triés par nom de port croissant) :<br>\n<code>PORT_EVAL port={port} cost={path_cost} status={ROOT_PORT|ALTERNATE_PORT}</code><br>\nPuis la ligne de synthèse finale :<br>\n<code>SELECTED_ROOT_PORT port={winner_port} total_cost={winner_cost}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c1-e2) — Simulateur de calcul de coût et sélection du Root Port STP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Départage sur le Bridge ID émetteur (sender_bid_prio)]\n# Données : ROOT_PATH port=Fa0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1\n# Données : ROOT_PATH port=Fa0/2 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1\nA_COMPLETER\n\n[Cas 2 — Départage sur le Port ID de l'émetteur distant (sender_port_id)]\n# Données : ROOT_PATH port=Te1/1 path_cost=2 sender_bid_prio=4096 sender_port_id=128.2\n# Données : ROOT_PATH port=Te1/2 path_cost=2 sender_bid_prio=4096 sender_port_id=128.1\nA_COMPLETER\n\n[Cas 3 — Départage final sur le nom du port local]\n# Données : ROOT_PATH port=Eth2 path_cost=10 sender_bid_prio=1000 sender_port_id=1\n# Données : ROOT_PATH port=Eth1 path_cost=10 sender_bid_prio=1000 sender_port_id=1\nA_COMPLETER\n",
+    "title": "Le choix du port racine de l'immeuble Ravel",
+    "exampleTitle": "Exemple résolu — le port racine du site logistique de Norbay",
+    "goal": "Élire le Root Port d'un commutateur d'accès en appliquant l'ordre de départage STP : coût de chemin, puis priorité du BID émetteur, puis Port ID émetteur.",
+    "brief": "<p><strong>Énoncé.</strong> L'immeuble Ravel, siège du cabinet d'expertise comptable Aldan &amp; Fils, est desservi par le commutateur d'étage SW-R3. Celui-ci dispose de trois liaisons montantes vers la couche de distribution. Après convergence du Spanning Tree (802.1D) sur le VLAN 30, l'état des ports est le suivant :</p><table><tr><th>Port local</th><th>Coût de chemin vers la racine</th><th>Priorité du BID émetteur</th><th>Port ID émetteur</th></tr><tr><th>Gi0/1</th><td>8</td><td>24576</td><td>128.2</td></tr><tr><th>Gi0/2</th><td>8</td><td>24576</td><td>128.1</td></tr><tr><th>Gi0/3</th><td>19</td><td>24576</td><td>128.5</td></tr></table><p>Rappel du cours : le Root Port est le port offrant le meilleur chemin vers la racine. L'ordre de départage est : 1) le coût de chemin le plus faible ; 2) la priorité du BID du commutateur émetteur la plus faible ; 3) le Port ID de l'émetteur le plus faible ; 4) le nom de port local le plus petit. Les ports montants non élus passent en blocage (rôle alterné en RSTP).</p><p>Répondez par le nombre seul (questions 1 et 4) ou par de courts libellés.</p><ol><li>Quel est le coût de chemin le plus faible constaté sur SW-R3 ?</li><li>Gi0/1 et Gi0/2 ont le même coût et des émetteurs de même priorité : quel critère les départage ?</li><li>Quel port est élu Root Port sur SW-R3 ?</li><li>Quel est le coût du chemin vers la racine emprunté par le port élu ?</li><li>Dans la topologie convergée, quel état occupent les ports Gi0/1 et Gi0/3 ?</li></ol>",
+    "starter": "# Exercice — Le choix du port racine de l'immeuble Ravel\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 4 : le nombre seul. Questions 2, 3 et 5 : un court libellé.\n\n[Question 1 — Coût de chemin le plus faible]\nA_COMPLETER\n\n[Question 2 — Critère de départage entre Gi0/1 et Gi0/2]\nA_COMPLETER\n\n[Question 3 — Root Port de SW-R3]\nA_COMPLETER\n\n[Question 4 — Coût du chemin retenu]\nA_COMPLETER\n\n[Question 5 — État final des ports Gi0/1 et Gi0/3]\nA_COMPLETER\n",
     "hints": [
-      "Utiliser une clé de tri tuple : (path_cost, sender_bid_prio, sender_port_id, port).",
-      "Le premier élément du tri est l'élu Root Port."
+      "Comparez d'abord les coûts : un port de coût 19 ne peut jamais battre un port de coût 8, quel que soit le reste de sa configuration.",
+      "À coût égal, examinez la priorité du BID émetteur ; si elle est aussi identique, seul le Port ID de l'émetteur peut séparer les deux ports.",
+      "1. Deux ports affichent le coût minimal. 2. Leurs émetteurs ont la même priorité : comparez les Port ID (128.1 contre 128.2). 3. Le port montant non élu ne transmet pas : il bloque."
     ],
     "examples": [
       {
-        "stdin": "ROOT_PATH port=Gi0/1 path_cost=19 sender_bid_prio=32768 sender_port_id=128.1\nROOT_PATH port=Gi0/2 path_cost=4 sender_bid_prio=32768 sender_port_id=128.2\nROOT_PATH port=Gi0/3 path_cost=19 sender_bid_prio=4096 sender_port_id=128.1",
-        "expected": "PORT_EVAL port=Gi0/1 cost=19 status=ALTERNATE_PORT\nPORT_EVAL port=Gi0/2 cost=4 status=ROOT_PORT\nPORT_EVAL port=Gi0/3 cost=19 status=ALTERNATE_PORT\nSELECTED_ROOT_PORT port=Gi0/2 total_cost=4",
-        "note": "Gi0/2 a le coût de chemin le plus bas (4 vs 19) et est élu Root Port."
+        "stdin": "Le site logistique de Norbay exploite le commutateur SW-LOG sur le VLAN 20.\nTe1/1 : coût de chemin 4, priorité du BID émetteur 32788, Port ID émetteur 128.1.\nTe1/2 : coût de chemin 4, priorité du BID émetteur 24696, Port ID émetteur 128.2.\nGi1/0/5 : coût de chemin 19, priorité du BID émetteur 24696, Port ID émetteur 128.7.\n\n1) Coût minimal : 4 (Te1/1 et Te1/2 à égalité).\n2) Départage sur la priorité du BID émetteur : 24696 < 32788, donc Te1/2 l'emporte.\n3) Te1/2 est élu Root Port ; coût du chemin retenu : 4.\n4) Te1/1 et Gi1/0/5 restent en blocage (alternés).",
+        "expected": "coût minimal : 4 — départage par le BID émetteur — Root Port : Te1/2 — coût retenu : 4 — Te1/1 et Gi1/0/5 bloqués",
+        "note": "L'ordre de départage est strict : le coût d'abord, puis le BID émetteur, puis le Port ID ; on ne passe au critère suivant qu'en cas d'égalité parfaite."
       }
     ],
     "tests": [
       {
-        "label": "Départage sur le Bridge ID émetteur (sender_bid_prio)",
-        "stdin": "cas:1",
-        "expected": "PORT_EVAL port=Fa0/1 cost=19 status=ALTERNATE_PORT\nPORT_EVAL port=Fa0/2 cost=19 status=ROOT_PORT\nSELECTED_ROOT_PORT port=Fa0/2 total_cost=19"
+        "label": "Question 1 — Coût de chemin le plus faible",
+        "stdin": "q:1",
+        "expected": "8"
       },
       {
-        "label": "Départage sur le Port ID de l'émetteur distant (sender_port_id)",
-        "stdin": "cas:2",
-        "expected": "PORT_EVAL port=Te1/1 cost=2 status=ALTERNATE_PORT\nPORT_EVAL port=Te1/2 cost=2 status=ROOT_PORT\nSELECTED_ROOT_PORT port=Te1/2 total_cost=2"
+        "label": "Question 2 — Critère de départage entre Gi0/1 et Gi0/2",
+        "stdin": "q:2",
+        "expected": "le Port ID de l'émetteur||le port ID de l'émetteur||le Port ID émetteur||le Port ID||Port ID de l'émetteur||le port ID le plus faible"
       },
       {
-        "label": "Départage final sur le nom du port local",
-        "stdin": "cas:3",
-        "expected": "PORT_EVAL port=Eth1 cost=10 status=ROOT_PORT\nPORT_EVAL port=Eth2 cost=10 status=ALTERNATE_PORT\nSELECTED_ROOT_PORT port=Eth1 total_cost=10"
+        "label": "Question 3 — Root Port de SW-R3",
+        "stdin": "q:3",
+        "expected": "Gi0/2||gi0/2||Gi 0/2||le port Gi0/2"
+      },
+      {
+        "label": "Question 4 — Coût du chemin retenu",
+        "stdin": "q:4",
+        "expected": "8"
+      },
+      {
+        "label": "Question 5 — État final des ports Gi0/1 et Gi0/3",
+        "stdin": "q:5",
+        "expected": "bloqués||bloques||en blocage||blocage||alternés||alternes||alternate||alternatifs"
       }
     ],
-    "solution": "[Exemple]\nPORT_EVAL port=Gi0/1 cost=19 status=ALTERNATE_PORT\nPORT_EVAL port=Gi0/2 cost=4 status=ROOT_PORT\nPORT_EVAL port=Gi0/3 cost=19 status=ALTERNATE_PORT\nSELECTED_ROOT_PORT port=Gi0/2 total_cost=4\n\n[Cas 1 — Départage sur le Bridge ID émetteur (sender_bid_prio)]\nPORT_EVAL port=Fa0/1 cost=19 status=ALTERNATE_PORT\nPORT_EVAL port=Fa0/2 cost=19 status=ROOT_PORT\nSELECTED_ROOT_PORT port=Fa0/2 total_cost=19\n\n[Cas 2 — Départage sur le Port ID de l'émetteur distant (sender_port_id)]\nPORT_EVAL port=Te1/1 cost=2 status=ALTERNATE_PORT\nPORT_EVAL port=Te1/2 cost=2 status=ROOT_PORT\nSELECTED_ROOT_PORT port=Te1/2 total_cost=2\n\n[Cas 3 — Départage final sur le nom du port local]\nPORT_EVAL port=Eth1 cost=10 status=ROOT_PORT\nPORT_EVAL port=Eth2 cost=10 status=ALTERNATE_PORT\nSELECTED_ROOT_PORT port=Eth1 total_cost=10"
+    "solution": "[Question 1 — Coût de chemin le plus faible]\n8\n\n[Question 2 — Critère de départage entre Gi0/1 et Gi0/2]\nle Port ID de l'émetteur\n\n[Question 3 — Root Port de SW-R3]\nGi0/2\n\n[Question 4 — Coût du chemin retenu]\n8\n\n[Question 5 — État final des ports Gi0/1 et Gi0/3]\nbloqués",
+    "takeaway": "1) Les coûts de chemin annoncés sont 8, 8 et 19 : le plus faible est 8.\n2) Gi0/1 et Gi0/2 affichent le même coût (8) et des émetteurs de même priorité (24576) : le départage se fait sur le Port ID de l'émetteur, le plus faible l'emportant.\n3) 128.1 (Gi0/2) bat 128.2 (Gi0/1) : Gi0/2 est élu Root Port.\n4) Le chemin vers la racine emprunté par Gi0/2 coûte 8.\n5) Les ports Gi0/1 et Gi0/3, non élus, passent en blocage (rôle alterné en RSTP).\nContrôle : un commutateur non racine ne possède qu'un seul Root Port ; les trois liaisons montantes ne peuvent pas transmettre simultanément sans créer une boucle."
   },
   {
     "id": "lan3-c1-e3",
     "chapter": 1,
-    "title": "Auditeur de protection Spanning Tree (BPDU Guard, Root Guard & Loop Guard)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler les réactions des mécanismes de durcissement STP face aux anomalies topologiques.",
-    "brief": "<p>Pour protéger la topologie Spanning Tree contre les attaques et les erreurs de câblage, les commutateurs d'entreprise disposent de fonctionnalités de protection avancées :<br>\n- <strong>BPDU Guard :</strong> Si une BPDU arrive sur un port d'accès configuré avec PortFast, le port est immédiatement désactivé par sécurité (<code>ERR_DISABLE</code>).<br>\n- <strong>Root Guard :</strong> Si une BPDU supérieure revendiquant le rôle de racine arrive sur un port désigné, le port passe en état incohérent (<code>ROOT_INCONSISTENT</code>) et bloque le trafic.<br>\n- <strong>Loop Guard :</strong> Si les BPDUs cessent d'arriver sur un port racine ou alternatif sans transition normale, le port passe en <code>LOOP_INCONSISTENT</code> pour éviter une boucle unidirectionnelle.<br><br>\nAnalysez les paramètres du problème pour chaque cas. <strong>Si type == 'BPDU_RECEIVED' :</strong><br>\n   - Si <code>bpdu_guard == 'YES'</code> : <code>status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION</code><br>\n   - Sinon : <code>status=FORWARDING action=NORMAL_PROCESSING reason=BPDU_ACCEPTED</code><br>\n2. <strong>Si type == 'SUPERIOR_BPDU' :</strong><br>\n   - Si <code>root_guard == 'YES'</code> : <code>status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED</code><br>\n   - Sinon : <code>status=RECONFIGURING action=ELECT_NEW_ROOT reason=ROOT_MIGRATION</code><br>\n3. <strong>Si type == 'BPDU_TIMEOUT' :</strong><br>\n   - Si <code>loop_guard == 'YES'</code> : <code>status=LOOP_INCONSISTENT action=BLOCK_UNIDIRECTIONAL reason=LOOP_GUARD_TRIGGERED</code><br>\n   - Sinon : <code>status=TRANSITION_FORWARDING action=STP_AGED_OUT reason=POTENTIAL_LOOP_RISK</code><br><br>\nPour chaque événement, afficher :<br>\n<code>STP_GUARD_REPORT port={port} event={type} status={status} action={action} reason={reason}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c1-e3) — Auditeur de protection Spanning Tree (BPDU Guard, Root Guard & Loop Guard)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Événements sur ports sans protection activée]\n# Données : PORT name=Fa0/10 bpdu_guard=NO root_guard=NO loop_guard=NO\n# Données : EVENT port=Fa0/10 type=BPDU_RECEIVED\n# Données : EVENT port=Fa0/10 type=SUPERIOR_BPDU\n# Données : EVENT port=Fa0/10 type=BPDU_TIMEOUT\nA_COMPLETER\n\n[Cas 2 — Combinaison de protections multiples sur le même équipement]\n# Données : PORT name=Uplink1 bpdu_guard=NO root_guard=YES loop_guard=YES\n# Données : EVENT port=Uplink1 type=SUPERIOR_BPDU\nA_COMPLETER\n\n[Cas 3 — Port utilisateur violant la politique PortFast avec BPDU Guard]\n# Données : PORT name=UserPort1 bpdu_guard=YES root_guard=NO loop_guard=NO\n# Données : EVENT port=UserPort1 type=BPDU_RECEIVED\nA_COMPLETER\n",
+    "title": "L'audit de protection STP de la banque Cévale",
+    "exampleTitle": "Exemple résolu — les incidents STP de l'usine de Sorans",
+    "goal": "Diagnostiquer les incidents des protections STP (BPDU Guard, Root Guard, Loop Guard) et connaître leurs conditions de rétablissement.",
+    "brief": "<p><strong>Énoncé.</strong> La banque régionale Cévale vient de subir trois incidents sur son commutateur d'étage SW-ACC1. Le consultant de la société Infranet relève, pour chaque port, l'exigence de sécurité à respecter et l'incident constaté :</p><table><tr><th>Port</th><th>Exigence de sécurité</th><th>Incident constaté</th></tr><tr><th>Fa0/12 (prise de salle de réunion, PortFast actif)</th><td>La réception d'une BPDU sur une prise utilisateur doit couper immédiatement le port</td><td>Un visiteur a branché un mini-commutateur personnel : une BPDU est reçue</td></tr><tr><th>Gi0/1 (lien vers le commutateur d'un prestataire)</th><td>Le prestataire ne doit jamais devenir racine sur ce segment</td><td>Le prestataire passe la priorité de base de son commutateur à 0 : des BPDUs supérieures arrivent</td></tr><tr><th>Gi0/2 (lien montant fibre, port racine)</th><td>Si les BPDUs n'arrivent plus sans transition normale, le port doit se bloquer pour éviter une boucle</td><td>Une fibre endommagée ne laisse passer les trames que dans un seul sens : plus aucune BPDU reçue</td></tr></table><p>Rappel du cours : BPDU Guard désactive (err-disabled) tout port PortFast qui reçoit une BPDU ; Root Guard place un port en état « root inconsistent » tant que des BPDUs supérieures y arrivent, puis le rétablit automatiquement dès qu'elles cessent ; Loop Guard place un port racine ou alterné en état « loop inconsistent » quand les BPDUs disparaissent, pour empêcher une boucle unidirectionnelle.</p><p>Répondez par les noms exacts des mécanismes ou des états ; la question 5 appelle « oui » ou « non ».</p><ol><li>Quel mécanisme a placé le port Fa0/12 en err-disabled ?</li><li>Quel état spécifique affiche le port Gi0/1 tant qu'il reçoit les BPDUs supérieures du prestataire ?</li><li>Quel mécanisme protège Gi0/2 contre la boucle unidirectionnelle ?</li><li>Quelle manipulation manuelle le technicien doit-il exécuter pour réactiver Fa0/12 après l'incident ?</li><li>Une fois le prestataire corrigé, Gi0/1 revient-il seul en transmission, sans intervention ?</li></ol>",
+    "starter": "# Exercice — L'audit de protection STP de la banque Cévale\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : le nom du mécanisme ou de l'état. Question 4 : les deux commandes.\n# Question 5 : oui ou non.\n\n[Question 1 — Mécanisme ayant désactivé Fa0/12]\nA_COMPLETER\n\n[Question 2 — État affiché par Gi0/1]\nA_COMPLETER\n\n[Question 3 — Mécanisme protégeant Gi0/2]\nA_COMPLETER\n\n[Question 4 — Manipulation pour réactiver Fa0/12]\nA_COMPLETER\n\n[Question 5 — Rétablissement automatique de Gi0/1 ?]\nA_COMPLETER\n",
     "hints": [
-      "Gérer un dictionnaire de configuration indexé par le nom du port.",
-      "Tester les cas de BPDU_RECEIVED, SUPERIOR_BPDU et BPDU_TIMEOUT selon les flags."
+      "Le port Fa0/12 est un port d'accès avec PortFast : seule la protection dédiée aux BPDUs non attendues place ce type de port en err-disabled.",
+      "Root Guard et Loop Guard réagissent à des anomalies opposées : une BPDU trop bonne qui arrive, et des BPDUs qui disparaissent.",
+      "1. BPDU Guard coupe le port ; sa réactivation est manuelle. 2. Root Guard bloque tant que la BPDU supérieure arrive, puis relâche seul. 3. Loop Guard réagit à l'absence de BPDU sur un port racine ou alterné."
     ],
     "examples": [
       {
-        "stdin": "PORT name=Gi0/1 bpdu_guard=YES root_guard=NO loop_guard=NO\nPORT name=Gi0/2 bpdu_guard=NO root_guard=YES loop_guard=NO\nPORT name=Gi0/3 bpdu_guard=NO root_guard=NO loop_guard=YES\nEVENT port=Gi0/1 type=BPDU_RECEIVED\nEVENT port=Gi0/2 type=SUPERIOR_BPDU\nEVENT port=Gi0/3 type=BPDU_TIMEOUT",
-        "expected": "STP_GUARD_REPORT port=Gi0/1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION\nSTP_GUARD_REPORT port=Gi0/2 event=SUPERIOR_BPDU status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED\nSTP_GUARD_REPORT port=Gi0/3 event=BPDU_TIMEOUT status=LOOP_INCONSISTENT action=BLOCK_UNIDIRECTIONAL reason=LOOP_GUARD_TRIGGERED",
-        "note": "Gi0/1 est désactivé par BPDU Guard ; Gi0/2 bloque la tentative d'usurpation du Root ; Gi0/3 prévient une boucle unidirectionnelle."
+        "stdin": "À l'usine de Sorans, deux incidents sont constatés sur SW-AT2.\nPort Fa0/20 (PortFast + BPDU Guard) : un commutateur est branché lors d'un séminaire, une BPDU arrive.\nPort Gi0/2 (Root Guard) : le commutateur voisin annonce une priorité meilleure que celle de la racine.\n\n1) Fa0/20 reçoit une BPDU : BPDU Guard le place en err-disabled.\n2) Gi0/2 affiche l'état root inconsistent et bloque le trafic.\n3) Fa0/20 exige un shutdown puis un no shutdown manuels.\n4) Une fois le voisin corrigé, Gi0/2 se rétablit seul.",
+        "expected": "Fa0/20 : BPDU Guard, err-disabled — Gi0/2 : root inconsistent — réactivation manuelle de Fa0/20 — rétablissement automatique de Gi0/2",
+        "note": "Seule la protection BPDU Guard exige une intervention manuelle : Root Guard et Loop Guard se rétablissent d'eux-mêmes quand l'anomalie disparaît."
       }
     ],
     "tests": [
       {
-        "label": "Événements sur ports sans protection activée",
-        "stdin": "cas:1",
-        "expected": "STP_GUARD_REPORT port=Fa0/10 event=BPDU_RECEIVED status=FORWARDING action=NORMAL_PROCESSING reason=BPDU_ACCEPTED\nSTP_GUARD_REPORT port=Fa0/10 event=SUPERIOR_BPDU status=RECONFIGURING action=ELECT_NEW_ROOT reason=ROOT_MIGRATION\nSTP_GUARD_REPORT port=Fa0/10 event=BPDU_TIMEOUT status=TRANSITION_FORWARDING action=STP_AGED_OUT reason=POTENTIAL_LOOP_RISK"
+        "label": "Question 1 — Mécanisme ayant désactivé Fa0/12",
+        "stdin": "q:1",
+        "expected": "BPDU Guard||bpduguard||la BPDU Guard||BPDU_Guard"
       },
       {
-        "label": "Combinaison de protections multiples sur le même équipement",
-        "stdin": "cas:2",
-        "expected": "STP_GUARD_REPORT port=Uplink1 event=SUPERIOR_BPDU status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED"
+        "label": "Question 2 — État affiché par Gi0/1",
+        "stdin": "q:2",
+        "expected": "root inconsistent||root_inconsistent||root-inconsistent||ROOT_INCONSISTENT"
       },
       {
-        "label": "Port utilisateur violant la politique PortFast avec BPDU Guard",
-        "stdin": "cas:3",
-        "expected": "STP_GUARD_REPORT port=UserPort1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION"
+        "label": "Question 3 — Mécanisme protégeant Gi0/2",
+        "stdin": "q:3",
+        "expected": "Loop Guard||loopguard||la Loop Guard||Loop_Guard"
+      },
+      {
+        "label": "Question 4 — Manipulation pour réactiver Fa0/12",
+        "stdin": "q:4",
+        "expected": "shutdown puis no shutdown||shutdown / no shutdown||shutdown no shutdown||shutdown et no shutdown||shutdown, puis no shutdown"
+      },
+      {
+        "label": "Question 5 — Rétablissement automatique de Gi0/1 ?",
+        "stdin": "q:5",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\nSTP_GUARD_REPORT port=Gi0/1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION\nSTP_GUARD_REPORT port=Gi0/2 event=SUPERIOR_BPDU status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED\nSTP_GUARD_REPORT port=Gi0/3 event=BPDU_TIMEOUT status=LOOP_INCONSISTENT action=BLOCK_UNIDIRECTIONAL reason=LOOP_GUARD_TRIGGERED\n\n[Cas 1 — Événements sur ports sans protection activée]\nSTP_GUARD_REPORT port=Fa0/10 event=BPDU_RECEIVED status=FORWARDING action=NORMAL_PROCESSING reason=BPDU_ACCEPTED\nSTP_GUARD_REPORT port=Fa0/10 event=SUPERIOR_BPDU status=RECONFIGURING action=ELECT_NEW_ROOT reason=ROOT_MIGRATION\nSTP_GUARD_REPORT port=Fa0/10 event=BPDU_TIMEOUT status=TRANSITION_FORWARDING action=STP_AGED_OUT reason=POTENTIAL_LOOP_RISK\n\n[Cas 2 — Combinaison de protections multiples sur le même équipement]\nSTP_GUARD_REPORT port=Uplink1 event=SUPERIOR_BPDU status=ROOT_INCONSISTENT action=BLOCK_TRAFFIC reason=ROOT_GUARD_TRIGGERED\n\n[Cas 3 — Port utilisateur violant la politique PortFast avec BPDU Guard]\nSTP_GUARD_REPORT port=UserPort1 event=BPDU_RECEIVED status=ERR_DISABLE action=PORT_SHUTDOWN reason=BPDU_GUARD_VIOLATION"
+    "solution": "[Question 1 — Mécanisme ayant désactivé Fa0/12]\nBPDU Guard\n\n[Question 2 — État affiché par Gi0/1]\nroot inconsistent\n\n[Question 3 — Mécanisme protégeant Gi0/2]\nLoop Guard\n\n[Question 4 — Manipulation pour réactiver Fa0/12]\nshutdown puis no shutdown\n\n[Question 5 — Rétablissement automatique de Gi0/1 ?]\noui",
+    "takeaway": "1) Fa0/12 est un port PortFast qui a reçu une BPDU : BPDU Guard l'a placé en err-disabled.\n2) Gi0/1 reçoit des BPDUs supérieures alors qu'il ne doit jamais voir le prestataire devenir racine : Root Guard l'affiche en état root inconsistent et bloque le trafic.\n3) La disparition des BPDUs sur un port racine est le déclencheur de Loop Guard, qui place Gi0/2 en loop inconsistent pour empêcher la boucle unidirectionnelle.\n4) Un port en err-disabled ne se réactive pas seul : le technicien doit exécuter shutdown puis no shutdown.\n5) Oui : dès que le prestataire cesse d'émettre des BPDUs supérieures, Root Guard rétablit Gi0/1 automatiquement.\nContrôle : trois exigences de sécurité distinctes, trois mécanismes distincts ; un seul d'entre eux (BPDU Guard) exige une action manuelle."
   },
   {
     "id": "lan3-c2-e1",
     "chapter": 2,
-    "title": "Négociateur d'agrégation EtherChannel (LACP 802.3ad vs PAgP vs ON)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Déterminer si un lien EtherChannel s'établit entre deux commutateurs selon les protocoles et modes configurés.",
-    "brief": "<p>L'agrégation de liens (<strong>EtherChannel</strong>) regroupe jusqu'à 8 liaisons Ethernet physiques en un seul lien logique (Port-Channel) pour multiplier la bande passante et assurer la tolérance aux pannes.<br><br>\nLes protocoles de négociation et leurs modes associés :<br>\n- <strong>LACP (IEEE 802.3ad / 802.1AX) :</strong> modes <code>ACTIVE</code> (sollicite activement) et <code>PASSIVE</code> (attend les trames LACP).<br>\n  - <code>ACTIVE + ACTIVE</code> ou <code>ACTIVE + PASSIVE</code> &rarr; <code>CHANNEL_UP (LACP)</code>.<br>\n  - <code>PASSIVE + PASSIVE</code> &rarr; <code>NO_CHANNEL (PASSIVE_MISMATCH)</code>.<br>\n- <strong>PAgP (Cisco propriétaire) :</strong> modes <code>DESIRABLE</code> (sollicite) et <code>AUTO</code> (attend).<br>\n  - <code>DESIRABLE + DESIRABLE</code> ou <code>DESIRABLE + AUTO</code> &rarr; <code>CHANNEL_UP (PAGP)</code>.<br>\n  - <code>AUTO + AUTO</code> &rarr; <code>NO_CHANNEL (AUTO_MISMATCH)</code>.<br>\n- <strong>Statique (Mode ON forcé sans protocole) :</strong> mode <code>ON</code>.<br>\n  - <code>ON + ON</code> &rarr; <code>CHANNEL_UP (STATIC)</code>.<br>\n  - <code>ON + (LACP ou PAgP)</code> &rarr; <code>ERROR_MISMATCH</code>.<br>\n- <strong>Mélange de protocoles incompatibles (ex: LACP + PAgP) :</strong> &rarr; <code>ERROR_PROTOCOL_INCOMPATIBLE</code>.<br><br>\nl’étude de cas comporte dans l’énoncé du cas des scénarios de négociation :<br>\n<code>NEGOTIATION id=&lt;nom&gt; side_a_proto=&lt;LACP|PAGP|STATIC&gt; side_a_mode=&lt;ACTIVE|PASSIVE|DESIRABLE|AUTO|ON&gt; side_b_proto=&lt;LACP|PAGP|STATIC&gt; side_b_mode=&lt;ACTIVE|PASSIVE|DESIRABLE|AUTO|ON&gt;</code><br><br>\nPour chaque négociation, afficher :<br>\n<code>ETHERCHANNEL_EVAL id={id} status={status} proto={matched_proto} detail={detail}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c2-e1) — Négociateur d'agrégation EtherChannel (LACP 802.3ad vs PAgP vs ON)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mode statique ON parfait vs décalage de mode]\n# Données : NEGOTIATION id=ST1 side_a_proto=STATIC side_a_mode=ON side_b_proto=STATIC side_b_mode=ON\n# Données : NEGOTIATION id=ST2 side_a_proto=STATIC side_a_mode=ON side_b_proto=LACP side_b_mode=ACTIVE\nA_COMPLETER\n\n[Cas 2 — PAgP symétrique et asymétrique]\n# Données : NEGOTIATION id=PG1 side_a_proto=PAGP side_a_mode=DESIRABLE side_b_proto=PAGP side_b_mode=DESIRABLE\n# Données : NEGOTIATION id=PG2 side_a_proto=PAGP side_a_mode=AUTO side_b_proto=PAGP side_b_mode=AUTO\nA_COMPLETER\n\n[Cas 3 — LACP symétrique ACTIVE des deux côtés]\n# Données : NEGOTIATION id=LAC1 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=LACP side_b_mode=ACTIVE\nA_COMPLETER\n",
+    "title": "La négociation des cinq agrégats du Crédit du Val",
+    "exampleTitle": "Exemple résolu — les agrégats du lycée technique de Vimeux",
+    "goal": "Prédire la formation d'un port-channel selon les modes de négociation LACP (active/passive), PAgP (desirable/auto) et le mode statique on.",
+    "brief": "<p><strong>Énoncé.</strong> Le Crédit du Val, banque régionale de 40 agences, relie ses étages et son bloc serveurs au commutateur central de la salle machine. Pour chaque liaison candidate, le technicien note le mode d'agrégation configuré sur chaque extrémité :</p><table><tr><th>Agrégat</th><th>Extrémité A</th><th>Extrémité B</th></tr><tr><th>Po-A (vers le bloc serveurs)</th><td>active</td><td>passive</td></tr><tr><th>Po-B (vers l'étage 2)</th><td>active</td><td>on</td></tr><tr><th>Po-C (vers l'étage 3)</th><td>desirable</td><td>auto</td></tr><tr><th>Po-D (vers la salle des archives)</th><td>passive</td><td>passive</td></tr><tr><th>Po-E (vers le coffre-fort numérique)</th><td>on</td><td>on</td></tr></table><p>Rappel du cours : LACP (norme 802.3ad) négocie entre les modes active et passive ; PAgP (propriétaire Cisco) négocie entre les modes desirable et auto ; le mode on force l'agrégation sans aucune négociation. Un canal se forme entre deux ports LACP si au moins une extrémité est active, entre deux ports PAgP si au moins une extrémité est desirable, et entre deux ports on ; aucune combinaison mixte (LACP contre PAgP, ou négociation contre on) ne forme de canal.</p><p>La question 1 appelle le nom du protocole ; les questions 2 à 6 appellent « oui » ou « non ».</p><ol><li>À quel protocole de négociation appartiennent les modes « active » et « passive » ?</li><li>L'agrégat Po-A (active + passive) forme-t-il un canal ?</li><li>L'agrégat Po-B (active + on) forme-t-il un canal ?</li><li>L'agrégat Po-C (desirable + auto) forme-t-il un canal ?</li><li>L'agrégat Po-D (passive + passive) forme-t-il un canal ?</li><li>L'agrégat Po-E (on + on) forme-t-il un canal ?</li></ol>",
+    "starter": "# Exercice — La négociation des cinq agrégats du Crédit du Val\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : le nom du protocole. Questions 2 à 6 : oui ou non.\n\n[Question 1 — Protocole des modes active et passive]\nA_COMPLETER\n\n[Question 2 — Po-A (active + passive) : canal formé ?]\nA_COMPLETER\n\n[Question 3 — Po-B (active + on) : canal formé ?]\nA_COMPLETER\n\n[Question 4 — Po-C (desirable + auto) : canal formé ?]\nA_COMPLETER\n\n[Question 5 — Po-D (passive + passive) : canal formé ?]\nA_COMPLETER\n\n[Question 6 — Po-E (on + on) : canal formé ?]\nA_COMPLETER\n",
     "hints": [
-      "Vérifier d'abord si side_a_proto == side_b_proto.",
-      "Si LACP : formé sauf si les deux côtés sont PASSIVE.",
-      "Si PAGP : formé sauf si les deux côtés sont AUTO.",
-      "Si STATIC : formé uniquement si les deux côtés sont ON."
+      "Identifiez d'abord la famille de chaque mode : active/passive appartiennent à LACP, desirable/auto à PAgP, on n'appartient à aucun protocole de négociation.",
+      "Un canal LACP exige au moins un côté active ; un canal PAgP exige au moins un côté desirable ; le mode on doit faire face à un autre mode on.",
+      "1. Po-A : LACP avec un côté actif. 2. Po-B : LACP contre on, aucune négociation commune. 3. Po-C : PAgP avec un côté desirable. 4. Po-D : aucun côté ne prend l'initiative. 5. Po-E : deux modes on se répondent."
     ],
     "examples": [
       {
-        "stdin": "NEGOTIATION id=LINK1 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=LACP side_b_mode=PASSIVE\nNEGOTIATION id=LINK2 side_a_proto=LACP side_a_mode=PASSIVE side_b_proto=LACP side_b_mode=PASSIVE\nNEGOTIATION id=LINK3 side_a_proto=PAGP side_a_mode=DESIRABLE side_b_proto=PAGP side_b_mode=AUTO\nNEGOTIATION id=LINK4 side_a_proto=LACP side_a_mode=ACTIVE side_b_proto=PAGP side_b_mode=DESIRABLE",
-        "expected": "ETHERCHANNEL_EVAL id=LINK1 status=CHANNEL_UP proto=LACP detail=ACTIVE_PASSIVE_MATCH\nETHERCHANNEL_EVAL id=LINK2 status=NO_CHANNEL proto=LACP detail=PASSIVE_MISMATCH\nETHERCHANNEL_EVAL id=LINK3 status=CHANNEL_UP proto=PAGP detail=DESIRABLE_AUTO_MATCH\nETHERCHANNEL_EVAL id=LINK4 status=ERROR proto=NONE detail=PROTOCOL_INCOMPATIBLE",
-        "note": "LINK1 forme un bundle LACP ; LINK2 reste inactif car les deux sont passifs ; LINK4 tente de mélanger deux protocoles incompatibles."
+        "stdin": "Le lycée technique de Vimeux teste quatre agrégats entre sa salle machine et ses deux bâtiments.\nPo-1 : active + active. Po-2 : desirable + desirable.\nPo-3 : auto + auto. Po-4 : passive + desirable.\n\n1) Po-1 : LACP avec deux extrémités actives : canal formé.\n2) Po-2 : PAgP avec deux extrémités desirable : canal formé.\n3) Po-3 : PAgP auto + auto, aucun côté ne négocie : pas de canal.\n4) Po-4 : LACP passif face à PAgP desirable, protocoles incompatibles : pas de canal.",
+        "expected": "Po-1 : canal formé — Po-2 : canal formé — Po-3 : pas de canal — Po-4 : pas de canal (protocoles différents)",
+        "note": "Passive + passive et auto + auto échouent pour la même raison : aucune des deux extrémités ne prend l'initiative de la négociation."
       }
     ],
     "tests": [
       {
-        "label": "Mode statique ON parfait vs décalage de mode",
-        "stdin": "cas:1",
-        "expected": "ETHERCHANNEL_EVAL id=ST1 status=CHANNEL_UP proto=STATIC detail=STATIC_ON_MATCH\nETHERCHANNEL_EVAL id=ST2 status=ERROR proto=NONE detail=PROTOCOL_INCOMPATIBLE"
+        "label": "Question 1 — Protocole des modes active et passive",
+        "stdin": "q:1",
+        "expected": "LACP||le LACP||lacp 802.3ad||802.3ad"
       },
       {
-        "label": "PAgP symétrique et asymétrique",
-        "stdin": "cas:2",
-        "expected": "ETHERCHANNEL_EVAL id=PG1 status=CHANNEL_UP proto=PAGP detail=DESIRABLE_MATCH\nETHERCHANNEL_EVAL id=PG2 status=NO_CHANNEL proto=PAGP detail=AUTO_MISMATCH"
+        "label": "Question 2 — Po-A (active + passive) : canal formé ?",
+        "stdin": "q:2",
+        "expected": "oui"
       },
       {
-        "label": "LACP symétrique ACTIVE des deux côtés",
-        "stdin": "cas:3",
-        "expected": "ETHERCHANNEL_EVAL id=LAC1 status=CHANNEL_UP proto=LACP detail=ACTIVE_MATCH"
+        "label": "Question 3 — Po-B (active + on) : canal formé ?",
+        "stdin": "q:3",
+        "expected": "non"
+      },
+      {
+        "label": "Question 4 — Po-C (desirable + auto) : canal formé ?",
+        "stdin": "q:4",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 5 — Po-D (passive + passive) : canal formé ?",
+        "stdin": "q:5",
+        "expected": "non"
+      },
+      {
+        "label": "Question 6 — Po-E (on + on) : canal formé ?",
+        "stdin": "q:6",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\nETHERCHANNEL_EVAL id=LINK1 status=CHANNEL_UP proto=LACP detail=ACTIVE_PASSIVE_MATCH\nETHERCHANNEL_EVAL id=LINK2 status=NO_CHANNEL proto=LACP detail=PASSIVE_MISMATCH\nETHERCHANNEL_EVAL id=LINK3 status=CHANNEL_UP proto=PAGP detail=DESIRABLE_AUTO_MATCH\nETHERCHANNEL_EVAL id=LINK4 status=ERROR proto=NONE detail=PROTOCOL_INCOMPATIBLE\n\n[Cas 1 — Mode statique ON parfait vs décalage de mode]\nETHERCHANNEL_EVAL id=ST1 status=CHANNEL_UP proto=STATIC detail=STATIC_ON_MATCH\nETHERCHANNEL_EVAL id=ST2 status=ERROR proto=NONE detail=PROTOCOL_INCOMPATIBLE\n\n[Cas 2 — PAgP symétrique et asymétrique]\nETHERCHANNEL_EVAL id=PG1 status=CHANNEL_UP proto=PAGP detail=DESIRABLE_MATCH\nETHERCHANNEL_EVAL id=PG2 status=NO_CHANNEL proto=PAGP detail=AUTO_MISMATCH\n\n[Cas 3 — LACP symétrique ACTIVE des deux côtés]\nETHERCHANNEL_EVAL id=LAC1 status=CHANNEL_UP proto=LACP detail=ACTIVE_MATCH"
+    "solution": "[Question 1 — Protocole des modes active et passive]\nLACP\n\n[Question 2 — Po-A (active + passive) : canal formé ?]\noui\n\n[Question 3 — Po-B (active + on) : canal formé ?]\nnon\n\n[Question 4 — Po-C (desirable + auto) : canal formé ?]\noui\n\n[Question 5 — Po-D (passive + passive) : canal formé ?]\nnon\n\n[Question 6 — Po-E (on + on) : canal formé ?]\noui",
+    "takeaway": "1) Les modes active et passive appartiennent à LACP (norme 802.3ad).\n2) Po-A : une extrémité active suffit pour lancer la négociation LACP, le canal se forme.\n3) Po-B : le mode on force l'agrégation sans négocier ; face à un port LACP active, aucune entente n'est possible : pas de canal.\n4) Po-C : desirable et auto sont deux modes PAgP, et une extrémité desirable suffit : le canal se forme.\n5) Po-D : deux extrémités passives n'émettent aucune trame de négociation LACP : pas de canal.\n6) Po-E : deux modes on forcent l'agrégation des deux côtés : le canal se forme, sans négociation ni détection de panne de protocole.\nContrôle : trois canaux se forment (Po-A, Po-C, Po-E) ; les échecs concernent soit l'absence d'initiateur (Po-D), soit des modes incompatibles (Po-B)."
   },
   {
     "id": "lan3-c2-e2",
     "chapter": 2,
-    "title": "Simulateur de répartition de charge EtherChannel (Algorithme de Hachage)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Calculer le port physique d'émission sélectionné par la fonction de hachage du commutateur.",
-    "brief": "<p>Un commutateur ne distribue pas les paquets en Round-Robin simple sur un EtherChannel car cela provoquerait des réordonnancements de paquets TCP néfastes. Il applique une fonction mathématique de <strong>hachage (Load Balancing Hash)</strong> basée sur les en-têtes réseau.<br><br>\nAnalysez les paramètres du problème pour chaque cas...&gt; method=&lt;src-mac|dst-mac|src-dst-mac|src-dst-ip|src-dst-port&gt;</code><br>\nPuis des paquets en transit :<br>\n<code>PACKET id=&lt;nom&gt; src_mac=&lt;mac&gt; dst_mac=&lt;mac&gt; src_ip=&lt;ip&gt; dst_ip=&lt;ip&gt; src_port=&lt;int&gt; dst_port=&lt;int&gt;</code><br><br>\nAlgorithme de calcul de l'index de port (<code>k = len(ports)</code>) :<br>\n- <strong>src-mac :</strong> <code>hash_val = dernier_octet_hexa(src_mac)</code> &rarr; <code>idx = hash_val % k</code>.<br>\n- <strong>dst-mac :</strong> <code>hash_val = dernier_octet_hexa(dst_mac)</code> &rarr; <code>idx = hash_val % k</code>.<br>\n- <strong>src-dst-mac :</strong> <code>hash_val = dernier_octet_hexa(src_mac) ^ dernier_octet_hexa(dst_mac)</code> &rarr; <code>idx = hash_val % k</code>.<br>\n- <strong>src-dst-ip :</strong> <code>hash_val = dernier_octet_dec(src_ip) ^ dernier_octet_dec(dst_ip)</code> &rarr; <code>idx = hash_val % k</code>.<br>\n- <strong>src-dst-port :</strong> <code>hash_val = src_port ^ dst_port</code> &rarr; <code>idx = hash_val % k</code>.<br><br>\nPour chaque paquet, afficher :<br>\n<code>LB_REPORT id={id} bundle={name} hash_idx={idx} port={ports[idx]}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c2-e2) — Simulateur de répartition de charge EtherChannel (Algorithme de Hachage)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Hachage par src-dst-port avec 2 ports membres]\n# Données : BUNDLE name=Po2 ports=Te1/1,Te1/2 method=src-dst-port\n# Données : PACKET id=TCP_FLOW src_mac=00:00:00:00:00:01 dst_mac=00:00:00:00:00:02 src_ip=1.1.1.1 dst_ip=2.2.2.2 src_port=40001 dst_port=443\nA_COMPLETER\n\n[Cas 2 — Hachage par src-dst-mac avec conversion hexadécimale]\n# Données : BUNDLE name=Po10 ports=Eth1,Eth2,Eth3 method=src-dst-mac\n# Données : PACKET id=MCAST src_mac=00:11:22:33:44:0a dst_mac=00:11:22:33:44:0f src_ip=10.0.0.1 dst_ip=10.0.0.2 src_port=123 dst_port=123\nA_COMPLETER\n\n[Cas 3 — Hachage par dst-mac unique]\n# Données : BUNDLE name=PoSingle ports=Fa0/1,Fa0/2,Fa0/3,Fa0/4 method=dst-mac\n# Données : PACKET id=P1 src_mac=00:00:00:00:00:00 dst_mac=00:00:00:00:00:07 src_ip=0.0.0.0 dst_ip=0.0.0.0 src_port=0 dst_port=0\nA_COMPLETER\n",
+    "title": "Le dimensionnement du port-channel Po1 de Pharmalys",
+    "exampleTitle": "Exemple résolu — le port-channel du studio Vidéralp",
+    "goal": "Dimensionner un lien trunk agrégé (bande passante totale, débit d'un flux unique, panne d'un membre) et prédire le lien utilisé par hachage.",
+    "brief": "<p><strong>Énoncé.</strong> Pharmalys, laboratoire pharmaceutique de 900 salariés, sature son unique liaison 1 Gbit/s entre le commutateur d'étage SW-ET4 et le cœur de réseau. L'administrateur agrège quatre liaisons cuivre 1 Gbit/s dans le port-channel Po1 (membres Gi2/0/1 à Gi2/0/4). La répartition de charge s'appuie sur un hachage des adresses IP source et destination ; pour simplifier, le lien utilisé par un flux est déterminé par le dernier octet des deux adresses : numéro de lien = (octet_source XOR octet_destination) mod 4, les liens étant numérotés de 0 à 3.</p><p>Rappels du cours : la bande passante d'un port-channel est la somme des débits de ses membres actifs ; un flux unique (un couple d'adresses IP, une « conversation ») emprunte toujours un seul lien du canal.</p><p>Répondez par le nombre seul (débit en Gbit/s, ou numéro de lien).</p><ol><li>Quelle est la bande passante théorique du port-channel Po1, en Gbit/s ?</li><li>Un transfert unique relie le serveur de paie (192.168.10.10) à l'imprimante badgeuse (192.168.10.100) : quelle bande passante maximale, en Gbit/s, ce flux peut-il atteindre ?</li><li>Quel lien (numéro 0 à 3) emprunte le flux de la question 2 ?</li><li>Le flux du serveur d'archivage (192.168.10.50) vers la baie de sauvegarde (192.168.10.62) emprunte quel lien ?</li><li>La liaison Gi2/0/3 tombe en panne : quelle est la nouvelle capacité du canal, en Gbit/s ?</li></ol>",
+    "starter": "# Exercice — Le dimensionnement du port-channel Po1 de Pharmalys\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Toutes les réponses sont des nombres (Gbit/s ou numéro de lien).\n\n[Question 1 — Bande passante théorique du canal (en Gbit/s)]\nA_COMPLETER\n\n[Question 2 — Débit maximal d'un flux unique (en Gbit/s)]\nA_COMPLETER\n\n[Question 3 — Lien du flux serveur de paie vers badgeuse]\nA_COMPLETER\n\n[Question 4 — Lien du flux archivage vers sauvegarde]\nA_COMPLETER\n\n[Question 5 — Capacité du canal après panne d'un membre (en Gbit/s)]\nA_COMPLETER\n",
     "hints": [
-      "Dans une agrégation de liens (LACP / EtherChannel), la distribution de charge s’appuie sur une fonction de hachage des adresses MAC ou IP.",
-      "Appliquez l’opération de hachage pour déterminer sur quel port physique de l’équipe de cartes la trame est transmise."
+      "La capacité d'un canal est additive : quatre membres de 1 Gbit/s offrent 4 Gbit/s cumulés, mais un seul membre à la fois pour chaque conversation.",
+      "Le hachage se calcule sur les derniers octets : 10 XOR 100, puis le reste de la division par 4 donne le numéro de lien.",
+      "1. 4 × 1 Gbit/s. 2. Un flux unique ne traverse qu'un lien. 3. 10 XOR 100 = 110, puis 110 mod 4. 4. 50 XOR 62 = 12, puis 12 mod 4. 5. Un membre en moins retire 1 Gbit/s."
     ],
     "examples": [
       {
-        "stdin": "BUNDLE name=Po1 ports=Gi0/1,Gi0/2,Gi0/3,Gi0/4 method=src-dst-ip\nPACKET id=PKT1 src_mac=00:11:22:33:44:01 dst_mac=00:11:22:33:44:02 src_ip=192.168.1.10 dst_ip=10.0.0.12 src_port=50000 dst_port=80\nPACKET id=PKT2 src_mac=00:11:22:33:44:01 dst_mac=00:11:22:33:44:02 src_ip=192.168.1.15 dst_ip=10.0.0.15 src_port=50001 dst_port=443",
-        "expected": "LB_REPORT id=PKT1 bundle=Po1 hash_idx=2 port=Gi0/3\nLB_REPORT id=PKT2 bundle=Po1 hash_idx=0 port=Gi0/1",
-        "note": "PKT1: 10 ^ 12 = 6, 6 % 4 = 2 -> Gi0/3. PKT2: 15 ^ 15 = 0, 0 % 4 = 0 -> Gi0/1."
+        "stdin": "Le studio Vidéralp agrège deux liaisons 10 Gbit/s dans Po5 (liens numérotés 0 et 1).\nUn flux relie la station de montage 172.16.4.20 au serveur de rendu 172.16.4.35\n(hachage : lien = (octet_source XOR octet_destination) mod 2).\n\n1) Capacité du canal : 2 × 10 = 20 Gbit/s.\n2) Un flux unique traverse un seul lien : 10 Gbit/s au maximum.\n3) 20 XOR 35 = 55 ; 55 mod 2 = 1 → lien 1.\n4) Une liaison tombe : capacité restante 10 Gbit/s, le flux continue via l'autre lien.",
+        "expected": "capacité : 20 Gbit/s — un flux unique : 10 Gbit/s au plus — lien 1 — après panne : 10 Gbit/s",
+        "note": "Le hachage répartit les flux entre les liens, jamais les paquets d'un même flux : la bande passante d'une conversation reste celle d'un seul membre."
       }
     ],
     "tests": [
       {
-        "label": "Hachage par src-dst-port avec 2 ports membres",
-        "stdin": "cas:1",
-        "expected": "LB_REPORT id=TCP_FLOW bundle=Po2 hash_idx=0 port=Te1/1"
+        "label": "Question 1 — Bande passante théorique du canal (en Gbit/s)",
+        "stdin": "q:1",
+        "expected": "4||4 Gbit/s"
       },
       {
-        "label": "Hachage par src-dst-mac avec conversion hexadécimale",
-        "stdin": "cas:2",
-        "expected": "LB_REPORT id=MCAST bundle=Po10 hash_idx=2 port=Eth3"
+        "label": "Question 2 — Débit maximal d'un flux unique (en Gbit/s)",
+        "stdin": "q:2",
+        "expected": "1||1 Gbit/s"
       },
       {
-        "label": "Hachage par dst-mac unique",
-        "stdin": "cas:3",
-        "expected": "LB_REPORT id=P1 bundle=PoSingle hash_idx=3 port=Fa0/4"
+        "label": "Question 3 — Lien du flux serveur de paie vers badgeuse",
+        "stdin": "q:3",
+        "expected": "2||lien 2||le lien 2"
+      },
+      {
+        "label": "Question 4 — Lien du flux archivage vers sauvegarde",
+        "stdin": "q:4",
+        "expected": "0||lien 0||le lien 0"
+      },
+      {
+        "label": "Question 5 — Capacité du canal après panne d'un membre (en Gbit/s)",
+        "stdin": "q:5",
+        "expected": "3||3 Gbit/s"
       }
     ],
-    "solution": "[Exemple]\nLB_REPORT id=PKT1 bundle=Po1 hash_idx=2 port=Gi0/3\nLB_REPORT id=PKT2 bundle=Po1 hash_idx=0 port=Gi0/1\n\n[Cas 1 — Hachage par src-dst-port avec 2 ports membres]\nLB_REPORT id=TCP_FLOW bundle=Po2 hash_idx=0 port=Te1/1\n\n[Cas 2 — Hachage par src-dst-mac avec conversion hexadécimale]\nLB_REPORT id=MCAST bundle=Po10 hash_idx=2 port=Eth3\n\n[Cas 3 — Hachage par dst-mac unique]\nLB_REPORT id=P1 bundle=PoSingle hash_idx=3 port=Fa0/4"
+    "solution": "[Question 1 — Bande passante théorique du canal (en Gbit/s)]\n4\n\n[Question 2 — Débit maximal d'un flux unique (en Gbit/s)]\n1\n\n[Question 3 — Lien du flux serveur de paie vers badgeuse]\n2\n\n[Question 4 — Lien du flux archivage vers sauvegarde]\n0\n\n[Question 5 — Capacité du canal après panne d'un membre (en Gbit/s)]\n3",
+    "takeaway": "1) Le canal agrège quatre membres de 1 Gbit/s : 4 × 1 = 4 Gbit/s.\n2) Un flux unique (serveur de paie vers imprimante badgeuse) emprunte un seul lien : 1 Gbit/s au maximum.\n3) Derniers octets : 10 XOR 100 = 110 (soit 0b0001010 XOR 0b1100100 = 0b1101110) ; 110 mod 4 = 2 : le flux emprunte le lien 2.\n4) 50 XOR 62 = 12 (0b0110010 XOR 0b0111110 = 0b0001100) ; 12 mod 4 = 0 : le flux emprunte le lien 0.\n5) Après la panne de Gi2/0/3, il reste trois membres actifs : 3 × 1 = 3 Gbit/s.\nContrôle : les deux flux calculés (liens 2 et 0) tombent sur des liens distincts ; la panne d'un membre ne coupe aucun flux, elle réduit seulement la capacité."
   },
   {
     "id": "lan3-c2-e3",
     "chapter": 2,
-    "title": "Contrôleur de cohérence des interfaces membres EtherChannel",
     "level": "n3",
     "language": "analyse",
-    "goal": "Vérifier la parfaite homogénéité des paramètres de configuration des ports d'un Port-Channel.",
-    "brief": "<p>Pour qu'un groupe EtherChannel puisse s'activer (état <code>UP</code>), tous les ports membres physiques doivent présenter des paramètres strictement identiques.<br><br>\nParamètres obligatoirement homogènes :<br>\n- <code>speed</code> (vitesse en Mbps, ex: 1000)<br>\n- <code>duplex</code> (ex: full)<br>\n- <code>mode</code> (<code>access</code> ou <code>trunk</code>)<br>\n- Si <code>mode == 'access'</code> : même <code>vlan</code> d'accès.<br>\n- Si <code>mode == 'trunk'</code> : même <code>native_vlan</code> ET même ensemble de <code>allowed_vlans</code>.<br><br>\nAnalysez les paramètres du problème pour chaque cas.<br>\nPour chaque port membre (triés par nom de port) :<br>\n- Si tous les paramètres concordent avec la référence :<br>\n  <code>status=COMPLIANT reason=NONE</code>.<br>\n- En cas de discordance :<br>\n  <code>status=INCOMPLIANT reason=&lt;première_discordance_parmi: SPEED_MISMATCH, DUPLEX_MISMATCH, MODE_MISMATCH, ACCESS_VLAN_MISMATCH, NATIVE_VLAN_MISMATCH, ALLOWED_VLANS_MISMATCH&gt;</code>.<br><br>\nAfficher pour chaque port :<br>\n<code>MEMBER_AUDIT group={group} port={port} status={status} reason={reason}</code><br>\nEt la synthèse finale du groupe :<br>\n<code>BUNDLE_STATUS group={group} state={UP si 100% compliant sinon SUSPENDED} compliant_count={c}/{total}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c2-e3) — Contrôleur de cohérence des interfaces membres EtherChannel\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tous les membres conformes sur trunk]\n# Données : MEMBER group=Po5 port=Te1/1 speed=10000 duplex=full mode=trunk vlan=1 native=99 allowed=10,20\n# Données : MEMBER group=Po5 port=Te1/2 speed=10000 duplex=full mode=trunk vlan=1 native=99 allowed=20,10\nA_COMPLETER\n\n[Cas 2 — Discordance de VLAN natif et allowed sur trunk]\n# Données : MEMBER group=Po2 port=Gi1 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20\n# Données : MEMBER group=Po2 port=Gi2 speed=1000 duplex=full mode=trunk vlan=1 native=20 allowed=10,20\n# Données : MEMBER group=Po2 port=Gi3 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,30\nA_COMPLETER\n\n[Cas 3 — Discordance de mode access vs trunk]\n# Données : MEMBER group=Po3 port=Fa0/1 speed=100 duplex=full mode=access vlan=10 native=1 allowed=ALL\n# Données : MEMBER group=Po3 port=Fa0/2 speed=100 duplex=full mode=trunk vlan=10 native=1 allowed=ALL\nA_COMPLETER\n",
+    "title": "Le diagnostic des membres du port-channel de la DMZ de Solidia",
+    "exampleTitle": "Exemple résolu — le port-channel du plateau technique d'Aerolis",
+    "goal": "Contrôler la cohérence des membres d'un EtherChannel (vitesse, duplex, mode, VLANs autorisés) et déduire les membres actifs et la capacité restante.",
+    "brief": "<p><strong>Énoncé.</strong> La mutuelle Solidia publie son portail de gestion des remboursements depuis une DMZ. Le port-channel Po20 relie le pare-feu au commutateur d'agrégation SW-DMZ ; il a été assemblé à partir de quatre ports. À la suite de chutes de débit, l'administrateur relève l'état des quatre membres :</p><table><tr><th>Port</th><th>Vitesse</th><th>Duplex</th><th>Mode</th><th>VLANs autorisés</th></tr><tr><th>Gi1/0/1</th><td>1 Gbit/s</td><td>full</td><td>trunk</td><td>10, 20, 30</td></tr><tr><th>Gi1/0/2</th><td>1 Gbit/s</td><td>full</td><td>trunk</td><td>10, 20, 30</td></tr><tr><th>Gi1/0/3</th><td>1 Gbit/s</td><td>full</td><td>trunk</td><td>10, 20</td></tr><tr><th>Gi1/0/4</th><td>100 Mbit/s</td><td>full</td><td>trunk</td><td>10, 20, 30</td></tr></table><p>Rappel du cours : un port ne rejoint le canal que si sa configuration est strictement identique à celle du groupe : même vitesse, même duplex, même mode (accès ou trunk) et mêmes VLANs autorisés. Tout port incohérent est écarté (suspendu) et le canal se reforme avec les seuls membres compatibles ; la bande passante du canal est la somme des débits de ses membres actifs.</p><p>Répondez par le nombre seul (questions 1, 4 et 5) ou par un court libellé (questions 2 et 3).</p><ol><li>Combien de ports forment le canal Po20 après contrôle de cohérence ?</li><li>Quel critère écarte Gi1/0/3 du canal ?</li><li>Quel critère écarte Gi1/0/4 du canal ?</li><li>Quelle est la capacité du canal après le contrôle, en Gbit/s ?</li><li>L'administrateur corrige la vitesse de Gi1/0/4 (1 Gbit/s) mais laisse Gi1/0/3 inchangé : combien de membres actifs compte alors Po20 ?</li></ol>",
+    "starter": "# Exercice — Le diagnostic des membres du port-channel de la DMZ de Solidia\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 4 et 5 : le nombre seul. Questions 2 et 3 : un court libellé.\n\n[Question 1 — Nombre de membres actifs du canal]\nA_COMPLETER\n\n[Question 2 — Critère écartant Gi1/0/3]\nA_COMPLETER\n\n[Question 3 — Critère écartant Gi1/0/4]\nA_COMPLETER\n\n[Question 4 — Capacité du canal (en Gbit/s)]\nA_COMPLETER\n\n[Question 5 — Membres actifs après correction de Gi1/0/4]\nA_COMPLETER\n",
     "hints": [
-      "Prendre le premier port comme modèle.",
-      "Comparer les champs dans l'ordre : speed, duplex, mode, vlan (si access), native/allowed (si trunk).",
-      "Normaliser allowed_vlans sous forme d'un set d'entiers."
+      "Comparez chaque ligne du tableau à la configuration majoritaire du groupe : un seul attribut divergent suffit à suspendre un membre.",
+      "Gi1/0/3 diffère par la liste des VLANs ; Gi1/0/4 diffère par le débit de sa liaison.",
+      "1. Ne conservent le canal que les ports strictement identiques. 2. Deux ports restent. 3. La capacité suit le nombre de membres actifs. 4. Corriger la vitesse de Gi1/0/4 ne règle pas l'écart de VLANs de Gi1/0/3."
     ],
     "examples": [
       {
-        "stdin": "MEMBER group=Po1 port=Gi0/1 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30\nMEMBER group=Po1 port=Gi0/2 speed=1000 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30\nMEMBER group=Po1 port=Gi0/3 speed=100 duplex=full mode=trunk vlan=1 native=10 allowed=10,20,30",
-        "expected": "MEMBER_AUDIT group=Po1 port=Gi0/1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po1 port=Gi0/2 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po1 port=Gi0/3 status=INCOMPLIANT reason=SPEED_MISMATCH\nBUNDLE_STATUS group=Po1 state=SUSPENDED compliant_count=2/3",
-        "note": "Gi0/3 tourne à 100 Mbps au lieu de 1000 Mbps, ce qui suspend l'agrégation."
+        "stdin": "Le plateau technique d'Aerolis agrège quatre ports dans Po30.\nTe1/1/1 : 10 Gbit/s, full, trunk, VLANs 100, 200.\nTe1/1/2 : 10 Gbit/s, full, trunk, VLANs 100, 200.\nTe1/1/3 : 10 Gbit/s, half, trunk, VLANs 100, 200.\nTe1/1/4 : 10 Gbit/s, full, accès, VLAN 100.\n\n1) Seuls Te1/1/1 et Te1/1/2 sont cohérents : 2 membres actifs.\n2) Te1/1/3 est écarté : duplex half au lieu de full.\n3) Te1/1/4 est écarté : port d'accès au lieu de trunk.\n4) Capacité restante : 2 × 10 = 20 Gbit/s.",
+        "expected": "2 membres actifs — Te1/1/3 écarté pour le duplex — Te1/1/4 écarté pour le mode — capacité 20 Gbit/s",
+        "note": "Le contrôle de cohérence est strict : un seul attribut divergent (un VLAN manquant, un duplex différent) suffit à suspendre le membre."
       }
     ],
     "tests": [
       {
-        "label": "Tous les membres conformes sur trunk",
-        "stdin": "cas:1",
-        "expected": "MEMBER_AUDIT group=Po5 port=Te1/1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po5 port=Te1/2 status=COMPLIANT reason=NONE\nBUNDLE_STATUS group=Po5 state=UP compliant_count=2/2"
+        "label": "Question 1 — Nombre de membres actifs du canal",
+        "stdin": "q:1",
+        "expected": "2"
       },
       {
-        "label": "Discordance de VLAN natif et allowed sur trunk",
-        "stdin": "cas:2",
-        "expected": "MEMBER_AUDIT group=Po2 port=Gi1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po2 port=Gi2 status=INCOMPLIANT reason=NATIVE_VLAN_MISMATCH\nMEMBER_AUDIT group=Po2 port=Gi3 status=INCOMPLIANT reason=ALLOWED_VLANS_MISMATCH\nBUNDLE_STATUS group=Po2 state=SUSPENDED compliant_count=1/3"
+        "label": "Question 2 — Critère écartant Gi1/0/3",
+        "stdin": "q:2",
+        "expected": "les VLANs autorisés||les VLAN autorisés||la liste des VLANs||VLAN différents||les VLANs||les VLANs différents"
       },
       {
-        "label": "Discordance de mode access vs trunk",
-        "stdin": "cas:3",
-        "expected": "MEMBER_AUDIT group=Po3 port=Fa0/1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po3 port=Fa0/2 status=INCOMPLIANT reason=MODE_MISMATCH\nBUNDLE_STATUS group=Po3 state=SUSPENDED compliant_count=1/2"
+        "label": "Question 3 — Critère écartant Gi1/0/4",
+        "stdin": "q:3",
+        "expected": "la vitesse||vitesse||le débit||débit"
+      },
+      {
+        "label": "Question 4 — Capacité du canal (en Gbit/s)",
+        "stdin": "q:4",
+        "expected": "2||2 Gbit/s"
+      },
+      {
+        "label": "Question 5 — Membres actifs après correction de Gi1/0/4",
+        "stdin": "q:5",
+        "expected": "3"
       }
     ],
-    "solution": "[Exemple]\nMEMBER_AUDIT group=Po1 port=Gi0/1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po1 port=Gi0/2 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po1 port=Gi0/3 status=INCOMPLIANT reason=SPEED_MISMATCH\nBUNDLE_STATUS group=Po1 state=SUSPENDED compliant_count=2/3\n\n[Cas 1 — Tous les membres conformes sur trunk]\nMEMBER_AUDIT group=Po5 port=Te1/1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po5 port=Te1/2 status=COMPLIANT reason=NONE\nBUNDLE_STATUS group=Po5 state=UP compliant_count=2/2\n\n[Cas 2 — Discordance de VLAN natif et allowed sur trunk]\nMEMBER_AUDIT group=Po2 port=Gi1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po2 port=Gi2 status=INCOMPLIANT reason=NATIVE_VLAN_MISMATCH\nMEMBER_AUDIT group=Po2 port=Gi3 status=INCOMPLIANT reason=ALLOWED_VLANS_MISMATCH\nBUNDLE_STATUS group=Po2 state=SUSPENDED compliant_count=1/3\n\n[Cas 3 — Discordance de mode access vs trunk]\nMEMBER_AUDIT group=Po3 port=Fa0/1 status=COMPLIANT reason=NONE\nMEMBER_AUDIT group=Po3 port=Fa0/2 status=INCOMPLIANT reason=MODE_MISMATCH\nBUNDLE_STATUS group=Po3 state=SUSPENDED compliant_count=1/2"
+    "solution": "[Question 1 — Nombre de membres actifs du canal]\n2\n\n[Question 2 — Critère écartant Gi1/0/3]\nles VLANs autorisés\n\n[Question 3 — Critère écartant Gi1/0/4]\nla vitesse\n\n[Question 4 — Capacité du canal (en Gbit/s)]\n2\n\n[Question 5 — Membres actifs après correction de Gi1/0/4]\n3",
+    "takeaway": "1) Seuls Gi1/0/1 et Gi1/0/2 sont strictement identiques (1 Gbit/s, full, trunk, VLANs 10, 20, 30) : le canal compte 2 membres actifs.\n2) Gi1/0/3 est écarté car sa liste de VLANs autorisés (10, 20) diffère de celle du groupe (10, 20, 30).\n3) Gi1/0/4 est écarté car sa vitesse (100 Mbit/s) diffère du 1 Gbit/s du groupe.\n4) Le canal actif regroupe deux liens de 1 Gbit/s : 2 Gbit/s.\n5) Une fois la vitesse de Gi1/0/4 corrigée, il rejoint le canal (3 membres), mais Gi1/0/3 reste suspendu tant que ses VLANs ne sont pas alignés : 3 membres actifs.\nContrôle : 2 membres actifs avant correction, 3 après ; le port suspendu reste physiquement actif mais hors canal."
   },
   {
     "id": "lan3-c3-e1",
     "chapter": 3,
-    "title": "Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Simuler l'élection du routeur MASTER dans un groupe de redondance VRRP.",
-    "brief": "<p>Le protocole <strong>VRRP (Virtual Router Redundancy Protocol - RFC 5798)</strong> permet à plusieurs routeurs ou commutateurs de niveau 3 de partager une passerelle virtuelle (VIP) pour éliminer le point unique de défaillance (SPOF).<br><br>\nRègles d'élection VRRP par groupe VRID :<br>\n- Si <code>alive == 'NO'</code> : le routeur est hors service &rarr; <code>role=INIT</code>.<br>\n- Parmi les routeurs actifs (<code>alive == 'YES'</code>) :<br>\n  1. Le routeur ayant la plus forte priorité (<code>prio</code>, valeur de 1 à 254) est élu <strong>MASTER</strong>.<br>\n  2. En cas d'égalité sur la priorité, le routeur ayant la plus grande adresse IP physique (comparaison numérique IPv4) devient <strong>MASTER</strong>.<br>\n  3. Tous les autres routeurs actifs prennent le rôle <strong>BACKUP</strong>.<br><br>\nl’étude de cas comporte dans l’énoncé du cas des déclarations de routeurs VRRP :<br>\n<code>VRRP_ROUTER name=&lt;nom&gt; vrid=&lt;int&gt; prio=&lt;int&gt; ip=&lt;ip&gt; alive=&lt;YES|NO&gt;</code><br><br>\nPour chaque routeur (triés par VRID puis par nom alphabétique), afficher :<br>\n<code>VRRP_STATUS vrid={vrid} router={name} role={role} prio={prio} ip={ip}</code><br>\nEt pour chaque groupe VRID, la ligne de synthèse :<br>\n<code>VRRP_MASTER vrid={vrid} router={master_name} ip={master_ip}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c3-e1) — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Départage par adresse IP la plus élevée en cas d'égalité de priorité]\n# Données : VRRP_ROUTER name=GW-A vrid=1 prio=100 ip=10.0.0.1 alive=YES\n# Données : VRRP_ROUTER name=GW-B vrid=1 prio=100 ip=10.0.0.2 alive=YES\nA_COMPLETER\n\n[Cas 2 — Plusieurs groupes VRID indépendants]\n# Données : VRRP_ROUTER name=R1_LAN vrid=1 prio=200 ip=192.168.1.1 alive=YES\n# Données : VRRP_ROUTER name=R2_LAN vrid=1 prio=100 ip=192.168.1.2 alive=YES\n# Données : VRRP_ROUTER name=R1_DMZ vrid=2 prio=100 ip=172.16.1.1 alive=YES\n# Données : VRRP_ROUTER name=R2_DMZ vrid=2 prio=250 ip=172.16.1.2 alive=YES\nA_COMPLETER\n\n[Cas 3 — Tous les membres d'un VRID sont hors service]\n# Données : VRRP_ROUTER name=DOWN1 vrid=5 prio=100 ip=1.1.1.1 alive=NO\n# Données : VRRP_ROUTER name=DOWN2 vrid=5 prio=120 ip=1.1.1.2 alive=NO\nA_COMPLETER\n",
+    "title": "L'élection du maître VRRP du site de production de Vellum",
+    "exampleTitle": "Exemple résolu — le VRRP du siège de Papermühle",
+    "goal": "Élire le routeur maître VRRP d'un site réel en appliquant la priorité, la préemption et le départage par adresse IP.",
+    "brief": "<p><strong>Énoncé.</strong> Vellum Industries fabrique du papier technique sur un site isolé. Le VLAN 40 (production) sort vers le réseau d'entreprise via deux routeurs redondants configurés en VRRP (groupe 40). Les postes utilisent l'adresse virtuelle 10.40.0.1 comme passerelle :</p><table><tr><th>Routeur</th><th>Priorité VRRP</th><th>Adresse IP physique</th><th>Préemption</th></tr><tr><th>R-PRIM</th><td>150</td><td>10.40.0.2</td><td>activée</td></tr><tr><th>R-SEC</th><td>100</td><td>10.40.0.3</td><td>activée</td></tr></table><p>Rappel du cours : dans VRRP, le routeur de priorité la plus élevée devient maître (Master) et détient l'adresse IP virtuelle ; à priorités égales, l'adresse IP physique la plus élevée l'emporte ; avec la préemption activée, un routeur de priorité supérieure qui revient reprend le rôle de maître. La priorité appliquée par défaut, si aucune n'est configurée, est 100.</p><p>Répondez par le nom exact du routeur (questions 1, 3 et 5), le nombre seul (question 2), ou « oui » / « non » (question 4).</p><ol><li>Quel routeur est élu maître du groupe 40 au démarrage ?</li><li>Quelle priorité VRRP est appliquée quand aucune priorité n'est configurée ?</li><li>R-PRIM tombe en panne : quel routeur devient maître ?</li><li>R-PRIM revient à la normale : redevient-il maître ?</li><li>Le technicien aligne la priorité de R-SEC sur 150 : quel routeur devient maître après convergence ?</li></ol>",
+    "starter": "# Exercice — L'élection du maître VRRP du site de production de Vellum\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 3 et 5 : le nom du routeur. Question 2 : le nombre seul.\n# Question 4 : oui ou non.\n\n[Question 1 — Maître VRRP au démarrage]\nA_COMPLETER\n\n[Question 2 — Priorité par défaut de VRRP]\nA_COMPLETER\n\n[Question 3 — Maître pendant la panne de R-PRIM]\nA_COMPLETER\n\n[Question 4 — R-PRIM redevient-il maître à son retour ?]\nA_COMPLETER\n\n[Question 5 — Maître après alignement des priorités à 150]\nA_COMPLETER\n",
     "hints": [
-      "Regrouper les routeurs par VRID dans un dictionnaire.",
-      "Comparer les routeurs actifs avec la clé : (prio, la notation CIDR du réseau).",
-      "Le maximum de cette clé est le MASTER."
+      "L'élection VRRP cherche la priorité la plus élevée, contrairement à STP qui cherche la plus petite valeur.",
+      "La préemption permet à un routeur revenu avec une meilleure priorité de reprendre la main sans attendre l'expiration du maître actuel.",
+      "1. Comparez 150 et 100. 2. La valeur par défaut est fixée par la norme. 3. Le routeur survivant devient maître. 4. La préemption est activée. 5. À priorités égales, l'adresse IP physique la plus élevée l'emporte."
     ],
     "examples": [
       {
-        "stdin": "VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES\nVRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES\nVRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO",
-        "expected": "VRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2\nVRRP_STATUS vrid=10 router=R2 role=BACKUP prio=100 ip=192.168.10.3\nVRRP_STATUS vrid=10 router=R3 role=INIT prio=200 ip=192.168.10.4\nVRRP_MASTER vrid=10 router=R1 ip=192.168.10.2",
-        "note": "R3 est tombé (alive=NO). R1 a la plus forte priorité parmi les vivants (150 vs 100) et devient MASTER."
+        "stdin": "Le siège de Papermühle exploite deux routeurs VRRP sur le VLAN 25.\nR-P : priorité 120, IP 10.25.0.2 ; R-S : priorité 120, IP 10.25.0.3.\nLes postes utilisent la passerelle virtuelle 10.25.0.1.\n\n1) Priorités égales (120) : le départage se fait sur l'adresse IP physique.\n2) 10.25.0.3 > 10.25.0.2 : R-S devient maître.\n3) La priorité par défaut, sans configuration, est 100.\n4) Si R-P monte à 200 avec préemption, il redevient maître.",
+        "expected": "maître : R-S (IP la plus élevée) — priorité par défaut : 100 — après passage à 200 : R-P maître",
+        "note": "VRRP départage les égalités par l'adresse IP la plus élevée, contrairement à STP qui utilise la plus petite valeur."
       }
     ],
     "tests": [
       {
-        "label": "Départage par adresse IP la plus élevée en cas d'égalité de priorité",
-        "stdin": "cas:1",
-        "expected": "VRRP_STATUS vrid=1 router=GW-A role=BACKUP prio=100 ip=10.0.0.1\nVRRP_STATUS vrid=1 router=GW-B role=MASTER prio=100 ip=10.0.0.2\nVRRP_MASTER vrid=1 router=GW-B ip=10.0.0.2"
+        "label": "Question 1 — Maître VRRP au démarrage",
+        "stdin": "q:1",
+        "expected": "R-PRIM||le routeur R-PRIM||RPRIM"
       },
       {
-        "label": "Plusieurs groupes VRID indépendants",
-        "stdin": "cas:2",
-        "expected": "VRRP_STATUS vrid=1 router=R1_LAN role=MASTER prio=200 ip=192.168.1.1\nVRRP_STATUS vrid=1 router=R2_LAN role=BACKUP prio=100 ip=192.168.1.2\nVRRP_MASTER vrid=1 router=R1_LAN ip=192.168.1.1\nVRRP_STATUS vrid=2 router=R1_DMZ role=BACKUP prio=100 ip=172.16.1.1\nVRRP_STATUS vrid=2 router=R2_DMZ role=MASTER prio=250 ip=172.16.1.2\nVRRP_MASTER vrid=2 router=R2_DMZ ip=172.16.1.2"
+        "label": "Question 2 — Priorité par défaut de VRRP",
+        "stdin": "q:2",
+        "expected": "100"
       },
       {
-        "label": "Tous les membres d'un VRID sont hors service",
-        "stdin": "cas:3",
-        "expected": "VRRP_STATUS vrid=5 router=DOWN1 role=INIT prio=100 ip=1.1.1.1\nVRRP_STATUS vrid=5 router=DOWN2 role=INIT prio=120 ip=1.1.1.2\nVRRP_MASTER vrid=5 router=NONE ip=NONE"
+        "label": "Question 3 — Maître pendant la panne de R-PRIM",
+        "stdin": "q:3",
+        "expected": "R-SEC||le routeur R-SEC||RSEC"
+      },
+      {
+        "label": "Question 4 — R-PRIM redevient-il maître à son retour ?",
+        "stdin": "q:4",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 5 — Maître après alignement des priorités à 150",
+        "stdin": "q:5",
+        "expected": "R-SEC||le routeur R-SEC||RSEC"
       }
     ],
-    "solution": "[Exemple]\nVRRP_STATUS vrid=10 router=R1 role=MASTER prio=150 ip=192.168.10.2\nVRRP_STATUS vrid=10 router=R2 role=BACKUP prio=100 ip=192.168.10.3\nVRRP_STATUS vrid=10 router=R3 role=INIT prio=200 ip=192.168.10.4\nVRRP_MASTER vrid=10 router=R1 ip=192.168.10.2\n\n[Cas 1 — Départage par adresse IP la plus élevée en cas d'égalité de priorité]\nVRRP_STATUS vrid=1 router=GW-A role=BACKUP prio=100 ip=10.0.0.1\nVRRP_STATUS vrid=1 router=GW-B role=MASTER prio=100 ip=10.0.0.2\nVRRP_MASTER vrid=1 router=GW-B ip=10.0.0.2\n\n[Cas 2 — Plusieurs groupes VRID indépendants]\nVRRP_STATUS vrid=1 router=R1_LAN role=MASTER prio=200 ip=192.168.1.1\nVRRP_STATUS vrid=1 router=R2_LAN role=BACKUP prio=100 ip=192.168.1.2\nVRRP_MASTER vrid=1 router=R1_LAN ip=192.168.1.1\nVRRP_STATUS vrid=2 router=R1_DMZ role=BACKUP prio=100 ip=172.16.1.1\nVRRP_STATUS vrid=2 router=R2_DMZ role=MASTER prio=250 ip=172.16.1.2\nVRRP_MASTER vrid=2 router=R2_DMZ ip=172.16.1.2\n\n[Cas 3 — Tous les membres d'un VRID sont hors service]\nVRRP_STATUS vrid=5 router=DOWN1 role=INIT prio=100 ip=1.1.1.1\nVRRP_STATUS vrid=5 router=DOWN2 role=INIT prio=120 ip=1.1.1.2\nVRRP_MASTER vrid=5 router=NONE ip=NONE"
+    "solution": "[Question 1 — Maître VRRP au démarrage]\nR-PRIM\n\n[Question 2 — Priorité par défaut de VRRP]\n100\n\n[Question 3 — Maître pendant la panne de R-PRIM]\nR-SEC\n\n[Question 4 — R-PRIM redevient-il maître à son retour ?]\noui\n\n[Question 5 — Maître après alignement des priorités à 150]\nR-SEC",
+    "takeaway": "1) R-PRIM affiche la priorité la plus élevée (150 contre 100) : il est élu maître du groupe 40 et détient l'adresse virtuelle 10.40.0.1.\n2) La priorité VRRP appliquée par défaut est 100.\n3) Pendant la panne de R-PRIM, R-SEC est le seul candidat : il devient maître.\n4) Oui : la préemption est activée et R-PRIM revient avec une priorité supérieure (150), il reprend le rôle de maître.\n5) Avec deux priorités égales à 150, le départage se fait sur l'adresse IP physique la plus élevée : 10.40.0.3 > 10.40.0.2, donc R-SEC devient maître.\nContrôle : dans les deux situations (départ et alignement à 150), un seul routeur détient l'adresse virtuelle 10.40.0.1."
   },
   {
     "id": "lan3-c3-e2",
     "chapter": 3,
-    "title": "Détecteur de basculement FHRP par suivi d'interface (Object Tracking)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Calculer la priorité effective d'un routeur HSRP/VRRP en cas de panne de lien montant et déterminer le basculement.",
-    "brief": "<p>Le mécanisme d'<strong>Object Tracking</strong> permet à un routeur FHRP actif de surveiller l'état de son interface WAN vers le FAI. Si cette liaison tombe, sa priorité est décrémentée (<code>effective_prio = base_prio - decrement</code>). Si sa priorité devient inférieure à celle du routeur Standby et que la préemption (preempt) est activée, le Standby prend le relais immédiatement.<br><br>\nAnalysez les paramètres du problème pour chaque cas. Calcul de la priorité effective pour chaque routeur :<br>\n   - Si <code>if_state == 'DOWN'</code> : <code>eff_prio = base_prio - decrement</code>.<br>\n   - Si <code>if_state == 'UP'</code> : <code>eff_prio = base_prio</code>.<br>\n2. Évaluation de la préemption :<br>\n   - Le routeur initialement <code>STANDBY</code> devient <code>ACTIVE</code> (Failover) SI et SEULEMENT SI :<br>\n     <code>standby.eff_prio &gt; active.eff_prio</code> ET <code>standby.preempt == 'YES'</code>.<br>\n   - Dans ce cas, l'ancien actif devient <code>STANDBY</code>.<br>\n   - Sinon, les rôles initiaux sont conservés.<br><br>\nPour chaque routeur (triés par nom alphabétique), afficher :<br>\n<code>TRACK_REPORT router={name} track_if={track_if} if_state={if_state} eff_prio={eff_prio} final_role={final_role} failover={YES|NO}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c3-e2) — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Préemption désactivée sur le standby empêchant le basculement]\n# Données : TRACKED_ROUTER name=R_ACT init_role=ACTIVE base_prio=120 preempt=YES track_if=WAN1 decrement=50 if_state=DOWN\n# Données : TRACKED_ROUTER name=R_STBY init_role=STANDBY base_prio=100 preempt=NO track_if=WAN2 decrement=10 if_state=UP\nA_COMPLETER\n\n[Cas 2 — Décrément insuffisant pour passer sous le standby]\n# Données : TRACKED_ROUTER name=CORE1 init_role=ACTIVE base_prio=150 preempt=YES track_if=Serial0 decrement=10 if_state=DOWN\n# Données : TRACKED_ROUTER name=CORE2 init_role=STANDBY base_prio=100 preempt=YES track_if=Serial0 decrement=10 if_state=UP\nA_COMPLETER\n\n[Cas 3 — Liaison nominale UP conservant les priorités de base]\n# Données : TRACKED_ROUTER name=R_A init_role=ACTIVE base_prio=110 preempt=YES track_if=Eth1 decrement=30 if_state=UP\n# Données : TRACKED_ROUTER name=R_B init_role=STANDBY base_prio=100 preempt=YES track_if=Eth1 decrement=30 if_state=UP\nA_COMPLETER\n",
+    "title": "La bascule HSRP du siège de Transversale",
+    "exampleTitle": "Exemple résolu — la bascule HSRP de l'agence de Port-Rolland",
+    "goal": "Calculer l'effet du suivi d'interface (object tracking) sur la priorité HSRP et prévoir les bascules du routeur actif.",
+    "brief": "<p><strong>Énoncé.</strong> Transversale, courtier en assurance de 600 salariés, concentre son trafic Internet au siège. Deux routeurs HSRP (groupe 1, VLAN 100) servent de passerelle : R-A (priorité 120) et R-B (priorité 100), tous deux avec la préemption activée. L'adresse virtuelle est 10.100.0.1. Pour réagir aux pannes de liens montants, R-A surveille d'abord son interface WAN Gi0/0 avec un décrément de 40, puis on lui ajoute le suivi du lien DMZ Gi0/1 avec un décrément de 15.</p><p>Rappel du cours : en HSRP, le routeur de priorité la plus élevée devient actif ; chaque interface suivie qui tombe retranche son décrément de la priorité du routeur ; avec la préemption, la bascule se produit dès que la priorité effective d'un routeur repasse au-dessus de celle de l'autre.</p><p>Répondez par le nombre seul (questions 1, 2 et 5) ou le nom du routeur (questions 3 et 4).</p><ol><li>Quelle est la priorité effective de R-A en fonctionnement normal ?</li><li>Le lien WAN Gi0/0 tombe : quelle est la priorité effective de R-A ?</li><li>Dans cette situation, quel routeur détient le rôle actif ?</li><li>Le lien WAN est rétabli : quel routeur redevient actif ?</li><li>WAN et DMZ tombent simultanément : quelle est la priorité effective de R-A ?</li></ol>",
+    "starter": "# Exercice — La bascule HSRP du siège de Transversale\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 5 : le nombre seul. Questions 3 et 4 : le nom du routeur.\n\n[Question 1 — Priorité effective de R-A en fonctionnement normal]\nA_COMPLETER\n\n[Question 2 — Priorité de R-A après la panne du WAN]\nA_COMPLETER\n\n[Question 3 — Routeur actif pendant la panne du WAN]\nA_COMPLETER\n\n[Question 4 — Routeur actif après le rétablissement du WAN]\nA_COMPLETER\n\n[Question 5 — Priorité de R-A si WAN et DMZ tombent]\nA_COMPLETER\n",
     "hints": [
-      "Calculer eff_prio pour les deux routeurs.",
-      "Vérifier si le Standby surpasse l'Actif et possède preempt == \"YES\"."
+      "En fonctionnement normal, aucune interface suivie n'est tombée : la priorité effective est la priorité configurée.",
+      "Chaque interface suivie tombée retranche son décrément : 120 − 40 pour le WAN seul, puis encore − 15 pour la DMZ.",
+      "1. Priorité configurée. 2. 120 − 40. 3. Comparez le résultat à la priorité de R-B (100). 4. La préemption rend la main au routeur de priorité supérieure. 5. Les décréments s'additionnent."
     ],
     "examples": [
       {
-        "stdin": "TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN\nTRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP",
-        "expected": "TRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES\nTRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE failover=YES",
-        "note": "La panne WAN fait chuter la priorité de R1 à 90 (110 - 20). R2 (priorité 100 avec preempt=YES) prend le rôle ACTIVE."
+        "stdin": "L'agence de Port-Rolland exploite deux routeurs HSRP.\nR-1 : priorité 130, préemption ; R-2 : priorité 110.\nR-1 surveille son lien WAN avec un décrément de 50, puis un lien SAV avec un décrément de 20.\n\n1) Fonctionnement normal : priorité effective de R-1 = 130.\n2) WAN tombé : 130 − 50 = 80, sous 110 → R-2 devient actif.\n3) WAN rétabli : R-1 revient à 130 et redevient actif (préemption).\n4) WAN + SAV tombés : 130 − 50 − 20 = 60.",
+        "expected": "normal : 130 — WAN tombé : 80, R-2 actif — retour du WAN : R-1 actif — double panne : 60",
+        "note": "Les décréments s'additionnent : chaque interface suivie tombée retranche sa propre valeur de la priorité de base."
       }
     ],
     "tests": [
       {
-        "label": "Préemption désactivée sur le standby empêchant le basculement",
-        "stdin": "cas:1",
-        "expected": "TRACK_REPORT router=R_ACT track_if=WAN1 if_state=DOWN eff_prio=70 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_STBY track_if=WAN2 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+        "label": "Question 1 — Priorité effective de R-A en fonctionnement normal",
+        "stdin": "q:1",
+        "expected": "120"
       },
       {
-        "label": "Décrément insuffisant pour passer sous le standby",
-        "stdin": "cas:2",
-        "expected": "TRACK_REPORT router=CORE1 track_if=Serial0 if_state=DOWN eff_prio=140 final_role=ACTIVE failover=NO\nTRACK_REPORT router=CORE2 track_if=Serial0 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+        "label": "Question 2 — Priorité de R-A après la panne du WAN",
+        "stdin": "q:2",
+        "expected": "80"
       },
       {
-        "label": "Liaison nominale UP conservant les priorités de base",
-        "stdin": "cas:3",
-        "expected": "TRACK_REPORT router=R_A track_if=Eth1 if_state=UP eff_prio=110 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_B track_if=Eth1 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+        "label": "Question 3 — Routeur actif pendant la panne du WAN",
+        "stdin": "q:3",
+        "expected": "R-B||le routeur R-B||RB"
+      },
+      {
+        "label": "Question 4 — Routeur actif après le rétablissement du WAN",
+        "stdin": "q:4",
+        "expected": "R-A||le routeur R-A||RA"
+      },
+      {
+        "label": "Question 5 — Priorité de R-A si WAN et DMZ tombent",
+        "stdin": "q:5",
+        "expected": "65"
       }
     ],
-    "solution": "[Exemple]\nTRACK_REPORT router=R1 track_if=Gi0/0 if_state=DOWN eff_prio=90 final_role=STANDBY failover=YES\nTRACK_REPORT router=R2 track_if=Gi0/0 if_state=UP eff_prio=100 final_role=ACTIVE failover=YES\n\n[Cas 1 — Préemption désactivée sur le standby empêchant le basculement]\nTRACK_REPORT router=R_ACT track_if=WAN1 if_state=DOWN eff_prio=70 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_STBY track_if=WAN2 if_state=UP eff_prio=100 final_role=STANDBY failover=NO\n\n[Cas 2 — Décrément insuffisant pour passer sous le standby]\nTRACK_REPORT router=CORE1 track_if=Serial0 if_state=DOWN eff_prio=140 final_role=ACTIVE failover=NO\nTRACK_REPORT router=CORE2 track_if=Serial0 if_state=UP eff_prio=100 final_role=STANDBY failover=NO\n\n[Cas 3 — Liaison nominale UP conservant les priorités de base]\nTRACK_REPORT router=R_A track_if=Eth1 if_state=UP eff_prio=110 final_role=ACTIVE failover=NO\nTRACK_REPORT router=R_B track_if=Eth1 if_state=UP eff_prio=100 final_role=STANDBY failover=NO"
+    "solution": "[Question 1 — Priorité effective de R-A en fonctionnement normal]\n120\n\n[Question 2 — Priorité de R-A après la panne du WAN]\n80\n\n[Question 3 — Routeur actif pendant la panne du WAN]\nR-B\n\n[Question 4 — Routeur actif après le rétablissement du WAN]\nR-A\n\n[Question 5 — Priorité de R-A si WAN et DMZ tombent]\n65",
+    "takeaway": "1) Aucune interface suivie n'est tombée : la priorité effective de R-A vaut 120.\n2) La chute du WAN retranche 40 : 120 − 40 = 80.\n3) R-A (80) passe sous la priorité de R-B (100) : R-B devient le routeur actif.\n4) Le WAN rétabli, R-A revient à 120 et, la préemption étant activée, il redevient actif.\n5) WAN et DMZ tombés : 120 − 40 − 15 = 65.\nContrôle : 80 < 100 explique la bascule ; 120 > 100 explique le retour ; 65 < 100 maintiendrait R-B actif."
   },
   {
     "id": "lan3-c3-e3",
     "chapter": 3,
-    "title": "Répartiteur de charge GLBP (Gateway Load Balancing Protocol)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler l'assignation dynamique des adresses MAC virtuelles (AVF) par l'AVG selon les algorithmes GLBP.",
-    "brief": "<p>Contrairement à HSRP/VRRP où un seul équipement route le trafic pendant que les autres dorment, le protocole <strong>GLBP (Gateway Load Balancing Protocol)</strong> permet à tous les routeurs membres de router le trafic simultanément.<br>\nL'<strong>AVG (Active Virtual Gateway)</strong> répond aux requêtes ARP des clients en distribuant différentes adresses MAC virtuelles associées aux <strong>AVF (Active Virtual Forwarders)</strong>.<br><br>\nAnalysez les paramètres du problème pour chaque cas. <strong>round-robin :</strong> Les AVFs sont assignés cycliquement selon leur <code>id</code> croissant (requête 0 &rarr; 1er AVF, requête 1 &rarr; 2e AVF, etc.).<br>\n2. <strong>host-dependent :</strong> L'AVF est sélectionné selon le hachage de l'adresse MAC du client (dernier octet décimal de client_mac modulo le nombre d'AVFs). Un client reçoit toujours la même MAC.<br>\n3. <strong>weighted :</strong> Chaque AVF est répété proportionnellement à son <code>weight</code> (ex: AVF1 weight=2, AVF2 weight=1 donne la séquence <code>[AVF1, AVF1, AVF2]</code> déroulée cycliquement au fil des requêtes).<br><br>\nPour chaque requête ARP client, afficher :<br>\n<code>GLBP_REPLY client={client_id} assigned_avf={avf_name} vmac={avf_vmac} mode={mode}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c3-e3) — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mode host-dependent liant un client à une même MAC virtuelle]\n# Données : GLBP_CONFIG group=2 mode=host-dependent\n# Données : AVF id=1 name=GW1 vmac=00:07:b4:00:02:01 weight=10\n# Données : AVF id=2 name=GW2 vmac=00:07:b4:00:02:02 weight=10\n# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00\n# Données : ARP_REQ client_id=HOST_B client_mac=00:00:00:00:00:01\n# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00\nA_COMPLETER\n\n[Cas 2 — Mode weighted avec poids inégaux (2 pour 1)]\n# Données : GLBP_CONFIG group=3 mode=weighted\n# Données : AVF id=1 name=CORE_STRONG vmac=00:07:b4:00:03:01 weight=2\n# Données : AVF id=2 name=CORE_WEAK vmac=00:07:b4:00:03:02 weight=1\n# Données : ARP_REQ client_id=C1 client_mac=00:aa:bb:cc:dd:01\n# Données : ARP_REQ client_id=C2 client_mac=00:aa:bb:cc:dd:02\n# Données : ARP_REQ client_id=C3 client_mac=00:aa:bb:cc:dd:03\n# Données : ARP_REQ client_id=C4 client_mac=00:aa:bb:cc:dd:04\nA_COMPLETER\n\n[Cas 3 — Groupe à 3 forwarders en round-robin]\n# Données : GLBP_CONFIG group=4 mode=round-robin\n# Données : AVF id=1 name=F1 vmac=00:07:b4:00:04:01 weight=1\n# Données : AVF id=2 name=F2 vmac=00:07:b4:00:04:02 weight=1\n# Données : AVF id=3 name=F3 vmac=00:07:b4:00:04:03 weight=1\n# Données : ARP_REQ client_id=X client_mac=00:11:22:33:44:55\n# Données : ARP_REQ client_id=Y client_mac=00:11:22:33:44:56\n# Données : ARP_REQ client_id=Z client_mac=00:11:22:33:44:57\nA_COMPLETER\n",
+    "title": "L'équilibrage GLBP du campus d'Aurelia",
+    "exampleTitle": "Exemple résolu — le GLBP du centre de recherche de Néovia",
+    "goal": "Répartir la charge entre passerelles virtuelles GLBP : élection de l'AVG, nombre de MAC virtuelles, parts de trafic selon les poids et reprise après panne.",
+    "brief": "<p><strong>Énoncé.</strong> Aurelia, école d'ingénieurs de 3 000 étudiants, dessert ses amphithéâtres via trois routeurs GLBP (groupe 10). Chaque hôte conserve une passerelle virtuelle unique (10.10.0.1), mais l'AVG distribue des adresses MAC virtuelles distinctes pour équilibrer les flux. La configuration est la suivante :</p><table><tr><th>Routeur</th><th>Priorité GLBP</th><th>Poids (weight)</th></tr><tr><th>R1</th><td>200</td><td>100</td></tr><tr><th>R2</th><td>150</td><td>100</td></tr><tr><th>R3</th><td>150</td><td>50</td></tr></table><p>Rappel du cours : GLBP élit une passerelle virtuelle active (AVG) parmi les priorités les plus élevées ; tous les routeurs du groupe servent de passerelle virtuelle (AVF) et reçoivent chacun une adresse MAC virtuelle. En équilibrage pondéré (weighted), la part de trafic d'un AVF est proportionnelle à son poids rapporté à la somme des poids des AVF actifs.</p><p>Répondez par le nom du routeur (questions 1) ou le nombre seul (questions 2 à 5, parts en pourcentage).</p><ol><li>Quel routeur est élu AVG du groupe 10 ?</li><li>Combien d'adresses MAC virtuelles le groupe expose-t-il aux hôtes ?</li><li>Quelle part du trafic (en %) R1 reçoit-il ?</li><li>Quelle part du trafic (en %) R3 reçoit-il ?</li><li>R3 tombe en panne : quelle part du trafic (en %) R1 reçoit-il désormais ?</li></ol>",
+    "starter": "# Exercice — L'équilibrage GLBP du campus d'Aurelia\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : le nom du routeur. Questions 2 à 5 : le nombre seul (parts en %).\n\n[Question 1 — AVG du groupe 10]\nA_COMPLETER\n\n[Question 2 — Nombre d'adresses MAC virtuelles]\nA_COMPLETER\n\n[Question 3 — Part du trafic de R1 (en %)]\nA_COMPLETER\n\n[Question 4 — Part du trafic de R3 (en %)]\nA_COMPLETER\n\n[Question 5 — Part du trafic de R1 après la panne de R3 (en %)]\nA_COMPLETER\n",
     "hints": [
-      "Trier les AVFs par ID croissant.",
-      "Pour round-robin : compteur global modulo nombre d'AVFs.",
-      "Pour host-dependent : dernier octet de client_mac modulo nombre d'AVFs.",
-      "Pour weighted : construire la liste pondérée et la dérouler cycliquement."
+      "L'AVG est le routeur de priorité la plus élevée du groupe ; il attribue ensuite les adresses MAC virtuelles aux AVF.",
+      "Chaque AVF actif reçoit une adresse MAC virtuelle : comptez les routeurs du groupe.",
+      "1. Comparez 200, 150 et 150. 2. Un AVF = une MAC virtuelle. 3. Part = poids / somme des poids, soit 100 / 250. 4. 50 / 250. 5. Après la panne, la somme des poids ne compte plus que R1 et R2."
     ],
     "examples": [
       {
-        "stdin": "GLBP_CONFIG group=1 mode=round-robin\nAVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100\nAVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100\nARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01\nARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02\nARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03",
-        "expected": "GLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin\nGLBP_REPLY client=PC2 assigned_avf=AVF2 vmac=00:07:b4:00:01:02 mode=round-robin\nGLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin",
-        "note": "Distribution cyclique en Round-Robin : AVF1, AVF2, puis AVF1."
+        "stdin": "Le centre de recherche de Néovia exploite trois routeurs GLBP (groupe 5).\nR-A : priorité 250, poids 60 ; R-B : priorité 200, poids 60 ; R-C : priorité 150, poids 30.\n\n1) L'AVG est le routeur de priorité la plus élevée : R-A.\n2) Chaque AVF reçoit une MAC virtuelle : 3 adresses.\n3) Somme des poids : 150 ; part de R-A : 60/150 = 40 % (R-B : 40 %, R-C : 20 %).\n4) R-C tombe : somme des poids 120 ; part de R-A : 60/120 = 50 %.",
+        "expected": "AVG : R-A — 3 MAC virtuelles — part de R-A : 40 % — après panne de R-C : 50 %",
+        "note": "Avec trois AVF actifs, chaque hôte reçoit l'une des trois MAC virtuelles : la charge suit les poids, pas le nombre d'hôtes."
       }
     ],
     "tests": [
       {
-        "label": "Mode host-dependent liant un client à une même MAC virtuelle",
-        "stdin": "cas:1",
-        "expected": "GLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent\nGLBP_REPLY client=HOST_B assigned_avf=GW2 vmac=00:07:b4:00:02:02 mode=host-dependent\nGLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent"
+        "label": "Question 1 — AVG du groupe 10",
+        "stdin": "q:1",
+        "expected": "R1||le routeur R1||R 1"
       },
       {
-        "label": "Mode weighted avec poids inégaux (2 pour 1)",
-        "stdin": "cas:2",
-        "expected": "GLBP_REPLY client=C1 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C2 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C3 assigned_avf=CORE_WEAK vmac=00:07:b4:00:03:02 mode=weighted\nGLBP_REPLY client=C4 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted"
+        "label": "Question 2 — Nombre d'adresses MAC virtuelles",
+        "stdin": "q:2",
+        "expected": "3"
       },
       {
-        "label": "Groupe à 3 forwarders en round-robin",
-        "stdin": "cas:3",
-        "expected": "GLBP_REPLY client=X assigned_avf=F1 vmac=00:07:b4:00:04:01 mode=round-robin\nGLBP_REPLY client=Y assigned_avf=F2 vmac=00:07:b4:00:04:02 mode=round-robin\nGLBP_REPLY client=Z assigned_avf=F3 vmac=00:07:b4:00:04:03 mode=round-robin"
+        "label": "Question 3 — Part du trafic de R1 (en %)",
+        "stdin": "q:3",
+        "expected": "40||40 %||40%"
+      },
+      {
+        "label": "Question 4 — Part du trafic de R3 (en %)",
+        "stdin": "q:4",
+        "expected": "20||20 %||20%"
+      },
+      {
+        "label": "Question 5 — Part du trafic de R1 après la panne de R3 (en %)",
+        "stdin": "q:5",
+        "expected": "50||50 %||50%"
       }
     ],
-    "solution": "[Exemple]\nGLBP_REPLY client=PC1 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin\nGLBP_REPLY client=PC2 assigned_avf=AVF2 vmac=00:07:b4:00:01:02 mode=round-robin\nGLBP_REPLY client=PC3 assigned_avf=AVF1 vmac=00:07:b4:00:01:01 mode=round-robin\n\n[Cas 1 — Mode host-dependent liant un client à une même MAC virtuelle]\nGLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent\nGLBP_REPLY client=HOST_B assigned_avf=GW2 vmac=00:07:b4:00:02:02 mode=host-dependent\nGLBP_REPLY client=HOST_A assigned_avf=GW1 vmac=00:07:b4:00:02:01 mode=host-dependent\n\n[Cas 2 — Mode weighted avec poids inégaux (2 pour 1)]\nGLBP_REPLY client=C1 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C2 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\nGLBP_REPLY client=C3 assigned_avf=CORE_WEAK vmac=00:07:b4:00:03:02 mode=weighted\nGLBP_REPLY client=C4 assigned_avf=CORE_STRONG vmac=00:07:b4:00:03:01 mode=weighted\n\n[Cas 3 — Groupe à 3 forwarders en round-robin]\nGLBP_REPLY client=X assigned_avf=F1 vmac=00:07:b4:00:04:01 mode=round-robin\nGLBP_REPLY client=Y assigned_avf=F2 vmac=00:07:b4:00:04:02 mode=round-robin\nGLBP_REPLY client=Z assigned_avf=F3 vmac=00:07:b4:00:04:03 mode=round-robin"
+    "solution": "[Question 1 — AVG du groupe 10]\nR1\n\n[Question 2 — Nombre d'adresses MAC virtuelles]\n3\n\n[Question 3 — Part du trafic de R1 (en %)]\n40\n\n[Question 4 — Part du trafic de R3 (en %)]\n20\n\n[Question 5 — Part du trafic de R1 après la panne de R3 (en %)]\n50",
+    "takeaway": "1) La priorité la plus élevée est 200 : R1 est élu AVG du groupe 10.\n2) Les trois routeurs sont des AVF : le groupe expose 3 adresses MAC virtuelles aux hôtes.\n3) Somme des poids : 100 + 100 + 50 = 250 ; part de R1 : 100/250 = 40 %.\n4) Part de R3 : 50/250 = 20 %.\n5) R3 tombé, la somme des poids actifs vaut 100 + 100 = 200 ; part de R1 : 100/200 = 50 %.\nContrôle : 40 % + 40 % + 20 % = 100 % avant la panne ; 50 % + 50 % = 100 % après la panne de R3."
   },
   {
     "id": "lan3-c4-e1",
@@ -397,88 +501,112 @@ module.exports = [
         "expected": "OSPF_PATH id=DETOUR_FAST total_cost=20 hops_count=2 status=BEST_PATH\nOSPF_PATH id=DIRECT_SLOW total_cost=500 hops_count=1 status=BACKUP_PATH\nOSPF_ROUTE best_path=DETOUR_FAST metric=20"
       }
     ],
-    "solution": "[Exemple]\nOSPF_PATH id=PATH_A total_cost=30 hops_count=3 status=BACKUP_PATH\nOSPF_PATH id=PATH_B total_cost=101 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=PATH_C total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_ROUTE best_path=PATH_C metric=2\n\n[Cas 1 — Bande passante de référence par défaut 100 Mbps sans différenciation au-delà]\nOSPF_PATH id=P1 total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_PATH id=P2 total_cost=2 hops_count=2 status=BACKUP_PATH\nOSPF_ROUTE best_path=P1 metric=2\n\n[Cas 2 — Chemin à saut unique très rapide surpassant un chemin multi-sauts]\nOSPF_PATH id=CUIVRE total_cost=20 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=FIBRE total_cost=1 hops_count=1 status=BEST_PATH\nOSPF_ROUTE best_path=FIBRE metric=1\n\n[Cas 3 — Liaisons lentes pénalisées (T1/E1)]\nOSPF_PATH id=DETOUR_FAST total_cost=20 hops_count=2 status=BEST_PATH\nOSPF_PATH id=DIRECT_SLOW total_cost=500 hops_count=1 status=BACKUP_PATH\nOSPF_ROUTE best_path=DETOUR_FAST metric=20"
+    "solution": "[Exemple]\nOSPF_PATH id=PATH_A total_cost=30 hops_count=3 status=BACKUP_PATH\nOSPF_PATH id=PATH_B total_cost=101 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=PATH_C total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_ROUTE best_path=PATH_C metric=2\n\n[Cas 1 — Bande passante de référence par défaut 100 Mbps sans différenciation au-delà]\nOSPF_PATH id=P1 total_cost=2 hops_count=2 status=BEST_PATH\nOSPF_PATH id=P2 total_cost=2 hops_count=2 status=BACKUP_PATH\nOSPF_ROUTE best_path=P1 metric=2\n\n[Cas 2 — Chemin à saut unique très rapide surpassant un chemin multi-sauts]\nOSPF_PATH id=CUIVRE total_cost=20 hops_count=2 status=BACKUP_PATH\nOSPF_PATH id=FIBRE total_cost=1 hops_count=1 status=BEST_PATH\nOSPF_ROUTE best_path=FIBRE metric=1\n\n[Cas 3 — Liaisons lentes pénalisées (T1/E1)]\nOSPF_PATH id=DETOUR_FAST total_cost=20 hops_count=2 status=BEST_PATH\nOSPF_PATH id=DIRECT_SLOW total_cost=500 hops_count=1 status=BACKUP_PATH\nOSPF_ROUTE best_path=DETOUR_FAST metric=20",
+    "takeaway": "À retenir : Calculer le coût OSPF cumulé de chemins concurrents à partir de la bande passante de référence.\nRepère : PATH_C traverse deux liens 10G (coût 1 + 1 = 2) et bat PATH_A (coût 10+10+10 = 30)."
   },
   {
     "id": "lan3-c4-e2",
     "chapter": 4,
-    "title": "Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Classer les annonces d'état de liens (LSA) selon leur type, leur portée de diffusion et leur rôle émetteur.",
-    "brief": "<p>Dans une architecture OSPF multi-aires, différents types de <strong>Link-State Advertisements (LSA)</strong> circulent pour construire la base de données topologique (LSDB) :<br><br>\nClassification officielle des LSAs :<br>\n- <strong>Type 1 (Router LSA) :</strong> Émis par <em>chaque routeur interne</em>, portée <code>INTRA_AREA</code>.<br>\n- <strong>Type 2 (Network LSA) :</strong> Émis par le <em>Designated Router (DR)</em> sur réseau multi-accès broadcast, portée <code>INTRA_AREA</code>.<br>\n- <strong>Type 3 (Summary LSA) :</strong> Émis par un <em>ABR (Area Border Router)</em> pour annoncer des réseaux d'autres aires, portée <code>INTER_AREA</code>.<br>\n- <strong>Type 4 (ASBR Summary LSA) :</strong> Émis par un <em>ABR</em> pour indiquer la route vers un ASBR, portée <code>INTER_AREA</code>.<br>\n- <strong>Type 5 (AS External LSA) :</strong> Émis par un <em>ASBR (Autonomous System Boundary Router)</em> pour injecter des routes redistribuées (BGP, RIP, statique), portée <code>EXTERNAL_AS</code>.<br>\n- <strong>Type 7 (NSSA External LSA) :</strong> Émis par un <em>ASBR</em> dans une aire NSSA, portée <code>NSSA_LOCAL</code>.<br><br>\nl’étude de cas comporte dans l’énoncé du cas des annonces LSA capturées :<br>\n<code>LSA id=&lt;nom&gt; type=&lt;1|2|3|4|5|7&gt; adv_router=&lt;ip&gt; area=&lt;int&gt;</code><br><br>\nPour chaque LSA, afficher :<br>\n<code>LSA_REPORT id={id} type={type} name={lsa_name} emitter={emitter_role} scope={scope}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c4-e2) — Parseur et classificateur de paquets LSA OSPF (Types 1 à 7)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Annonces de Type 4 et Type 7 NSSA]\n# Données : LSA id=L_ASBR type=4 adv_router=10.0.0.254 area=2\n# Données : LSA id=L_NSSA type=7 adv_router=172.16.50.1 area=10\nA_COMPLETER\n\n[Cas 2 — Plusieurs LSAs Type 1 dans différentes aires]\n# Données : LSA id=R_BB type=1 adv_router=1.1.1.1 area=0\n# Données : LSA id=R_A1 type=1 adv_router=2.2.2.2 area=1\nA_COMPLETER\n\n[Cas 3 — LSA Type 5 traversant le backbone]\n# Données : LSA id=EXT_ROUTE type=5 adv_router=198.51.100.1 area=0\nA_COMPLETER\n",
+    "title": "La lecture des LSAs du siège de Calorix",
+    "exampleTitle": "Exemple résolu — les LSAs du réseau de la mairie de Tréville",
+    "goal": "Classer les LSAs d'une base d'états de liens par type (1 à 5) à partir de leur contenu et de leur émetteur.",
+    "brief": "<p><strong>Énoncé.</strong> Calorix, fabricant de matériel de chauffage, exploite un domaine OSPF à deux aires : l'aire 0 (cœur, siège) et l'aire 1 (usine). Le routeur interne R-INT1, situé dans l'aire 1, affiche sa base d'états de liens. L'ingénieur relève les cinq entrées suivantes :</p><table><tr><th>Entrée</th><th>Contenu</th><th>Émise par</th></tr><tr><th>LSA-a</th><td>Les liens de R-INT1 dans l'aire 1</td><td>R-INT1</td></tr><tr><th>LSA-b</th><td>Les routeurs raccordés au réseau multi-accès 10.1.1.0/24 (segment dont R-ABR1 est le DR)</td><td>R-ABR1</td></tr><tr><th>LSA-c</th><td>Le réseau 10.20.0.0/16 de l'aire 0, annoncé à l'aire 1</td><td>R-ABR1</td></tr><tr><th>LSA-d</th><td>La localisation de l'ASBR R-ASBR (situé dans l'aire 0) pour les routeurs de l'aire 1</td><td>R-ABR1</td></tr><tr><th>LSA-e</th><td>La route externe 0.0.0.0/0 vers le fournisseur Internet, redistribuée</td><td>R-ASBR</td></tr></table><p>Rappel du cours : type 1 (Router LSA, un routeur décrit ses liens dans son aire) ; type 2 (Network LSA, le DR décrit un segment multi-accès) ; type 3 (Network Summary, un ABR annonce un réseau d'une autre aire) ; type 4 (ASBR Summary, un ABR annonce la route vers un ASBR) ; type 5 (AS External, un ASBR annonce une route externe). Les types 1 et 2 ne quittent jamais leur aire de départ.</p><p>Répondez par le numéro du type (un chiffre entre 1 et 5).</p><ol><li>Quel est le type du LSA-a ?</li><li>Quel est le type du LSA-b ?</li><li>Quel est le type du LSA-c ?</li><li>Quel est le type du LSA-d ?</li><li>Quel est le type du LSA-e ?</li></ol>",
+    "starter": "# Exercice — La lecture des LSAs du siège de Calorix\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Chaque réponse est le numéro du type de LSA (1 à 5).\n\n[Question 1 — Type du LSA-a]\nA_COMPLETER\n\n[Question 2 — Type du LSA-b]\nA_COMPLETER\n\n[Question 3 — Type du LSA-c]\nA_COMPLETER\n\n[Question 4 — Type du LSA-d]\nA_COMPLETER\n\n[Question 5 — Type du LSA-e]\nA_COMPLETER\n",
     "hints": [
-      "Gérer un dictionnaire de mapping pour les types 1, 2, 3, 4, 5, 7.",
-      "Exemple: 1 -> (\"Router LSA\", \"INTERNAL_ROUTER\", \"INTRA_AREA\")."
+      "Identifiez l'émetteur : un routeur ordinaire, un DR, un ABR ou un ASBR n'émettent pas les mêmes types.",
+      "Un LSA dont le contenu est un réseau situé dans une autre aire est un résumé d'ABR ; s'il décrit un segment local multi-accès, c'est le DR qui parle.",
+      "1. LSA-a : un routeur décrit ses propres liens dans son aire. 2. LSA-b : un DR décrit son segment. 3. LSA-c : un ABR résume un réseau d'une autre aire. 4. LSA-d : un ABR indique où trouver un ASBR. 5. LSA-e : un ASBR redistribue une route externe."
     ],
     "examples": [
       {
-        "stdin": "LSA id=L1 type=1 adv_router=1.1.1.1 area=0\nLSA id=L2 type=2 adv_router=2.2.2.2 area=0\nLSA id=L3 type=3 adv_router=10.0.0.1 area=1\nLSA id=L4 type=5 adv_router=192.168.1.1 area=0",
-        "expected": "LSA_REPORT id=L1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=L2 type=2 name=Network_LSA emitter=DR scope=INTRA_AREA\nLSA_REPORT id=L3 type=3 name=Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L4 type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS",
-        "note": "L1 est un LSA Type 1 intra-zone ; L3 est un Type 3 inter-zone émis par un ABR ; L4 est un Type 5 externe."
+        "stdin": "La mairie de Tréville exploite un domaine OSPF à deux aires.\nLSA-x : les liens de R-Mairie dans l'aire 1.\nLSA-y : les routeurs du segment 10.9.9.0/24, émis par le DR.\nLSA-z : le réseau 10.8.0.0/16 de l'aire 0, annoncé dans l'aire 1 par R-ABR.\nLSA-w : la route vers l'ASBR du siège, annoncée dans l'aire 1 par R-ABR.\nLSA-v : la route externe du réseau des écoles, redistribuée par l'ASBR.\n\n1) LSA-x : type 1 (Router LSA).\n2) LSA-y : type 2 (Network LSA du DR).\n3) LSA-z : type 3 (résumé de réseau par l'ABR).\n4) LSA-w : type 4 (résumé vers l'ASBR).\n5) LSA-v : type 5 (route externe).",
+        "expected": "x : type 1 — y : type 2 — z : type 3 — w : type 4 — v : type 5",
+        "note": "Les types 1 et 2 restent confinés dans leur aire ; seuls les résumés (types 3 et 4) et les externes (type 5) traversent les frontières."
       }
     ],
     "tests": [
       {
-        "label": "Annonces de Type 4 et Type 7 NSSA",
-        "stdin": "cas:1",
-        "expected": "LSA_REPORT id=L_ASBR type=4 name=ASBR_Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L_NSSA type=7 name=NSSA_External_LSA emitter=ASBR scope=NSSA_LOCAL"
+        "label": "Question 1 — Type du LSA-a",
+        "stdin": "q:1",
+        "expected": "1||type 1||LSA 1||le type 1"
       },
       {
-        "label": "Plusieurs LSAs Type 1 dans différentes aires",
-        "stdin": "cas:2",
-        "expected": "LSA_REPORT id=R_BB type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=R_A1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA"
+        "label": "Question 2 — Type du LSA-b",
+        "stdin": "q:2",
+        "expected": "2||type 2||LSA 2||le type 2"
       },
       {
-        "label": "LSA Type 5 traversant le backbone",
-        "stdin": "cas:3",
-        "expected": "LSA_REPORT id=EXT_ROUTE type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS"
+        "label": "Question 3 — Type du LSA-c",
+        "stdin": "q:3",
+        "expected": "3||type 3||LSA 3||le type 3"
+      },
+      {
+        "label": "Question 4 — Type du LSA-d",
+        "stdin": "q:4",
+        "expected": "4||type 4||LSA 4||le type 4"
+      },
+      {
+        "label": "Question 5 — Type du LSA-e",
+        "stdin": "q:5",
+        "expected": "5||type 5||LSA 5||le type 5"
       }
     ],
-    "solution": "[Exemple]\nLSA_REPORT id=L1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=L2 type=2 name=Network_LSA emitter=DR scope=INTRA_AREA\nLSA_REPORT id=L3 type=3 name=Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L4 type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS\n\n[Cas 1 — Annonces de Type 4 et Type 7 NSSA]\nLSA_REPORT id=L_ASBR type=4 name=ASBR_Summary_LSA emitter=ABR scope=INTER_AREA\nLSA_REPORT id=L_NSSA type=7 name=NSSA_External_LSA emitter=ASBR scope=NSSA_LOCAL\n\n[Cas 2 — Plusieurs LSAs Type 1 dans différentes aires]\nLSA_REPORT id=R_BB type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\nLSA_REPORT id=R_A1 type=1 name=Router_LSA emitter=INTERNAL_ROUTER scope=INTRA_AREA\n\n[Cas 3 — LSA Type 5 traversant le backbone]\nLSA_REPORT id=EXT_ROUTE type=5 name=AS_External_LSA emitter=ASBR scope=EXTERNAL_AS"
+    "solution": "[Question 1 — Type du LSA-a]\n1\n\n[Question 2 — Type du LSA-b]\n2\n\n[Question 3 — Type du LSA-c]\n3\n\n[Question 4 — Type du LSA-d]\n4\n\n[Question 5 — Type du LSA-e]\n5",
+    "takeaway": "1) LSA-a : un routeur décrit ses liens dans sa propre aire : Router LSA, type 1.\n2) LSA-b : le DR du segment multi-accès 10.1.1.0/24 décrit les routeurs raccordés : Network LSA, type 2.\n3) LSA-c : l'ABR annonce à l'aire 1 un réseau de l'aire 0 : Network Summary, type 3.\n4) LSA-d : l'ABR annonce la localisation d'un ASBR : ASBR Summary, type 4.\n5) LSA-e : l'ASBR redistribue une route externe (0.0.0.0/0 vers Internet) : AS External, type 5.\nContrôle : les cinq types majeurs sont présents une fois chacun ; les types 1 et 2 ne quittent pas l'aire 1, les types 3, 4 et 5 y arrivent par l'ABR ou l'ASBR."
   },
   {
     "id": "lan3-c4-e3",
     "chapter": 4,
-    "title": "Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby & NSSA",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer l'acceptation ou le filtrage des LSAs selon la politique de zone OSPF configurée sur l'ABR.",
-    "brief": "<p>Pour alléger la table de routage et préserver la mémoire des routeurs de succursales, OSPF définit des types de zones spéciales :<br><br>\nRègles de filtrage des LSAs selon le type de zone :<br>\n- <strong>STANDARD (Zone normale) :</strong> Accepte tous les types de LSA (1, 2, 3, 4, 5).<br>\n- <strong>STUB :</strong> Bloque les routes externes (Type 4 et 5 rejetés) ; accepte Type 1, 2, 3.<br>\n- <strong>TOTALLY_STUBBY (Spécifique Cisco) :</strong> Bloque les routes externes (Type 4 et 5) ET les routes inter-zones (Type 3 rejetés) ; n'accepte que Type 1 et 2.<br>\n- <strong>NSSA (Not-So-Stubby Area) :</strong> Bloque les routes externes Type 4 et 5 classiques, mais accepte les Type 7 générés localement ; accepte Type 1, 2, 3, 7.<br><br>\nAnalysez les paramètres du problème pour chaque cas.<br>\n- Si bloqué : <code>action=DROP result=BLOCKED_BY_AREA_POLICY</code>.<br><br>\nAfficher :<br>\n<code>OSPF_FILTER id={id} area={area_id} lsa_type={lsa_type} action={action} result={result}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c4-e3) — Filtre d'injection de routes dans une aire OSPF Stub, Totally Stubby & NSSA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Zone Totally Stubby bloquant même les Summary Type 3]\n# Données : AREA_CONFIG area_id=20 type=TOTALLY_STUBBY\n# Données : INCOMING_LSA id=T1 lsa_type=1 prefix=10.20.0.0/16\n# Données : INCOMING_LSA id=T3 lsa_type=3 prefix=172.16.0.0/16\n# Données : INCOMING_LSA id=T5 lsa_type=5 prefix=8.8.8.8/32\nA_COMPLETER\n\n[Cas 2 — Zone NSSA autorisant le Type 7 et bloquant le Type 5]\n# Données : AREA_CONFIG area_id=30 type=NSSA\n# Données : INCOMING_LSA id=N7 lsa_type=7 prefix=198.51.100.0/24\n# Données : INCOMING_LSA id=N5 lsa_type=5 prefix=203.0.113.0/24\nA_COMPLETER\n\n[Cas 3 — Zone standard acceptant tout]\n# Données : AREA_CONFIG area_id=0 type=STANDARD\n# Données : INCOMING_LSA id=S3 lsa_type=3 prefix=10.0.0.0/8\n# Données : INCOMING_LSA id=S4 lsa_type=4 prefix=1.1.1.1/32\n# Données : INCOMING_LSA id=S5 lsa_type=5 prefix=100.64.0.0/10\nA_COMPLETER\n",
+    "title": "Les aires spéciales de l'agence de Montferand",
+    "exampleTitle": "Exemple résolu — les aires OSPF du groupement Verchant",
+    "goal": "Choisir une aire OSPF spéciale (stub, totally stubby, NSSA) selon les besoins d'une agence et compter les LSAs restants.",
+    "brief": "<p><strong>Énoncé.</strong> Montferand est une agence bancaire reliée au siège par un lien de 20 Mbit/s. Son aire OSPF 51 reçoit aujourd'hui : 12 LSAs de type 3 (réseaux des autres aires), 4 LSAs de type 4 (localisations d'ASBR) et 6 LSAs de type 5 (routes externes), en plus des LSAs internes de l'agence. Le responsable réseau veut alléger la table de routage des routeurs de l'agence, avec deux contraintes : les postes de l'agence ne consomment aucune route externe, mais l'agence doit pouvoir annoncer une route externe vers un partenaire de sauvegarde qui y est raccordé.</p><p>Rappel du cours : une aire stub supprime les LSAs de type 5 (routes externes) et conserve les types 3 ; une aire totalement stub (totally stubby) supprime aussi les types 3 et 4, ne laissant qu'une route par défaut injectée par l'ABR ; une aire NSSA autorise un ASBR interne : les routes externes y entrent sous forme de LSAs de type 7, que l'ABR convertit en type 5 vers le reste du domaine.</p><p>Répondez par le nom de l'aire (questions 1 à 3), le nombre seul (question 4) ou un court libellé (question 5).</p><ol><li>L'agence n'a besoin d'aucune route externe mais souhaite garder les routes inter-aires : quelle aire spéciale suffit ?</li><li>Pour supprimer aussi les LSAs de type 3 et 4, quel type d'aire l'administrateur configure-t-il ?</li><li>L'agence doit annoncer sa route externe vers le partenaire : quelle aire spéciale le permet ?</li><li>Après passage en aire totalement stub, combien de LSAs de type 3 décrivant les réseaux des autres aires restent-ils dans l'aire 51 ?</li><li>Quelle route l'ABR injecte-t-il dans une aire totalement stub pour assurer la sortie vers le reste du domaine ?</li></ol>",
+    "starter": "# Exercice — Les aires spéciales de l'agence de Montferand\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 : le nom de l'aire. Question 4 : le nombre seul.\n# Question 5 : un court libellé.\n\n[Question 1 — Aire spéciale supprimant les types 5 seulement]\nA_COMPLETER\n\n[Question 2 — Aire supprimant aussi les types 3 et 4]\nA_COMPLETER\n\n[Question 3 — Aire autorisant un ASBR interne]\nA_COMPLETER\n\n[Question 4 — LSAs de type 3 restants en aire totalement stub]\nA_COMPLETER\n\n[Question 5 — Route injectée par l'ABR dans une aire totalement stub]\nA_COMPLETER\n",
     "hints": [
-      "Créer un set de types LSA autorisés selon le type d'aire.",
-      "STANDARD: {1, 2, 3, 4, 5}.",
-      "STUB: {1, 2, 3}.",
-      "TOTALLY_STUBBY: {1, 2}.",
-      "NSSA: {1, 2, 3, 7}."
+      "Classez les besoins : supprimer les externes (stub), supprimer aussi les inter-aires (totally stubby), ou injecter des externes locales (NSSA).",
+      "L'aire totalement stub remplace tous les résumés par une unique route vers l'ABR.",
+      "1. L'agence garde les types 3 : l'aire stub suffit. 2. Totally stubby chasse aussi les types 3 et 4. 3. Le type 7 est propre aux NSSA. 4. Aucun résumé de réseau distant ne survit. 5. Une seule route suffit à sortir de l'aire."
     ],
     "examples": [
       {
-        "stdin": "AREA_CONFIG area_id=10 type=STUB\nINCOMING_LSA id=L1 lsa_type=1 prefix=10.10.0.0/16\nINCOMING_LSA id=L2 lsa_type=3 prefix=192.168.0.0/24\nINCOMING_LSA id=L3 lsa_type=5 prefix=0.0.0.0/0",
-        "expected": "OSPF_FILTER id=L1 area=10 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L2 area=10 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L3 area=10 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY",
-        "note": "L1 (Type 1) et L2 (Type 3) entrent dans la zone Stub ; L3 (Type 5 externe) est bloqué."
+        "stdin": "Le groupement Verchant exploite une aire distante 60.\nBesoins : supprimer les routes externes (LSA type 5) tout en gardant les réseaux\nintersites (type 3), puis annoncer une route externe d'un partenaire local.\n\n1) Supprimer les types 5 seulement : aire stub.\n2) Supprimer aussi les types 3 et 4 : aire totalement stub.\n3) Annoncer une externe locale : aire NSSA (LSA type 7 converti en type 5 par l'ABR).\n4) En aire totalement stub, aucun LSA de type 3 de réseau distant ne reste.\n5) L'ABR injecte une route par défaut (0.0.0.0/0).",
+        "expected": "stub — totally stub — NSSA (type 7) — 0 LSA de type 3 restant — route par défaut",
+        "note": "Le type 7 n'existe que dans les NSSA : c'est le véhicule local des routes externes, converti en type 5 au passage de l'ABR."
       }
     ],
     "tests": [
       {
-        "label": "Zone Totally Stubby bloquant même les Summary Type 3",
-        "stdin": "cas:1",
-        "expected": "OSPF_FILTER id=T1 area=20 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=T3 area=20 lsa_type=3 action=DROP result=BLOCKED_BY_AREA_POLICY\nOSPF_FILTER id=T5 area=20 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY"
+        "label": "Question 1 — Aire spéciale supprimant les types 5 seulement",
+        "stdin": "q:1",
+        "expected": "stub||aire stub||une aire stub||stub area"
       },
       {
-        "label": "Zone NSSA autorisant le Type 7 et bloquant le Type 5",
-        "stdin": "cas:2",
-        "expected": "OSPF_FILTER id=N7 area=30 lsa_type=7 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=N5 area=30 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY"
+        "label": "Question 2 — Aire supprimant aussi les types 3 et 4",
+        "stdin": "q:2",
+        "expected": "totally stubby||totally stub||aire totalement stub||totalement stub||aire totally stubby||totally stubby area"
       },
       {
-        "label": "Zone standard acceptant tout",
-        "stdin": "cas:3",
-        "expected": "OSPF_FILTER id=S3 area=0 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S4 area=0 lsa_type=4 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S5 area=0 lsa_type=5 action=PERMIT result=INJECTED_INTO_AREA"
+        "label": "Question 3 — Aire autorisant un ASBR interne",
+        "stdin": "q:3",
+        "expected": "NSSA||aire NSSA||une aire NSSA||not-so-stubby"
+      },
+      {
+        "label": "Question 4 — LSAs de type 3 restants en aire totalement stub",
+        "stdin": "q:4",
+        "expected": "0||aucun||aucun LSA"
+      },
+      {
+        "label": "Question 5 — Route injectée par l'ABR dans une aire totalement stub",
+        "stdin": "q:5",
+        "expected": "une route par défaut||la route par défaut||0.0.0.0/0||une route par defaut||route par défaut"
       }
     ],
-    "solution": "[Exemple]\nOSPF_FILTER id=L1 area=10 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L2 area=10 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=L3 area=10 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY\n\n[Cas 1 — Zone Totally Stubby bloquant même les Summary Type 3]\nOSPF_FILTER id=T1 area=20 lsa_type=1 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=T3 area=20 lsa_type=3 action=DROP result=BLOCKED_BY_AREA_POLICY\nOSPF_FILTER id=T5 area=20 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY\n\n[Cas 2 — Zone NSSA autorisant le Type 7 et bloquant le Type 5]\nOSPF_FILTER id=N7 area=30 lsa_type=7 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=N5 area=30 lsa_type=5 action=DROP result=BLOCKED_BY_AREA_POLICY\n\n[Cas 3 — Zone standard acceptant tout]\nOSPF_FILTER id=S3 area=0 lsa_type=3 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S4 area=0 lsa_type=4 action=PERMIT result=INJECTED_INTO_AREA\nOSPF_FILTER id=S5 area=0 lsa_type=5 action=PERMIT result=INJECTED_INTO_AREA"
+    "solution": "[Question 1 — Aire spéciale supprimant les types 5 seulement]\nstub\n\n[Question 2 — Aire supprimant aussi les types 3 et 4]\ntotally stubby\n\n[Question 3 — Aire autorisant un ASBR interne]\nNSSA\n\n[Question 4 — LSAs de type 3 restants en aire totalement stub]\n0\n\n[Question 5 — Route injectée par l'ABR dans une aire totalement stub]\nune route par défaut",
+    "takeaway": "1) L'aire stub supprime les LSAs de type 5 (routes externes) tout en conservant les types 3 : elle suffit au besoin décrit.\n2) Pour chasser aussi les types 3 et 4, il faut une aire totalement stub (totally stubby).\n3) L'agence doit annoncer une route externe locale : seule l'aire NSSA autorise un ASBR interne (routes portées en type 7, converties en type 5 par l'ABR).\n4) En aire totalement stub, aucun LSA de type 3 décrivant les réseaux d'autres aires n'est admis : il en reste 0.\n5) L'ABR injecte une route par défaut, qui dirige vers lui tout le trafic sortant de l'aire.\nContrôle : l'agence de Montferand combine les deux contraintes en choisissant une NSSA si la route du partenaire doit être annoncée ; sinon une aire totalement stub serait la plus légère."
   },
   {
     "id": "lan3-c5-e1",
@@ -491,7 +619,8 @@ module.exports = [
     "starter": "# Grille d'analyse (lan3-c5-e1) — Contrôleur de Port Security et détection de violation (Protect, Restrict, Shutdown)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mode restrict conservant le port UP avec drop et alerte]\n# Données : PORT_SEC port=Gi0/1 max_mac=1 mode=restrict sticky_macs=00:00:00:00:00:01\n# Données : FRAME id=R1 src_mac=00:00:00:00:00:01\n# Données : FRAME id=R2 src_mac=00:00:00:00:00:99\n# Données : FRAME id=R3 src_mac=00:00:00:00:00:01\nA_COMPLETER\n\n[Cas 2 — Mode protect silencieux]\n# Données : PORT_SEC port=Fa0/5 max_mac=1 mode=protect sticky_macs=NONE\n# Données : FRAME id=P1 src_mac=00:50:56:00:00:01\n# Données : FRAME id=P2 src_mac=00:50:56:00:00:02\nA_COMPLETER\n\n[Cas 3 — Apprentissage dynamique jusqu'à max_mac=2]\n# Données : PORT_SEC port=Eth1 max_mac=2 mode=shutdown sticky_macs=NONE\n# Données : FRAME id=D1 src_mac=00:01:02:03:04:01\n# Données : FRAME id=D2 src_mac=00:01:02:03:04:02\n# Données : FRAME id=D3 src_mac=00:01:02:03:04:03\nA_COMPLETER\n",
     "hints": [
       "Le mécanisme de sécurité Port Security surveille le nombre d’adresses MAC distinctes autorisées sur un port de commutateur.",
-      "Si une adresse inconnue dépasse le quota, seul le mode shutdown du scénario place le port en err-disable."
+      "Si une adresse inconnue dépasse le quota, seul le mode shutdown du scénario place le port en err-disable.",
+      "Vérifiez si le nombre d adresses MAC apprises dépasse max_mac : protect ignore sans log, restrict ignore avec compteur, shutdown désactive le port."
     ],
     "examples": [
       {
@@ -517,46 +646,60 @@ module.exports = [
         "expected": "PORT_SEC_REPORT id=D1 port=Eth1 mac=00:01:02:03:04:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=D2 port=Eth1 mac=00:01:02:03:04:02 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=D3 port=Eth1 mac=00:01:02:03:04:03 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE"
       }
     ],
-    "solution": "[Exemple]\nPORT_SEC_REPORT id=F1 port=Fa0/1 mac=00:11:22:33:44:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=F2 port=Fa0/1 mac=00:aa:bb:cc:dd:02 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE\nPORT_SEC_REPORT id=F3 port=Fa0/1 mac=00:11:22:33:44:01 status=PORT_DOWN action=DROP state=ERR_DISABLE\n\n[Cas 1 — Mode restrict conservant le port UP avec drop et alerte]\nPORT_SEC_REPORT id=R1 port=Gi0/1 mac=00:00:00:00:00:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=R2 port=Gi0/1 mac=00:00:00:00:00:99 status=VIOLATION action=DROP_ALERT state=UP\nPORT_SEC_REPORT id=R3 port=Gi0/1 mac=00:00:00:00:00:01 status=PERMIT action=FORWARD state=UP\n\n[Cas 2 — Mode protect silencieux]\nPORT_SEC_REPORT id=P1 port=Fa0/5 mac=00:50:56:00:00:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=P2 port=Fa0/5 mac=00:50:56:00:00:02 status=VIOLATION action=DROP_SILENT state=UP\n\n[Cas 3 — Apprentissage dynamique jusqu'à max_mac=2]\nPORT_SEC_REPORT id=D1 port=Eth1 mac=00:01:02:03:04:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=D2 port=Eth1 mac=00:01:02:03:04:02 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=D3 port=Eth1 mac=00:01:02:03:04:03 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE"
+    "solution": "[Exemple]\nPORT_SEC_REPORT id=F1 port=Fa0/1 mac=00:11:22:33:44:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=F2 port=Fa0/1 mac=00:aa:bb:cc:dd:02 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE\nPORT_SEC_REPORT id=F3 port=Fa0/1 mac=00:11:22:33:44:01 status=PORT_DOWN action=DROP state=ERR_DISABLE\n\n[Cas 1 — Mode restrict conservant le port UP avec drop et alerte]\nPORT_SEC_REPORT id=R1 port=Gi0/1 mac=00:00:00:00:00:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=R2 port=Gi0/1 mac=00:00:00:00:00:99 status=VIOLATION action=DROP_ALERT state=UP\nPORT_SEC_REPORT id=R3 port=Gi0/1 mac=00:00:00:00:00:01 status=PERMIT action=FORWARD state=UP\n\n[Cas 2 — Mode protect silencieux]\nPORT_SEC_REPORT id=P1 port=Fa0/5 mac=00:50:56:00:00:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=P2 port=Fa0/5 mac=00:50:56:00:00:02 status=VIOLATION action=DROP_SILENT state=UP\n\n[Cas 3 — Apprentissage dynamique jusqu'à max_mac=2]\nPORT_SEC_REPORT id=D1 port=Eth1 mac=00:01:02:03:04:01 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=D2 port=Eth1 mac=00:01:02:03:04:02 status=PERMIT action=FORWARD state=UP\nPORT_SEC_REPORT id=D3 port=Eth1 mac=00:01:02:03:04:03 status=VIOLATION action=PORT_SHUTDOWN state=ERR_DISABLE",
+    "takeaway": "À retenir : Simuler le mécanisme Cisco Port Security et les modes de réaction face aux adresses MAC non autorisées.\nRepère : F1 est autorisée ; F2 déclenche le shutdown du port ; F3 arrive sur un port désactivé."
   },
   {
     "id": "lan3-c5-e2",
     "chapter": 5,
-    "title": "Validateur de base de données de liaison DHCP Snooping",
     "level": "n2",
     "language": "analyse",
-    "goal": "Filtrer les messages DHCP selon le statut de confiance des ports et alimenter la base de liaison (Binding DB).",
-    "brief": "<p>L'attaque par serveur DHCP pirate (Rogue DHCP Server) permet à un attaquant de distribuer de fausses passerelles et de faux serveurs DNS aux postes du réseau. La parade <strong>DHCP Snooping</strong> classe les ports du commutateur en deux catégories :<br>\n- <strong>Ports de confiance (TRUSTED) :</strong> Reliés aux serveurs DHCP légitimes ou aux uplinks de distribution. Tous les messages DHCP y sont autorisés.<br>\n- <strong>Ports non fiables (UNTRUSTED) :</strong> Reliés aux utilisateurs finals. Seules les requêtes clients (<code>DISCOVER</code>, <code>REQUEST</code>) y sont autorisées. Si une réponse serveur (<code>OFFER</code> ou <code>ACK</code>) y est détectée, elle est immédiatement détruite et signalée comme attaque Rogue DHCP.<br><br>\nAnalysez les paramètres du problème pour chaque cas. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['OFFER', 'ACK']</code> :<br>\n   <code>status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER</code>.<br>\n2. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['DISCOVER', 'REQUEST']</code> :<br>\n   <code>status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST</code>.<br>\n3. Si <code>port.trust == 'TRUSTED'</code> :<br>\n   <code>status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC</code>.<br>\n   (Si de plus <code>type == 'ACK'</code> et <code>assigned_ip != '0.0.0.0'</code>, la liaison est insérée dans la base de données Snooping).<br><br>\nPour chaque message, afficher :<br>\n<code>DHCP_SNOOP_REPORT id={id} port={port} type={type} status={status} action={action} reason={reason}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c5-e2) — Validateur de base de données de liaison DHCP Snooping\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tentative d'émission de DHCP ACK frauduleux sur port utilisateur]\n# Données : PORT_TRUST name=Fa0/12 trust=UNTRUSTED\n# Données : DHCP_MSG id=ROGUE_ACK port=Fa0/12 type=ACK client_mac=00:aa:bb:cc:dd:ee assigned_ip=10.0.0.99 vlan=1\nA_COMPLETER\n\n[Cas 2 — Requête REQUEST valide émise sur port untrusted]\n# Données : PORT_TRUST name=Gi0/2 trust=UNTRUSTED\n# Données : DHCP_MSG id=REQ1 port=Gi0/2 type=REQUEST client_mac=00:50:56:11:22:33 assigned_ip=172.16.1.100 vlan=20\nA_COMPLETER\n\n[Cas 3 — Uplink de distribution de confiance acheminant Discover et Offer]\n# Données : PORT_TRUST name=Trunk1 trust=TRUSTED\n# Données : DHCP_MSG id=UPL1 port=Trunk1 type=DISCOVER client_mac=00:00:00:00:00:01 assigned_ip=0.0.0.0 vlan=100\n# Données : DHCP_MSG id=UPL2 port=Trunk1 type=OFFER client_mac=00:00:00:00:00:01 assigned_ip=10.100.0.5 vlan=100\nA_COMPLETER\n",
+    "title": "La base de liaisons DHCP Snooping de la résidence Néolis",
+    "exampleTitle": "Exemple résolu — le DHCP Snooping du siège de Fontenay",
+    "goal": "Exploiter la base de liaisons DHCP Snooping (ports de confiance, entrées, expiration) pour protéger l'attribution des adresses.",
+    "brief": "<p><strong>Énoncé.</strong> Néolis opère une résidence de 240 logements étudiants : chaque chambre dispose d'une prise RJ45 raccordée à un commutateur d'étage. Le VLAN 60 (logements) est protégé par DHCP Snooping : seules la liaison montante vers le serveur DHCP institutionnel (port Gi1/0/24) et la liaison vers le routeur sont déclarées de confiance ; toutes les prises chambres sont non approuvées. La base de liaisons contient :</p><table><tr><th>Adresse MAC</th><th>Adresse IP attribuée</th><th>VLAN</th><th>Port</th><th>Bail</th></tr><tr><th>00:1a:2b:3c:4d:01</th><td>10.60.0.11</td><td>60</td><td>Gi0/3</td><td>12 h</td></tr><tr><th>00:1a:2b:3c:4d:02</th><td>10.60.0.12</td><td>60</td><td>Gi0/4</td><td>12 h</td></tr><tr><th>00:1a:2b:3c:4d:03</th><td>10.60.0.13</td><td>60</td><td>Gi0/5</td><td>12 h</td></tr></table><p>Rappel du cours : DHCP Snooping distingue les messages clients (DISCOVER, REQUEST), acceptés sur les ports non approuvés avec une limitation de débit, des messages serveur (OFFER, ACK, NAK), rejetés sur tout port non approuvé. La base de liaisons enregistre le couple adresse MAC / adresse IP de chaque bail, avec le port et le VLAN ; l'entrée est retirée à l'expiration du bail.</p><p>Répondez par un court libellé, le nombre seul, ou « oui » / « non » (question 5).</p><ol><li>Sur quel type de port les messages émis par un serveur DHCP (OFFER, ACK) sont-ils acceptés ?</li><li>Un étudiant branche un routeur grand public (serveur DHCP pirate) sur sa prise : que fait le commutateur de ses DHCPOFFER ?</li><li>Combien d'entrées la base de liaisons contient-elle ?</li><li>Le bail de la machine 10.60.0.13 expire sans renouvellement : que devient l'entrée correspondante ?</li><li>Les messages DHCPDISCOVER d'un poste, envoyés sur sa prise non approuvée, sont-ils bloqués ?</li></ol>",
+    "starter": "# Exercice — La base de liaisons DHCP Snooping de la résidence Néolis\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 4 : un court libellé. Question 3 : le nombre seul.\n# Question 5 : oui ou non.\n\n[Question 1 — Type de port acceptant les messages serveur]\nA_COMPLETER\n\n[Question 2 — Sort réservé aux DHCPOFFER du routeur pirate]\nA_COMPLETER\n\n[Question 3 — Nombre d'entrées de la base]\nA_COMPLETER\n\n[Question 4 — Devenir de l'entrée à l'expiration du bail]\nA_COMPLETER\n\n[Question 5 — Les DHCPDISCOVER sont-ils bloqués ?]\nA_COMPLETER\n",
     "hints": [
-      "Mémoriser le statut de chaque port (TRUSTED ou UNTRUSTED).",
-      "Identifier les réponses serveur OFFER et ACK arrivant sur port UNTRUSTED."
+      "Le filtrage ne vise que les messages de type serveur : OFFER, ACK et NAK ne peuvent venir que d'un port de confiance.",
+      "La base de liaisons suit les baux : une ligne par adresse attribuée, retirée quand le bail meurt.",
+      "1. Seuls les ports déclarés de confiance acceptent les messages serveur. 2. La prise de l'étudiant est non approuvée. 3. Comptez les lignes du tableau. 4. Le bail de 12 h expire sans renouvellement. 5. Les messages clients passent, avec limitation de débit."
     ],
     "examples": [
       {
-        "stdin": "PORT_TRUST name=Gi0/1 trust=UNTRUSTED\nPORT_TRUST name=Gi0/24 trust=TRUSTED\nDHCP_MSG id=M1 port=Gi0/1 type=DISCOVER client_mac=00:11:22:33:44:01 assigned_ip=0.0.0.0 vlan=10\nDHCP_MSG id=M2 port=Gi0/1 type=OFFER client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10\nDHCP_MSG id=M3 port=Gi0/24 type=ACK client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10",
-        "expected": "DHCP_SNOOP_REPORT id=M1 port=Gi0/1 type=DISCOVER status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST\nDHCP_SNOOP_REPORT id=M2 port=Gi0/1 type=OFFER status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER\nDHCP_SNOOP_REPORT id=M3 port=Gi0/24 type=ACK status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC",
-        "note": "M1 est un Discover client normal ; M2 est une tentative d'usurpation DHCP serveur sur port non fiable ; M3 est la réponse légitime du serveur."
+        "stdin": "Le siège de Fontenay protège son VLAN 15 par DHCP Snooping.\nSeuls le port vers le serveur DHCP (Gi1/0/1) et le port vers le routeur (Gi1/0/2) sont de confiance.\nLa base contient : 00:2b:3c:4d:5e:01 → 10.15.0.21 (Gi0/1) et 00:2b:3c:4d:5e:02 → 10.15.0.22 (Gi0/2).\n\n1) Les OFFER d'un serveur pirate branché en Gi0/10 sont rejetées : port non approuvé.\n2) La base compte 2 entrées.\n3) À l'expiration d'un bail, l'entrée est retirée de la base.\n4) Les DISCOVER des clients passent sur les ports non approuvés (avec limitation de débit).",
+        "expected": "OFFER rejetées sur port non approuvé — 2 entrées — bail expiré : entrée retirée — DISCOVER transmis",
+        "note": "Le filtrage ne vise que les messages de type serveur : le client légitime continue d'obtenir ses bails via le port approuvé."
       }
     ],
     "tests": [
       {
-        "label": "Tentative d'émission de DHCP ACK frauduleux sur port utilisateur",
-        "stdin": "cas:1",
-        "expected": "DHCP_SNOOP_REPORT id=ROGUE_ACK port=Fa0/12 type=ACK status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER"
+        "label": "Question 1 — Type de port acceptant les messages serveur",
+        "stdin": "q:1",
+        "expected": "les ports de confiance||les ports approuvés||les ports approuves||ports de confiance||trusted||les ports trusted"
       },
       {
-        "label": "Requête REQUEST valide émise sur port untrusted",
-        "stdin": "cas:2",
-        "expected": "DHCP_SNOOP_REPORT id=REQ1 port=Gi0/2 type=REQUEST status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST"
+        "label": "Question 2 — Sort réservé aux DHCPOFFER du routeur pirate",
+        "stdin": "q:2",
+        "expected": "il les rejette||ils sont rejetés||rejetées||rejetes||bloquées||bloquees||supprimées||supprimees"
       },
       {
-        "label": "Uplink de distribution de confiance acheminant Discover et Offer",
-        "stdin": "cas:3",
-        "expected": "DHCP_SNOOP_REPORT id=UPL1 port=Trunk1 type=DISCOVER status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC\nDHCP_SNOOP_REPORT id=UPL2 port=Trunk1 type=OFFER status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC"
+        "label": "Question 3 — Nombre d'entrées de la base",
+        "stdin": "q:3",
+        "expected": "3"
+      },
+      {
+        "label": "Question 4 — Devenir de l'entrée à l'expiration du bail",
+        "stdin": "q:4",
+        "expected": "elle est supprimée||supprimée||supprimee||elle est retirée||retirée||elle est effacée||effacée"
+      },
+      {
+        "label": "Question 5 — Les DHCPDISCOVER sont-ils bloqués ?",
+        "stdin": "q:5",
+        "expected": "non"
       }
     ],
-    "solution": "[Exemple]\nDHCP_SNOOP_REPORT id=M1 port=Gi0/1 type=DISCOVER status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST\nDHCP_SNOOP_REPORT id=M2 port=Gi0/1 type=OFFER status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER\nDHCP_SNOOP_REPORT id=M3 port=Gi0/24 type=ACK status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC\n\n[Cas 1 — Tentative d'émission de DHCP ACK frauduleux sur port utilisateur]\nDHCP_SNOOP_REPORT id=ROGUE_ACK port=Fa0/12 type=ACK status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER\n\n[Cas 2 — Requête REQUEST valide émise sur port untrusted]\nDHCP_SNOOP_REPORT id=REQ1 port=Gi0/2 type=REQUEST status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST\n\n[Cas 3 — Uplink de distribution de confiance acheminant Discover et Offer]\nDHCP_SNOOP_REPORT id=UPL1 port=Trunk1 type=DISCOVER status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC\nDHCP_SNOOP_REPORT id=UPL2 port=Trunk1 type=OFFER status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC"
+    "solution": "[Question 1 — Type de port acceptant les messages serveur]\nles ports de confiance\n\n[Question 2 — Sort réservé aux DHCPOFFER du routeur pirate]\nil les rejette\n\n[Question 3 — Nombre d'entrées de la base]\n3\n\n[Question 4 — Devenir de l'entrée à l'expiration du bail]\nelle est supprimée\n\n[Question 5 — Les DHCPDISCOVER sont-ils bloqués ?]\nnon",
+    "takeaway": "1) Les messages serveur (OFFER, ACK, NAK) ne sont acceptés que sur les ports de confiance, ici Gi1/0/24 et la liaison vers le routeur.\n2) Le routeur pirate est branché sur une prise non approuvée : ses DHCPOFFER sont rejetées par le commutateur.\n3) La base de liaisons contient 3 entrées (10.60.0.11, 10.60.0.12 et 10.60.0.13).\n4) Le bail de 10.60.0.13 expire sans renouvellement : l'entrée est retirée de la base.\n5) Non : les messages clients (DISCOVER, REQUEST) sont transmis depuis les prises non approuvées, avec une limitation de débit.\nContrôle : la table reflète exactement les baux actifs du VLAN 60 ; un poste dont le bail expire disparaît de la base jusqu'à son prochain bail."
   },
   {
     "id": "lan3-c5-e3",
@@ -569,7 +712,8 @@ module.exports = [
     "starter": "# Grille d'analyse (lan3-c5-e3) — Filtre anti-usurpation Dynamic ARP Inspection (DAI)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — VLANs multiples avec la même IP privée dans des domaines isolés]\n# Données : BINDING mac=00:00:00:00:00:01 ip=10.0.0.1 vlan=10\n# Données : BINDING mac=00:00:00:00:00:02 ip=10.0.0.1 vlan=20\n# Données : ARP_FRAME id=A1 vlan=10 sender_mac=00:00:00:00:00:01 sender_ip=10.0.0.1 target_ip=10.0.0.254\n# Données : ARP_FRAME id=A2 vlan=20 sender_mac=00:00:00:00:00:01 sender_ip=10.0.0.1 target_ip=10.0.0.254\nA_COMPLETER\n\n[Cas 2 — Requête conforme à la liaison]\n# Données : BINDING mac=00:22:33:44:55:66 ip=172.16.10.5 vlan=5\n# Données : ARP_FRAME id=OK vlan=5 sender_mac=00:22:33:44:55:66 sender_ip=172.16.10.5 target_ip=172.16.10.1\nA_COMPLETER\n\n[Cas 3 — Hôte absent de la base de ce VLAN]\n# Données : BINDING mac=00:11:11:11:11:11 ip=192.168.1.5 vlan=1\n# Données : ARP_FRAME id=UNKNOWN vlan=1 sender_mac=00:99:99:99:99:99 sender_ip=192.168.1.200 target_ip=192.168.1.1\nA_COMPLETER\n",
     "hints": [
       "Normalisez les adresses MAC en minuscules.",
-      "Comparez chaque couple (vlan, sender_ip) à la MAC enregistrée dans les liaisons fournies."
+      "Comparez chaque couple (vlan, sender_ip) à la MAC enregistrée dans les liaisons fournies.",
+      "Comparez exactement le triplet (MAC, IP, port) de la trame ARP avec la table de liaison DHCP Snooping fournie ; toute discordance reste un indice à corréler."
     ],
     "examples": [
       {
@@ -595,124 +739,163 @@ module.exports = [
         "expected": "DAI_AUDIT id=UNKNOWN vlan=1 sender_ip=192.168.1.200 sender_mac=00:99:99:99:99:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING"
       }
     ],
-    "solution": "[Exemple]\nDAI_AUDIT id=ARP1 vlan=10 sender_ip=192.168.1.10 sender_mac=00:11:22:33:44:01 status=PERMIT action=FORWARD reason=BINDING_MATCH\nDAI_AUDIT id=ARP2 vlan=10 sender_ip=192.168.1.10 sender_mac=00:aa:bb:cc:dd:ee status=DENY action=DROP_ALERT reason=BINDING_MISMATCH\nDAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING\n\n[Cas 1 — VLANs multiples avec la même IP privée dans des domaines isolés]\nDAI_AUDIT id=A1 vlan=10 sender_ip=10.0.0.1 sender_mac=00:00:00:00:00:01 status=PERMIT action=FORWARD reason=BINDING_MATCH\nDAI_AUDIT id=A2 vlan=20 sender_ip=10.0.0.1 sender_mac=00:00:00:00:00:01 status=DENY action=DROP_ALERT reason=BINDING_MISMATCH\n\n[Cas 2 — Requête conforme à la liaison]\nDAI_AUDIT id=OK vlan=5 sender_ip=172.16.10.5 sender_mac=00:22:33:44:55:66 status=PERMIT action=FORWARD reason=BINDING_MATCH\n\n[Cas 3 — Hôte absent de la base de ce VLAN]\nDAI_AUDIT id=UNKNOWN vlan=1 sender_ip=192.168.1.200 sender_mac=00:99:99:99:99:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING"
+    "solution": "[Exemple]\nDAI_AUDIT id=ARP1 vlan=10 sender_ip=192.168.1.10 sender_mac=00:11:22:33:44:01 status=PERMIT action=FORWARD reason=BINDING_MATCH\nDAI_AUDIT id=ARP2 vlan=10 sender_ip=192.168.1.10 sender_mac=00:aa:bb:cc:dd:ee status=DENY action=DROP_ALERT reason=BINDING_MISMATCH\nDAI_AUDIT id=ARP3 vlan=10 sender_ip=192.168.1.99 sender_mac=00:11:22:33:44:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING\n\n[Cas 1 — VLANs multiples avec la même IP privée dans des domaines isolés]\nDAI_AUDIT id=A1 vlan=10 sender_ip=10.0.0.1 sender_mac=00:00:00:00:00:01 status=PERMIT action=FORWARD reason=BINDING_MATCH\nDAI_AUDIT id=A2 vlan=20 sender_ip=10.0.0.1 sender_mac=00:00:00:00:00:01 status=DENY action=DROP_ALERT reason=BINDING_MISMATCH\n\n[Cas 2 — Requête conforme à la liaison]\nDAI_AUDIT id=OK vlan=5 sender_ip=172.16.10.5 sender_mac=00:22:33:44:55:66 status=PERMIT action=FORWARD reason=BINDING_MATCH\n\n[Cas 3 — Hôte absent de la base de ce VLAN]\nDAI_AUDIT id=UNKNOWN vlan=1 sender_ip=192.168.1.200 sender_mac=00:99:99:99:99:99 status=DENY action=DROP reason=UNKNOWN_HOST_BINDING",
+    "takeaway": "À retenir : Analyser des trames ARP en les comparant à des liaisons fournies, sans conclure à une attaque sur ce seul indice.\nRepère : ARP1 correspond à la liaison ; ARP2 présente une MAC différente ; ARP3 n'a pas de liaison dans ce VLAN."
   },
   {
     "id": "lan3-c6-e1",
     "chapter": 6,
-    "title": "Convertisseur et mappeur de marquage QoS (CoS 802.1p vers DSCP DiffServ)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Mettre en correspondance le marquage de couche 2 (CoS 802.1p) avec les classes DiffServ DSCP de couche 3.",
-    "brief": "<p>Dans un réseau de campus convergé transportant simultanément de la voix, de la vidéo et des données critiques, la <strong>Qualité de Service (QoS)</strong> garantit le traitement prioritaire des flux sensibles à la gigue et à la latence.<br><br>\nLe champ PCP (Priority Code Point / CoS) de l'en-tête 802.1Q code 8 niveaux de priorité (0 à 7). Au niveau IP (couche 3), le champ DS (Differentiated Services / RFC 2474) utilise les 6 bits supérieurs de l'octet ToS (DSCP, valeurs de 0 à 63).<br><br>\nTable de correspondance standard IETF / Cisco :<br>\n- <strong>CoS 0 (Best Effort) :</strong> DSCP 0 (décimal) &rarr; <code>PHB=BE</code> (Best Effort).<br>\n- <strong>CoS 1 (Background) :</strong> DSCP 8 &rarr; <code>PHB=CS1</code> (Class Selector 1).<br>\n- <strong>CoS 2 (Standard Data) :</strong> DSCP 16 &rarr; <code>PHB=CS2</code>.<br>\n- <strong>CoS 3 (Critical Data) :</strong> DSCP 24 &rarr; <code>PHB=CS3</code>.<br>\n- <strong>CoS 4 (Streaming Video) :</strong> DSCP 34 &rarr; <code>PHB=AF41</code> (Assured Forwarding 41).<br>\n- <strong>CoS 5 (Voice / VoIP) :</strong> DSCP 46 &rarr; <code>PHB=EF</code> (Expedited Forwarding).<br>\n- <strong>CoS 6 (Internetwork Control) :</strong> DSCP 48 &rarr; <code>PHB=CS6</code>.<br>\n- <strong>CoS 7 (Network Control) :</strong> DSCP 56 &rarr; <code>PHB=CS7</code>.<br><br>\nAnalysez les paramètres du problème pour chaque cas..7&gt; traffic=&lt;nom_flux&gt;</code><br><br>\nPour chaque paquet, convertir la CoS en valeur DSCP décimale, en binaire sur 6 bits et en classe PHB :<br>\n<code>QOS_MAP id={id} cos={cos} dscp_dec={dscp_dec} dscp_bin={dscp_6bits} phb={phb} traffic={traffic}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c6-e1) — Convertisseur et mappeur de marquage QoS (CoS 802.1p vers DSCP DiffServ)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trafic de contrôle réseau et données critiques (CoS 6 et CoS 3)]\n# Données : FRAME_QOS id=BGP_SYNC cos=6 traffic=Routing_BGP\n# Données : FRAME_QOS id=DB_QUERY cos=3 traffic=Oracle_ERP\nA_COMPLETER\n\n[Cas 2 — Trafic de fond Background (CoS 1)]\n# Données : FRAME_QOS id=BK1 cos=1 traffic=Torrent_Peer\nA_COMPLETER\n\n[Cas 3 — Contrôle critique CoS 7]\n# Données : FRAME_QOS id=STP_CTRL cos=7 traffic=BPDU_Frame\nA_COMPLETER\n",
+    "title": "Le marquage CoS et DSCP de la voix sur le réseau d'Helvétia",
+    "exampleTitle": "Exemple résolu — le marquage du campus de Rivalta",
+    "goal": "Mettre en correspondance les marquages de niveau 2 (CoS 802.1p) et de niveau 3 (DSCP) du plan de QoS d'une entreprise.",
+    "brief": "<p><strong>Énoncé.</strong> Helvétia, assurance de 500 collaborateurs, déploie la téléphonie sur IP sur son réseau unique. Le plan de QoS marque les flux au niveau 2 par la valeur CoS (champ de 3 bits de l'en-tête 802.1Q) et au niveau 3 par le DSCP (6 bits du champ ToS de l'en-tête IP). Le plan de classification validé par la DSI est :</p><table><tr><th>Flux</th><th>CoS 802.1p</th><th>DSCP cible</th></tr><tr><th>Voix (RTP)</th><td>5</td><td>EF (46)</td></tr><tr><th>Signalisation d'appel</th><td>3</td><td>AF31 (26)</td></tr><tr><th>Visioconférence</th><td>4</td><td>AF41 (34)</td></tr><tr><th>Données métier</th><td>2</td><td>AF21 (18)</td></tr><tr><th>Navigation web</th><td>0</td><td>0</td></tr></table><p>Rappels du cours : la valeur CoS voyage dans le tag 802.1Q de la trame ; le DSCP est codé dans l'en-tête IP. Les classes CS valent 8 × n (CS0 = 0, CS1 = 8, etc.), la classe EF vaut 46, et une classe AFxy vaut 8 × x + 2 × y.</p><p>Répondez par le nom et la valeur, ou le nombre seul.</p><ol><li>Dans quel élément de la trame Ethernet la valeur CoS est-elle transportée ?</li><li>Quel DSCP (nom et valeur) correspond au flux voix ?</li><li>Quelle est la valeur numérique du DSCP AF41 ?</li><li>La signalisation d'appel est marquée AF31 : quelle est sa valeur numérique ?</li><li>Quel DSCP (valeur numérique) reçoit le trafic best effort (CoS 0) ?</li></ol>",
+    "starter": "# Exercice — Le marquage CoS et DSCP de la voix sur le réseau d'Helvétia\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : un court libellé. Question 2 : le nom du DSCP et sa valeur.\n# Questions 3 à 5 : le nombre seul.\n\n[Question 1 — Transport de la valeur CoS dans la trame]\nA_COMPLETER\n\n[Question 2 — DSCP du flux voix]\nA_COMPLETER\n\n[Question 3 — Valeur numérique du DSCP AF41]\nA_COMPLETER\n\n[Question 4 — Valeur numérique du DSCP AF31]\nA_COMPLETER\n\n[Question 5 — DSCP du trafic best effort]\nA_COMPLETER\n",
     "hints": [
-      "Gérer un dictionnaire indexé par la valeur de cos (0 à 7).",
-      "Formater dscp_bin sur 6 bits avec f\"{dscp_dec:06b}\"."
+      "La CoS est un marquage de niveau 2 : elle vit dans la trame, pas dans le paquet IP.",
+      "Une classe AFxy se calcule : 8 × x + 2 × y ; par exemple AF41 = 8 × 4 + 2 × 1.",
+      "1. Le champ de 3 bits se trouve dans le tag ajouté aux trames VLAN. 2. La voix utilise la classe réservée EF. 3. AF41 : appliquez la formule. 4. AF31 : même formule. 5. Le trafic sans exigence reçoit la valeur nulle."
     ],
     "examples": [
       {
-        "stdin": "FRAME_QOS id=P1 cos=5 traffic=VoIP_RTP\nFRAME_QOS id=P2 cos=4 traffic=Video_Conf\nFRAME_QOS id=P3 cos=0 traffic=Web_HTTP",
-        "expected": "QOS_MAP id=P1 cos=5 dscp_dec=46 dscp_bin=101110 phb=EF traffic=VoIP_RTP\nQOS_MAP id=P2 cos=4 dscp_dec=34 dscp_bin=100010 phb=AF41 traffic=Video_Conf\nQOS_MAP id=P3 cos=0 dscp_dec=0 dscp_bin=000000 phb=BE traffic=Web_HTTP",
-        "note": "CoS 5 est mappé vers Expedited Forwarding (DSCP 46 / 101110b) ; CoS 4 vers AF41 ; CoS 0 vers Best Effort."
+        "stdin": "Le campus de Rivalta applique le marquage suivant.\nVisioconférence : CoS 4 → AF41 = 8 × 4 + 2 × 1 = 34.\nDonnées de gestion : CoS 1 → AF11 = 8 × 1 + 2 × 1 = 10.\nSignalisation : CoS 3 → AF31 = 8 × 3 + 2 × 1 = 26.\nVoix : CoS 5 → EF = 46.\n\n1) AF41 vaut 34, AF11 vaut 10.\n2) La CoS voyage dans le tag 802.1Q de la trame.\n3) Le best effort (CoS 0) reçoit le DSCP 0 (CS0).",
+        "expected": "AF41 : 34 — AF11 : 10 — CoS portée par le tag 802.1Q — best effort : DSCP 0",
+        "note": "Un flux conserve son marquage de bout en bout : la CoS sert au niveau 2 (commutation), le DSCP au niveau 3 (routage)."
       }
     ],
     "tests": [
       {
-        "label": "Trafic de contrôle réseau et données critiques (CoS 6 et CoS 3)",
-        "stdin": "cas:1",
-        "expected": "QOS_MAP id=BGP_SYNC cos=6 dscp_dec=48 dscp_bin=110000 phb=CS6 traffic=Routing_BGP\nQOS_MAP id=DB_QUERY cos=3 dscp_dec=24 dscp_bin=011000 phb=CS3 traffic=Oracle_ERP"
+        "label": "Question 1 — Transport de la valeur CoS dans la trame",
+        "stdin": "q:1",
+        "expected": "le tag 802.1Q||l'en-tête 802.1Q||l'entete 802.1Q||le champ CoS du tag 802.1Q||dans le tag 802.1Q||802.1Q"
       },
       {
-        "label": "Trafic de fond Background (CoS 1)",
-        "stdin": "cas:2",
-        "expected": "QOS_MAP id=BK1 cos=1 dscp_dec=8 dscp_bin=001000 phb=CS1 traffic=Torrent_Peer"
+        "label": "Question 2 — DSCP du flux voix",
+        "stdin": "q:2",
+        "expected": "EF (46)||EF||46||EF 46||Expedited Forwarding"
       },
       {
-        "label": "Contrôle critique CoS 7",
-        "stdin": "cas:3",
-        "expected": "QOS_MAP id=STP_CTRL cos=7 dscp_dec=56 dscp_bin=111000 phb=CS7 traffic=BPDU_Frame"
+        "label": "Question 3 — Valeur numérique du DSCP AF41",
+        "stdin": "q:3",
+        "expected": "34"
+      },
+      {
+        "label": "Question 4 — Valeur numérique du DSCP AF31",
+        "stdin": "q:4",
+        "expected": "26"
+      },
+      {
+        "label": "Question 5 — DSCP du trafic best effort",
+        "stdin": "q:5",
+        "expected": "0||CS0||0 (CS0)||BE"
       }
     ],
-    "solution": "[Exemple]\nQOS_MAP id=P1 cos=5 dscp_dec=46 dscp_bin=101110 phb=EF traffic=VoIP_RTP\nQOS_MAP id=P2 cos=4 dscp_dec=34 dscp_bin=100010 phb=AF41 traffic=Video_Conf\nQOS_MAP id=P3 cos=0 dscp_dec=0 dscp_bin=000000 phb=BE traffic=Web_HTTP\n\n[Cas 1 — Trafic de contrôle réseau et données critiques (CoS 6 et CoS 3)]\nQOS_MAP id=BGP_SYNC cos=6 dscp_dec=48 dscp_bin=110000 phb=CS6 traffic=Routing_BGP\nQOS_MAP id=DB_QUERY cos=3 dscp_dec=24 dscp_bin=011000 phb=CS3 traffic=Oracle_ERP\n\n[Cas 2 — Trafic de fond Background (CoS 1)]\nQOS_MAP id=BK1 cos=1 dscp_dec=8 dscp_bin=001000 phb=CS1 traffic=Torrent_Peer\n\n[Cas 3 — Contrôle critique CoS 7]\nQOS_MAP id=STP_CTRL cos=7 dscp_dec=56 dscp_bin=111000 phb=CS7 traffic=BPDU_Frame"
+    "solution": "[Question 1 — Transport de la valeur CoS dans la trame]\nle tag 802.1Q\n\n[Question 2 — DSCP du flux voix]\nEF (46)\n\n[Question 3 — Valeur numérique du DSCP AF41]\n34\n\n[Question 4 — Valeur numérique du DSCP AF31]\n26\n\n[Question 5 — DSCP du trafic best effort]\n0",
+    "takeaway": "1) La valeur CoS (3 bits) est transportée dans le tag 802.1Q ajouté à la trame Ethernet sur les liens VLAN.\n2) Le flux voix est marqué EF (Expedited Forwarding), valeur DSCP 46.\n3) AF41 = 8 × 4 + 2 × 1 = 34.\n4) AF31 = 8 × 3 + 2 × 1 = 26.\n5) Le trafic best effort (CoS 0) reçoit le DSCP 0 (CS0).\nContrôle : les valeurs AF suivent toutes la formule 8x + 2y (34, 26, 18) ; la voix sort du schéma AF avec EF = 46."
   },
   {
     "id": "lan3-c6-e2",
     "chapter": 6,
-    "title": "Simulateur d'ordonnancement de files d'attente (Strict Priority vs WRR)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Simuler le traitement des paquets en sortie selon les algorithmes d'ordonnancement Strict Priority et Weighted Round-Robin.",
-    "brief": "<p>À la sortie des ports de commutateurs de campus, les paquets sont dirigés vers différentes files d'attente (Queues : Q1 Priorité Haute / Voix, Q2 Vidéo, Q3 Données Best-Effort) :<br><br>\nAlgorithmes d'ordonnancement :<br>\n- <strong>STRICT_PRIORITY :</strong> Tant que Q1 contient des paquets, elle est dépilée prioritairement. Si Q1 est vide, Q2 est traitée. Si Q1 et Q2 sont vides, Q3 est traitée.<br>\n- <strong>WEIGHTED_ROUND_ROBIN (WRR) :</strong> Chaque tour de service dépile jusqu'à <code>W1</code> paquets de Q1, puis <code>W2</code> paquets de Q2, puis <code>W3</code> paquets de Q3. Si une file est vide avant d'avoir atteint son quota, l'ordonnanceur passe à la file suivante.<br><br>\nAnalysez les paramètres du problème pour chaque cas.<br>\n- Les paquets en attente dans les files :<br>\n  <code>ENQUEUE queue=&lt;Q1|Q2|Q3&gt; pkt_id=&lt;nom&gt;</code><br><br>\nExécuter jusqu'à <code>max_dequeues</code> dépilements (ou jusqu'à ce que toutes les files soient vides) et afficher :<br>\n<code>DEQUEUE_EVENT step={step} queue={queue} pkt_id={pkt_id} mode={mode}</code></p>",
-    "starter": "# Grille d'analyse (lan3-c6-e2) — Simulateur d'ordonnancement de files d'attente (Strict Priority vs WRR)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mode WRR avec poids 2, 1, 1]\n# Données : SCHEDULER mode=WEIGHTED_ROUND_ROBIN weights=2,1,1 max_dequeues=5\n# Données : ENQUEUE queue=Q1 pkt_id=V1\n# Données : ENQUEUE queue=Q1 pkt_id=V2\n# Données : ENQUEUE queue=Q1 pkt_id=V3\n# Données : ENQUEUE queue=Q2 pkt_id=M1\n# Données : ENQUEUE queue=Q3 pkt_id=D1\nA_COMPLETER\n\n[Cas 2 — File prioritaire vide permettant le passage immédiat aux files inférieures]\n# Données : SCHEDULER mode=STRICT_PRIORITY weights=1,1,1 max_dequeues=2\n# Données : ENQUEUE queue=Q2 pkt_id=VID_SOLO\n# Données : ENQUEUE queue=Q3 pkt_id=DATA_SOLO\nA_COMPLETER\n\n[Cas 3 — Arrêt anticipé quand toutes les files sont vides avant max_dequeues]\n# Données : SCHEDULER mode=WEIGHTED_ROUND_ROBIN weights=1,1,1 max_dequeues=10\n# Données : ENQUEUE queue=Q1 pkt_id=P1\n# Données : ENQUEUE queue=Q2 pkt_id=P2\nA_COMPLETER\n",
+    "title": "L'ordonnancement des files du commutateur d'étage de Norpareil",
+    "exampleTitle": "Exemple résolu — l'ordonnancement du stade d'Aquarum",
+    "goal": "Comparer les ordonnanceurs de files (priorité stricte, round robin pondéré) et calculer les parts de débit et le risque d'affamement.",
+    "brief": "<p><strong>Énoncé.</strong> Norpareil, logisticien de 700 salariés, fait transiter voix et données par le même commutateur d'étage SW-ET7. Sa sortie vers le cœur de réseau est gérée par quatre files d'attente :</p><table><tr><th>File</th><th>Flux transportés</th><th>Ordonnanceur</th><th>Poids</th></tr><tr><th>File 4</th><td>Voix (DSCP EF)</td><td>priorité stricte</td><td>—</td></tr><tr><th>File 1</th><td>Données métier</td><td>WRR</td><td>5</td></tr><tr><th>File 2</th><td>Flux transactionnels</td><td>WRR</td><td>3</td></tr><tr><th>File 3</th><td>Navigation web</td><td>WRR</td><td>2</td></tr></table><p>Rappel du cours : la priorité stricte sert la file prioritaire dès qu'elle contient des paquets, avant toutes les autres ; le round robin pondéré (WRR) sert à tour de rôle chaque file, un cycle complet servant la somme des poids. La part de débit d'une file WRR vaut son poids divisé par la somme des poids actifs.</p><p>Répondez par un court libellé (questions 1 et 5) ou le nombre seul (questions 2 à 4, parts en pourcentage).</p><ol><li>Quel type d'ordonnanceur sert la file 4 ?</li><li>Lors d'un cycle WRR complet, combien de paquets sont servis au total sur les files 1 à 3 ?</li><li>Quelle part du débit disponible (en %) la file 1 reçoit-elle ?</li><li>Quelle part du débit (en %) la file 3 reçoit-elle ?</li><li>Quel risque court le trafic des files 1 à 3 si le flux voix sature la liaison ?</li></ol>",
+    "starter": "# Exercice — L'ordonnancement des files du commutateur d'étage de Norpareil\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 5 : un court libellé. Questions 2 à 4 : le nombre seul.\n\n[Question 1 — Ordonnanceur de la file 4]\nA_COMPLETER\n\n[Question 2 — Paquets servis par cycle WRR complet]\nA_COMPLETER\n\n[Question 3 — Part de débit de la file 1 (en %)]\nA_COMPLETER\n\n[Question 4 — Part de débit de la file 3 (en %)]\nA_COMPLETER\n\n[Question 5 — Risque pour les files 1 à 3 si la voix sature le lien]\nA_COMPLETER\n",
     "hints": [
-      "Gérer 3 listes FIFO pour Q1, Q2 et Q3.",
-      "En STRICT_PRIORITY : dépiler Q1 si non vide, sinon Q2, sinon Q3.",
-      "En WRR : boucler sur les tours (take up to W1 from Q1, up to W2 from Q2, up to W3 from Q3)."
+      "Deux mécanismes cohabitent : un service immédiat pour la voix, un partage pondéré pour le reste.",
+      "Un cycle WRR sert 5 paquets de la file 1, 3 de la file 2 et 2 de la file 3 : comptez le total.",
+      "1. La voix est servie avant tout le monde. 2. Additionnez les poids. 3. 5 sur le total des poids. 4. 2 sur le total des poids. 5. Si une file prioritaire ne vide jamais, que restent-ils aux autres ?"
     ],
     "examples": [
       {
-        "stdin": "SCHEDULER mode=STRICT_PRIORITY weights=1,1,1 max_dequeues=4\nENQUEUE queue=Q1 pkt_id=VOIP1\nENQUEUE queue=Q3 pkt_id=DATA1\nENQUEUE queue=Q1 pkt_id=VOIP2\nENQUEUE queue=Q2 pkt_id=VID1",
-        "expected": "DEQUEUE_EVENT step=1 queue=Q1 pkt_id=VOIP1 mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=2 queue=Q1 pkt_id=VOIP2 mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=3 queue=Q2 pkt_id=VID1 mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=4 queue=Q3 pkt_id=DATA1 mode=STRICT_PRIORITY",
-        "note": "Strict Priority dépile intégralement Q1 (VOIP1, VOIP2) avant de toucher à Q2 (VID1) puis Q3 (DATA1)."
+        "stdin": "Le stade d'Aquarum gère sa sortie réseau par quatre files.\nFile 4 (billetterie temps réel) : priorité stricte.\nFiles 1 à 3 (WRR) : poids 4, 4 et 2.\n\n1) La file 4 est servie par priorité stricte.\n2) Un cycle WRR complet sert 4 + 4 + 2 = 10 paquets.\n3) Parts : file 1 = 40 %, file 2 = 40 %, file 3 = 20 %.\n4) Si la billetterie sature la liaison, les files WRR s'affament.",
+        "expected": "priorité stricte — cycle : 10 paquets — parts : 40 / 40 / 20 % — risque : affamement",
+        "note": "Le WRR garantit une part minimale à chaque file, contrairement à la priorité stricte qui peut affamer les autres."
       }
     ],
     "tests": [
       {
-        "label": "Mode WRR avec poids 2, 1, 1",
-        "stdin": "cas:1",
-        "expected": "DEQUEUE_EVENT step=1 queue=Q1 pkt_id=V1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=2 queue=Q1 pkt_id=V2 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=3 queue=Q2 pkt_id=M1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=4 queue=Q3 pkt_id=D1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=5 queue=Q1 pkt_id=V3 mode=WEIGHTED_ROUND_ROBIN"
+        "label": "Question 1 — Ordonnanceur de la file 4",
+        "stdin": "q:1",
+        "expected": "priorité stricte||priorite stricte||strict priority||la priorité stricte||SP"
       },
       {
-        "label": "File prioritaire vide permettant le passage immédiat aux files inférieures",
-        "stdin": "cas:2",
-        "expected": "DEQUEUE_EVENT step=1 queue=Q2 pkt_id=VID_SOLO mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=2 queue=Q3 pkt_id=DATA_SOLO mode=STRICT_PRIORITY"
+        "label": "Question 2 — Paquets servis par cycle WRR complet",
+        "stdin": "q:2",
+        "expected": "10"
       },
       {
-        "label": "Arrêt anticipé quand toutes les files sont vides avant max_dequeues",
-        "stdin": "cas:3",
-        "expected": "DEQUEUE_EVENT step=1 queue=Q1 pkt_id=P1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=2 queue=Q2 pkt_id=P2 mode=WEIGHTED_ROUND_ROBIN"
+        "label": "Question 3 — Part de débit de la file 1 (en %)",
+        "stdin": "q:3",
+        "expected": "50||50 %||50%"
+      },
+      {
+        "label": "Question 4 — Part de débit de la file 3 (en %)",
+        "stdin": "q:4",
+        "expected": "20||20 %||20%"
+      },
+      {
+        "label": "Question 5 — Risque pour les files 1 à 3 si la voix sature le lien",
+        "stdin": "q:5",
+        "expected": "l'affamement||affamement||la famine||starvation||l'affamement des autres files"
       }
     ],
-    "solution": "[Exemple]\nDEQUEUE_EVENT step=1 queue=Q1 pkt_id=VOIP1 mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=2 queue=Q1 pkt_id=VOIP2 mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=3 queue=Q2 pkt_id=VID1 mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=4 queue=Q3 pkt_id=DATA1 mode=STRICT_PRIORITY\n\n[Cas 1 — Mode WRR avec poids 2, 1, 1]\nDEQUEUE_EVENT step=1 queue=Q1 pkt_id=V1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=2 queue=Q1 pkt_id=V2 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=3 queue=Q2 pkt_id=M1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=4 queue=Q3 pkt_id=D1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=5 queue=Q1 pkt_id=V3 mode=WEIGHTED_ROUND_ROBIN\n\n[Cas 2 — File prioritaire vide permettant le passage immédiat aux files inférieures]\nDEQUEUE_EVENT step=1 queue=Q2 pkt_id=VID_SOLO mode=STRICT_PRIORITY\nDEQUEUE_EVENT step=2 queue=Q3 pkt_id=DATA_SOLO mode=STRICT_PRIORITY\n\n[Cas 3 — Arrêt anticipé quand toutes les files sont vides avant max_dequeues]\nDEQUEUE_EVENT step=1 queue=Q1 pkt_id=P1 mode=WEIGHTED_ROUND_ROBIN\nDEQUEUE_EVENT step=2 queue=Q2 pkt_id=P2 mode=WEIGHTED_ROUND_ROBIN"
+    "solution": "[Question 1 — Ordonnanceur de la file 4]\npriorité stricte\n\n[Question 2 — Paquets servis par cycle WRR complet]\n10\n\n[Question 3 — Part de débit de la file 1 (en %)]\n50\n\n[Question 4 — Part de débit de la file 3 (en %)]\n20\n\n[Question 5 — Risque pour les files 1 à 3 si la voix sature le lien]\nl'affamement",
+    "takeaway": "1) La file 4 (voix) est servie par priorité stricte : elle passe avant toutes les autres dès qu'elle contient des paquets.\n2) Un cycle WRR complet sert 5 + 3 + 2 = 10 paquets.\n3) Part de la file 1 : 5/10 = 50 % du débit alloué aux files WRR.\n4) Part de la file 3 : 2/10 = 20 %.\n5) Si le flux voix sature la liaison, les files 1 à 3 risquent l'affamement (starvation) : la priorité stricte ne leur laisse aucun créneau garanti.\nContrôle : 50 % + 30 % + 20 % = 100 % du débit restant après service de la voix."
   },
   {
     "id": "lan3-c6-e3",
     "chapter": 6,
-    "title": "Parseur de trames de découverte de voisins LLDP (IEEE 802.1AB)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Extraire et structurer les attributs TLV d'une trame de découverte de réseau LLDP.",
-    "brief": "<p>Le protocole standard <strong>LLDP (Link Layer Discovery Protocol - IEEE 802.1AB)</strong> permet aux commutateurs, routeurs et téléphones IP de s'annoncer mutuellement sur un réseau local hétérogène (alternative ouverte à CDP).<br><br>\nChaque trame LLDP contient une suite de champs <strong>TLV (Type - Length - Value)</strong> :<br>\n- <strong>Chassis ID (Type 1) :</strong> Identifiant physique du châssis (adresse MAC ou nom).<br>\n- <strong>Port ID (Type 2) :</strong> Nom ou numéro de port émetteur.<br>\n- <strong>Time To Live (Type 3) :</strong> Durée de rétention en secondes (TTL).<br>\n- <strong>System Name (Type 5) :</strong> Nom d'hôte du commutateur émetteur.<br>\n- <strong>System Capabilities (Type 7) :</strong> Capacités actives (ex: <code>Bridge</code>, <code>Router</code>, <code>Telephone</code>).<br>\n- <strong>Management Address (Type 8) :</strong> Adresse IP d'administration.<br><br>\nAnalysez les paramètres du problème pour chaque cas.</p>",
-    "starter": "# Grille d'analyse (lan3-c6-e3) — Parseur de trames de découverte de voisins LLDP (IEEE 802.1AB)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Voisin téléphone IP avec champs optionnels partiels]\n# Données : NEIGHBOR_DISCOVERY local_port=Fa0/8\n# Données : TLV type=1 value=00:50:60:aa:bb:cc\n# Données : TLV type=2 value=Port1\n# Données : TLV type=3 value=180\n# Données : TLV type=5 value=VOIP-PHONE-402\n# Données : TLV type=7 value=Telephone\n# Données : END_DISCOVERY\nA_COMPLETER\n\n[Cas 2 — Plusieurs voisins découverts sur des ports distincts]\n# Données : NEIGHBOR_DISCOVERY local_port=Te1/1\n# Données : TLV type=1 value=00:aa:00:00:00:01\n# Données : TLV type=2 value=TenGig0/1\n# Données : TLV type=3 value=120\n# Données : TLV type=5 value=CORE-A\n# Données : TLV type=8 value=192.168.0.1\n# Données : END_DISCOVERY\n# Données : NEIGHBOR_DISCOVERY local_port=Te1/2\n# Données : TLV type=1 value=00:aa:00:00:00:02\n# Données : TLV type=2 value=TenGig0/1\n# Données : TLV type=3 value=120\n# Données : TLV type=5 value=CORE-B\n# Données : TLV type=8 value=192.168.0.2\n# Données : END_DISCOVERY\nA_COMPLETER\n\n[Cas 3 — Trame minimale avec Chassis, Port et TTL uniquement]\n# Données : NEIGHBOR_DISCOVERY local_port=Gi0/10\n# Données : TLV type=1 value=02:00:00:11:22:33\n# Données : TLV type=2 value=eth0\n# Données : TLV type=3 value=60\n# Données : END_DISCOVERY\nA_COMPLETER\n",
+    "title": "La cartographie LLDP du plateau technique de Datagora",
+    "exampleTitle": "Exemple résolu — l'inventaire LLDP de l'hôpital de Sanzel",
+    "goal": "Exploiter les informations publiées par LLDP (norme 802.1AB, TLV système, port, capacités, adresse de gestion) pour documenter un réseau réel.",
+    "brief": "<p><strong>Énoncé.</strong> Datagora héberge un plateau technique mutualisé entre plusieurs clients. Le technicien d'exploitation collecte la table des voisins LLDP du commutateur SW-TECH, qui annonce ses trames toutes les 30 secondes et conserve une entrée quatre fois plus longtemps. La table affiche :</p><table><tr><th>Port local</th><th>Voisin annoncé</th><th>Port distant</th><th>Capacités annoncées</th><th>Adresse de gestion</th></tr><tr><th>Gi1/0/1</th><td>SW-COEUR</td><td>Te0/1</td><td>bridge</td><td>10.0.0.11</td></tr><tr><th>Gi1/0/2</th><td>SW-ACC4</td><td>Gi0/24</td><td>bridge</td><td>10.0.0.14</td></tr><tr><th>Gi1/0/13</th><td>R-BAORD</td><td>Gi0/2</td><td>router</td><td>10.0.0.21</td></tr></table><p>Rappel du cours : LLDP (norme IEEE 802.1AB) publie des informations sous forme de TLV : nom du système, description du port, capacités (bridge, router, etc.) et adresse de gestion. La table des voisins documente le raccordement exact (« qui est branché sur quel port ») sans transporter aucun trafic utilisateur ; une entrée est purgée si aucune trame n'est reçue pendant le temps de conservation.</p><p>Répondez par la norme, le nombre seul, le nom du port ou l'adresse IP.</p><ol><li>Quelle norme IEEE décrit LLDP ?</li><li>Combien de voisins LLDP SW-TECH a-t-il découverts ?</li><li>Par quel port local SW-TECH est-il raccordé au routeur R-BAORD ?</li><li>Quelle adresse de gestion le voisin SW-COEUR annonce-t-il ?</li><li>Après combien de secondes, sans nouvelle trame, une entrée de voisin est-elle purgée (intervalle 30 s, multiplicateur 4) ?</li></ol>",
+    "starter": "# Exercice — La cartographie LLDP du plateau technique de Datagora\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 3 et 4 : la norme, le port ou l'adresse. Questions 2 et 5 : le nombre seul.\n\n[Question 1 — Norme IEEE décrivant LLDP]\nA_COMPLETER\n\n[Question 2 — Nombre de voisins découverts]\nA_COMPLETER\n\n[Question 3 — Port local raccordé à R-BAORD]\nA_COMPLETER\n\n[Question 4 — Adresse de gestion annoncée par SW-COEUR]\nA_COMPLETER\n\n[Question 5 — Temps de purge d'une entrée (en secondes)]\nA_COMPLETER\n",
     "hints": [
-      "Regrouper les lignes entre NEIGHBOR_DISCOVERY et END_DISCOVERY.",
-      "Associer type 1=chassis, 2=port_id, 3=ttl, 5=sys_name, 7=caps, 8=mgmt_ip."
+      "LLDP est normalisé par l'IEEE sous un numéro de norme dédié, souvent confondu avec 802.1Q.",
+      "Chaque ligne de la table correspond à un voisin découvert sur un port local précis.",
+      "1. La norme porte la référence 802.1AB. 2. Comptez les lignes. 3. Cherchez la ligne du routeur. 4. La TLV de gestion porte une IP. 5. Temps de conservation = intervalle × multiplicateur."
     ],
     "examples": [
       {
-        "stdin": "NEIGHBOR_DISCOVERY local_port=Gi0/1\nTLV type=1 value=00:11:22:33:44:aa\nTLV type=2 value=GigabitEthernet1/0/24\nTLV type=3 value=120\nTLV type=5 value=SW-DISTRIBUTION-01\nTLV type=7 value=Bridge,Router\nTLV type=8 value=10.0.0.254\nEND_DISCOVERY",
-        "expected": "LLDP_NEIGHBOR local_port=Gi0/1 remote_sys=SW-DISTRIBUTION-01 remote_port=GigabitEthernet1/0/24 chassis=00:11:22:33:44:aa mgmt_ip=10.0.0.254 caps=Bridge,Router ttl=120s",
-        "note": "Extraction complète des 6 TLVs standards d'un voisin de distribution."
+        "stdin": "L'hôpital de Sanzel collecte la table LLDP de SW-BLOC-B.\nGi0/1 : voisin SW-NET-CORE, port distant Gi1/0/9, bridge, gestion 10.5.0.9.\nGi0/2 : voisin SW-ONCO, port distant Gi0/49, bridge, gestion 10.5.0.30.\nGi0/24 : voisin R-PACS (routeur), port distant Gi0/1, router, gestion 10.5.0.50.\n\n1) Trois voisins découverts.\n2) Le voisin raccordé sur Gi0/24 est R-PACS.\n3) SW-NET-CORE annonce la gestion 10.5.0.9.\n4) Hold time = 30 × 4 = 120 s.",
+        "expected": "3 voisins — R-PACS sur Gi0/24 — gestion de SW-NET-CORE : 10.5.0.9 — hold time 120 s",
+        "note": "LLDP se contente de publier l'identité et le point de raccordement des voisins : il ne route et ne commute aucun trafic utilisateur."
       }
     ],
     "tests": [
       {
-        "label": "Voisin téléphone IP avec champs optionnels partiels",
-        "stdin": "cas:1",
-        "expected": "LLDP_NEIGHBOR local_port=Fa0/8 remote_sys=VOIP-PHONE-402 remote_port=Port1 chassis=00:50:60:aa:bb:cc mgmt_ip=NONE caps=Telephone ttl=180s"
+        "label": "Question 1 — Norme IEEE décrivant LLDP",
+        "stdin": "q:1",
+        "expected": "802.1AB||IEEE 802.1AB||la norme 802.1AB"
       },
       {
-        "label": "Plusieurs voisins découverts sur des ports distincts",
-        "stdin": "cas:2",
-        "expected": "LLDP_NEIGHBOR local_port=Te1/1 remote_sys=CORE-A remote_port=TenGig0/1 chassis=00:aa:00:00:00:01 mgmt_ip=192.168.0.1 caps=NONE ttl=120s\nLLDP_NEIGHBOR local_port=Te1/2 remote_sys=CORE-B remote_port=TenGig0/1 chassis=00:aa:00:00:00:02 mgmt_ip=192.168.0.2 caps=NONE ttl=120s"
+        "label": "Question 2 — Nombre de voisins découverts",
+        "stdin": "q:2",
+        "expected": "3"
       },
       {
-        "label": "Trame minimale avec Chassis, Port et TTL uniquement",
-        "stdin": "cas:3",
-        "expected": "LLDP_NEIGHBOR local_port=Gi0/10 remote_sys=NONE remote_port=eth0 chassis=02:00:00:11:22:33 mgmt_ip=NONE caps=NONE ttl=60s"
+        "label": "Question 3 — Port local raccordé à R-BAORD",
+        "stdin": "q:3",
+        "expected": "Gi1/0/13||gi1/0/13||le port Gi1/0/13"
+      },
+      {
+        "label": "Question 4 — Adresse de gestion annoncée par SW-COEUR",
+        "stdin": "q:4",
+        "expected": "10.0.0.11"
+      },
+      {
+        "label": "Question 5 — Temps de purge d'une entrée (en secondes)",
+        "stdin": "q:5",
+        "expected": "120||120 s||120 secondes"
       }
     ],
-    "solution": "[Exemple]\nLLDP_NEIGHBOR local_port=Gi0/1 remote_sys=SW-DISTRIBUTION-01 remote_port=GigabitEthernet1/0/24 chassis=00:11:22:33:44:aa mgmt_ip=10.0.0.254 caps=Bridge,Router ttl=120s\n\n[Cas 1 — Voisin téléphone IP avec champs optionnels partiels]\nLLDP_NEIGHBOR local_port=Fa0/8 remote_sys=VOIP-PHONE-402 remote_port=Port1 chassis=00:50:60:aa:bb:cc mgmt_ip=NONE caps=Telephone ttl=180s\n\n[Cas 2 — Plusieurs voisins découverts sur des ports distincts]\nLLDP_NEIGHBOR local_port=Te1/1 remote_sys=CORE-A remote_port=TenGig0/1 chassis=00:aa:00:00:00:01 mgmt_ip=192.168.0.1 caps=NONE ttl=120s\nLLDP_NEIGHBOR local_port=Te1/2 remote_sys=CORE-B remote_port=TenGig0/1 chassis=00:aa:00:00:00:02 mgmt_ip=192.168.0.2 caps=NONE ttl=120s\n\n[Cas 3 — Trame minimale avec Chassis, Port et TTL uniquement]\nLLDP_NEIGHBOR local_port=Gi0/10 remote_sys=NONE remote_port=eth0 chassis=02:00:00:11:22:33 mgmt_ip=NONE caps=NONE ttl=60s"
+    "solution": "[Question 1 — Norme IEEE décrivant LLDP]\n802.1AB\n\n[Question 2 — Nombre de voisins découverts]\n3\n\n[Question 3 — Port local raccordé à R-BAORD]\nGi1/0/13\n\n[Question 4 — Adresse de gestion annoncée par SW-COEUR]\n10.0.0.11\n\n[Question 5 — Temps de purge d'une entrée (en secondes)]\n120",
+    "takeaway": "1) LLDP est décrit par la norme IEEE 802.1AB.\n2) La table liste trois voisins : SW-COEUR, SW-ACC4 et R-BAORD.\n3) Le routeur R-BAORD est raccordé au port local Gi1/0/13 (port distant Gi0/2).\n4) SW-COEUR annonce l'adresse de gestion 10.0.0.11 dans sa TLV dédiée.\n5) Temps de conservation = intervalle × multiplicateur = 30 × 4 = 120 secondes sans nouvelle trame avant purge.\nContrôle : trois lignes, trois voisins distincts ; les adresses de gestion annoncées (10.0.0.11, 10.0.0.14, 10.0.0.21) sont toutes joignables pour l'exploitation."
   }
 ];

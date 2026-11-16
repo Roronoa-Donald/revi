@@ -135,43 +135,43 @@ module.exports = {
     {
       stem: 'Quelle est la règle d’or absolue concernant les flux réseau entre la DMZ et le réseau local interne LAN ?',
       opts: [
-        'Aucune connexion ne doit jamais être initiée depuis la DMZ vers le LAN',
+        'Les serveurs DMZ doivent partager les mêmes adresses IP que les postes LAN',
         'Le LAN ne doit jamais pouvoir accéder à la DMZ',
         'Tous les flux entre DMZ et LAN doivent être configurés en protocole UDP',
-        'Les serveurs DMZ doivent partager les mêmes adresses IP que les postes LAN'
+        'Aucune connexion ne doit jamais être initiée depuis la DMZ vers le LAN'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Si un serveur web en DMZ est piraté, l’interdiction d’initier des flux vers le LAN l’empêche de pivoter vers le réseau interne d’entreprise.'
     },
     {
       stem: 'Quel est l’inconvénient principal d’une architecture pare-feu Triple-Homed (un seul boîtier à trois interfaces) ?',
       opts: [
-        'Le pare-feu constitue un point unique de défaillance matériel et logiciel (SPOF)',
-        'Elle ne permet pas de naviguer sur Internet en HTTPS',
         'Elle exige obligatoirement trois adresses IP publiques différentes',
+        'Elle ne permet pas de naviguer sur Internet en HTTPS',
+        'Le pare-feu constitue un point unique de défaillance matériel et logiciel (SPOF)',
         'Elle est incompatible avec le protocole TCP'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Si le boîtier unique tombe en panne ou subit une faille de sécurité majeure, l’ensemble des trois zones (LAN, DMZ, WAN) est impacté.'
     },
     {
       stem: 'Pourquoi recommande-t-on d’utiliser deux constructeurs différents dans une architecture pare-feu Back-to-Back en cascade ?',
       opts: [
-        'Pour qu’une vulnérabilité zero-day touchant le pare-feu frontal n’impacte pas le pare-feu interne (défense en profondeur)',
-        'Pour diviser par deux le coût des licences logicielles',
-        'Pour doubler automatiquement la vitesse de transmission des câbles',
-        'Pour éviter d’avoir à configurer des adresses IP privées'
+        "Pour diviser exactement par deux le coût global des licences logicielles achetées par l’entreprise",
+        "Pour qu’une vulnérabilité zero-day touchant le pare-feu frontal n’impacte pas le pare-feu interne (défense en profondeur)",
+        "Pour doubler automatiquement la vitesse de transmission des câbles réseau reliant les deux boîtiers",
+        "Pour s’affranchir complètement de la configuration d’adresses IP privées sur les interfaces internes"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’hétérogénéité logicielle et matérielle empêche un pirate d’utiliser le même exploit pour franchir successivement les deux barrières défensives.'
     },
     {
       stem: 'Quel équipement doit-on intercaler pour administrer en toute sécurité des serveurs de production sans accès SSH direct depuis les postes de travail ?',
       opts: [
-        'Un Bastion SSH (Jump Host) avec authentification forte et traçabilité des sessions',
-        'Un commutateur non administrable de niveau 2',
-        'Un point d’accès Wi-Fi ouvert',
-        'Un répéteur Ethernet passif'
+        "Un Bastion SSH (Jump Host) avec authentification forte et traçabilité des sessions",
+        "Un simple commutateur de niveau 2 non administrable, sans VLAN ni journalisation",
+        "Un point d’accès Wi-Fi ouvert diffusant le réseau d’administration sans mot de passe",
+        "Un répéteur Ethernet passif recopiant les trames entre les deux segments réseau"
       ],
       correct: 0,
       exp: 'Le Bastion SSH centralise les accès d’administration, applique le MFA, isole la zone critique et enregistre les sessions pour audit.'
@@ -179,32 +179,32 @@ module.exports = {
     {
       stem: 'Dans quelle zone réseau doit idéalement être situé le serveur de base de données contenant les données sensibles de l’entreprise ?',
       opts: [
-        'Dans une zone interne protégée (LAN ou zone BDD dédiée), jamais directement en DMZ publique',
-        'Directement sur le routeur frontière Internet',
-        'En DMZ publique avec le port 3306 exposé à tous les internautes',
-        'Sur une clé USB branchée sur la passerelle'
+        "Directement sur le routeur frontière Internet exposé aux attaques externes",
+        "En DMZ publique avec son port 3306 exposé et accessible à l’ensemble des internautes",
+        "Sur une clé USB branchée en permanence sur la passerelle réseau de l’entreprise",
+        "Dans une zone interne protégée (LAN ou zone BDD dédiée), jamais directement en DMZ publique"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La base de données critique doit être abritée au cœur du réseau interne ou dans un sous-réseau dédié ; seul le serveur applicatif autorisé peut y accéder.'
     },
     {
       stem: 'Quel protocole réseau est typiquement autorisé dans le sens WAN vers DMZ pour un serveur web public sécurisé ?',
       opts: [
-        'TCP sur le port 443 (HTTPS)',
-        'TCP sur le port 23 (Telnet)',
         'TCP sur le port 3389 (RDP direct)',
+        'TCP sur le port 23 (Telnet)',
+        'TCP sur le port 443 (HTTPS)',
         'UDP sur le port 69 (TFTP)'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le port 443 (HTTPS) est le standard sécurisé universellement ouvert vers les serveurs web situés en DMZ.'
     },
     {
       stem: 'Si un serveur web en DMZ doit envoyer des données vers une base de données du LAN, comment concevoir l’architecture conformément aux bonnes pratiques ?',
       opts: [
-        'Le serveur web dépose les données sur une file de messages intermédiaire ou c’est un service interne du LAN qui vient régulièrement interroger la DMZ',
-        'On désactive temporairement le pare-feu chaque nuit',
-        'On ouvre tous les ports entre la DMZ et le LAN sans aucune restriction',
-        'On installe un serveur DHCP sur le poste de l’administrateur'
+        "Le serveur web dépose les données sur une file de messages intermédiaire ou c’est un service interne du LAN qui vient régulièrement interroger la DMZ",
+        "On désactive temporairement l’intégralité du service pare-feu chaque nuit, durant la fenêtre de maintenance planifiée de l’entreprise",
+        "On ouvre l’intégralité des ports entre la DMZ et le LAN, sans la moindre restriction ni journalisation des flux traversants",
+        "On installe un serveur DHCP directement sur le poste de travail de l’administrateur réseau de l’entreprise"
       ],
       correct: 0,
       exp: 'Pour respecter la règle d’or, on privilégie l’interrogation initiée depuis le LAN vers la DMZ (Pull) ou une passerelle intermédiaire étanche.'
@@ -212,12 +212,12 @@ module.exports = {
     {
       stem: 'Dans une architecture Dual-Homed (pare-feu à 2 pattes), où se trouvent nécessairement les serveurs d’entreprise ?',
       opts: [
-        'Directement sur le réseau local interne LAN (créant un risque majeur) ou externalisés chez un hébergeur',
-        'Dans la zone DMZ dédiée intégrée au boîtier',
-        'Dans le nuage sans aucune adresse IP',
-        'Sur l’interface de bouclage local 127.0.0.1'
+        "Dans une zone DMZ dédiée, intégrée au boîtier du pare-feu via une troisième interface",
+        "Directement sur le réseau local interne LAN (créant un risque majeur) ou externalisés chez un hébergeur",
+        "Dans le nuage informatique, sans leur attribuer la moindre adresse IP routable",
+        "Sur l’interface de bouclage local 127.0.0.1 du pare-feu dual-homed lui-même"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le modèle Dual-Homed ne possédant que 2 interfaces (LAN et WAN), il ne dispose d’aucun troisième segment pour héberger une DMZ isolée.'
     }
   ],

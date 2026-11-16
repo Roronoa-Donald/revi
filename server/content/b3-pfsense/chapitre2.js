@@ -161,76 +161,76 @@ module.exports = {
     {
       stem: 'Dans quelle direction sont évaluées les règles de filtrage dans pfSense ?',
       opts: [
-        'De bas en haut (la dernière l’emporte)',
         'De haut en bas (la première qui correspond l’emporte)',
+        'De bas en haut (la dernière l’emporte)',
         'Par ordre alphabétique du nom de la règle',
         'Aléatoirement selon la charge CPU'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'En raison du mot-clé quick, les règles sont lues de haut en bas : la première règle valide s’applique immédiatement.'
     },
     {
       stem: 'Dans quelle catégorie de règles place-t-on une politique de sécurité s’appliquant à toutes les interfaces simultanément ?',
       opts: [
         'Interface LAN',
-        'Floating Rules (Règles Flottantes)',
         'Interface WAN',
+        'Floating Rules (Règles Flottantes)',
         'Passerelles par défaut'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Les Floating Rules permettent de créer des règles globales couvrant plusieurs interfaces en une seule déclaration.'
     },
     {
       stem: 'Quelle structure de données le moteur pf utilise-t-il pour stocker les tables d’adresses IP d’un alias ?',
       opts: [
         'Une liste simplement chaînée',
-        'Un arbre radix (Radix Tree)',
+        'Une file FIFO',
         'Un tableau statique non indexé',
-        'Une file FIFO'
+        'Un arbre radix (Radix Tree)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les tables pf exploitent un arbre radix, offrant une recherche d’adresse IP et de sous-réseau en temps O(1) ou O(log N).'
     },
     {
       stem: 'Comment appelle-t-on l’état TCP dans la table d’états lorsque la connexion est totalement établie entre deux hôtes ?',
       opts: [
         'SYN_SENT',
-        'ESTABLISHED',
         'TIME_WAIT',
+        'ESTABLISHED',
         'LISTEN'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’état ESTABLISHED signale que le handshake à 3 voies TCP est complété et que le trafic bidirectionnel est fluide.'
     },
     {
       stem: 'Quelle commande CLI FreeBSD permet d’afficher toutes les connexions actives dans la table d’états pf ?',
       opts: [
         'pfctl -sr',
-        'pfctl -ss',
+        'netstat -rn',
         'pfctl -sa',
-        'netstat -rn'
+        'pfctl -ss'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La commande pfctl -ss (show states) affiche l’ensemble des sessions mémorisées dans la table d’états du noyau.'
     },
     {
       stem: 'Quel utilitaire noyau sous-jacent est utilisé par pfSense pour le module de limitation de débit (Limiters) ?',
       opts: [
-        'Traffic Control (tc)',
         'Dummynet',
+        'Traffic Control (tc)',
         'CBQ natif uniquement',
         'Netem'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Sous FreeBSD/pfSense, les Limiters reposent sur le sous-système de simulation réseau et de contrôle de trafic Dummynet.'
     },
     {
       stem: 'Pourquoi est-il crucial de positionner les règles spécifiques au-dessus des règles génériques dans pfSense ?',
       opts: [
-        'Pour économiser la mémoire RAM',
-        'Car le principe First-Match Wins masquerait la règle spécifique si une règle générique la précédait',
-        'Parce que pfSense refuse de compiler les règles sinon',
-        'Pour accélérer les requêtes DHCP'
+        "Pour économiser la mémoire RAM du pare-feu en réduisant le nombre de règles chargées dans le noyau",
+        "Car le principe First-Match Wins masquerait la règle spécifique si une règle générique la précédait",
+        "Parce que pfSense refuse de compiler les règles si l’ordre de saisie ne suit pas la spécificité décroissante",
+        "Pour accélérer les réponses du serveur DHCP interne aux requêtes de bail des postes du LAN"
       ],
       correct: 1,
       exp: 'Si une règle générique (ex: allow any to any) est placée au sommet, elle correspondra à tous les paquets et empêchera les règles de restriction plus bas d’être lues.'

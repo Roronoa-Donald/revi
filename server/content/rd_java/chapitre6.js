@@ -76,13 +76,13 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quel bloc contient le code risqué ?', opts: ['try', 'catch', 'finally'], correct: 0, exp: 'Le try encadre le code susceptible de lever une exception.' },
+    { stem: 'Quel bloc contient le code risqué ?', opts: ['catch', 'try', 'finally'], correct: 1, exp: 'Le try encadre le code susceptible de lever une exception.' },
     { stem: 'Quel bloc s’exécute dans tous les cas ?', opts: ['try', 'catch', 'finally'], correct: 2, exp: 'finally s’exécute après le try, avec ou sans erreur.' },
-    { stem: 'Quelle exception pour une division entière par zéro ?', opts: ['ArithmeticException', 'NumberFormatException', 'IOException'], correct: 0, exp: 'La division par zéro lève une ArithmeticException.' },
-    { stem: 'Quelle exception pour parseInt invalide ?', opts: ['NumberFormatException', 'ArithmeticException', 'NullPointerException'], correct: 0, exp: 'Une chaîne non numérique provoque NumberFormatException.' },
+    { stem: 'Quelle exception pour une division entière par zéro ?', opts: ['IOException', 'NumberFormatException', 'ArithmeticException'], correct: 2, exp: 'La division par zéro lève une ArithmeticException.' },
+    { stem: 'Quelle exception pour parseInt invalide ?', opts: ['ArithmeticException', 'NumberFormatException', 'NullPointerException'], correct: 1, exp: 'Une chaîne non numérique provoque NumberFormatException.' },
     { stem: 'Comment créer une exception métier ?', opts: ['En étendant Exception', 'En étendant Main', 'En la déclarant static'], correct: 0, exp: 'On crée une classe qui extends Exception.' },
-    { stem: 'Que fait throw ?', opts: ['Lance une exception', 'Capture une exception', 'Ignore une exception'], correct: 0, exp: 'throw déclenche l’exception choisie.' },
-    { stem: 'Que déclare throws ?', opts: ['Qu’une méthode peut lever une exception', 'Qu’elle l’attrape', 'Qu’elle est abstraite'], correct: 0, exp: 'throws prévient l’appelant du risque, qui doit capturer ou propager.' },
+    { stem: 'Que fait throw ?', opts: ['Capture une exception', 'Lance une exception', 'Ignore une exception'], correct: 1, exp: "throw déclenche l’exception choisie à cet instant. Capturer est le rôle de catch, et ignorer une exception n’existe pas en Java." },
+    { stem: 'Que déclare throws ?', opts: ["Qu’elle capture elle-même l’exception levée","Qu’elle est abstraite, sans implémentation","Qu’une méthode peut lever une exception"], correct: 2, exp: "throws prévient l’appelant du risque, qui doit capturer ou propager. Il ne s’attrape rien ici, et l’abstraction n’a rien à voir." },
     { stem: 'Pourquoi capturer un type précis ?', opts: ['Pour distinguer métier et technique', 'Pour accélérer', 'Pour arrondir'], correct: 0, exp: 'Un catch précis sépare les erreurs attendues des bugs inattendus.' }
   ],
 

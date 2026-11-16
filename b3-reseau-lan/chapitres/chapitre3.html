@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -170,29 +168,29 @@
      data-exercise="lan3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES&#10;VRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES&#10;VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c3-e1) — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le siège de Papermühle exploite deux routeurs VRRP sur le VLAN 25.&#10;R-P : priorité 120, IP 10.25.0.2 ; R-S : priorité 120, IP 10.25.0.3.&#10;Les postes utilisent la passerelle virtuelle 10.25.0.1.&#10;&#10;1) Priorités égales (120) : le départage se fait sur l'adresse IP physique.&#10;2) 10.25.0.3 &gt; 10.25.0.2 : R-S devient maître.&#10;3) La priorité par défaut, sans configuration, est 100.&#10;4) Si R-P monte à 200 avec préemption, il redevient maître.">
+  <script type="text/plain" data-lab-starter># Exercice — L'élection du maître VRRP du site de production de Vellum
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 3 et 5 : le nom du routeur. Question 2 : le nombre seul.
+# Question 4 : oui ou non.
 
-[Cas 1 — Départage par adresse IP la plus élevée en cas d'égalité de priorité]
-# Données : VRRP_ROUTER name=GW-A vrid=1 prio=100 ip=10.0.0.1 alive=YES
-# Données : VRRP_ROUTER name=GW-B vrid=1 prio=100 ip=10.0.0.2 alive=YES
+[Question 1 — Maître VRRP au démarrage]
 A_COMPLETER
 
-[Cas 2 — Plusieurs groupes VRID indépendants]
-# Données : VRRP_ROUTER name=R1_LAN vrid=1 prio=200 ip=192.168.1.1 alive=YES
-# Données : VRRP_ROUTER name=R2_LAN vrid=1 prio=100 ip=192.168.1.2 alive=YES
-# Données : VRRP_ROUTER name=R1_DMZ vrid=2 prio=100 ip=172.16.1.1 alive=YES
-# Données : VRRP_ROUTER name=R2_DMZ vrid=2 prio=250 ip=172.16.1.2 alive=YES
+[Question 2 — Priorité par défaut de VRRP]
 A_COMPLETER
 
-[Cas 3 — Tous les membres d'un VRID sont hors service]
-# Données : VRRP_ROUTER name=DOWN1 vrid=5 prio=100 ip=1.1.1.1 alive=NO
-# Données : VRRP_ROUTER name=DOWN2 vrid=5 prio=120 ip=1.1.1.2 alive=NO
+[Question 3 — Maître pendant la panne de R-PRIM]
+A_COMPLETER
+
+[Question 4 — R-PRIM redevient-il maître à son retour ?]
+A_COMPLETER
+
+[Question 5 — Maître après alignement des priorités à 150]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur d'élection de routeur maître VRRP v2/v3 (RFC 5798)</h3>
+    <h3 class="lab__title">Exercice 1 — L'élection du maître VRRP du site de production de Vellum</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -201,31 +199,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="lan3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'élection du routeur MASTER dans un groupe de redondance VRRP.</p>
-    <div class="lab__brief"><p>Le protocole <strong>VRRP (Virtual Router Redundancy Protocol - RFC 5798)</strong> permet à plusieurs routeurs ou commutateurs de niveau 3 de partager une passerelle virtuelle (VIP) pour éliminer le point unique de défaillance (SPOF).<br><br>
-Règles d'élection VRRP par groupe VRID :<br>
-- Si <code>alive == 'NO'</code> : le routeur est hors service &rarr; <code>role=INIT</code>.<br>
-- Parmi les routeurs actifs (<code>alive == 'YES'</code>) :<br>
-  1. Le routeur ayant la plus forte priorité (<code>prio</code>, valeur de 1 à 254) est élu <strong>MASTER</strong>.<br>
-  2. En cas d'égalité sur la priorité, le routeur ayant la plus grande adresse IP physique (comparaison numérique IPv4) devient <strong>MASTER</strong>.<br>
-  3. Tous les autres routeurs actifs prennent le rôle <strong>BACKUP</strong>.<br><br>
-l’étude de cas comporte dans l’énoncé du cas des déclarations de routeurs VRRP :<br>
-<code>VRRP_ROUTER name=&lt;nom&gt; vrid=&lt;int&gt; prio=&lt;int&gt; ip=&lt;ip&gt; alive=&lt;YES|NO&gt;</code><br><br>
-Pour chaque routeur (triés par VRID puis par nom alphabétique), afficher :<br>
-<code>VRRP_STATUS vrid={vrid} router={name} role={role} prio={prio} ip={ip}</code><br>
-Et pour chaque groupe VRID, la ligne de synthèse :<br>
-<code>VRRP_MASTER vrid={vrid} router={master_name} ip={master_ip}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Élire le routeur maître VRRP d'un site réel en appliquant la priorité, la préemption et le départage par adresse IP.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Vellum Industries fabrique du papier technique sur un site isolé. Le VLAN 40 (production) sort vers le réseau d'entreprise via deux routeurs redondants configurés en VRRP (groupe 40). Les postes utilisent l'adresse virtuelle 10.40.0.1 comme passerelle :</p><table><tr><th>Routeur</th><th>Priorité VRRP</th><th>Adresse IP physique</th><th>Préemption</th></tr><tr><th>R-PRIM</th><td>150</td><td>10.40.0.2</td><td>activée</td></tr><tr><th>R-SEC</th><td>100</td><td>10.40.0.3</td><td>activée</td></tr></table><p>Rappel du cours : dans VRRP, le routeur de priorité la plus élevée devient maître (Master) et détient l'adresse IP virtuelle ; à priorités égales, l'adresse IP physique la plus élevée l'emporte ; avec la préemption activée, un routeur de priorité supérieure qui revient reprend le rôle de maître. La priorité appliquée par défaut, si aucune n'est configurée, est 100.</p><p>Répondez par le nom exact du routeur (questions 1, 3 et 5), le nombre seul (question 2), ou « oui » / « non » (question 4).</p><ol><li>Quel routeur est élu maître du groupe 40 au démarrage ?</li><li>Quelle priorité VRRP est appliquée quand aucune priorité n'est configurée ?</li><li>R-PRIM tombe en panne : quel routeur devient maître ?</li><li>R-PRIM revient à la normale : redevient-il maître ?</li><li>Le technicien aligne la priorité de R-SEC sur 150 : quel routeur devient maître après convergence ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VRRP_ROUTER name=R1 vrid=10 prio=150 ip=192.168.10.2 alive=YES
-VRRP_ROUTER name=R2 vrid=10 prio=100 ip=192.168.10.3 alive=YES
-VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le siège de Papermühle exploite deux routeurs VRRP sur le VLAN 25.
+R-P : priorité 120, IP 10.25.0.2 ; R-S : priorité 120, IP 10.25.0.3.
+Les postes utilisent la passerelle virtuelle 10.25.0.1.
+
+1) Priorités égales (120) : le départage se fait sur l'adresse IP physique.
+2) 10.25.0.3 &gt; 10.25.0.2 : R-S devient maître.
+3) La priorité par défaut, sans configuration, est 100.
+4) Si R-P monte à 200 avec préemption, il redevient maître.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Regrouper les routeurs par VRID dans un dictionnaire.</li>
-        <li>Comparer les routeurs actifs avec la clé : (prio, la notation CIDR du réseau).</li>
-        <li>Le maximum de cette clé est le MASTER.</li>
+        <li>L'élection VRRP cherche la priorité la plus élevée, contrairement à STP qui cherche la plus petite valeur.</li>
+        <li>La préemption permet à un routeur revenu avec une meilleure priorité de reprendre la main sans attendre l'expiration du maître actuel.</li>
+        <li>1. Comparez 150 et 100. 2. La valeur par défaut est fixée par la norme. 3. Le routeur survivant devient maître. 4. La préemption est activée. 5. À priorités égales, l'adresse IP physique la plus élevée l'emporte.</li>
       </ol>
     </details>
   </div>
@@ -235,27 +226,28 @@ VRRP_ROUTER name=R3 vrid=10 prio=200 ip=192.168.10.4 alive=NO</pre></div>
      data-exercise="lan3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN&#10;TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c3-e2) — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'agence de Port-Rolland exploite deux routeurs HSRP.&#10;R-1 : priorité 130, préemption ; R-2 : priorité 110.&#10;R-1 surveille son lien WAN avec un décrément de 50, puis un lien SAV avec un décrément de 20.&#10;&#10;1) Fonctionnement normal : priorité effective de R-1 = 130.&#10;2) WAN tombé : 130 − 50 = 80, sous 110 → R-2 devient actif.&#10;3) WAN rétabli : R-1 revient à 130 et redevient actif (préemption).&#10;4) WAN + SAV tombés : 130 − 50 − 20 = 60.">
+  <script type="text/plain" data-lab-starter># Exercice — La bascule HSRP du siège de Transversale
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 5 : le nombre seul. Questions 3 et 4 : le nom du routeur.
 
-[Cas 1 — Préemption désactivée sur le standby empêchant le basculement]
-# Données : TRACKED_ROUTER name=R_ACT init_role=ACTIVE base_prio=120 preempt=YES track_if=WAN1 decrement=50 if_state=DOWN
-# Données : TRACKED_ROUTER name=R_STBY init_role=STANDBY base_prio=100 preempt=NO track_if=WAN2 decrement=10 if_state=UP
+[Question 1 — Priorité effective de R-A en fonctionnement normal]
 A_COMPLETER
 
-[Cas 2 — Décrément insuffisant pour passer sous le standby]
-# Données : TRACKED_ROUTER name=CORE1 init_role=ACTIVE base_prio=150 preempt=YES track_if=Serial0 decrement=10 if_state=DOWN
-# Données : TRACKED_ROUTER name=CORE2 init_role=STANDBY base_prio=100 preempt=YES track_if=Serial0 decrement=10 if_state=UP
+[Question 2 — Priorité de R-A après la panne du WAN]
 A_COMPLETER
 
-[Cas 3 — Liaison nominale UP conservant les priorités de base]
-# Données : TRACKED_ROUTER name=R_A init_role=ACTIVE base_prio=110 preempt=YES track_if=Eth1 decrement=30 if_state=UP
-# Données : TRACKED_ROUTER name=R_B init_role=STANDBY base_prio=100 preempt=YES track_if=Eth1 decrement=30 if_state=UP
+[Question 3 — Routeur actif pendant la panne du WAN]
+A_COMPLETER
+
+[Question 4 — Routeur actif après le rétablissement du WAN]
+A_COMPLETER
+
+[Question 5 — Priorité de R-A si WAN et DMZ tombent]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Détecteur de basculement FHRP par suivi d'interface (Object Tracking)</h3>
+    <h3 class="lab__title">Exercice 2 — La bascule HSRP du siège de Transversale</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -264,27 +256,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="lan3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la priorité effective d'un routeur HSRP/VRRP en cas de panne de lien montant et déterminer le basculement.</p>
-    <div class="lab__brief"><p>Le mécanisme d'<strong>Object Tracking</strong> permet à un routeur FHRP actif de surveiller l'état de son interface WAN vers le FAI. Si cette liaison tombe, sa priorité est décrémentée (<code>effective_prio = base_prio - decrement</code>). Si sa priorité devient inférieure à celle du routeur Standby et que la préemption (preempt) est activée, le Standby prend le relais immédiatement.<br><br>
-Analysez les paramètres du problème pour chaque cas. Calcul de la priorité effective pour chaque routeur :<br>
-   - Si <code>if_state == 'DOWN'</code> : <code>eff_prio = base_prio - decrement</code>.<br>
-   - Si <code>if_state == 'UP'</code> : <code>eff_prio = base_prio</code>.<br>
-2. Évaluation de la préemption :<br>
-   - Le routeur initialement <code>STANDBY</code> devient <code>ACTIVE</code> (Failover) SI et SEULEMENT SI :<br>
-     <code>standby.eff_prio &gt; active.eff_prio</code> ET <code>standby.preempt == 'YES'</code>.<br>
-   - Dans ce cas, l'ancien actif devient <code>STANDBY</code>.<br>
-   - Sinon, les rôles initiaux sont conservés.<br><br>
-Pour chaque routeur (triés par nom alphabétique), afficher :<br>
-<code>TRACK_REPORT router={name} track_if={track_if} if_state={if_state} eff_prio={eff_prio} final_role={final_role} failover={YES|NO}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer l'effet du suivi d'interface (object tracking) sur la priorité HSRP et prévoir les bascules du routeur actif.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Transversale, courtier en assurance de 600 salariés, concentre son trafic Internet au siège. Deux routeurs HSRP (groupe 1, VLAN 100) servent de passerelle : R-A (priorité 120) et R-B (priorité 100), tous deux avec la préemption activée. L'adresse virtuelle est 10.100.0.1. Pour réagir aux pannes de liens montants, R-A surveille d'abord son interface WAN Gi0/0 avec un décrément de 40, puis on lui ajoute le suivi du lien DMZ Gi0/1 avec un décrément de 15.</p><p>Rappel du cours : en HSRP, le routeur de priorité la plus élevée devient actif ; chaque interface suivie qui tombe retranche son décrément de la priorité du routeur ; avec la préemption, la bascule se produit dès que la priorité effective d'un routeur repasse au-dessus de celle de l'autre.</p><p>Répondez par le nombre seul (questions 1, 2 et 5) ou le nom du routeur (questions 3 et 4).</p><ol><li>Quelle est la priorité effective de R-A en fonctionnement normal ?</li><li>Le lien WAN Gi0/0 tombe : quelle est la priorité effective de R-A ?</li><li>Dans cette situation, quel routeur détient le rôle actif ?</li><li>Le lien WAN est rétabli : quel routeur redevient actif ?</li><li>WAN et DMZ tombent simultanément : quelle est la priorité effective de R-A ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TRACKED_ROUTER name=R1 init_role=ACTIVE base_prio=110 preempt=YES track_if=Gi0/0 decrement=20 if_state=DOWN
-TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/0 decrement=20 if_state=UP</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'agence de Port-Rolland exploite deux routeurs HSRP.
+R-1 : priorité 130, préemption ; R-2 : priorité 110.
+R-1 surveille son lien WAN avec un décrément de 50, puis un lien SAV avec un décrément de 20.
+
+1) Fonctionnement normal : priorité effective de R-1 = 130.
+2) WAN tombé : 130 − 50 = 80, sous 110 → R-2 devient actif.
+3) WAN rétabli : R-1 revient à 130 et redevient actif (préemption).
+4) WAN + SAV tombés : 130 − 50 − 20 = 60.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Calculer eff_prio pour les deux routeurs.</li>
-        <li>Vérifier si le Standby surpasse l'Actif et possède preempt == "YES".</li>
+        <li>En fonctionnement normal, aucune interface suivie n'est tombée : la priorité effective est la priorité configurée.</li>
+        <li>Chaque interface suivie tombée retranche son décrément : 120 − 40 pour le WAN seul, puis encore − 15 pour la DMZ.</li>
+        <li>1. Priorité configurée. 2. 120 − 40. 3. Comparez le résultat à la priorité de R-B (100). 4. La préemption rend la main au routeur de priorité supérieure. 5. Les décréments s'additionnent.</li>
       </ol>
     </details>
   </div>
@@ -294,41 +283,28 @@ TRACKED_ROUTER name=R2 init_role=STANDBY base_prio=100 preempt=YES track_if=Gi0/
      data-exercise="lan3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="GLBP_CONFIG group=1 mode=round-robin&#10;AVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100&#10;AVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100&#10;ARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01&#10;ARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02&#10;ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c3-e3) — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le centre de recherche de Néovia exploite trois routeurs GLBP (groupe 5).&#10;R-A : priorité 250, poids 60 ; R-B : priorité 200, poids 60 ; R-C : priorité 150, poids 30.&#10;&#10;1) L'AVG est le routeur de priorité la plus élevée : R-A.&#10;2) Chaque AVF reçoit une MAC virtuelle : 3 adresses.&#10;3) Somme des poids : 150 ; part de R-A : 60/150 = 40 % (R-B : 40 %, R-C : 20 %).&#10;4) R-C tombe : somme des poids 120 ; part de R-A : 60/120 = 50 %.">
+  <script type="text/plain" data-lab-starter># Exercice — L'équilibrage GLBP du campus d'Aurelia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 1 : le nom du routeur. Questions 2 à 5 : le nombre seul (parts en %).
 
-[Cas 1 — Mode host-dependent liant un client à une même MAC virtuelle]
-# Données : GLBP_CONFIG group=2 mode=host-dependent
-# Données : AVF id=1 name=GW1 vmac=00:07:b4:00:02:01 weight=10
-# Données : AVF id=2 name=GW2 vmac=00:07:b4:00:02:02 weight=10
-# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00
-# Données : ARP_REQ client_id=HOST_B client_mac=00:00:00:00:00:01
-# Données : ARP_REQ client_id=HOST_A client_mac=00:00:00:00:00:00
+[Question 1 — AVG du groupe 10]
 A_COMPLETER
 
-[Cas 2 — Mode weighted avec poids inégaux (2 pour 1)]
-# Données : GLBP_CONFIG group=3 mode=weighted
-# Données : AVF id=1 name=CORE_STRONG vmac=00:07:b4:00:03:01 weight=2
-# Données : AVF id=2 name=CORE_WEAK vmac=00:07:b4:00:03:02 weight=1
-# Données : ARP_REQ client_id=C1 client_mac=00:aa:bb:cc:dd:01
-# Données : ARP_REQ client_id=C2 client_mac=00:aa:bb:cc:dd:02
-# Données : ARP_REQ client_id=C3 client_mac=00:aa:bb:cc:dd:03
-# Données : ARP_REQ client_id=C4 client_mac=00:aa:bb:cc:dd:04
+[Question 2 — Nombre d'adresses MAC virtuelles]
 A_COMPLETER
 
-[Cas 3 — Groupe à 3 forwarders en round-robin]
-# Données : GLBP_CONFIG group=4 mode=round-robin
-# Données : AVF id=1 name=F1 vmac=00:07:b4:00:04:01 weight=1
-# Données : AVF id=2 name=F2 vmac=00:07:b4:00:04:02 weight=1
-# Données : AVF id=3 name=F3 vmac=00:07:b4:00:04:03 weight=1
-# Données : ARP_REQ client_id=X client_mac=00:11:22:33:44:55
-# Données : ARP_REQ client_id=Y client_mac=00:11:22:33:44:56
-# Données : ARP_REQ client_id=Z client_mac=00:11:22:33:44:57
+[Question 3 — Part du trafic de R1 (en %)]
+A_COMPLETER
+
+[Question 4 — Part du trafic de R3 (en %)]
+A_COMPLETER
+
+[Question 5 — Part du trafic de R1 après la panne de R3 (en %)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Répartiteur de charge GLBP (Gateway Load Balancing Protocol)</h3>
+    <h3 class="lab__title">Exercice 3 — L'équilibrage GLBP du campus d'Aurelia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -337,29 +313,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="lan3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'assignation dynamique des adresses MAC virtuelles (AVF) par l'AVG selon les algorithmes GLBP.</p>
-    <div class="lab__brief"><p>Contrairement à HSRP/VRRP où un seul équipement route le trafic pendant que les autres dorment, le protocole <strong>GLBP (Gateway Load Balancing Protocol)</strong> permet à tous les routeurs membres de router le trafic simultanément.<br>
-L'<strong>AVG (Active Virtual Gateway)</strong> répond aux requêtes ARP des clients en distribuant différentes adresses MAC virtuelles associées aux <strong>AVF (Active Virtual Forwarders)</strong>.<br><br>
-Analysez les paramètres du problème pour chaque cas. <strong>round-robin :</strong> Les AVFs sont assignés cycliquement selon leur <code>id</code> croissant (requête 0 &rarr; 1er AVF, requête 1 &rarr; 2e AVF, etc.).<br>
-2. <strong>host-dependent :</strong> L'AVF est sélectionné selon le hachage de l'adresse MAC du client (dernier octet décimal de client_mac modulo le nombre d'AVFs). Un client reçoit toujours la même MAC.<br>
-3. <strong>weighted :</strong> Chaque AVF est répété proportionnellement à son <code>weight</code> (ex: AVF1 weight=2, AVF2 weight=1 donne la séquence <code>[AVF1, AVF1, AVF2]</code> déroulée cycliquement au fil des requêtes).<br><br>
-Pour chaque requête ARP client, afficher :<br>
-<code>GLBP_REPLY client={client_id} assigned_avf={avf_name} vmac={avf_vmac} mode={mode}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Répartir la charge entre passerelles virtuelles GLBP : élection de l'AVG, nombre de MAC virtuelles, parts de trafic selon les poids et reprise après panne.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Aurelia, école d'ingénieurs de 3 000 étudiants, dessert ses amphithéâtres via trois routeurs GLBP (groupe 10). Chaque hôte conserve une passerelle virtuelle unique (10.10.0.1), mais l'AVG distribue des adresses MAC virtuelles distinctes pour équilibrer les flux. La configuration est la suivante :</p><table><tr><th>Routeur</th><th>Priorité GLBP</th><th>Poids (weight)</th></tr><tr><th>R1</th><td>200</td><td>100</td></tr><tr><th>R2</th><td>150</td><td>100</td></tr><tr><th>R3</th><td>150</td><td>50</td></tr></table><p>Rappel du cours : GLBP élit une passerelle virtuelle active (AVG) parmi les priorités les plus élevées ; tous les routeurs du groupe servent de passerelle virtuelle (AVF) et reçoivent chacun une adresse MAC virtuelle. En équilibrage pondéré (weighted), la part de trafic d'un AVF est proportionnelle à son poids rapporté à la somme des poids des AVF actifs.</p><p>Répondez par le nom du routeur (questions 1) ou le nombre seul (questions 2 à 5, parts en pourcentage).</p><ol><li>Quel routeur est élu AVG du groupe 10 ?</li><li>Combien d'adresses MAC virtuelles le groupe expose-t-il aux hôtes ?</li><li>Quelle part du trafic (en %) R1 reçoit-il ?</li><li>Quelle part du trafic (en %) R3 reçoit-il ?</li><li>R3 tombe en panne : quelle part du trafic (en %) R1 reçoit-il désormais ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GLBP_CONFIG group=1 mode=round-robin
-AVF id=1 name=AVF1 vmac=00:07:b4:00:01:01 weight=100
-AVF id=2 name=AVF2 vmac=00:07:b4:00:01:02 weight=100
-ARP_REQ client_id=PC1 client_mac=00:11:22:33:44:01
-ARP_REQ client_id=PC2 client_mac=00:11:22:33:44:02
-ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le centre de recherche de Néovia exploite trois routeurs GLBP (groupe 5).
+R-A : priorité 250, poids 60 ; R-B : priorité 200, poids 60 ; R-C : priorité 150, poids 30.
+
+1) L'AVG est le routeur de priorité la plus élevée : R-A.
+2) Chaque AVF reçoit une MAC virtuelle : 3 adresses.
+3) Somme des poids : 150 ; part de R-A : 60/150 = 40 % (R-B : 40 %, R-C : 20 %).
+4) R-C tombe : somme des poids 120 ; part de R-A : 60/120 = 50 %.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Quatre indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Trier les AVFs par ID croissant.</li>
-        <li>Pour round-robin : compteur global modulo nombre d'AVFs.</li>
-        <li>Pour host-dependent : dernier octet de client_mac modulo nombre d'AVFs.</li>
-        <li>Pour weighted : construire la liste pondérée et la dérouler cycliquement.</li>
+        <li>L'AVG est le routeur de priorité la plus élevée du groupe ; il attribue ensuite les adresses MAC virtuelles aux AVF.</li>
+        <li>Chaque AVF actif reçoit une adresse MAC virtuelle : comptez les routeurs du groupe.</li>
+        <li>1. Comparez 200, 150 et 150. 2. Un AVF = une MAC virtuelle. 3. Part = poids / somme des poids, soit 100 / 250. 4. 50 / 250. 5. Après la panne, la somme des poids ne compte plus que R1 et R2.</li>
       </ol>
     </details>
   </div>
@@ -372,18 +342,18 @@ ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le rôle fondamental d’un protocole FHRP sur un réseau local ?</p>
       <div class="opts">
-        <button class="opt">Attribuer dynamiquement des adresses IP par DHCP</button>
+        <button class="opt">Attribuer dynamiquement des adresses IP aux postes clients par DHCP</button>
         <button class="opt" data-correct="1">Fournir une passerelle par défaut redondante et hautement disponible pour les postes clients</button>
-        <button class="opt">Chiffrer les trames Ethernet avec WPA3</button>
-        <button class="opt">Accélérer la vitesse des ventilateurs des commutateurs</button>
+        <button class="opt">Chiffrer les trames Ethernet du réseau local avec le protocole WPA3</button>
+        <button class="opt">Accélérer la vitesse des ventilateurs des commutateurs en cas de surchauffe</button>
       </div>
       <div class="q__exp">Les FHRP éliminent le point unique de défaillance de la passerelle en partageant une IP virtuelle entre plusieurs routeurs physiques.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la norme standard internationale ouverte régissant le protocole VRRP ?</p>
       <div class="opts">
-        <button class="opt">IEEE 802.1Q</button>
         <button class="opt" data-correct="1">RFC 5798</button>
+        <button class="opt">IEEE 802.1Q</button>
         <button class="opt">RFC 1918</button>
         <button class="opt">IEEE 802.3ad</button>
       </div>
@@ -392,10 +362,10 @@ ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
     <div class="q">
       <p class="q__stem">Quelle est l’adresse MAC virtuelle IPv4 générée par un groupe VRRP ayant le Virtual Router ID (VRID) 10 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">00:00:5E:00:01:0A</button>
+        <button class="opt">00:00:5E:00:02:10</button>
         <button class="opt">00:00:0C:07:AC:0A</button>
         <button class="opt">FF:FF:FF:00:01:10</button>
-        <button class="opt">00:00:5E:00:02:10</button>
+        <button class="opt" data-correct="1">00:00:5E:00:01:0A</button>
       </div>
       <div class="q__exp">Le préfixe standard VRRP IPv4 est 00:00:5E:00:01:XX où XX est le VRID en hexadécimal (10 en décimal = 0A en hexadécimal).</div>
     </div>
@@ -403,19 +373,19 @@ ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
       <p class="q__stem">Dans un groupe VRRP, que se produit-il si un routeur de priorité 120 redémarre alors qu’un routeur de priorité 100 est actuellement Master ?</p>
       <div class="opts">
         <button class="opt">Le routeur 120 reste en veille car la préemption est désactivée par défaut dans VRRP</button>
+        <button class="opt">Le routeur 120 s’éteint automatiquement pour éviter tout conflit d’adresses IP virtuelles</button>
         <button class="opt" data-correct="1">Le routeur 120 reprend immédiatement le rôle de Master car la préemption est activée par défaut dans VRRP</button>
-        <button class="opt">Le routeur 120 s’éteint automatiquement</button>
-        <button class="opt">Le réseau est bloqué pendant 10 minutes</button>
+        <button class="opt">Le réseau local est bloqué pendant 10 minutes le temps de la resynchronisation complète</button>
       </div>
       <div class="q__exp">Contrairement à HSRP, VRRP active la préemption par défaut : le routeur ayant la priorité la plus élevée redevient Master dès qu’il est en ligne.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’objectif principal de l’Object Tracking associé à un protocole FHRP ?</p>
       <div class="opts">
-        <button class="opt">Compter le nombre de paquets vidéo en transit</button>
+        <button class="opt">Compter précisément le nombre de paquets vidéo en transit sur le réseau local</button>
+        <button class="opt">Synchroniser automatiquement les mots de passe des utilisateurs sur l’ensemble des routeurs du groupe</button>
         <button class="opt" data-correct="1">Surveiller l’état d’une interface amont ou d’une sonde IP SLA pour décrémenter la priorité en cas de coupure externe</button>
-        <button class="opt">Synchroniser les mots de passe des utilisateurs</button>
-        <button class="opt">Enregistrer les adresses MAC dans une base SQL</button>
+        <button class="opt">Enregistrer les adresses MAC des clients dans une base de données SQL centralisée</button>
       </div>
       <div class="q__exp">L’Object Tracking surveille les liaisons externes pour abaisser dynamiquement la priorité locale et transférer le rôle Master au routeur de secours.</div>
     </div>
@@ -423,17 +393,17 @@ ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
       <p class="q__stem">Quelle trame spéciale le nouveau routeur Master émet-il sur le LAN lors d’un basculement pour actualiser les tables CAM des commutateurs ?</p>
       <div class="opts">
         <button class="opt">Une trame BPDU RSTP</button>
-        <button class="opt" data-correct="1">Une trame Gratuitous ARP (GARP)</button>
-        <button class="opt">Un paquet ICMP Redirect</button>
         <button class="opt">Une trame LLDP</button>
+        <button class="opt">Un paquet ICMP Redirect</button>
+        <button class="opt" data-correct="1">Une trame Gratuitous ARP (GARP)</button>
       </div>
       <div class="q__exp">Le Gratuitous ARP permet à tous les commutateurs d’apprendre immédiatement que la MAC virtuelle est désormais joignable sur le nouveau port.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le protocole GLBP de Cisco, quel rôle est chargé de répondre aux requêtes ARP des clients pour répartir la charge ?</p>
       <div class="opts">
-        <button class="opt">L’Active Virtual Forwarder (AVF)</button>
         <button class="opt" data-correct="1">L’Active Virtual Gateway (AVG)</button>
+        <button class="opt">L’Active Virtual Forwarder (AVF)</button>
         <button class="opt">Le Root Bridge Spanning Tree</button>
         <button class="opt">Le serveur DHCP local</button>
       </div>
@@ -571,7 +541,7 @@ ARP_REQ client_id=PC3 client_mac=00:11:22:33:44:03</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

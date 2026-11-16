@@ -44,7 +44,8 @@ module.exports = [
         "expected": "HEX=0xFF BIN=11111111"
       }
     ],
-    "solution": "[Exemple]\nHEX=0x0F BIN=00001111\n\n[Cas 1 — Opération OR pour forcer des bits]\nHEX=0x81 BIN=10000001\n\n[Cas 2 — Opération XOR pour inverser un quartet]\nHEX=0xA5 BIN=10100101\n\n[Cas 3 — Opération AND masque nul]\nHEX=0x00 BIN=00000000\n\n[Cas 4 — Opération XOR identité (bascule complète)]\nHEX=0xFF BIN=11111111"
+    "solution": "[Exemple]\nHEX=0x0F BIN=00001111\n\n[Cas 1 — Opération OR pour forcer des bits]\nHEX=0x81 BIN=10000001\n\n[Cas 2 — Opération XOR pour inverser un quartet]\nHEX=0xA5 BIN=10100101\n\n[Cas 3 — Opération AND masque nul]\nHEX=0x00 BIN=00000000\n\n[Cas 4 — Opération XOR identité (bascule complète)]\nHEX=0xFF BIN=11111111",
+    "takeaway": "AND isole des bits à 0, OR force des bits à 1 et XOR bascule sélectivement les bits du masque."
   },
   {
     "id": "asm2-c1-e2",
@@ -57,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c1-e2) — Décodage du Complément à 2 (8 bits & 16 bits)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Minimum 8 bits signé (-128)]\n# Données : 0x80;8\nA_COMPLETER\n\n[Cas 2 — Maximum 8 bits signé (+127)]\n# Données : 0x7F;8\nA_COMPLETER\n\n[Cas 3 — Valeur négative 16 bits (-1)]\n# Données : 0xFFFF;16\nA_COMPLETER\n\n[Cas 4 — Valeur négative 16 bits (-1000)]\n# Données : 0xFC18;16\nA_COMPLETER\n",
     "hints": [
       "Pour 8 bits, si la valeur >= 128 (0x80), soustrais 256 (2^8).",
-      "Pour 16 bits, si la valeur >= 32768 (0x8000), soustrais 65536 (2^16)."
+      "Pour 16 bits, si la valeur >= 32768 (0x8000), soustrais 65536 (2^16).",
+      "Pour chaque cas : lire la valeur hexadécimale et la largeur ; si le bit de poids fort est à 1, soustraire 2 puissance la largeur, sinon conserver la valeur telle quelle."
     ],
     "examples": [
       {
@@ -88,7 +90,8 @@ module.exports = [
         "expected": "DEC=-1000"
       }
     ],
-    "solution": "[Exemple]\nDEC=-1\n\n[Cas 1 — Minimum 8 bits signé (-128)]\nDEC=-128\n\n[Cas 2 — Maximum 8 bits signé (+127)]\nDEC=127\n\n[Cas 3 — Valeur négative 16 bits (-1)]\nDEC=-1\n\n[Cas 4 — Valeur négative 16 bits (-1000)]\nDEC=-1000"
+    "solution": "[Exemple]\nDEC=-1\n\n[Cas 1 — Minimum 8 bits signé (-128)]\nDEC=-128\n\n[Cas 2 — Maximum 8 bits signé (+127)]\nDEC=127\n\n[Cas 3 — Valeur négative 16 bits (-1)]\nDEC=-1\n\n[Cas 4 — Valeur négative 16 bits (-1000)]\nDEC=-1000",
+    "takeaway": "En complément à 2, le bit de poids fort négatif vaut -2^(n-1) : ainsi 0xFF sur 8 bits représente -1 et non +255."
   },
   {
     "id": "asm2-c1-e3",
@@ -101,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c1-e3) — Décalages logiques & arithmétiques (SHL, SHR, SAR)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — SHR logique sur nombre négatif]\n# Données : 0x80;2;SHR\nA_COMPLETER\n\n[Cas 2 — SAR arithmétique préservant le bit de signe 1]\n# Données : 0x80;2;SAR\nA_COMPLETER\n\n[Cas 3 — SAR sur -2 (0xFE) décalé de 1]\n# Données : 0xFE;1;SAR\nA_COMPLETER\n\n[Cas 4 — SHL standard sans débordement]\n# Données : 0x0A;3;SHL\nA_COMPLETER\n",
     "hints": [
       "Pour SAR, si le bit 7 est à 1 (val >= 128), les bits insérés à gauche lors du shift doivent être des 1.",
-      "Une façon simple pour SAR : convertis en entier signé (-128..127), applique >> n, puis prends & 0xFF."
+      "Une façon simple pour SAR : convertis en entier signé (-128..127), applique >> n, puis prends & 0xFF.",
+      "Pour chaque cas : lire l opération, la valeur et le compte ; décaler en insérant des zéros pour SHL et SHR, le bit de signe pour SAR, puis reformater en hexadécimal."
     ],
     "examples": [
       {
@@ -132,6 +136,7 @@ module.exports = [
         "expected": "RES=0x50"
       }
     ],
-    "solution": "[Exemple]\nRES=0x00\n\n[Cas 1 — SHR logique sur nombre négatif]\nRES=0x20\n\n[Cas 2 — SAR arithmétique préservant le bit de signe 1]\nRES=0xE0\n\n[Cas 3 — SAR sur -2 (0xFE) décalé de 1]\nRES=0xFF\n\n[Cas 4 — SHL standard sans débordement]\nRES=0x50"
+    "solution": "[Exemple]\nRES=0x00\n\n[Cas 1 — SHR logique sur nombre négatif]\nRES=0x20\n\n[Cas 2 — SAR arithmétique préservant le bit de signe 1]\nRES=0xE0\n\n[Cas 3 — SAR sur -2 (0xFE) décalé de 1]\nRES=0xFF\n\n[Cas 4 — SHL standard sans débordement]\nRES=0x50",
+    "takeaway": "SHR insère des zéros à gauche (non signé) tandis que SAR duplique le bit de signe pour préserver la division signée par 2^k."
   }
 ];

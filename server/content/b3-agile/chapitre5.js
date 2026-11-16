@@ -148,21 +148,21 @@ module.exports = {
     {
       stem: 'Si une équipe termine une User Story de 8 points à 95 % lors du sprint (les tests automatisés ne sont pas encore écrits), combien de points sont comptabilisés dans la vélocité ?',
       opts: [
-        '7.6 points (95 % de 8)',
-        '8 points car l’essentiel est fait',
-        '0 point, car en Scrum un incrément est soit Done à 100 %, soit non terminé',
-        '4 points à titre d’encouragement'
+        "0 point, car en Scrum un incrément est soit Done à 100 %, soit non terminé",
+        "7.6 points, soit 95 % des 8 points initialement estimés pour la story",
+        "8 points, car l’essentiel du travail est déjà réalisé et vérifié",
+        "4 points, à titre d’encouragement pour l’effort fourni par l’équipe"
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Dans Scrum et les démarches agiles, la règle du tout ou rien s’applique : un travail incomplet selon la DoD ne rapporte aucun point à la vélocité.'
     },
     {
       stem: 'Que formule la loi de Goodhart appliquée à la gestion de projet agile ?',
       opts: [
-        'Plus un projet dure longtemps, plus il devient cher',
-        'Lorsqu’un indicateur de mesure (comme la vélocité) est transformé en objectif de performance, il cesse d’être une mesure fiable car il est manipulé',
-        'Tout binaire finit par planter un jour',
-        'La vélocité d’une équipe double chaque année'
+        "Plus un projet informatique dure longtemps, plus son coût unitaire de développement augmente de façon mécanique",
+        "Lorsqu’un indicateur de mesure (comme la vélocité) est transformé en objectif de performance, il cesse d’être une mesure fiable car il est manipulé",
+        "Tout logiciel finit tôt ou tard par connaître une panne majeure, quel que soit le niveau de tests automatisés mis en place",
+        "La vélocité d’une équipe agile double chaque année, à condition que l’ensemble des rituels soit correctement respecté"
       ],
       correct: 1,
       exp: 'Si le management exige une hausse de vélocité, les équipes sur-estiment artificiellement les stories (inflation de points) sans gain réel.'
@@ -170,43 +170,43 @@ module.exports = {
     {
       stem: 'Sur un Sprint Burn-down chart, qu’indique une remontée soudaine de la courbe des points restants au cours du sprint ?',
       opts: [
-        'Une accélération du développement',
-        'L’apparition de Scope Creep (ajout de nouvelles tâches ou réévaluation à la hausse d’une complexité sous-estimée)',
-        'La fin prématurée du sprint',
-        'Une panne du serveur d’intégration continue'
+        "Une accélération soudaine du développement, portée par la motivation retrouvée de l’équipe",
+        "La fin prématurée du sprint, clôturé avant la date de revue prévue au calendrier",
+        "L’apparition de Scope Creep (ajout de nouvelles tâches ou réévaluation à la hausse d’une complexité sous-estimée)",
+        "Une panne du serveur d’intégration continue empêchant les développeurs de merger"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Une remontée de la courbe traduit l’injection de nouveau périmètre en cours d’itération (Scope Creep), ce qui compromet le Sprint Goal.'
     },
     {
       stem: 'Quel est l’avantage décisif d’un Release Burn-up chart par rapport à un simple Burn-down chart pour le dialogue avec un client ?',
       opts: [
-        'Il coûte moins cher en licence logicielle',
-        'Il trace séparément la courbe du travail terminé et la courbe du périmètre total demandé, prouvant si les retards proviennent d’ajouts de fonctionnalités',
-        'Il est tracé en trois dimensions',
-        'Il supprime le besoin de faire des réunions de rétrospective'
+        "Il affiche exactement le même résidu de travail restant que le burn-down, mais avec une échelle temporelle plus fine",
+        "Il rend les réunions de rétrospective de fin de sprint inutiles en signalant automatiquement les anomalies d’avancement",
+        "Il est disponible gratuitement dans la plupart des outils de gestion de projet agiles présents sur le marché",
+        "Il trace séparément la courbe du travail terminé et la courbe du périmètre total demandé, prouvant si les retards proviennent d’ajouts de fonctionnalités"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le Burn-up montre clairement si le décalage de livraison résulte d’une lenteur technique ou de la demande continue de nouvelles fonctionnalités par le client.'
     },
     {
       stem: 'Pourquoi est-il absurde et dangereux de comparer la vélocité brute de deux équipes différentes (ex: Équipe A fait 40 pts, Équipe B fait 25 pts) ?',
       opts: [
-        'Parce que l’équipe A a forcément de meilleurs ingénieurs',
-        'Parce que les Story Points sont une échelle d’estimation relative propre à l’étalonnage interne de chaque équipe : 1 point chez A n’a aucun équivalent chez B',
-        'Parce que la loi interdit les classements',
-        'Parce que l’équipe B utilise probablement un autre langage de programmation'
+        "Parce que les Story Points sont une échelle d’estimation relative propre à l’étalonnage interne de chaque équipe : 1 point chez A n’a aucun équivalent chez B",
+        "Parce que l’équipe A a forcément recruté des ingénieurs plus expérimentés et plus productifs que ceux de l’équipe B",
+        "Parce que la législation du travail interdit formellement de classer les performances des équipes de développement entre elles",
+        "Parce que l’équipe B développe probablement avec un autre langage de programmation, moins performant et plus lent"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’étalonnage en Story Points est strictement relatif et idiosyncratique : une équipe peut coter 3 points ce qu’une autre cote 8 points.'
     },
     {
       stem: 'À quoi sert le « Focus Factor » dans le calcul de la capacité d’un sprint ?',
       opts: [
-        'À mesurer le temps passé à regarder son écran sans cligner des yeux',
-        'À réduire les heures brutes théoriques des développeurs pour tenir compte du temps réel consacré aux imprévus, rituels, revues et support (typiquement 65 à 80 %)',
-        'À forcer les développeurs à éteindre leur téléphone portable',
-        'À calculer le pourcentage de bugs'
+        "À mesurer la capacité de concentration des développeurs, en comptant le temps passé en flux sans aucune interruption externe",
+        "À réduire les heures brutes théoriques des développeurs pour tenir compte du temps réel consacré aux imprévus, rituels, revues et support (typiquement 65 à 80 %)",
+        "À forcer les développeurs à éteindre leur téléphone portable et leur messagerie instantanée pendant toutes les heures de bureau",
+        "À calculer le pourcentage de bugs détectés en production par rapport au total des anomalies recensées du sprint"
       ],
       correct: 1,
       exp: 'Le Focus Factor intègre les interruptions, réunions et overhead techniques pour ne pas surcharger irréalistement l’équipe.'
@@ -214,10 +214,10 @@ module.exports = {
     {
       stem: 'Une équipe a une vélocité moyenne de 20 points par sprint. Le backlog compte 75 points. Combien de sprints complets sont mathématiquement nécessaires ?',
       opts: [
-        '3 sprints',
-        '3.75 sprints',
-        '4 sprints (arrondi au plafond supérieur car les sprints sont indivisibles)',
-        '5 sprints'
+        "3 sprints, en arrondissant à l’entier le plus proche du résultat exact",
+        "3.75 sprints, la valeur exacte du calcul sans aucun arrondi",
+        "4 sprints (arrondi au plafond supérieur car les sprints sont indivisibles)",
+        "5 sprints, en ajoutant une marge de sécurité d’un sprint complet"
       ],
       correct: 2,
       exp: '75 / 20 = 3.75. Un sprint ne pouvant être fractionné, il faut ceil(3.75) = 4 sprints entiers pour achever le backlog.'
@@ -225,12 +225,12 @@ module.exports = {
     {
       stem: 'Qu’est-ce que le « Cône d’Incertitude » (Cone of Uncertainty) en planification logicielle ?',
       opts: [
-        'Un entonnoir utilisé pour verser de l’eau sur les serveurs surchauffés',
-        'Un modèle démontrant que l’imprécision des estimations est maximale au début du projet et se resserre progressivement au fur et à mesure que les retours empiriques s’accumulent',
-        'La zone d’ombre où les bugs ne peuvent pas être détectés',
-        'Une sanction attribuée au Product Owner'
+        "Un modèle montrant que l’imprécision des estimations augmente au fil du projet, à mesure que la dette technique s’accumule dans le code",
+        "La période du projet durant laquelle les bugs de production restent indétectables par les équipes de développement et de test",
+        "Une sanction contractuelle infligée au Product Owner lorsque le budget initial du projet est dépassé de plus de dix pour cent",
+        "Un modèle démontrant que l’imprécision des estimations est maximale au début du projet et se resserre progressivement au fur et à mesure que les retours empiriques s’accumulent"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Au démarrage, l’incertitude est de 4x à 0.25x ; elle décroît régulièrement à mesure que le logiciel est inspecté et testé en conditions réelles.'
     }
   ],

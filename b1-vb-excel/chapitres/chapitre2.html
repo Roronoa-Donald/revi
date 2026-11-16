@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 2 — Le Modèle Objet Excel (Application → Workbooks → Worksheets → Range / Cells) | VB Excel B1</title>
+<meta name="description" content="Chapitre 2 du cours de Programmation VBA sous Excel B1 : Hiérarchie des objets Excel ; Objets et Collections (index vs nom) ; ActiveWorkbook vs ThisWorkbook ; référencer les plages avec Range, Cells(ligne, colonne), Rows, Columns et Offset ; l’Explorateur d’objets (F2). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-vb-excel/chapitres/chapitre2.html">
+<meta property="og:title" content="Chapitre 2 — Le Modèle Objet Excel (Application → Workbooks → Worksheets → Range / Cells) | VB Excel B1">
+<meta property="og:description" content="Chapitre 2 du cours de Programmation VBA sous Excel B1 : Hiérarchie des objets Excel ; Objets et Collections (index vs nom) ; ActiveWorkbook vs ThisWorkbook ; référencer les plages avec Range, Cells(ligne, colonne), Rows, Columns et Offset ; l’Explorateur d’objets (F2). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="2" class="page page--chapter">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<header class="vbanav"><div class="vbanav__in">
+  <a class="vbanav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
+    <span class="vbanav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
+    <span class="vbanav__word">cours.interactifs</span>
+  </a>
+  <div class="vbanav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="vbanav__chip" href="../index.html">VB Excel B1</a></div>
+  <nav class="vbanav__links" aria-label="Navigation du cours">
+      <a href="../sommaire.html">Sommaire</a>
+      <a href="../chapitres/chapitre1.html">Ch. 1</a>
+      <a href="../chapitres/chapitre2.html" class="is-active">Ch. 2</a>
+      <a href="../chapitres/chapitre3.html">Ch. 3</a>
+      <a href="../chapitres/chapitre4.html">Ch. 4</a>
+      <a href="../chapitres/chapitre5.html">Ch. 5</a>
+      <a href="../chapitres/chapitre6.html">Ch. 6</a>
+      <a href="../chapitres/cartes.html">Cartes</a>
+      <a href="../chapitres/formules.html">Mémo</a>
+      <a href="../exercices/exercices.html">Exercices</a>
+      <a href="../atelier.html">Atelier</a>
+      <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </nav>
+  <div class="vbanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></header>
+
+<main id="content" class="vbawrap">
+<p class="crumb"><a href="../index.html">VB Excel B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 2</p>
+
+<div class="chapmeta">
+    <span class="tag tag--module">Module 2</span>
+    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--lock">Réservé B1 et plus</span>
+  </div>
+
+<h1>Chapitre 2 — Le Modèle Objet Excel (Application → Workbooks → Worksheets → Range / Cells)</h1>
+
+<div class="lead">  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Dès que l’on ouvre le code généré par l’enregistreur de macros, on découvre des expressions séparées par des points : Application.Workbooks("Bilan.xlsm").Worksheets("Janvier").Range("B4"). Pour écrire ses propres macros sans se tromper de classeur ni de feuille, il faut comprendre comment Excel organise tous ses composants sous forme d’une hiérarchie d’objets emboîtés : le Modèle Objet Excel.</p>
+  </div></div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
+    <ol>
+      <li>parcourir la hiérarchie descendante Application → Workbooks → Worksheets → Range / Cells ;</li>
+      <li>distinguer un objet individuel (Workbook, Worksheet) de sa collection (Workbooks, Worksheets, Sheets) et cibler par nom ou par index ;</li>
+      <li>différencier sans jamais les confondre ActiveWorkbook et ThisWorkbook, ainsi que ActiveSheet et ActiveCell ;</li>
+      <li>adresser n’importe quelle zone avec Range("A1:B10"), Cells(ligne, colonne), Rows, Columns et Offset(lig, col) ;</li>
+      <li>chercher une classe ou un membre dans l’Explorateur d’objets de VBE (touche F2).</li>
+    </ol>
+  </div>
+
+<section class="sec">
+
+<h2>1. La hiérarchie du Modèle Objet Excel et la notion de Collection</h2>
+
+<p>En VBA, chaque élément manipulable d’Excel (l’application, un classeur, une feuille, une cellule, un graphique, une police) est un <strong>objet</strong>. Ces objets sont rangés selon une arborescence stricte où l’on descend du conteneur le plus général vers l’élément le plus précis en séparant chaque niveau par un <strong>point (<code>.</code>)</strong> :</p>
+<pre><code>Application → Workbooks("Ventes.xlsm") → Worksheets("Togo") → Range("C5")</code></pre>
+<ul>
+  <li><strong><code>Application</code></strong> : la racine de la hiérarchie, qui représente le programme Microsoft Excel lui-même (ses options globales, sa barre d’état, le rafraîchissement d’écran).</li>
+  <li><strong><code>Workbooks</code></strong> : la <strong>collection</strong> de tous les classeurs actuellement ouverts dans Excel. Chaque élément est un objet <code>Workbook</code>.</li>
+  <li><strong><code>Worksheets</code></strong> : la collection des feuilles de calcul d’un classeur (chaque élément est un objet <code>Worksheet</code>). La collection plus large <strong><code>Sheets</code></strong> regroupe à la fois les feuilles de calcul (<code>Worksheets</code>) et les feuilles graphiques (<code>Charts</code>).</li>
+  <li><strong><code>Range</code> / <code>Cells</code></strong> : représente une cellule unique, une ligne, une colonne ou une plage de cellules à l’intérieur d’une feuille de calcul.</li>
+</ul>
+<p>Une <strong>collection</strong> (toujours écrite au pluriel) s’interroge de deux façons : soit par le <strong>nom entre guillemets</strong> — <code>Worksheets("Facture")</code> —, soit par le <strong>numéro d’index</strong> (à partir de 1) — <code>Worksheets(1)</code> désigne la première feuille en partant de la gauche dans la barre d’onglets. Cibler par le nom est plus robuste si l’utilisateur réorganise l’ordre des onglets.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Racine implicite et raccourcis contextuels</div>
+    <p>Si vous écrivez simplement <code>Range("A1").Value = 100</code> sans préciser le classeur ni la feuille, VBA applique automatiquement la instruction à la feuille active (<strong><code>ActiveSheet</code></strong>) du classeur actif au premier plan (<strong><code>ActiveWorkbook</code></strong>). En revanche, <strong><code>ThisWorkbook</code></strong> désigne toujours le classeur qui porte le code VBA en cours d’exécution, même si un autre fichier est affiché à l’écran.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Cibler les cellules : Range, Cells(ligne, colonne), Rows, Columns et Offset</h2>
+
+<p>Le support du Dr TCHAZINO Tchamiè détaille cinq constructions complémentaires pour désigner des cellules dans une feuille :</p>
+<table>
+  <thead><tr><th>Syntaxe VBA</th><th>Ce qu’elle désigne</th><th>Usage privilégié</th></tr></thead>
+  <tbody>
+    <tr><td><code>Range("B3")</code></td><td>La cellule unique B3</td><td>Accès direct à une cellule fixe connue</td></tr>
+    <tr><td><code>Range("A1:D10")</code></td><td>La plage rectangulaire continue de A1 à D10 (40 cellules)</td><td>Mise en forme ou effacement d’un bloc</td></tr>
+    <tr><td><code>Range("A1:A5,C1:C5")</code></td><td>Deux plages disjointes (virgule séparatrice entre guillemets)</td><td>Sélection multiple non contiguë</td></tr>
+    <tr><td><code>Cells(ligne, colonne)</code><br>ex. <code>Cells(4, 2)</code> ou <code>Cells(4, "B")</code></td><td>La cellule située à la <strong>ligne 4, colonne 2</strong>, soit <strong>B4</strong> (<code>Cells</code> seul désigne toutes les cellules de la feuille)</td><td>Parcours par boucle avec des variables <code>Cells(i, j)</code></td></tr>
+    <tr><td><code>Rows(3)</code> / <code>Rows("3:6")</code><br><code>Columns(2)</code> / <code>Columns("B:D")</code></td><td>La ligne 3 (ou les lignes 3 à 6) ; la colonne B (ou B à D)</td><td>Suppression, insertion ou ajustement (<code>AutoFit</code>) de lignes/colonnes</td></tr>
+    <tr><td><code>ActiveCell.Offset(lig, col)</code><br>ex. <code>Range("C5").Offset(-1, 2)</code></td><td>La cellule décalée de <code>lig</code> lignes et <code>col</code> colonnes (ici : ligne 4, colonne E soit <strong>E4</strong>)</td><td>Déplacement relatif autour d’une cellule pivot</td></tr>
+  </tbody>
+</table>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> L’inversion classique entre Range("B4") et Cells(4, 2)</div>
+    <ul>
+      <li>Dans <code>Range("B4")</code>, on écrit la <strong>colonne (B) puis la ligne (4)</strong> comme dans une formule Excel.</li>
+      <li>Dans <code>Cells(4, 2)</code>, on passe <strong>d’abord le numéro de ligne (4), puis le numéro de colonne (2)</strong> ! Écrire <code>Cells(2, 4)</code> cible D2 et non B2.</li>
+      <li>Dans <code>Offset(lignes, colonnes)</code>, un nombre positif descend (lignes) ou va à droite (colonnes) ; un nombre négatif remonte ou va à gauche ; <code>0</code> reste sur la même ligne ou colonne.</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Selection vs ActiveCell et l’Explorateur d’objets (F2)</h2>
+
+<p>Lorsque l’utilisateur sélectionne une plage de plusieurs cellules (par exemple <code>B2:D6</code>), deux objets coexistent : <strong><code>Selection</code></strong> représente l’intégralité des 15 cellules sélectionnées, tandis que <strong><code>ActiveCell</code></strong> désigne l’unique cellule active (celle qui reste sur fond clair à l’intérieur de la sélection, en général <code>B2</code>, où s’effectue la saisie au clavier).</p>
+<p>Pour explorer les centaines d’objets disponibles sans les apprendre par cœur, l’éditeur VBE intègre l’<strong>Explorateur d’objets</strong> accessible par la touche <strong><code>F2</code></strong> (ou <em>Affichage → Explorateur d’objets</em>). En filtrant sur la bibliothèque <code>Excel</code> ou <code>VBA</code>, on y visualise pour chaque classe (<code>Workbook</code>, <code>Worksheet</code>, <code>Range</code>) la liste complète de ses propriétés (icône main tenant une fiche), de ses méthodes (icône brique verte en mouvement) et de ses événements (icône éclair jaune).</p>
+
+</section>
+
+  <section class="sec">
+
+<!-- code-labs:start -->
+  <div id="exercices">
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
+<div class="lab" id="vba-c2-e1" data-lab
+     data-exercise="vba-c2-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Deux fichiers sont ouverts : Macro_Paie.xlsm (contient le code) et Employes.xlsx (au premier plan).&#10;- ThisWorkbook.Name -&gt; Macro_Paie.xlsm&#10;- ActiveWorkbook.Name -&gt; Employes.xlsx">
+  <script type="text/plain" data-lab-starter># Exercice — Remonter la hiérarchie du Modèle Objet chez Togo Fret
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Objet racine représentant Excel]
+A_COMPLETER
+
+[Question 2 — Collection des classeurs ouverts]
+A_COMPLETER
+
+[Question 3 — Collection des feuilles de calcul]
+A_COMPLETER
+
+[Question 4 — Objet désignant le classeur porteur de la macro]
+A_COMPLETER
+
+[Question 5 — Objet désignant la feuille active par défaut]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Remonter la hiérarchie du Modèle Objet chez Togo Fret</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Identifier la classe ou la collection correspondant à chaque niveau du Modèle Objet Excel et distinguer ThisWorkbook de ActiveWorkbook.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Kodjo écrit une macro de consolidation pour la société logistique <strong>Togo Fret</strong>. Sa macro réside dans le fichier <code>Consolidation.xlsm</code> et lit des données dans le fichier <code>Navires_Mai.xlsx</code> qui vient d’être ouvert au premier plan. Pour éviter toute confusion, il écrit la référence complète suivante :</p><pre><code>Application.Workbooks("Navires_Mai.xlsx").Worksheets("Quai_1").Range("D12")</code></pre><ol>  <li>Quel objet place-t-on tout au sommet (à la racine) de la hiérarchie pour désigner le logiciel Excel lui-même ?</li>  <li>Quelle collection (au pluriel) regroupe l’ensemble des classeurs actuellement ouverts ?</li>  <li>Quelle collection (au pluriel) regroupe uniquement les feuilles de calcul d’un classeur (sans les feuilles graphiques) ?</li>  <li>Pendant que <code>Navires_Mai.xlsx</code> est affiché au premier plan, quel objet spécial désigne malgré tout le classeur <code>Consolidation.xlsm</code> qui contient le code VBA ?</li>  <li>Si Kodjo écrit simplement <code>Range("D12")</code> sans préciser de feuille, quelle feuille Excel cible-t-il implicitement (nom de l’objet VBA) ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Deux fichiers sont ouverts : Macro_Paie.xlsm (contient le code) et Employes.xlsx (au premier plan).
+- ThisWorkbook.Name -&gt; Macro_Paie.xlsm
+- ActiveWorkbook.Name -&gt; Employes.xlsx</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Les trois premiers niveaux apparaissent dans l’ordre exact de la ligne de code : Application.Workbooks(...).Worksheets(...).</li>
+        <li>Pour distinguer le classeur porteur du code de celui qui est au premier plan, opposez This (celui-ci, où vit le code) à Active (celui qui est actif à l’écran).</li>
+        <li>Étapes : extraire Application (racine), Workbooks (classeurs) et Worksheets (feuilles de calcul) ; utiliser ThisWorkbook pour le classeur contenant la macro ; utiliser ActiveSheet pour la feuille active implicite.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c2-e2" data-lab
+     data-exercise="vba-c2-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Grille de stock :&#10;- Cells(3, 1) -&gt; ligne 3, colonne 1 (A) -&gt; A3&#10;- Cells(1, 3) -&gt; ligne 1, colonne 3 (C) -&gt; C1&#10;- Range(&quot;A1:B3&quot;).Count -&gt; 2 colonnes x 3 lignes = 6 cellules">
+  <script type="text/plain" data-lab-starter># Exercice — Conversion entre Range("A1") et Cells(ligne, colonne)
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Cellule désignée par Cells(7, 2)]
+A_COMPLETER
+
+[Question 2 — Cellule désignée par Cells(2, 5)]
+A_COMPLETER
+
+[Question 3 — Premier argument (ligne) de Cells pour D9]
+A_COMPLETER
+
+[Question 4 — Second argument (colonne) de Cells pour D9]
+A_COMPLETER
+
+[Question 5 — Nombre de cellules dans Range("A1:C4")]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Conversion entre Range("A1") et Cells(ligne, colonne)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Convertir sans erreur des coordonnées Cells(ligne, colonne) en références A1 et compter les cellules d’une plage.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dans la feuille de stock d’une pharmacie, les colonnes sont numérotées (A = 1, B = 2, C = 3, D = 4, E = 5, F = 6). Une macro parcourt le tableau en utilisant tantôt <code>Range</code>, tantôt <code>Cells(ligne, colonne)</code>. Rappel du cours : dans <code>Cells(ligne, colonne)</code>, le premier nombre est <strong>toujours la ligne</strong> et le second <strong>la colonne</strong>.</p><ol>  <li>Quelle cellule en notation A1 (ex. <code>B2</code>) est désignée par <code>Cells(7, 2)</code> ?</li>  <li>Quelle cellule en notation A1 est désignée par <code>Cells(2, 5)</code> ?</li>  <li>Pour cibler la cellule <code>D9</code> avec <code>Cells(ligne, colonne)</code>, quel est le premier argument (le numéro de ligne) ?</li>  <li>Et quel est le second argument (le numéro de colonne) pour cibler <code>D9</code> ?</li>  <li>Combien de cellules contient la plage rectangulaire <code>Range("A1:C4")</code> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Grille de stock :
+- Cells(3, 1) -&gt; ligne 3, colonne 1 (A) -&gt; A3
+- Cells(1, 3) -&gt; ligne 1, colonne 3 (C) -&gt; C1
+- Range("A1:B3").Count -&gt; 2 colonnes x 3 lignes = 6 cellules</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Ne vous laissez pas piéger par l’ordre de lecture A1 : dans Cells(lig, col), le premier chiffre donne la ligne horizontale, le second la lettre de colonne (1=A, 2=B, 3=C, 4=D, 5=E).</li>
+        <li>Pour D9, la ligne est 9 et la colonne D est la 4e lettre de l’alphabet.</li>
+        <li>Étapes : traduire Cells(7, 2) en B7 ; traduire Cells(2, 5) en E2 ; décomposer D9 en ligne 9 et colonne 4 ; multiplier 3 colonnes (A..C) par 4 lignes (1..4) = 12 cellules.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c2-e3" data-lab
+     data-exercise="vba-c2-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Départ en B4 (ligne 4, colonne 2) :&#10;- Offset(1, 2) -&gt; ligne 5, col 4 -&gt; D5&#10;- Offset(-2, -1) -&gt; ligne 2, col 1 -&gt; A2">
+  <script type="text/plain" data-lab-starter># Exercice — Déplacements relatifs avec Offset(lignes, colonnes)
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Cellule atteinte par ActiveCell.Offset(2, 1) depuis C5]
+A_COMPLETER
+
+[Question 2 — Cellule atteinte par ActiveCell.Offset(-3, -2) depuis C5]
+A_COMPLETER
+
+[Question 3 — Cellule atteinte par ActiveCell.Offset(0, 3) depuis C5]
+A_COMPLETER
+
+[Question 4 — Cellule atteinte par ActiveCell.Offset(0, 0) depuis C5]
+A_COMPLETER
+
+[Question 5 — Touche de l'Explorateur d'objets dans VBE]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Déplacements relatifs avec Offset(lignes, colonnes)</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la cellule cible d’une chaîne d’instructions Offset à partir d’une cellule de départ.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dans une feuille de paie, la cellule active (<code>ActiveCell</code>) est initialement positionnée sur <strong><code>C5</code></strong> (ligne 5, colonne 3). Rappel du cours : <code>Offset(dLig, dCol)</code> décale de <code>dLig</code> lignes (positif vers le bas, négatif vers le haut) et de <code>dCol</code> colonnes (positif vers la droite, négatif vers la gauche).</p><ol>  <li>Partant de <code>C5</code>, quelle cellule (en notation A1) est désignée par <code>ActiveCell.Offset(2, 1)</code> ?</li>  <li>Partant de <code>C5</code>, quelle cellule est désignée par <code>ActiveCell.Offset(-3, -2)</code> ?</li>  <li>Partant de <code>C5</code>, quelle cellule est désignée par <code>ActiveCell.Offset(0, 3)</code> ?</li>  <li>Partant de <code>C5</code>, quelle cellule est désignée par <code>ActiveCell.Offset(0, 0)</code> ?</li>  <li>Quelle est la touche de fonction qui ouvre l’Explorateur d’objets dans VBE pour vérifier la documentation de <code>Offset</code> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Départ en B4 (ligne 4, colonne 2) :
+- Offset(1, 2) -&gt; ligne 5, col 4 -&gt; D5
+- Offset(-2, -1) -&gt; ligne 2, col 1 -&gt; A2</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Convertissez d’abord C5 en coordonnées (ligne = 5, colonne = 3), puis additionnez séparément le décalage de ligne et le décalage de colonne.</li>
+        <li>Reconvertissez ensuite le couple obtenu (nouvelle_ligne, nouvelle_colonne) en notation A1 (1=A, 2=B, 3=C, 4=D, 5=E, 6=F).</li>
+        <li>Étapes : (5+2, 3+1) = (7, 4) -&gt; D7 ; (5-3, 3-2) = (2, 1) -&gt; A2 ; (5+0, 3+3) = (5, 6) -&gt; F5 ; (5+0, 3+0) -&gt; C5 ; touche F2 pour l’Explorateur d’objets.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  </div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quel est l’ordre exact de la hiérarchie du Modèle Objet Excel, du plus général au plus précis ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Application → Workbooks → Worksheets → Range</button>
+        <button class="opt">Workbooks → Application → Range → Worksheets</button>
+        <button class="opt">Application → Worksheets → Workbooks → Cells</button>
+        <button class="opt">Range → Worksheets → Workbooks → Application</button>
+      </div>
+      <div class="q__exp">La racine est Application (Excel), qui contient la collection Workbooks (classeurs), dont chaque Workbook contient Worksheets (feuilles), qui contiennent les objets Range / Cells.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle cellule de la feuille active est désignée par l’expression VBA Cells(5, 2) ?</p>
+      <div class="opts">
+        <button class="opt">La cellule E2</button>
+        <button class="opt" data-correct="1">La cellule B5</button>
+        <button class="opt">La cellule B2</button>
+        <button class="opt">La cellule E5</button>
+      </div>
+      <div class="q__exp">Cells(ligne, colonne) prend le numéro de ligne en premier (5) et le numéro de colonne en second (colonne 2 = B), ce qui correspond à la cellule B5.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre ActiveWorkbook et ThisWorkbook en VBA ?</p>
+      <div class="opts">
+        <button class="opt">Aucune, ce sont deux synonymes exacts</button>
+        <button class="opt">ActiveWorkbook désigne PERSO.XLS alors que ThisWorkbook désigne un fichier .xlsx</button>
+        <button class="opt" data-correct="1">ActiveWorkbook est le classeur actuellement au premier plan, tandis que ThisWorkbook est le classeur qui contient la macro en cours d’exécution</button>
+        <button class="opt">ThisWorkbook ne peut contenir qu’une seule feuille de calcul</button>
+      </div>
+      <div class="q__exp">Si une macro ouvre un second fichier de données, ce second fichier devient ActiveWorkbook, mais ThisWorkbook continue de pointer de façon fiable vers le classeur qui héberge le code VBA.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Si la cellule active (ActiveCell) est C4, quelle cellule est ciblée par ActiveCell.Offset(-1, 2) ?</p>
+      <div class="opts">
+        <button class="opt">La cellule B6</button>
+        <button class="opt">La cellule D3</button>
+        <button class="opt">La cellule A5</button>
+        <button class="opt" data-correct="1">La cellule E3</button>
+      </div>
+      <div class="q__exp">À partir de C4 (ligne 4, colonne 3) : -1 sur les lignes remonte à la ligne 3 ; +2 sur les colonnes avance de C (3) vers E (5). On cible donc la cellule E3.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle syntaxe VBA permet de sélectionner simultanément les deux plages non adjacentes A1:A5 et C1:C5 ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Range("A1:A5,C1:C5").Select</button>
+        <button class="opt">Range("A1:A5;C1:C5").Select</button>
+        <button class="opt">Cells("A1:A5", "C1:C5").Select</button>
+        <button class="opt">Range("A1:C5").Offset(0, 2).Select</button>
+      </div>
+      <div class="q__exp">En VBA (syntaxe anglo-saxonne), l’union de plusieurs plages dans une chaîne Range("...") utilise la virgule comme séparateur : Range("A1:A5,C1:C5").</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre les collections Worksheets et Sheets d’un classeur ?</p>
+      <div class="opts">
+        <button class="opt">Sheets ne contient que les feuilles masquées</button>
+        <button class="opt" data-correct="1">Worksheets ne contient que les feuilles de calcul, tandis que Sheets inclut aussi les feuilles graphiques (Charts)</button>
+        <button class="opt">Worksheets commence à l’index 0 alors que Sheets commence à l’index 1</button>
+        <button class="opt">Sheets désigne uniquement les onglets d’un autre classeur fermé</button>
+      </div>
+      <div class="q__exp">La collection Worksheets regroupe exclusivement les feuilles de calcul (grilles), alors que la collection Sheets regroupe toutes les feuilles du classeur, y compris les feuilles de graphiques (Charts).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans l’éditeur VBE, quelle touche de fonction ouvre l’Explorateur d’objets permettant de consulter toutes les classes, propriétés et méthodes d’Excel ?</p>
+      <div class="opts">
+        <button class="opt">F4</button>
+        <button class="opt">F8</button>
+        <button class="opt" data-correct="1">F2</button>
+        <button class="opt">F5</button>
+      </div>
+      <div class="q__exp">La touche F2 ouvre l’Explorateur d’objets dans VBE (F4 ouvre la fenêtre Propriétés, F5 exécute la macro et F8 lance le pas à pas).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que désigne l’instruction Worksheets(1) dans un classeur Excel ?</p>
+      <div class="opts">
+        <button class="opt">Toujours la feuille qui porte le nom "Feuil1", même si elle a été déplacée en dernière position</button>
+        <button class="opt">La feuille active au moment de l’exécution</button>
+        <button class="opt">La première cellule de la feuille courante</button>
+        <button class="opt" data-correct="1">La première feuille de calcul en partant de la gauche dans la barre d’onglets du classeur</button>
+      </div>
+      <div class="q__exp">Un index numérique Worksheets(1) désigne la feuille selon sa position physique dans la barre d’onglets (1 = la plus à gauche), quel que soit son nom.</div>
+    </div>
+  </div>
+
+  </section>
+
+<section class="sec">
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Inverser ligne et colonne dans Cells(ligne, colonne) en pensant à la notation A1 (colonne puis ligne).</li>
+      <li>Utiliser un point-virgule Range("A1:A5;C1:C5") au lieu d’une virgule Range("A1:A5,C1:C5") dans le code VBA.</li>
+      <li>Se fier à Worksheets(1) dans un classeur où les utilisateurs déplacent les onglets : préférer Worksheets("NomFeuille").</li>
+      <li>Confondre ActiveWorkbook et ThisWorkbook lorsqu’une macro manipule plusieurs fichiers ouverts.</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — construire une référence d’objet sans erreur</div>
+    <ol>
+      <li>Identifier le classeur cible : ThisWorkbook (celui de la macro), ActiveWorkbook, ou Workbooks("Nom.xlsm").</li>
+      <li>Identifier la feuille cible par son nom d’onglet : .Worksheets("Janvier").</li>
+      <li>Choisir Range("A1:B10") pour une plage fixe ou Cells(i, j) lorsque le numéro de ligne i varie dans une boucle.</li>
+      <li>Utiliser .Offset(dLig, dCol) pour lire ou écrire dans une colonne voisine à partir d’une cellule repère.</li>
+    </ol>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Le Modèle Objet Excel suit la hiérarchie Application → Workbooks → Worksheets → Range / Cells.</li>
+      <li>Une collection (au pluriel) s’indexe par position Worksheets(1) ou par nom Worksheets("Ventes").</li>
+      <li>Cells(ligne, colonne) place toujours la ligne avant la colonne (Cells(3, 2) = B3).</li>
+      <li>Offset(lig, col) permet de se décaler relativement (+ descend/droite, - remonte/gauche, 0 sur place).</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire le chemin complet d’une cellule depuis Application jusqu’à Range.</li>
+      <li>Je sais convertir instantanément Cells(ligne, col) en notation A1 et inversement.</li>
+      <li>Je sais calculer la cellule atteinte par ActiveCell.Offset(lig, col).</li>
+      <li>Je sais expliquer pourquoi ThisWorkbook est plus sûr qu’ActiveWorkbook.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Modèle Objet Excel</strong> : représentation hiérarchique des composants d’Excel manipulables en VBA.</li><li><strong>Collection</strong> : ensemble ordonné d’objets de même type (<code>Workbooks</code>, <code>Worksheets</code>, <code>Cells</code>).</li><li><strong><code>ThisWorkbook</code> vs <code>ActiveWorkbook</code></strong> : classeur porteur de la macro vs classeur au premier plan.</li><li><strong><code>Range("A1:B4")</code></strong> : objet représentant une cellule, une plage continue ou une sélection multiple.</li><li><strong><code>Cells(ligne, colonne)</code></strong> : adressage matriciel (ligne d’abord, colonne ensuite).</li><li><strong><code>Offset(lignes, colonnes)</code></strong> : propriété renvoyant une plage décalée par rapport à la plage de départ.</li><li><strong><code>Selection</code> vs <code>ActiveCell</code></strong> : plage totale sélectionnée vs cellule active unique de saisie.</li><li><strong>Explorateur d’objets (<code>F2</code>)</strong> : catalogue intégré à VBE listant toutes les classes et leurs membres.</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>revoyez la hiérarchie Application → Workbooks → Worksheets → Range et l’ordre de Cells(ligne, col).</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>S’entraîner sur les calculs de déplacement Offset(lig, col) positifs et négatifs.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, vérifiez la distinction ThisWorkbook / ActiveWorkbook.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise solide du Modèle Objet Excel.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+</section>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre3.html">Chapitre 3 — Propriétés (Value, Formula, Interior.Color, Font.Bold), Méthodes (Select, ClearContents, Copy, AutoFit) et Événements (Workbook_Open, Worksheet_Change) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
+  Sources : Programmation VBA sous Excel (Dr TCHAZINO Tchamiè, 47 pages, support1.pdf — programme officiel B1 IT).</p>
+</main>
+
+<footer class="cfoot">
+  <div class="cfoot__in">
+    <a class="cfoot__brand" href="/">cours.interactifs</a>
+    <p class="cfoot__copy">© 2025-2026 Cours Interactifs — RD4SLOQ · VB Excel B1</p>
+    <nav class="cfoot__links" aria-label="Liens utiles">
+      <a href="/">Tous les cours</a>
+      <a href="/epreuves/index.html">Épreuves</a>
+      <a href="/preparation-web/index.html">Atelier Web</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

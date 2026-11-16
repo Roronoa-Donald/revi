@@ -117,13 +117,13 @@ module.exports = [
 
     questions: [
       { q: 'Deux ordinateurs connectés constituent…', opts: ['un WAN', 'un réseau minimal', 'un sous-réseau'], correct: 1, exp: 'Définition du support : deux ordinateurs connectés forment à eux seuls un réseau minimal.' },
-      { q: 'Le commutateur de couche 3 sait…', opts: ['répéter les bits', 'commuter dans un VLAN', 'router entre VLAN'], correct: 2, exp: 'Le switch L3 ajoute le routage à la commutation L2.' },
-      { q: 'L\'IPS se distingue de l\'IDS car il…', opts: ['alerte seulement', 'bloque les menaces', 'filtre les e-mails'], correct: 1, exp: 'L\'IPS répond aux menaces détectées : c\'est la prévention.' },
-      { q: 'La paire STP est blindée…', opts: ['par feuille commune', 'par paire', 'par connecteur'], correct: 1, exp: 'STP : chaque paire entourée de sa couche conductrice (Token-Ring).' },
+      { q: 'Le commutateur de couche 3 sait…', opts: ['router entre VLAN', 'commuter dans un VLAN', 'répéter les bits'], correct: 0, exp: 'Le switch L3 ajoute le routage à la commutation L2.' },
+      { q: 'L\'IPS se distingue de l\'IDS car il…', opts: ['alerte seulement', 'filtre les e-mails', 'bloque les menaces'], correct: 2, exp: 'L\'IPS répond aux menaces détectées : c\'est la prévention.' },
+      { q: 'La paire STP est blindée…', opts: ['par feuille commune', 'par connecteur', 'par paire'], correct: 2, exp: 'STP : chaque paire entourée de sa couche conductrice (Token-Ring).' },
       { q: 'La feuille d\'aluminium autour de TOUTES les paires désigne…', opts: ['UTP', 'FTP', 'SSTP'], correct: 1, exp: 'FTP (F/UTP) : écran général entre gaine et groupement de paires.' },
       { q: 'Sur le module Cisco cité, 10GBASE-T en catégorie 6 UTP atteint jusqu\'à…', opts: ['55 m', '100 m', '500 m'], correct: 0, exp: 'Pour ce module et un canal conforme, Cisco indique 55 m en catégorie 6 UTP ; 100 m correspondent à d\'autres catégories et 500 m dépassent cette indication.' },
-      { q: 'Dans la fibre, la lumière est reconvertie par…', opts: ['une cellule photoélectrique', 'un hub', 'un transfo'], correct: 0, exp: 'Laser → fibre → cellule photoélectrique : le cycle électrique-lumière-électrique.' },
-      { q: 'L\'atténuation minimale de la silice est vers…', opts: ['850 nm', '1550 nm', '2900 nm'], correct: 1, exp: 'Proche infrarouge : ~0,2 dB/km, réamplification périodique au-delà.' }
+      { q: 'Dans la fibre, la lumière est reconvertie par…', opts: ['un transfo', 'un hub', 'une cellule photoélectrique'], correct: 2, exp: 'Laser → fibre → cellule photoélectrique : le cycle électrique-lumière-électrique.' },
+      { q: 'L\'atténuation minimale de la silice est vers…', opts: ['1550 nm', '850 nm', '2900 nm'], correct: 0, exp: 'Proche infrarouge : ~0,2 dB/km, réamplification périodique au-delà.' }
     ],
 
     pitfalls: [
@@ -245,13 +245,13 @@ module.exports = [
 
     questions: [
       { q: 'Le modèle TCP/IP d\'actualité compte…', opts: ['4 couches', '5 couches', '7 couches'], correct: 1, exp: 'Le support : « le modèle TCP/IP à 5 couches est le modèle d\'actualité ».' },
-      { q: 'La couche présentation OSI gère…', opts: ['le routage', 'le codage des données (ASCII…)', 'les sessions'], correct: 1, exp: 'Couche 6 : codage/décodage, représentation commune.' },
-      { q: 'La couche session s\'occupe…', opts: ['des ouvertures et fermetures de sessions', 'des bits', 'des ports'], correct: 0, exp: 'RPC et NetBIOS vivent en couche 5.' },
-      { q: 'La couche transport découpe les données en…', opts: ['paquets', 'segments', 'trames'], correct: 1, exp: 'Segments en 4 ; paquets en 3 ; trames en 2.' },
-      { q: 'Chaque paquet devient une trame en couche…', opts: ['1', '2', '3'], correct: 1, exp: 'Liaison de données : en-tête + queue de trame ajoutés.' },
-      { q: 'Le hub travaille en couche…', opts: ['1 physique', '2 liaison', '3 réseau'], correct: 0, exp: 'Il transmet sans cibler MAC ni IP.' },
-      { q: 'L\'adressage logique (IP) est de la couche…', opts: ['2', '3', '4'], correct: 1, exp: 'Réseau : routeurs et protocoles de routage.' },
-      { q: 'La couche application OSI est…', opts: ['la plus proche de l\'utilisateur', 'la couche des câbles', 'celle des ports'], correct: 0, exp: 'Couche 7 : messagerie, transfert de fichiers, pages web.' }
+      { q: 'La couche présentation OSI gère…', opts: ['le codage des données (ASCII…)', 'le routage', 'les sessions'], correct: 0, exp: 'Couche 6 : codage/décodage, représentation commune.' },
+      { q: 'La couche session s\'occupe…', opts: ["des bits transmis sur le support physique","des ouvertures et fermetures de sessions","des ports utilisés par les applications"], correct: 1, exp: "La couche session gère l’ouverture et la fermeture des sessions (RPC, NetBIOS) ; les bits relèvent de la couche physique et les ports de la couche transport." },
+      { q: 'La couche transport découpe les données en…', opts: ['paquets', 'trames', 'segments'], correct: 2, exp: 'Segments en 4 ; paquets en 3 ; trames en 2.' },
+      { q: 'Chaque paquet devient une trame en couche…', opts: ['1', '3', '2'], correct: 2, exp: 'Liaison de données : en-tête + queue de trame ajoutés.' },
+      { q: 'Le hub travaille en couche…', opts: ['2 liaison', '1 physique', '3 réseau'], correct: 1, exp: "Le hub travaille en couche 1 physique : il répète les bits sans cibler ni MAC ni IP, contrairement au commutateur de couche 2." },
+      { q: 'L\'adressage logique (IP) est de la couche…', opts: ['3', '2', '4'], correct: 0, exp: 'Réseau : routeurs et protocoles de routage.' },
+      { q: 'La couche application OSI est…', opts: ['la couche des câbles', 'la plus proche de l\'utilisateur', 'celle des ports'], correct: 1, exp: 'Couche 7 : messagerie, transfert de fichiers, pages web.' }
     ],
 
     pitfalls: [
@@ -380,14 +380,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Les normes Ethernet commencent par…', opts: ['802.11', '802.3', '802.15'], correct: 1, exp: 'IEEE 802.3 ; 802.11 désigne le sans-fil.' },
-      { q: 'Un LAN SOHO typique d\'aujourd\'hui utilise…', opts: ['un switch par étage', 'un appareil « routeur sans fil » unique', 'un hub central'], correct: 1, exp: 'Un seul appareil remplit routeur, commutateur et point d\'accès.' },
+      { q: 'Les normes Ethernet commencent par…', opts: ['802.11', '802.15', '802.3'], correct: 2, exp: 'IEEE 802.3 ; 802.11 désigne le sans-fil.' },
+      { q: 'Un LAN SOHO typique d\'aujourd\'hui utilise…', opts: ["un appareil « routeur sans fil » unique","un switch par étage du bâtiment","un hub central relié à tous les PC"], correct: 0, exp: 'Un seul appareil remplit routeur, commutateur et point d\'accès.' },
       { q: 'Une interface MDI 10/100BASE-TX classique émet sur les broches…', opts: ['1 et 2', '3 et 6', '7 et 8'], correct: 0, exp: 'MDI classique : émission 1-2, réception 3-6 ; une interface MDI-X les inverse.' },
       { q: 'Sans Auto-MDIX, entre deux interfaces de commutateur MDI-X, on utilise…', opts: ['un câble droit', 'un câble croisé', 'du coaxial'], correct: 1, exp: 'Deux interfaces MDI-X requièrent un croisement dans ce cas ; avec Auto-MDIX compatible, le port peut s\'adapter.' },
-      { q: '1000BASE-T utilise…', opts: ['deux paires', 'quatre paires', 'une fibre'], correct: 1, exp: 'Quatre paires, transmission simultanée sur chaque paire.' },
-      { q: 'La MAC de destination fait…', opts: ['4 octets', '6 octets', '8 octets'], correct: 1, exp: 'Comme la MAC source : 6 octets.' },
-      { q: 'Le champ données de la trame 802.3 fait…', opts: ['1 à 46 octets', '46 à 1500 octets', '1500 à 9000 octets'], correct: 1, exp: 'Minimum 46 (pad sinon), maximum 1500.' },
-      { q: 'Le FCS sert à…', opts: ['identifier le protocole', 'détecter les erreurs de transmission', 'synchroniser'], correct: 1, exp: '4 octets, vérifiés par la carte réceptrice.' }
+      { q: '1000BASE-T utilise…', opts: ['deux paires', 'une fibre', 'quatre paires'], correct: 2, exp: 'Quatre paires, transmission simultanée sur chaque paire.' },
+      { q: 'La MAC de destination fait…', opts: ['6 octets', '4 octets', '8 octets'], correct: 0, exp: "La MAC de destination occupe 6 octets, comme la MAC source ; 4 et 8 octets ne correspondent à aucun champ de la trame 802.3." },
+      { q: 'Le champ données de la trame 802.3 fait…', opts: ['1 à 46 octets', '1500 à 9000 octets', '46 à 1500 octets'], correct: 2, exp: "Le champ données va de 46 octets (avec bourrage si besoin) à 1500 octets ; au-delà, la trame serait fragmentée ou jetée." },
+      { q: 'Le FCS sert à…', opts: ["identifier le protocole transporté","détecter les erreurs de transmission","synchroniser l’émetteur et le récepteur"], correct: 1, exp: '4 octets, vérifiés par la carte réceptrice.' }
     ],
 
     pitfalls: [

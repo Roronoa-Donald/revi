@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -173,11 +171,30 @@ SAR AL, 1    ; Divise par 2 pour ENTIERS SIGNÉS. Le bit de signe (bit 7) est r�
 
 </section>
 
+<section class="sec">
+
+<h2>5. Trace d’exécution x86-16 &amp; Simulateur de registres et drapeaux</h2>
+
+<p>Observons pas à pas l’effet des instructions logiques et de décalage sur le registre 16 bits <code>AX</code> (composé de <code>AH</code> et <code>AL</code>) et sur les drapeaux <code>ZF</code>, <code>SF</code>, <code>CF</code>, <code>OF</code> :</p>
+<table class="table">
+  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>AX (Hex)</th><th>AH / AL</th><th>ZF</th><th>SF</th><th>CF</th><th>OF</th><th>Explication matérielle</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>MOV AL, 0xD6</code></td><td><code>0x00D6</code></td><td><code>0x00 / 0xD6</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Charge <code>11010110b</code> dans l’octet bas <code>AL</code> (MOV ne modifie pas les drapeaux).</td></tr>
+    <tr><td>2</td><td><code>AND AL, 0x0F</code></td><td><code>0x0006</code></td><td><code>0x00 / 0x06</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Masque le quartet bas : conserve <code>0x06</code>, force <code>CF=0</code> et <code>OF=0</code>.</td></tr>
+    <tr><td>3</td><td><code>SHL AL, 1</code></td><td><code>0x000C</code></td><td><code>0x00 / 0x0C</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Décalage gauche d’un bit : multiplie par 2 ($6 \times 2 = 12 = 0\text{x0C}$).</td></tr>
+    <tr><td>4</td><td><code>XOR AX, AX</code></td><td><code>0x0000</code></td><td><code>0x00 / 0x00</code></td><td>1</td><td>0</td><td>0</td><td>0</td><td>Remise à zéro canonique : résultat nul $\implies$ <code>ZF=1</code>.</td></tr>
+  </tbody>
+</table>
+<div class="asm-sim" data-asm-simulator data-asm-code="MOV AL, 0xD6\nAND AL, 0x0F\nSHL AL, 1\nOR AL, 0x80\nXOR AX, AX\nHLT"></div>
+<script src="/assets/js/engines/asm-simulator.js" defer></script>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -271,10 +288,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0xFF;8</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Pour 8 bits, si la valeur &gt;= 128 (0x80), soustrais 256 (2^8).</li>
         <li>Pour 16 bits, si la valeur &gt;= 32768 (0x8000), soustrais 65536 (2^16).</li>
+        <li>Pour chaque cas : lire la valeur hexadécimale et la largeur ; si le bit de poids fort est à 1, soustraire 2 puissance la largeur, sinon conserver la valeur telle quelle.</li>
       </ol>
     </details>
   </div>
@@ -320,25 +338,26 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x80;1;SHL</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Pour SAR, si le bit 7 est à 1 (val &gt;= 128), les bits insérés à gauche lors du shift doivent être des 1.</li>
         <li>Une façon simple pour SAR : convertis en entier signé (-128..127), applique &gt;&gt; n, puis prends &amp; 0xFF.</li>
+        <li>Pour chaque cas : lire l opération, la valeur et le compte ; décaler en insérant des zéros pour SHL et SHR, le bit de signe pour SAR, puis reformater en hexadécimal.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quel est l’équivalent hexadécimal de l’octet binaire 11010110b ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">0xD6</button>
-        <button class="opt">0xC6</button>
         <button class="opt">0xD3</button>
+        <button class="opt">0xC6</button>
+        <button class="opt" data-correct="1">0xD6</button>
         <button class="opt">0xE6</button>
       </div>
       <div class="q__exp">En regroupant par 4 bits : 1101 = 13 = D, et 0110 = 6. L’octet vaut donc 0xD6.</div>
@@ -346,10 +365,10 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle est la plage de valeurs d’un entier signé codé en complément à 2 sur 8 bits ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">-128 à +127</button>
+        <button class="opt">-256 à +255</button>
         <button class="opt">0 à 255</button>
         <button class="opt">-127 à +128</button>
-        <button class="opt">-256 à +255</button>
+        <button class="opt" data-correct="1">-128 à +127</button>
       </div>
       <div class="q__exp">Sur 8 bits signés : de -2^7 (-128) à +2^7 - 1 (+127).</div>
     </div>
@@ -366,8 +385,8 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle opération logique permet de forcer un bit particulier à 1 sans modifier les autres bits du registre ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">OR avec un masque ayant 1 sur le bit ciblé</button>
         <button class="opt">AND avec un masque ayant 1 sur le bit ciblé</button>
+        <button class="opt" data-correct="1">OR avec un masque ayant 1 sur le bit ciblé</button>
         <button class="opt">XOR avec un masque de 0</button>
         <button class="opt">NOT appliqué au registre</button>
       </div>
@@ -376,20 +395,20 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quel avantage XOR EAX, EAX peut-il avoir sur MOV EAX, 0 ?</p>
       <div class="opts">
+        <button class="opt">Elle active automatiquement l’unité arithmétique flottante FPU du processeur</button>
+        <button class="opt">Elle permet d’écrire directement dans la mémoire cache L1 du processeur</button>
         <button class="opt" data-correct="1">Elle est plus compacte (2 octets contre 5) et peut supprimer une dépendance sur certains processeurs</button>
-        <button class="opt">Elle active automatiquement l’unité arithmétique flottante FPU</button>
-        <button class="opt">Elle permet d’écrire dans la mémoire cache L1</button>
-        <button class="opt">Elle désactive les interruptions matérielles</button>
+        <button class="opt">Elle désactive temporairement les interruptions matérielles du processeur</button>
       </div>
       <div class="q__exp">XOR EAX, EAX occupe 2 octets, contre 5 pour MOV EAX, 0 dans cet encodage. Le résultat dépend du registre et du processeur ; XOR modifie les drapeaux, contrairement à MOV.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre SHR (Shift Right) et SAR (Shift Arithmetic Right) ?</p>
       <div class="opts">
+        <button class="opt">SHR fonctionne uniquement sur les registres 16 bits, jamais sur les autres largeurs</button>
+        <button class="opt">SAR inverse purement et simplement l’ordre des octets stockés en mémoire vive</button>
+        <button class="opt">Il n’y a aucune différence réelle, ce sont deux mnémoniques strictement synonymes</button>
         <button class="opt" data-correct="1">SAR réplique le bit de signe (bit 7) à gauche pour préserver la valeur signée, tandis que SHR insère des 0</button>
-        <button class="opt">SHR fonctionne uniquement sur 16 bits</button>
-        <button class="opt">SAR inverse l’ordre des octets en mémoire</button>
-        <button class="opt">Il n’y a aucune différence, ce sont deux synonymes</button>
       </div>
       <div class="q__exp">SAR (Shift Arithmetic Right) préserve le signe des entiers négatifs en dupliquant le bit de poids fort.</div>
     </div>
@@ -406,8 +425,8 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Combien d’octets contient un mot double (Double Word / DWORD) en architecture Intel x86 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">4 octets (32 bits)</button>
         <button class="opt">2 octets (16 bits)</button>
+        <button class="opt" data-correct="1">4 octets (32 bits)</button>
         <button class="opt">8 octets (64 bits)</button>
         <button class="opt">1 octet (8 bits)</button>
       </div>
@@ -419,7 +438,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -436,7 +455,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour décoder toute valeur binaire brute</div>
@@ -452,7 +471,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -483,7 +502,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -532,7 +551,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

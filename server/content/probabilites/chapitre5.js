@@ -83,18 +83,28 @@ module.exports = {
       {
         "title": "Pour aller plus loin : Comprendre et calculer une intégrale de densité sans cours d’Analyse préalable",
         "html": "<div class=\"box box--intuition\"><div class=\"box__title\">Niveau 1 — Intuition &amp; Règle opératoire : L’intégrale comme aire sous la courbe</div><p>Pour une variable continue, la probabilité de tomber dans un intervalle $[a, b]$ est l’<strong>aire située sous la courbe</strong> de la densité $f(x)$ entre $a$ et $b$, notée $\\int_a^b f(x)\\,dx$. Pour la calculer concrètement en exercice, il suffit de trouver une <strong>primitive</strong> $F(x)$ (la fonction inverse de la dérivée) et d’appliquer la formule $F(b) - F(a)$ :</p><ul><li><strong>Constante :</strong> une primitive de $c$ est $c \\cdot x$, donc $\\int_a^b c\\,dx = c(b - a)$ (utilisé pour la loi uniforme) ;</li><li><strong>Puissance :</strong> une primitive de $x$ est $\\frac{x^2}{2}$ et une primitive de $x^2$ est $\\frac{x^3}{3}$ ;</li><li><strong>Exponentielle :</strong> une primitive de $\\lambda e^{-\\lambda x}$ est $-e^{-\\lambda x}$, ce qui donne directement $P(X \\le t) = \\int_0^t \\lambda e^{-\\lambda x}\\,dx = 1 - e^{-\\lambda t}$ pour la loi exponentielle.</li></ul></div>"
-      }
+      },
+    {
+      title: 'Labo Python appliqué',
+      html: [
+        '<p>La fonction de répartition de la loi normale centrée réduite s’écrit avec la fonction d’erreur : <code>Φ(z) = ½(1 + erf(z/√2))</code>. On centre et on réduit d’abord : <code>z = (x − μ) / σ</code>.</p>',
+        '<pre><code class="language-python">from math import erf, sqrt\n\ndef phi(z):\n    """Fonction de repartition de la loi normale centree reduite."""\n    return 0.5 * (1 + erf(z / sqrt(2)))\n\nmu, sigma = 100, 15\nprint("P(X &lt;= 115) =", round(phi((115 - mu) / sigma), 4))\nprint("P(85 &lt;= X &lt;= 115) =", round(phi(1) - phi(-1), 4))</code></pre>',
+        '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+        '<pre><code>P(X &lt;= 115) = 0.8413\nP(85 &lt;= X &lt;= 115) = 0.6827</code></pre>',
+        '<p>On retrouve la règle des « un sigma » : environ 68,27 % des valeurs sont dans <code>[μ − σ ; μ + σ]</code>.</p>'
+      ].join('\n')
+    }
   ],
 
   questions: [
-    { stem: 'Pour une loi continue, P(X = x) vaut…', opts: ['0', 'f(x)', '1'], correct: 0, exp: 'La probabilité d’une valeur exacte est nulle.' },
-    { stem: 'La densité vérifie…', opts: ['∫ f = 1', '∫ f = 0', 'Σ f = 1'], correct: 0, exp: 'L’aire totale sous la densité vaut 1.' },
+    { stem: 'Pour une loi continue, P(X = x) vaut…', opts: ['1', 'f(x)', '0'], correct: 2, exp: 'La probabilité d’une valeur exacte est nulle.' },
+    { stem: 'La densité vérifie…', opts: ['Σ f = 1', '∫ f = 0', '∫ f = 1'], correct: 2, exp: "L’aire totale sous la courbe d’une densité vaut 1 : toute la probabilité se répartit sur l’axe. Le distracteur ∫ f = 0 est impossible, une densité étant positive ou nulle." },
     { stem: 'F(x) pour une uniforme sur [a, b] ?', opts: ['(x−a)/(b−a)', 'x/b', '1/x'], correct: 0, exp: 'La répartition croît linéairement de a à b.' },
-    { stem: 'P(X ≥ x) pour une exponentielle de paramètre λ ?', opts: ['e^(−λx)', 'λx', '1 − e^(−λx)'], correct: 0, exp: 'La probabilité de dépasser x est e^(−λx).' },
-    { stem: 'Comment standardise-t-on X ?', opts: ['Z = (X−μ)/σ', 'Z = X·σ', 'Z = X+μ'], correct: 0, exp: 'Z = (X−μ)/σ suit N(0,1).' },
-    { stem: 'Que vaut Φ(0) ?', opts: ['0,5', '0', '1'], correct: 0, exp: 'La courbe est symétrique : la moitié de la masse est à gauche de 0.' },
+    { stem: 'P(X ≥ x) pour une exponentielle de paramètre λ ?', opts: ['λx', 'e^(−λx)', '1 − e^(−λx)'], correct: 1, exp: 'La probabilité de dépasser x est e^(−λx).' },
+    { stem: 'Comment standardise-t-on X ?', opts: ['Z = X+μ', 'Z = X·σ', 'Z = (X−μ)/σ'], correct: 2, exp: "On centre puis on réduit : Z = (X − μ)/σ, de moyenne 0 et d’écart-type 1, suit N(0,1). Le distracteur Z = X·σ multiplierait la dispersion au lieu de la diviser." },
+    { stem: 'Que vaut Φ(0) ?', opts: ['0', '0,5', '1'], correct: 1, exp: 'La courbe est symétrique : la moitié de la masse est à gauche de 0.' },
     { stem: 'Φ(−z) vaut…', opts: ['1 − Φ(z)', 'Φ(z)', '−Φ(z)'], correct: 0, exp: 'La symétrie de la normale donne Φ(−z) = 1 − Φ(z).' },
-    { stem: 'P(a ≤ Z ≤ b) vaut…', opts: ['Φ(b) − Φ(a)', 'Φ(a) − Φ(b)', 'Φ(b)·Φ(a)'], correct: 0, exp: 'On soustrait les répartitions aux deux bornes.' }
+    { stem: 'P(a ≤ Z ≤ b) vaut…', opts: ['Φ(a) − Φ(b)', 'Φ(b) − Φ(a)', 'Φ(b)·Φ(a)'], correct: 1, exp: 'On soustrait les répartitions aux deux bornes.' }
   ],
 
   pitfalls: [

@@ -181,27 +181,27 @@ module.exports = {
     {
       stem: 'Pourquoi est-il crucial de privilégier les données «comportementales» par rapport aux données «attitudinales» en UX Research ?',
       opts: [
-        'Parce que le code JavaScript ne s’intéresse qu’au comportement de la machine',
-        'Parce qu’il existe un fossé notoire entre ce que les utilisateurs prétendent faire en entretien et leurs actions réelles en situation d’usage',
-        'Parce que les données attitudinales sont illégales selon le RGPD',
-        'Parce que les données comportementales coûtent moins cher à héberger'
+        "Parce que le code JavaScript des interfaces ne sait traiter que des événements de comportement de la machine",
+        "Parce que les données attitudinales sont interdites par le RGPD pour toute étude impliquant des utilisateurs",
+        "Parce qu’il existe un fossé notoire entre ce que les utilisateurs prétendent faire en entretien et leurs actions réelles en situation d’usage",
+        "Parce que les données comportementales sont moins coûteuses à stocker que les réponses aux sondages"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le biais déclaratif est omniprésent : ce que les utilisateurs déclarent reflète souvent ce qu’ils aimeraient faire ou ce qu’ils pensent que l’interviewer attend, alors que leurs gestes réels révèlent la vérité des usages.'
     },
     {
       stem: 'Qui est l’inventeur historique du concept de «Persona» dans le domaine du génie logiciel et de la conception d’interaction ?',
-      opts: ['Steve Jobs', 'Alan Cooper', 'Jakob Nielsen', 'Don Norman'],
-      correct: 1,
+      opts: ['Steve Jobs', 'Don Norman', 'Jakob Nielsen', 'Alan Cooper'],
+      correct: 3,
       exp: 'Alan Cooper a formalisé le concept de Persona dans son ouvrage fondateur « The Inmates Are Running the Asylum » en 1999 pour donner un visage humain aux exigences logicielles.'
     },
     {
       stem: 'Quels sont les 4 quadrants d’une Carte d’Empathie (Empathy Map) standard ?',
       opts: [
-        'Ventes, Dépenses, Pertes, Bénéfices',
-        'Ce qu’il Dit (Says), Ce qu’il Pense (Thinks), Ce qu’il Fait (Does), Ce qu’il Ressent (Feels)',
-        'HTML, CSS, JavaScript, WebAssembly',
-        'Matin, Midi, Soir, Nuit'
+        "Ventes, Dépenses, Pertes, Bénéfices, les quatre indicateurs financiers du succès d’un produit",
+        "Ce qu’il Dit (Says), Ce qu’il Pense (Thinks), Ce qu’il Fait (Does), Ce qu’il Ressent (Feels)",
+        "Objectifs, Tâches, Écrans, Clics, les quatre unités de mesure de l’activité observée",
+        "Matin, Midi, Soir, Nuit, les quatre moments d’usage d’une application mobile"
       ],
       correct: 1,
       exp: 'L’Empathy Map organise les observations qualitatives en 4 catégories fondamentales : Says (verbatims), Thinks (pensées intérieures), Does (actions concrètes), Feels (émotions).'
@@ -209,38 +209,38 @@ module.exports = {
     {
       stem: 'Dans une Customer Journey Map, que désigne précisément un «Pain Point» ?',
       opts: [
-        'La couleur du bouton de validation',
-        'Un point de friction, de confusion ou de blocage où l’utilisateur ressent une émotion négative ou envisage d’abandonner',
-        'Le temps de réponse du serveur de base de données',
-        'Le coût financier payé par l’utilisateur'
+        "Un point de friction, de confusion ou de blocage où l’utilisateur ressent une émotion négative ou envisage d’abandonner",
+        "La couleur du bouton de validation du formulaire, simple critère esthétique subjectif de l’interface",
+        "Le temps de réponse du serveur de base de données qui héberge l’application",
+        "Le coût financier total payé par l’utilisateur pour accéder au service en ligne proposé"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un Pain Point (point de douleur) matérialise une rupture dans l’expérience où la frustration de l’utilisateur met en péril l’accomplissement de son objectif.'
     },
     {
       stem: 'Quelle est la différence méthodologique entre un tri de cartes «ouvert» et un tri de cartes «fermé» ?',
       opts: [
-        'Le tri ouvert se fait en public, le tri fermé sous mot de passe',
-        'Dans le tri ouvert, les utilisateurs créent et nomment eux-mêmes les catégories ; dans le tri fermé, les catégories sont prédéfinies et figées',
-        'Le tri ouvert ne concerne que les images, le tri fermé les fichiers PDF',
-        'Le tri fermé est réservé aux administrateurs'
+        "Le tri ouvert se déroule en atelier public, tandis que le tri fermé s’effectue à distance sous mot de passe",
+        "Le tri ouvert ne concerne que les contenus visuels, le tri fermé étant réservé aux documents textuels",
+        "Le tri ouvert laisse les cartes sur la table, le tri fermé les rangeant dans un classeur physique verrouillé",
+        "Dans le tri ouvert, les utilisateurs créent et nomment eux-mêmes les catégories ; dans le tri fermé, les catégories sont prédéfinies et figées"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le tri ouvert explore les modèles mentaux spontanés (l’utilisateur invente les rubriques). Le tri fermé évalue la pertinence d’une arborescence prédéterminée.'
     },
     {
       stem: 'Que signifie l’estimation historique de Nielsen d’environ 85 % pour cinq participants ?',
-      opts: ['Une estimation sous hypothèses de modèle, variable selon l’étude', 'Une garantie pour toutes les interfaces', 'Une preuve que tous les problèmes graves seront détectés', 'Une dispense de tester les changements'],
-      correct: 0,
+      opts: ['Une preuve que tous les problèmes graves seront détectés', 'Une garantie pour toutes les interfaces', 'Une estimation sous hypothèses de modèle, variable selon l’étude', 'Une dispense de tester les changements'],
+      correct: 2,
       exp: 'Le modèle utilise notamment une probabilité moyenne de détection par personne. Les problèmes, profils et contextes varient : cinq participants ne garantissent pas 85 % dans chaque étude.'
     },
     {
       stem: 'Qu’est-ce qu’un «Touchpoint» (point de contact) dans une cartographie de parcours utilisateur ?',
       opts: [
-        'L’écran tactile d’un smartphone uniquement',
-        'Tout point d’interaction direct ou indirect entre l’utilisateur et la marque ou le service (application, e-mail, emballage, support client)',
-        'Un câble réseau Ethernet',
-        'Un clic de souris droite'
+        "L’écran tactile d’un smartphone, unique canal d’interaction pris en compte par la cartographie du parcours",
+        "Tout point d’interaction direct ou indirect entre l’utilisateur et la marque ou le service (application, e-mail, emballage, support client)",
+        "Un câble réseau Ethernet reliant physiquement le poste de travail de l’utilisateur au serveur de données",
+        "Un simple clic de souris droite ouvrant le menu contextuel du navigateur web de l’utilisateur"
       ],
       correct: 1,
       exp: 'Un Touchpoint englobe l’ensemble des canaux et supports à travers lesquels l’utilisateur interagit avec le système au fil de son parcours global.'
@@ -248,12 +248,12 @@ module.exports = {
     {
       stem: 'Quelle erreur critique commet une équipe qui conçoit un persona «Tout le monde» (ex: Tout public âgé de 18 à 99 ans) ?',
       opts: [
-        'Aucune, c’est le meilleur moyen d’avoir un produit universel',
-        'Elle crée un produit mou et indécis qui ne convient parfaitement à personne en voulant plaire à tout le monde',
-        'Elle enfreint la loi de Fitts',
-        'Elle fait planter le navigateur'
+        "Elle crée un produit mou et indécis qui ne convient parfaitement à personne en voulant plaire à tout le monde",
+        "Aucune, c’est au contraire le meilleur moyen de concevoir un produit universellement adopté",
+        "Elle enfreint la loi de Fitts sur la taille des cibles de pointage à l’écran",
+        "Elle provoque un plantage du navigateur lors du chargement de la page d’accueil"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un persona universel (« everyone ») dilue les besoins spécifiques. Comme le rappelle Alan Cooper : « Si vous concevez pour tout le monde, vous concevez pour personne ».'
     }
   ],

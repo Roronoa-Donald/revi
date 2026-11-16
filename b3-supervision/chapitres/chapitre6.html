@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -173,24 +171,28 @@
      data-exercise="sup3-c6-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="FLAP_CHECK SERVICE=api-gateway THRESHOLD=25.0 STATES=OK,CRITICAL,OK,CRITICAL,OK,CRITICAL">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c6-e1) — Détecteur de Flapping et Filtrage Anti-Fatigue d’Alertes
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le lien WAN de l'agence BourseVoyages est supervisé sur la latence, seuil critique à 50 ms.&#10;Relevés : 48 ms, 55 ms, 47 ms, 56 ms, 49 ms.&#10;&#10;1) Deux relevés dépassent 50 ms (55 et 56).&#10;2) Les états alternent normal, alerte, normal, alerte, normal : 4 changements d'état.&#10;3) C'est du flapping.&#10;4) Un hystérésis sépare les seuils : alerter à 50 ms, ne résoudre que sous 45 ms.">
+  <script type="text/plain" data-lab-starter># Exercice — Le flapping du capteur de température de la salle serveurs Datalium
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : le nombre seul. Questions 3, 4 et 5 : un court libellé.
 
-[Cas 1 — Une seule transition isolée sur 6 vérifications]
-# Données : FLAP_CHECK SERVICE=db-cluster THRESHOLD=30.0 STATES=OK,OK,OK,OK,OK,CRITICAL
+[Question 1 — Relevés au-dessus du seuil]
 A_COMPLETER
 
-[Cas 2 — Service parfaitement stable sans transition]
-# Données : FLAP_CHECK SERVICE=dns-resolver THRESHOLD=20.0 STATES=OK,OK,OK
+[Question 2 — Changements d'état enregistrés]
 A_COMPLETER
 
-[Cas 3 — Flapping modéré dépassant le seuil de 40%]
-# Données : FLAP_CHECK SERVICE=auth-proxy THRESHOLD=40.0 STATES=OK,CRITICAL,OK,OK,CRITICAL
+[Question 3 — Nom du phénomène d'oscillation]
+A_COMPLETER
+
+[Question 4 — Technique du dépassement maintenu]
+A_COMPLETER
+
+[Question 5 — Technique des deux seuils séparés]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Détecteur de Flapping et Filtrage Anti-Fatigue d’Alertes</h3>
+    <h3 class="lab__title">Exercice 1 — Le flapping du capteur de température de la salle serveurs Datalium</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -199,24 +201,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le taux d'oscillation d'un état de service pour suspendre les alertes intempestives en cas de flapping.</p>
-    <div class="lab__brief"><p>Le flapping se produit lorsqu'un service bascule à répétition entre les états <code>OK</code> et <code>CRITICAL</code>.<br><br>
-Calcul du taux d'oscillation sur $N$ observations ($N &gt;= 2$) :<br>
-- <code>transitions</code> : nombre de changements d'état entre observations consécutives (<code>state[i] != state[i-1]</code>).<br>
-- <code>oscillation_pct = (transitions / (N - 1)) * 100.0</code>.<br><br>
-Règles :<br>
-- Si <code>oscillation_pct &gt;= THRESHOLD</code> : <code>flapping=YES suppress=YES</code>.<br>
-- Sinon : <code>flapping=NO suppress=NO</code>.<br><br>
-Données du cas : <code>FLAP_CHECK SERVICE=&lt;nom&gt; THRESHOLD=&lt;pct&gt; STATES=&lt;s1,s2,...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>FLAP_STATUS: service=&lt;nom&gt; checks=&lt;N&gt; transitions=&lt;t&gt; oscillation=&lt;osc_pct:.1f&gt;% flapping=&lt;YES|NO&gt; suppress=&lt;YES|NO&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Reconnaître un flapping, compter les changements d'état et citer les deux techniques d'amortissement.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dans la salle serveurs de Datalium, un capteur de température est supervisé avec un seuil critique fixé à <strong>28 °C</strong> : chaque relevé au-dessus du seuil fait passer l'alerte en état actif, chaque relevé sous le seuil la résout immédiatement. Relevés effectués toutes les cinq minutes :</p><table><tr><th>Relevé</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr><tr><th>Température (°C)</th><td>27,5</td><td>28,5</td><td>27,8</td><td>28,6</td><td>27,7</td><td>28,4</td><td>27,6</td><td>28,7</td><td>27,9</td></tr></table><ol><li>Combien de relevés dépassent le seuil critique de 28 °C ?</li><li>Combien de changements d'état (allers-retours entre alerte et normal) la supervision enregistre-t-elle ?</li><li>Comment nomme-t-on cette oscillation rapide d'une alerte entre deux états ?</li><li>Quelle technique consiste à n'alerter qu'après un dépassement maintenu pendant une durée minimale ?</li><li>Quelle technique sépare le seuil de déclenchement du seuil de résolution ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLAP_CHECK SERVICE=api-gateway THRESHOLD=25.0 STATES=OK,CRITICAL,OK,CRITICAL,OK,CRITICAL</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le lien WAN de l'agence BourseVoyages est supervisé sur la latence, seuil critique à 50 ms.
+Relevés : 48 ms, 55 ms, 47 ms, 56 ms, 49 ms.
+
+1) Deux relevés dépassent 50 ms (55 et 56).
+2) Les états alternent normal, alerte, normal, alerte, normal : 4 changements d'état.
+3) C'est du flapping.
+4) Un hystérésis sépare les seuils : alerter à 50 ms, ne résoudre que sous 45 ms.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Parcourez la liste des états de 1 à N-1 pour dénombrer les basculements.</li>
-        <li>Divisez par (N - 1) pour obtenir le pourcentage d'oscillation.</li>
+        <li>Comparez chaque relevé au seuil de 28 °C et notez l'état correspondant : la série alterne régulièrement au-dessus et au-dessous.</li>
+        <li>Chaque frontière entre deux relevés consécutifs d'états différents compte pour un changement d'état : comptez-les un par un.</li>
+        <li>1. Repérez les relevés 28,5 ; 28,6 ; 28,4 ; 28,7. 2. Neuf relevés qui alternent donnent huit frontières. 3. Nommez l'oscillation rapide. 4. La technique filtre les pics trop courts. 5. La technique écarte le seuil d'alerte du seuil de résolution.</li>
       </ol>
     </details>
   </div>
@@ -226,24 +227,28 @@ Résultat d’analyse attendu : <code>FLAP_STATUS: service=&lt;nom&gt; checks=&l
      data-exercise="sup3-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="CAPACITY_PREDICT CAPACITY_GB=1000.0 WARN_PCT=90.0 USAGE_GB=700.0,710.0,720.0,730.0,740.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c6-e2) — Capacity Planning et Prédiction Linéaire de Saturation Disque
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'entrepôt de données EntrepotGros occupe 3 100 Go d'un volume de 4 000 Go.&#10;Croissances des quatre dernières semaines : +60, +70, +55, +75 Go.&#10;Seuil d'alerte à 85 % du volume total.&#10;&#10;1) Croissance moyenne : (60 + 70 + 55 + 75) / 4 = 65 Go par semaine.&#10;2) Espace libre : 4 000 − 3 100 = 900 Go.&#10;3) 900 / 65 = 13,8 : 13 semaines complètes avant saturation.&#10;4) Par jour : 65 / 7 = 9,29 Go.&#10;5) Seuil : 0,85 × 4 000 = 3 400 Go utilisés.">
+  <script type="text/plain" data-lab-starter># Exercice — La saturation du disque de la base de données SerenData
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses sont des nombres seuls.
 
-[Cas 1 — Alerte immédiate car seuil 90% déjà atteint]
-# Données : CAPACITY_PREDICT CAPACITY_GB=500.0 WARN_PCT=90.0 USAGE_GB=440.0,445.0,450.0
+[Question 1 — Croissance moyenne hebdomadaire (en Go)]
 A_COMPLETER
 
-[Cas 2 — Consommation en baisse aucun risque de saturation]
-# Données : CAPACITY_PREDICT CAPACITY_GB=200.0 WARN_PCT=80.0 USAGE_GB=150.0,148.0,145.0
+[Question 2 — Espace libre (en Go)]
 A_COMPLETER
 
-[Cas 3 — Forte accélération sur 4 jours]
-# Données : CAPACITY_PREDICT CAPACITY_GB=100.0 WARN_PCT=80.0 USAGE_GB=40.0,50.0,60.0,70.0
+[Question 3 — Semaines complètes avant saturation]
+A_COMPLETER
+
+[Question 4 — Croissance moyenne par jour (en Go, 2 décimales)]
+A_COMPLETER
+
+[Question 5 — Seuil d'alerte 85 % (en Go utilisés)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Capacity Planning et Prédiction Linéaire de Saturation Disque</h3>
+    <h3 class="lab__title">Exercice 2 — La saturation du disque de la base de données SerenData</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -252,25 +257,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Prédire par régression linéaire le nombre de jours restants avant saturation d'un volume de stockage.</p>
-    <div class="lab__brief"><p>La métrologie prédictive calcule la vitesse d'accroissement journalier d'une ressource :<br><br>
-Pour $N$ mesures journalières $y_i$ aux indices $x_i = 0, 1, dots, N-1$ :<br>
-- <code>Pente a = Somme((x_i - x_mean) * (y_i - y_mean)) / Somme((x_i - x_mean)^2)</code>.<br>
-- Si <code>a &gt; 0.0001</code> :<br>
-  - <code>days_to_warn = ceil(max(0, (CAPACITY * WARN_PCT / 100.0) - current) / a)</code>.<br>
-  - <code>days_to_full = ceil(max(0, CAPACITY - current) / a)</code>.<br>
-- Sinon (croissance nulle ou décroissance) :<br>
-  - <code>days_to_warn = NONE</code> et <code>days_to_full = NONE</code>.<br><br>
-Données du cas : <code>CAPACITY_PREDICT CAPACITY_GB=&lt;cap&gt; WARN_PCT=&lt;warn&gt; USAGE_GB=&lt;u1,u2,...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>CAPACITY: growth_gb_day=&lt;a:.2f&gt; current_gb=&lt;curr:.1f&gt; usage=&lt;curr_pct:.1f&gt;% days_to_warn=&lt;days_warn&gt; days_to_full=&lt;days_full&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Mener un capacity planning linéaire : croissance moyenne, semaines avant saturation et seuil d'alerte.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La base de données SerenData vit sur un volume de <strong>2 000 Go</strong>. L'occupation actuelle est de <strong>1 250 Go</strong>. L'équipe exploitation relève l'accroissement du volume sur les quatre dernières semaines :</p><table><tr><th>Semaine</th><th>S-4</th><th>S-3</th><th>S-2</th><th>S-1</th></tr><tr><th>Croissance (Go)</th><td>+45</td><td>+50</td><td>+42</td><td>+43</td></tr></table><p>Hypothèse de travail : la croissance reste linéaire, égale à la moyenne des quatre semaines. Le seuil d'alerte disque est fixé à <strong>85 % du volume total</strong>.</p><ol><li>Quelle est la croissance moyenne par semaine, en Go ?</li><li>Quel est l'espace encore libre, en Go ?</li><li>Combien de semaines complètes peuvent s'écouler avant saturation du volume ?</li><li>Quelle est la croissance moyenne par jour, arrondie à 2 décimales (en Go) ?</li><li>À combien de Go utilisés correspond le seuil d'alerte de 85 % ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CAPACITY_PREDICT CAPACITY_GB=1000.0 WARN_PCT=90.0 USAGE_GB=700.0,710.0,720.0,730.0,740.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'entrepôt de données EntrepotGros occupe 3 100 Go d'un volume de 4 000 Go.
+Croissances des quatre dernières semaines : +60, +70, +55, +75 Go.
+Seuil d'alerte à 85 % du volume total.
+
+1) Croissance moyenne : (60 + 70 + 55 + 75) / 4 = 65 Go par semaine.
+2) Espace libre : 4 000 − 3 100 = 900 Go.
+3) 900 / 65 = 13,8 : 13 semaines complètes avant saturation.
+4) Par jour : 65 / 7 = 9,29 Go.
+5) Seuil : 0,85 × 4 000 = 3 400 Go utilisés.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Calculez la moyenne des x (indices 0 à N-1) et la moyenne des y (valeurs d'usage).</li>
-        <li>Utilisez math.ceil pour arrondir les jours restants vers l'entier supérieur.</li>
+        <li>La croissance moyenne est la somme des quatre accroissements divisée par quatre.</li>
+        <li>Divisez l'espace libre par la croissance hebdomadaire et prenez la partie entière : la semaine où le disque déborde ne compte pas comme semaine complète.</li>
+        <li>1. Moyenne = (45 + 50 + 42 + 43) / 4. 2. Libre = 2 000 − 1 250. 3. Partie entière de 750 / 45. 4. Divisez la croissance hebdomadaire par 7. 5. Le seuil s'applique au volume total : 0,85 × 2 000.</li>
       </ol>
     </details>
   </div>
@@ -280,24 +285,28 @@ Résultat d’analyse attendu : <code>CAPACITY: growth_gb_day=&lt;a:.2f&gt; curr
      data-exercise="sup3-c6-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="REMEDIATE INCIDENT=REM-401 ALERT=SERVICE_DEAD HOST=srv-web02 ATTEMPTS=0 MAX_RETRIES=3">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c6-e3) — Moteur d’Auto-Remédiation et Exécution de Runbooks
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La passerelle d'API de VoyageDirect a bloqué le renouvellement des jetons d'authentification&#10;à 21 h 30 : les clients recevaient des pages d'erreur. Le support s'en est aperçu à 22 h 10&#10;et le service a été rétabli à 22 h 20.&#10;Automatisation envisagée : si le taux d'erreurs dépasse 5 % pendant 4 minutes,&#10;purge et rechargement de la passerelle en 4 minutes.&#10;&#10;1) Impact : de 21 h 30 à 22 h 20 = 50 minutes.&#10;2) Prévention : 40 minutes après le début.&#10;3) Métrique manquante : le taux d'erreurs des réponses.&#10;4) Automatisé : détection à 21 h 34, rétablissement à 21 h 38.&#10;5) Évité : 50 − 8 = 42 minutes.">
+  <script type="text/plain" data-lab-starter># Exercice — La panne détectée trop tard : le cache Redis de MediaPlace
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 5 : le nombre de minutes. Question 3 : un court libellé. Question 4 : l'heure au format 02 h 28.
 
-[Cas 1 — Quota de réessais atteint escalade vers ingénieur]
-# Données : REMEDIATE INCIDENT=REM-402 ALERT=SERVICE_DEAD HOST=srv-web02 ATTEMPTS=3 MAX_RETRIES=3
+[Question 1 — Durée d'impact utilisateur (en minutes)]
 A_COMPLETER
 
-[Cas 2 — Alerte inconnue sans runbook associé]
-# Données : REMEDIATE INCIDENT=REM-403 ALERT=KERNEL_PANIC HOST=core-gw ATTEMPTS=0 MAX_RETRIES=3
+[Question 2 — Délai de prévention de l'équipe (en minutes)]
 A_COMPLETER
 
-[Cas 3 — Purge des logs temporaires sur disque saturé]
-# Données : REMEDIATE INCIDENT=REM-404 ALERT=DISK_SPACE_LOW HOST=db-node01 ATTEMPTS=1 MAX_RETRIES=2
+[Question 3 — Métrique manquante dans la supervision]
+A_COMPLETER
+
+[Question 4 — Heure de rétablissement avec l'automatisation]
+A_COMPLETER
+
+[Question 5 — Minutes d'impact évitées]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Moteur d’Auto-Remédiation et Exécution de Runbooks</h3>
+    <h3 class="lab__title">Exercice 3 — La panne détectée trop tard : le cache Redis de MediaPlace</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -306,27 +315,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Déclencher automatiquement une action corrective de runbook selon l'incident tout en appliquant les garde-fous de réessais.</p>
-    <div class="lab__brief"><p>L'auto-remédiation (*Event-Driven Automation*) automatise la résolution d'incidents récurrents :<br><br>
-Matrice des Runbooks :<br>
-- <code>SERVICE_DEAD</code> : <code>action=restart_service</code>.<br>
-- <code>DISK_SPACE_LOW</code> : <code>action=purge_tmp_logs</code>.<br>
-- <code>HIGH_QUEUE_BACKLOG</code> : <code>action=scale_worker_pool</code>.<br>
-- Toute autre alerte : <code>action=NONE</code>.<br><br>
-Garde-fous opérationnels :<br>
-- Si <code>action == NONE</code> : <code>dispatched=NO escalate=YES reason=NO_RUNBOOK</code>.<br>
-- Sinon si <code>ATTEMPTS &gt;= MAX_RETRIES</code> : <code>dispatched=NO escalate=YES reason=MAX_RETRIES_EXCEEDED</code>.<br>
-- Sinon : <code>dispatched=YES escalate=NO reason=RUNBOOK_DISPATCHED</code>.<br><br>
-Données du cas : <code>REMEDIATE INCIDENT=&lt;id&gt; ALERT=&lt;type&gt; HOST=&lt;host&gt; ATTEMPTS=&lt;n&gt; MAX_RETRIES=&lt;m&gt;</code>.<br>
-Résultat d’analyse attendu : <code>REMEDIATION: incident=&lt;id&gt; action=&lt;action&gt; host=&lt;host&gt; dispatched=&lt;YES|NO&gt; escalate=&lt;YES|NO&gt; reason=&lt;reason&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser le post-mortem d'une panne détectée tardivement et évaluer le gain d'une auto-remédiation.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La plateforme de médias en ligne MediaPlace a subi un incident sur son cache Redis un dimanche matin. Chronologie établie au post-mortem :</p><table><tr><th>Heure</th><th>Événement</th></tr><tr><th>02 h 20</th><td>le cache Redis cesse de répondre ; les pages des internautes mettent trois fois plus de temps à charger</td></tr><tr><th>03 h 05</th><td>un internaute appelle le support ; l'ingénieur d'astreinte est prévenu manuellement</td></tr><tr><th>03 h 12</th><td>l'ingénieur exécute le runbook : redémarrage du service Redis</td></tr><tr><th>03 h 15</th><td>service rétabli, latence revenue à la normale</td></tr></table><p>Constat du post-mortem : la supervision surveillait le processus Redis (présent en mémoire) mais aucune sonde ne mesurait la latence réelle des réponses. Politique d'auto-remédiation envisagée : si la latence dépasse 2 secondes pendant 5 minutes, redémarrage automatique du service, opération qui dure 3 minutes.</p><ol><li>Combien de temps les utilisateurs ont-ils été impactés ?</li><li>Combien de temps après le début de l'incident l'équipe a-t-elle été prévenue ?</li><li>Quelle métrique manquait à la supervision pour détecter la panne dès 02 h 20 ?</li><li>Avec l'automatisation, à quelle heure le service aurait-il été rétabli ?</li><li>Combien de minutes d'impact l'automatisation aurait-elle évitées ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REMEDIATE INCIDENT=REM-401 ALERT=SERVICE_DEAD HOST=srv-web02 ATTEMPTS=0 MAX_RETRIES=3</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La passerelle d'API de VoyageDirect a bloqué le renouvellement des jetons d'authentification
+à 21 h 30 : les clients recevaient des pages d'erreur. Le support s'en est aperçu à 22 h 10
+et le service a été rétabli à 22 h 20.
+Automatisation envisagée : si le taux d'erreurs dépasse 5 % pendant 4 minutes,
+purge et rechargement de la passerelle en 4 minutes.
+
+1) Impact : de 21 h 30 à 22 h 20 = 50 minutes.
+2) Prévention : 40 minutes après le début.
+3) Métrique manquante : le taux d'erreurs des réponses.
+4) Automatisé : détection à 21 h 34, rétablissement à 21 h 38.
+5) Évité : 50 − 8 = 42 minutes.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez d'abord si l'alerte a un runbook associé.</li>
-        <li>Si le nombre de tentatives ATTEMPTS est &gt;= MAX_RETRIES, déclenchez l'escalade humaine.</li>
+        <li>L'impact utilisateur court du premier symptôme (02 h 20) au rétablissement complet (03 h 15).</li>
+        <li>Un processus présent en mémoire n'est pas un service qui répond : surveillez ce que vit l'utilisateur, pas seulement ce que voit le système.</li>
+        <li>1. De 02 h 20 à 03 h 15. 2. De 02 h 20 à 03 h 05. 3. Ce que les internautes subissent et qu'aucune sonde ne mesurait. 4. Détection à 02 h 25 (5 minutes), redémarrage de 3 minutes. 5. Comparez l'impact réel et l'impact automatisé.</li>
       </ol>
     </details>
   </div>
@@ -339,20 +348,20 @@ Résultat d’analyse attendu : <code>REMEDIATION: incident=&lt;id&gt; action=&l
     <div class="q">
       <p class="q__stem">Quel est l'objectif premier de l'intégration du principe d'hystérésis dans la configuration d'un seuil de supervision ?</p>
       <div class="opts">
-        <button class="opt">Augmenter le nombre d'emails envoyés</button>
+        <button class="opt">Augmenter significativement le volume d'emails d'alerte envoyés aux équipes</button>
         <button class="opt" data-correct="1">Empêcher les alertes en rafale lorsqu'une valeur oscille légèrement autour de la frontière d'alerte</button>
-        <button class="opt">Chiffrer les données de télémétrie</button>
-        <button class="opt">Remplacer l'agent SNMP</button>
+        <button class="opt">Chiffrer systématiquement les données de télémétrie collectées en transit</button>
+        <button class="opt">Remplacer progressivement l'agent SNMP installé par un agent plus moderne</button>
       </div>
       <div class="q__exp">En fixant un seuil de déclenchement plus haut que le seuil de rétablissement (ex: alerte à 85%, retour à 75%), on élimine les alertes répétées dues aux oscillations mineures.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un algorithme de détection de flapping, que fait le système de supervision lorsque le pourcentage d'oscillation d'un service dépasse le seuil critique ?</p>
       <div class="opts">
-        <button class="opt">Il supprime définitivement le serveur du réseau</button>
+        <button class="opt">Il supprime définitivement le serveur de l'inventaire et du réseau supervisé</button>
+        <button class="opt">Il formate automatiquement le disque dur système du serveur concerné</button>
         <button class="opt" data-correct="1">Il bascule le service en état FLAPPING et gèle temporairement l'envoi des alertes individuelles</button>
-        <button class="opt">Il formate le disque dur</button>
-        <button class="opt">Il désactive les pare-feux</button>
+        <button class="opt">Il désactive temporairement l'ensemble des pare-feux de l'entreprise</button>
       </div>
       <div class="q__exp">Le mode FLAPPING bloque le déluge de notifications individuelles pour protéger l'attention des opérateurs d'exploitation.</div>
     </div>
@@ -360,19 +369,19 @@ Résultat d’analyse attendu : <code>REMEDIATION: incident=&lt;id&gt; action=&l
       <p class="q__stem">Un volume de stockage de 1 000 Go contient actuellement 700 Go de données. La pente journalière de consommation est de 10 Go/jour. Dans combien de jours atteindra-t-il le seuil de 900 Go (90%) ?</p>
       <div class="opts">
         <button class="opt">10 jours</button>
-        <button class="opt" data-correct="1">20 jours</button>
-        <button class="opt">30 jours</button>
         <button class="opt">100 jours</button>
+        <button class="opt">30 jours</button>
+        <button class="opt" data-correct="1">20 jours</button>
       </div>
       <div class="q__exp">Espace restant avant 900 Go = 900 - 700 = 200 Go. Au rythme de 10 Go/jour : 200 / 10 = 20 jours.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il vital d'instaurer une limite stricte de réessais (max_retries) dans un mécanisme d'auto-remédiation exécutant un runbook ?</p>
       <div class="opts">
-        <button class="opt">Pour économiser le papier d'impression</button>
         <button class="opt" data-correct="1">Pour éviter qu'un service défaillant ne boucle indéfiniment en redémarrant en continu et pour forcer l'escalade humaine si la cause est profonde</button>
-        <button class="opt">Car Linux interdit plus de 3 commandes par heure</button>
-        <button class="opt">Pour accélérer le processeur</button>
+        <button class="opt">Pour économiser le papier d'impression des rapports d'incidents générés automatiquement par le runbook d'exécution</button>
+        <button class="opt">Car le système Linux interdit formellement l'exécution de plus de trois commandes de remédiation par heure</button>
+        <button class="opt">Pour accélérer artificiellement la cadence du processeur du serveur supervisé lors des phases de correction</button>
       </div>
       <div class="q__exp">Si un script redémarre un service qui crash immédiatement à cause d'une corruption de base, relancer en boucle masque le problème et peut aggraver la corruption. L'intervention humaine devient alors indispensable.</div>
     </div>
@@ -389,10 +398,10 @@ Résultat d’analyse attendu : <code>REMEDIATION: incident=&lt;id&gt; action=&l
     <div class="q">
       <p class="q__stem">Dans une régression linéaire simple pour le Capacity Planning (y = a*x + b), que représente la variable « a » ?</p>
       <div class="opts">
-        <button class="opt">La capacité totale du serveur</button>
+        <button class="opt">La capacité totale de stockage du serveur concerné par l'analyse de tendance</button>
+        <button class="opt">Le pourcentage d'erreurs HTTP constaté sur l'ensemble de la période analysée</button>
         <button class="opt" data-correct="1">La pente de croissance, c'est-à-dire le volume moyen de ressource consommée par unité de temps (Go/jour)</button>
-        <button class="opt">Le pourcentage d'erreurs HTTP</button>
-        <button class="opt">L'adresse IP de la sonde</button>
+        <button class="opt">L'adresse IP de la sonde de supervision chargée de collecter les données de capacité</button>
       </div>
       <div class="q__exp">La pente a quantifie le rythme journalier d'accroissement de la consommation, permettant d'extrapoler la date de saturation future.</div>
     </div>
@@ -400,9 +409,9 @@ Résultat d’analyse attendu : <code>REMEDIATION: incident=&lt;id&gt; action=&l
       <p class="q__stem">Quelle action est typiquement automatisée par un runbook de remédiation lorsque le volume /tmp est saturé ?</p>
       <div class="opts">
         <button class="opt">L'achat de nouveaux disques sur internet</button>
-        <button class="opt" data-correct="1">La purge des fichiers temporaires et archives de logs obsolètes</button>
-        <button class="opt">L'extinction complète du centre de données</button>
         <button class="opt">La réinstallation du système d'exploitation</button>
+        <button class="opt">L'extinction complète du centre de données</button>
+        <button class="opt" data-correct="1">La purge des fichiers temporaires et archives de logs obsolètes</button>
       </div>
       <div class="q__exp">La suppression des fichiers temporaires plus anciens qu'un certain nombre de jours (purge /tmp) est un cas d'école classique de remédiation automatisée sûre.</div>
     </div>
@@ -534,7 +543,7 @@ Résultat d’analyse attendu : <code>REMEDIATION: incident=&lt;id&gt; action=&l
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

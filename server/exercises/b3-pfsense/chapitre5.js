@@ -76,7 +76,8 @@ module.exports = [
     ].join("\n"),
     "hints": [
       "Appliquer les rejets connus, puis vérifier la sélection, l'état et le contenu de la CRL.",
-      "INDETERMINATE signale une information insuffisante : il ne prédit pas la décision réelle d'OpenVPN."
+      "INDETERMINATE signale une information insuffisante : il ne prédit pas la décision réelle d'OpenVPN.",
+      "1. Rejeter émetteur inconnu, dates invalides, DSA ou RSA courte. 2. CRL non sélectionnée ou indisponible : INDETERMINATE. 3. Sinon statut selon état, liste et dates."
     ],
     "examples": [
       {
@@ -144,7 +145,8 @@ module.exports = [
       "",
       "[Cas 6 — CRL sélectionnée mais indisponible]",
       "OPENVPN_PKI id=MISSING_CRL status=INDETERMINATE reason=CRL_UNAVAILABLE client=testuser serial=999"
-    ].join("\n")
+    ].join("\n"),
+    "takeaway": "Vérifier validité temporelle, autorité émettrice et liste de révocation (CRL) garantit qu’aucun certificat client compromis ne se connecte."
   },
   {
     "id": "pf3-c5-e2",
@@ -199,7 +201,8 @@ module.exports = [
     ].join("\n"),
     "hints": [
       "Appliquer les règles dans l'ordre, puis comparer le groupe à la liste explicite.",
-      "Un groupe hors politique, comme 31, n'est pas automatiquement faible ; HIGH est une étiquette pédagogique."
+      "Un groupe hors politique, comme 31, n'est pas automatiquement faible ; HIGH est une étiquette pédagogique.",
+      "1. Écarter chiffrements et hachés faibles, puis groupes DH interdits ou hors liste. 2. Clé AES courte : rejet. 3. Sinon APPROVED, HIGH si groupe 19 ou 20 et clé >= 256."
     ],
     "examples": [
       {
@@ -259,7 +262,8 @@ module.exports = [
       "IPSEC_AUDIT id=ECP19_256 phase=1 status=APPROVED reason=NONE level=HIGH",
       "IPSEC_AUDIT id=ECP20_256 phase=1 status=APPROVED reason=NONE level=HIGH",
       "IPSEC_AUDIT id=CHACHA_MODERN phase=2 status=APPROVED reason=NONE level=HIGH"
-    ].join("\n")
+    ].join("\n"),
+    "takeaway": "Une négociation IKEv2 robuste exige des algorithmes AEAD/AES-GCM, SHA-256 et un groupe Diffie-Hellman fort plutôt que des suites obsolètes."
   },
   {
     "id": "pf3-c5-e3",
@@ -272,7 +276,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c5-e3) — Calculateur de routage de tunnel VPN (Split Tunneling vs Full Tunneling)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Mode FULL Tunneling envoyant tout vers la passerelle VPN]\n# Données : VPN_MODE type=FULL tunnel_gw=10.200.0.1 local_gw=192.168.0.254\n# Données : ROUTE subnet=192.168.10.0/24\n# Données : PACKET id=P_INT dst_ip=192.168.10.5\n# Données : PACKET id=P_WEB dst_ip=142.250.200.46\nA_COMPLETER\n\n[Cas 2 — Mode SPLIT sans aucun réseau correspondant]\n# Données : VPN_MODE type=SPLIT tunnel_gw=10.0.0.1 local_gw=192.168.1.254\n# Données : ROUTE subnet=172.20.0.0/16\n# Données : PACKET id=EXT1 dst_ip=1.1.1.1\n# Données : PACKET id=EXT2 dst_ip=9.9.9.9\nA_COMPLETER\n\n[Cas 3 — Sous-réseau CIDR /32 spécifique]\n# Données : VPN_MODE type=SPLIT tunnel_gw=10.8.0.1 local_gw=192.168.1.1\n# Données : ROUTE subnet=198.51.100.50/32\n# Données : PACKET id=TARGET dst_ip=198.51.100.50\n# Données : PACKET id=NEIGHBOR dst_ip=198.51.100.51\nA_COMPLETER\n",
     "hints": [
       "Utiliser la notation CIDR du réseau et la notation CIDR du réseau.",
-      "Vérifier `ip in net` pour tester l'appartenance au sous-réseau."
+      "Vérifier `ip in net` pour tester l'appartenance au sous-réseau.",
+      "1. FULL : tout passe par le tunnel. 2. SPLIT : tester dst_ip contre les sous-réseaux dans l'ordre. 3. Première correspondance : tunnel, sinon sortie locale."
     ],
     "examples": [
       {
@@ -298,6 +303,7 @@ module.exports = [
         "expected": "VPN_ROUTE id=TARGET dst=198.51.100.50 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=198.51.100.50/32\nVPN_ROUTE id=NEIGHBOR dst=198.51.100.51 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET"
       }
     ],
-    "solution": "[Exemple]\nVPN_ROUTE id=P1 dst=10.5.20.1 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=10.0.0.0/8\nVPN_ROUTE id=P2 dst=8.8.8.8 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET\nVPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=172.16.50.0/24\n\n[Cas 1 — Mode FULL Tunneling envoyant tout vers la passerelle VPN]\nVPN_ROUTE id=P_INT dst=192.168.10.5 tunnel=YES gw=10.200.0.1 path=TUNNEL_DEFAULT\nVPN_ROUTE id=P_WEB dst=142.250.200.46 tunnel=YES gw=10.200.0.1 path=TUNNEL_DEFAULT\n\n[Cas 2 — Mode SPLIT sans aucun réseau correspondant]\nVPN_ROUTE id=EXT1 dst=1.1.1.1 tunnel=NO gw=192.168.1.254 path=DIRECT_INTERNET\nVPN_ROUTE id=EXT2 dst=9.9.9.9 tunnel=NO gw=192.168.1.254 path=DIRECT_INTERNET\n\n[Cas 3 — Sous-réseau CIDR /32 spécifique]\nVPN_ROUTE id=TARGET dst=198.51.100.50 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=198.51.100.50/32\nVPN_ROUTE id=NEIGHBOR dst=198.51.100.51 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET"
+    "solution": "[Exemple]\nVPN_ROUTE id=P1 dst=10.5.20.1 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=10.0.0.0/8\nVPN_ROUTE id=P2 dst=8.8.8.8 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET\nVPN_ROUTE id=P3 dst=172.16.50.10 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=172.16.50.0/24\n\n[Cas 1 — Mode FULL Tunneling envoyant tout vers la passerelle VPN]\nVPN_ROUTE id=P_INT dst=192.168.10.5 tunnel=YES gw=10.200.0.1 path=TUNNEL_DEFAULT\nVPN_ROUTE id=P_WEB dst=142.250.200.46 tunnel=YES gw=10.200.0.1 path=TUNNEL_DEFAULT\n\n[Cas 2 — Mode SPLIT sans aucun réseau correspondant]\nVPN_ROUTE id=EXT1 dst=1.1.1.1 tunnel=NO gw=192.168.1.254 path=DIRECT_INTERNET\nVPN_ROUTE id=EXT2 dst=9.9.9.9 tunnel=NO gw=192.168.1.254 path=DIRECT_INTERNET\n\n[Cas 3 — Sous-réseau CIDR /32 spécifique]\nVPN_ROUTE id=TARGET dst=198.51.100.50 tunnel=YES gw=10.8.0.1 path=CORPORATE_ROUTE subnet=198.51.100.50/32\nVPN_ROUTE id=NEIGHBOR dst=198.51.100.51 tunnel=NO gw=192.168.1.1 path=DIRECT_INTERNET",
+    "takeaway": "En Split Tunneling seuls les sous-réseaux d’entreprise empruntent le tunnel VPN, alors que le Full Tunneling centralise tout le trafic."
   }
 ];

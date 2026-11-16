@@ -93,14 +93,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que duplique un clone ?', opts: ['Un état existant', 'Un snapshot', 'Un réseau'], correct: 0, exp: 'Le clone copie une VM ou un template.' },
-    { stem: 'Première phase du cycle de vie ?', opts: ['Conception', 'Retrait', 'Exploitation'], correct: 0, exp: 'On définit les besoins avant de provisionner.' },
-    { stem: 'Que fait la phase de provisioning ?', opts: ['Allouer les ressources', 'Archiver', 'Superviser'], correct: 0, exp: 'On attribue CPU, RAM, stockage, réseau.' },
-    { stem: 'Quelle ressource est non élastique ?', opts: ['La RAM', 'Le vCPU', 'Le réseau'], correct: 0, exp: 'La RAM ne se partage pas dynamiquement.' },
-    { stem: 'Disque thin : avantage ?', opts: ['Souplesse', 'Performance garantie', 'Chiffrement'], correct: 0, exp: 'Les blocs sont alloués à la demande ; l’occupation doit être mesurée et surveillée.' },
-    { stem: 'Un snapshot remplace-t-il une sauvegarde ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: 'Il vit sur le même stockage et reste temporaire.' },
-    { stem: 'Clone lié : faiblesse ?', opts: ['Il dépend de sa base', 'Il est trop gros', 'Il est trop lent'], correct: 0, exp: 'Si la base disparaît, le clone lié ne fonctionne plus.' },
-    { stem: 'Que garantit un template ?', opts: ['Cohérence et rapidité', 'Le chiffrement', 'La migration'], correct: 0, exp: 'Un modèle standardise les déploiements.' }
+    { stem: 'Que duplique un clone ?', opts: ['Un réseau', 'Un snapshot', 'Un état existant'], correct: 2, exp: "Un clone duplique un état existant : la VM ou le template tel quel au moment de la copie. Un snapshot n’est qu’un état intermédiaire, pas une copie autonome." },
+    { stem: 'Première phase du cycle de vie ?', opts: ['Retrait', 'Conception', 'Exploitation'], correct: 1, exp: 'On définit les besoins avant de provisionner.' },
+    { stem: 'Que fait la phase de provisioning ?', opts: ['Archiver', 'Allouer les ressources', 'Superviser'], correct: 1, exp: "Le provisioning alloue les ressources : CPU, RAM, stockage et réseau sont attribués à la VM. Archiver et superviser viennent après, à d’autres étapes." },
+    { stem: 'Quelle ressource est non élastique ?', opts: ['La RAM', 'Le vCPU', 'Le réseau'], correct: 0, exp: "La RAM est non élastique : allouée à la VM, elle ne se partage pas dynamiquement. Le vCPU peut être suralloué et le réseau dimensionné à la demande." },
+    { stem: 'Disque thin : avantage ?', opts: ['Chiffrement', 'Performance garantie', 'Souplesse'], correct: 2, exp: 'Les blocs sont alloués à la demande ; l’occupation doit être mesurée et surveillée.' },
+    { stem: 'Un snapshot remplace-t-il une sauvegarde ?', opts: ['Oui', 'Non', 'Toujours'], correct: 1, exp: 'Il vit sur le même stockage et reste temporaire.' },
+    { stem: 'Clone lié : faiblesse ?', opts: ['Il est trop lent', 'Il est trop gros', 'Il dépend de sa base'], correct: 2, exp: 'Si la base disparaît, le clone lié ne fonctionne plus.' },
+    { stem: 'Que garantit un template ?', opts: ['Cohérence et rapidité', 'Le chiffrement', 'La migration'], correct: 0, exp: "Un template garantit cohérence et rapidité : chaque VM démarre identique à la suivante. Il ne chiffre rien et ne migre rien — ce sont d’autres fonctions." }
   ],
 
   pitfalls: [

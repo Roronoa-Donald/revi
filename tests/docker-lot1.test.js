@@ -370,7 +370,8 @@ function runSolution(solution, stdin) {
 test('les 18 exercices Docker conservent un cas indépendant distinct', () => {
   assert.equal(exercises.length, 18);
   assert.deepEqual(new Set(exercises.map(exercise => exercise.id)), new Set(Object.keys(independentCases)));
-  assert.equal(isGradingSuspended('docker'), true);
+  assert.equal(isGradingSuspended('docker'), false);
+  assert.equal(isGradingSuspended('docker', 'exercice-inconnu'), true);
   assert.ok(MAX_TESTS >= 2);
 });
 

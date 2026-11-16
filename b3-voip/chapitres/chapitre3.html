@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -190,23 +188,28 @@ context=work</code></pre>
      data-exercise="vo3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="NUM=706438029 TYPE=friend HOST=dynamic SECRET=PassSecret8190 CONTEXT=work CODECS=ulaw,alaw&#10;NUM=10 TYPE=friend HOST=dynamic SECRET=secret CONTEXT=work CODECS=alaw&#10;NUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c3-e1) — Validateur & Générateur de Profils SIP Asterisk
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'étude notariale Beau-Séjour installe un IPBX Asterisk : extensions 101 à 105 (cinq collaborateurs,&#10;postes IP et softphones) et une boîte vocale générale 199.&#10;&#10;1) Il faut déclarer 5 comptes SIP (101 à 105) : la boîte 199 n'est pas un poste.&#10;2) Les softphones sans IP fixe utilisent host=dynamic.&#10;3) Chaque poste est rattaché à son contexte par la directive context.&#10;4) type=friend autorise l'émission et la réception.&#10;5) La boîte 199 se déclare dans voicemail.conf.">
+  <script type="text/plain" data-lab-starter># Exercice — Les postes du cabinet Vergnet & Associés
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez de façon courte : un nombre, une directive ou un mot.
 
-[Cas 1 — Cas de test 1]
-# Données : NUM=6001 TYPE=peer HOST=192.168.1.100 SECRET=TrunkSecure2026 CONTEXT=incoming CODECS=g729,alaw
-# Données : NUM=8002 TYPE=admin HOST=dynamic SECRET=PassAdmin99 CONTEXT=work CODECS=alaw
-# Données : NUM=9003 TYPE=friend HOST=dynamic SECRET=MySecretPass CONTEXT=interne CODECS=
+[Question 1 — Nombre de comptes SIP à déclarer]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : NUM=1001 TYPE=user HOST=dynamic SECRET=Abcdef1 CONTEXT=default CODECS=opus,ulaw
-# Données : NUM=abcdef TYPE=friend HOST=dynamic SECRET=ValidPass123 CONTEXT=work CODECS=alaw
+[Question 2 — Directive d'enregistrement pour un poste sans IP fixe]
+A_COMPLETER
+
+[Question 3 — Directive de rattachement au contexte]
+A_COMPLETER
+
+[Question 4 — Valeur de type pour émettre et recevoir]
+A_COMPLETER
+
+[Question 5 — Fichier des boîtes vocales]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Validateur &amp; Générateur de Profils SIP Asterisk</h3>
+    <h3 class="lab__title">Exercice 1 — Les postes du cabinet Vergnet &amp; Associés</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -215,21 +218,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité d'une déclaration de compte utilisateur Asterisk dans sip.conf et générer la configuration normalisée.</p>
-    <div class="lab__brief"><p>Dans Asterisk (fichiers sip.conf ou pjsip.conf), chaque utilisateur ou téléphone IP est modélisé par une section déclarative. Pour un compte SIP standard dans sip.conf, les directives clés sont :</p><ul><li><code>[numero_extension]</code> : en-tête identifiant le numéro (ex: [706438029])</li><li><code>type</code> : friend (émet et reçoit), peer (poste appelant ou trunk externe), user (uniquement entrant)</li><li><code>host</code> : dynamic (nécessite un enregistrement SIP REGISTER) ou IP statique</li><li><code>secret</code> : mot de passe d'authentification SIP (doit comporter au moins 6 caractères)</li><li><code>context</code> : contexte du dialplan dans lequel l'utilisateur évolue (ex: work, interne)</li><li><code>dtmfmode</code> : mode de transmission DTMF (rfc2833 obligatoire pour la ToIP moderne)</li><li><code>disallow</code> : all (désactive tous les codecs)</li><li><code>allow</code> : codecs autorisés (ex: ulaw, alaw, g729)</li></ul>
-<p>Format d'entrée :<br>Lignes décrivant un compte SIP sous forme :<br>NUM=&lt;ext&gt; TYPE=&lt;friend|peer|user&gt; HOST=&lt;dynamic|ip&gt; SECRET=&lt;pass&gt; CONTEXT=&lt;nom&gt; CODECS=&lt;c1,c2,...&gt;</p>
-<p>Pour chaque compte, vérifier :<br>1. NUM doit être composé de 3 à 10 chiffres.<br>2. TYPE doit appartenir à {friend, peer, user}.<br>3. SECRET doit faire au moins 6 caractères.<br>4. CODECS ne doit pas être vide.<br>Si tout est valide, générer le bloc de configuration compact formaté pour Asterisk. Sinon afficher ERREUR avec le motif du refus.</p>
-<p>Format de sortie :<br>Si valide :<br>[&lt;ext&gt;] | type=&lt;type&gt; | host=&lt;host&gt; | secret=*** | context=&lt;context&gt; | dtmfmode=rfc2833 | disallow=all | allow=&lt;codecs&gt;<br>Si invalide :<br>REJET:&lt;ext&gt; | MOTIF:&lt;NUM_INVALIDE|SECRET_TROP_COURT|TYPE_INCONNU|CODECS_VIDES&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dresser la liste des comptes SIP d'une PME et citer les directives de sip.conf qui les définissent.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le cabinet d'expertise comptable Vergnet &amp; Associés, quatre collaborateurs, remplace son standard analogique par un IPBX Asterisk. La responsable informatique dresse la table d'extensions suivante :</p><table><tr><th>Extension</th><th>Collaborateur</th><th>Service</th><th>Contexte</th><th>Matériel</th></tr><tr><th>201</th><td>Aïcha Ndiaye</td><td>Accueil</td><td>work</td><td>Poste IP PoE</td></tr><tr><th>202</th><td>Marc Leroux</td><td>Comptabilité</td><td>work</td><td>Softphone sur portable</td></tr><tr><th>203</th><td>Sofia Pereira</td><td>Comptabilité</td><td>work</td><td>Poste IP PoE</td></tr><tr><th>204</th><td>Yanis Amrani</td><td>Direction</td><td>direction</td><td>Softphone nomade</td></tr></table><p>Le cabinet ajoute une boîte vocale générale, la numéro 250, qui accueille les appelants en dehors des horaires d'ouverture. Cette boîte n'est rattachée à aucun poste physique.</p><p>Rappel du cours : chaque poste est déclaré dans sip.conf par une section [numéro] avec les directives type, host, secret et context.</p><ol><li>Combien de comptes SIP faut-il déclarer dans sip.conf ?</li><li>Quelle directive indique qu'un poste sans adresse IP fixe doit s'enregistrer auprès du serveur ?</li><li>Quelle directive rattache chaque poste à son contexte d'acheminement du Dialplan ?</li><li>Quelle valeur du paramètre type autorise un poste à la fois à émettre et à recevoir des appels ?</li><li>Dans quel fichier les boîtes vocales, comme la 250, sont-elles déclarées ?</li></ol><p>Répondez de façon courte (un nombre, une directive, un mot).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NUM=706438029 TYPE=friend HOST=dynamic SECRET=PassSecret8190 CONTEXT=work CODECS=ulaw,alaw
-NUM=10 TYPE=friend HOST=dynamic SECRET=secret CONTEXT=work CODECS=alaw
-NUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'étude notariale Beau-Séjour installe un IPBX Asterisk : extensions 101 à 105 (cinq collaborateurs,
+postes IP et softphones) et une boîte vocale générale 199.
+
+1) Il faut déclarer 5 comptes SIP (101 à 105) : la boîte 199 n'est pas un poste.
+2) Les softphones sans IP fixe utilisent host=dynamic.
+3) Chaque poste est rattaché à son contexte par la directive context.
+4) type=friend autorise l'émission et la réception.
+5) La boîte 199 se déclare dans voicemail.conf.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez que toutes les directives obligatoires (type, host, secret, context) sont présentes.</li>
-        <li>Assurez-vous que disallow=all précède les directives allow autorisant les codecs.</li>
+        <li>Seuls les postes qui émettent et reçoivent des appels ont besoin d'un compte SIP : la boîte vocale générale n'en est pas un.</li>
+        <li>Relisez la fiche type du cours : [706438029] avec type=friend, host=dynamic, secret=… et context=work.</li>
+        <li>1. Comptez les postes de la table, pas les boîtes vocales. 2. host=dynamic impose l'enregistrement REGISTER. 3. La directive context fixe le contexte du Dialplan. 4. type=friend combine peer et user. 5. Les boîtes vocales se déclarent dans voicemail.conf.</li>
       </ol>
     </details>
   </div>
@@ -239,23 +245,28 @@ NUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw</pre>
      data-exercise="vo3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="BOX=706438029 PIN=8190 NAME=Pape Moussa SONKO EMAIL=assoum1024@gmail.com MSG_COUNT=12&#10;BOX=101 PIN=12 EMAIL=test@corp.fr NAME=Alice MSG_COUNT=5&#10;BOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c3-e2) — Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le musée du Bord de Mer configure sa messagerie : [accueil]&#10;300 =&gt; 2178,Perpetue Mendy,accueil@musee-bm.fr,,attach=yes&#10;Les messages sont limités à 90 secondes, enregistrés en G.711 (64 kbps).&#10;&#10;1) Code PIN : 2178.&#10;2) Consultation : VoiceMailMain().&#10;3) La pièce jointe part pour la boîte 300 (attach=yes).&#10;4) 64 000 / 8 = 8 000 octets par seconde.&#10;5) 90 secondes : 8 000 × 90 = 720 000 octets.">
+  <script type="text/plain" data-lab-starter># Exercice — La messagerie vocale du cabinet Vergnet
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le nombre, le code ou le nom attendus.
 
-[Cas 1 — Cas de test 1]
-# Données : BOX=5001 PIN=9988 NAME=Support Technique EMAIL=support@voip.lan MSG_COUNT=50
-# Données : BOX=5002 PIN=1122 NAME=Direction Générale EMAIL=dir@voip.lan MSG_COUNT=42
-# Données : BOX=abc PIN=1234 NAME=Invalide EMAIL=inv@voip.lan MSG_COUNT=0
+[Question 1 — Code PIN de la boîte de Marc Leroux]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : BOX=600 PIN=0000 NAME=Accueil Standard EMAIL=accueil@corp.com MSG_COUNT=55
-# Données : BOX=700 PIN=12345 NAME=Test EMAIL=test@test.com MSG_COUNT=1
+[Question 2 — Application de consultation de la boîte vocale]
+A_COMPLETER
+
+[Question 3 — Boîte qui reçoit le message par courriel]
+A_COMPLETER
+
+[Question 4 — Octets par seconde d'un message G.711]
+A_COMPLETER
+
+[Question 5 — Taille maximale d'un message de deux minutes (en octets)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)</h3>
+    <h3 class="lab__title">Exercice 2 — La messagerie vocale du cabinet Vergnet</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -264,22 +275,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Parser la configuration des boîtes vocales voicemail.conf et calculer l'espace de stockage des messages audio.</p>
-    <div class="lab__brief"><p>Dans Asterisk, la messagerie vocale est configurée dans le fichier <code>voicemail.conf</code> sous des contextes dédiés.<br>Chaque boîte vocale est déclarée sur une ligne au format :<br><code>&lt;mailbox_num&gt; =&gt; &lt;pin_code&gt;,&lt;nom_utilisateur&gt;,&lt;email_notification&gt;,&lt;options&gt;</code></p>
-<p>Exemple :<br><code>706438029 =&gt; 8190,Pape Moussa SONKO,assoum1024@gmail.com,attach=yes</code></p>
-<p>Règles de validation :</p><ul><li><code>mailbox_num</code> : entier de 3 à 10 chiffres</li><li><code>pin_code</code> : code PIN secret à 4 chiffres (ex: 8190)</li><li><code>nom_utilisateur</code> : chaîne non vide</li><li><code>email_notification</code> : doit contenir un '@' et un '.' valide</li><li><code>quota_messages</code> : seuil maximal de messages (défaut 50)</li></ul>
-<p>Format d'entrée :<br>Lignes de la forme :<br>BOX=&lt;num&gt; PIN=&lt;pin&gt; NAME=&lt;nom&gt; EMAIL=&lt;email&gt; MSG_COUNT=&lt;nb_messages_actuels&gt;</p>
-<p>Format de sortie :<br>Pour chaque boîte vocale :<br>1. Valider le format (numéro, PIN à 4 chiffres, email).<br>2. Si invalide, afficher : <code>VOICEMAIL_REJET:&lt;num&gt; | MOTIF:&lt;PIN_INVALIDE|EMAIL_INVALIDE|NUM_INVALIDE&gt;</code>.<br>3. Si valide :<br>   Calculer le statut :<br>   - Si <code>MSG_COUNT &gt;= 50</code> : <code>STATUT:PLEINE</code><br>   - Si <code>MSG_COUNT &gt;= 40</code> : <code>STATUT:AVERTISSEMENT</code><br>   - Sinon : <code>STATUT:OK</code><br>   Afficher :<br>   <code>VM:&lt;num&gt; | NOM:&lt;nom&gt; | PIN:**** | EMAIL:&lt;email&gt; | STOCKAGE:&lt;msg&gt;/50 | STATUT:&lt;statut&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une configuration voicemail.conf et chiffrer le stockage des messages vocaux en G.711.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le cabinet Vergnet &amp; Associés active la messagerie vocale de son IPBX Asterisk. L'extrait de /etc/asterisk/voicemail.conf est le suivant :</p><pre>[work]
+201 =&gt; 4102,Aïcha Ndiaye,accueil@vergnet-associes.fr,,attach=yes
+202 =&gt; 8831,Marc Leroux,comptabilite@vergnet-associes.fr,,attach=no
+203 =&gt; 5150,Sofia Pereira,comptabilite@vergnet-associes.fr,,attach=no</pre><p>Le message d'accueil du cabinet invite les clients à « laisser un message de deux minutes maximum ». Les messages sont enregistrés en G.711, soit un débit de 64 kbps.</p><p>Rappel du cours : la consultation d'une boîte passe par l'application VoiceMailMain() ; le code PIN (4 chiffres) est le premier champ de la ligne de la boîte.</p><ol><li>Quel code PIN Marc Leroux compose-t-il pour consulter sa boîte vocale ?</li><li>Quelle application du Dialplan permet à un salarié de consulter sa boîte vocale ?</li><li>Pour quelle boîte le message audio est-il envoyé par courriel en pièce jointe ?</li><li>Combien d'octets par seconde occupe un message enregistré en G.711 (64 kbps) ?</li><li>Quelle taille, en octets, occupe au maximum un message de deux minutes ?</li></ol><p>Répondez par le nombre, le code ou le nom attendus.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BOX=706438029 PIN=8190 NAME=Pape Moussa SONKO EMAIL=assoum1024@gmail.com MSG_COUNT=12
-BOX=101 PIN=12 EMAIL=test@corp.fr NAME=Alice MSG_COUNT=5
-BOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le musée du Bord de Mer configure sa messagerie : [accueil]
+300 =&gt; 2178,Perpetue Mendy,accueil@musee-bm.fr,,attach=yes
+Les messages sont limités à 90 secondes, enregistrés en G.711 (64 kbps).
+
+1) Code PIN : 2178.
+2) Consultation : VoiceMailMain().
+3) La pièce jointe part pour la boîte 300 (attach=yes).
+4) 64 000 / 8 = 8 000 octets par seconde.
+5) 90 secondes : 8 000 × 90 = 720 000 octets.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Découpez chaque ligne de boîte vocale par les séparateurs =&gt; et les virgules.</li>
-        <li>Calculez le volume audio en multipliant la durée par le débit G.711 de 8 000 octets/seconde.</li>
+        <li>Le code PIN est le premier champ après le numéro de boîte, avant le nom du propriétaire.</li>
+        <li>Un débit de 64 kbps équivaut à 64 000 bits par seconde, donc 8 000 octets par seconde.</li>
+        <li>1. PIN de 202 : lisez la deuxième ligne. 2. La consultation passe par VoiceMailMain(). 3. attach=yes n'apparaît que sur une ligne. 4. 64 000 / 8 = 8 000 octets/s. 5. Deux minutes = 120 secondes : multipliez.</li>
       </ol>
     </details>
   </div>
@@ -289,23 +306,31 @@ BOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45</pre></div>
      data-exercise="vo3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="EXTENSION=701 IP_CONTACT=192.168.1.50:5060 LAST_SEEN_SEC=120 EXPIRES=3600 RTT_MS=15&#10;EXTENSION=702 IP_CONTACT=192.168.1.51:5060 LAST_SEEN_SEC=3700 EXPIRES=3600 RTT_MS=20&#10;EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS=195">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c3-e3) — Analyseur de Télémétrie SIP Registrar & Expiration de Baux
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'agence immobilière Horizon observe ses postes à 09:15:00 :&#10;101 : REGISTER à 09:00:00, expires 1200 s (20 min) ;&#10;102 : REGISTER à 08:30:00, expires 3600 s (60 min) ;&#10;103 : REGISTER à 08:00:00, expires 1800 s (30 min).&#10;&#10;1) Poste 101 : expiration à 09:20:00, il reste 5 minutes.&#10;2) Poste 102 : expiration à 09:30:00, il reste 15 minutes.&#10;3) Poste 103 : bail expiré depuis 08:30:00 : poste non enregistré.&#10;4) Le renouvellement se fait par REGISTER, acquitté 200 OK.">
+  <script type="text/plain" data-lab-starter># Exercice — Les enregistrements SIP du serveur de Vergnet & Associés
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le nombre, oui/non, la méthode ou le code attendus.
 
-[Cas 1 — Cas de test 1]
-# Données : EXTENSION=100 IP_CONTACT=10.0.4.12:5060 LAST_SEEN_SEC=500 EXPIRES=600 RTT_MS=450
-# Données : EXTENSION=101 IP_CONTACT=10.0.4.13:5060 LAST_SEEN_SEC=50 EXPIRES=3600 RTT_MS=8
-# Données : EXTENSION=102 IP_CONTACT=10.0.4.14:5060 LAST_SEEN_SEC=4000 EXPIRES=3600 RTT_MS=-1
+[Question 1 — Minutes restantes au bail du poste 201]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : EXTENSION=800 IP_CONTACT=172.20.1.1:5060 LAST_SEEN_SEC=1700 EXPIRES=1800 RTT_MS=160
-# Données : EXTENSION=801 IP_CONTACT=172.20.1.2:5060 LAST_SEEN_SEC=1850 EXPIRES=1800 RTT_MS=30
+[Question 2 — Minutes restantes au bail du poste 202]
+A_COMPLETER
+
+[Question 3 — Le poste 204 est-il encore enregistré]
+A_COMPLETER
+
+[Question 4 — Méthode SIP de renouvellement du bail]
+A_COMPLETER
+
+[Question 5 — Code de réponse confirmant l'enregistrement]
+A_COMPLETER
+
+[Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Analyseur de Télémétrie SIP Registrar &amp; Expiration de Baux</h3>
+    <h3 class="lab__title">Exercice 3 — Les enregistrements SIP du serveur de Vergnet &amp; Associés</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -314,21 +339,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Gérer les baux d'enregistrement SIP auprès du Registrar et détecter les expirations de contacts.</p>
-    <div class="lab__brief"><p>Le serveur SIP Registrar maintient la base des associations entre l'adresse logique (Address of Record, AOR: ex: sip:701@voip.lan) et l'adresse IP de contact réelle.<br>Chaque requête <code>REGISTER</code> comporte un en-tête <code>Expires: &lt;secondes&gt;</code> (typiquement 3 600 s) renouvelant le bail de l'équipement.<br>Si aucun REGISTER n'est reçu avant expiration du délai (avec une tolérance de 60 s), le poste bascule en état <code>UNREACHABLE</code> (hors-ligne).<br>De plus, si la latence réseau (RTT en ms mesuré par paquets OPTIONS périodiques) dépasse 150 ms, le poste est qualifié de <code>LAGGED</code> (gigue/délai excessif).</p>
-<p>Format d'entrée :<br>Lignes au format :<br>EXTENSION=&lt;num&gt; IP_CONTACT=&lt;ip:port&gt; LAST_SEEN_SEC=&lt;secondes_depuis_dernier_register&gt; EXPIRES=&lt;duree_bail&gt; RTT_MS=&lt;latence&gt;</p>
-<p>Règles de qualification :<br>1. Calculer le temps restant du bail : <code>REMAINING = EXPIRES - LAST_SEEN_SEC</code>.<br>2. Déterminer l'état de joignabilité :<br>   - Si <code>LAST_SEEN_SEC &gt; EXPIRES + 60</code> : <code>STATUT = EXPIRED</code><br>   - Sinon si <code>RTT_MS &lt; 0</code> ou <code>RTT_MS &gt; 300</code> : <code>STATUT = UNREACHABLE</code><br>   - Sinon si <code>RTT_MS &gt; 150</code> : <code>STATUT = LAGGED</code><br>   - Sinon : <code>STATUT = REACHABLE</code></p>
-<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>EXT:&lt;num&gt; | IP:&lt;ip:port&gt; | BAIL_RESTANT:&lt;REMAINING&gt;s | LATENCE:&lt;RTT_MS&gt;ms | STATUT:&lt;statut&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre les baux d'enregistrement REGISTER d'un IPBX et détecter les postes injoignables.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Les postes du cabinet Vergnet &amp; Associés sont déclarés avec host=dynamic : chacun s'enregistre périodiquement auprès du Registrar d'Asterisk. À <strong>08:45:00</strong>, la console du serveur affiche l'état des enregistrements :</p><table><tr><th>Poste</th><th>Dernier REGISTER reçu</th><th>Durée du bail (expires)</th></tr><tr><th>201</th><td>08:00:00</td><td>3600 s</td></tr><tr><th>202</th><td>08:20:00</td><td>1800 s</td></tr><tr><th>204</th><td>07:00:00</td><td>3600 s</td></tr></table><p>Rappel du cours : le bail expire à l'heure du dernier REGISTER + expires ; un poste non réenregistré devient injoignable en appel entrant ; l'enregistrement s'effectue par une requête REGISTER acquittée par un 200 OK.</p><ol><li>À 08:45:00, combien de minutes restent-ils avant l'expiration du bail du poste 201 ?</li><li>Combien de minutes restent-ils avant l'expiration du bail du poste 202 ?</li><li>Le poste 204 est-il encore enregistré à 08:45:00 (oui ou non) ?</li><li>Quelle méthode SIP un poste envoie-t-il pour renouveler son bail ?</li><li>Quel code de réponse finale confirme un enregistrement réussi ?</li><li>À quelle heure exacte le bail du poste 202 expire-t-il (format hh:mm) ?</li></ol><p>Répondez par le nombre, oui/non, la méthode ou le code attendus.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EXTENSION=701 IP_CONTACT=192.168.1.50:5060 LAST_SEEN_SEC=120 EXPIRES=3600 RTT_MS=15
-EXTENSION=702 IP_CONTACT=192.168.1.51:5060 LAST_SEEN_SEC=3700 EXPIRES=3600 RTT_MS=20
-EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS=195</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'agence immobilière Horizon observe ses postes à 09:15:00 :
+101 : REGISTER à 09:00:00, expires 1200 s (20 min) ;
+102 : REGISTER à 08:30:00, expires 3600 s (60 min) ;
+103 : REGISTER à 08:00:00, expires 1800 s (30 min).
+
+1) Poste 101 : expiration à 09:20:00, il reste 5 minutes.
+2) Poste 102 : expiration à 09:30:00, il reste 15 minutes.
+3) Poste 103 : bail expiré depuis 08:30:00 : poste non enregistré.
+4) Le renouvellement se fait par REGISTER, acquitté 200 OK.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Comparez le temps écoulé depuis le dernier contact avec le paramètre expires.</li>
-        <li>Marquez le statut comme ACTIF si le bail est valide, sinon EXPIRE.</li>
+        <li>Convertissez la durée du bail en minutes : 3600 s = 60 min, 1800 s = 30 min, puis ajoutez-la à l'heure du dernier REGISTER.</li>
+        <li>Un bail déjà expiré à l'heure d'observation signifie que le poste n'a pas renouvelé son enregistrement.</li>
+        <li>1. Poste 201 : dernier REGISTER 08:00 + 60 min = expiration 09:00 ; il reste 15 min à 08:45. 2. Poste 202 : 08:20 + 30 min = expiration 08:50. 3. Poste 204 : 07:00 + 60 min = 08:00, donc expiré depuis 08:45. 4. Le renouvellement passe par REGISTER. 5. La réponse finale de succès est le 200 OK.</li>
       </ol>
     </details>
   </div>
@@ -352,19 +381,19 @@ EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS
       <p class="q__stem">Quelle commande CLI permet de se connecter à la console interactive d'un serveur Asterisk en cours d'exécution avec un niveau de verbosité élevé ?</p>
       <div class="opts">
         <button class="opt">asterisk -start</button>
-        <button class="opt" data-correct="1">asterisk -rvvv</button>
-        <button class="opt">service asterisk debug</button>
         <button class="opt">asterisk --console-only</button>
+        <button class="opt">service asterisk debug</button>
+        <button class="opt" data-correct="1">asterisk -rvvv</button>
       </div>
       <div class="q__exp">La commande asterisk -r (reconnect) associée à -vvv (très verbeux) connecte l'administrateur au démon Asterisk avec affichage temps réel des événements.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que signifie la directive host=dynamic dans la déclaration d'un compte utilisateur SIP dans Asterisk ?</p>
       <div class="opts">
-        <button class="opt">L'adresse IP du poste change toutes les minutes</button>
-        <button class="opt">Le poste utilise DHCP sur le LAN</button>
         <button class="opt" data-correct="1">L'adresse IP du poste n'est pas pré-configurée : Asterisk enregistre l'adresse IP transmise par le client lors de sa requête REGISTER</button>
-        <button class="opt">Le poste est connecté en fibre optique</button>
+        <button class="opt">L'adresse IP du poste est renouvelée et change automatiquement toutes les minutes par rotation arbitraire</button>
+        <button class="opt">Le poste obtient son adresse IP depuis le serveur DHCP du réseau local de l'entreprise cliente</button>
+        <button class="opt">Le poste est raccordé au serveur Asterisk par une liaison fibre optique dédiée et permanente</button>
       </div>
       <div class="q__exp">host=dynamic indique qu'Asterisk doit mémoriser l'adresse IP et le port transmis lors de l'enregistrement périodique SIP REGISTER du softphone.</div>
     </div>
@@ -381,18 +410,18 @@ EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS
     <div class="q">
       <p class="q__stem">Pourquoi est-il impératif de configurer la directive dtmfmode=rfc2833 sur les comptes SIP Asterisk ?</p>
       <div class="opts">
-        <button class="opt">Pour chiffrer les communications en AES-256</button>
+        <button class="opt">Pour chiffrer l'ensemble des communications vocales de l'entreprise avec l'algorithme symétrique AES-256</button>
         <button class="opt" data-correct="1">Pour transmettre les touches DTMF dans des trames RTP distinctes afin qu'elles ne soient pas altérées par les algorithmes de compression vocale</button>
-        <button class="opt">Pour interdire les appels vers les numéros surtaxés</button>
-        <button class="opt">Pour activer la vidéo HD</button>
+        <button class="opt">Pour interdire automatiquement les appels sortants vers les numéros surtaxés depuis les postes internes</button>
+        <button class="opt">Pour activer la transmission de la vidéo haute définition sur les terminaux SIP compatibles du réseau</button>
       </div>
       <div class="q__exp">Les codecs vocaux compressent la voix mais déforment les tonalités acoustiques DTMF. La norme RFC 2833 transmet les touches dans des paquets d'événements RTP dédiés.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le fichier voicemail.conf, quelle information précède immédiatement la virgule et le nom de l'utilisateur sur la ligne de déclaration d'une boîte vocale ?</p>
       <div class="opts">
-        <button class="opt">L'adresse email</button>
         <button class="opt" data-correct="1">Le code PIN secret d'accès</button>
+        <button class="opt">L'adresse email</button>
         <button class="opt">Le numéro de fax</button>
         <button class="opt">Le type de combiné</button>
       </div>
@@ -401,10 +430,10 @@ EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS
     <div class="q">
       <p class="q__stem">Quelle commande CLI Asterisk permet d'afficher en temps réel la liste de tous les postes SIP configurés ainsi que leur état d'enregistrement et leur adresse IP ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">sip show peers</button>
+        <button class="opt">show channels</button>
         <button class="opt">sip show users</button>
         <button class="opt">asterisk list all</button>
-        <button class="opt">show channels</button>
+        <button class="opt" data-correct="1">sip show peers</button>
       </div>
       <div class="q__exp">sip show peers liste l'ensemble des pairs déclarés, leur adresse IP de contact actuelle, leur statut (OK, UNREACHABLE, LAGGED) et leur latence.</div>
     </div>
@@ -537,7 +566,7 @@ EXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -30,7 +30,10 @@ function listPages(ref) {
   if (manifest && listed.some(file => path.isAbsolute(file) || file.split(/[\\/]/).includes('..'))) {
     throw new Error('Le manifeste contient un chemin hors du projet.');
   }
-  const pages = listed.filter(file => file.toLowerCase().endsWith('.html') && !/^(audit|design-audit|tests|verification|corrections)\//.test(file)).sort();
+  const pages = listed
+    .filter(file => file.toLowerCase().endsWith('.html') && !/^(audit|design-audit|tests|verification|corrections|dist)\//.test(file))
+    .filter(file => ref || fs.existsSync(path.join(root, file)))
+    .sort();
   if (manifest && (!pages.length || pages.some(file => !fs.realpathSync(path.join(root, file)).startsWith(root + path.sep)))) {
     throw new Error('Le manifeste est vide ou contient un chemin hors du projet.');
   }

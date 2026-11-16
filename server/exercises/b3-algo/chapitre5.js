@@ -20,8 +20,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter le relâchement d'arc (relaxation)
 `,
     hints: [
-      'Représenter la valeur "inf" par float("inf").',
-      'Si dist[u] est infinie, le sommet source n’a pas encore été atteint et ne peut pas relâcher ses voisins.'
+      "Représenter la valeur \"inf\" par float(\"inf\").",
+      "Si dist[u] est infinie, le sommet source n’a pas encore été atteint et ne peut pas relâcher ses voisins.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (implémenter l’opération élémentaire de relâchement d’un arc u -> v et vérifier si la distance minimale courante est améliorée), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -91,7 +92,8 @@ for lig in lignes:
     stat = "OUI" if amelioration else "NON"
 
     print(f"RELAX: nom={nom} | ARC: {arc_str} | AMELIORATION: {stat} | DIST_AVANT: {dav_str} | DIST_APRES: {dap_str}")
-`
+`,
+    takeaway: "Le relâchement d’un arc (u, v) met à jour dist[v] dès qu’un passage par u offre un chemin plus court que la borne actuelle."
   },
   {
     id: 'al3-c5-e2',
@@ -108,8 +110,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter l'algorithme de Dijkstra avec calcul des plus courts chemins
 `,
     hints: [
-      'Utiliser heapq.heappop et heapq.heappush.',
-      'Gérer un tableau ou dictionnaire de précurseurs pour remonter le chemin de destination.'
+      "Utiliser heapq.heappop et heapq.heappush.",
+      "Gérer un tableau ou dictionnaire de précurseurs pour remonter le chemin de destination.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (calculer les plus courts chemins depuis une source vers tous les sommets accessibles dans un graphe orienté à poids strictement positifs), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -207,7 +210,8 @@ for lig in lignes:
         path.reverse()
         chemin_str = " -> ".join(path)
         print(f"CHEMIN vers {dst}: {chemin_str} (distance: {dist[dst]})")
-`
+`,
+    takeaway: "Dijkstra extrait à chaque itération le sommet non figé de plus faible distance via un tas min, mais suppose tous les poids positifs ou nuls."
   },
   {
     id: 'al3-c5-e3',
@@ -224,8 +228,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : analyser la validité pour Dijkstra et détecter les cycles absorbants
 `,
     hints: [
-      'Dijkstra suppose des poids positifs pour garantir la gloutonnerie.',
-      'Une (|V|)-ième relaxation réussie dans Bellman-Ford prouve l’existence d’un cycle absorbant.'
+      "Dijkstra suppose des poids positifs pour garantir la gloutonnerie.",
+      "Une (|V|)-ième relaxation réussie dans Bellman-Ford prouve l’existence d’un cycle absorbant.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (analyser un graphe pour déterminer si Dijkstra est applicable et détecter la présence de cycles absorbants avec Bellman-Ford), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -306,6 +311,7 @@ for lig in lignes:
     cycle_str = "OUI" if has_neg_cycle else "NON"
 
     print(f"ANALYSE: nom={nom} | POIDS_NEGATIFS: {p_neg_str} | DIJKSTRA_APPLICABLE: {dijk_str} | CYCLE_ABSORBANT: {cycle_str}")
-`
+`,
+    takeaway: "Bellman-Ford détecte un cycle absorbant lorsqu’une N-ième passe de relâchement réduit encore au moins une distance."
   }
 ];

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -26,7 +24,7 @@
 
 <header class="stnav"><div class="stnav__in">
   <a class="stnav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
-    <span class="stnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-chart"></use></svg></span>
+    <span class="stnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
     <span class="stnav__word">cours.interactifs</span>
   </a>
   <div class="stnav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="stnav__chip" href="../index.html">Statistiques B1</a></div>
@@ -159,11 +157,31 @@ moustache droite : x<sub>max</sub></code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>5. Labo Python appliqué</h2>
+
+<p>Un histogramme se prépare en comptant les valeurs par classe. Chaque classe est de la forme <code>[a ; b[</code>, et seule la dernière classe inclut sa borne supérieure.</p>
+<pre><code class="language-python"># Histogramme textuel : classes [a ; b[ et effectifs
+valeurs = [152, 158, 161, 163, 165, 167, 170, 171, 174, 178, 181, 185]
+bornes = [150, 160, 170, 180, 190]
+for a, b in zip(bornes, bornes[1:]):
+    n = sum(1 for x in valeurs if a &lt;= x &lt; b or (b == bornes[-1] and x == b))
+    print("[%d ; %d[ %-6s %d" % (a, b, "#" * n, n))</code></pre>
+<p><strong>Sortie attendue (CPython 3) :</strong></p>
+<pre><code>[150 ; 160[ ##     2
+[160 ; 170[ ####   4
+[170 ; 180[ ####   4
+[180 ; 190[ ##     2</code></pre>
+<p>Le comptage reproduit la règle du chapitre 1 : chaque valeur appartient à une seule classe.</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -203,10 +221,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>150 190 4</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>L’amplitude de chaque classe est (max − min) / k.</li>
         <li>La classe numéro i (en partant de 0) va de min + i × amplitude à min + (i + 1) × amplitude.</li>
+        <li>La borne supérieure d une classe devient la borne inférieure de la suivante ; la dernière classe doit atteindre exactement le maximum.</li>
       </ol>
     </details>
   </div>
@@ -271,10 +290,11 @@ A_COMPLETER
 175</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez la largeur (max − min) / k et comptez chaque valeur dans une classe.</li>
         <li>Les classes sont fermées à gauche et ouvertes à droite, sauf la dernière qui inclut max.</li>
+        <li>Les classes suivent [borne_inf ; borne_sup[ sauf la dernière qui est fermée [a ; max] pour inclure le maximum.</li>
       </ol>
     </details>
   </div>
@@ -341,27 +361,28 @@ A_COMPLETER
 15</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Écrivez une seule fonction quantile(valeurs, p) et appelle-la trois fois : p = 0,25 ; 0,5 ; 0,75.</li>
         <li>Le minimum et le maximum sont la première et la dernière valeur de la série triée.</li>
+        <li>Ordonnez la série puis extrayez min, Q1 (rang 0.25*(n-1) ou quart inférieur selon la méthode du cours), médiane, Q3 et max.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quel graphique pour un caractère qualitatif ?</p>
       <div class="opts">
-        <button class="opt">Un histogramme</button>
         <button class="opt" data-correct="1">Un diagramme en barres ou circulaire</button>
-        <button class="opt">Une boîte à moustaches</button>
+        <button class="opt">Un histogramme à classes contiguës</button>
+        <button class="opt">Une boîte à moustaches avec médiane</button>
       </div>
-      <div class="q__exp">Un caractère qualitatif se représente par des barres ou des secteurs.</div>
+      <div class="q__exp">Un caractère qualitatif n’a ni ordre ni valeurs numériques : on le représente en barres ou en secteurs ; l’histogramme exige des classes quantitatives contiguës.</div>
     </div>
     <div class="q">
       <p class="q__stem">Sur un diagramme en barres, l’axe de la grandeur mesurée…</p>
@@ -375,9 +396,9 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle est la règle d’un diagramme circulaire ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">angle = fréquence × 360</button>
-        <button class="opt">angle = effectif</button>
         <button class="opt">angle = 90 × fréquence</button>
+        <button class="opt">angle = effectif</button>
+        <button class="opt" data-correct="1">angle = fréquence × 360</button>
       </div>
       <div class="q__exp">Un tour complet est 360°, réparti selon les fréquences.</div>
     </div>
@@ -385,8 +406,8 @@ A_COMPLETER
       <p class="q__stem">Dans un histogramme à classes inégales, la hauteur représente…</p>
       <div class="opts">
         <button class="opt">l’effectif</button>
-        <button class="opt" data-correct="1">la densité n<sub>i</sub>/amplitude</button>
         <button class="opt">la fréquence cumulée</button>
+        <button class="opt" data-correct="1">la densité n<sub>i</sub>/amplitude</button>
       </div>
       <div class="q__exp">Ce sont les aires qui sont proportionnelles aux effectifs.</div>
     </div>
@@ -414,7 +435,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -431,7 +452,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Choisir et construire la bonne représentation</div>
@@ -448,7 +469,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -478,7 +499,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -527,7 +548,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

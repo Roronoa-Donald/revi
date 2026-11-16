@@ -89,8 +89,8 @@ test('F68 — carte expliquée, exemple exact et interpréteur PHP', () => {
   const card = only(cards.filter(node => normalized(node).includes('boucles imbriquées')), 'Carte F68');
   const answer = normalized(only(findAll(card, node => hasClass(node, 'fc__back')), 'Réponse F68'));
   assert.match(answer, /chaque tour de la boucle externe/i);
-  assert.match(answer, /boucle interne est relancée/i);
-  const example = answer.match(/(\d+)\s+tours? externes?\s*×\s*(\d+)\s+tours? internes?\s*=\s*(\d+)\s+tours? internes?/i);
+  assert.match(answer, /boucle interne (?:est relancée|effectue toutes ses itérations)/i);
+  const example = answer.match(/(\d+)\s+tours? externes?\s*×\s*(\d+)\s*(?:tours?\s*)?internes?\s*=\s*(\d+)\s*(?:tours?\s*internes?|itérations?)/i);
   assert.ok(example, 'La réponse doit donner un exemple chiffré et compter les tours internes');
   const outerCount = Number(example[1]);
   const innerCount = Number(example[2]);
@@ -263,9 +263,12 @@ test('F92 — frise et corrigés visibles dans Chromium', async context => {
   }
 });
 
-test('Lot 1 — les sept suspensions de notation restent actives', () => {
+test('Lot 2D — les sept anciens cours suspendus sont actifs (0 suspension) et fail-closed sur inconnu', () => {
   const policy = require(path.join(root, 'server/exercises/grading-policy'));
+  assert.deepEqual(policy.suspendedCourses, []);
+  assert.deepEqual(policy.suspendedExercises, {});
   for (const course of ['csharp', 'docker', 'b3-linux', 'b3-github', 'b1-sql', 'sql', 'b3-sql']) {
-    assert.equal(policy.isGradingSuspended(course), true, `Suspension absente : ${course}`);
+    assert.equal(policy.isGradingSuspended(course), false, `Suspension résiduelle : ${course}`);
   }
+  assert.equal(policy.isGradingSuspended('csharp', 'exercice-inconnu'), true);
 });

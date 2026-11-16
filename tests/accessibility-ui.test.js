@@ -172,22 +172,21 @@ describe('PROD-001 & SEO-001 — Intégrité du catalogue, de index.html et de b
     );
   });
 
-  test('PROD-001 : b1-vb-excel est marqué archived: true dans server/courses.js et retiré des cartes actives de index.html', () => {
-    assert.ok(COURSES['b1-vb-excel'], 'b1-vb-excel doit rester dans COURSES pour la rétrocompatibilité des 71 chemins');
-    assert.equal(
-      COURSES['b1-vb-excel'].archived,
-      true,
-      'COURSES["b1-vb-excel"].archived doit être true'
+  test('PROD-001 : b1-vb-excel est actif dans server/courses.js et présent dans index.html', () => {
+    assert.ok(COURSES['b1-vb-excel'], 'b1-vb-excel doit figurer dans COURSES');
+    assert.ok(
+      !COURSES['b1-vb-excel'].archived,
+      'COURSES["b1-vb-excel"].archived ne doit plus être true après restauration complète'
     );
 
     const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     assert.ok(
-      !html.includes('href="b1-vb-excel/index.html"'),
-      'index.html ne doit pas lister la coquille vide b1-vb-excel comme carte active'
+      html.includes('href="b1-vb-excel/sommaire.html"'),
+      'index.html doit exposer la carte active b1-vb-excel'
     );
   });
 
-  test('PROD-001 & SEO-001 : les compteurs (23 B1, 24 B2, 23 B3, 70 Tous, 68 cours interactifs) et badges de index.html sont exacts', () => {
+  test('PROD-001 & SEO-001 : les compteurs (24 B1, 24 B2, 23 B3, 71 Tous, 69 cours interactifs) et badges de index.html sont exacts', () => {
     const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
     const cards = [...html.matchAll(/<a\s+href="([^"]+)"\s+class="card\s+portal-card"[^>]*data-level="(b1|b2|b3)"/g)];
 
@@ -196,10 +195,10 @@ describe('PROD-001 & SEO-001 — Intégrité du catalogue, de index.html et de b
       counts[c[2]]++;
     }
 
-    assert.equal(counts.b1, 23, `23 cartes B1 attendues sur index.html (trouvé: ${counts.b1})`);
+    assert.equal(counts.b1, 24, `24 cartes B1 attendues sur index.html (trouvé: ${counts.b1})`);
     assert.equal(counts.b2, 24, `24 cartes B2 attendues sur index.html (trouvé: ${counts.b2})`);
     assert.equal(counts.b3, 23, `23 cartes B3 attendues sur index.html (trouvé: ${counts.b3})`);
-    assert.equal(cards.length, 70, `70 cartes au total attendues sur index.html (trouvé: ${cards.length})`);
+    assert.equal(cards.length, 71, `71 cartes au total attendues sur index.html (trouvé: ${cards.length})`);
 
     // Vérification des compteurs dans les onglets et la barre de statut
     const tabB1Match = html.match(/id="tab-b1"[\s\S]*?<span[^>]*class="level-tab__count"[^>]*>([^<]+)<\/span>/);
@@ -208,27 +207,27 @@ describe('PROD-001 & SEO-001 — Intégrité du catalogue, de index.html et de b
     const tabAllMatch = html.match(/id="tab-all"[\s\S]*?<span[^>]*class="level-tab__count"[^>]*>([^<]+)<\/span>/);
     const activeFilterMatch = html.match(/id="activeFilterCount">([^<]+)<\/strong>/);
 
-    assert.equal(tabB1Match?.[1]?.trim(), '23 cours', 'Le compteur B1 doit afficher "23 cours"');
+    assert.equal(tabB1Match?.[1]?.trim(), '24 cours', 'Le compteur B1 doit afficher "24 cours"');
     assert.equal(tabB2Match?.[1]?.trim(), '24 cours', 'Le compteur B2 doit afficher "24 cours"');
     assert.equal(tabB3Match?.[1]?.trim(), '23 cours', 'Le compteur B3 doit afficher "23 cours"');
-    assert.equal(tabAllMatch?.[1]?.trim(), '70 cours', 'Le compteur Tous doit afficher "70 cours"');
-    assert.equal(activeFilterMatch?.[1]?.trim(), '23 cours', '#activeFilterCount doit afficher "23 cours"');
+    assert.equal(tabAllMatch?.[1]?.trim(), '71 cours', 'Le compteur Tous doit afficher "71 cours"');
+    assert.equal(activeFilterMatch?.[1]?.trim(), '24 cours', '#activeFilterCount doit afficher "24 cours"');
 
-    // Vérification des métadonnées et du sous-titre hero (68 cours interactifs)
+    // Vérification des métadonnées et du sous-titre hero (69 cours interactifs)
     assert.match(
       html,
-      /<meta\s+name="description"\s+content="[^"]*68 cours interactifs/,
-      'La meta description doit mentionner "68 cours interactifs"'
+      /<meta\s+name="description"\s+content="[^"]*69 cours interactifs/,
+      'La meta description doit mentionner "69 cours interactifs"'
     );
     assert.match(
       html,
-      /<meta\s+property="og:description"\s+content="[^"]*68 cours interactifs/,
-      'La balise og:description doit mentionner "68 cours interactifs"'
+      /<meta\s+property="og:description"\s+content="[^"]*69 cours interactifs/,
+      'La balise og:description doit mentionner "69 cours interactifs"'
     );
     assert.match(
       html,
-      /<p\s+class="portal-hero__subtitle">[^<]*68 cours interactifs/,
-      'Le sous-titre hero doit mentionner "68 cours interactifs"'
+      /<p\s+class="portal-hero__subtitle">[^<]*69 cours interactifs/,
+      'Le sous-titre hero doit mentionner "69 cours interactifs"'
     );
 
     // Vérification du badge de la carte epreuves/index.html
@@ -338,6 +337,196 @@ describe('POLISH-001 — Typographie locale hors-ligne et transition de thème f
       tokensCss,
       /@media\s*\(\s*prefers-reduced-motion:\s*reduce\s*\)\s*\{[^}]*html\.theme-transitioning[^}]*transition:\s*none/s,
       'tokens.css doit annuler la transition si prefers-reduced-motion: reduce'
+    );
+  });
+});
+
+describe('UI-ASSETS-001 — Audit & intégrité des icônes SVG partagées (assets/img/ui-icons.svg)', () => {
+  const svgPath = path.join(ROOT, 'assets', 'img', 'ui-icons.svg');
+  const svgContent = fs.readFileSync(svgPath, 'utf8');
+  const definedSymbols = new Set([...svgContent.matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
+
+  test('assets/img/ui-icons.svg définit des symboles/groupes valides, sans emoji et avec les icônes requises', () => {
+    const requiredIcons = [
+      'i-target', 'i-info', 'i-alert', 'i-network', 'i-award',
+      'i-file-text', 'i-bookmark', 'i-server', 'i-activity',
+      'i-calculator', 'i-chart', 'i-code', 'i-terminal', 'i-cpu'
+    ];
+
+    for (const iconId of requiredIcons) {
+      assert.ok(definedSymbols.has(iconId), `L'icône requise ${iconId} doit être définie dans assets/img/ui-icons.svg`);
+    }
+
+    // Aucun caractère emoji dans ui-icons.svg
+    const nonAscii = [...svgContent].filter((ch) => ch.charCodeAt(0) > 127 && !['é', 'ô'].includes(ch));
+    assert.equal(nonAscii.length, 0, `Caractères non autorisés/emojis détectés dans ui-icons.svg : ${nonAscii.join(', ')}`);
+  });
+
+  test('scripts/course-kit.js et server/courses.js gèrent les icônes sans double préfixe ni #i- vide', () => {
+    // server/courses.js : chaque icône déclarée existe dans ui-icons.svg et ne porte pas de préfixe i-
+    for (const [courseId, course] of Object.entries(COURSES)) {
+      assert.ok(course.icon, `Le cours ${courseId} doit avoir une propriété icon`);
+      assert.ok(!course.icon.startsWith('i-'), `L'icône de ${courseId} (${course.icon}) ne doit pas commencer par i-`);
+      assert.ok(
+        definedSymbols.has(`i-${course.icon}`),
+        `L'icône i-${course.icon} pour le cours ${courseId} doit exister dans ui-icons.svg`
+      );
+    }
+
+    // scripts/course-kit.js : ic() normalise sans double préfixe et fournit un fallback non vide
+    const { ic } = require('../scripts/course-kit');
+    assert.match(ic('calculator'), /ui-icons\.svg#i-calculator/);
+    assert.match(ic('i-calculator'), /ui-icons\.svg#i-calculator/);
+    assert.match(ic('i-i-calculator'), /ui-icons\.svg#i-calculator/);
+    assert.match(ic(''), /ui-icons\.svg#i-book/);
+    assert.match(ic(null), /ui-icons\.svg#i-book/);
+
+    // Délimiteur inline KaTeX dans course-kit.js
+    const courseKitSrc = fs.readFileSync(path.join(ROOT, 'scripts', 'course-kit.js'), 'utf8');
+    assert.ok(
+      courseKitSrc.includes('{left: "\\\\\\\\(", right: "\\\\\\\\)", display: false}'),
+      'scripts/course-kit.js doit configurer le délimiteur inline KaTeX avec \\( et \\)'
+    );
+    assert.ok(
+      !courseKitSrc.includes('{left: "\\\\\\\\)", right: "\\\\\\\\)'),
+      'scripts/course-kit.js ne doit pas contenir de délimiteur inline KaTeX cassé'
+    );
+  });
+
+  test('Tous les fichiers HTML actifs : chaque symbole #i-<nom> référencé existe bien dans assets/img/ui-icons.svg', () => {
+    const excludeDirs = new Set([
+      'node_modules', 'dist', 'revi-mu-plateforme', 'AUDIT_COMPLET_2026-11',
+      'docs', 'corrections', 'tests', 'assets', '.git'
+    ]);
+
+    function walk(dir) {
+      let files = [];
+      for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (item.isDirectory()) {
+          if (excludeDirs.has(item.name) || item.name.startsWith('.')) continue;
+          files = files.concat(walk(path.join(dir, item.name)));
+        } else if (item.isFile() && item.name.endsWith('.html')) {
+          files.push(path.join(dir, item.name));
+        }
+      }
+      return files;
+    }
+
+    const missing = [];
+    for (const f of walk(ROOT)) {
+      const rel = path.relative(ROOT, f);
+      let content = fs.readFileSync(f, 'utf8');
+      // On retire les balises <script> pour ne pas fausser l'analyse avec des concaténations JS
+      content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      const matches = [...content.matchAll(/<use[^>]+href=["\x27][^"\x27]*ui-icons\.svg#([^"\x27#\s>]+)["\x27]/gi)];
+      for (const m of matches) {
+        const sym = m[1];
+        if (!definedSymbols.has(sym)) {
+          missing.push(`${rel} → #${sym}`);
+        }
+      }
+    }
+
+    assert.deepEqual(
+      missing,
+      [],
+      `Symboles SVG manquants dans assets/img/ui-icons.svg :\n${missing.join('\n')}`
+    );
+  });
+
+  test('Périmètre et fichiers actifs : aucun #i- vide et aucun double préfixe #i-i-', () => {
+    const excludeDirs = new Set([
+      'node_modules', 'dist', 'revi-mu-plateforme', 'AUDIT_COMPLET_2026-11',
+      'docs', 'corrections', 'tests', 'assets', '.git'
+    ]);
+
+    function walk(dir) {
+      let files = [];
+      for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (item.isDirectory()) {
+          if (excludeDirs.has(item.name) || item.name.startsWith('.')) continue;
+          files = files.concat(walk(path.join(dir, item.name)));
+        } else if (item.isFile() && item.name.endsWith('.html')) {
+          files.push(path.join(dir, item.name));
+        }
+      }
+      return files;
+    }
+
+    const perimeterDirs = ['b1-python', 'b1-c-cpp', 'b1-algo', 'b1-php', 'b1-vb-excel'];
+    const emptyRefs = [];
+    const doublePrefixPerimeter = [];
+
+    for (const f of walk(ROOT)) {
+      const rel = path.relative(ROOT, f);
+      let content = fs.readFileSync(f, 'utf8');
+      content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+      // Aucun #i- vide dans aucun fichier HTML actif
+      if (/href=["\x27][^"\x27]*ui-icons\.svg#(?:i-)?["\x27]/i.test(content)) {
+        emptyRefs.push(rel);
+      }
+
+      // Aucun double préfixe dans le périmètre direct
+      const isPerimeter = perimeterDirs.some((p) => rel.startsWith(p + '/'));
+      if (isPerimeter && /ui-icons\.svg#i-i-[a-zA-Z0-9_-]+/i.test(content)) {
+        doublePrefixPerimeter.push(rel);
+      }
+    }
+
+    assert.deepEqual(emptyRefs, [], `Balises avec référence d'icône vide :\n${emptyRefs.join('\n')}`);
+    assert.deepEqual(doublePrefixPerimeter, [], `Doubles préfixes #i-i- détectés dans le périmètre :\n${doublePrefixPerimeter.join('\n')}`);
+  });
+
+  test('Cours manuels (b1-python, b1-c-cpp, b1-algo, b1-php) : flashcards réparées, KaTeX chargé et script unique', () => {
+    const manualCourses = ['b1-python', 'b1-c-cpp', 'b1-algo', 'b1-php'];
+
+    for (const course of manualCourses) {
+      const cartesPath = path.join(ROOT, course, 'chapitres', 'cartes.html');
+      assert.ok(fs.existsSync(cartesPath), `cartes.html doit exister pour ${course}`);
+      const content = fs.readFileSync(cartesPath, 'utf8');
+
+      // Aucune trace de corruption
+      assert.ok(!/Sommaire\s*›\s*Chapitre/i.test(content), `Fil d'Ariane corrompu dans ${course}/chapitres/cartes.html`);
+      assert.ok(!/stagiaire\s*IT/i.test(content), `Fragment stagiaire IT corrompu dans ${course}/chapitres/cartes.html`);
+      assert.ok(!/Qu’est-ce que «/i.test(content), `Titre d'item générique corrompu dans ${course}/chapitres/cartes.html`);
+
+      // Script unique de code-lab.js
+      const codeLabMatches = [...content.matchAll(/<script[^>]*code-lab\.js[^>]*>/gi)];
+      assert.equal(
+        codeLabMatches.length,
+        1,
+        `Exactement 1 script code-lab.js attendu dans ${course}/chapitres/cartes.html (trouvé: ${codeLabMatches.length})`
+      );
+    }
+
+    // Chargement de KaTeX dans b1-algo/chapitres/*.html et b1-php/chapitres/*.html
+    for (const course of ['b1-algo', 'b1-php']) {
+      const chapDir = path.join(ROOT, course, 'chapitres');
+      const htmlFiles = fs.readdirSync(chapDir).filter((f) => f.endsWith('.html'));
+      for (const file of htmlFiles) {
+        const filePath = path.join(chapDir, file);
+        const html = fs.readFileSync(filePath, 'utf8');
+        assert.ok(
+          html.includes('/assets/vendor/katex/katex.min.css'),
+          `${course}/chapitres/${file} doit charger katex.min.css`
+        );
+        assert.ok(
+          html.includes('/assets/vendor/katex/katex.min.js'),
+          `${course}/chapitres/${file} doit charger katex.min.js`
+        );
+        assert.ok(
+          html.includes('/assets/vendor/katex/auto-render.min.js'),
+          `${course}/chapitres/${file} doit charger auto-render.min.js`
+        );
+      }
+    }
+
+    // Vérification b1-vb-excel/index.html sans var(#1b1b1e)
+    const vbHtml = fs.readFileSync(path.join(ROOT, 'b1-vb-excel', 'index.html'), 'utf8');
+    assert.ok(
+      !vbHtml.includes('var(#1b1b1e)'),
+      'b1-vb-excel/index.html ne doit plus contenir la syntaxe invalide var(#1b1b1e)'
     );
   });
 });

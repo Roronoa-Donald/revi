@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -76,6 +74,8 @@
       <li>citer les ressources partagées de l’histoire : mémoire, processeur, disque ;</li>
       <li>allouer des ressources demandées sans dépasser la capacité restante ;</li>
       <li>retenir l’ordre exact de la conversation de l’histoire.</li>
+      <li>distinguer un hyperviseur de type 1 (bare metal) d’un hyperviseur de type 2 (hébergé) et citer un exemple de chaque ;</li>
+      <li>expliquer le rôle des extensions processeur Intel VT-x et AMD-V et savoir les activer dans le BIOS/UEFI.</li>
     </ol>
   </div>
 
@@ -94,7 +94,29 @@
 
 <section class="sec">
 
-<h2>2. Ce qui se partage</h2>
+<h2>2. Hyperviseur de type 1 et de type 2</h2>
+
+<p>Dans l’histoire, l’ingénieur installe « une couche logicielle » qui fabrique les machines virtuelles : c’est l’<strong>hyperviseur</strong>. Selon l’endroit où il se place, on en distingue deux familles.</p>
+<table>
+    <tr><th>Critère</th><th>Type 1 (bare metal)</th><th>Type 2 (hébergé)</th></tr>
+    <tr><td>Où s’installe-t-il ?</td><td>Directement sur le matériel, à la place d’un système classique</td><td>Comme une application, au-dessus d’un système (Windows, Linux, macOS)</td></tr>
+    <tr><td>Chemin d’un accès disque</td><td>VM → hyperviseur → matériel</td><td>VM → hyperviseur → système hôte → matériel</td></tr>
+    <tr><td>Exemples</td><td>VMware ESXi, Microsoft Hyper-V, KVM (Linux), Xen</td><td>Oracle VirtualBox, VMware Workstation / Player, Parallels</td></tr>
+    <tr><td>Usage typique</td><td>Salle serveur, production, consolidation</td><td>Poste d’étude, laboratoire, tests d’un développeur</td></tr>
+    <tr><td>Performance</td><td>Meilleure : une seule couche entre la VM et le matériel</td><td>Un peu moindre : le système hôte s’intercale</td></tr>
+  </table>
+<p>Le serveur fainéant de l’histoire est un cas de <strong>type 1</strong> : on veut que la machine physique serve uniquement à faire tourner des VM. Le laboratoire de ce cours (chapitre 6) utilise au contraire un <strong>type 2</strong>, VirtualBox, parce qu’il s’installe sur votre ordinateur personnel sans le réinstaller.</p>
+<p>La frontière n’est pas toujours nette : KVM est un module du noyau Linux (le système devient hyperviseur) et Hyper-V fait tourner le Windows « parent » lui-même comme une VM privilégiée. Pour le cours, retenez la règle pratique : <em>si l’on installe l’hyperviseur sur un système déjà utilisé au quotidien, c’est un type 2 ; si la machine est dédiée à la virtualisation, c’est un type 1</em>.</p>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Mnémo : 1 = sous, 2 = sur</div>
+    <p>Type <strong>1</strong> : l’hyperviseur est <strong>sous</strong> tous les systèmes, au contact du matériel. Type <strong>2</strong> : il est <strong>sur</strong> un système, comme n’importe quel logiciel.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Ce qui se partage</h2>
 
 <p>Les VM de l’histoire sont précises : « on va se partager votre <strong>mémoire</strong>, votre <strong>processeur</strong> et même votre <strong>disque dur</strong> ».</p>
 <table>
@@ -113,7 +135,27 @@
 
 <section class="sec">
 
-<h2>3. « On ne prendra que ce dont on a besoin »</h2>
+<h2>4. VT-x et AMD-V : l’aide du processeur</h2>
+
+<p>Faire croire à un système qu’il possède toute la machine serait lent si l’hyperviseur devait tout traduire en logiciel. Les fabricants de processeurs ont donc ajouté des instructions dédiées : <strong>Intel VT-x</strong> (Intel Virtualization Technology) et <strong>AMD-V</strong> (AMD Virtualization, aussi appelée SVM). Elles laissent le système invité exécuter ses instructions directement sur le processeur, sous le contrôle de l’hyperviseur.</p>
+<p>Ces extensions sont présentes sur la quasi-totalité des processeurs récents, mais elles peuvent être <strong>désactivées dans le BIOS/UEFI</strong>. Sans elles, les hyperviseurs modernes refusent de démarrer des VM 64 bits ou les font tourner très lentement.</p>
+<p>Comment vérifier ?</p>
+<pre><code># Linux : un nombre different de 0 signifie que vmx (Intel) ou svm (AMD) est actif
+grep -E -c '(vmx|svm)' /proc/cpuinfo
+lscpu | grep -i virtualization
+
+# Windows : Gestionnaire des taches, onglet Performance, ligne « Virtualisation »
+# ou, dans une console : systeminfo | find "Hyper-V"</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — « VT-x n’est pas disponible »</div>
+    <p>Ce message n’annonce presque jamais un processeur trop ancien : il signale le plus souvent une option désactivée dans le BIOS/UEFI (Intel Virtualization Technology, SVM Mode), ou un autre hyperviseur déjà actif sur le poste (Hyper-V sous Windows). Vérifiez ces deux points avant d’accuser le matériel.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>5. « On ne prendra que ce dont on a besoin »</h2>
 
 <p>La seconde moitié de la promesse est une règle d’allocation : chaque VM demande ce dont elle a besoin, et <strong>le total des demandes ne dépasse pas la capacité</strong> du serveur. Allouer, c’est donc un contrôle à deux conditions : la mémoire demandée tient-elle dans le reste disponible ? le disque demandé tient-il dans le reste disponible ? Si oui, la VM est allouée et les restes diminuent ; si non, elle est refusée — et <strong>rien n’est consommé</strong>.</p>
 <p>Exemple du cours : un serveur de 64 Go de RAM et 500 Go de disque. La VM web (16 Go, 50 Go) passe ; la VM base (32 Go, 200 Go) passe ; la VM test (32 Go, 400 Go) est refusée — il ne reste que 16 Go et 250 Go. Le refus n’est pas un échec : c’est la promesse tenue.</p>
@@ -126,7 +168,7 @@
 
 <section class="sec">
 
-<h2>4. La conversation, dans l’ordre</h2>
+<h2>6. La conversation, dans l’ordre</h2>
 
 <p>L’histoire suit un déroulé exact — que les exercices rejouent étape par étape :</p>
 <ol>
@@ -146,7 +188,7 @@
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>7. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -154,36 +196,30 @@
      data-exercise="vt-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;memoire vive&#10;processeur calcul&#10;disque stockage&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c2-e1) — Ce que partagent les machines virtuelles
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un technicien veut s'exercer chez lui : sur son portable Windows, il installe VirtualBox et y crée deux VM. Au bureau, le serveur ESXi, lui, tourne seul sur sa machine, sans Windows ni Linux dessous.&#10;&#10;1) La couche qui crée les VM s'appelle l'hyperviseur.&#10;2) VirtualBox est installé au-dessus de Windows : hyperviseur de type 2.&#10;3) ESXi tourne directement sur le matériel : hyperviseur de type 1.&#10;4) Les VM de son labo partagent la mémoire, le processeur et le disque du portable.">
+  <script type="text/plain" data-lab-starter># Exercice — L'idée de l'ingénieur et les deux familles d'hyperviseurs
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Les trois ressources]
-# Données : 4
-# Données : memoire vive
-# Données : processeur calcul
-# Données : disque stockage
-# Données : reseau-dediee pas-partage
+[Question 1 — La couche logicielle qui crée les VM]
 A_COMPLETER
 
-[Cas 2 — Trois confusions]
-# Données : 4
-# Données : memoire calcul
-# Données : disque vive
-# Données : processeur stockage
-# Données : reseau-dediee pas-partage
+[Question 2 — Première ressource partagée]
 A_COMPLETER
 
-[Cas 3 — Fiche de révision]
-# Données : 4
-# Données : disque stockage
-# Données : processeur calcul
-# Données : reseau-dediee pas-partage
-# Données : memoire vive
+[Question 3 — Deuxième ressource partagée]
+A_COMPLETER
+
+[Question 4 — Troisième ressource partagée]
+A_COMPLETER
+
+[Question 5 — Le type 1 s'installe-t-il directement sur le matériel ?]
+A_COMPLETER
+
+[Question 6 — Type de VirtualBox (1 ou 2)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Ce que partagent les machines virtuelles</h3>
+    <h3 class="lab__title">Exercice 1 — L'idée de l'ingénieur et les deux familles d'hyperviseurs</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -192,20 +228,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque ressource de l’histoire à sa mise en commun.</p>
-    <div class="lab__brief"><p>Les VM de l’histoire promettent : « on va se partager votre mémoire, votre processeur et même votre disque dur ». Analysez chaque ligne proposée « ressource partage » : partage est un code parmi <code>vive</code> (mémoire), <code>calcul</code> (processeur), <code>stockage</code> (disque) ou <code>pas-partage</code> (ressource qui reste propre à chaque machine, comme la carte réseau dédiée d’une VM configurée ainsi). Pour chaque ligne, indiquez <code>ressource : OK</code> ou <code>ressource : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Nommer l'hyperviseur, citer les trois ressources partagées et distinguer hyperviseur de type 1 et de type 2.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Un jour, un ingénieur IT a une idée : faire croire à M. Fainéant qu'il héberge plusieurs machines, alors qu'en réalité ce sont des <strong>machines virtuelles (VM)</strong> qui partagent ses ressources. Les VM ambitieuses promettent : « On va se partager votre <strong>mémoire</strong>, votre <strong>processeur</strong> et même votre <strong>disque dur</strong>. Et on ne prendra chacun que ce dont on a besoin. » Pour tenir la promesse, l'ingénieur installe la couche logicielle qui crée et fait tourner les VM : l'<strong>hyperviseur</strong>. Il explique au responsable informatique qu'il existe deux familles : les hyperviseurs de <strong>type 1</strong> (dits « bare-metal » : ESXi, Proxmox VE, KVM), installés directement sur le matériel sans système d'exploitation hôte, et les hyperviseurs de <strong>type 2</strong> (dits « hébergés » : VirtualBox, VMware Workstation), installés au-dessus d'un système d'exploitation hôte.</p><ol><li>Comment s'appelle la couche logicielle qui crée et fait tourner les machines virtuelles sur le serveur physique ? (un mot)</li><li>Quelle est la première ressource partagée citée par les VM dans leur promesse ?</li><li>Quelle est la deuxième ressource partagée de la promesse ?</li><li>Quelle est la troisième ressource partagée (« et même votre... ») ?</li><li>Un hyperviseur de type 1 s'installe-t-il directement sur le matériel, sans système d'exploitation hôte ? (oui ou non)</li><li>VirtualBox s'installe sur un PC déjà doté de Windows : de quel type d'hyperviseur s'agit-il ? (répondez par le chiffre seul : 1 ou 2)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-memoire vive
-processeur calcul
-disque stockage
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un technicien veut s'exercer chez lui : sur son portable Windows, il installe VirtualBox et y crée deux VM. Au bureau, le serveur ESXi, lui, tourne seul sur sa machine, sans Windows ni Linux dessous.
+
+1) La couche qui crée les VM s'appelle l'hyperviseur.
+2) VirtualBox est installé au-dessus de Windows : hyperviseur de type 2.
+3) ESXi tourne directement sur le matériel : hyperviseur de type 1.
+4) Les VM de son labo partagent la mémoire, le processeur et le disque du portable.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur la ressource : memoire → vive, processeur → calcul, disque → stockage, reseau-dediee → pas-partage.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>Dans l'histoire, la couche qui sépare le matériel des VM porte un nom précis : c'est elle qui « fait croire » au serveur qu'il héberge plusieurs machines.</li>
+        <li>La promesse des VM cite les ressources dans un ordre exact : relisez la citation de l'énoncé, entre la mémoire et le disque dur.</li>
+        <li>Le type 1 (bare-metal : ESXi, Proxmox VE, KVM) se pose sur le matériel nu ; le type 2 (hébergé : VirtualBox, VMware Workstation) a besoin d'un système d'exploitation hôte.</li>
       </ol>
     </details>
   </div>
@@ -215,32 +253,26 @@ disque stockage
      data-exercise="vt-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;64 500&#10;web 16 50&#10;bd 32 200&#10;test 32 400&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c2-e2) — « On ne prendra que ce dont on a besoin »
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Un serveur de recette offre 16 Go de RAM et 400 Go de disque. Demandes dans l'ordre :&#10;vm-a (4 Go, 100 Go) — vm-b (8 Go, 200 Go) — vm-c (6 Go, 50 Go).&#10;&#10;1) vm-a acceptée : restes 12 Go et 300 Go.&#10;2) vm-b acceptée : restes 4 Go et 100 Go.&#10;3) vm-c : il reste 4 Go de RAM, elle en demande 6 : refusée pour la mémoire (le disque, lui, tenait).&#10;4) vm-c ne consomme rien : les restes restent 4 Go et 100 Go.">
+  <script type="text/plain" data-lab-starter># Exercice — « On ne prendra que ce dont on a besoin »
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Parc réaliste]
-# Données : 4
-# Données : 128 1000
-# Données : web 16 50
-# Données : bd 64 300
-# Données : feu 8 20
-# Données : test 64 700
+[Question 1 — RAM restante après vm-web et vm-base (Go)]
 A_COMPLETER
 
-[Cas 2 — Serveur petit]
-# Données : 3
-# Données : 16 100
-# Données : a 16 50
-# Données : b 1 60
-# Données : c 1 1
+[Question 2 — vm-test est-elle acceptée ?]
 A_COMPLETER
 
-[Cas 3 — Demandes exactes]
-# Données : 2
-# Données : 32 100
-# Données : a 32 100
-# Données : b 0 0
+[Question 3 — Ressource manquante pour vm-test]
+A_COMPLETER
+
+[Question 4 — vm-fichiers est-elle acceptée ?]
+A_COMPLETER
+
+[Question 5 — Disque restant après vm-fichiers (Go)]
+A_COMPLETER
+
+[Question 6 — La VM refusée a-t-elle consommé ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -253,21 +285,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Allouer les ressources demandées sans dépasser la capacité du serveur.</p>
-    <div class="lab__brief"><p>La promesse des VM : « on ne prendra chacun que ce dont on a besoin ». Analysez les données fournies pour chaque cas. Puis <strong>n lignes</strong> « vm ram disque » : les demandes. Pour chaque VM, indiquez <code>vm : allouee</code> si la demande tient dans le <strong>reste</strong> disponible, sinon <code>vm : refusee</code> — et la ressource refusée n’est pas consommée. Enfin <code>allouees : X/n</code> et <code>reste : R ram D disque</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la règle d'allocation : contrôler mémoire ET disque avant d'allouer, refuser sans rien consommer.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La promesse devient règle d'allocation : chaque VM demande ce dont elle a besoin, et une demande n'est acceptée que si la mémoire <strong>ET</strong> le disque demandés tiennent <strong>tous les deux</strong> dans les capacités restantes du serveur. Une VM refusée ne consomme rien. M. Fainéant offre <strong>32 Go de RAM</strong> et <strong>800 Go de disque</strong>. Les VM ambitieuses se présentent dans l'ordre :</p><table><tr><th>VM</th><th>RAM demandée</th><th>Disque demandé</th></tr><tr><td>vm-web</td><td>8 Go</td><td>200 Go</td></tr><tr><td>vm-base</td><td>16 Go</td><td>300 Go</td></tr><tr><td>vm-test</td><td>12 Go</td><td>200 Go</td></tr><tr><td>vm-fichiers</td><td>8 Go</td><td>150 Go</td></tr></table><ol><li>Après l'allocation de vm-web et de vm-base, combien de RAM reste-t-il, en Go ?</li><li>La VM vm-test (12 Go, 200 Go) est-elle acceptée ? (oui ou non)</li><li>Quelle ressource lui manque-t-il : la mémoire ou le disque ? (un mot)</li><li>La VM vm-fichiers (8 Go, 150 Go) est-elle acceptée ? (oui ou non)</li><li>Après l'allocation de vm-fichiers, combien de disque reste-t-il, en Go ?</li><li>La VM refusée a-t-elle consommé des ressources ? (oui ou non)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-64 500
-web 16 50
-bd 32 200
-test 32 400
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Un serveur de recette offre 16 Go de RAM et 400 Go de disque. Demandes dans l'ordre :
+vm-a (4 Go, 100 Go) — vm-b (8 Go, 200 Go) — vm-c (6 Go, 50 Go).
+
+1) vm-a acceptée : restes 12 Go et 300 Go.
+2) vm-b acceptée : restes 4 Go et 100 Go.
+3) vm-c : il reste 4 Go de RAM, elle en demande 6 : refusée pour la mémoire (le disque, lui, tenait).
+4) vm-c ne consomme rien : les restes restent 4 Go et 100 Go.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Lire n AVANT la capacité : l’ordre du format est n, puis « ram disque », puis les VM.</li>
-        <li>Deux conditions en ET : r &lt;= reste_ram et d &lt;= reste_disque ; sinon refusee sans toucher aux restes.</li>
+        <li>Suivez les allocations dans l'ordre : décomptez la RAM et le disque de chaque VM acceptée, jamais celles des VM refusées.</li>
+        <li>Pour chaque demande, comparez les DEUX restes en même temps : il suffit qu'une seule ressource manque pour que la VM soit refusée.</li>
+        <li>Après chaque allocation acceptée, recalculez les deux restes ; comparez-y la demande suivante : une seule ressource qui dépasse suffit à refuser.</li>
       </ol>
     </details>
   </div>
@@ -277,33 +311,30 @@ test 32 400
      data-exercise="vt-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ingenieur idee&#10;serveur colere&#10;vms partage&#10;serveur accepte&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c2-e3) — Le réveil du serveur : la conversation
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Même scène sur un serveur de secours plus petit : 8 Go de RAM, 4 cœurs.&#10;Deux VM s'y installent, chacune avec 3 Go de RAM et 1 vCPU.&#10;&#10;1) L'ingénieur propose l'idée, le serveur se met en colère, les VM proposent le partage, le serveur accepte.&#10;2) RAM totale demandée : 2 x 3 = 6 Go.&#10;3) RAM restante : 8 - 6 = 2 Go.&#10;4) vCPU utilisés : 2 x 1 = 2 ; cœurs restants : 4 - 2 = 2.">
+  <script type="text/plain" data-lab-starter># Exercice — La conversation et le premier partage
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Colère inversée]
-# Données : ingenieur idee
-# Données : serveur accepte
-# Données : vms partage
-# Données : serveur colere
+[Question 1 — Qui a l'idée de la virtualisation]
 A_COMPLETER
 
-[Cas 2 — Repliques échangées]
-# Données : ingenieur idee
-# Données : serveur colere
-# Données : vms idee
-# Données : serveur accepte
+[Question 2 — Réaction immédiate du serveur]
 A_COMPLETER
 
-[Cas 3 — Scénario mélangé]
-# Données : vms partage
-# Données : ingenieur idee
-# Données : serveur colere
-# Données : serveur accepte
+[Question 3 — Qui propose le partage]
+A_COMPLETER
+
+[Question 4 — RAM totale demandée par les trois VM (Go)]
+A_COMPLETER
+
+[Question 5 — RAM restante après les trois VM (Go)]
+A_COMPLETER
+
+[Question 6 — Cœurs restants après les trois VM]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Le réveil du serveur : la conversation</h3>
+    <h3 class="lab__title">Exercice 3 — La conversation et le premier partage</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -312,35 +343,38 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Rejouer la conversation de l’histoire entre l’ingénieur, le serveur et les VM.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « acteur replique » : acteur est un code parmi <code>ingenieur</code>, <code>serveur</code> ou <code>vms</code> ; replique est un code parmi <code>idee</code> (proposer la virtualisation), <code>colere</code> (refuser, « c’est de la folie ! »), <code>partage</code> (proposer le partage des ressources) ou <code>accepte</code>. Le scénario de l’histoire fixe l’ordre : ingenieur → idee, serveur → colere, vms → partage, serveur → accepte. Pour chaque ligne, indiquez <code>acteur : OK</code> si la réplique est celle de l’histoire à cette étape, sinon <code>acteur : NON</code>, puis <code>fidele : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Rejouer la conversation de l'histoire dans l'ordre et dimensionner le premier partage de M. Fainéant (RAM et vCPU).</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'histoire se joue en quatre temps : l'<strong>ingénieur</strong> propose l'idée de la virtualisation ; M. Fainéant se réveille en sursaut et se met en <strong>colère</strong> (« Faire le travail de plusieurs serveurs ? C'est de la folie ! ») ; les <strong>machines virtuelles</strong> répondent en proposant le partage des ressources ; le serveur <strong>accepte</strong> enfin. Pour sceller l'accord, les trois premières VM ambitieuses s'installent sur M. Fainéant, qui dispose de <strong>16 Go de RAM</strong>, de <strong>8 cœurs</strong> de processeur et de <strong>500 Go</strong> de disque. Chaque VM demande <strong>4 Go de RAM</strong>, <strong>2 vCPU</strong> et <strong>100 Go</strong> de disque.</p><ol><li>Qui a l'idée de la virtualisation dans l'histoire ? (répondez par le métier du personnage, un mot)</li><li>Quelle est la réaction immédiate de M. Fainéant quand il entend l'idée ? (un mot)</li><li>Qui propose de partager la mémoire, le processeur et le disque ? (réponse courte)</li><li>Quelle quantité totale de RAM les trois VM demandent-elles, en Go ?</li><li>Combien de RAM reste-t-il à M. Fainéant après les trois VM, en Go ?</li><li>Combien de cœurs restent disponibles, si chaque VM reçoit 2 vCPU ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ingenieur idee
-serveur colere
-vms partage
-serveur accepte
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Même scène sur un serveur de secours plus petit : 8 Go de RAM, 4 cœurs.
+Deux VM s'y installent, chacune avec 3 Go de RAM et 1 vCPU.
+
+1) L'ingénieur propose l'idée, le serveur se met en colère, les VM proposent le partage, le serveur accepte.
+2) RAM totale demandée : 2 x 3 = 6 Go.
+3) RAM restante : 8 - 6 = 2 Go.
+4) vCPU utilisés : 2 x 1 = 2 ; cœurs restants : 4 - 2 = 2.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur l’étape : 1 → ingenieur/idee, 2 → serveur/colere, 3 → vms/partage, 4 → serveur/accepte.</li>
-        <li>Acteur ET réplique doivent être justes en même temps pour un OK.</li>
+        <li>La conversation suit un ordre exact : celui qui propose l'idée n'est pas celui qui propose le partage, et le serveur passe par la colère avant l'acceptation.</li>
+        <li>Pour la RAM : multipliez la demande d'une VM par le nombre de VM, puis soustrayez ce total de la capacité de M. Fainéant.</li>
+        <li>Même raisonnement pour les cœurs : chaque VM consomme des vCPU pris sur les cœurs physiques ; ce qui n'est pas pris reste disponible.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>8. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">La virtualisation permet de…</p>
       <div class="opts">
+        <button class="opt">acheter plus de serveurs physiques pour chaque service</button>
         <button class="opt" data-correct="1">faire tourner plusieurs machines sur un seul matériel</button>
-        <button class="opt">acheter plus de serveurs</button>
-        <button class="opt">supprimer les sauvegardes</button>
+        <button class="opt">supprimer les sauvegardes pour libérer de l’espace disque</button>
       </div>
       <div class="q__exp">Plusieurs machines indépendantes, un seul serveur physique, des ressources partagées.</div>
     </div>
@@ -356,8 +390,8 @@ serveur accepte
     <div class="q">
       <p class="q__stem">La règle d’allocation des VM est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ne prendre que ce dont on a besoin</button>
         <button class="opt">prendre tout ce qui reste</button>
+        <button class="opt" data-correct="1">ne prendre que ce dont on a besoin</button>
         <button class="opt">prendre sans déclarer</button>
       </div>
       <div class="q__exp">« On ne prendra chacun que ce dont on a besoin » — et le total tient dans la capacité.</div>
@@ -365,26 +399,26 @@ serveur accepte
     <div class="q">
       <p class="q__stem">Une VM refusée…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ne consomme rien</button>
-        <button class="opt">consomme quand même</button>
         <button class="opt">détruit les autres VM</button>
+        <button class="opt">consomme quand même</button>
+        <button class="opt" data-correct="1">ne consomme rien</button>
       </div>
       <div class="q__exp">Contrôler d’abord, allouer ensuite : le refus ne touche pas aux restes.</div>
     </div>
     <div class="q">
       <p class="q__stem">La première réaction du serveur est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la colère — « C’est de la folie ! »</button>
-        <button class="opt">la joie</button>
         <button class="opt">l’indifférence</button>
+        <button class="opt">la joie</button>
+        <button class="opt" data-correct="1">la colère — « C’est de la folie ! »</button>
       </div>
       <div class="q__exp">Il se réveille en sursaut et refuse, avant d’accepter à l’étape 4.</div>
     </div>
     <div class="q">
       <p class="q__stem">Qui propose le partage des ressources ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">les machines virtuelles</button>
         <button class="opt">l’ingénieur</button>
+        <button class="opt" data-correct="1">les machines virtuelles</button>
         <button class="opt">le disque</button>
       </div>
       <div class="q__exp">Les VM, très enthousiastes, répondent au serveur fâché.</div>
@@ -401,11 +435,29 @@ serveur accepte
     <div class="q">
       <p class="q__stem">Le partage est…</p>
       <div class="opts">
+        <button class="opt">un dogme absolu sans exception possible</button>
         <button class="opt" data-correct="1">une règle par défaut qui admet des exceptions</button>
-        <button class="opt">un dogme absolu</button>
-        <button class="opt">une option payante</button>
+        <button class="opt">une option payante des licences haut de gamme</button>
       </div>
       <div class="q__exp">Certaines ressources peuvent rester dédiées à une VM : le partage reste la règle par défaut.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel hyperviseur est de type 2 (hébergé) ?</p>
+      <div class="opts">
+        <button class="opt">VMware ESXi installé sur un serveur dédié</button>
+        <button class="opt" data-correct="1">Oracle VirtualBox installé sur un poste Windows</button>
+        <button class="opt">Xen installé directement sur le matériel</button>
+      </div>
+      <div class="q__exp">VirtualBox est une application qui s’installe sur un système existant : c’est le modèle du type 2. ESXi et Xen se placent directement sur le matériel (type 1).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">À quoi servent Intel VT-x et AMD-V ?</p>
+      <div class="opts">
+        <button class="opt">à augmenter la capacité du disque dur</button>
+        <button class="opt">à chiffrer les machines virtuelles au repos</button>
+        <button class="opt" data-correct="1">à exécuter les VM efficacement grâce au processeur</button>
+      </div>
+      <div class="q__exp">Ces extensions du processeur permettent à l’hyperviseur de faire tourner le système invité à vitesse quasi native, sans tout émuler en logiciel.</div>
     </div>
   </div>
 
@@ -413,7 +465,7 @@ serveur accepte
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>9. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -429,7 +481,7 @@ serveur accepte
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>10. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Allouer comme les VM de l’histoire</div>
@@ -444,7 +496,7 @@ serveur accepte
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>11. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -461,9 +513,9 @@ serveur accepte
       <li>Je calcule les restes après chaque allocation (RAM et disque).</li>
       <li>Je rejoue la conversation dans l’ordre exact.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 11 notions à connaître absolument</h3>
     <ol>
-      <li>machine virtuelle</li><li>serveur hôte</li><li>ressources partagées</li><li>mémoire (RAM)</li><li>processeur</li><li>stockage (disque)</li><li>allocation</li><li>capacité restante</li>
+      <li>machine virtuelle</li><li>serveur hôte</li><li>ressources partagées</li><li>mémoire (RAM)</li><li>processeur</li><li>stockage (disque)</li><li>allocation</li><li>capacité restante</li><li><strong>Hyperviseur de type 1</strong> : logiciel installé directement sur le matériel (ESXi, Hyper-V, KVM, Xen).</li><li><strong>Hyperviseur de type 2</strong> : application installée sur un système existant (VirtualBox, VMware Workstation).</li><li><strong>VT-x / AMD-V</strong> : extensions du processeur qui permettent d’exécuter une VM à vitesse quasi native.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -473,7 +525,7 @@ serveur accepte
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>12. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -522,7 +574,7 @@ serveur accepte
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

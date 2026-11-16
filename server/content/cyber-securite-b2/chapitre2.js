@@ -143,34 +143,34 @@ module.exports = {
     {
       stem: 'Pourquoi le mode de chiffrement par blocs ECB (Electronic Codebook) est-il formellement interdit en production ?',
       opts: [
-        'Parce que deux blocs de texte en clair identiques produisent toujours le même bloc chiffré, révélant la structure des données',
-        'Parce qu’il ne supporte que des clés de 64 bits maximum',
-        'Parce qu’il consomme dix fois plus de bande passante que le mode CBC',
-        'Parce qu’il nécessite obligatoirement une connexion Internet active pour fonctionner'
+        "Parce qu’il ne supporte que des clés de 64 bits au maximum, jugées désormais trop courtes",
+        "Parce que deux blocs de texte en clair identiques produisent toujours le même bloc chiffré, révélant la structure des données",
+        "Parce qu’il consomme dix fois plus de bande passante réseau que le mode CBC équivalent",
+        "Parce qu’il nécessite obligatoirement une connexion Internet active pour pouvoir fonctionner"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'En mode ECB, l’absence de chaînage et de vecteur d’initialisation fait que des motifs identiques en clair produisent des blocs chiffrés identiques, ce qui permet à un attaquant de déduire la structure du message.'
     },
     {
       stem: 'Dans le système cryptographique RSA, avec quelle clé l’émetteur fabrique-t-il la signature numérique d’un document ?',
       opts: [
-        'Avec sa propre clé privée',
-        'Avec la clé publique du récepteur',
         'Avec sa propre clé publique',
+        'Avec la clé publique du récepteur',
+        'Avec sa propre clé privée',
         'Avec une clé symétrique temporaire négociée par Diffie-Hellman'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La signature est générée avec la clé privée de l’émetteur. La vérification utilise sa clé publique, dont l’appartenance au signataire doit être authentifiée ; la clé privée doit rester protégée.'
     },
     {
       stem: 'Quelle propriété d’une fonction de hachage cryptographique rend pratiquement infaisable la recherche de deux fichiers différents de même empreinte SHA-256 ?',
       opts: [
-        'La résistance aux collisions',
+        'La réversibilité polynomiale',
         'La résistance à la première préimage',
         'L’effet miroir',
-        'La réversibilité polynomiale'
+        'La résistance aux collisions'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La résistance aux collisions rend pratiquement infaisable la recherche de deux entrées x et y distinctes telles que H(x) = H(y) ; elle ne rend pas les collisions mathématiquement impossibles.'
     },
     {
@@ -187,12 +187,12 @@ module.exports = {
     {
       stem: 'Dans un échange de clés Diffie-Hellman, que représente le secret final K calculé par Alice et Bob ?',
       opts: [
-        'Une valeur identique partagée g^(ab) mod p qui servira de clé symétrique de session',
-        'La clé privée de l’autorité de certification X.509',
-        'Le certificat SSL du serveur web',
-        'Le mot de passe administrateur en clair'
+        "La clé privée secrète de l’autorité de certification X.509 du site",
+        "Une valeur identique partagée g^(ab) mod p qui servira de clé symétrique de session",
+        "Le certificat SSL/TLS du serveur web de l’entreprise",
+        "Le mot de passe administrateur transmis en clair sur le réseau"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Diffie-Hellman permet à Alice et Bob d’obtenir le même secret K = g^(ab) mod p sans jamais transmettre a, b ou K sur le réseau.'
     }
   ],

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -234,28 +232,31 @@
      data-exercise="hk3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="SUID_CHECK path=/usr/bin/find owner=root mode=4755">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e1) — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le serveur de l'école de musique Harmonia renvoie quatre binaires SUID :&#10;passwd (légitime), nano, awk, env.&#10;GTFOBins classe nano, awk et env comme permettant d'ouvrir un shell.&#10;&#10;1) 4 binaires listés. 2) Le bit SUID se lit « s » à la place du x du propriétaire.&#10;3) 3 binaires exploitables. 4) passwd est le SUID légitime. 5) Valeur octale : 4000. 6) Les binaires s'exécutent en root.">
+  <script type="text/plain" data-lab-starter># Exercice — L'audit des binaires SUID du serveur de la coopérative Solvigne
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 3 et 5 : un nombre. Question 2 : une lettre. Questions 4 et 6 : un nom.
 
-[Cas 1 — Binaire système passwd avec SUID légitime et restreint]
-# Données : SUID_CHECK path=/usr/bin/passwd owner=root mode=4755
+[Question 1 — Binaires SUID listés]
 A_COMPLETER
 
-[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]
-# Données : SUID_CHECK path=/bin/vim owner=root mode=4750
+[Question 2 — Lettre signalant le bit SUID]
 A_COMPLETER
 
-[Cas 3 — Binaire normal sans aucun bit SUID]
-# Données : SUID_CHECK path=/usr/bin/ls owner=root mode=0755
+[Question 3 — Binaires ouvrant un shell selon GTFOBins]
 A_COMPLETER
 
-[Cas 4 — Binaire SUID appartenant à un utilisateur non root]
-# Données : SUID_CHECK path=/opt/app/worker owner=deploy mode=4755
+[Question 4 — Binaire SUID légitime]
+A_COMPLETER
+
+[Question 5 — Valeur octale du bit SUID]
+A_COMPLETER
+
+[Question 6 — Identité d'exécution des binaires SUID]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux</h3>
+    <h3 class="lab__title">Exercice 1 — L'audit des binaires SUID du serveur de la coopérative Solvigne</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -264,29 +265,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les permissions octales de fichiers système pour détecter les binaires SUID exploitables (GTFOBins).</p>
-    <div class="lab__brief"><p>Le bit SUID (Set User ID) permet d'exécuter un binaire avec les privilèges de son propriétaire (généralement root).<br><br>
-Binaires connus du catalogue GTFOBins permettant une évasion directe vers un shell root :<br>
-<code>bash</code>, <code>find</code>, <code>vim</code>, <code>nano</code>, <code>cp</code>, <code>awk</code>, <code>python</code>, <code>nmap</code>, <code>pkexec</code>.<br><br>
-Règles d'évaluation :<br>
-1. Vérifier si le mode octal comporte le bit SUID (chiffre des milliers &gt;= 4, ex: <code>4755</code>, <code>4750</code>) :<br>
-   - Si le bit SUID est absent : <code>exploit=NO_SUID_BIT</code>, <code>risk=NONE</code>.<br>
-2. Si le bit SUID est présent et <code>owner == 'root'</code> :<br>
-   - Si le nom du binaire est dans GTFOBins : <code>exploit=GTFOBINS_PRIVILEGE_ESCALATION</code>, <code>risk=CRITICAL</code>.<br>
-   - Sinon (binaire standard comme <code>passwd</code>, <code>ping</code>) : <code>exploit=STANDARD_SYSTEM_BINARY</code>, <code>risk=LOW</code>.<br>
-3. Si le bit SUID est présent mais <code>owner != 'root'</code> :<br>
-   - <code>exploit=NON_ROOT_SUID</code>, <code>risk=MEDIUM</code>.<br><br>
-Données du cas : <code>SUID_CHECK path=&lt;chemin&gt; owner=&lt;user&gt; mode=&lt;octal&gt;</code>.<br>
-Résultat d’analyse attendu : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;user&gt; mode=&lt;octal&gt; exploit=&lt;exploit&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Interpréter la sortie d'une recherche de binaires SUID et repérer ceux qui ouvrent un shell root.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La coopérative agricole Solvigne mandate un test d'intrusion de son serveur web. Après avoir obtenu un accès limité au compte <code>www-data</code>, l'auditeur recherche des chemins d'élévation de privilèges et lance <code>find / -perm -4000 -type f 2&gt;/dev/null</code>. Le serveur renvoie :</p><table><tr><th>Binaire</th><th>Permissions</th></tr><tr><th>/usr/bin/passwd</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/find</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/vim</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/less</th><td>-rwsr-xr-x root root</td></tr><tr><th>/bin/mount</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/chsh</th><td>-rwsr-xr-x root root</td></tr></table><p>Au passage, la base GTFOBins indique que <code>find</code>, <code>vim</code> et <code>less</code> permettent d'ouvrir un shell lorsque leur bit SUID est positionné.</p><ol><li>Combien de binaires SUID l'audit a-t-il listés ?</li><li>Quelle lettre minuscule, à la place du « x » du propriétaire dans la chaîne de permissions, signale le bit SUID ?</li><li>Combien de ces binaires GTFOBins considère-t-elle comme permettant un shell root ?</li><li>Quel binaire est légitimement SUID sur tout système Linux car il modifie les mots de passe ?</li><li>Quelle valeur octale, présente dans l'option -perm de la commande, correspond au bit SUID ?</li><li>Sous quelle identité ces binaires s'exécutent-ils grâce au bit SUID ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUID_CHECK path=/usr/bin/find owner=root mode=4755</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le serveur de l'école de musique Harmonia renvoie quatre binaires SUID :
+passwd (légitime), nano, awk, env.
+GTFOBins classe nano, awk et env comme permettant d'ouvrir un shell.
+
+1) 4 binaires listés. 2) Le bit SUID se lit « s » à la place du x du propriétaire.
+3) 3 binaires exploitables. 4) passwd est le SUID légitime. 5) Valeur octale : 4000. 6) Les binaires s'exécutent en root.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Extrayez le nom de base du fichier (ex: /usr/bin/find -&gt; find).</li>
-        <li>Vérifiez si le premier chiffre du mode octal (mode &gt;= 4000) active le bit SUID.</li>
-        <li>Comparez avec la liste GTFOBins si owner == root.</li>
+        <li>Comptez les lignes du tableau : chaque binaire listé porte le bit SUID dans ses permissions.</li>
+        <li>Dans -rwsr-xr-x, le « s » remplace le « x » du propriétaire : c'est lui qui indique le SUID ; la commande le cherche avec -perm -4000.</li>
+        <li>GTFOBins classe find, vim et less comme permettant un shell ; passwd est SUID par conception, pour que tout utilisateur change son mot de passe.</li>
       </ol>
     </details>
   </div>
@@ -296,24 +290,31 @@ Résultat d’analyse attendu : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;u
      data-exercise="hk3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e2) — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le serveur de la clinique Bonne-Fontaine expose via sudo -l :&#10;deploy NOPASSWD: /usr/bin/systemctl restart app ;&#10;chef NOPASSWD: /usr/bin/awk /etc/app.conf ;&#10;op NOPASSWD: /usr/bin/man ;&#10;backup ALL=(ALL:ALL) ALL.&#10;GTFOBins : awk et man savent lancer un shell.&#10;&#10;1) 4 utilisateurs. 2) 3 lignes NOPASSWD. 3) L'utilisateur chef obtient un shell via awk.&#10;4) Le pagineur man sert à op. 5) 2 règles mènent à un shell. 6) L'utilisateur backup garde le droit le plus large protégé par mot de passe.">
+  <script type="text/plain" data-lab-starter># Exercice — Le fichier sudoers du serveur de l'agence Weblane
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 5 : un nombre. Questions 3, 4 et 6 : un nom d'utilisateur ou de binaire.
 
-[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]
-# Données : SUDO_PARSE rule=john ALL=(ALL:ALL) NOPASSWD: ALL
+[Question 1 — Utilisateurs concernés]
 A_COMPLETER
 
-[Cas 2 — Commande restreinte d'administration sans échappement de shell]
-# Données : SUDO_PARSE rule=backup_svc ALL=(root) NOPASSWD: /usr/bin/rsync
+[Question 2 — Lignes NOPASSWD]
 A_COMPLETER
 
-[Cas 3 — Règle classique exigeant l'authentification par mot de passe]
-# Données : SUDO_PARSE rule=alice ALL=(ALL) /bin/bash
+[Question 3 — Utilisateur pouvant sortir de vim en shell root]
+A_COMPLETER
+
+[Question 4 — Pagineur du stagiaire exécutant !sh]
+A_COMPLETER
+
+[Question 5 — Règles menant à un shell root]
+A_COMPLETER
+
+[Question 6 — Utilisateur au droit large protégé par mot de passe]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)</h3>
+    <h3 class="lab__title">Exercice 2 — Le fichier sudoers du serveur de l'agence Weblane</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -322,31 +323,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser une directive sudoers pour détecter des privilèges excessifs permettant l'élévation directe vers root.</p>
-    <div class="lab__brief"><p>Une mauvaise configuration dans <code>/etc/sudoers</code> constitue le vecteur d'élévation de privilèges le plus fréquent en environnement Linux.<br><br>
-Commandes dangereuses permettant l'échappement vers un shell (Shell Escape) :<br>
-<code>ALL</code>, <code>find</code>, <code>vim</code>, <code>vi</code>, <code>less</code>, <code>more</code>, <code>bash</code>, <code>sh</code>, <code>python</code>, <code>perl</code>, <code>awk</code>.<br><br>
-Règles d'analyse :<br>
-1. Déterminer si <code>NOPASSWD:</code> est présent dans la règle :<br>
-   - Si absent : <code>nopasswd=FALSE</code>, <code>vector=PASSWORD_PROTECTED</code>, <code>risk=LOW</code>.<br>
-2. Si <code>NOPASSWD:</code> est présent (<code>nopasswd=TRUE</code>) :<br>
-   - Extraire la commande autorisée située après <code>NOPASSWD:</code> (ex: <code>/usr/bin/find</code>).<br>
-   - Extraire le nom du binaire de base.<br>
-   - Si le binaire est <code>ALL</code> ou appartient à la liste de shell escape :<br>
-     <code>vector=INSTANT_ROOT_SHELL</code>, <code>risk=CRITICAL</code>.<br>
-   - Sinon (binaire d'administration restreint, ex: <code>systemctl restart nginx</code>) :<br>
-     <code>vector=RESTRICTED_SUDO_EXECUTION</code>, <code>risk=MEDIUM</code>.<br><br>
-Données du cas : <code>SUDO_PARSE rule=&lt;texte_complet_de_la_regle_sudoers&gt;</code>.<br>
-Résultat d’analyse attendu : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt;TRUE|FALSE&gt; command=&lt;cmd_name&gt; vector=&lt;vector&gt; risk=&lt;risk&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer un extrait de fichier sudoers et compter les règles qui mènent à un shell root.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'agence web Weblane fait tester son serveur de préproduction. Disposant du compte <code>dev</code>, l'auditeur lance <code>sudo -l</code> et obtient l'extrait de configuration suivant :</p><table><tr><th>Ligne du fichier sudoers</th><th>Portée</th></tr><tr><th>webmaster ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart apache2</th><td>Redémarrer le service web</td></tr><tr>&lt;th&gt;dev ALL=(ALL:ALL) NOPASSWD: /usr/bin/vim /etc/apache2/apache2.conf&lt;/td&gt;<td>Éditer la configuration Apache</td></tr><tr>&lt;th&gt;stagiaire ALL=(ALL) NOPASSWD: /usr/bin/less /var/log/syslog&lt;/td&gt;<td>Consulter le journal système</td></tr><tr><th>admin ALL=(ALL:ALL) ALL</th><td>Toutes les commandes, avec mot de passe</td></tr></table><p>La base GTFOBins rappelle que <code>vim</code> et <code>less</code> savent lancer un shell.</p><ol><li>Combien d'utilisateurs ces quatre lignes concernent-elles ?</li><li>Combien de lignes autorisent des commandes sans mot de passe (NOPASSWD) ?</li><li>Quel utilisateur peut sortir de vim avec un shell root ?</li><li>Quel pagineur du stagiaire exécute une commande via le séquenceur « !sh » ?</li><li>Combien de règles mènent à un shell root ?</li><li>Quel utilisateur garde le droit le plus large tout en restant protégé par la demande de mot de passe ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le serveur de la clinique Bonne-Fontaine expose via sudo -l :
+deploy NOPASSWD: /usr/bin/systemctl restart app ;
+chef NOPASSWD: /usr/bin/awk /etc/app.conf ;
+op NOPASSWD: /usr/bin/man ;
+backup ALL=(ALL:ALL) ALL.
+GTFOBins : awk et man savent lancer un shell.
+
+1) 4 utilisateurs. 2) 3 lignes NOPASSWD. 3) L'utilisateur chef obtient un shell via awk.
+4) Le pagineur man sert à op. 5) 2 règles mènent à un shell. 6) L'utilisateur backup garde le droit le plus large protégé par mot de passe.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez le texte de la règle avec l’extraction des champs[1].</li>
-        <li>Le premier mot de la règle correspond à l'utilisateur ou au groupe.</li>
-        <li>Vérifiez la présence de NOPASSWD: et extrayez la commande qui suit.</li>
+        <li>Listez les utilisateurs en tête de chaque ligne : chaque ligne du tableau en concerne un ; NOPASSWD se compte ensuite dans les trois premières.</li>
+        <li>GTFOBins signale vim et less : identifiez qui a le droit de lancer chacun d'eux via sudo.</li>
+        <li>La dernière ligne donne tous les droits mais exige le mot de passe : c'est le seul garde-fou qui reste.</li>
       </ol>
     </details>
   </div>
@@ -356,24 +351,31 @@ Résultat d’analyse attendu : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt
      data-exercise="hk3-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c5-e3) — Calculateur d'Offset de Buffer Overflow et Agencement de Payload
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'épreuve chat_v1 du même CTF expose un tampon de 120 octets,&#10;suivi de l'EBP sauvegardé (4 octets) puis de l'adresse de retour.&#10;&#10;1) Tampon : 120 octets. 2) L'adresse de retour est écrasée à l'offset 120 + 4 = 124.&#10;3) 4 octets (l'EBP) séparent le tampon de l'adresse de retour.&#10;4) Sur une entrée de 200 octets, il reste 200 − 124 − 4 = 72 octets après l'adresse de retour.&#10;5) Le registre détourné est EIP. 6) La protection s'appelle le canari de pile (stack canary).">
+  <script type="text/plain" data-lab-starter># Exercice — L'écrasement de l'adresse de retour du service borne de Navik
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : un nombre d'octets ou un offset. Question 5 : un registre. Question 6 : une protection.
 
-[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]
-# Données : BOF_LAYOUT arch=x64 offset=264 sled_len=64 shellcode_len=85
+[Question 1 — Taille du tampon vulnérable]
 A_COMPLETER
 
-[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]
-# Données : BOF_LAYOUT arch=x86 offset=40 sled_len=0 shellcode_len=28
+[Question 2 — Offset d'écrasement de l'adresse de retour]
 A_COMPLETER
 
-[Cas 3 — Tampon volumineux sous architecture x64]
-# Données : BOF_LAYOUT arch=x64 offset=1024 sled_len=128 shellcode_len=120
+[Question 3 — Octets entre le tampon et l'adresse de retour]
+A_COMPLETER
+
+[Question 4 — Octets restants après l'adresse de retour]
+A_COMPLETER
+
+[Question 5 — Registre 32 bits détourné]
+A_COMPLETER
+
+[Question 6 — Protection par valeur secrète]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Calculateur d'Offset de Buffer Overflow et Agencement de Payload</h3>
+    <h3 class="lab__title">Exercice 3 — L'écrasement de l'adresse de retour du service borne de Navik</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -382,26 +384,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la structure et la taille globale d'un exploit de dépassement de tampon de pile (Stack Buffer Overflow).</p>
-    <div class="lab__brief"><p>Dans l'exploitation de binaires compilés (x86/x64 sans canary), un dépassement de tampon permet de réécrire le pointeur d'instruction de retour (EIP/RIP).<br><br>
-Structure du payload dans la pile :<br>
-1. <code>PADDING</code> : <code>offset</code> octets (remplissage jusqu'au pointeur de retour).<br>
-2. <code>RET_ADDR</code> : taille de l'adresse de retour (4 octets en <code>x86</code>, 8 octets en <code>x64</code>).<br>
-3. <code>NOP_SLED</code> : <code>sled_len</code> octets de NOP (<code>\x90</code>).<br>
-4. <code>SHELLCODE</code> : <code>shellcode_len</code> octets du code exécutable injecté.<br><br>
-Calcul de la taille totale du payload :<br>
-<code>total_size = offset + ret_bytes + sled_len + shellcode_len</code>.<br><br>
-Données du cas : <code>BOF_LAYOUT arch=&lt;x86|x64&gt; offset=&lt;N&gt; sled_len=&lt;S&gt; shellcode_len=&lt;L&gt;</code>.<br>
-Résultat d’analyse attendu : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&lt;N&gt; ret_bytes=&lt;4|8&gt; sled=&lt;S&gt; shellcode=&lt;L&gt; total_size=&lt;total&gt; status=READY_FOR_INJECTION</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer les offsets d'un dépassement de tampon sur pile : tampon, EBP, adresse de retour et place restante.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Au CTF inter-écoles de Navik, l'épreuve « borne » fournit le binaire d'un service qui lit une chaîne saisie au clavier. L'analyse du code désassemblé montre un tampon de <strong>250 octets</strong>, suivi de l'adresse de retour de la fonction : les 4 octets de l'EBP sauvegardé précèdent immédiatement cette adresse. L'équipe étudiante prépare son exploit :</p><ol><li>Quelle est la taille du tampon vulnérable, en octets ?</li><li>À quel offset, compté depuis le début du tampon, l'adresse de retour commence-t-elle à être écrasée ?</li><li>Combien d'octets séparent la fin du tampon du début de l'adresse de retour ?</li><li>L'équipe envoie une entrée de 400 octets : combien d'octets restent après l'adresse de retour ?</li><li>Quel registre 32 bits, contenant l'adresse de la prochaine instruction à exécuter, l'écrasement détourne-t-il ?</li><li>Quelle protection du compilateur insère une valeur secrète entre le tampon et l'adresse de retour pour détecter l'écrasement ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'épreuve chat_v1 du même CTF expose un tampon de 120 octets,
+suivi de l'EBP sauvegardé (4 octets) puis de l'adresse de retour.
+
+1) Tampon : 120 octets. 2) L'adresse de retour est écrasée à l'offset 120 + 4 = 124.
+3) 4 octets (l'EBP) séparent le tampon de l'adresse de retour.
+4) Sur une entrée de 200 octets, il reste 200 − 124 − 4 = 72 octets après l'adresse de retour.
+5) Le registre détourné est EIP. 6) La protection s'appelle le canari de pile (stack canary).</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Identifiez ret_bytes : 4 octets pour x86 et 8 octets pour x64.</li>
-        <li>Sommez offset + ret_bytes + sled_len + shellcode_len.</li>
-        <li>Affichez la disposition du payload selon le format demandé.</li>
+        <li>Sur la pile, l'ordre est : tampon, puis EBP sauvegardé (4 octets), puis l'adresse de retour ; l'offset de l'adresse de retour est donc la taille du tampon plus 4.</li>
+        <li>Pour la place restante, retirez de l'entrée totale l'offset de l'adresse de retour puis ses 4 octets.</li>
+        <li>Le registre qui porte l'adresse de la prochaine instruction s'appelle EIP en architecture 32 bits ; la protection qui insère une valeur secrète s'appelle le canari de pile (stack canary).</li>
       </ol>
     </details>
   </div>
@@ -414,30 +413,30 @@ Résultat d’analyse attendu : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&
     <div class="q">
       <p class="q__stem">Dans une attaque par dépassement de tampon sur la pile (Stack Buffer Overflow x86), quel registre de processeur l'attaquant cherche-t-il à écraser pour contrôler le flux d'exécution ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le registre EIP (Extended Instruction Pointer)</button>
+        <button class="opt">Le registre ESP (Stack Pointer)</button>
         <button class="opt">Le registre EAX (Accumulateur)</button>
         <button class="opt">Le registre ECX (Compteur)</button>
-        <button class="opt">Le registre ESP (Stack Pointer)</button>
+        <button class="opt" data-correct="1">Le registre EIP (Extended Instruction Pointer)</button>
       </div>
       <div class="q__exp">EIP contient l'adresse de la prochaine instruction processeur à exécuter. En écrasant l'adresse de retour sauvegardée sur la pile, EIP est forcé de pointer vers le shellcode de l'attaquant.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est le rôle d'un "NOP Sled" (suite d'instructions 0x90) placé avant le shellcode dans un exploit Buffer Overflow ?</p>
       <div class="opts">
+        <button class="opt">Obfusquer et chiffrer le shellcode pour qu'il devienne indétectable par les antivirus et les EDR déployés sur la cible</button>
+        <button class="opt">Élever les privilèges de l'utilisateur courant jusqu'au niveau root du système avant l'exécution du code injecté</button>
         <button class="opt" data-correct="1">Créer une zone d'atterrissage tolérante : si le saut processeur tombe n'importe où dans les NOP, l'exécution glisse sans erreur jusqu'au shellcode</button>
-        <button class="opt">Chiffrer le shellcode pour le rendre indétectable par l'antivirus</button>
-        <button class="opt">Augmenter les privilèges de l'utilisateur au niveau root avant l'exécution</button>
-        <button class="opt">Supprimer les journaux d'événements du système d'exploitation</button>
+        <button class="opt">Supprimer l'intégralité des journaux d'événements du système d'exploitation afin d'effacer les traces de l'attaque</button>
       </div>
       <div class="q__exp">Le NOP sled (No Operation) permet de compenser les légères imprécisions d'adressage mémoire : le processeur exécute les NOP séquentiellement jusqu'à atteindre le début du shellcode.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel mécanisme de sécurité de l'OS empêche l'exécution de code injecté directement dans la mémoire de la pile (Stack) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">DEP / NX (Data Execution Prevention / No-Execute)</button>
         <button class="opt">ASLR (Address Space Layout Randomization)</button>
-        <button class="opt">DHCP Snooping</button>
-        <button class="opt">RAID 5</button>
+        <button class="opt" data-correct="1">DEP / NX (Data Execution Prevention / No-Execute)</button>
+        <button class="opt">DHCP Snooping (filtrage des ports des commutateurs)</button>
+        <button class="opt">RAID 5 (tolérance de panne des disques durs)</button>
       </div>
       <div class="q__exp">DEP/NX marque les pages de pile et de tas comme non exécutables : toute tentative du processeur d'exécuter des instructions situées sur la pile déclenche une exception matérielle immédiate.</div>
     </div>
@@ -445,37 +444,37 @@ Résultat d’analyse attendu : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&
       <p class="q__stem">Dans Metasploit, quelle est la particularité d'un payload de type "Stagé" (ex: windows/x64/meterpreter/reverse_tcp) ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Il est scindé en deux parties : un petit chargeur initial (Stager) qui se connecte pour télécharger ensuite le corps complet de la charge utile en mémoire</button>
-        <button class="opt">Il s'exécute exclusivement depuis une clé USB physique</button>
-        <button class="opt">Il ne fonctionne que si la cible dispose de privilèges root préalables</button>
-        <button class="opt">Il est entièrement compilé en assembleur 16-bit</button>
+        <button class="opt">Il s'exécute exclusivement depuis une clé USB physique branchée sur la machine cible avant le démarrage du système</button>
+        <button class="opt">Il ne fonctionne que si la machine cible dispose déjà de privilèges root ou SYSTEM préalables à son exécution complète</button>
+        <button class="opt">Il est entièrement compilé en assembleur 16-bit, ce qui le rend incompatible avec les processeurs modernes</button>
       </div>
       <div class="q__exp">Les payloads stagés résolvent le problème des petits tampons mémoire : le stager est minuscule, établit la connexion réseau, puis télécharge en RAM le reste du binaire Meterpreter volumineux.</div>
     </div>
     <div class="q">
       <p class="q__stem">Sur un système Linux, pourquoi le binaire /usr/bin/find avec le bit SUID root (mode 4755) représente-t-il une élévation de privilèges immédiate (GTFOBins) ?</p>
       <div class="opts">
+        <button class="opt">Parce qu'il efface automatiquement le mot de passe root enregistré dans le fichier /etc/shadow à chaque exécution</button>
+        <button class="opt">Parce qu'il désactive automatiquement le pare-feu iptables de la machine lors de chaque recherche effectuée</button>
+        <button class="opt">Parce qu'il redémarre automatiquement la machine en mode secours mono-utilisateur à la fin de chaque recherche</button>
         <button class="opt" data-correct="1">Parce qu'il permet d'exécuter un shell arbitraire via la commande : find . -exec /bin/sh -p \; en conservant les privilèges du propriétaire root</button>
-        <button class="opt">Parce qu'il efface automatiquement le mot de passe root dans le fichier /etc/shadow</button>
-        <button class="opt">Parce qu'il désactive le pare-feu iptables lors de chaque recherche</button>
-        <button class="opt">Parce qu'il redémarre la machine en mode secours mono-utilisateur</button>
       </div>
       <div class="q__exp">L'option -exec de find lance une commande sous l'identité effective du propriétaire du binaire (root grâce au bit SUID), ce qui permet d'obtenir un shell root avec le drapeau -p.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle mauvaise configuration dans Windows permet l'attaque par "Unquoted Service Path" ?</p>
       <div class="opts">
+        <button class="opt">Le pare-feu Windows est entièrement désactivé sur le profil domaine de la machine ciblée</button>
+        <button class="opt">Le mot de passe du compte administrateur local comporte moins de 8 caractères complexes</button>
         <button class="opt" data-correct="1">Le chemin vers l'exécutable du service comporte des espaces et n'est pas entouré de guillemets doubles dans le registre</button>
-        <button class="opt">Le pare-feu Windows est désactivé sur le profil domaine</button>
-        <button class="opt">Le mot de passe administrateur comporte moins de 8 caractères</button>
-        <button class="opt">Le service utilise le protocole UDP au lieu de TCP</button>
+        <button class="opt">Le service Windows utilise le protocole UDP à la place de TCP pour ses communications réseau</button>
       </div>
       <div class="q__exp">Sous Windows, un chemin avec espaces sans guillemets force le gestionnaire de services à tenter d'exécuter chaque mot précédant un espace (ex: C:\Program.exe avant C:\Program Files\...).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel privilège Windows, souvent détenu par les comptes de services applicatifs (IIS/SQL), permet d'usurper l'identité de jetons locaux et d'obtenir les droits SYSTEM via l'exploit PrintSpoofer ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">SeImpersonatePrivilege</button>
         <button class="opt">SeShutdownPrivilege</button>
+        <button class="opt" data-correct="1">SeImpersonatePrivilege</button>
         <button class="opt">SeTimeZonePrivilege</button>
         <button class="opt">SeUndockPrivilege</button>
       </div>
@@ -609,7 +608,7 @@ Résultat d’analyse attendu : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

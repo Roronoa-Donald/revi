@@ -93,14 +93,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Une donnée personnelle est…', opts: ['Une information sur une personne identifiée ou identifiable', 'Un fichier de musique', 'Un brevet'], correct: 0, exp: 'Directement ou indirectement identifiante.' },
-    { stem: 'Un exemple de donnée personnelle directe ?', opts: ['Le nom et le prénom', 'La plaque d’immatriculation', 'Le courriel'], correct: 0, exp: 'Directe : nom, empreinte, biométrie.' },
-    { stem: 'Un exemple de donnée indirecte ?', opts: ['Le numéro de téléphone', 'L’empreinte digitale', 'Le nom'], correct: 0, exp: 'Indirecte : téléphone, plaque, adresse.' },
-    { stem: 'Une donnée sensible ?', opts: ['L’origine ethnique', 'La taille d’écran', 'Le prénom'], correct: 0, exp: 'Origine, opinions, santé, vie sexuelle, sanctions.' },
+    { stem: 'Une donnée personnelle est…', opts: ["Un fichier de musique partagé en ligne sans droit","Un brevet d’invention déposé auprès d’un office","Une information sur une personne identifiée ou identifiable"], correct: 2, exp: "Une donnée personnelle est une information sur une personne identifiée ou identifiable, directement ou non. Ni un fichier de musique ni un brevet : ce ne sont pas des informations sur une personne." },
+    { stem: 'Un exemple de donnée personnelle directe ?', opts: ['Le courriel', 'La plaque d’immatriculation', 'Le nom et le prénom'], correct: 2, exp: "Le nom et le prénom identifient la personne directement, sans déduction. La plaque et le courriel exigent un rapprochement : ils sont indirects." },
+    { stem: 'Un exemple de donnée indirecte ?', opts: ['Le numéro de téléphone', 'L’empreinte digitale', 'Le nom'], correct: 0, exp: "Le numéro de téléphone est une donnée indirecte : il faut le rapprocher d’un annuaire pour identifier la personne. Empreinte et nom sont directs." },
+    { stem: 'Une donnée sensible ?', opts: ['La taille d’écran', 'L’origine ethnique', 'Le prénom'], correct: 1, exp: 'Origine, opinions, santé, vie sexuelle, sanctions.' },
     { stem: 'Les coordonnées d’entreprise sont…', opts: ['En principe non personnelles', 'Toujours sensibles', 'Toujours des données de santé'], correct: 0, exp: 'Elles ne visent pas une personne physique en principe.' },
-    { stem: 'Un traitement de données, c’est…', opts: ['Une opération ou suite d’opérations sur des données', 'Un logiciel antivirus', 'Un contrat de travail'], correct: 0, exp: 'Collecte, enregistrement, conservation, etc.' },
-    { stem: 'La conservation est-elle un traitement ?', opts: ['Oui', 'Non', 'Seulement le week-end'], correct: 0, exp: 'Conserver est une opération de traitement.' },
-    { stem: 'La cession de données est…', opts: ['Un traitement', 'Une publicité', 'Un hébergement'], correct: 0, exp: 'Transmettre des données est un traitement.' }
+    { stem: 'Un traitement de données, c’est…', opts: ["Un logiciel antivirus installé sur le poste","Une opération ou suite d’opérations sur des données","Un contrat de travail signé avec un salarié"], correct: 1, exp: "Un traitement est une opération ou une suite d’opérations sur des données : collecte, enregistrement, conservation, diffusion. Ni un antivirus ni un contrat de travail." },
+    { stem: 'La conservation est-elle un traitement ?', opts: ['Seulement le week-end', 'Non', 'Oui'], correct: 2, exp: 'Conserver est une opération de traitement.' },
+    { stem: 'La cession de données est…', opts: ['Un hébergement', 'Une publicité', 'Un traitement'], correct: 2, exp: 'Transmettre des données est un traitement.' }
   ],
 
   pitfalls: [

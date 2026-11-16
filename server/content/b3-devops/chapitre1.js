@@ -178,21 +178,21 @@ module.exports = {
     {
       stem: 'Quelle contradiction structurelle est à l’origine du « mur de la confusion » entre développeurs et exploitants ?',
       opts: [
-        'Les développeurs utilisent Linux tandis que les exploitants utilisent Windows',
-        'Les développeurs sont évalués sur le changement rapide tandis que les exploitants sont évalués sur la stabilité et la disponibilité',
-        'Les exploitants n’ont pas d’accès réseau aux dépôts Git',
-        'Les développeurs refusent d’écrire des tests unitaires'
+        "Les développeurs sont évalués sur le changement rapide tandis que les exploitants sont évalués sur la stabilité et la disponibilité",
+        "Les développeurs travaillent sous Linux tandis que les exploitants administrent exclusivement des serveurs Windows",
+        "Les exploitants n’ont aucun accès réseau aux dépôts Git et doivent attendre la livraison d’archives compressées",
+        "Les développeurs refusent collectivement d’écrire des tests unitaires avant de jeter leur code par-dessus le mur"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le mur de la confusion provient d’incitations divergentes : les Devs sont poussés à livrer du changement continu, tandis que les Ops sont pénalisés à chaque interruption de service et recherchent l’immobilité.'
     },
     {
       stem: 'Selon les principes du Lean Software Development, que représente un « Muda » ?',
       opts: [
-        'Une optimisation du compilateur',
-        'Une activité ou une attente qui consomme des ressources sans apporter de valeur directe pour le client',
-        'Une méthode de chiffrement asymétrique',
-        'Un indicateur de satisfaction des développeurs'
+        "Une optimisation automatique du compilateur réduisant le temps de génération des binaires",
+        "Une activité ou une attente qui consomme des ressources sans apporter de valeur directe pour le client",
+        "Une méthode de chiffrement asymétrique utilisée pour signer les livrables logiciels",
+        "Un indicateur composite de satisfaction et de bien-être des équipes de développement"
       ],
       correct: 1,
       exp: 'Le terme japonais Muda désigne tout gaspillage (attentes, sur-qualité inutile, transferts manuels, reprise d’erreurs) ne générant aucune valeur perçue par l’utilisateur final.'
@@ -201,22 +201,22 @@ module.exports = {
       stem: 'D’après la Première Voie de Gene Kim (Flow), quelle action prioritaire permet d’accélérer le flux de valeur ?',
       opts: [
         'Augmenter la taille des lots de déploiement pour rentabiliser la recette',
-        'Rendre le travail visible, réduire la taille des lots et limiter le travail en cours (WIP)',
         'Supprimer la totalité des revues de code',
+        'Rendre le travail visible, réduire la taille des lots et limiter le travail en cours (WIP)',
         'Imposer un travail en heures supplémentaires le week-end'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La Première Voie préconise la réduction de la taille des lots (small batches), la limitation du WIP et l’élimination des files d’attente pour créer un flux continu et rapide vers la production.'
     },
     {
       stem: 'Dans le modèle CALMS, que désigne le pilier « M » (Measurement) ?',
       opts: [
-        'Le pilotage de la performance par des métriques objectives techniques et métier',
+        'L’évaluation de la taille en mégaoctets des commits Git',
         'Le calcul du salaire moyen des équipes informatiques',
         'La mesure de la consommation électrique des moniteurs des postes de travail',
-        'L’évaluation de la taille en mégaoctets des commits Git'
+        'Le pilotage de la performance par des métriques objectives techniques et métier'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le M de CALMS (Measurement) consiste à instrumenter le cycle de vie logiciel avec des indicateurs objectifs (métriques DORA, latence, SLA, conversion) pour guider les décisions par la preuve factuelle.'
     },
     {
@@ -245,11 +245,11 @@ module.exports = {
       stem: 'Que stipule la Loi de Little appliquée aux chaînes de livraison logicielle ?',
       opts: [
         'Le temps de compilation double à chaque nouvelle ligne de code',
-        'Le volume de travail en cours (WIP) est égal au débit multiplié par le temps de traversée (Lead Time)',
         'Le nombre de bogues est inversement proportionnel au nombre de tests',
+        'Le volume de travail en cours (WIP) est égal au débit multiplié par le temps de traversée (Lead Time)',
         'Une équipe ne peut jamais compter plus de 7 personnes'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Loi de Little : WIP = Throughput * Lead Time. Réduire le travail en cours (WIP) pour un débit donné est la méthode mathématique la plus directe pour faire chuter le Lead Time.'
     },
     {
@@ -257,10 +257,10 @@ module.exports = {
       opts: [
         'La Première Voie (Le Flux)',
         'La Deuxième Voie (Les Boucles de Rétroaction)',
-        'La Troisième Voie (L’Expérimentation &amp; l’Apprentissage Continu)',
-        'À aucune, il s’agit d’une pratique de sécurité pure'
+        'À aucune, il s’agit d’une pratique de sécurité pure',
+        'La Troisième Voie (L’Expérimentation &amp; l’Apprentissage Continu)'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La Troisième Voie encourage la résilience par l’entraînement proactif, l’expérimentation contrôlée de pannes (Chaos Monkey) et l’apprentissage organisationnel permanent.'
     }
   ],

@@ -165,31 +165,31 @@ module.exports = {
       stem: 'Dans le modèle d’organisation agile de Spotify, qui est le responsable hiérarchique (Line Manager) direct d’un ingénieur développeur ?',
       opts: [
         'Le Product Owner de sa Squad',
-        'Le Chapter Lead de sa compétence technique',
+        'Le Guild Coordinator',
         'Le Scrum Master de l’équipe',
-        'Le Guild Coordinator'
+        'Le Chapter Lead de sa compétence technique'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Dans la matrice Spotify, le Chapter Lead gère le développement professionnel, les évaluations et la carrière des ingénieurs de son domaine technique.'
     },
     {
       stem: 'Dans le framework SAFe, qu’appelle-t-on le « Program Board » lors d’un PI Planning ?',
       opts: [
-        'Une télévision diffusant les cours de la bourse',
-        'Le tableau visuel synthétisant les fonctionnalités, les jalons et les fils de dépendances critiques entre toutes les équipes de l’ART',
-        'La liste des employés en vacances',
-        'Le relevé des factures du projet'
+        "Un écran diffusant en continu les cours de la bourse et les indicateurs financiers dans les locaux de l’entreprise",
+        "La liste consolidée des employés en congés et des absences prévues sur l’ensemble du trimestre à venir",
+        "Le tableau visuel synthétisant les fonctionnalités, les jalons et les fils de dépendances critiques entre toutes les équipes de l’ART",
+        "Le relevé détaillé des factures du programme d’innovation et des charges refacturées aux clients internes"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Program Board visualise les dépendances temporelles critiques entre squads sur les 5 sprints du Program Increment.'
     },
     {
       stem: 'Quelle est la différence philosophique fondamentale entre SAFe et LeSS pour le passage à l’échelle ?',
       opts: [
-        'SAFe est gratuit et LeSS est payant',
-        'SAFe propose un cadre complet et hautement structuré avec de multiples rôles d’entreprise, tandis que LeSS applique le minimalisme de Scrum avec un seul PO et un seul backlog pour plusieurs équipes',
-        'LeSS utilise uniquement des ordinateurs portables',
-        'SAFe n’utilise pas de sprints'
+        "SAFe est un framework open source entièrement gratuit, tandis que LeSS exige le paiement de licences annuelles coûteuses pour chaque équipe enrôlée",
+        "SAFe propose un cadre complet et hautement structuré avec de multiples rôles d’entreprise, tandis que LeSS applique le minimalisme de Scrum avec un seul PO et un seul backlog pour plusieurs équipes",
+        "LeSS impose à toutes les équipes enrôlées un parc informatique homogène d’ordinateurs portables, tandis que SAFe recommande des postes de travail fixes",
+        "SAFe proscrit complètement les sprints au profit de grands cycles de release semestriels, tandis que LeSS conserve intégralement les sprints de Scrum"
       ],
       correct: 1,
       exp: 'LeSS prône la désimplification organisationnelle avec un unique PO et un seul backlog, tandis que SAFe déploie une hiérarchie articulée (Team, Program, Solution, Portfolio).'
@@ -197,43 +197,43 @@ module.exports = {
     {
       stem: 'Dans le modèle Spotify, qu’est-ce qu’une « Guild » (Guilde) ?',
       opts: [
-        'Une équipe secrète de hackeurs',
-        'Une communauté d’intérêt informelle et volontaire à l’échelle de toute l’entreprise réunissant des passionnés d’un même sujet',
-        'Le bureau du directeur général',
-        'La salle de réunion où l’on signe les contrats'
+        "Une communauté d’intérêt informelle et volontaire à l’échelle de toute l’entreprise réunissant des passionnés d’un même sujet",
+        "Une équipe officielle de sécurité chargée des tests d’intrusion sur les applications internes",
+        "Le bureau du directeur général, où se tiennent les comités de pilotage stratégiques du groupe",
+        "La salle de réunion réservée à la signature des contrats clients et des accords de partenariat"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une Guilde est une communauté de pratique ouverte et transversale partageant des connaissances (ex: Guilde Architecture, Guilde Accessibilité).'
     },
     {
       stem: 'Que décrit le terme d’approche hybride « Water-Scrum-Fall » dans les grandes organisations ?',
       opts: [
-        'Un projet qui tombe à l’eau à cause d’une inondation',
-        'Une démarche combinant un cadrage initial séquentiel prédictif (Water), une exécution de développement par sprints itératifs (Scrum), et une recette/déploiement finale rigide (Fall)',
-        'Une nouvelle méthode développée par Google',
-        'Une méthodologie exclusivement réservée aux startups'
+        "Un projet qui sombre à la suite d’un événement extérieur imprévisible, tel qu’une inondation des locaux ou un départ massif d’employés",
+        "Une méthodologie de gestion de projet développée en interne par Google pour encadrer l’ensemble de ses équipes d’ingénierie logicielle",
+        "Une méthodologie récente, réservée exclusivement aux startups technologiques en phase de croissance accélérée et de levée de fonds privés",
+        "Une démarche combinant un cadrage initial séquentiel prédictif (Water), une exécution de développement par sprints itératifs (Scrum), et une recette/déploiement finale rigide (Fall)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le Water-Scrum-Fall est le compromis pragmatique le plus fréquent où l’amont (gouvernance/budget) et l’aval (sécurité/homologation) restent séquentiels autour de sprints agiles.'
     },
     {
       stem: 'Lors d’un PI Planning SAFe, que signale une dépendance où l’équipe cliente a besoin d’une API au Sprint 2, alors que l’équipe fournisseuse ne la planifie qu’au Sprint 4 ?',
       opts: [
-        'Une parfaite synchronisation',
-        'Une inversion critique de dépendance (blocage temporel) qui doit être renégociée immédiatement pendant le breakout',
-        'Un gain de vélocité',
-        'Une anomalie sans conséquence'
+        "Une parfaite synchronisation des travaux entre les deux équipes concernées par le train",
+        "Un gain de vélocité immédiat pour l’équipe qui fournit le composant attendu",
+        "Une inversion critique de dépendance (blocage temporel) qui doit être renégociée immédiatement pendant le breakout",
+        "Une anomalie sans conséquence réelle, à corriger discrètement après la clôture du PI Planning"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Si le composant est requis avant sa livraison par le fournisseur, le client sera bloqué : les PO doivent réaligner leurs priorités de sprint.'
     },
     {
       stem: 'Pourquoi le modèle de Spotify limite-t-il la taille d’une « Tribe » (Tribu) à environ 100 à 150 personnes ?',
       opts: [
-        'Pour des raisons d’espace physique dans les bureaux',
-        'En référence au « Nombre de Dunbar », seuil cognitif maximal au-delà duquel les humains ne peuvent plus maintenir de relations sociales directes et de confiance réciproque',
-        'Pour payer moins d’impôts',
-        'Parce que le logiciel Jira s’arrête à 150 utilisateurs'
+        "Pour des raisons d’espace physique dans les bureaux, chaque tribu devant obligatoirement occuper le même étage de l’immeuble",
+        "En référence au « Nombre de Dunbar », seuil cognitif maximal au-delà duquel les humains ne peuvent plus maintenir de relations sociales directes et de confiance réciproque",
+        "Pour bénéficier d’un crédit d’impôt sur les sociétés, applicable aux équipes de moins de cent cinquante personnes déclarées",
+        "Parce que le logiciel Jira refuse techniquement de gérer plus de cent cinquante utilisateurs simultanément par instance hébergée"
       ],
       correct: 1,
       exp: 'Le nombre de Dunbar (150) est la limite anthropologique au-delà de laquelle la bureaucratie formelle devient inévitable sans structure sociale directe.'
@@ -241,12 +241,12 @@ module.exports = {
     {
       stem: 'Qu’est-ce que le « Scrum of Scrums » (SoS) ?',
       opts: [
-        'Un tournoi de jeux vidéo entre développeurs',
-        'Une courte réunion de synchronisation régulière entre ambassadeurs d’équipes Scrum distinctes pour coordonner les interfaces et lever les blocages transversaux',
-        'Le diplôme le plus élevé de Scrum Master',
-        'Un livre écrit par Jeff Sutherland'
+        "Une courte réunion de synchronisation régulière entre ambassadeurs d’équipes Scrum distinctes pour coordonner les interfaces et lever les blocages transversaux",
+        "Un tournoi de jeux vidéo organisé régulièrement entre les développeurs des équipes pour renforcer la cohésion du groupe",
+        "Le diplôme le plus élevé de la filière, délivré aux Scrum Masters après plusieurs années de certifications successives",
+        "Un livre rédigé par Jeff Sutherland retraçant l’histoire complète de la création du framework Scrum et de ses rituels"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Scrum of Scrums permet à des équipes travaillant sur un produit commun de synchroniser leurs livraisons et d’éliminer les dépendances bloquantes.'
     }
   ],

@@ -96,14 +96,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Quel type de maintenance évite les pannes ?', opts: ['Préventive', 'Corrective', 'Évolutive'], correct: 0, exp: 'Elle agit régulièrement avant l’incident.' },
+    { stem: 'Quel type de maintenance évite les pannes ?', opts: ['Évolutive', 'Corrective', 'Préventive'], correct: 2, exp: 'Elle agit régulièrement avant l’incident.' },
     { stem: 'Quand intervient la maintenance corrective ?', opts: ['Après une panne', 'Avant toute panne', 'Jamais'], correct: 0, exp: 'Elle répare un dysfonctionnement survenu.' },
-    { stem: 'Quel outil pour les journaux système ?', opts: ['Event Viewer', 'Wireshark', 'Disk Management'], correct: 0, exp: 'L’observateur d’événements liste erreurs et alertes.' },
+    { stem: 'Quel outil pour les journaux système ?', opts: ['Wireshark', 'Event Viewer', 'Disk Management'], correct: 1, exp: 'L’observateur d’événements liste erreurs et alertes.' },
     { stem: 'Quel outil pour le réseau ?', opts: ['netstat, ping, Wireshark', 'Event Viewer', 'Resource Monitor'], correct: 0, exp: 'Ils vérifient bande passante, latence et ports.' },
-    { stem: 'Température « danger » du CPU ?', opts: ['> 85 °C', '> 30 °C', '> 60 °C'], correct: 0, exp: 'Au-delà de 85 °C, risque d’arrêt brutal.' },
-    { stem: 'Que faire avant une mise à jour majeure ?', opts: ['Un snapshot de la VM', 'Rien', 'Éteindre le serveur'], correct: 0, exp: 'Le snapshot permet de revenir en arrière.' },
+    { stem: 'Température « danger » du CPU ?', opts: ['> 60 °C', '> 30 °C', '> 85 °C'], correct: 2, exp: 'Au-delà de 85 °C, risque d’arrêt brutal.' },
+    { stem: 'Que faire avant une mise à jour majeure ?', opts: ['Rien', 'Un snapshot de la VM', 'Éteindre le serveur'], correct: 1, exp: 'Le snapshot permet de revenir en arrière.' },
     { stem: 'Tâche hebdomadaire de maintenance ?', opts: ['Analyse des logs', 'Audit de sécurité complet', 'Migration de version'], correct: 0, exp: 'L’analyse des logs est la routine hebdomadaire.' },
-    { stem: 'Que vise la maintenance évolutive ?', opts: ['Améliorer et moderniser', 'Réparer une panne', 'Éviter les pannes'], correct: 0, exp: 'Elle fait évoluer l’infrastructure.' }
+    { stem: 'Que vise la maintenance évolutive ?', opts: ['Réparer une panne', 'Améliorer et moderniser', 'Éviter les pannes'], correct: 1, exp: "La maintenance évolutive améliore et modernise l’infrastructure — montée de version, matériel plus performant. Réparer une panne, c’est la corrective ; l’éviter, la préventive." }
   ],
 
   pitfalls: [

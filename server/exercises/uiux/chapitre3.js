@@ -15,8 +15,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application des lignes au format <code>&lt;Distance_D&gt; &lt;Largeur_W&gt;</code> (en pixels entiers).<br>\nSelon la formulation de Shannon de la loi de Fitts :<br>\n- Indice de difficulté : <code>ID = log2(D / W + 1)</code> (exprimé en bits, arrondi à 2 décimales).<br>\n- Temps de mouvement estimé : <code>MT = a + b * ID</code>, avec les coefficients fictifs de cet exercice <code>a = 150 ms</code> et <code>b = 100 ms/bit</code> (arrondi à l'entier le plus proche).<br>\nPour chaque ligne, afficher :<br>\n<code>D=&lt;D&gt;px, W=&lt;W&gt;px -&gt; ID: &lt;ID:.2f&gt; bits, TEMPS: &lt;MT&gt; ms</code></p>",
     starter: "# Grille d'analyse (ux2-c3-e1) — Calculateur d’indice de difficulté (Loi de Fitts)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Cible proche et large vs éloignée et étroite]\n# Données : 100 100\n# Données : 800 20\nA_COMPLETER\n\n[Cas 2 — Bouton tactile standard mobile]\n# Données : 300 48\n# Données : 150 48\nA_COMPLETER\n\n[Cas 3 — Cible sur le curseur (distance 0)]\n# Données : 0 50\n# Données : 500 50\nA_COMPLETER\n\n[Cas 4 — Bouton micro de 10px]\n# Données : 600 10\nA_COMPLETER\n",
     hints: [
-          "Utiliser math.log2(D / W + 1).",
-          "Le temps MT s'obtient par round(150 + 100 * ID)."
+      "Utiliser math.log2(D / W + 1).",
+      "Le temps MT s'obtient par round(150 + 100 * ID).",
+      "Pour chaque ligne : lire D et W, calculer ID = log2(D/W + 1) arrondi à deux décimales, puis MT = round(150 + 100 * ID), et restituer la ligne au format imposé."
     ],
     examples: [
           {
@@ -47,7 +48,8 @@ module.exports = [
                 "expected": "D=600px, W=10px -> ID: 5.93 bits, TEMPS: 743 ms"
           }
     ],
-    solution: "[Exemple]\nD=400px, W=40px -> ID: 3.46 bits, TEMPS: 496 ms\nD=200px, W=50px -> ID: 2.32 bits, TEMPS: 382 ms\n\n[Cas 1 — Cible proche et large vs éloignée et étroite]\nD=100px, W=100px -> ID: 1.00 bits, TEMPS: 250 ms\nD=800px, W=20px -> ID: 5.36 bits, TEMPS: 686 ms\n\n[Cas 2 — Bouton tactile standard mobile]\nD=300px, W=48px -> ID: 2.86 bits, TEMPS: 436 ms\nD=150px, W=48px -> ID: 2.04 bits, TEMPS: 354 ms\n\n[Cas 3 — Cible sur le curseur (distance 0)]\nD=0px, W=50px -> ID: 0.00 bits, TEMPS: 150 ms\nD=500px, W=50px -> ID: 3.46 bits, TEMPS: 496 ms\n\n[Cas 4 — Bouton micro de 10px]\nD=600px, W=10px -> ID: 5.93 bits, TEMPS: 743 ms\n"
+    solution: "[Exemple]\nD=400px, W=40px -> ID: 3.46 bits, TEMPS: 496 ms\nD=200px, W=50px -> ID: 2.32 bits, TEMPS: 382 ms\n\n[Cas 1 — Cible proche et large vs éloignée et étroite]\nD=100px, W=100px -> ID: 1.00 bits, TEMPS: 250 ms\nD=800px, W=20px -> ID: 5.36 bits, TEMPS: 686 ms\n\n[Cas 2 — Bouton tactile standard mobile]\nD=300px, W=48px -> ID: 2.86 bits, TEMPS: 436 ms\nD=150px, W=48px -> ID: 2.04 bits, TEMPS: 354 ms\n\n[Cas 3 — Cible sur le curseur (distance 0)]\nD=0px, W=50px -> ID: 0.00 bits, TEMPS: 150 ms\nD=500px, W=50px -> ID: 3.46 bits, TEMPS: 496 ms\n\n[Cas 4 — Bouton micro de 10px]\nD=600px, W=10px -> ID: 5.93 bits, TEMPS: 743 ms\n",
+    takeaway: "La loi de Fitts montre que le temps de pointage croît avec la distance D et décroît quand la taille cible W augmente : agrandissez les actions clés."
   },
   {
     id: "ux2-c3-e2",
@@ -59,8 +61,9 @@ module.exports = [
     brief: "<p>Pour chaque cas, considérez les nombres entiers <code>n</code> indiquant le nombre d'options d'un menu.<br>\nDans ce modèle simplifié inspiré de Hick-Hyman, calculez <code>T = 150 * log2(n + 1)</code> millisecondes, arrondi à l'entier le plus proche. Le coefficient est fictif et aucun temps réel n'est mesuré.<br>\nPour pratiquer une comparaison, l'exercice choisit arbitrairement le seuil 7 : indiquez <code>DANS_SEUIL_FICTIF</code> si <code>n &lt;= 7</code>, sinon <code>DEPASSE_SEUIL_FICTIF</code>. Ce seuil ne mesure pas la mémoire et ne détermine pas la conformité ergonomique.<br>\nPour chaque nombre, affichez : <code>OPTIONS: &lt;n&gt; -&gt; TEMPS: &lt;T&gt; ms | &lt;statut&gt;</code>.</p>",
     starter: "# Grille d'analyse (ux2-c3-e2) — Simulateur de temps de décision (Loi de Hick-Hyman)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Cas minimaux 1 et 2 options]\n# Données : 1\n# Données : 2\nA_COMPLETER\n\n[Cas 2 — Seuil fictif à 7 et 8]\n# Données : 7\n# Données : 8\nA_COMPLETER\n\n[Cas 3 — Menus très chargés (méga-menus)]\n# Données : 31\n# Données : 63\nA_COMPLETER\n\n[Cas 4 — Zéro option]\n# Données : 0\nA_COMPLETER\n",
     hints: [
-          "T = round(150 * math.log2(n + 1)).",
-          "Comparez n au seuil fictif 7, sans en déduire une capacité cognitive."
+      "T = round(150 * math.log2(n + 1)).",
+      "Comparez n au seuil fictif 7, sans en déduire une capacité cognitive.",
+      "Pour chaque valeur : calculer T = round(150 * log2(n + 1)), puis comparer n à 7 ; n inférieur ou égal à 7 donne DANS_SEUIL_FICTIF, sinon DEPASSE_SEUIL_FICTIF."
     ],
     examples: [
           {
@@ -91,7 +94,8 @@ module.exports = [
                 "expected": "OPTIONS: 0 -> TEMPS: 0 ms | DANS_SEUIL_FICTIF"
           }
     ],
-    solution: "[Exemple]\nOPTIONS: 3 -> TEMPS: 300 ms | DANS_SEUIL_FICTIF\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 15 -> TEMPS: 600 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 1 — Cas minimaux 1 et 2 options]\nOPTIONS: 1 -> TEMPS: 150 ms | DANS_SEUIL_FICTIF\nOPTIONS: 2 -> TEMPS: 238 ms | DANS_SEUIL_FICTIF\n\n[Cas 2 — Seuil fictif à 7 et 8]\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 8 -> TEMPS: 475 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 3 — Menus très chargés (méga-menus)]\nOPTIONS: 31 -> TEMPS: 750 ms | DEPASSE_SEUIL_FICTIF\nOPTIONS: 63 -> TEMPS: 900 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 4 — Zéro option]\nOPTIONS: 0 -> TEMPS: 0 ms | DANS_SEUIL_FICTIF\n"
+    solution: "[Exemple]\nOPTIONS: 3 -> TEMPS: 300 ms | DANS_SEUIL_FICTIF\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 15 -> TEMPS: 600 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 1 — Cas minimaux 1 et 2 options]\nOPTIONS: 1 -> TEMPS: 150 ms | DANS_SEUIL_FICTIF\nOPTIONS: 2 -> TEMPS: 238 ms | DANS_SEUIL_FICTIF\n\n[Cas 2 — Seuil fictif à 7 et 8]\nOPTIONS: 7 -> TEMPS: 450 ms | DANS_SEUIL_FICTIF\nOPTIONS: 8 -> TEMPS: 475 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 3 — Menus très chargés (méga-menus)]\nOPTIONS: 31 -> TEMPS: 750 ms | DEPASSE_SEUIL_FICTIF\nOPTIONS: 63 -> TEMPS: 900 ms | DEPASSE_SEUIL_FICTIF\n\n[Cas 4 — Zéro option]\nOPTIONS: 0 -> TEMPS: 0 ms | DANS_SEUIL_FICTIF\n",
+    takeaway: "La loi de Hick-Hyman indique qu un trop grand nombre d options simultanées ralentit la décision : regroupez et hiérarchisez."
   },
   {
     id: "ux2-c3-e3",
@@ -103,8 +107,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application une liste d'anomalies ergonomiques observées lors d'un audit (une par ligne).<br>\nLa base des heuristiques comprend :<br>\n- <code>H1</code> : <code>Statut du systeme</code> (ex: <code>Pas d'indicateur de telechargement</code>, <code>Ecran blanc sans spinner de chargement</code>)<br>\n- <code>H2</code> : <code>Correspondance monde reel</code> (ex: <code>Jargon technique incompris</code>, <code>Termes orientes base de donnees au lieu de metier</code>)<br>\n- <code>H3</code> : <code>Controle et liberte</code> (ex: <code>Impossible d'annuler l'action</code>, <code>Pas de bouton retour en arriere</code>)<br>\n- <code>H4</code> : <code>Coherence et standards</code> (ex: <code>Boutons valider de couleurs differentes</code>, <code>Icones non standards pour fermer</code>)<br>\n- <code>H5</code> : <code>Prevention des erreurs</code> (ex: <code>Suppression definitive sans confirmation</code>, <code>Format de date non guide provoquant crash</code>)<br>\n- <code>H6</code> : <code>Reconnaissance plutot que rappel</code> (ex: <code>Oblige a memoriser un code entre deux ecrans</code>, <code>Champs de formulaire sans suggestions</code>)<br>\n- <code>H7</code> : <code>Flexibilite et raccourcis</code> (ex: <code>Absence de raccourcis clavier pour experts</code>, <code>Pas d'actions rapides de personnalisation</code>)<br>\n- <code>H8</code> : <code>Design sobre et minimaliste</code> (ex: <code>Interface surchargee d'informations superflues</code>, <code>Bannieres publicitaires occultant le contenu</code>)<br>\n- <code>H9</code> : <code>Diagnostic clair des erreurs</code> (ex: <code>Message d'erreur NullPointerException</code>, <code>Code d'erreur 0x80004005 sans explication</code>)<br>\n- <code>H10</code> : <code>Aide et documentation</code> (ex: <code>Absence totale de FAQ ou guide</code>, <code>Infobulles d'aide inexistantes</code>)<br>\nPour chaque ligne, afficher :<br>\n<code>&lt;Anomalie&gt; -&gt; [H&lt;Num&gt;] &lt;NomHeuristique&gt;</code><br>\nSi non reconnue :<br>\n<code>&lt;Anomalie&gt; -&gt; INCONNUE</code></p>",
     starter: "# Grille d'analyse (ux2-c3-e3) — Évaluateur d’heuristiques de Nielsen sur des anomalies UI\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Erreurs techniques et jargon]\n# Données : Message d'erreur NullPointerException\n# Données : Jargon technique incompris\n# Données : Boutons valider de couleurs differentes\nA_COMPLETER\n\n[Cas 2 — Mémoire et surcharge visuelle]\n# Données : Oblige a memoriser un code entre deux ecrans\n# Données : Interface surchargee d'informations superflues\n# Données : Absence de raccourcis clavier pour experts\nA_COMPLETER\n\n[Cas 3 — Aide et cas inconnu]\n# Données : Absence totale de FAQ ou guide\n# Données : Bug memoire GPU inconnu\nA_COMPLETER\n\n[Cas 4 — Chargement et confirmation]\n# Données : Ecran blanc sans spinner de chargement\n# Données : Format de date non guide provoquant crash\nA_COMPLETER\n",
     hints: [
-          "Normaliser la recherche (minuscules, sans ponctuation superflue).",
-          "Identifier les mots-clés distinctifs de chaque anomalie."
+      "Normaliser la recherche (minuscules, sans ponctuation superflue).",
+      "Identifier les mots-clés distinctifs de chaque anomalie.",
+      "Pour chaque anomalie : la normaliser, la chercher dans la table des dix heuristiques, afficher son numéro et son nom, sinon renvoyer INCONNUE."
     ],
     examples: [
           {
@@ -135,6 +140,7 @@ module.exports = [
                 "expected": "Ecran blanc sans spinner de chargement -> [H1] Statut du systeme\nFormat de date non guide provoquant crash -> [H5] Prevention des erreurs"
           }
     ],
-    solution: "[Exemple]\nSuppression definitive sans confirmation -> [H5] Prevention des erreurs\nPas d'indicateur de telechargement -> [H1] Statut du systeme\nImpossible d'annuler l'action -> [H3] Controle et liberte\n\n[Cas 1 — Erreurs techniques et jargon]\nMessage d'erreur NullPointerException -> [H9] Diagnostic clair des erreurs\nJargon technique incompris -> [H2] Correspondance monde reel\nBoutons valider de couleurs differentes -> [H4] Coherence et standards\n\n[Cas 2 — Mémoire et surcharge visuelle]\nOblige a memoriser un code entre deux ecrans -> [H6] Reconnaissance plutot que rappel\nInterface surchargee d'informations superflues -> [H8] Design sobre et minimaliste\nAbsence de raccourcis clavier pour experts -> [H7] Flexibilite et raccourcis\n\n[Cas 3 — Aide et cas inconnu]\nAbsence totale de FAQ ou guide -> [H10] Aide et documentation\nBug memoire GPU inconnu -> INCONNUE\n\n[Cas 4 — Chargement et confirmation]\nEcran blanc sans spinner de chargement -> [H1] Statut du systeme\nFormat de date non guide provoquant crash -> [H5] Prevention des erreurs\n"
+    solution: "[Exemple]\nSuppression definitive sans confirmation -> [H5] Prevention des erreurs\nPas d'indicateur de telechargement -> [H1] Statut du systeme\nImpossible d'annuler l'action -> [H3] Controle et liberte\n\n[Cas 1 — Erreurs techniques et jargon]\nMessage d'erreur NullPointerException -> [H9] Diagnostic clair des erreurs\nJargon technique incompris -> [H2] Correspondance monde reel\nBoutons valider de couleurs differentes -> [H4] Coherence et standards\n\n[Cas 2 — Mémoire et surcharge visuelle]\nOblige a memoriser un code entre deux ecrans -> [H6] Reconnaissance plutot que rappel\nInterface surchargee d'informations superflues -> [H8] Design sobre et minimaliste\nAbsence de raccourcis clavier pour experts -> [H7] Flexibilite et raccourcis\n\n[Cas 3 — Aide et cas inconnu]\nAbsence totale de FAQ ou guide -> [H10] Aide et documentation\nBug memoire GPU inconnu -> INCONNUE\n\n[Cas 4 — Chargement et confirmation]\nEcran blanc sans spinner de chargement -> [H1] Statut du systeme\nFormat de date non guide provoquant crash -> [H5] Prevention des erreurs\n",
+    takeaway: "Les heuristiques de Nielsen fournissent une grille systématique (visibilité d état, prévention d erreur, cohérence) lors d un audit."
   }
 ];

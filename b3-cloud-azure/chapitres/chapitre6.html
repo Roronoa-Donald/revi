@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -173,33 +171,28 @@
      data-exercise="az3-c6-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=450&#10;EVENT rg=rg-prod op=DeleteDisk status=Failed duration_ms=1200&#10;EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=300&#10;EVENT rg=rg-dev op=RestartVM status=Success duration_ms=150&#10;KQL where status == &quot;Failed&quot; | summarize count() by op | order by count_ desc | take 2">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c6-e1) — Interpréteur de requêtes Log Analytics KQL
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'application de la chaîne de salles de sport ClubAltitude est supervisée avec :&#10;&#10;TraceLog&#10;| where severityLevel == 2&#10;| summarize Occurrences = count() by region&#10;| order by Occurrences asc&#10;| take 3&#10;&#10;1) where filtre les lignes : il ne garde que les traces de sévérité 2.&#10;2) summarize Occurrences = count() by region compte les lignes par région.&#10;3) order by Occurrences asc trie par ordre croissant.&#10;4) take 3 renvoie au maximum 3 lignes.&#10;5) severityLevel == 2 isole les traces d'erreur.">
+  <script type="text/plain" data-lab-starter># Exercice — Les premières requêtes KQL du support de Tic-Tac Web
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 1 : l'opérateur seul. Questions 2, 3 et 5 : répondez de façon courte.
 
-[Cas 1 — Requête sur les opérations de sécurité en échec]
-# Données : EVENT rg=rg-sec op=RevokeKey status=Failed duration_ms=200
-# Données : EVENT rg=rg-sec op=RevokeKey status=Failed duration_ms=220
-# Données : EVENT rg=rg-sec op=RevokeKey status=Failed duration_ms=210
-# Données : EVENT rg=rg-sec op=RotateSecret status=Failed duration_ms=180
-# Données : KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 2
+[Question 1 — Opérateur qui filtre les lignes selon une condition]
 A_COMPLETER
 
-[Cas 2 — Requête sur les succès avec take 3]
-# Données : EVENT rg=rg-prod op=StartVM status=Success duration_ms=100
-# Données : EVENT rg=rg-prod op=StartVM status=Success duration_ms=120
-# Données : EVENT rg=rg-prod op=AttachDisk status=Success duration_ms=250
-# Données : EVENT rg=rg-prod op=CreateNic status=Success duration_ms=180
-# Données : KQL where status == "Success" | summarize count() by op | order by count_ desc | take 3
+[Question 2 — Ce que renvoie summarize Total = count() by appName]
 A_COMPLETER
 
-[Cas 3 — Aucun événement ne correspondant au filtre]
-# Données : EVENT rg=rg-prod op=StartVM status=Success duration_ms=100
-# Données : KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 5
+[Question 3 — Ce que fait order by Total desc]
+A_COMPLETER
+
+[Question 4 — Nombre maximum de lignes renvoyées par take 5]
+A_COMPLETER
+
+[Question 5 — Requêtes HTTP isolées par resultCode == 500]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Interpréteur de requêtes Log Analytics KQL</h3>
+    <h3 class="lab__title">Exercice 1 — Les premières requêtes KQL du support de Tic-Tac Web</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -208,35 +201,29 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Exécuter un pipeline de requêtes KQL (where, summarize, order by, take) sur un jeu de journaux d’événements Azure.</p>
-    <div class="lab__brief"><p>Le langage KQL (Kusto Query Language) est le standard d'interrogation analytique d'Azure Monitor, Log Analytics et Microsoft Sentinel.<br><br>
-Format d'entrée :<br>
-Un flux d'événements Azure au format :<br>
-<code>EVENT rg=&lt;rg&gt; op=&lt;operation&gt; status=&lt;Success|Failed&gt; duration_ms=&lt;int&gt;</code><br>
-Suivi d'une instruction KQL sur la dernière ligne :<br>
-<code>KQL where status == "&lt;Success|Failed&gt;" | summarize count() by op | order by count_ desc | take &lt;N&gt;</code><br><br>
-Comportement du moteur KQL :<br>
-1. Filtrer les événements où <code>status</code> correspond à la valeur demandée.<br>
-2. Agréger les occurrences par <code>op</code> (opération), produisant un champ <code>count_</code>.<br>
-3. Trier les résultats par <code>count_</code> décroissant (en cas d'égalité, tri alphabétique croissant sur <code>op</code>).<br>
-4. Conserver les <code>N</code> premières lignes (opérateur <code>take</code>).<br><br>
-Format de sortie attendu :<br>
-En-tête : <code>op | count_</code><br>
-Chaque ligne : <code>&lt;op&gt; | &lt;count_&gt;</code><br>
-(Si aucun événement ne correspond : afficher uniquement l'en-tête).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une requête KQL (Kusto) du service Log Analytics et identifier le rôle de chaque opérateur.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Tic-Tac Web, agence digitale de 40 salariés, supervise l'application d'un client dans Azure Monitor. La responsable support interroge la table <code>AppRequests</code> (une ligne par requête HTTP reçue par l'application) avec la requête KQL suivante :</p><p><code>AppRequests<br>| where resultCode == 500<br>| summarize Total = count() by appName<br>| order by Total desc<br>| take 5</code></p><ol><li>Quel opérateur KQL filtre les lignes selon une condition ?</li><li>Que renvoie <code>summarize Total = count() by appName</code> ?</li><li>Que fait <code>order by Total desc</code> ?</li><li>Combien de lignes au maximum <code>take 5</code> renvoie-t-il ?</li><li>Quelles requêtes HTTP la condition <code>resultCode == 500</code> isole-t-elle ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=450
-EVENT rg=rg-prod op=DeleteDisk status=Failed duration_ms=1200
-EVENT rg=rg-prod op=RestartVM status=Failed duration_ms=300
-EVENT rg=rg-dev op=RestartVM status=Success duration_ms=150
-KQL where status == "Failed" | summarize count() by op | order by count_ desc | take 2</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'application de la chaîne de salles de sport ClubAltitude est supervisée avec :
+
+TraceLog
+| where severityLevel == 2
+| summarize Occurrences = count() by region
+| order by Occurrences asc
+| take 3
+
+1) where filtre les lignes : il ne garde que les traces de sévérité 2.
+2) summarize Occurrences = count() by region compte les lignes par région.
+3) order by Occurrences asc trie par ordre croissant.
+4) take 3 renvoie au maximum 3 lignes.
+5) severityLevel == 2 isole les traces d'erreur.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Stocker les événements dans une liste de dictionnaires.</li>
-        <li>Extraire le filtre status et la limite N depuis la ligne de commande KQL avec re ou split.</li>
-        <li>Utiliser collections.Counter pour compter les opérations filtrées.</li>
+        <li>Une requête KQL se lit comme une chaîne : chaque opérateur, séparé par une barre verticale, transforme la table produite par le précédent.</li>
+        <li>where réduit la table, summarize agrège (compte) par groupe, order by trie, take limite le nombre de lignes.</li>
+        <li>1. C'est le mot-clé de filtre. 2. count() compte, by appName groupe. 3. desc signifie décroissant. 4. Le chiffre de take est le plafond. 5. Le code HTTP 500 correspond à une famille d'erreurs connue.</li>
       </ol>
     </details>
   </div>
@@ -246,34 +233,28 @@ KQL where status == "Failed" | summarize count() by op | order by count_ desc | 
      data-exercise="az3-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="BUDGET amount=1000 currency=EUR&#10;ALERT_RULE metric=CPU threshold=80 severity=Sev1&#10;ALERT_RULE metric=SPEND_ACTUAL threshold_pct=80 severity=Sev2&#10;RECORD metric=CPU value=85.5&#10;RECORD metric=SPEND_ACTUAL value=750.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c6-e2) — Gestionnaire d'alertes Azure Monitor et suivi budgétaire
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le musée Lumière surveille son serveur de billetterie : seuil UC 75 %, fenêtre&#10;d'agrégation 15 minutes, évaluation toutes les 5 minutes, groupe d'action : courriel&#10;à l'exploitation. Budget mensuel 3 000 €, alerte à 90 %.&#10;&#10;1) L'alerte se déclenche quand la moyenne d'UC sur 15 minutes dépasse 75 %.&#10;2) L'alerte budgétaire se déclenche à 90 % de 3 000 €, soit 2 700 €.&#10;3) À 2 500 € consommés, l'alerte n'est pas encore déclenchée.&#10;4) Le groupe d'action envoie un courriel à l'exploitation.&#10;5) La fenêtre de 15 minutes évaluée toutes les 5 minutes agrège 3 mesures.">
+  <script type="text/plain" data-lab-starter># Exercice — L'alerte CPU et le budget de la plateforme Mezzaluna
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 2 : le montant seul. Questions 1 et 4 : répondez de façon courte.
 
-[Cas 1 — CPU au-dessus du seuil et dépense réelle sous le seuil]
-# Données : BUDGET amount=1200 currency=EUR
-# Données : ALERT_RULE metric=CPU threshold=75 severity=Sev1
-# Données : ALERT_RULE metric=SPEND_ACTUAL threshold_pct=85 severity=Sev2
-# Données : RECORD metric=CPU value=92.0
-# Données : RECORD metric=SPEND_ACTUAL value=800.0
+[Question 1 — Condition de déclenchement de l'alerte CPU]
 A_COMPLETER
 
-[Cas 2 — Dépassement prévisionnel 100% et dépense réelle à 90%]
-# Données : BUDGET amount=500 currency=EUR
-# Données : ALERT_RULE metric=SPEND_ACTUAL threshold_pct=90 severity=Sev1
-# Données : ALERT_RULE metric=SPEND_FORECAST threshold_pct=100 severity=Sev1
-# Données : RECORD metric=SPEND_ACTUAL value=460.0
-# Données : RECORD metric=SPEND_FORECAST value=550.0
+[Question 2 — Montant déclenchant l'alerte budgétaire (en €)]
 A_COMPLETER
 
-[Cas 3 — Toutes les métriques conformes sous les seuils]
-# Données : BUDGET amount=2000 currency=EUR
-# Données : ALERT_RULE metric=CPU threshold=90 severity=Sev0
-# Données : RECORD metric=CPU value=45.0
+[Question 3 — Alerte budgétaire déjà déclenchée au 12 du mois]
+A_COMPLETER
+
+[Question 4 — Destinataire de la notification via le groupe d'action]
+A_COMPLETER
+
+[Question 5 — Nombre de mesures agrégées dans la fenêtre de 5 minutes]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Gestionnaire d'alertes Azure Monitor et suivi budgétaire</h3>
+    <h3 class="lab__title">Exercice 2 — L'alerte CPU et le budget de la plateforme Mezzaluna</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -282,44 +263,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer en temps réel des règles d’alerte sur métriques d’infrastructure (CPU) et surveiller les seuils d’engagement budgétaire Cost Management.</p>
-    <div class="lab__brief"><p>Azure Monitor déclenche des alertes métriques pour automatiser les remédiations, tandis qu'Azure Cost Management avertit les équipes lorsque les dépenses réelles ou prévisionnelles franchissent des pourcentages clés du budget mensuel.<br><br>
-Format d'entrée :<br>
-1. Définition du budget mensuel :<br>
-   <code>BUDGET amount=&lt;float&gt; currency=EUR</code><br>
-2. Déclaration des règles d'alerte :<br>
-   - <code>ALERT_RULE metric=CPU threshold=&lt;int&gt; severity=&lt;Sev0..Sev4&gt;</code><br>
-   - <code>ALERT_RULE metric=SPEND_ACTUAL threshold_pct=&lt;int&gt; severity=&lt;Sev0..Sev4&gt;</code><br>
-   - <code>ALERT_RULE metric=SPEND_FORECAST threshold_pct=&lt;int&gt; severity=&lt;Sev0..Sev4&gt;</code><br>
-3. Enregistrements télémétriques :<br>
-   <code>RECORD metric=&lt;METRIC&gt; value=&lt;float&gt;</code><br><br>
-Règles de déclenchement :<br>
-- Pour <code>CPU</code> :<br>
-  - Si <code>value &gt;= threshold</code> :<br>
-    <code>ALERT_FIRED: metric=CPU val=&lt;value:.1f&gt;% threshold=&lt;threshold&gt;% severity=&lt;SevX&gt; action=TRIGGER_ACTION_GROUP</code><br>
-  - Sinon : <code>ALERT_OK: metric=CPU val=&lt;value:.1f&gt;%</code><br>
-- Pour <code>SPEND_ACTUAL</code> :<br>
-  Le seuil en euros vaut <code>amount * (threshold_pct / 100)</code>.<br>
-  - Si <code>value &gt;= seuil_euros</code> :<br>
-    <code>ALERT_FIRED: metric=SPEND_ACTUAL val=&lt;value:.2f&gt;EUR threshold=&lt;seuil_euros:.2f&gt;EUR (pct=&lt;threshold_pct&gt;%) severity=&lt;SevX&gt; action=NOTIFY_FINOPS</code><br>
-  - Sinon : <code>ALERT_OK: metric=SPEND_ACTUAL val=&lt;value:.2f&gt;EUR</code><br>
-- Pour <code>SPEND_FORECAST</code> :<br>
-  Le seuil en euros vaut <code>amount * (threshold_pct / 100)</code>.<br>
-  - Si <code>value &gt;= seuil_euros</code> :<br>
-    <code>ALERT_FIRED: metric=SPEND_FORECAST val=&lt;value:.2f&gt;EUR threshold=&lt;seuil_euros:.2f&gt;EUR (pct=&lt;threshold_pct&gt;%) severity=&lt;SevX&gt; action=NOTIFY_FINOPS</code><br>
-  - Sinon : <code>ALERT_OK: metric=SPEND_FORECAST val=&lt;value:.2f&gt;EUR</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Paramétrer une règle d'alerte Azure Monitor (seuil, fenêtre d'agrégation, groupe d'action) et un budget FinOps, puis vérifier leur déclenchement.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Mezzaluna, groupe de 8 restaurants, exploite sa plateforme de réservation sur une machine virtuelle supervisée par Azure Monitor. La règle d'alerte configurée :</p><ul><li>signal : pourcentage UC (processeur) de la machine virtuelle ;</li><li>seuil : 80 % ;</li><li>fenêtre d'agrégation : moyenne sur 5 minutes ;</li><li>fréquence d'évaluation : toutes les minutes ;</li><li>groupe d'action : notification par SMS à l'agent d'astreinte.</li></ul><p>Côté FinOps, le budget mensuel est fixé à <strong>2 000 €</strong>, avec une alerte configurée à <strong>80 % du budget</strong>. Le 12 du mois, le coût cumulé de la plateforme atteint <strong>1 650 €</strong>.</p><ol><li>À quelle condition la règle d'alerte CPU se déclenche-t-elle ?</li><li>Quel montant, en euros, déclenche l'alerte budgétaire ?</li><li>Au 12 du mois, l'alerte budgétaire est-elle déjà déclenchée ?</li><li>Qui l'alerte notifie-t-elle grâce au groupe d'action ?</li><li>La fenêtre d'agrégation étant de 5 minutes et l'évaluation toutes les minutes, combien de mesures la fenêtre agrège-t-elle ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BUDGET amount=1000 currency=EUR
-ALERT_RULE metric=CPU threshold=80 severity=Sev1
-ALERT_RULE metric=SPEND_ACTUAL threshold_pct=80 severity=Sev2
-RECORD metric=CPU value=85.5
-RECORD metric=SPEND_ACTUAL value=750.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le musée Lumière surveille son serveur de billetterie : seuil UC 75 %, fenêtre
+d'agrégation 15 minutes, évaluation toutes les 5 minutes, groupe d'action : courriel
+à l'exploitation. Budget mensuel 3 000 €, alerte à 90 %.
+
+1) L'alerte se déclenche quand la moyenne d'UC sur 15 minutes dépasse 75 %.
+2) L'alerte budgétaire se déclenche à 90 % de 3 000 €, soit 2 700 €.
+3) À 2 500 € consommés, l'alerte n'est pas encore déclenchée.
+4) Le groupe d'action envoie un courriel à l'exploitation.
+5) La fenêtre de 15 minutes évaluée toutes les 5 minutes agrège 3 mesures.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Calculer les seuils budgétaires effectifs en multipliant le montant du budget par threshold_pct / 100.</li>
-        <li>Associer chaque métrique à sa sévérité et formater rigoureusement les messages d'alerte.</li>
+        <li>Le seuil porte sur la moyenne de la fenêtre d'agrégation, pas sur un pic instantané.</li>
+        <li>L'alerte budgétaire se déclenche au franchissement d'un pourcentage du budget : multipliez le budget par ce pourcentage.</li>
+        <li>1. Relisez signal, seuil et fenêtre. 2. Calculez 80 % de 2 000 €. 3. Comparez 1 650 € au seuil trouvé. 4. Le groupe d'action définit qui est prévenu. 5. Une évaluation par minute dans une fenêtre de 5 minutes.</li>
       </ol>
     </details>
   </div>
@@ -329,33 +291,28 @@ RECORD metric=SPEND_ACTUAL value=750.0</pre></div>
      data-exercise="az3-c6-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="PARAM name=env type=string&#10;RESOURCE name=vnet01 type=Microsoft.Network/virtualNetworks dependsOn=[]&#10;RESOURCE name=nic01 type=Microsoft.Network/networkInterfaces dependsOn=[vnet01]&#10;RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c6-e3) — Linter et ordonnanceur de gabarit Bicep / ARM
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'association Vélocité déploie son site par gabarit déclaratif :&#10;&#10;param location string = 'northeurope'&#10;resource app 'Microsoft.Web/sites@2023-12-01' = {&#10;name: 'app-velocite-prod-01'&#10;location: location&#10;}&#10;&#10;1) La première ligne définit un paramètre avec la valeur par défaut northeurope.&#10;2) Le mot-clé resource déclare une ressource Azure, ici une application web.&#10;3) Relancé à l'identique, le déploiement met à jour la ressource existante : il est idempotent.&#10;4) Le principal apport : des environnements reproductibles, versionnés dans Git.">
+  <script type="text/plain" data-lab-starter># Exercice — Le gabarit Bicep de la coopérative Ardoise
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : répondez de façon courte.
 
-[Cas 1 — Gabarit conforme App Service Plan et WebApp]
-# Données : PARAM name=location type=string
-# Données : PARAM name=sku type=string
-# Données : RESOURCE name=appServicePlan type=Microsoft.Web/serverfarms dependsOn=[]
-# Données : RESOURCE name=webApp type=Microsoft.Web/sites dependsOn=[appServicePlan]
+[Question 1 — Rôle de la ligne param location string = 'francecentral']
 A_COMPLETER
 
-[Cas 2 — Dépendance manquante non déclarée]
-# Données : RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[storageAccount01]
+[Question 2 — Ce que déclare le mot-clé resource]
 A_COMPLETER
 
-[Cas 3 — Dépendance circulaire détectée entre deux ressources]
-# Données : RESOURCE name=resA type=TypeA dependsOn=[resB]
-# Données : RESOURCE name=resB type=TypeB dependsOn=[resA]
+[Question 3 — Réplication appliquée par la référence Standard_LRS]
 A_COMPLETER
 
-[Cas 4 — Ressources indépendantes triées alphabétiquement]
-# Données : RESOURCE name=storage01 type=Microsoft.Storage/storageAccounts dependsOn=[]
-# Données : RESOURCE name=kv01 type=Microsoft.KeyVault/vaults dependsOn=[]
+[Question 4 — Comportement d'un déploiement relancé à l'identique]
+A_COMPLETER
+
+[Question 5 — Apport majeur de l'Infrastructure as Code]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Linter et ordonnanceur de gabarit Bicep / ARM</h3>
+    <h3 class="lab__title">Exercice 3 — Le gabarit Bicep de la coopérative Ardoise</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -364,32 +321,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité des déclarations et dépendances (dependsOn) d’un gabarit d’Infrastructure as Code Azure et ordonnancer les déploiements.</p>
-    <div class="lab__brief"><p>Dans les modèles Azure Resource Manager (ARM) ou Bicep, la propriété <code>dependsOn</code> garantit que les ressources prérequises (ex: réseau, sous-réseau, carte réseau) sont déployées avant les ressources dépendantes (ex: machine virtuelle).<br><br>
-Format d'entrée :<br>
-- Déclaration des paramètres :<br>
-  <code>PARAM name=&lt;nom&gt; type=&lt;string|int|bool&gt;</code><br>
-- Déclaration des ressources :<br>
-  <code>RESOURCE name=&lt;nom&gt; type=&lt;type&gt; dependsOn=[&lt;dep1&gt;,&lt;dep2&gt;]</code> (ou <code>dependsOn=[]</code>).<br><br>
-Contrôles de cohérence :<br>
-1. Dépendance manquante : si une ressource mentionnée dans <code>dependsOn</code> n'est déclarée dans aucune ligne <code>RESOURCE</code> :<br>
-   <code>LINT_FAILED: Missing dependency '&lt;nom_dep&gt;' for resource '&lt;nom_res&gt;'</code><br>
-2. Dépendance circulaire : si le graphe des dépendances contient une boucle (ex: A dépend de B qui dépend de A) :<br>
-   <code>LINT_FAILED: Circular dependency detected involving '&lt;nom_res&gt;'</code><br>
-3. Si le gabarit est valide : déterminer l'ordre d'exécution (tri topologique déterministe où chaque ressource intervient après ses dépendances ; en cas d'indépendance mutuelle, tri alphabétique par nom de ressource) :<br>
-   <code>LINT_SUCCESS: resources_count=&lt;N&gt; params_count=&lt;M&gt; execution_order=[&lt;res1&gt;, &lt;res2&gt;, ...]</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire un fichier Bicep déclaratif (paramètre, ressource, référence SKU) et justifier les apports de l'Infrastructure as Code.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Ardoise, coopérative d'artisans du bâtiment, a longtemps créé ses ressources Azure à la main, dans le portail. L'ingénieur cloud remplace désormais ces manipulations par un fichier Bicep versionné dans le dépôt Git, dont voici un extrait :</p><p><code>param location string = 'francecentral'<br><br>resource st 'Microsoft.Storage/storageAccounts@2023-05-01' = {<br>name: 'stoardoiseprod01'<br>location: location<br>sku: { name: 'Standard_LRS' }<br>}</code></p><ol><li>Que fait la première ligne du fichier : <code>param location string = 'francecentral'</code> ?</li><li>Que déclare le mot-clé <code>resource</code> dans ce fichier ?</li><li>Quelle option de réplication du stockage la référence <code>Standard_LRS</code> applique-t-elle ?</li><li>Si le déploiement est relancé à l'identique alors que le compte de stockage existe déjà, que fait l'outil ?</li><li>Quel apport majeur l'Infrastructure as Code offre-t-elle par rapport aux créations manuelles dans le portail ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PARAM name=env type=string
-RESOURCE name=vnet01 type=Microsoft.Network/virtualNetworks dependsOn=[]
-RESOURCE name=nic01 type=Microsoft.Network/networkInterfaces dependsOn=[vnet01]
-RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'association Vélocité déploie son site par gabarit déclaratif :
+
+param location string = 'northeurope'
+resource app 'Microsoft.Web/sites@2023-12-01' = {
+name: 'app-velocite-prod-01'
+location: location
+}
+
+1) La première ligne définit un paramètre avec la valeur par défaut northeurope.
+2) Le mot-clé resource déclare une ressource Azure, ici une application web.
+3) Relancé à l'identique, le déploiement met à jour la ressource existante : il est idempotent.
+4) Le principal apport : des environnements reproductibles, versionnés dans Git.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Construire le graphe des dépendances : chaque ressource possède une liste de prérequis.</li>
-        <li>Utiliser l'algorithme de Kahn pour le tri topologique : extraire en priorité les ressources sans dépendances non satisfaites.</li>
-        <li>Trier la file des ressources prêtes par ordre alphabétique pour assurer un résultat déterministe.</li>
+        <li>Un fichier Bicep est déclaratif : il décrit l'état souhaité des ressources, pas la suite de clics pour y parvenir.</li>
+        <li>Le mot-clé param introduit un paramètre ; la valeur après le signe « = » est sa valeur par défaut.</li>
+        <li>1. Lisez la première ligne : un nom, un type, une valeur par défaut. 2. resource introduit une ressource Azure. 3. LRS est un acronyme de réplication du cours. 4. Un déploiement déclaratif relancé ne duplique pas les ressources. 5. Pensez à ce que le versionnement dans Git apporte aux environnements.</li>
       </ol>
     </details>
   </div>
@@ -402,9 +355,9 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
     <div class="q">
       <p class="q__stem">Quel opérateur KQL est utilisé pour filtrer les lignes d'une table de journaux selon une condition logique ?</p>
       <div class="opts">
-        <button class="opt">select</button>
-        <button class="opt">filter</button>
         <button class="opt" data-correct="1">where</button>
+        <button class="opt">filter</button>
+        <button class="opt">select</button>
         <button class="opt">having</button>
       </div>
       <div class="q__exp">En langage KQL (Kusto Query Language), l'opérateur where permet de filtrer les enregistrements d'une table selon un prédicat booléen (ex: where Status == "Failed").</div>
@@ -423,8 +376,8 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
       <p class="q__stem">Quel outil de surveillance de la sécurité fournit le Secure Score pour évaluer la posture de conformité d'un tenant Azure ?</p>
       <div class="opts">
         <button class="opt">Azure Cost Management</button>
-        <button class="opt" data-correct="1">Microsoft Defender for Cloud</button>
         <button class="opt">Azure Network Watcher</button>
+        <button class="opt" data-correct="1">Microsoft Defender for Cloud</button>
         <button class="opt">Azure Bastion</button>
       </div>
       <div class="q__exp">Microsoft Defender for Cloud (anciennement Azure Security Center) évalue en continu les configurations et calcule le Secure Score avec des recommandations prioritaires.</div>
@@ -433,9 +386,9 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
       <p class="q__stem">Dans Azure Monitor, quel composant regroupe la liste des destinataires (adresses email, numéros SMS, webhooks Teams/Slack) appelés lorsqu'une alerte se déclenche ?</p>
       <div class="opts">
         <button class="opt">Notification Hub</button>
-        <button class="opt" data-correct="1">Action Group</button>
-        <button class="opt">Alert Manager</button>
         <button class="opt">Dispatch Queue</button>
+        <button class="opt">Alert Manager</button>
+        <button class="opt" data-correct="1">Action Group</button>
       </div>
       <div class="q__exp">Un Action Group regroupe l'ensemble des actions de notification et de remédiation automatisée à exécuter lors du déclenchement d'une règle d'alerte.</div>
     </div>
@@ -452,30 +405,30 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
     <div class="q">
       <p class="q__stem">Quel est l'avantage du langage déclaratif Bicep par rapport aux templates JSON Azure Resource Manager (ARM) traditionnels ?</p>
       <div class="opts">
-        <button class="opt">Bicep ne fonctionne que sous Linux</button>
+        <button class="opt">Bicep ne fonctionne que sur les postes de travail sous Linux et reste incompatible avec Windows</button>
         <button class="opt" data-correct="1">Syntaxe beaucoup plus concise et lisible, absence de guillemets et accolades superflues, et validation de types native</button>
-        <button class="opt">Bicep est payant tandis qu'ARM est gratuit</button>
-        <button class="opt">Bicep supprime les règles de pare-feu</button>
+        <button class="opt">Bicep est un service payant tandis que les templates ARM JSON restent entièrement gratuits</button>
+        <button class="opt">Bicep supprime automatiquement les règles de pare-feu configurées sur les ressources déployées</button>
       </div>
       <div class="q__exp">Bicep est un DSL moderne conçu par Microsoft offrant une syntaxe modulaire et épurée tout en compilant directement en templates ARM standards de manière totalement transparente.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un budget Azure Cost Management, quelle est la différence entre une alerte basée sur "Actual" et une alerte basée sur "Forecasted" ?</p>
       <div class="opts">
-        <button class="opt">Actual concerne les devises en euros, Forecasted en dollars</button>
+        <button class="opt">Actual concerne uniquement les dépenses facturées en euros, Forecasted celles réglées en dollars américains</button>
+        <button class="opt">Forecasted s'applique uniquement aux disques SSD managés et ignore tous les autres types de ressources</button>
         <button class="opt" data-correct="1">Actual se déclenche sur les dépenses réelles déjà facturées, Forecasted sur la projection mathématique de dépassement d'ici la fin du mois</button>
-        <button class="opt">Forecasted s'applique uniquement aux disques SSD</button>
-        <button class="opt">Il n'y a aucune différence technique</button>
+        <button class="opt">Il n'y a aucune différence technique réelle, les deux types d'alertes sont strictement équivalents</button>
       </div>
       <div class="q__exp">Une alerte "Actual" surveille la somme réellement consommée à l'instant T, tandis que "Forecasted" utilise l'analyse prédictive de consommation pour alerter dès que la trajectoire projetée dépasse le budget avant la fin du cycle mensuel.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il lors du déploiement d'un gabarit d'Infrastructure as Code ARM ou Bicep contenant une dépendance circulaire entre deux ressources ?</p>
       <div class="opts">
-        <button class="opt">Le moteur ARM crée une ressource fictive pour casser la boucle</button>
+        <button class="opt">Le moteur ARM crée une ressource fictive temporaire pour casser la boucle de dépendances</button>
+        <button class="opt">Le déploiement s'exécute en arrière-plan et prend systématiquement 48 heures complètes</button>
+        <button class="opt">Azure ignore silencieusement la directive dependsOn et déploie les ressources en parallèle</button>
         <button class="opt" data-correct="1">Le déploiement échoue immédiatement lors de l'étape de validation préalable avec une erreur de dépendance circulaire</button>
-        <button class="opt">Le déploiement prend 48 heures</button>
-        <button class="opt">Azure ignore la directive dependsOn</button>
       </div>
       <div class="q__exp">Le moteur d'orchestration ARM construit un graphe acyclique dirigé (DAG) avant tout déploiement. Si une boucle est détectée, la validation échoue immédiatement et aucune ressource n'est créée.</div>
     </div>
@@ -597,7 +550,7 @@ RESOURCE name=vm01 type=Microsoft.Compute/virtualMachines dependsOn=[nic01]</pre
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

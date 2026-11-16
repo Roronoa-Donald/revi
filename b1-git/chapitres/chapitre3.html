@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -164,22 +162,30 @@ git diff master..feature1   deux branches</code></pre>
      data-language="shell"
      data-height="300"
      data-stdin="5&#10;commit init&#10;commit ajout&#10;log&#10;commit fix&#10;log&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op reste
-  # À compléter : empiler les commits, afficher en sens inverse.
+  # À compléter : git commit --allow-empty et git log --format="%s".
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — log --oneline simulé</h3>
+    <h3 class="lab__title">Exercice 1 — git log --format=%s réel</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Produire un historique numéroté de commits, comme git log --oneline.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit msg</code> (ajoute un commit avec un SHA croissant : a1, a2, a3…), ou <code>log</code> (affiche l’historique, du plus récent au plus ancien, sous la forme <code>SHA msg</code> ; rien si aucun commit).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Construire un vrai historique de commits avec git commit et le lire avec git log.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt Git temporaire, le script lit <strong>n opérations</strong> : <code>commit msg</code> (enregistre <code>git commit --allow-empty -q -m "$msg"</code>), ou <code>log</code> (affiche l’historique du plus récent au plus ancien avec <code>git log --format="%s"</code>, un message par ligne ; rien si le dépôt ne contient encore aucun commit).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
 commit init
@@ -188,17 +194,18 @@ log
 commit fix
 log
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>a2 ajout
-a1 init
-a3 fix
-a2 ajout
-a1 init</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>ajout
+init
+fix
+ajout
+init</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Empiler dans l’ordre d’arrivée puis parcourir le tableau à l’envers affiche du plus récent au plus ancien.</li>
-        <li>Un compteur de commits construit les SHA : a$numero.</li>
+        <li>Utilisez git commit --allow-empty -q -m "$reste" pour créer des commits sans modifier de fichiers.</li>
+        <li>git log --format="%s" affiche les titres de commits du plus récent au plus ancien.</li>
+        <li>Avant le premier commit, HEAD n’existe pas : protégez git log avec 2&gt;/dev/null || true.</li>
       </ol>
     </details>
   </div>
@@ -209,22 +216,33 @@ a1 init</pre></div>
      data-language="shell"
      data-height="300"
      data-stdin="4&#10;commit&#10;commit&#10;reset soft 1&#10;etat&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+echo "base" > base.txt
+git add base.txt
+git commit -q -m "base"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op a b
-  # À compléter : trois comptes, un par espace Git.
+  # À compléter : commit, fichier, git reset --$a HEAD~$k, etat.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — reset --soft / --mixed / --hard</h3>
+    <h3 class="lab__title">Exercice 2 — git reset --soft / --mixed / --hard réel</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Rejouer les trois options de git reset et leurs effets sur dépôt, index et copie de travail.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit</code> (ajoute un commit : l’index se vide et la copie redevient propre), <code>fichier</code> (une modification apparaît sur la copie de travail), <code>reset option k</code> où option vaut <code>soft</code>, <code>mixed</code> ou <code>hard</code> et k le nombre de commits à annuler (0 = ne traite que les modifications non commitées), ou <code>etat</code> (affiche <code>commits : K</code>, <code>index : vide|plein</code> et <code>copie : propre|modifiée</code>). Effets de reset : <code>soft</code> remonte les commits annulés dans l’index ; <code>mixed</code> les laisse dans la copie de travail ; <code>hard</code> efface aussi les modifications de la copie.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Observer directement sur un vrai dépôt les effets de --soft, --mixed et --hard sur HEAD, l’index et la copie.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt initialisé avec un commit racine <code>base</code>, le script lit <strong>n opérations</strong> : <code>commit</code> (ajoute un fichier <code>fK.txt</code> suivi et commité), <code>fichier</code> (modifie le fichier suivi <code>base.txt</code> sans l’indexer), <code>reset option k</code> (<code>option</code> ∈ <code>soft|mixed|hard</code>, recule de <code>k</code> commits utilisateur avec <code>git reset --$option HEAD~$k</code>, borné au nombre de commits utilisateur existants), ou <code>etat</code> (affiche <code>commits : C</code> [commits hors base], <code>index : vide|plein</code> selon <code>git diff --cached --name-only</code>, et <code>copie : propre|modifiée</code> selon <code>git diff --name-only</code> ou fichiers non suivis).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 commit
@@ -237,10 +255,11 @@ index : plein
 copie : propre</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>soft : les commits effectivement annulés remontent dans l’index.</li>
-        <li>mixed laisse les changements désindexés dans la copie ; hard efface aussi ceux de la copie.</li>
+        <li>Comptez le nombre réel de commits utilisateur avec $(( $(git rev-list --count HEAD) - 1 )) pour borner k.</li>
+        <li>git reset --soft garde les différences dans l’index (git diff --cached --name-only non vide) ; --mixed les remet en copie de travail ; --hard les supprime.</li>
+        <li>Un fichier nouvellement ramené dans la copie de travail par reset --mixed peut apparaître en non suivi (??) dans git status --porcelain : testez aussi les fichiers non suivis pour copie : modifiée.</li>
       </ol>
     </details>
   </div>
@@ -251,22 +270,30 @@ copie : propre</pre></div>
      data-language="shell"
      data-height="300"
      data-stdin="4&#10;commit init&#10;commit ajout&#10;revert 1&#10;log&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op reste
-  # À compléter : revert empile un commit de plus.
+  # À compléter : commit sur un fichier distinct, git revert --no-edit HEAD~$((reste - 1)), git log --format="%s".
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — revert : annuler avec trace</h3>
+    <h3 class="lab__title">Exercice 3 — git revert --no-edit : annuler avec trace</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler git revert : l’annulation devient un nouveau commit visible dans l’historique.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit msg</code>, <code>revert k</code> (annule le k-ième commit le plus récent — k=1 le dernier — en ajoutant un commit <code>Revert: msg</code> ; si l’historique a moins de k commits, affiche <code>inaccessible</code>), ou <code>log</code> (comme au chapitre : du plus récent au plus ancien, <code>SHA msg</code>, SHA a1, a2… par ordre de création).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exécuter git revert sur un commit donné pour empiler un vrai commit d’annulation dans l’historique.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt Git temporaire, le script lit <strong>n opérations</strong> : <code>commit msg</code> (crée un fichier unique <code>f_i.txt</code>, l’indexe et le commite avec <code>$msg</code>), <code>revert k</code> (annule le k-ième commit le plus récent via <code>git revert --no-edit HEAD~$((k - 1))</code> ; si l’historique a moins de k commits, affiche <code>inaccessible</code>), ou <code>log</code> (affiche <code>git log --format="%s"</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 commit init
@@ -274,16 +301,17 @@ commit ajout
 revert 1
 log
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>a3 Revert: ajout
-a2 ajout
-a1 init</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>Revert "ajout"
+ajout
+init</pre></div>
     </div>
-    <p class="lab__note">Revert garde la trace : a2 reste dans l'historique, l'annulation s'empile au-dessus.</p>
+    <p class="lab__note">git revert ajoute un commit Revert "ajout" sans effacer ajout.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>revert k : l’index du commit visé est total - k dans le tableau (k=1 → dernier).</li>
-        <li>Le commit de revert porte le message Revert: suivi du message annulé, et consomme un SHA.</li>
+        <li>Utilisez un nom de fichier différent par commit (doc_$i.txt) pour que git revert sur un commit ancien ne crée pas de conflit.</li>
+        <li>Si k=1 vise le dernier commit, sa référence Git est HEAD~0 (soit HEAD~$((reste - 1))).</li>
+        <li>Vérifiez d’abord total=$(git rev-list --count HEAD 2&gt;/dev/null || echo 0) avant d’appeler git revert --no-edit.</li>
       </ol>
     </details>
   </div>
@@ -296,8 +324,8 @@ a1 init</pre></div>
     <div class="q">
       <p class="q__stem">Quelle commande montre une ligne par commit ?</p>
       <div class="opts">
-        <button class="opt">git show</button>
         <button class="opt" data-correct="1">git log --oneline</button>
+        <button class="opt">git show</button>
         <button class="opt">git diff</button>
       </div>
       <div class="q__exp">log --oneline : SHA abrégé + message, du plus récent au plus ancien.</div>
@@ -332,8 +360,8 @@ a1 init</pre></div>
     <div class="q">
       <p class="q__stem">Que fait git revert ?</p>
       <div class="opts">
-        <button class="opt">Il supprime un commit de l'historique</button>
         <button class="opt" data-correct="1">Il ajoute un commit qui annule un commit existant</button>
+        <button class="opt">Il supprime un commit de l'historique</button>
         <button class="opt">Il remet le dépôt à zéro</button>
       </div>
       <div class="q__exp">revert annule avec trace : l'historique gagne un commit de réversion.</div>
@@ -342,8 +370,8 @@ a1 init</pre></div>
       <p class="q__stem">Sur un dépôt partagé, quelle annulation privilégier ?</p>
       <div class="opts">
         <button class="opt">reset --hard</button>
-        <button class="opt" data-correct="1">revert</button>
         <button class="opt">git rm</button>
+        <button class="opt" data-correct="1">revert</button>
       </div>
       <div class="q__exp">revert préserve l'historique partagé ; reset réécrirait le passé des autres.</div>
     </div>
@@ -359,8 +387,8 @@ a1 init</pre></div>
     <div class="q">
       <p class="q__stem">Que ne montre pas git diff ?</p>
       <div class="opts">
-        <button class="opt">Les fichiers modifiés</button>
         <button class="opt" data-correct="1">Les fichiers non suivis</button>
+        <button class="opt">Les fichiers modifiés</button>
         <button class="opt">Les branches</button>
       </div>
       <div class="q__exp">diff ne voit que le suivi : les non suivis apparaissent dans git status.</div>
@@ -484,7 +512,7 @@ a1 init</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

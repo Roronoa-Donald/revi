@@ -141,23 +141,23 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale de rôle entre les Namespaces et les Cgroups dans le noyau Linux ?',
       opts: [
-        'Les Namespaces gèrent le réseau et les Cgroups gèrent l’affichage graphique',
-        'Les Namespaces cloisonnent la visibilité des ressources (ce que le processus peut voir) tandis que les Cgroups limitent la quantité de ressources consommées',
-        'Les Namespaces sont réservés à Windows et les Cgroups à Linux',
-        'Les Namespaces augmentent la fréquence du processeur'
+        "Les Namespaces gèrent exclusivement la pile réseau pendant que les Cgroups gèrent l’affichage graphique du serveur",
+        "Les Namespaces sont une fonctionnalité réservée au noyau Windows et les Cgroups au seul noyau Linux moderne",
+        "Les Namespaces augmentent dynamiquement la fréquence du processeur pendant que les Cgroups la réduisent",
+        "Les Namespaces cloisonnent la visibilité des ressources (ce que le processus peut voir) tandis que les Cgroups limitent la quantité de ressources consommées"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les Namespaces créent des vues isolées (arborescence PID, réseau, montages), tandis que les Cgroups régulent et limitent la consommation physique (temps CPU, mémoire vive, bande passante I/O).'
     },
     {
       stem: 'Quel namespace permet à un utilisateur non privilégié d’apparaître comme l’utilisateur « root » (UID 0) à l’intérieur de son conteneur ?',
       opts: [
         'PID Namespace',
-        'USER Namespace (CLONE_NEWUSER)',
         'UTS Namespace',
+        'USER Namespace (CLONE_NEWUSER)',
         'MNT Namespace'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le User Namespace mappe les identifiants d’utilisateurs : un processus peut être root (UID 0) à l’intérieur du conteneur sans disposer du moindre privilège d’administration sur la machine hôte.'
     },
     {
@@ -174,10 +174,10 @@ module.exports = {
     {
       stem: 'Dans Cgroups v2, quelle est la signification de la directive « cpu.max = 150000 100000 » ?',
       opts: [
-        'Le processus a le droit de consommer 150 Mo de RAM toutes les 100 secondes',
-        'Le groupe de processus peut consommer au maximum 150 ms de temps CPU par période de 100 ms, soit l’équivalent exact de 1.5 cœur',
-        'Le processus est limité à 150 threads',
-        'La vitesse du processeur est fixée à 1,5 GHz'
+        "Le processus a le droit de consommer 150 Mo de mémoire vive toutes les 100 secondes d’exécution continue",
+        "Le groupe de processus peut consommer au maximum 150 ms de temps CPU par période de 100 ms, soit l’équivalent exact de 1.5 cœur",
+        "Le processus est limité à 150 threads simultanés au maximum sur l’ensemble du serveur",
+        "La vitesse du processeur est artificiellement fixée à 1,5 GHz pour ce groupe de processus"
       ],
       correct: 1,
       exp: 'cpu.max spécifie le quota et la période en microsecondes. Le ratio 150000 / 100000 = 1.5 correspond à une allocation maximale de 1.5 cœur de calcul.'
@@ -185,23 +185,23 @@ module.exports = {
     {
       stem: 'Que se passe-t-il lorsqu’un processus dépasse son quota processeur défini dans « cpu.max » ?',
       opts: [
-        'Le processus est immédiatement tué par SIGKILL',
-        'Le processus subit un étranglement (throttling) temporaire et ses threads sont mis en pause jusqu’à la période suivante',
-        'Le noyau déclenche un Kernel Panic',
-        'Le serveur redémarre automatiquement'
+        "Le processus est immédiatement tué par le signal SIGKILL et ne peut pas être redémarré",
+        "Le noyau déclenche un Kernel Panic et l’ensemble du serveur s’arrête brutalement",
+        "Le serveur redémarre automatiquement pour réinitialiser les compteurs de quota CPU",
+        "Le processus subit un étranglement (throttling) temporaire et ses threads sont mis en pause jusqu’à la période suivante"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le régulateur CPU n’interrompt pas brutalement le processus : il suspend son exécution (throttling) pendant le reste de la période en cours et le réactive dès la période suivante.'
     },
     {
       stem: 'Quelle valeur dans « /proc/[pid]/oom_score_adj » garantit qu’un processus ne sera jamais tué par l’OOM Killer du noyau ?',
       opts: [
         '0',
-        '-1000',
         '+1000',
+        '-1000',
         '9999'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La valeur -1000 désactive complètement le ciblage par l’OOM Killer, conférant une immunité totale indispensable pour les processus d’infrastructure vitaux.'
     },
     {

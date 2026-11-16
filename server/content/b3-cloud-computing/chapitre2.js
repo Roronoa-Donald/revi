@@ -140,55 +140,55 @@ module.exports = {
       stem: 'Quel service de stockage objet chez Microsoft Azure correspond fonctionnellement à Amazon S3 sur AWS et à Cloud Storage sur GCP ?',
       opts: [
         'Azure Managed Disks',
-        'Azure Blob Storage',
+        'Azure Table Storage',
         'Azure Files',
-        'Azure Table Storage'
+        'Azure Blob Storage'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Azure Blob Storage est la solution de stockage d’objets non structurés chez Microsoft, directement équivalente à AWS S3 et GCP Cloud Storage.'
     },
     {
       stem: 'Physiquement, que représente une Zone de Disponibilité (AZ - Availability Zone) au sein d’une Région Cloud ?',
       opts: [
-        'Un simple rack de serveurs au sein d’une même salle',
-        'Un ou plusieurs datacenters physiquement séparés, dotés d’alimentations électriques et de réseaux indépendants',
-        'Une partition logique de réseau virtuel sans séparation physique',
-        'Un serveur mandataire inverse de mise en cache'
+        "Un simple rack de serveurs au sein d’une même salle technique, sans alimentation distincte",
+        "Une partition logique de réseau virtuel sans aucune séparation physique entre les bâtiments",
+        "Un ou plusieurs datacenters physiquement séparés, dotés d’alimentations électriques et de réseaux indépendants",
+        "Un serveur mandataire inverse de mise en cache placé à l’entrée du datacenter"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Selon le fournisseur, une AZ comprend un ou plusieurs centres et des ressources séparées afin de réduire les défaillances communes ; la séparation ne supprime pas tous les risques.'
     },
     {
       stem: 'Si une application dépend successivement d’une passerelle API (SLA 99.9%) et d’une base de données (SLA 99.9%) en série, quel est le SLA composé global ?',
       opts: [
-        '99.9%',
         '99.8001%',
+        '99.9%',
         '99.99%',
         '99.95%'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'En série, on multiplie les probabilités : 0.999 * 0.999 = 0.998001, soit un SLA composé de 99.8001% (inférieur au composant unitaire).'
     },
     {
       stem: 'Pour deux instances de calcul montées en parallèle derrière un équilibreur actif/passif avec un SLA de 99.9% chacune, quelle est la disponibilité théorique de ce cluster ?',
       opts: [
         '99.8001%',
-        '99.9%',
         '99.9999%',
+        '99.9%',
         '100.0%'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'En parallèle, la formule est 1 - (1 - 0.999)^2 = 1 - (0.001)^2 = 1 - 0.000001 = 0.999999, soit 99.9999% de disponibilité.'
     },
     {
       stem: 'Quel est le temps maximal d’interruption annuel toléré (downtime) pour une application affichant un SLA contractuel de 99.99% (quatre neufs) ?',
       opts: [
-        'Environ 8 heures 45 minutes',
         'Environ 52 minutes et 34 secondes',
+        'Environ 8 heures 45 minutes',
         'Environ 5 minutes et 15 secondes',
         'Moins de 30 secondes'
       ],
-      correct: 1,
+      correct: 0,
       exp: '525 600 minutes * (1 - 0.9999) = 525 600 * 0.0001 = 52.56 minutes par an, soit 52 min et environ 34 s.'
     },
     {
@@ -205,23 +205,23 @@ module.exports = {
     {
       stem: 'Quel rôle jouent les Edge Locations (Points de Présence) dans les architectures Cloud modernes ?',
       opts: [
-        'Héberger les bases de données transactionnelles principales',
-        'Fournir des caches réseau de proximité (CDN) pour accélérer la diffusion de contenu et absorber les attaques DDoS',
-        'Remplacer les régions pour le stockage de données de longue durée',
-        'Compiler le code applicatif en continu'
+        "Héberger les bases de données transactionnelles principales au plus près des utilisateurs",
+        "Remplacer les régions pour le stockage des données de longue durée et d’archivage froid",
+        "Fournir des caches réseau de proximité (CDN) pour accélérer la diffusion de contenu et absorber les attaques DDoS",
+        "Compiler le code applicatif en continu à chaque validation des développeurs"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Les Edge Locations rapprochent le contenu des utilisateurs finaux grâce au cache CDN et filtrent le trafic malveillant au plus près de la source.'
     },
     {
       stem: 'Dans une stratégie multi-cloud, quel est le principal avantage recherché par les grandes entreprises ?',
       opts: [
-        'Réduire les coûts de développement à zéro',
-        'Éviter le verrouillage auprès d’un unique fournisseur (vendor lock-in) et optimiser la résilience',
-        'Supprimer la nécessité d’utiliser des adresses IP',
-        'Éliminer toute responsabilité en matière de sécurité'
+        "Réduire les coûts de développement à zéro grâce à la mutualisation intégrale",
+        "Supprimer la nécessité d’utiliser des adresses IP sur les réseaux interconnectés",
+        "Éliminer toute responsabilité en matière de sécurité en la déléguant intégralement",
+        "Éviter le verrouillage auprès d’un unique fournisseur (vendor lock-in) et optimiser la résilience"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le multi-cloud permet de mitiger les risques de dépendance technologique et commerciale exclusive vis-à-vis d’un seul géant du secteur.'
     }
   ],

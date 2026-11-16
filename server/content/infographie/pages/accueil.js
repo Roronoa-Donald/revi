@@ -112,14 +112,13 @@ function sommaire(course, chapterList) {
 function atelier(course) {
   const body = [
     crumb(course, [{ label: 'Atelier de code' }]),
-    '  <h1>Atelier de simulation graphique &amp; algorithmes visuels 2D/3D</h1>',
-    '  <p class="lead">Simulez les conversions colorimétriques, évaluez des courbes de Bézier, calculez des normales de maillages et testez les pipelines de shaders directement dans l’interpréteur Python.</p>',
+    '  <h1>Atelier de conception graphique &amp; analyse visuelle 2D/3D</h1>',
+    '  <p class="lead">Formalisez vos conversions colorimétriques, décrivez vos courbes de Bézier, détaillez les normales de maillages et analysez les pipelines de rendu dans cette grille structurée.</p>',
     '',
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
-    '       data-height="420"',
-    '       data-stdin="P0=(0,0) P1=(50,100) P2=(100,50) P3=(100,0) t=0.5">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez, calculez des transformations 3D, des modes de fusion ou des textures.\nprint("Zone libre Infographie B2 : pret a executer.")\n</script>',
+    '       data-height="420">',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez votre grille d’analyse colorimétrique et géométrique.\n[Cas 1 — Zone libre : simulez vos calculs graphiques]\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Règles d’or de l’infographie numérique et du rendu temps réel</h2>',

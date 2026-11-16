@@ -119,11 +119,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Dans quel ordre s’exécutent les instructions d’un programme ?', opts: ['De la dernière à la première', 'De haut en bas, ligne par ligne', 'Dans un ordre imprévisible'], correct: 1, exp: 'L’exécution est séquentielle : chaque ligne finit avant que la suivante commence.' },
+      { stem: 'Dans quel ordre s’exécutent les instructions d’un programme ?', opts: ['De la dernière à la première', 'Dans un ordre imprévisible', 'De haut en bas, ligne par ligne'], correct: 2, exp: 'L’exécution est séquentielle : chaque ligne finit avant que la suivante commence.' },
       { stem: 'Que vaut 17 % 5 ?', opts: ['2', '3', '3,4'], correct: 0, exp: '17 = 5 × 3 + 2 : le quotient entier vaut 3, le reste 2.' },
       { stem: 'Que vaut 17 // 5 ?', opts: ['2', '3', '3,4'], correct: 1, exp: 'Le quotient entier est la partie entière du quotient : 3.' },
-      { stem: 'Que lit exactement donnees_capteur ?', opts: ['Un nombre', 'Une ligne de texte', 'Un mot'], correct: 1, exp: 'donnees_capteur renvoie une ligne complète sans son retour à la ligne ; c’est int() qui convertit.' },
-      { stem: 'Que produit f&quot;{&#39;Seance&#39;:&lt;12}: 7&quot; ?', opts: ['Seance: 7', 'Seance      : 7', 'Une erreur'], correct: 1, exp: ':&lt;12 complète le libellé avec des espaces jusqu’à 12 caractères.' },
+      { stem: 'Que lit exactement donnees_capteur ?', opts: ['Une ligne de texte', 'Un nombre', 'Un mot'], correct: 0, exp: 'donnees_capteur renvoie une ligne complète sans son retour à la ligne ; c’est int() qui convertit.' },
+      { stem: 'Que produit f&quot;{&#39;Seance&#39;:&lt;12}: 7&quot; ?', opts: ['Seance: 7', 'Une erreur', 'Seance      : 7'], correct: 2, exp: ':&lt;12 complète le libellé avec des espaces jusqu’à 12 caractères.' },
       { stem: 'Pourquoi tester la division par zéro avant de diviser ?', opts: ['Pour aller plus vite', 'Car a // 0 arrête le programme', 'Ce n’est pas nécessaire'], correct: 1, exp: 'La division par zéro lève une erreur qui interrompt le programme.' }
     ],
 
@@ -278,11 +278,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Combien de fois s’exécute le corps de for _ in range(k) ?', opts: ['k fois', 'k + 1 fois', 'k − 1 fois'], correct: 0, exp: 'range(k) produit exactement k entiers, de 0 à k − 1.' },
-      { stem: 'Où initialiser un compteur utilisé dans une boucle ?', opts: ['Dans la boucle', 'Avant la boucle', 'Après la boucle'], correct: 1, exp: 'Avant : sinon il repart à zéro à chaque passage.' },
-      { stem: 'Que fait le programme si k vaut 0 dans for _ in range(k) ?', opts: ['Une erreur', 'Il passe au bilan sans exécuter le corps', 'Il boucle indéfiniment'], correct: 1, exp: 'range(0) est vide : aucun passage, le bilan s’affiche.' },
-      { stem: 'Dans la séquence de feux, comment garantir une seule LED allumée ?', opts: ['En testant un drapeau', 'Par construction : la séquence n’allume qu’un état à la fois', 'Avec un compteur d’allumages'], correct: 1, exp: 'La séquence écrite n’allume qu’un état par étape : la contrainte est structurelle.' },
-      { stem: 'Que vaut "s" if c > 1 else "" pour c = 1 ?', opts: ['"s"', '""', 'Une erreur'], correct: 1, exp: 'La condition est fausse : c’est la chaîne vide qui est choisie.' },
+      { stem: 'Combien de fois s’exécute le corps de for _ in range(k) ?', opts: ['k + 1 fois', 'k fois', 'k − 1 fois'], correct: 1, exp: 'range(k) produit exactement k entiers, de 0 à k − 1.' },
+      { stem: 'Où initialiser un compteur utilisé dans une boucle ?', opts: ['Avant la boucle', 'Dans la boucle', 'Après la boucle'], correct: 0, exp: 'Avant : sinon il repart à zéro à chaque passage.' },
+      { stem: 'Que fait le programme si k vaut 0 dans for _ in range(k) ?', opts: ["Une erreur d’exécution au lancement","Il boucle indéfiniment sur le corps","Il passe au bilan sans exécuter le corps"], correct: 2, exp: 'range(0) est vide : aucun passage, le bilan s’affiche.' },
+      { stem: 'Dans la séquence de feux, comment garantir une seule LED allumée ?', opts: ["En testant un drapeau booléen avant chaque allumage","Avec un compteur d’allumages vérifié à chaque tour","Par construction : la séquence n’allume qu’un état à la fois"], correct: 2, exp: 'La séquence écrite n’allume qu’un état par étape : la contrainte est structurelle.' },
+      { stem: 'Que vaut "s" if c > 1 else "" pour c = 1 ?', opts: ['""', '"s"', 'Une erreur'], correct: 0, exp: 'La condition est fausse : c’est la chaîne vide qui est choisie.' },
       { stem: 'Un print aligné au même niveau que le for s’exécute…', opts: ['À chaque passage', 'Une seule fois, après la boucle', 'Jamais'], correct: 1, exp: 'Hors indentation de la boucle : une seule fois, après le dernier passage.' }
     ],
 
@@ -432,11 +432,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que doit faire une fonction de test ?', opts: ['Afficher son verdict', 'Renvoyer un booléen', 'Modifier la valeur reçue'], correct: 1, exp: 'Elle renvoie True ou False ; l’affichage appartient au programme.' },
+      { stem: 'Que doit faire une fonction de test ?', opts: ['Renvoyer un booléen', 'Afficher son verdict', 'Modifier la valeur reçue'], correct: 0, exp: 'Elle renvoie True ou False ; l’affichage appartient au programme.' },
       { stem: 'Que vaut est_pair(0) avec return x % 2 == 0 ?', opts: ['False', 'True', 'Une erreur'], correct: 1, exp: '0 % 2 vaut 0, donc 0 == 0 est True : zéro est pair.' },
-      { stem: 'Pourquoi tester la primalité jusqu’à √x seulement ?', opts: ['Pour éviter les erreurs', 'Car un diviseur au-delà de la racine en suppose un plus petit déjà testé', 'Par convention'], correct: 1, exp: 'Si x = a × b avec a ≤ b, alors a ≤ √x : suffisant pour trouver un diviseur.' },
-      { stem: 'Que vaut est_premier(1) ?', opts: ['True', 'False', 'Non défini'], correct: 1, exp: '1 n’a qu’un seul diviseur : il n’est pas premier, le test x < 2 le renvoie en False.' },
-      { stem: 'd = seuil avec le test d < seuil : y a-t-il alerte ?', opts: ['Oui', 'Non', 'Cela dépend du signe'], correct: 1, exp: 'Strictement inférieur : la valeur égale au seuil n’alerte pas.' },
+      { stem: 'Pourquoi tester la primalité jusqu’à √x seulement ?', opts: ["Pour éviter les erreurs de dépassement lors des grands nombres","Par pure convention, sans raison mathématique réelle","Car un diviseur au-delà de la racine en suppose un plus petit déjà testé"], correct: 2, exp: 'Si x = a × b avec a ≤ b, alors a ≤ √x : suffisant pour trouver un diviseur.' },
+      { stem: 'Que vaut est_premier(1) ?', opts: ['True', 'Non défini', 'False'], correct: 2, exp: '1 n’a qu’un seul diviseur : il n’est pas premier, le test x < 2 le renvoie en False.' },
+      { stem: 'd = seuil avec le test d < seuil : y a-t-il alerte ?', opts: ['Non', 'Oui', 'Cela dépend du signe'], correct: 0, exp: 'Strictement inférieur : la valeur égale au seuil n’alerte pas.' },
       { stem: 'Dans une chaîne if / elif / else, combien de branches s’exécutent ?', opts: ['Toutes les vraies', 'La première vraie seulement', 'La dernière vraie'], correct: 1, exp: 'Le premier test vrai gagne ; les suivants sont ignorés.' }
     ],
 

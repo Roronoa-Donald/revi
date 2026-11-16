@@ -151,10 +151,10 @@ module.exports = {
     {
       stem: 'Quel est le rôle fondamental d’un scénario d’exception (ou alternatif) dans un cas d’utilisation de SFD ?',
       opts: [
-        'Raconter l’historique des versions du document',
-        'Définir le comportement exact du système lorsque des erreurs, timeouts ou saisies invalides surviennent',
-        'Permettre au développeur de ne pas écrire de tests unitaires',
-        'Remplacer le scénario nominal en cas de grève'
+        "Raconter l’historique des versions successives du document et de ses relecteurs internes",
+        "Définir le comportement exact du système lorsque des erreurs, timeouts ou saisies invalides surviennent",
+        "Exonérer le développeur de l’écriture des tests unitaires en les remplaçant par la spécification",
+        "Remplacer le scénario nominal lorsqu’un acteur secondaire refuse de participer au cas d’utilisation"
       ],
       correct: 1,
       exp: 'En production, la majorité des comportements anormaux proviennent de cas limites non spécifiés. Le scénario d’exception encadre précisément la réaction du logiciel face aux erreurs.'
@@ -162,10 +162,10 @@ module.exports = {
     {
       stem: 'Dans une Spécification Technique Détaillée (STD), pourquoi la mention « Port = ALL » sur une règle pare-feu est-elle formellement rejetée lors des audits de sécurité ?',
       opts: [
-        'Car cela viole le principe du moindre privilège en exposant l’ensemble des ports réseau du serveur aux attaques',
-        'Car le protocole TCP interdit l’utilisation de plus de 10 ports',
-        'Car cela augmente la facture d’électricité du serveur',
-        'Car cela empêche les sauvegardes quotidiennes'
+        "Car cela viole le principe du moindre privilège en exposant l’ensemble des ports réseau du serveur aux attaques",
+        "Car le protocole TCP interdit formellement l’ouverture simultanée de plus de dix ports par serveur",
+        "Car l’ouverture complète augmente la consommation électrique des cartes réseau du serveur",
+        "Car cela empêche l’exécution des sauvegardes quotidiennes planifiées pendant la nuit"
       ],
       correct: 0,
       exp: 'Ouvrir tous les ports (Port ALL) neutralise la protection du pare-feu et expose des services internes non durcis. Une STD doit spécifier le port exact nécessaire (ex. 443 pour HTTPS).'
@@ -173,67 +173,67 @@ module.exports = {
     {
       stem: 'Qu’est-ce que la matrice de traçabilité des exigences (Requirements Traceability Matrix - RTM) ?',
       opts: [
-        'Un tableau récapitulatif des salaires des développeurs',
-        'Une grille reliant chaque exigence métier à ses spécifications détaillées et à ses cas de test de recette correspondants',
-        'Un schéma d’implantation physique des câbles réseau dans la salle des serveurs',
-        'Une liste de contacts téléphoniques des fournisseurs'
+        "Un tableau récapitulatif des salaires et des primes des développeurs affectés au projet",
+        "Un schéma d’implantation physique des câbles réseau et des baies dans la salle des serveurs",
+        "Une grille reliant chaque exigence métier à ses spécifications détaillées et à ses cas de test de recette correspondants",
+        "Une liste des contacts téléphoniques des fournisseurs de matériel et des prestataires externes"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La RTM garantit que chaque besoin exprimé par le commanditaire est effectivement pris en compte dans la conception (SFD/STD) et vérifié par un test de validation.'
     },
     {
       stem: 'Comment qualifie-t-on le développement d’une fonctionnalité sophistiquée qui ne correspond à aucune exigence métier validée dans la RTM ?',
       opts: [
-        'Le Trunk-Based Development',
-        'La sur-qualité ou « Gold Plating » (développement superflu non requis)',
-        'L’intégration continue d’élite',
-        'Le test de performance'
+        "Le Trunk-Based Development, qui fusionne toutes les branches de développement en continu",
+        "L’intégration continue d’élite réservée aux développeurs seniors de l’équipe",
+        "Le test de performance exécuté directement sur un environnement de production",
+        "La sur-qualité ou « Gold Plating » (développement superflu non requis)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le Gold Plating consiste à rajouter des fonctionnalités techniques complexes que personne n’a demandées, consommant du budget et augmentant inutilement la surface d’attaque.'
     },
     {
       stem: 'Parmi les éléments suivants, lequel doit figurer obligatoirement dans une Spécification Fonctionnelle Détaillée (SFD) et NON dans une STD ?',
       opts: [
         'Le schéma physique des tables PostgreSQL avec types VARCHAR et BIGINT',
-        'Les règles de gestion métier et le parcours utilisateur étape par étape',
         'Les adresses IP virtuelles des répartiteurs de charge NGINX',
+        'Les règles de gestion métier et le parcours utilisateur étape par étape',
         'Le diagramme de classes UML avec visibilité private/public'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La SFD décrit les exigences métier et l’expérience utilisateur. Les schémas de base de données physique et l’adressage IP relèvent exclusivement de la STD et du DAT.'
     },
     {
       stem: 'Que désigne une « exigence orpheline » détectée lors d’un audit RTM ?',
       opts: [
-        'Une exigence rédigée par un développeur qui a quitté l’entreprise',
-        'Une exigence exprimée par le métier qui n’a été couverte par aucune spécification ni aucun cas de test dans le projet',
-        'Une exigence traduite dans plus de 3 langues',
-        'Une exigence dont le numéro d’identification est impair'
+        "Une exigence rédigée par un développeur qui a quitté l’entreprise avant la phase de recette",
+        "Une exigence traduite en plusieurs langues pour les filiales internationales du groupe",
+        "Une exigence dont l’identifiant numérique est impair et ne suit pas la convention de nommage",
+        "Une exigence exprimée par le métier qui n’a été couverte par aucune spécification ni aucun cas de test dans le projet"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une exigence orpheline est un angle mort : le besoin métier a été formalisé mais a été oublié lors de la conception ou des phases de test.'
     },
     {
       stem: 'Dans un cas d’utilisation, que spécifie la clause de « Précondition » ?',
       opts: [
-        'Le prix de vente du logiciel',
-        'L’état obligatoire dans lequel doit se trouver le système avant que l’utilisateur ne puisse déclencher l’action',
-        'Le nom de l’ordinateur de l’utilisateur',
-        'L’âge minimum requis pour utiliser le clavier'
+        "L’état obligatoire dans lequel doit se trouver le système avant que l’utilisateur ne puisse déclencher l’action",
+        "Le prix de vente unitaire du logiciel et les conditions de renouvellement de la licence",
+        "Le nom d’hôte de l’ordinateur et l’adresse IP de la machine de l’utilisateur final",
+        "La durée maximale pendant laquelle l’utilisateur peut rester inactif avant la déconnexion"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La précondition garantit les prérequis nécessaires : par exemple, pour « Payer une commande », la précondition stipule qu’un panier doit exister et être validé.'
     },
     {
       stem: 'Pourquoi est-il préconisé d’attribuer un identifiant unique et pérenne (ex. REQ-SEC-012) à chaque exigence dans un document de spécification ?',
       opts: [
-        'Pour pouvoir retrouver et tracer précisément l’exigence à travers tous les livrables, tickets de développement et scénarios de test sans ambiguïté',
-        'Pour crypter le document contre le vol industriel',
-        'Pour réduire le temps d’impression papier',
-        'Pour satisfaire à la législation fiscale'
+        "Pour chiffrer le contenu du document et le protéger contre toute fuite de propriété industrielle vers les concurrents",
+        "Pour pouvoir retrouver et tracer précisément l’exigence à travers tous les livrables, tickets de développement et scénarios de test sans ambiguïté",
+        "Pour réduire le temps d’impression papier des spécifications lors des comités trimestriels de validation",
+        "Pour satisfaire aux obligations déclaratives de la législation fiscale applicable aux éditeurs de logiciels"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Un identifiant stable permet de faire référence à l’exigence dans les outils de ticketing (Jira), les commits Git, les spécifications et les rapports de recette automatisés.'
     }
   ],

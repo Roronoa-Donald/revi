@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -188,39 +186,27 @@ $$f(f(x)) = f(x)$$
      data-exercise="do3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="FROM python:3.11-slim&#10;WORKDIR /app&#10;COPY requirements.txt .&#10;RUN pip install -r requirements.txt&#10;COPY . .&#10;USER appuser&#10;CMD [&quot;python&quot;, &quot;main.py&quot;]">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c3-e1) — Auditeur d’optimisation de Dockerfile (Layer Caching & Multi-Stage)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="BlogFast (blog en Python) utilise :&#10;FROM python:3.12&#10;WORKDIR /app&#10;COPY . .&#10;RUN pip install -r requirements.txt&#10;CMD [&quot;python&quot;, &quot;app.py&quot;]&#10;&#10;1) python:3.12 est une image complète.&#10;2) Tout le code est copié par COPY . .&#10;3) COPY requirements.txt . devrait précéder le pip install.&#10;4) L'instruction USER manque.&#10;5) Les images alpine (python:3.12-alpine) sont minimales.">
+  <script type="text/plain" data-lab-starter># Exercice — L'audit du Dockerfile de l'API Resto'Kit
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Dockerfile naïf avec base lourde et cache invalidé]
-# Données : FROM python:3.11
-# Données : WORKDIR /app
-# Données : COPY . .
-# Données : RUN pip install -r requirements.txt
-# Données : CMD ["python", "main.py"]
+[Question 1 — Type d'image de base]
 A_COMPLETER
 
-[Cas 2 — Compilation Go sans étape multi-stage]
-# Données : FROM golang:1.20-alpine
-# Données : WORKDIR /src
-# Données : COPY . .
-# Données : RUN go build -o app
-# Données : USER nonroot
-# Données : CMD ["./app"]
+[Question 2 — Instruction qui copie tout le code]
 A_COMPLETER
 
-[Cas 3 — Multi-stage complet avec base alpine et utilisateur dédié]
-# Données : FROM golang:1.20-alpine AS builder
-# Données : COPY . .
-# Données : RUN go build -o myapp
-# Données : FROM alpine:3.18
-# Données : COPY --from=builder /myapp /myapp
-# Données : USER 1000
-# Données : CMD ["/myapp"]
+[Question 3 — Instruction à placer avant RUN npm install]
+A_COMPLETER
+
+[Question 4 — Instruction manquante contre root]
+A_COMPLETER
+
+[Question 5 — Famille d'images minimales]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Auditeur d’optimisation de Dockerfile (Layer Caching &amp; Multi-Stage)</h3>
+    <h3 class="lab__title">Exercice 1 — L'audit du Dockerfile de l'API Resto'Kit</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -229,34 +215,32 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Détecter les anti-patterns courants dans la rédaction d’un Dockerfile et calculer son score de conformité aux bonnes pratiques de conteneurisation.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&lt;/code&gt;) :<br><br>
-Règles d'audit (score de départ : 100 points) :<br>
-1. <strong>Image de base lourde (-20 pts) :</strong> si une instruction <code>FROM</code> utilise une image complète (contient <code>python:</code>, <code>node:</code>, <code>golang:</code>, <code>ubuntu:</code>) SANS contenir <code>slim</code> ou <code>alpine</code> -&gt; alerte <code>BASE_IMAGE_VOLUMINEUSE</code>.<br>
-2. <strong>Invalidation prématurée du cache (-30 pts) :</strong> si une instruction <code>COPY . .</code> ou <code>COPY . /</code> apparaît chronologiquement <strong>avant</strong> une instruction d'installation de dépendances (contenant <code>npm install</code> ou <code>pip install</code>) -&gt; alerte <code>CACHE_DEPENDANCES_INVALIDE</code>.<br>
-3. <strong>Absence de multi-stage pour le compilé (-30 pts) :</strong> si le Dockerfile contient une commande de compilation lourde (contenant <code>go build</code> ou <code>cargo build</code>) mais qu'il n'y a qu'une seule instruction <code>FROM</code> dans tout le fichier -&gt; alerte <code>MULTI_STAGE_REQUIS</code>.<br>
-4. <strong>Exécution en compte root (-20 pts) :</strong> si aucune instruction <code>USER</code> n'apparaît dans tout le fichier -&gt; alerte <code>EXECUTION_ROOT_DECONSEILLEE</code>.<br><br>
-Score minimal = 0.<br>
-Qualification du score :<br>
-- 100 : <code>OPTIMAL</code><br>
-- $\ge 60$ : <code>ACCEPTABLE</code><br>
-- $&lt; 60$ : <code>A_REFACTORISER</code><br><br>
-Afficher :<br>
-<code>AUDIT_DOCKERFILE: SCORE=&lt;score&gt;/100 | NIVEAU=&lt;NIVEAU&gt; | ALERTES=[&lt;alertes ou AUCUNE&gt;]</code></p></div>
-    <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FROM python:3.11-slim
+    <p class="lab__goal"><strong>Objectif :</strong> Relire un Dockerfile réel et repérer les optimisations de cache, de sécurité et de taille d'image.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Resto'Kit exploite l'API de commande en ligne d'une chaîne de restaurants. Son image Docker pèse 1,1 Go et chaque build retélécharge toutes les dépendances dès qu'une ligne de code change. Voici son Dockerfile :</p><pre>FROM node:18
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
 COPY . .
-USER appuser
-CMD ["python", "main.py"]</pre></div>
+RUN npm install
+CMD ["npm", "start"]</pre><p>Règles de lecture : une image portant le suffixe « slim » ou « alpine » est allégée ; le cache Docker n'est réutilisé que si les instructions précédentes sont inchangées ; un conteneur s'exécute en root sauf si le Dockerfile précise un autre compte.</p><ol><li>L'image de base node:18 est-elle une image complète ou allégée ?</li><li>Recopiez l'instruction exacte qui copie l'intégralité du code source dans l'image.</li><li>Quelle instruction faudrait-il placer avant le RUN npm install pour que le cache des dépendances soit réutilisé ?</li><li>Quelle instruction manque-t-il pour éviter que le conteneur ne s'exécute en root ?</li><li>Quelle famille d'images de base minimales (nom précis) réduirait fortement la taille de l'image ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BlogFast (blog en Python) utilise :
+FROM python:3.12
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+
+1) python:3.12 est une image complète.
+2) Tout le code est copié par COPY . .
+3) COPY requirements.txt . devrait précéder le pip install.
+4) L'instruction USER manque.
+5) Les images alpine (python:3.12-alpine) sont minimales.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Copier package.json ou requirements.txt avant COPY . . permet de réutiliser le cache Docker.</li>
-        <li>Garder l’ordre officiel des 4 alertes ci-dessus.</li>
+        <li>Le cache Docker fonctionne dans l'ordre : chaque instruction n'est réutilisée que si les précédentes et son propre contenu sont inchangés.</li>
+        <li>Copier d'abord le seul manifeste de dépendances (package.json) avant l'installation met le cache à l'abri, puis copier le code n'invalide plus rien.</li>
+        <li>1. Regardez le nom de l'image après FROM. 2. Repérez le COPY qui invalide tout le cache. 3. Proposez COPY package.json . avant le RUN npm install. 4. L'instruction USER change le compte d'exécution. 5. Les images alpine sont les minimales.</li>
       </ol>
     </details>
   </div>
@@ -266,28 +250,27 @@ CMD ["python", "main.py"]</pre></div>
      data-exercise="do3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10&#10;IMAGE nom=api_users LAYERS=L_node:150,L_express:30,L_users:15&#10;IMAGE nom=worker LAYERS=L_node:150,L_queues:40">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c3-e2) — Calculateur d’empreinte disque des couches d’images partagées
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="SuiviColis déploie : suivi-back (base:5, libs:80, code:10), suivi-worker (base:5, libs:80, code:6), suivi-front (base:5, static:15).&#10;&#10;1) suivi-back : 5 + 80 + 10 = 95 Mo.&#10;2) Brut : 95 + 91 + 20 = 206 Mo.&#10;3) Réel : 5 + 80 + 10 + 6 + 15 = 116 Mo.&#10;4) Économie : 206 − 116 = 90 Mo.&#10;5) Pourcentage : 90 / 206 × 100 = 43,7 %.">
+  <script type="text/plain" data-lab-starter># Exercice — L'empreinte disque des images de la plateforme CloudCatalogue
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Deux images identiques sous des noms différents]
-# Données : IMAGE nom=service_v1 LAYERS=L1:100,L2:50
-# Données : IMAGE nom=service_v1_backup LAYERS=L1:100,L2:50
+[Question 1 — Taille apparente de catalog-api en Mo]
 A_COMPLETER
 
-[Cas 2 — Images totalement disjointes sans partage]
-# Données : IMAGE nom=front_nginx LAYERS=LN:40,LA:10
-# Données : IMAGE nom=db_postgres LAYERS=LP:200,LD:50
+[Question 2 — Taille brute cumulée en Mo]
 A_COMPLETER
 
-[Cas 3 — Microservices avec couches partagées étagées]
-# Données : IMAGE nom=svc_a LAYERS=base:50,mid:30,code_a:10
-# Données : IMAGE nom=svc_b LAYERS=base:50,mid:30,code_b:12
-# Données : IMAGE nom=svc_c LAYERS=base:50,code_c:8
+[Question 3 — Place réellement occupée en Mo]
+A_COMPLETER
+
+[Question 4 — Économie réalisée en Mo]
+A_COMPLETER
+
+[Question 5 — Économie en % de la taille brute]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Calculateur d’empreinte disque des couches d’images partagées</h3>
+    <h3 class="lab__title">Exercice 2 — L'empreinte disque des images de la plateforme CloudCatalogue</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -296,29 +279,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Quantifier l’économie d’espace disque permise par le système de couches immuables (layer sharing) du démon Docker sur un hôte.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&gt;&lt;/code&gt;.<br>
-Chaque couche possède un identifiant de hachage et une taille en Mo (ex: <code>L_base:120,L_node:80,L_app:15</code>).<br><br>
-Pour chaque image :<br>
-- Calculer sa taille brute apparente = somme de ses couches.<br>
-- Afficher : <code>IMAGE: &lt;nom&gt; -&gt; TAILLE=&lt;taille&gt;Mo</code><br><br>
-Pour l’ensemble du parc :<br>
-- <code>Brut_cumulé</code> = somme des tailles de toutes les images.<br>
-- <code>Réel_sur_hôte</code> = somme des tailles des couches <strong>uniques</strong> (chaque hash n'est comptabilisé qu'une seule fois sur le disque hôte).<br>
-- <code>Économie</code> = $\text{Brut\_cumulé} - \text{Réel\_sur\_hôte}$<br>
-- Pourcentage = $(\text{Économie} / \text{Brut\_cumulé}) \times 100$<br><br>
-Afficher la synthèse :<br>
-<code>SYNTHESE_DOCKER: BRUT_CUMULE=&lt;brut&gt;Mo | REEL_SUR_HOTE=&lt;reel&gt;Mo | ECONOMIE=&lt;eco&gt;Mo (-&lt;pct:.1f&gt;%)</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Quantifier l'économie d'espace disque permise par le partage des couches Docker entre plusieurs images d'un même hôte.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> CloudCatalogue déploie trois microservices avec Docker sur le même serveur d'intégration. Docker stocke les images par <strong>couches</strong> : deux images qui partagent une couche de même identifiant ne la stockent qu'<strong>une seule fois</strong> sur l'hôte. L'équipe dresse l'inventaire suivant :</p><table><tr><th>Image</th><th>Couches (identifiant:taille en Mo)</th></tr><tr><td>catalog-api</td><td>base_alpine:8, node_modules:120, code_api:15</td></tr><tr><td>catalog-worker</td><td>base_alpine:8, node_modules:120, code_worker:9</td></tr><tr><td>catalog-front</td><td>base_alpine:8, static_front:20</td></tr></table><p>La taille apparente d'une image est la somme de ses couches. Répondez par la valeur seule ; la question 5 se donne à une décimale près.</p><ol><li>Quelle est la taille apparente de catalog-api (en Mo) ?</li><li>Quelle est la taille brute cumulée des trois images (en Mo) ?</li><li>Quelle est la place réellement occupée sur l'hôte, en comptant chaque couche partagée une seule fois (en Mo) ?</li><li>Quelle est l'économie réalisée (en Mo) ?</li><li>Quelle est cette économie en pourcentage de la taille brute (en %) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IMAGE nom=api_auth LAYERS=L_node:150,L_express:30,L_auth:10
-IMAGE nom=api_users LAYERS=L_node:150,L_express:30,L_users:15
-IMAGE nom=worker LAYERS=L_node:150,L_queues:40</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SuiviColis déploie : suivi-back (base:5, libs:80, code:10), suivi-worker (base:5, libs:80, code:6), suivi-front (base:5, static:15).
+
+1) suivi-back : 5 + 80 + 10 = 95 Mo.
+2) Brut : 95 + 91 + 20 = 206 Mo.
+3) Réel : 5 + 80 + 10 + 6 + 15 = 116 Mo.
+4) Économie : 206 − 116 = 90 Mo.
+5) Pourcentage : 90 / 206 × 100 = 43,7 %.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utiliser un dictionnaire pour mémoriser la taille associée à chaque hash de couche unique.</li>
-        <li>Le partage de couches de base (ex: Ubuntu ou Alpine) réduit drastiquement l’empreinte des flottes de microservices.</li>
+        <li>Deux images construites sur la même base et les mêmes dépendances partagent ces couches : l'hôte ne les stocke qu'une fois.</li>
+        <li>La taille brute additionne toutes les couches de chaque image ; l'occupation réelle ne compte que les identifiants distincts.</li>
+        <li>1. Additionnez les couches de catalog-api. 2. Additionnez les tailles apparentes des trois images. 3. Listez les couches distinctes et additionnez-les. 4. Soustrayez le réel du brut. 5. Divisez l'économie par le brut et multipliez par 100.</li>
       </ol>
     </details>
   </div>
@@ -328,30 +305,27 @@ IMAGE nom=worker LAYERS=L_node:150,L_queues:40</pre></div>
      data-exercise="do3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SERVICE nom=web depends_on=api&#10;SERVICE nom=api depends_on=database,redis&#10;SERVICE nom=database depends_on=NONE&#10;SERVICE nom=redis depends_on=NONE">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c3-e3) — Résolveur d’ordre de démarrage de services Docker Compose (depends_on)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="PortailRh exécute :&#10;  portal: depends_on [auth, files]&#10;  auth: depends_on [db]&#10;  files: depends_on [db, cache]&#10;  db: aucune dépendance&#10;  cache: aucune dépendance&#10;&#10;1) Sans dépendance : cache, db.&#10;2) Dépendent directement de db : auth, files.&#10;3) Ordre : cache, db, auth, files, portal.&#10;4) files peut-il démarrer avant auth ? Oui, ils sont indépendants.&#10;5) Un cycle entre A et B provoque une erreur.">
+  <script type="text/plain" data-lab-starter># Exercice — L'ordre de démarrage du docker-compose de Meetup'Pro
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Cycle d’interblocage direct entre deux services]
-# Données : SERVICE nom=service_a depends_on=service_b
-# Données : SERVICE nom=service_b depends_on=service_a
+[Question 1 — Services sans dépendance]
 A_COMPLETER
 
-[Cas 2 — Graphe en diamant classique web, front, cache, bdd]
-# Données : SERVICE nom=nginx depends_on=app1,app2
-# Données : SERVICE nom=app1 depends_on=db
-# Données : SERVICE nom=app2 depends_on=db
-# Données : SERVICE nom=db depends_on=NONE
+[Question 2 — Services dépendant directement de db]
 A_COMPLETER
 
-[Cas 3 — Services indépendants tous sans dépendances]
-# Données : SERVICE nom=worker_b depends_on=NONE
-# Données : SERVICE nom=worker_a depends_on=NONE
-# Données : SERVICE nom=worker_c depends_on=NONE
+[Question 3 — Ordre de démarrage complet]
+A_COMPLETER
+
+[Question 4 — worker peut-il démarrer avant cache ?]
+A_COMPLETER
+
+[Question 5 — Réaction de Compose face à un cycle]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Résolveur d’ordre de démarrage de services Docker Compose (depends_on)</h3>
+    <h3 class="lab__title">Exercice 3 — L'ordre de démarrage du docker-compose de Meetup'Pro</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -360,26 +334,43 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la séquence de démarrage topologique valide d’un fichier docker-compose.yml en résolvant les dépendances et en détectant les cycles bloquants.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...|NONE&gt;&lt;/code&gt;.<br><br>
-Règles :<br>
-- Un service ne peut démarrer que lorsque TOUS les services mentionnés dans sa directive <code>depends_on</code> ont déjà démarré.<br>
-- Si plusieurs services sont éligibles à démarrer au même moment, les ordonner par <strong>ordre alphabétique</strong> de leur nom pour garantir un résultat déterministe.<br>
-- Si un cycle de dépendance mutuelle rend le démarrage impossible (ex: A dépend de B et B dépend de A) :<br>
-  <code>DOCKER_COMPOSE: ERREUR=CYCLE_DE_DEPENDANCE_DETECTE</code><br>
-- Sinon, afficher la séquence ordonnée :<br>
-  <code>DOCKER_COMPOSE: ORDRE_DEMARRAGE=[&lt;s1, s2, ...&gt;]</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Résoudre l'ordre de démarrage d'une stack docker-compose à partir des dépendances depends_on et détecter les cycles bloquants.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Meetup'Pro organise des événements professionnels. Sa stack tourne sous Docker Compose :</p><pre>services:
+  web:
+    image: nginx
+    depends_on: [api, assets]
+  api:
+    image: meetappro/api
+    depends_on: [db, cache]
+  worker:
+    image: meetappro/worker
+    depends_on: [db]
+  db:
+    image: postgres:16
+  cache:
+    image: redis:7
+  assets:
+    image: minio</pre><p>Un service ne démarre que lorsque tous les services listés dans son <code>depends_on</code> sont démarrés. Quand plusieurs services peuvent démarrer au même moment, on les ordonne par ordre alphabétique. Répondez aux questions 1, 2 et 3 en séparant les noms de services par des virgules.</p><ol><li>Quels services n'ont aucune dépendance ? (ordre alphabétique)</li><li>Quels services dépendent directement de db ? (ordre alphabétique)</li><li>Donnez l'ordre de démarrage complet des six services.</li><li>Le service worker peut-il démarrer avant cache ? (oui ou non)</li><li>Si A dépend de B et B dépend de A, Docker Compose signale-t-il une erreur ou un simple avertissement ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVICE nom=web depends_on=api
-SERVICE nom=api depends_on=database,redis
-SERVICE nom=database depends_on=NONE
-SERVICE nom=redis depends_on=NONE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PortailRh exécute :
+  portal: depends_on [auth, files]
+  auth: depends_on [db]
+  files: depends_on [db, cache]
+  db: aucune dépendance
+  cache: aucune dépendance
+
+1) Sans dépendance : cache, db.
+2) Dépendent directement de db : auth, files.
+3) Ordre : cache, db, auth, files, portal.
+4) files peut-il démarrer avant auth ? Oui, ils sont indépendants.
+5) Un cycle entre A et B provoque une erreur.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utiliser l’algorithme de Kahn avec file de priorité ou sélection du minimum alphabétique parmi les degrés entrants nuls.</li>
-        <li>Un service dépend de ses prérequis (ses prérequis doivent démarrer avant lui).</li>
+        <li>depends_on se lit dans l'autre sens : les services listés doivent être démarrés avant le service qui les nomme.</li>
+        <li>Résolvez l'ordre par paliers : d'abord les services sans dépendance, puis ceux dont les dépendances viennent d'être satisfaites, et ainsi de suite.</li>
+        <li>1. Listez les services dont le depends_on est vide. 2. Lisez le depends_on de chaque service pour trouver db. 3. Construisez les paliers puis triez chaque palier par ordre alphabétique. 4. Vérifiez si cache apparaît dans les dépendances de worker. 5. Une dépendance circulaire empêche tout démarrage : Compose la signale comme une erreur.</li>
       </ol>
     </details>
   </div>
@@ -412,40 +403,40 @@ SERVICE nom=redis depends_on=NONE</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il crucial de placer la commande « COPY package.json » avant « COPY . . » dans un Dockerfile Node.js ?</p>
       <div class="opts">
-        <button class="opt">Car Docker refuse de compiler si les fichiers JavaScript sont copiés en premier</button>
+        <button class="opt">Car Docker refuse de compiler l’image si les fichiers JavaScript de l’application sont copiés avant les manifestes</button>
+        <button class="opt">Pour chiffrer les dépendances de production avant leur copie dans l’image finale du registre</button>
+        <button class="opt">Pour réduire automatiquement la taille de la mémoire vive consommée par le serveur hôte</button>
         <button class="opt" data-correct="1">Pour éviter d’invalider le cache de l’installation des dépendances à chaque modification d’un fichier source de l’application</button>
-        <button class="opt">Pour chiffrer les dépendances de production</button>
-        <button class="opt">Pour réduire automatiquement la taille de la RAM hôte</button>
       </div>
       <div class="q__exp">Si le code source change, la couche correspondante et toutes les suivantes sont invalidées. Isoler la copie des manifestes de dépendances permet de réutiliser le cache de téléchargement de paquets.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’avantage architectural majeur d’un Dockerfile « Multi-Stage Build » ?</p>
       <div class="opts">
-        <button class="opt">Il permet d’exécuter plusieurs systèmes d’exploitation différents dans le même conteneur</button>
+        <button class="opt">Il permet d’exécuter simultanément plusieurs systèmes d’exploitation différents au sein d’un même et unique conteneur applicatif</button>
+        <button class="opt">Il double automatiquement la quantité de mémoire vive et de cœurs CPU allouée au conteneur lors de son exécution en production</button>
         <button class="opt" data-correct="1">Il sépare l’étape de compilation de l’étape de runtime pour produire une image de production ultra-légère exempte d’outils de build et de compilateurs</button>
-        <button class="opt">Il double automatiquement la mémoire allouée au conteneur</button>
-        <button class="opt">Il empêche l’utilisation de Git</button>
+        <button class="opt">Il empêche l’utilisation du gestionnaire de versions Git et des dépôts de code externes pendant la construction de l’image</button>
       </div>
       <div class="q__exp">Le Multi-Stage Build isole les outils de build lourds dans un stage temporaire et ne transfère que le binaire final dans l’image de production, réduisant la taille et éliminant les CVE.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il formellement déconseillé de laisser un conteneur s’exécuter par défaut sous l’utilisateur « root » en production ?</p>
       <div class="opts">
-        <button class="opt">Car root consomme trop de bande passante réseau</button>
+        <button class="opt">Car l’utilisateur root consomme à lui seul une part excessive de la bande passante réseau disponible sur la machine hôte</button>
+        <button class="opt">Car Docker interdit formellement le déploiement en production de toute image dont le processus principal s’exécute sous root</button>
         <button class="opt" data-correct="1">Car une faille de fuite de conteneur (container breakout) donnerait immédiatement à l’attaquant les privilèges administrateur complets sur le serveur hôte</button>
-        <button class="opt">Car Docker interdit le déploiement en production des images root</button>
-        <button class="opt">Car les logs ne peuvent pas être enregistrés sous root</button>
+        <button class="opt">Car les journaux applicatifs ne peuvent tout simplement pas être enregistrés sur le disque tant que le conteneur tourne sous root</button>
       </div>
       <div class="q__exp">En cas de vulnérabilité permettant d’échapper au conteneur, un processus tournant sous UID 0 (root) s’octroie un accès root direct sur le noyau de la machine hôte. Il faut toujours créer un utilisateur non privilégié.</div>
     </div>
     <div class="q">
       <p class="q__stem">En Infrastructure as Code (IaC), que signifie la propriété d’« Idempotence » ?</p>
       <div class="opts">
-        <button class="opt">Le script doit s’exécuter obligatoirement en moins d’une seconde</button>
+        <button class="opt">Le script de provisionnement doit s’exécuter obligatoirement en moins d’une seconde sur chaque nœud</button>
+        <button class="opt">L’infrastructure doit être intégralement réinitialisée et détruite chaque matin avant toute nouvelle exécution</button>
+        <button class="opt">Les serveurs composant l’infrastructure doivent tous être localisés dans une même et unique zone géographique</button>
         <button class="opt" data-correct="1">L’application répétée d’une configuration produit le même état final sans créer de duplication ni d’effets secondaires non désirés</button>
-        <button class="opt">L’infrastructure doit être réinitialisée et détruite chaque matin</button>
-        <button class="opt">Les serveurs doivent tous être localisés dans la même zone géographique</button>
       </div>
       <div class="q__exp">Une opération idempotente converge vers l’état cible : qu’elle soit exécutée une fois ou cent fois consécutives, l’infrastructure reste conforme sans altération non sollicitée.</div>
     </div>
@@ -453,19 +444,19 @@ SERVICE nom=redis depends_on=NONE</pre></div>
       <p class="q__stem">Comment qualifie-t-on la situation où la réalité des ressources de production ne correspond plus au code source de configuration déclaré sur Git ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">La dérive de configuration (Configuration Drift)</button>
-        <button class="opt">La compilation sémantique</button>
-        <button class="opt">Le multi-threading</button>
-        <button class="opt">L’équilibrage de charge dynamique</button>
+        <button class="opt">La compilation sémantique du code déclaratif versionné</button>
+        <button class="opt">Le multi-threading des agents de configuration</button>
+        <button class="opt">L’équilibrage de charge dynamique des flux réseau</button>
       </div>
       <div class="q__exp">Le Configuration Drift survient lorsque des modifications manuelles (ou des pannes non réconciliées) désalignent l’infrastructure réelle par rapport au code d’infrastructure versionné.</div>
     </div>
     <div class="q">
       <p class="q__stem">Parmi ces types d’images de base de conteneur, laquelle offre la surface d’attaque la plus restreinte pour héberger un binaire compilé en Go ou Rust ?</p>
       <div class="opts">
-        <button class="opt">Ubuntu Desktop 22.04 LTS complète</button>
+        <button class="opt">Une image Ubuntu Desktop 22.04 LTS complète avec environnement graphique</button>
         <button class="opt" data-correct="1">Une image Scratch ou Distroless (contenant uniquement le binaire et les certificats TLS de base)</button>
-        <button class="opt">Debian GNU/Linux avec suite de développement gcc préinstallée</button>
-        <button class="opt">CentOS 7 avec serveur de messagerie</button>
+        <button class="opt">Une image Debian GNU/Linux avec la suite de développement gcc préinstallée par défaut</button>
+        <button class="opt">Une image CentOS 7 dotée d’un serveur de messagerie Postfix activé par défaut</button>
       </div>
       <div class="q__exp">Les images Scratch ou Distroless ne contiennent ni shell (/bin/sh), ni gestionnaire de paquets, ni outils de diagnostic : un assaillant qui injecte du code ne dispose d’aucun binaire pour pivoter.</div>
     </div>
@@ -591,7 +582,7 @@ SERVICE nom=redis depends_on=NONE</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

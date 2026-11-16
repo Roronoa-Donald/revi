@@ -192,34 +192,34 @@ module.exports = {
     {
       stem: 'Quel est l’objectif principal d’un Bulletin Flash de veille (Flash Note) ?',
       opts: [
-        'Détailler l’historique sur dix ans d’une technologie',
-        'Alerter en urgence sur un événement critique (vulnérabilité active, rupture légale) en moins d’une page',
-        'Remplacer le contrat de travail des développeurs',
-        'Présenter un bilan comptable trimestriel'
+        "Détailler l’historique complet sur dix ans d’une technologie et de ses brevets",
+        "Remplacer officiellement le contrat de travail des développeurs de l’entreprise",
+        "Alerter en urgence sur un événement critique (vulnérabilité active, rupture légale) en moins d’une page",
+        "Présenter le bilan comptable et financier trimestriel à la direction générale"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le bulletin flash se concentre sur l’urgence opérationnelle (1 page max) pour déclencher une réaction immédiate face à un risque majeur.'
     },
     {
       stem: 'Dans le modèle Tech Radar de ThoughtWorks, que signifie l’anneau « Trial » ?',
       opts: [
         'La technologie est totalement abandonnée et bannie',
-        'La technologie est prête pour des projets pilotes réels avec une maîtrise des risques',
+        'La technologie ne fonctionne que sous MS-DOS',
         'La technologie est imposée sans aucune discussion à tous les projets',
-        'La technologie ne fonctionne que sous MS-DOS'
+        'La technologie est prête pour des projets pilotes réels avec une maîtrise des risques'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’anneau Trial signifie que la technologie a passé l’étape d’évaluation initiale et mérite d’être mise à l’épreuve sur un projet réel maîtrisé.'
     },
     {
       stem: 'Quels sont les quatre quadrants thématiques officiels d’un Tech Radar ?',
       opts: [
-        'Marketing, Finance, Juridique, RH',
         'Techniques, Outils, Plateformes, Langages & Frameworks',
+        'Marketing, Finance, Juridique, RH',
         'Frontend, Backend, Base de données, Réseau',
         'CPU, RAM, Disque, Carte graphique'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le standard ThoughtWorks structure la cartographie en 4 quadrants : Techniques, Outils, Plateformes, et Langages & Frameworks.'
     },
     {
@@ -238,32 +238,32 @@ module.exports = {
       opts: [
         '25 points',
         '50 points',
-        '75 points',
-        '100 points'
+        '100 points',
+        '75 points'
       ],
-      correct: 3,
+      correct: 2,
       exp: 'Dans la grille d’évaluation conventionnelle, Adopt correspond à la note maximale de 100 points (standard mature et éprouvé).'
     },
     {
       stem: 'Quelle condition est obligatoire pour bénéficier de l’exception de courte citation selon le Code de la propriété intellectuelle ?',
       opts: [
         'Traduire le texte en espéranto',
-        'Mentionner obligatoirement le nom de l’auteur et la source d’origine du texte cité',
+        'Ne citer que des auteurs décédés depuis plus d’un siècle',
         'Payer une taxe forfaitaire à l’administration fiscale',
-        'Ne citer que des auteurs décédés depuis plus d’un siècle'
+        'Mentionner obligatoirement le nom de l’auteur et la source d’origine du texte cité'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’article L122-5 du CPI impose que les courtes citations soient justifiées par le caractère critique ou pédagogique et mentionnent clairement l’auteur et la source.'
     },
     {
       stem: 'Dans un tableau Kanban de veille, à quoi sert la limitation du travail en cours (WIP) ?',
       opts: [
-        'À empêcher les veilleurs de travailler le vendredi',
-        'À éviter l’engorgement des colonnes d’évaluation et raccourcir le Lead Time de traitement',
-        'À supprimer les flux RSS non anglophones',
-        'À limiter le nombre de caractères autorisés dans un e-mail'
+        "À éviter l’engorgement des colonnes d’évaluation et raccourcir le Lead Time de traitement",
+        "À empêcher les veilleurs de travailler le vendredi après-midi",
+        "À supprimer les flux RSS rédigés dans une langue non anglophone",
+        "À limiter le nombre de caractères autorisés dans un e-mail de synthèse"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Limiter le WIP évite l’accumulation d’articles en attente de qualification, réduisant ainsi les goulets d’étranglement et le temps de cycle.'
     },
     {

@@ -155,64 +155,64 @@ module.exports = {
       stem: 'Quelle formule définit le mode de fusion Multiply (Produit) pour deux pixels A et B dont les valeurs sont dans l’intervalle [0, 255] ?',
       opts: [
         'R = A + B',
-        'R = (A * B) / 255.0',
+        'R = sqrt(A * B)',
         'R = max(A, B)',
-        'R = sqrt(A * B)'
+        'R = (A * B) / 255.0'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Multiply normalise les valeurs sur [0, 1], les multiplie, puis remet à l’échelle [0, 255], ce qui équivaut à (A * B) / 255.0.'
     },
     {
       stem: 'Quel est l’élément neutre du mode de fusion Screen (Superposition) ?',
       opts: [
         'Le blanc pur (255)',
-        'Le noir pur (0)',
         'Le gris moyen (128)',
+        'Le noir pur (0)',
         'Le rouge pur (255, 0, 0)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Dans le mode Screen, superposer du noir pur (valeur 0) ne modifie pas le calque inférieur (255 - ((255 - A) * 255) / 255 = A).'
     },
     {
       stem: 'Comment réagit le mode de fusion Overlay (Incrustation) face à une valeur de calque de base égale à 128 (gris moyen) ?',
       opts: [
-        'Il rend l’image entièrement transparente',
-        'Il laisse le calque supérieur inchangé ou agit comme pivot neutre de contraste',
-        'Il inverse toutes les couleurs du calque',
-        'Il supprime tous les pixels impairs'
+        "Il laisse le calque supérieur inchangé ou agit comme pivot neutre de contraste",
+        "Il rend l’ensemble de l’image finale complètement transparente sur tout le document",
+        "Il inverse systématiquement toutes les couleurs du calque situé en dessous",
+        "Il supprime tous les pixels situés aux coordonnées impaires du document"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le gris moyen 128 est le point de bascule neutre d’Overlay : les pixels plus sombres sont assombris, les plus clairs sont éclaircis.'
     },
     {
       stem: 'Combien de points de contrôle au total définissent une courbe de Bézier cubique 2D standard ?',
       opts: [
-        '2 points',
-        '3 points',
-        '4 points (2 extrémités et 2 poignées de contrôle)',
-        '6 points'
+        "2 points : les deux seules extrémités du segment",
+        "4 points (2 extrémités et 2 poignées de contrôle)",
+        "3 points : deux extrémités et une poignée médiane",
+        "6 points : deux extrémités et quatre poignées symétriques"
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Une courbe de Bézier cubique est régie par un polynôme de degré 3 comportant 4 coefficients : P0 (départ), P1 (tangente départ), P2 (tangente fin), et P3 (arrivée).'
     },
     {
       stem: 'À quelle valeur paramétrique t se situe le point médian d’une courbe de Bézier définie sur [0, 1] ?',
       opts: [
-        't = 0.0',
         't = 0.5',
+        't = 0.0',
         't = 1.0',
         't = 2.0'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le paramètre t varie de façon continue de 0.0 (origine P0) à 1.0 (destination P3) ; le milieu paramétrique correspond exactement à t = 0.5.'
     },
     {
       stem: 'Quelle condition garantit une continuité de tangente fluide de type G1 à la jonction de deux segments de courbe de Bézier ?',
       opts: [
-        'Les deux segments doivent être de même couleur',
-        'La dernière poignée du premier segment, le point d’ancrage commun et la première poignée du second segment doivent être colinéaires (alignés sur la même droite)',
-        'Les deux segments doivent avoir exactement la même longueur',
-        'Le paramètre t doit être égal à 0'
+        "Les deux segments doivent impérativement être remplis avec exactement la même couleur de contour et le même motif de remplissage",
+        "La dernière poignée du premier segment, le point d’ancrage commun et la première poignée du second segment doivent être colinéaires (alignés sur la même droite)",
+        "Les deux segments doivent mesurer exactement la même longueur en unités du document pour que le raccord reste parfaitement régulier",
+        "Le paramètre t de l’équation paramétrique de la courbe doit être strictement maintenu à la valeur zéro sur toute la longueur"
       ],
       correct: 1,
       exp: 'Pour que la transition soit lisse sans angle aigu (continuité G1), les tangentes entrante et sortante doivent partager la même direction.'
@@ -220,23 +220,23 @@ module.exports = {
     {
       stem: 'Que signifie un histogramme dont toutes les barres sont concentrées dans le quart gauche (valeurs 0 à 60) ?',
       opts: [
-        'L’image est fortement sous-exposée et manque de tons clairs',
-        'L’image est en très haute résolution 4K',
         'L’image est surexposée avec des zones brûlées',
+        'L’image est en très haute résolution 4K',
+        'L’image est fortement sous-exposée et manque de tons clairs',
         'L’image ne contient aucun pixel valide'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La concentration à gauche indique que l’immense majorité des pixels a une luminance très basse, typique d’une image sombre ou sous-exposée.'
     },
     {
       stem: 'Quel est le rôle d’un masque de fusion (Layer Mask) en infographie matricielle ?',
       opts: [
-        'Supprimer définitivement les pixels indésirables du disque dur',
-        'Définir l’opacité locale du calque de manière non-destructive grâce à une carte en niveaux de gris (le blanc révèle, le noir masque)',
-        'Accélérer la fréquence de rafraîchissement de l’écran',
-        'Changer la résolution DPI du document'
+        "Supprimer définitivement et irrémédiablement les pixels indésirables du fichier sur le disque dur",
+        "Accélérer la fréquence de rafraîchissement de l’écran pendant les phases de retouche des photographies",
+        "Modifier la résolution DPI du document entier en vue de l’impression professionnelle en imprimerie",
+        "Définir l’opacité locale du calque de manière non-destructive grâce à une carte en niveaux de gris (le blanc révèle, le noir masque)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le masque de fusion permet d’occulter des portions de calque sans détruire les données d’origine, préservant la possibilité de retouches ultérieures.'
     }
   ],

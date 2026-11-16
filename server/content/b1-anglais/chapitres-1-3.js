@@ -87,14 +87,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'A deadline is…', opts: ['the final date to finish work', 'a type of report', 'a meeting'], correct: 0, exp: 'Deadline = final date to finish work — et ce n\'est pas un happy word.' },
-      { q: 'A stakeholder is…', opts: ['a person interested in the project', 'a software release', 'a payment'], correct: 0, exp: 'Toute personne intéressée par le projet : client, chef, équipe.' },
+      { q: 'A deadline is…', opts: ['a meeting', 'a type of report', 'the final date to finish work'], correct: 2, exp: 'Deadline = final date to finish work — et ce n\'est pas un happy word.' },
+      { q: 'A stakeholder is…', opts: ['a software release', 'a person interested in the project', 'a payment'], correct: 1, exp: 'Toute personne intéressée par le projet : client, chef, équipe.' },
       { q: 'Budget means…', opts: ['available or planned money', 'a long-term client', 'a work period'], correct: 0, exp: 'L\'argent disponible ou prévu pour le projet.' },
       { q: 'A client, unlike a customer, has…', opts: ['a one-time purchase', 'a long-term relationship', 'no contract'], correct: 1, exp: 'Client = long-term relationship ; customer = achat ponctuel.' },
-      { q: 'A sprint is…', opts: ['a short work period (1–4 weeks) in Agile', 'a server failure', 'a formal email'], correct: 0, exp: 'Période courte de travail Agile pour finir des tâches précises.' },
+      { q: 'A sprint is…', opts: ["a server failure during the night shift","a formal email to a new client","a short work period (1–4 weeks) in Agile"], correct: 2, exp: 'Période courte de travail Agile pour finir des tâches précises.' },
       { q: 'UAT means…', opts: ['User Acceptance Testing', 'Unified Access Tool', 'Universal Applied Tech'], correct: 0, exp: 'Final testing where real users try the software.' },
-      { q: '« Actually » signifie…', opts: ['actuellement', 'en fait', 'éventuellement'], correct: 1, exp: 'Actually = en fait ; actuellement = currently.' },
-      { q: '« Low-hanging fruit » means…', opts: ['easy wins', 'hard problems', 'a fruit delivery'], correct: 0, exp: 'Les gains faciles à récolter en premier.' }
+      { q: '« Actually » signifie…', opts: ['en fait', 'actuellement', 'éventuellement'], correct: 0, exp: 'Actually = en fait ; actuellement = currently.' },
+      { q: '« Low-hanging fruit » means…', opts: ['hard problems', 'easy wins', 'a fruit delivery'], correct: 1, exp: 'Les gains faciles à récolter en premier.' }
     ],
 
     pitfalls: [
@@ -223,14 +223,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La première partie d\'un email professionnel est…', opts: ['la salutation', 'la subject line', 'la signature'], correct: 1, exp: 'Subject line, salutation, body, closing, signature — dans cet ordre.' },
-      { q: 'Un bon subject line contient…', opts: ['juste « Hello »', 'sujet + action + échéance', 'rien du tout'], correct: 1, exp: '« Q3 Budget Update – Action Needed by Friday » : le format modèle.' },
+      { q: 'La première partie d\'un email professionnel est…', opts: ['la salutation', 'la signature', 'la subject line'], correct: 2, exp: 'Subject line, salutation, body, closing, signature — dans cet ordre.' },
+      { q: 'Un bon subject line contient…', opts: ['juste « Hello »', 'rien du tout', 'sujet + action + échéance'], correct: 2, exp: '« Q3 Budget Update – Action Needed by Friday » : le format modèle.' },
       { q: 'À un nouveau client, on écrit…', opts: ['Yo,', 'Dear Mr. Smith,', 'Hey dude,'], correct: 1, exp: 'Formel pour un nouveau client ou la direction.' },
-      { q: 'Dans CLEAR, la lettre L signifie…', opts: ['Language', 'Logistics (what, when, where)', 'Lead'], correct: 1, exp: 'Context, Logistics, Expectation, Action, Respect.' },
-      { q: 'L\'Expectation énonce…', opts: ['ce que le lecteur doit faire', 'ce qui est attendu (approval by Friday)', 'un remerciement'], correct: 1, exp: 'Expectation = what do you need ; Action = what they should do.' },
-      { q: 'Le closing standard est…', opts: ['XOXO', 'Best regards,', 'Later,'], correct: 1, exp: 'Best regards (standard), Kind regards (amical), Sincerely (formel).' },
+      { q: 'Dans CLEAR, la lettre L signifie…', opts: ['Logistics (what, when, where)', 'Language', 'Lead'], correct: 0, exp: 'Context, Logistics, Expectation, Action, Respect.' },
+      { q: 'L\'Expectation énonce…', opts: ["ce que le lecteur doit faire ensuite","un remerciement final en politesse","ce qui est attendu (approval by Friday)"], correct: 2, exp: 'Expectation = what do you need ; Action = what they should do.' },
+      { q: 'Le closing standard est…', opts: ['Best regards,', 'XOXO', 'Later,'], correct: 0, exp: 'Best regards (standard), Kind regards (amical), Sincerely (formel).' },
       { q: 'La signature professionnelle contient…', opts: ['des emojis et une citation', 'nom, job title, company', 'une image géante'], correct: 1, exp: 'La carte de visite numérique : sobre et lisible.' },
-      { q: '« Reply all is a weapon » signifie…', opts: ['il faut répondre à tous toujours', 'l\'utiliser avec précaution', 'il est interdit'], correct: 1, exp: 'Le support le montre : répondre à tous à 200 personnes humilie et encombre.' }
+      { q: '« Reply all is a weapon » signifie…', opts: ['l\'utiliser avec précaution', 'il faut répondre à tous toujours', 'il est interdit'], correct: 0, exp: 'Le support le montre : répondre à tous à 200 personnes humilie et encombre.' }
     ],
 
     pitfalls: [
@@ -359,14 +359,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La règle de la présentation est…', opts: ['tell them, tell them, tell them', 'improvise, improvise', 'lire ses notes'], correct: 0, exp: 'Opening (dire ce qu\'on va dire), body (le dire), closing (dire ce qu\'on a dit).' },
-      { q: 'Un hook est…', opts: ['une question ou un fait qui accroche', 'un résumé final', 'une diapositive'], correct: 0, exp: 'Question, fait ou histoire courte pour ouvrir.' },
-      { q: 'La roadmap annonce…', opts: ['le plan : X, puis Y, enfin Z', 'les pauses', 'les remerciements'], correct: 0, exp: '« Today I will talk about X, then Y, and finally Z. »' },
-      { q: 'Le closing idéal contient…', opts: ['That\'s it', 'un résumé + un call to action', 'des excuses'], correct: 1, exp: 'Summarize + action précise : « Please restart your computers tonight. »' },
-      { q: 'La Grandma Rule dit…', opts: ['d\'éviter les grands-mères', 'de simplifier ce qu\'elle ne comprendrait pas', 'de parler fort'], correct: 1, exp: 'If your grandma can\'t understand it, simplify it.' },
-      { q: '« CI/CD pipeline » se traduit pour un client par…', opts: ['automatic delivery system', 'null pointer', 'API endpoint'], correct: 0, exp: 'Le traducteur du support : jargon → mots simples.' },
+      { q: 'La règle de la présentation est…', opts: ['lire ses notes', 'improvise, improvise', 'tell them, tell them, tell them'], correct: 2, exp: 'Opening (dire ce qu\'on va dire), body (le dire), closing (dire ce qu\'on a dit).' },
+      { q: 'Un hook est…', opts: ["un résumé final de la présentation","une question ou un fait qui accroche","une diapositive du diaporama"], correct: 1, exp: 'Question, fait ou histoire courte pour ouvrir.' },
+      { q: 'La roadmap annonce…', opts: ['les pauses', 'le plan : X, puis Y, enfin Z', 'les remerciements'], correct: 1, exp: '« Today I will talk about X, then Y, and finally Z. »' },
+      { q: 'Le closing idéal contient…', opts: ['un résumé + un call to action', 'That\'s it', 'des excuses'], correct: 0, exp: 'Summarize + action précise : « Please restart your computers tonight. »' },
+      { q: 'La Grandma Rule dit…', opts: ["d'éviter de parler aux grands-mères","de parler fort pour être bien entendu","de simplifier ce qu'elle ne comprendrait pas"], correct: 2, exp: 'If your grandma can\'t understand it, simplify it.' },
+      { q: '« CI/CD pipeline » se traduit pour un client par…', opts: ['null pointer', 'automatic delivery system', 'API endpoint'], correct: 1, exp: 'Le traducteur du support : jargon → mots simples.' },
       { q: '« Finally » et « To summarize » servent à…', opts: ['ouvrir', 'avancer', 'conclure'], correct: 2, exp: 'Transitions de conclusion ; First/To begin with ouvrent, Next avance.' },
-      { q: 'Face à une question difficile, on répond…', opts: ['That\'s a good question… Let me clarify', 'I don\'t know, next', 'silence'], correct: 0, exp: 'Formules polies du support pour gagner le temps de répondre.' }
+      { q: 'Face à une question difficile, on répond…', opts: ["That's a good question… Let me clarify","I don't know, let's move to the next slide","a long silence to show you think"], correct: 0, exp: 'Formules polies du support pour gagner le temps de répondre.' }
     ],
 
     pitfalls: [

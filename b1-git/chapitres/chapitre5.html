@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -174,22 +172,41 @@ B : add + commit + push          → accepté</code></pre>
      data-language="shell"
      data-height="300"
      data-stdin="4&#10;commit&#10;commit&#10;push&#10;distant&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+git init -q --bare -b main "$WORK/remote.git"
+git clone -q "$WORK/remote.git" "$WORK/seed"
+git -C "$WORK/seed" config user.name "Seed"
+git -C "$WORK/seed" config user.email "seed@campus.fr"
+echo "init" > "$WORK/seed/README.md"
+git -C "$WORK/seed" add README.md
+git -C "$WORK/seed" commit -q -m "init"
+git -C "$WORK/seed" push -q origin main
+
+git clone -q "$WORK/remote.git" "$WORK/local"
+git -C "$WORK/local" config user.name "Alice"
+git -C "$WORK/local" config user.email "alice@campus.fr"
+git clone -q "$WORK/remote.git" "$WORK/tiers"
+git -C "$WORK/tiers" config user.name "Bob"
+git -C "$WORK/tiers" config user.email "bob@campus.fr"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op
-  # À compléter : deux compteurs, un drapeau de fraîcheur.
+  # À compléter : commit dans local, tierce commit+push dans tiers, pull, push et etat.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — push refusé : repartir du pull</h3>
+    <h3 class="lab__title">Exercice 1 — git push refusé puis git pull sur un vrai distant</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Rejouer le scénario du TP2 : un push sans pull préalable est rejeté par le dépôt distant.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit</code> (commit local), <code>pull</code> (récupère l’état du distant : le compteur local s’aligne sur le plus grand des deux compteurs), <code>push</code> — accepté seulement si le local contient tout le distant, c’est-à-dire si aucun commit distant n’a été « appris » après le dernier pull et qu’il y a au moins un commit local à envoyer. Simplification du TP : le push réussit si aucun autre développeur n’a poussé depuis (drapeau <code>distants</code> incrémenté par chaque <code>pull</code> d’un tiers, opération <code>tierce</code>) ; sinon il affiche <code>rejeté</code> et il faut pull puis recommencer. Après chaque push réussi ou refusé, afficher <code>local : K</code> et <code>distant : K</code> (K = commits du dépôt distant).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Expérimenter un rejet réel de git push lorsque un collègue a poussé sur le dépôt nu, puis synchroniser via git pull.</p>
+    <div class="lab__brief"><p>Deux clones réels (<code>local</code> et <code>tiers</code>) pointent vers un vrai dépôt distant nu (<code>--bare</code>) initialisé avec 1 commit racine. Le script lit <strong>n opérations</strong> : <code>commit</code> (commit local dans <code>local</code>), <code>tierce</code> (un collègue commite et pousse dans <code>tiers</code>), <code>pull</code> (<code>git -C local pull -q --no-rebase --no-edit origin main</code>), <code>push</code> (tente <code>git -C local push -q origin main</code> ; affiche <code>rejeté</code> si le distant refuse puis l’état), ou <code>distant</code>. Chaque affichage imprime <code>local : C</code> et <code>distant : D</code> via <code>git rev-list --count main</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 commit
@@ -202,12 +219,13 @@ distant : 2
 local : 2
 distant : 2</pre></div>
     </div>
-    <p class="lab__note">Le push affiche l'état, puis l'opération distant le redonne.</p>
+    <p class="lab__note">Les deux commits locaux sont acceptés par le dépôt nu distant.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le push n’est jamais possible sans pull si un tiers a poussé entre-temps : le drapeau le retient.</li>
-        <li>Après un push réussi, local et distant sont égaux : le drapeau de fraîcheur repart à zéro.</li>
+        <li>Créez des fichiers différents dans local (local_$i.txt) et tiers (tiers_$i.txt) pour éviter tout conflit durant pull.</li>
+        <li>git -C "$WORK/local" push -q origin main &gt;/dev/null 2&gt;&amp;1 échoue naturellement quand $WORK/remote.git a reçu un commit de $WORK/tiers.</li>
+        <li>Les comptes réels hors racine valent $(( $(git -C "$WORK/local" rev-list --count main) - 1 )) et $(( $(git --git-dir="$WORK/remote.git" rev-list --count main) - 1 )).</li>
       </ol>
     </details>
   </div>
@@ -217,37 +235,49 @@ distant : 2</pre></div>
      data-exercise="gt-c5-e2"
      data-language="shell"
      data-height="300"
-     data-stdin="3&#10;commit 5&#10;clone&#10;etat&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+     data-stdin="4&#10;commit 3&#10;clone&#10;commit 2&#10;etat&#10;">
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+git init -q --bare -b main "$WORK/remote.git"
+git init -q -b main "$WORK/other"
+git -C "$WORK/other" config user.name "Bob"
+git -C "$WORK/other" config user.email "bob@campus.fr"
+git -C "$WORK/other" remote add origin "$WORK/remote.git"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op k
-  # À compléter : le clone copie tout, les commits distants ne touchent pas le local.
+  # À compléter : commit k sur remote via other, git clone vers local, etat via git rev-list.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — clone et origin</h3>
+    <h3 class="lab__title">Exercice 2 — git clone d’un vrai dépôt distant</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler clone : le dépôt local démarre avec tout l’historique du distant.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit k</code> (k commits poussés sur le dépôt distant par d’autres), <code>clone</code> (crée le local avec tout le distant), ou <code>etat</code> (affiche <code>local : K</code> / <code>distant : K</code>, ou <code>local : aucun</code> si pas de clone). Un commit après clone reste local jusqu’au push (traité au chapitre 6 — ici, les commits d’un tiers s’ajoutent directement au distant).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exécuter git clone sur un vrai dépôt distant et constater l’indépendance ultérieure des deux historiques.</p>
+    <div class="lab__brief"><p>Un dépôt distant nu (<code>remote.git</code>) démarre vide (ou avec des commits). Le script lit <strong>n opérations</strong> : <code>commit k</code> (pousse <code>k</code> commits supplémentaires sur le dépôt distant depuis un autre poste), <code>clone</code> (exécute <code>git clone -q remote.git local</code> et configure l’identité), ou <code>etat</code> (affiche <code>local : C</code> ou <code>local : aucun</code> si non cloné, et <code>distant : D</code>).</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
-commit 5
+      <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
+commit 3
 clone
+commit 2
 etat
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>local : 5
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>local : 3
 distant : 5</pre></div>
     </div>
+    <p class="lab__note">Le clone a figé les 3 commits initiaux ; les 2 suivants n’affectent que le distant.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un drapeau cloné vaut mieux qu’un test de nil : etat sait quoi répondre.</li>
-        <li>commit k pendant le clone n’existe pas : k n’arrive qu’avec l’opération commit.</li>
+        <li>Avant le tout premier push depuis other, passez -u origin main pour définir la branche distante.</li>
+        <li>git clone "$WORK/remote.git" "$WORK/local" crée un dépôt local séparé dont l’historique n’évolue plus automatiquement quand other pousse.</li>
+        <li>Si remote.git ou local n’a pas encore de commits, git rev-list --count main || echo 0 retourne 0 sans erreur.</li>
       </ol>
     </details>
   </div>
@@ -258,22 +288,39 @@ distant : 5</pre></div>
      data-language="shell"
      data-height="300"
      data-stdin="5&#10;commit&#10;tierce main&#10;fetch&#10;etat&#10;commit&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+git init -q --bare -b main "$WORK/remote.git"
+git clone -q "$WORK/remote.git" "$WORK/seed"
+git -C "$WORK/seed" config user.name "Seed"
+git -C "$WORK/seed" config user.email "seed@campus.fr"
+git -C "$WORK/seed" commit --allow-empty -q -m "init"
+git -C "$WORK/seed" push -q origin main
+
+git clone -q "$WORK/remote.git" "$WORK/local"
+git -C "$WORK/local" config user.name "Alice"
+git -C "$WORK/local" config user.email "alice@campus.fr"
+git clone -q "$WORK/remote.git" "$WORK/tiers"
+git -C "$WORK/tiers" config user.name "Bob"
+git -C "$WORK/tiers" config user.email "bob@campus.fr"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op a
-  # À compléter : trois compteurs de trois espaces différents.
+  # À compléter : commit, tierce, git fetch -q origin, et etat sur main / origin/main / remote.git.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — fetch puis merge : le vrai pull</h3>
+    <h3 class="lab__title">Exercice 3 — git fetch origin vs origin/main vs main</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Décomposer git pull en fetch + merge et montrer ce que chacun met à jour.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>commit</code> (commit local, la copie avance), <code>tierce branche</code> (un tiers pousse k=1 commit sur la branche distante nommée), <code>fetch</code> (copie l’état distant dans les références locales, sans toucher à la branche locale), ou <code>etat</code>. L’état affiche trois lignes : <code>local : K</code>, <code>remote-suivi : K</code> (dernière valeur vue par fetch), <code>distant : K</code>. Après un fetch, remote-suivi rattrape distant ; la branche locale, elle, ne bouge pas.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Observer avec un vrai dépôt que git fetch met à jour origin/main sans modifier la branche locale main.</p>
+    <div class="lab__brief"><p>Un dépôt distant <code>remote.git</code> et deux clones <code>local</code> et <code>tiers</code> démarrent synchronisés à 1 commit racine. Le script lit <strong>n opérations</strong> : <code>commit</code> (commit local dans <code>local</code>), <code>tierce main</code> (commit et push depuis <code>tiers</code>), <code>fetch</code> (exécute <code>git -C local fetch -q origin</code>), ou <code>etat</code>. L’état affiche trois lignes (compteurs hors racine) : <code>local : K</code> (<code>main</code>), <code>remote-suivi : K</code> (<code>origin/main</code>), et <code>distant : K</code> (<code>remote.git</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
 commit
@@ -287,10 +334,11 @@ remote-suivi : 1
 distant : 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>fetch met à jour remote-suivi mais jamais local : c’est toute la différence avec pull.</li>
-        <li>tierce fait avancer distant ; fetch rattrape ensuite remote-suivi sur distant.</li>
+        <li>git fetch origin télécharge les objets et met à jour la branche de suivi origin/main, jamais main.</li>
+        <li>Comparez les comptes de git -C local rev-list --count main et origin/main pour visualiser la divergence.</li>
+        <li>Soustrayez 1 (le commit racine) à chaque rev-list --count pour obtenir le nombre d’ajouts.</li>
       </ol>
     </details>
   </div>
@@ -303,45 +351,45 @@ distant : 1</pre></div>
     <div class="q">
       <p class="q__stem">Le nom origin désigne…</p>
       <div class="opts">
-        <button class="opt">le dépôt local</button>
+        <button class="opt">le dépôt local situé dans le dossier .git</button>
+        <button class="opt">la branche principale du dépôt distant</button>
         <button class="opt" data-correct="1">le lien conventionnel vers le dépôt distant</button>
-        <button class="opt">la branche principale</button>
       </div>
       <div class="q__exp">origin est le nom par défaut du lien distant ; il peut être changé.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle commande liste les liens distants ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">git remote -v</button>
-        <button class="opt">git branch -r</button>
         <button class="opt">git log origin</button>
+        <button class="opt">git branch -r</button>
+        <button class="opt" data-correct="1">git remote -v</button>
       </div>
       <div class="q__exp">remote -v montre les liens et leurs URL ; branch -r liste les branches distantes.</div>
     </div>
     <div class="q">
       <p class="q__stem">Un push est rejeté quand…</p>
       <div class="opts">
-        <button class="opt">le dépôt distant est plein</button>
         <button class="opt" data-correct="1">le distant contient des commits que le local n'a pas</button>
-        <button class="opt">le message est trop long</button>
+        <button class="opt">le dépôt distant a atteint sa capacité maximale</button>
+        <button class="opt">le message de commit dépasse la taille autorisée</button>
       </div>
       <div class="q__exp">Le distant refuse qu'on écrive par-dessus ce que notre local ne connaît pas : pull d'abord.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait git fetch ?</p>
       <div class="opts">
-        <button class="opt">Il fusionne le distant dans le local</button>
+        <button class="opt">Il fusionne la branche distante dans la branche locale</button>
         <button class="opt" data-correct="1">Il actualise les références distantes sans fusionner</button>
-        <button class="opt">Il pousse les commits</button>
+        <button class="opt">Il pousse les commits locaux vers le dépôt distant</button>
       </div>
       <div class="q__exp">fetch ramène l'historique distant et met à jour origin/main, sans toucher à la copie.</div>
     </div>
     <div class="q">
       <p class="q__stem">git pull équivaut à…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">fetch puis merge</button>
-        <button class="opt">push puis fetch</button>
         <button class="opt">clone puis merge</button>
+        <button class="opt">push puis fetch</button>
+        <button class="opt" data-correct="1">fetch puis merge</button>
       </div>
       <div class="q__exp">pull = fetch + merge : il ramène ET incorpore dans la branche courante.</div>
     </div>
@@ -357,18 +405,18 @@ distant : 1</pre></div>
     <div class="q">
       <p class="q__stem">Que fait git push -u origin main ?</p>
       <div class="opts">
-        <button class="opt">Renomme main</button>
         <button class="opt" data-correct="1">Pousse main et la lie à sa jumelle distante</button>
-        <button class="opt">Crée origin</button>
+        <button class="opt">Renomme la branche main en branche origin</button>
+        <button class="opt">Crée le dépôt distant origin sur le serveur</button>
       </div>
       <div class="q__exp">-u (upstream) lie la branche locale à la branche distante pour les push/pull suivants.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le TP2, le conflit survient parce que…</p>
       <div class="opts">
+        <button class="opt">le dépôt est hébergé publiquement sur GitHub</button>
         <button class="opt" data-correct="1">les deux ont modifié le même fichier</button>
-        <button class="opt">le dépôt est public</button>
-        <button class="opt">B a cloné</button>
+        <button class="opt">B a cloné le dépôt après le commit de A</button>
       </div>
       <div class="q__exp">Deux modifications de la même zone : la fusion demande un arbitrage humain.</div>
     </div>
@@ -491,7 +539,7 @@ distant : 1</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

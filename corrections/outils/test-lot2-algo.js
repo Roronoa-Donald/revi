@@ -7,7 +7,9 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const parse5 = require('parse5');
 const catalogue = require('../../server/exercises/b1-algo');
+const examQcm = require('../../server/exercises/handwritten-exam-qcm')['b1-algo'];
 const { finalizeChapter } = require('../../scripts/generate-code-labs');
+const PseudoCodeEngine = require('../../assets/js/engines/pseudo-code-engine');
 
 const root = path.resolve(__dirname, '../..');
 const python = process.env.PYTHON_BIN || 'python3';
@@ -66,6 +68,13 @@ function correctAnswer(question) {
   return normalized(unique(all(question, node => node.tagName === 'button' && attribute(node, 'data-correct') === '1'), 'réponse correcte'));
 }
 
+function correctExamAnswer(question, marker) {
+  assert.equal(all(question, node => node.tagName === 'button' && attribute(node, 'data-correct') === '1').length, 0,
+    'simulateur-examen.html ne doit pas exposer data-correct="1"');
+  const entry = unique(examQcm.filter(item => item.stem.includes(marker)), `QCM examen serveur ${marker}`);
+  return entry.opts[entry.correct].replace(/<[^>]+>/g, '');
+}
+
 function exercise(id) {
   return unique(catalogue.filter(item => item.id === id), `exercice ${id}`);
 }
@@ -94,18 +103,35 @@ function expectOutput(code, stdin, expected) {
   assert.equal(result.stdout.trim(), expected.trim());
 }
 
-function checkExercise(item) {
+async function executeAlgo(code, stdin = '') {
+  const res = await PseudoCodeEngine.execute(code, stdin);
+  return {
+    status: res && res.status === 'success' ? 0 : 1,
+    stdout: (res && res.stdout) || '',
+    stderr: (res && res.stderr) || (res && res.compileError) || '',
+    error: null
+  };
+}
+
+async function expectAlgoOutput(code, stdin, expected) {
+  const result = await executeAlgo(code, stdin);
+  assert.equal(result.status, 0, `exécution pseudo-code échouée : ${result.stderr}`);
+  assert.equal(result.stdout.trim(), expected.trim());
+}
+
+async function checkExercise(item) {
   for (const sample of [...item.examples, ...item.tests]) {
-    expectOutput(item.solution, sample.stdin, sample.expected);
+    await expectAlgoOutput(item.solution, sample.stdin, sample.expected);
   }
 }
 
-function wrongOnAtLeastOneTest(item, variant) {
+async function wrongOnAtLeastOneTest(item, variant) {
   assert.notEqual(variant, item.solution, 'la variante doit modifier la solution');
-  assert.ok(item.tests.some(sample => {
-    const result = execute(variant, sample.stdin);
-    return result.status !== 0 || result.stdout.trim() !== sample.expected.trim();
-  }), 'aucun test caché ne rejette la variante');
+  for (const sample of item.tests) {
+    const result = await executeAlgo(variant, sample.stdin);
+    if (result.status !== 0 || result.stdout.trim() !== sample.expected.trim()) return;
+  }
+  assert.fail('aucun test caché ne rejette la variante');
 }
 
 test('F107 : distinguer continuation TantQue et arrêt Répéter', () => {
@@ -143,7 +169,7 @@ test('F110 : zéro ou une branche selon la présence de Sinon', () => {
     expectOutput(`note = ${score}\n${code}`, '', output);
   }
   const simulation = questionContaining(document('b1-algo/chapitres/simulateur-examen.html'), 'si aucune condition');
-  assert.match(correctAnswer(simulation), /Aucune branche/i);
+  assert.match(correctExamAnswer(simulation, 'si aucune condition'), /Aucune branche/i);
   expectOutput('x = 0\nif x > 2:\n    print("première")\nelif x > 1:\n    print("seconde")\nprint("fin")', '', 'fin');
 });
 
@@ -171,7 +197,7 @@ test('F113 : réaffectation locale et mutation de liste partagée', () => {
   assert.match(correctAnswer(question), /visible.*appelant/i);
   const cards = document('b1-algo/chapitres/cartes.html');
   assert.match(normalized(cardContaining(cards, "Portée d'une variable locale")), /boucle.*ne crée pas/i);
-  assert.match(normalized(cardContaining(cards, 'variable globale')), /liste.*modifi/i);
+  assert.match(normalized(cardContaining(cards, 'variables globales')), /effets de bord/i);
 });
 
 test('F114 : initialisation de la matrice dans le bloc autonome', () => {
@@ -192,7 +218,7 @@ test('F115 : schéma classique à deux boucles et contre-exemple à une boucle',
   assert.match(card, /une seule boucle/i);
 });
 
-test('F116 : PGCD non négatif, zéro et entiers négatifs', () => {
+test('F116 : PGCD non négatif, zéro et entiers négatifs', async () => {
   const chapter = document('b1-algo/chapitres/chapitre9.html');
   const code = codeContaining(chapter, 'def pgcd(a, b):');
   const verification = `${code}\nimport math\nfor a in range(-12, 13):\n    for b in range(-12, 13):\n        assert pgcd(a, b) == math.gcd(a, b), (a, b, pgcd(a, b))\nprint("625 couples")`;
@@ -201,15 +227,15 @@ test('F116 : PGCD non négatif, zéro et entiers négatifs', () => {
   assert.match(correctAnswer(question), /(?:abs\(a\)|\|a\|)/);
   assert.match(normalized(chapter), /pgcd\(0, 0\)\s*=\s*0/i);
   const item = exercise('algo-c9-e3');
-  checkExercise(item);
+  await checkExercise(item);
   for (const [input, output] of [['2\n3\n-8\n0\n', '8\n8'], ['2\n3\n0\n-8\n', '8\n8'], ['2\n3\n0\n0\n', '8\n0']]) {
-    expectOutput(item.solution, input, output);
+    await expectAlgoOutput(item.solution, input, output);
   }
-  wrongOnAtLeastOneTest(item, item.solution.replace('return abs(a)', 'return a'));
-  wrongOnAtLeastOneTest(item, item.solution.replace('return abs(a)', 'return abs(b)'));
+  await wrongOnAtLeastOneTest(item, item.solution.replace('Retourner Abs(a)', 'Retourner a'));
+  await wrongOnAtLeastOneTest(item, item.solution.replace('Retourner Abs(a)', 'Retourner Abs(b)'));
 });
 
-test('F117 : trace à quatre passages et exercice borné', () => {
+test('F117 : trace à quatre passages et exercice borné', async () => {
   const chapter = document('b1-algo/chapitres/chapitre9.html');
   assert.match(normalized(chapter), /vérification.*pas obligatoire/i);
   const trace = unique(all(chapter, node => node.tagName === 'table' && normalized(node).includes('Tableau avant') && normalized(node).includes('Échanges')), 'table de trace');
@@ -226,21 +252,23 @@ test('F117 : trace à quatre passages et exercice borné', () => {
   }
   const item = exercise('algo-c9-e1');
   assert.match(item.brief, /réduisez d’une case/i);
-  checkExercise(item);
-  expectOutput(item.solution, '4\n5\n2\n8\n1\n', '1 2 5 8\n3');
+  await checkExercise(item);
+  await expectAlgoOutput(item.solution, '4\n5\n2\n8\n1\n', '1 2 5 8\n3');
 });
 
-test('F118 : lecture autorisée dans le programme principal, calculs en fonctions', () => {
+test('F118 : lecture autorisée dans le programme principal, calculs en fonctions', async () => {
   const item = exercise('algo-c10-e3');
-  assert.match(item.brief, /lecture.*compréhension.*programme principal/i);
-  assert.match(item.brief, /boucles de calcul.*fonctions/i);
+  assert.match(item.brief, /lecture des durées peut se faire dans le programme principal/i);
+  assert.match(item.brief, /boucles de calcul doivent se trouver dans les fonctions/i);
   const chapter = document('b1-algo/chapitres/chapitre10.html');
   const lab = unique(all(chapter, node => attribute(node, 'data-exercise') === item.id), 'bloc F118');
-  assert.match(normalized(lab), /lecture.*compréhension.*programme principal/i);
-  const astCheck = `import ast\nimport sys\ntree = ast.parse(sys.stdin.read())\nprint(sum(isinstance(node, (ast.For, ast.While)) for node in tree.body))\nprint(sum(isinstance(node.value, ast.ListComp) for node in tree.body if isinstance(node, ast.Assign)))`;
-  expectOutput(astCheck, item.starter, '0\n1');
-  expectOutput(astCheck, item.solution, '0\n1');
-  checkExercise(item);
+  assert.match(normalized(lab), /lecture des durées peut se faire dans le programme principal/i);
+  for (const src of [item.starter, item.solution]) {
+    const ast = new PseudoCodeEngine.Parser(new PseudoCodeEngine.Lexer(src).tokenize()).parse();
+    const fnCount = Object.keys(ast.functions || {}).length;
+    assert.equal(fnCount, 2);
+  }
+  await checkExercise(item);
 });
 
 test('F119 : progression entière bornée, contre-exemple et récursion', () => {
@@ -255,41 +283,41 @@ test('F119 : progression entière bornée, contre-exemple et récursion', () => 
   assert.match(correctAnswer(question), /diminuer.*1/i);
   const simulator = document('b1-algo/chapitres/simulateur-examen.html');
   const recursion = questionContaining(simulator, "garantit l'arrêt d'une fonction récursive");
-  assert.match(correctAnswer(recursion), /cas de base.*diminue/i);
-  assert.match(normalized(cardContaining(document('b1-algo/chapitres/cartes.html'), "progression vers l'arrêt")), /entier.*diminue/i);
+  assert.match(correctExamAnswer(recursion, "garantit l'arrêt d'une fonction récursive"), /cas de base.*diminue/i);
+  assert.match(normalized(cardContaining(document('b1-algo/chapitres/cartes.html'), "terminaison d'une boucle")), /progresser strictement/i);
 });
 
-test('F109 : format et première égalité préservés', () => {
+test('F109 : format et première égalité préservés', async () => {
   const item = exercise('algo-c3-e2');
   assert.match(item.brief, /Max : 9 \(position 2\).*première position/s);
-  checkExercise(item);
-  expectOutput(item.solution, '-5\n-5\n-8\n', 'Max : -5 (position 1)');
-  wrongOnAtLeastOneTest(item, item.solution.replaceAll('> maximum:', '>= maximum:'));
+  await checkExercise(item);
+  await expectAlgoOutput(item.solution, '-5\n-5\n-8\n', 'Max : -5 (position 1)');
+  await wrongOnAtLeastOneTest(item, item.solution.replaceAll('> maximum', '>= maximum'));
 });
 
-test('F112 : tableau non vide et valeur négative préservés', () => {
+test('F112 : tableau non vide et valeur négative préservés', async () => {
   const item = exercise('algo-c6-e1');
   assert.match(item.brief, /n ≥ 1.*au moins une valeur/s);
-  checkExercise(item);
-  expectOutput(item.solution, '1\n-9\n', '-9\n-9');
-  wrongOnAtLeastOneTest(item, item.solution.replace('maximum = tableau[0]', 'maximum = 0'));
+  await checkExercise(item);
+  await expectAlgoOutput(item.solution, '1\n-9\n', '-9\n-9');
+  await wrongOnAtLeastOneTest(item, item.solution.replace('maximum <- t[0]', 'maximum <- 0'));
 });
 
-test('F205 : tri par sélection et dernier échange préservés', () => {
+test('F205 : tri par sélection et dernier échange préservés', async () => {
   const item = exercise('algo-c6-e3');
-  checkExercise(item);
-  expectOutput(item.solution, '2\n5\n1\n', '1 5');
-  wrongOnAtLeastOneTest(item, item.solution.replace('range(n - 1)', 'range(n - 2)'));
+  await checkExercise(item);
+  await expectAlgoOutput(item.solution, '2\n5\n1\n', '1 5');
+  await wrongOnAtLeastOneTest(item, item.solution.replace('Pour depart De 0 A n - 2', 'Pour depart De 0 A n - 3'));
 });
 
-test('F206 : frontières strictes de facturation préservées', () => {
+test('F206 : frontières strictes de facturation préservées', async () => {
   const item = exercise('algo-c10-e1');
-  checkExercise(item);
+  await checkExercise(item);
   for (const [quantity, expected] of [[10, 1000], [11, 1045], [50, 4750], [51, 4590]]) {
-    expectOutput(item.solution, `100\n${quantity}\n`, String(expected));
+    await expectAlgoOutput(item.solution, `100\n${quantity}\n`, String(expected));
   }
-  wrongOnAtLeastOneTest(item, item.solution.replace('quantite > 10', 'quantite >= 10'));
-  wrongOnAtLeastOneTest(item, item.solution.replace('quantite > 50', 'quantite >= 50'));
+  await wrongOnAtLeastOneTest(item, item.solution.replace('quantite > 10', 'quantite >= 10'));
+  await wrongOnAtLeastOneTest(item, item.solution.replace('quantite > 50', 'quantite >= 50'));
 });
 
 test('Blocs générés : les dix chapitres B1 algorithmique restent synchronisés', () => {

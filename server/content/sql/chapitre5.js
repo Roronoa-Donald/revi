@@ -123,12 +123,12 @@ module.exports = {
     {
       stem: 'Que signifie la propriété d’Atomicité (A) dans le contrat ACID d’une base de données relationnelle ?',
       opts: [
-        'Toutes les opérations de la transaction sont entièrement appliquées ou aucune ne l’est (principe du tout ou rien)',
-        'Les requêtes sont traitées à la vitesse d’un atome',
-        'Chaque table ne peut contenir qu’une seule colonne clé primaire',
-        'Les données sont sauvegardées sur une clé USB'
+        "Les requêtes de la transaction sont traitées à la vitesse de l’atome en physique quantique",
+        "Toutes les opérations de la transaction sont entièrement appliquées ou aucune ne l’est (principe du tout ou rien)",
+        "Chaque table de la base ne peut contenir qu’une seule et unique colonne clé primaire",
+        "Les données de la base sont systématiquement sauvegardées sur une clé USB externe"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’atomicité garantit que l’ensemble des instructions d’une transaction forme un bloc indivisible : en cas d’échec partiel, le SGBD annule l’intégralité des modifications préalables pour restaurer l’état d’origine (ROLLBACK).'
     },
     {
@@ -145,34 +145,34 @@ module.exports = {
     {
       stem: 'Quel est le niveau d’isolation minimal requis pour empêcher totalement les lectures sales (Dirty Reads) ?',
       opts: [
-        'Read Committed',
+        'Serializable',
         'Read Uncommitted',
         'Repeatable Read',
-        'Serializable'
+        'Read Committed'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le niveau Read Committed garantit qu’une transaction ne peut lire que les données dont le COMMIT a été définitivement enregistré par d’autres transactions, neutralisant ainsi les lectures sales.'
     },
     {
       stem: 'À quoi sert l’instruction SAVEPOINT dans une transaction SQL ?',
       opts: [
-        'À marquer un point de reprise intermédiaire permettant un ROLLBACK partiel sans annuler toute la transaction',
-        'À enregistrer définitivement la transaction sur le disque',
-        'À verrouiller l’intégralité de la base de données en lecture seule',
-        'À créer une copie de sauvegarde physique de la table'
+        "À enregistrer définitivement l’intégralité de la transaction validée sur le disque dur",
+        "À verrouiller l’intégralité de la base de données en mode lecture seule exclusive",
+        "À marquer un point de reprise intermédiaire permettant un ROLLBACK partiel sans annuler toute la transaction",
+        "À créer une copie de sauvegarde physique complète de la table sur le disque dur"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'SAVEPOINT nom_point crée un point de jalonnement dans la transaction en cours. En cas d’erreur sur une étape ultérieure, la commande ROLLBACK TO SAVEPOINT nom_point rétablit l’état à ce point précis sans perdre le travail antérieur.'
     },
     {
       stem: 'Comment le SGBD résout-il un interblocage (Deadlock) entre deux transactions ?',
       opts: [
-        'Il détecte le cycle dans son graphe d’attente, choisit une transaction comme victime et force son annulation par ROLLBACK',
-        'Il attend indéfiniment que l’administrateur redémarre le serveur',
-        'Il exécute les deux transactions en parallèle en fusionnant leurs modifications au hasard',
-        'Il supprime les deux tables concernées'
+        "Il attend indéfiniment que l’administrateur de la base daigne redémarrer le serveur",
+        "Il détecte le cycle dans son graphe d’attente, choisit une transaction comme victime et force son annulation par ROLLBACK",
+        "Il exécute les deux transactions concurrentes en parallèle en fusionnant leurs modifications au hasard",
+        "Il supprime purement et simplement les deux tables concernées par le conflit de verrous"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le gestionnaire de verrous du SGBD surveille son graphe d’attente (Wait-For Graph). Dès qu’un cycle est détecté, il interrompt l’une des transactions (la victime), annule ses actions par ROLLBACK et renvoie une erreur applicative pour que le programme puisse retenter l’opération.'
     }
   ],

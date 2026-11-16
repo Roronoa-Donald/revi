@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -190,29 +188,28 @@ ip route 10.0.0.0 255.0.0.0 172.16.2.1 10</code></pre>
      data-exercise="na2-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="C 192.168.1.0/24 is directly connected, GigabitEthernet0/0&#10;S 10.0.0.0/8 [1/0] via 192.168.1.254">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c5-e1) — Parseur de table de routage Cisco (show ip route)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Chez NordMob, show ip route renvoie :&#10;C 10.9.1.0/24 connected, Gi0/0 ; C 10.9.2.0/24 connected, Gi0/1 ; C 10.9.3.0/24 connected, Gi0/2 ;&#10;O 172.20.0.0/16 [110/20] via 10.9.2.2 ; S 192.168.5.0/24 [1/0] via 10.9.3.2 ; S* 0.0.0.0/0 [1/0] via 198.51.100.254.&#10;&#10;1) Trois réseaux directement connectés (C).&#10;2) 172.20.0.0/16 vient d'OSPF (O), distance administrative 110.&#10;3) La route statique 192.168.5.0/24 passe par le prochain saut 10.9.3.2.&#10;4) La route par défaut S* renvoie tout le reste vers 198.51.100.254.">
+  <script type="text/plain" data-lab-starter># Exercice — La table de routage du routeur du siège de Verger&Co
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot, l'adresse ou le nombre exact, sans commentaire.
 
-[Cas 1 — Route par défaut et route locale]
-# Données : L 192.168.1.254/32 is directly connected, GigabitEthernet0/0
-# Données : S* 0.0.0.0/0 [1/0] via 192.168.1.1
+[Question 1 — Réseaux directement connectés]
 A_COMPLETER
 
-[Cas 2 — Route dynamique OSPF avec métrique]
-# Données : O 172.16.0.0/16 [110/35] via 10.0.0.2, Serial0/0/0
+[Question 2 — Origine de la route 10.0.0.0/8]
 A_COMPLETER
 
-[Cas 3 — Route EIGRP interne]
-# Données : D 10.50.0.0/20 [90/30720] via 10.1.1.2
+[Question 3 — Prochain saut de 10.0.0.0/8]
 A_COMPLETER
 
-[Cas 4 — Route statique flottante de secours]
-# Données : S 10.0.0.0/8 [120/0] via 192.168.2.1
+[Question 4 — Distance administrative d'une route statique]
+A_COMPLETER
+
+[Question 5 — Rôle de la route S* 0.0.0.0/0]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Parseur de table de routage Cisco (show ip route)</h3>
+    <h3 class="lab__title">Exercice 1 — La table de routage du routeur du siège de Verger&amp;Co</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -221,30 +218,29 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les entrées d'une table de routage Cisco IOS pour identifier la source (code), le préfixe, la distance administrative et le next-hop.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.168.1.0/24 is directly connected, GigabitEthernet0/0&lt;/code&gt;<br>
-- <code>L 192.168.1.1/32 is directly connected, GigabitEthernet0/0</code><br>
-- <code>S 10.0.0.0/8 [1/0] via 192.168.1.254</code><br>
-- <code>O 172.16.0.0/16 [110/20] via 10.1.1.2, GigabitEthernet0/1</code><br>
-- <code>S* 0.0.0.0/0 [1/0] via 192.168.1.254</code><br>
-Pour chaque route,, indiquez :<br>
-<code>[&lt;PROTO&gt;] &lt;RESEAU&gt; | AD=&lt;AD&gt; | Metrique=&lt;MET&gt; | Sortie=&lt;VIA_OU_INTERFACE&gt;</code><br>
-avec les correspondances de protocoles :<br>
-<code>C</code> -&gt; Directement Connecte (AD=0, Metrique=0)<br>
-<code>L</code> -&gt; Hote Local (AD=0, Metrique=0)<br>
-<code>S</code> ou <code>S*</code> -&gt; Statique (AD et métrique extraits de <code>[AD/Metrique]</code>, par défaut AD=1, Met=0 si non précisé)<br>
-<code>O</code> -&gt; OSPF (AD=110)<br>
-<code>D</code> -&gt; EIGRP (AD=90)<br>
-<code>B</code> -&gt; BGP (AD=20 si eBGP, 200 si iBGP)</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une sortie show ip route : codes d'origine, prochain saut, distance administrative et route par défaut.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Verger&amp;Co, conserverie de 300 salariés, interconnecte ses services derrière le routeur du siège. L'administrateur saisit <code>show ip route</code> et obtient la sortie suivante :</p><pre>C    192.168.1.0/24 is directly connected, GigabitEthernet0/0
+L    192.168.1.254/32 is directly connected, GigabitEthernet0/0
+C    192.168.2.0/24 is directly connected, GigabitEthernet0/1
+S    10.0.0.0/8 [1/0] via 192.168.2.2
+O    172.16.0.0/16 [110/20] via 192.168.2.2
+S*   0.0.0.0/0 [1/0] via 203.0.113.254</pre><p>Rappel du cours : C = directement connectée, S = statique, O = OSPF, S* = route par défaut ; le premier nombre entre crochets est la distance administrative. Répondez par le mot, l'adresse ou le nombre exact.</p><ol><li>Combien de réseaux directement connectés (code C) la table contient-elle ?</li><li>Quelle est l'origine de la route 10.0.0.0/8, précédée du code S ?</li><li>Quel est le prochain saut (next-hop) de la route 10.0.0.0/8 ?</li><li>Quelle est la distance administrative d'une route statique ?</li><li>Que dessert la route S* 0.0.0.0/0 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>C 192.168.1.0/24 is directly connected, GigabitEthernet0/0
-S 10.0.0.0/8 [1/0] via 192.168.1.254</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Chez NordMob, show ip route renvoie :
+C 10.9.1.0/24 connected, Gi0/0 ; C 10.9.2.0/24 connected, Gi0/1 ; C 10.9.3.0/24 connected, Gi0/2 ;
+O 172.20.0.0/16 [110/20] via 10.9.2.2 ; S 192.168.5.0/24 [1/0] via 10.9.3.2 ; S* 0.0.0.0/0 [1/0] via 198.51.100.254.
+
+1) Trois réseaux directement connectés (C).
+2) 172.20.0.0/16 vient d'OSPF (O), distance administrative 110.
+3) La route statique 192.168.5.0/24 passe par le prochain saut 10.9.3.2.
+4) La route par défaut S* renvoie tout le reste vers 198.51.100.254.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le premier token indique le code protocole (C, L, S, S*, O, D, B).</li>
-        <li>Le bloc entre crochets [AD/Metrique] fournit la Distance Administrative et le coût.</li>
+        <li>Chaque ligne commence par une lettre : elle indique la famille de la route, pas sa destination.</li>
+        <li>Le prochain saut se lit après « via » : c'est l'adresse à laquelle le paquet est remis pour atteindre le réseau annoncé.</li>
+        <li>La distance administrative d'une statique vaut 1 ; l'étoile de S* signale la route candidate par défaut, celle qui attrape tout paquet sans route plus précise.</li>
       </ol>
     </details>
   </div>
@@ -254,37 +250,28 @@ S 10.0.0.0/8 [1/0] via 192.168.1.254</pre></div>
      data-exercise="na2-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="PAQUET: 192.168.1.135&#10;ROUTE 192.168.0.0/16 10.1.1.1 1&#10;ROUTE 192.168.1.0/24 10.2.2.1 110&#10;ROUTE 192.168.1.128/28 10.3.3.1 110&#10;ROUTE 0.0.0.0/0 10.0.0.254 1">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c5-e2) — Moteur de décision Longest Prefix Match (LPM)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'aquarium municipal aiguille ses paquets depuis la table suivante :&#10;C 172.16.1.0/24 connected, Gi0/0 ; O 172.16.2.0/24 [110/20] via 172.16.9.2 ; S 172.16.0.0/16 [1/0] via 172.16.9.3 ; S* 0.0.0.0/0 [1/0] via 198.51.100.254.&#10;&#10;1) 172.16.1.9 : couvert par C /24, O /24 ? non (bloc 172.16.2.x), S /16 et S* /0 — le /24 connecté gagne.&#10;2) 172.16.2.9 : couvert par O /24 et S /16 — le /24 OSPF gagne, via 172.16.9.2, bien que son AD soit 110 contre 1.&#10;3) 172.16.9.9 : couvert par S /16 seulement — prochain saut 172.16.9.3.&#10;4) 1.1.1.1 : aucune route spécifique — la route par défaut l'attrape.">
+  <script type="text/plain" data-lab-starter># Exercice — L'aiguillage des paquets par plus long préfixe chez BreizhNet
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par la route, l'adresse ou le mot exact, sans commentaire.
 
-[Cas 1 — Arbitrage par Distance Administrative sur même masque]
-# Données : PAQUET: 10.5.5.5
-# Données : ROUTE 10.5.5.0/24 192.168.1.1 110
-# Données : ROUTE 10.5.5.0/24 192.168.2.1 90
+[Question 1 — Route du paquet 1 (10.1.1.50)]
 A_COMPLETER
 
-[Cas 2 — Recours à la route par défaut /0]
-# Données : PAQUET: 8.8.8.8
-# Données : ROUTE 192.168.0.0/16 10.0.0.1 1
-# Données : ROUTE 172.16.0.0/12 10.0.0.2 1
-# Données : ROUTE 0.0.0.0/0 10.0.0.254 1
+[Question 2 — Route du paquet 2 (10.1.0.200)]
 A_COMPLETER
 
-[Cas 3 — Rejet en l absence de route correspondante]
-# Données : PAQUET: 203.0.113.5
-# Données : ROUTE 10.0.0.0/8 1.1.1.1 1
-# Données : ROUTE 192.168.1.0/24 2.2.2.2 1
+[Question 3 — Pourquoi l'OSPF est préférée à la statique /16]
 A_COMPLETER
 
-[Cas 4 — Route hôte /32 prioritaire sur tout]
-# Données : PAQUET: 172.16.1.100
-# Données : ROUTE 172.16.1.0/24 10.1.1.1 1
-# Données : ROUTE 172.16.1.100/32 10.99.99.1 110
+[Question 4 — Prochain saut du paquet 3 (10.2.0.10)]
+A_COMPLETER
+
+[Question 5 — Route du paquet 4 (8.8.8.8)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur de décision Longest Prefix Match (LPM)</h3>
+    <h3 class="lab__title">Exercice 2 — L'aiguillage des paquets par plus long préfixe chez BreizhNet</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -293,29 +280,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Déterminer la route exacte empruntée par un paquet IP en appliquant la règle CCNA du préfixe le plus spécifique.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.168.1.135&lt;/code&gt;).<br>
-Les lignes suivantes décrivent les routes candidates dans la table de routage au format :<br>
-<code>ROUTE &lt;PREFIXE/CIDR&gt; &lt;NEXT_HOP&gt; &lt;AD&gt;</code> (ex: <code>ROUTE 192.168.1.128/28 10.0.0.1 110</code>).<br>
-Règles d'arbitrage Cisco :<br>
-1. Filtrer les routes qui englobent l'IP de destination (l'IP doit appartenir au sous-réseau).<br>
-2. Choisir la route ayant le <strong>masque le plus long (CIDR le plus élevé)</strong> : Longest Prefix Match.<br>
-3. En cas d'égalité parfaite de longueur de préfixe, départager par la <strong>plus petite Distance Administrative (AD)</strong>.<br>
-Afficher :<br>
-<code>ROUTE RETENUE: &lt;PREFIXE/CIDR&gt; via &lt;NEXT_HOP&gt; (Masque /&lt;n&gt;, AD=&lt;ad&gt;)</code><br>
-Si aucune route ne correspond, afficher <code>PAQUET REJETE: Pas de route par defaut</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer le Longest Prefix Match à quatre paquets réels et justifier le choix face à la distance administrative.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'opérateur régional BreizhNet relaie le trafic de ses clients depuis le routeur <code>R-AGENCE</code>, dont voici la table de routage :</p><pre>C    10.1.1.0/24 is directly connected, GigabitEthernet0/0
+O    10.1.0.0/24 [110/20] via 192.168.2.1
+S    10.0.0.0/16 [1/0] via 192.168.1.1
+S*   0.0.0.0/0 [1/0] via 203.0.113.254</pre><p>Quatre paquets arrivent consécutivement sur R-AGENCE, avec les destinations suivantes :</p><table><tr><th>Paquet</th><th>Destination</th></tr><tr><th>1</th><td>10.1.1.50</td></tr><tr><th>2</th><td>10.1.0.200</td></tr><tr><th>3</th><td>10.2.0.10</td></tr><tr><th>4</th><td>8.8.8.8</td></tr></table><p>Rappel du cours : parmi toutes les routes qui englobent la destination, la route au préfixe le plus long est choisie, quelle que soit sa distance administrative. Répondez par la route, l'adresse ou le mot exact.</p><ol><li>Quelle route achemine le paquet 1 (destination 10.1.1.50) ?</li><li>Quelle route achemine le paquet 2 (destination 10.1.0.200) ?</li><li>Pourquoi la route OSPF est-elle préférée à la statique /16 pour le paquet 2 ?</li><li>Quel prochain saut achemine le paquet 3 (destination 10.2.0.10) ?</li><li>Quelle route achemine le paquet 4 (destination 8.8.8.8) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PAQUET: 192.168.1.135
-ROUTE 192.168.0.0/16 10.1.1.1 1
-ROUTE 192.168.1.0/24 10.2.2.1 110
-ROUTE 192.168.1.128/28 10.3.3.1 110
-ROUTE 0.0.0.0/0 10.0.0.254 1</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'aquarium municipal aiguille ses paquets depuis la table suivante :
+C 172.16.1.0/24 connected, Gi0/0 ; O 172.16.2.0/24 [110/20] via 172.16.9.2 ; S 172.16.0.0/16 [1/0] via 172.16.9.3 ; S* 0.0.0.0/0 [1/0] via 198.51.100.254.
+
+1) 172.16.1.9 : couvert par C /24, O /24 ? non (bloc 172.16.2.x), S /16 et S* /0 — le /24 connecté gagne.
+2) 172.16.2.9 : couvert par O /24 et S /16 — le /24 OSPF gagne, via 172.16.9.2, bien que son AD soit 110 contre 1.
+3) 172.16.9.9 : couvert par S /16 seulement — prochain saut 172.16.9.3.
+4) 1.1.1.1 : aucune route spécifique — la route par défaut l'attrape.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifier l'appartenance à un sous-réseau : (ip &amp; mask) == network.</li>
-        <li>Le tri principal est sur le CIDR décroissant, le tri secondaire sur l'AD croissante.</li>
+        <li>Pour chaque destination, listez d'abord toutes les routes dont le réseau englobe l'adresse, puis ne gardez que la plus spécifique.</li>
+        <li>10.1.1.50 est couvert par trois routes (C /24, S /16, S* /0) : la plus longue est la /24 connectée ; 10.1.0.200 est couvert par la O /24 et la S /16.</li>
+        <li>8.8.8.8 n'est couvert par aucune route spécifique : seul le /0 par défaut peut l'attraper ; 10.2.0.10 n'est couvert que par la /16.</li>
       </ol>
     </details>
   </div>
@@ -325,37 +309,31 @@ ROUTE 0.0.0.0/0 10.0.0.254 1</pre></div>
      data-exercise="na2-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="192.168.0.0/24&#10;192.168.1.0/24&#10;192.168.2.0/24&#10;192.168.3.0/24">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c5-e3) — Calculateur de résumé de routes (Supernetting CIDR)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La maison de retraite Les-Tilleuls interconnecte son siège (172.24.30.0/24 derrière RA) et son annexe (172.24.31.0/24 derrière RB) via la liaison 10.20.0.0/30 (RA = 10.20.0.1, RB = 10.20.0.2).&#10;&#10;1) Sur RA, route vers l'annexe : ip route 172.24.31.0 255.255.255.0 10.20.0.2.&#10;2) Sur RB, route par défaut : ip route 0.0.0.0 0.0.0.0 10.20.0.1.&#10;3) Prochain saut de RA vers l'annexe : 10.20.0.2.&#10;4) Résumé des deux LAN : 172.24.30.0/23.&#10;5) La /30 offre 2 adresses utiles (2^2 − 2).">
+  <script type="text/plain" data-lab-starter># Exercice — Les routes statiques entre le siège et la succursale de MeublesDomus
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : la commande IOS complète. Autres questions : l'adresse ou le mot exact.
 
-[Cas 1 — Deux réseaux /24 agrégés en /23]
-# Données : 172.16.10.0/24
-# Données : 172.16.11.0/24
+[Question 1 — Route statique de R1 vers le LAN de la succursale]
 A_COMPLETER
 
-[Cas 2 — Huit sous-réseaux de succursales]
-# Données : 10.10.0.0/24
-# Données : 10.10.1.0/24
-# Données : 10.10.2.0/24
-# Données : 10.10.3.0/24
-# Données : 10.10.4.0/24
-# Données : 10.10.5.0/24
-# Données : 10.10.6.0/24
-# Données : 10.10.7.0/24
+[Question 2 — Route par défaut de R2]
 A_COMPLETER
 
-[Cas 3 — Sous-réseaux /28 de datacenters]
-# Données : 192.168.1.16/28
-# Données : 192.168.1.32/28
+[Question 3 — Prochain saut utilisé par R1 vers 192.168.17.0/24]
 A_COMPLETER
 
-[Cas 4 — Réseau unique sans agrégation]
-# Données : 192.168.1.0/24
+[Question 4 — Préfixe résumant les deux LAN]
+A_COMPLETER
+
+[Question 5 — Adresses utiles de la liaison 10.0.12.0/30]
+A_COMPLETER
+
+[Question 6 — Distance administrative de la route flottante 4G]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Calculateur de résumé de routes (Supernetting CIDR)</h3>
+    <h3 class="lab__title">Exercice 3 — Les routes statiques entre le siège et la succursale de MeublesDomus</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -364,27 +342,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Agréger un ensemble de sous-réseaux IPv4 contigus en un unique préfixe résumé optimal pour optimiser la table de routage.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.168.0.0/24&lt;/code&gt;, <code>192.168.1.0/24</code>, <code>192.168.2.0/24</code>, <code>192.168.3.0/24</code>).<br>
-L'objectif est de déterminer le <strong>plus petit préfixe englobant</strong> (Supernet) qui couvre l'ensemble des réseaux donnés :<br>
-1. Convertir chaque réseau en binaire 32 bits.<br>
-2. Trouver le nombre de bits communs de poids fort partagés par TOUS les réseaux.<br>
-3. Calculer l'adresse réseau résultante avec ce nouveau CIDR.<br>
-Afficher :<br>
-<code>RESUME OPTIMAL: &lt;RESEAU_RESUME&gt;/&lt;CIDR_COMMUN&gt;</code><br>
-<code>Masque: &lt;MASQUE_DECIMAL&gt;</code><br>
-<code>Sous-reseaux englobes: &lt;N&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire les routes statiques d'une interconnexion réelle, résumer deux LAN contigus et régler une route flottante.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> MeublesDomus, fabricant de cuisines, exploite un siège et une succursale récente. Le plan d'adressage validé est le suivant :</p><table><tr><th>Élément</th><th>Réseau</th><th>Détail</th></tr><tr><th>LAN du siège</th><td>192.168.16.0/24</td><td>derrière R1</td></tr><tr><th>LAN de la succursale</th><td>192.168.17.0/24</td><td>derrière R2</td></tr><tr><th>Liaison R1–R2</th><td>10.0.12.0/30</td><td>R1 = 10.0.12.1, R2 = 10.0.12.2</td></tr><tr><th>Lien FAI du siège</th><td>203.0.113.0/24</td><td>passerelle du FAI = 203.0.113.254</td></tr></table><p>Pour la haute disponibilité, un lien 4G de secours peut relayer la liaison R1–R2 via un routeur mobile ; la route du lien principal garde sa distance administrative par défaut. Répondez par la commande, l'adresse ou le mot exact.</p><ol><li>Écrivez la route statique à configurer sur R1 pour joindre le LAN de la succursale (format : ip route réseau masque prochain-saut).</li><li>Écrivez la route par défaut à configurer sur R2.</li><li>Quel prochain saut R1 utilise-t-il pour joindre 192.168.17.0/24 ?</li><li>Les deux LAN 192.168.16.0/24 et 192.168.17.0/24 sont contigus : quel préfixe unique les résume ?</li><li>Combien d'adresses utiles la liaison 10.0.12.0/30 offre-t-elle ?</li><li>La route statique flottante du lien 4G de secours doit-elle avoir une distance administrative inférieure ou supérieure à celle du lien principal ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>192.168.0.0/24
-192.168.1.0/24
-192.168.2.0/24
-192.168.3.0/24</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La maison de retraite Les-Tilleuls interconnecte son siège (172.24.30.0/24 derrière RA) et son annexe (172.24.31.0/24 derrière RB) via la liaison 10.20.0.0/30 (RA = 10.20.0.1, RB = 10.20.0.2).
+
+1) Sur RA, route vers l'annexe : ip route 172.24.31.0 255.255.255.0 10.20.0.2.
+2) Sur RB, route par défaut : ip route 0.0.0.0 0.0.0.0 10.20.0.1.
+3) Prochain saut de RA vers l'annexe : 10.20.0.2.
+4) Résumé des deux LAN : 172.24.30.0/23.
+5) La /30 offre 2 adresses utiles (2^2 − 2).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Comparer les représentations binaires des adresses réseau minimale et maximale du lot.</li>
-        <li>Le premier bit divergent détermine la fin du préfixe commun.</li>
+        <li>Syntaxe : ip route &lt;réseau&gt; &lt;masque&gt; &lt;prochain saut&gt;. Sur R1, le réseau visé est le LAN de la succursale et le prochain saut est l'adresse de R2 sur la liaison.</li>
+        <li>Sur R2, tout trafic sortant (y compris vers Internet) passe par R1 : la route par défaut pointe vers l'adresse de R1 sur la liaison.</li>
+        <li>192.168.16.0 et 192.168.17.0 partagent leurs 23 premiers bits (16 = 00010000, 17 = 00010001) : leur résumé est un /23 ; une /30 réserve 2 bits d'hôte ; une flottante doit rester dormante, donc avec une AD plus élevée que la principale.</li>
       </ol>
     </details>
   </div>
@@ -407,8 +381,8 @@ Afficher :<br>
     <div class="q">
       <p class="q__stem">Soit deux routes dans la table : 192.168.1.0/24 via 10.0.0.1 (AD 1) et 192.168.1.128/25 via 10.0.0.2 (AD 110). Vers quelle adresse IP un paquet destiné à 192.168.1.150 est-il acheminé ?</p>
       <div class="opts">
-        <button class="opt">Vers 10.0.0.1 car la Distance Administrative 1 est meilleure que 110</button>
         <button class="opt" data-correct="1">Vers 10.0.0.2 car le préfixe /25 est plus spécifique (Longest Prefix Match)</button>
+        <button class="opt">Vers 10.0.0.1 car la Distance Administrative 1 est meilleure que 110</button>
         <button class="opt">Le paquet est équilibré 50/50 entre les deux prochains sauts</button>
         <button class="opt">Le paquet est rejeté pour ambiguïté de routage</button>
       </div>
@@ -418,18 +392,18 @@ Afficher :<br>
       <p class="q__stem">Quelle est la syntaxe correcte pour configurer une route par défaut vers la passerelle 203.0.113.1 sous Cisco IOS ?</p>
       <div class="opts">
         <button class="opt">ip route default 203.0.113.1</button>
-        <button class="opt" data-correct="1">ip route 0.0.0.0 0.0.0.0 203.0.113.1</button>
-        <button class="opt">ip default-gateway 203.0.113.1</button>
         <button class="opt">ip route *.*.*.* 203.0.113.1</button>
+        <button class="opt">ip default-gateway 203.0.113.1</button>
+        <button class="opt" data-correct="1">ip route 0.0.0.0 0.0.0.0 203.0.113.1</button>
       </div>
       <div class="q__exp">La route par défaut sous Cisco IOS est définie par le préfixe 0.0.0.0 avec le masque 0.0.0.0, soit la commande « ip route 0.0.0.0 0.0.0.0 203.0.113.1 ».</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la valeur de la Distance Administrative par défaut attribuée à une route directement connectée (C) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">0</button>
-        <button class="opt">1</button>
         <button class="opt">90</button>
+        <button class="opt">1</button>
+        <button class="opt" data-correct="1">0</button>
         <button class="opt">110</button>
       </div>
       <div class="q__exp">Une route directement connectée a une Distance Administrative de 0, ce qui en fait la source d’information la plus fiable possible.</div>
@@ -458,9 +432,9 @@ Afficher :<br>
       <p class="q__stem">Que se passe-t-il si un routeur reçoit un paquet destiné à une adresse IP pour laquelle aucune route spécifique n’existe et qu’aucune route par défaut n’est configurée ?</p>
       <div class="opts">
         <button class="opt">Le routeur diffuse le paquet sur tous ses ports</button>
-        <button class="opt" data-correct="1">Le routeur détruit le paquet et renvoie un message ICMP Destination Unreachable à l’émetteur</button>
-        <button class="opt">Le routeur met le paquet en attente pendant 30 secondes</button>
         <button class="opt">Le routeur renvoie le paquet à l’émetteur sans modification</button>
+        <button class="opt">Le routeur met le paquet en attente pendant 30 secondes</button>
+        <button class="opt" data-correct="1">Le routeur détruit le paquet et renvoie un message ICMP Destination Unreachable à l’émetteur</button>
       </div>
       <div class="q__exp">Sans route correspondante ni route par défaut (0.0.0.0/0), le paquet est silencieusement détruit et le routeur émet un message ICMP type 3 code 0 (Network Unreachable) vers l’adresse IP source.</div>
     </div>
@@ -468,8 +442,8 @@ Afficher :<br>
       <p class="q__stem">Quelle Distance Administrative possède une route apprise via le protocole EIGRP interne ?</p>
       <div class="opts">
         <button class="opt">20</button>
-        <button class="opt" data-correct="1">90</button>
         <button class="opt">110</button>
+        <button class="opt" data-correct="1">90</button>
         <button class="opt">120</button>
       </div>
       <div class="q__exp">EIGRP interne possède une Distance Administrative par défaut de 90. (OSPF est à 110, RIP à 120 et eBGP à 20).</div>
@@ -596,7 +570,7 @@ Afficher :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -168,14 +168,14 @@ module.exports = {
   questions: [
     {
       stem: 'Quelle est la complexité théorique pour trouver une collision sur une fonction de hachage idéale produisant un condensé de n bits ?',
-      opts: ['2^n opérations', '2^(n/2) opérations', 'n^2 opérations', '2^(2n) opérations'],
-      correct: 1,
+      opts: ['2^n opérations', '2^(2n) opérations', 'n^2 opérations', '2^(n/2) opérations'],
+      correct: 3,
       exp: 'En vertu du paradoxe des anniversaires, la recherche d\'une collision quelconque nécessite environ sqrt(2^n) = 2^(n/2) opérations, contre 2^n pour inverser une préimage.'
     },
     {
       stem: 'Pourquoi la construction naïve H(K || M) est-elle vulnérable sur des fonctions comme SHA-256 ?',
-      opts: ['Elle permet de retrouver la clé K par simple division modulaire', 'La structure de Merkle-Damgård permet d\'ajouter des données sans connaître K (Length Extension Attack)', 'Le hachage produit toujours une chaîne vide', 'Elle déclenche une boucle infinie dans l\'interpréteur'],
-      correct: 1,
+      opts: ["Elle permet de retrouver la clé K par simple division modulaire inverse de la valeur hachée","Le hachage produit toujours une chaîne vide pour toute entrée de longueur nulle","La structure de Merkle-Damgård permet d'ajouter des données sans connaître K (Length Extension Attack)","Elle déclenche une boucle infinie dans l'interpréteur lors du calcul du condensé"],
+      correct: 2,
       exp: 'L\'état interne de Merkle-Damgård après le traitement du message correspond directement au condensé de sortie. Un attaquant peut injecter des blocs supplémentaires en reprenant cet état sans connaître la clé secrète K.'
     },
     {
@@ -186,14 +186,14 @@ module.exports = {
     },
     {
       stem: 'Quelle attaque a formellement démontré en 2017 la vulnérabilité pratique aux collisions de SHA-1 avec deux documents PDF ayant la même empreinte ?',
-      opts: ['L\'attaque Heartbleed', 'L\'attaque POODLE', 'L\'attaque SHAttered', 'L\'attaque WannaCry'],
-      correct: 2,
+      opts: ['L\'attaque SHAttered', 'L\'attaque POODLE', 'L\'attaque Heartbleed', 'L\'attaque WannaCry'],
+      correct: 0,
       exp: 'L\'équipe de chercheurs de Google et du CWI a publié en février 2017 l\'attaque SHAttered, produisant deux fichiers PDF différents ayant exactement la même empreinte SHA-1.'
     },
     {
       stem: 'Quelle est la principale différence architecturale entre SHA-2 et SHA-3 (Keccak) ?',
-      opts: ['SHA-3 utilise un chiffrement par bloc DES interne', 'SHA-3 repose sur une construction éponge (Sponge Construction) et non sur Merkle-Damgård', 'SHA-3 nécessite obligatoirement une carte graphique GPU', 'SHA-3 est limité à des sorties de 64 bits'],
-      correct: 1,
+      opts: ["SHA-3 utilise un chiffrement par bloc DES interne pour produire son condensé","SHA-3 nécessite obligatoirement une carte graphique GPU pour ses calculs","SHA-3 est limité à des sorties de condensés de 64 bits au maximum","SHA-3 repose sur une construction éponge (Sponge Construction) et non sur Merkle-Damgård"],
+      correct: 3,
       exp: 'SHA-3 abandonne l\'architecture itérative de Merkle-Damgård au profit d\'une construction éponge (Sponge Construction) à absorption et essorage, immunisée contre les attaques par extension de longueur.'
     }
   ],

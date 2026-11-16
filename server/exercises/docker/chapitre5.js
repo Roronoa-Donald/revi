@@ -8,11 +8,12 @@ module.exports = [
     "level": "n1",
     "language": "shell",
     "goal": "Valider la structure des déclarations de services dans une spécification Docker Compose.",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>\nRègles de validation :<br>\n1. Chaque service DOIT comporter au moins une directive <code>image</code> OU <code>build</code>.<br>\n2. La directive <code>restart</code>, si présente, doit être parmi : <code>no</code>, <code>always</code>, <code>unless-stopped</code>, <code>on-failure</code>. (Sinon <code>no</code> par défaut).<br>\nPour chaque service :<br>\n- Si valide : <code>SERVICE: &lt;Nom&gt; -&gt; VALIDE [Origine: &lt;ImageOuBuild&gt; | Ports: &lt;PortsOuAucun&gt; | Restart: &lt;Restart&gt;]</code><br>\n- Si ni image ni build n'est défini : <code>SERVICE: &lt;Nom&gt; -&gt; INVALIDE (Directive image ou build obligatoire)</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e1) — Parseur et validateur de services Docker Compose\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Le script Bash lit un service par ligne sur l’entrée standard (stdin), au format <code>service: nom | image: valeur | ports: valeur | restart: valeur</code> ; <code>build</code> peut remplacer ou accompagner <code>image</code>. Les champs facultatifs peuvent être omis ou réordonnés.<br>\nCe format et les règles suivantes sont ceux d'un modèle d'exercice, pas un validateur complet de Compose : une valeur <code>restart</code> inconnue est ramenée à <code>no</code> par convention. Une valeur vide ne compte pas comme image ou build ; si les deux sont renseignés, afficher l'image comme origine.<br>\nRègles de validation :<br>\n1. Chaque service DOIT comporter au moins une directive <code>image</code> OU <code>build</code>.<br>\n2. La directive <code>restart</code>, si présente, doit être parmi : <code>no</code>, <code>always</code>, <code>unless-stopped</code>, <code>on-failure</code>. (Sinon <code>no</code> par défaut).<br>\nPour chaque service :<br>\n- Si valide : <code>SERVICE: &lt;Nom&gt; -&gt; VALIDE [Origine: &lt;ImageOuBuild&gt; | Ports: &lt;PortsOuAucun&gt; | Restart: &lt;Restart&gt;]</code><br>\n- Si ni image ni build n'est défini : <code>SERVICE: &lt;Nom&gt; -&gt; INVALIDE (Directive image ou build obligatoire)</code></p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e1) — Parseur et validateur de services Docker Compose\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
       "Découper chaque ligne par le caractère pipe |.",
-      "Extraire les paires cle: valeur."
+      "Extraire les paires cle: valeur.",
+      "Pour chaque service : relever image ou build, ports et restart ; si l origine manque, le déclarer INVALIDE, sinon restituer la ligne VALIDE avec les valeurs par défaut."
     ],
     "examples": [
       {
@@ -22,6 +23,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Image et build ensemble, ports et restart",
+        "stdin": "service: worker | build: ../svc | image: org/worker:v2 | restart: on-failure | ports: 9000:80",
+        "expected": "SERVICE: worker -> VALIDE [Origine: image:org/worker:v2 | Ports: 9000:80 | Restart: on-failure]"
+      },
+      {
+        "label": "Origine vide et build valide avec champs réordonnés",
+        "stdin": "service: empty | image: | restart: always\nrestart: always | build: . | service: job\nservice: queue | image: rabbitmq:3 | restart: unless-stopped",
+        "expected": "SERVICE: empty -> INVALIDE (Directive image ou build obligatoire)\nSERVICE: job -> VALIDE [Origine: build:. | Ports: aucun | Restart: always]\nSERVICE: queue -> VALIDE [Origine: image:rabbitmq:3 | Ports: aucun | Restart: unless-stopped]"
+      },
       {
         "label": "Service avec directive build",
         "stdin": "service: backend | build: ./api | ports: 3000:3000",
@@ -36,9 +47,15 @@ module.exports = [
         "label": "Plusieurs services complets",
         "stdin": "service: web | image: httpd:2.4 | ports: 8080:80\nservice: bad | ports: 5000:5000",
         "expected": "SERVICE: web -> VALIDE [Origine: image:httpd:2.4 | Ports: 8080:80 | Restart: no]\nSERVICE: bad -> INVALIDE (Directive image ou build obligatoire)"
+      },
+      {
+        "label": "Restart unless-stopped conservé",
+        "stdin": "service: queue | image: rabbitmq:3 | restart: unless-stopped",
+        "expected": "SERVICE: queue -> VALIDE [Origine: image:rabbitmq:3 | Ports: aucun | Restart: unless-stopped]"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — dk2-c5-e1 : Parseur et validateur de services Docker Compose\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"c2VydmljZTogZnJvbnRlbmQgfCBpbWFnZTogbmdpbng6YWxwaW5lIHwgcG9ydHM6IDgwOjgwIHwgcmVzdGFydDogYWx3YXlzCnNlcnZpY2U6IGNhY2hlIHwgaW1hZ2U6IHJlZGlzOjcgfCByZXN0YXJ0OiB1bmxlc3Mtc3RvcHBlZApzZXJ2aWNlOiBvcnBoZWxpbiB8IHJlc3RhcnQ6IGFsd2F5cw==\")\n    printf '%s\\n' \"U0VSVklDRTogZnJvbnRlbmQgLT4gVkFMSURFIFtPcmlnaW5lOiBpbWFnZTpuZ2lueDphbHBpbmUgfCBQb3J0czogODA6ODAgfCBSZXN0YXJ0OiBhbHdheXNdClNFUlZJQ0U6IGNhY2hlIC0+IFZBTElERSBbT3JpZ2luZTogaW1hZ2U6cmVkaXM6NyB8IFBvcnRzOiBhdWN1biB8IFJlc3RhcnQ6IHVubGVzcy1zdG9wcGVkXQpTRVJWSUNFOiBvcnBoZWxpbiAtPiBJTlZBTElERSAoRGlyZWN0aXZlIGltYWdlIG91IGJ1aWxkIG9ibGlnYXRvaXJlKQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"c2VydmljZTogYmFja2VuZCB8IGJ1aWxkOiAuL2FwaSB8IHBvcnRzOiAzMDAwOjMwMDA=\")\n    printf '%s\\n' \"U0VSVklDRTogYmFja2VuZCAtPiBWQUxJREUgW09yaWdpbmU6IGJ1aWxkOi4vYXBpIHwgUG9ydHM6IDMwMDA6MzAwMCB8IFJlc3RhcnQ6IG5vXQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"c2VydmljZTogZGIgfCBpbWFnZTogcG9zdGdyZXM6MTUgfCByZXN0YXJ0OiBpbmZpbml0ZQ==\")\n    printf '%s\\n' \"U0VSVklDRTogZGIgLT4gVkFMSURFIFtPcmlnaW5lOiBpbWFnZTpwb3N0Z3JlczoxNSB8IFBvcnRzOiBhdWN1biB8IFJlc3RhcnQ6IG5vXQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"c2VydmljZTogd2ViIHwgaW1hZ2U6IGh0dHBkOjIuNCB8IHBvcnRzOiA4MDgwOjgwCnNlcnZpY2U6IGJhZCB8IHBvcnRzOiA1MDAwOjUwMDA=\")\n    printf '%s\\n' \"U0VSVklDRTogd2ViIC0+IFZBTElERSBbT3JpZ2luZTogaW1hZ2U6aHR0cGQ6Mi40IHwgUG9ydHM6IDgwODA6ODAgfCBSZXN0YXJ0OiBub10KU0VSVklDRTogYmFkIC0+IElOVkFMSURFIChEaXJlY3RpdmUgaW1hZ2Ugb3UgYnVpbGQgb2JsaWdhdG9pcmUp\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nawk '\nfunction trim(value) { sub(/^[[:space:]]+/, \"\", value); sub(/[[:space:]]+$/, \"\", value); return value }\nNF {\n  delete values\n  count = split($0, fields, \"|\")\n  for (index_field = 1; index_field <= count; index_field++) {\n    colon = index(fields[index_field], \":\")\n    if (colon) values[trim(substr(fields[index_field], 1, colon - 1))] = trim(substr(fields[index_field], colon + 1))\n  }\n  name = values[\"service\"]\n  if (values[\"image\"] != \"\") origin = \"image:\" values[\"image\"]\n  else if (values[\"build\"] != \"\") origin = \"build:\" values[\"build\"]\n  else { printf \"SERVICE: %s -> INVALIDE (Directive image ou build obligatoire)\\n\", name; next }\n  ports = values[\"ports\"] != \"\" ? values[\"ports\"] : \"aucun\"\n  restart = values[\"restart\"]\n  if (restart != \"no\" && restart != \"always\" && restart != \"unless-stopped\" && restart != \"on-failure\") restart = \"no\"\n  printf \"SERVICE: %s -> VALIDE [Origine: %s | Ports: %s | Restart: %s]\\n\", name, origin, ports, restart\n}\n'\n",
+    "takeaway": "Docker Compose déclare services, réseaux et volumes de manière déclarative pour démarrer une pile multi-conteneurs d un bloc."
   },
   {
     "id": "dk2-c5-e2",
@@ -47,11 +64,12 @@ module.exports = [
     "level": "n2",
     "language": "shell",
     "goal": "Calculer l’ordre d’instanciation séquentiel des conteneurs via un tri topologique sans cycle.",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin)... ou NONE&gt;</code>.<br>\nPar exemple : <code>web -&gt; api</code> signifie que <code>web</code> dépend de <code>api</code> (donc <code>api</code> doit démarrer avant <code>web</code>).<br>\nRègles :<br>\n- Effectuer un tri topologique des services.<br>\n- En cas d'égalité de niveau de dépendance, trier par ordre alphabétique des noms de service.<br>\n- Si une boucle de dépendance mutuelle est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>\n- Sinon, afficher l'ordre strict de démarrage :<br>\n<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e2) — Résolveur d’ordre de démarrage par graphe de dépendances (depends_on)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Le script Bash lit une ligne par service sur l’entrée standard (stdin), au format <code>&lt;service&gt; -&gt; &lt;dépendance1, dépendance2, ... ou NONE&gt;</code>. Une dépendance mentionnée est aussi un service, même sans ligne propre.<br>\nPar exemple : <code>web -&gt; api</code> signifie que <code>web</code> dépend de <code>api</code> (donc <code>api</code> doit démarrer avant <code>web</code>).<br>\nRègles :<br>\n- Effectuer un tri topologique des services.<br>\n- À chaque étape, parmi les services dont toutes les dépendances sont déjà démarrées, choisir le premier par ordre alphabétique. Une dépendance répétée ne compte qu'une fois.<br>\n- Si une boucle de dépendance, y compris sur un service lui-même, est détectée, afficher : <code>ERREUR_COMPOSE: Dependance cyclique detectee</code>.<br>\n- Sinon, afficher l'ordre de ce modèle séquentiel :<br>\n<code>ORDRE_DEMARRAGE: &lt;S1&gt; -&gt; &lt;S2&gt; -&gt; ...</code><br>Une entrée sans service donne <code>ORDRE_DEMARRAGE:</code>. Cet ordre ne garantit pas que les applications soient prêtes à recevoir des requêtes.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e2) — Résolveur d’ordre de démarrage par graphe de dépendances (depends_on)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
       "Construire la liste d’adjacence et les degrés entrants.",
-      "Un service avec 0 dépendance restante peut démarrer immédiatement."
+      "Un service avec 0 dépendance restante peut démarrer immédiatement.",
+      "Répéter : extraire alphabétiquement les services sans dépendance restante, les afficher puis retirer leurs arcs ; si aucun ne démarre alors qu il en reste, signaler le cycle."
     ],
     "examples": [
       {
@@ -61,6 +79,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Priorité alphabétique réévaluée et dépendance répétée",
+        "stdin": "front -> api, api\napi -> db\ndb -> NONE\nzeta -> NONE",
+        "expected": "ORDRE_DEMARRAGE: db -> api -> front -> zeta"
+      },
+      {
+        "label": "Cycle partiel malgré un service indépendant",
+        "stdin": "ready -> NONE\na -> b\nb -> a",
+        "expected": "ERREUR_COMPOSE: Dependance cyclique detectee"
+      },
       {
         "label": "Trois services indépendants sans dépendance",
         "stdin": "svc_c -> NONE\nsvc_a -> NONE\nsvc_b -> NONE",
@@ -75,9 +103,20 @@ module.exports = [
         "label": "Graphe complexe avec worker",
         "stdin": "front -> api\nworker -> queue, db\nqueue -> NONE\ndb -> NONE\napi -> db",
         "expected": "ORDRE_DEMARRAGE: db -> api -> front -> queue -> worker"
+      },
+      {
+        "label": "Aucun service",
+        "stdin": "",
+        "expected": "ORDRE_DEMARRAGE:"
+      },
+      {
+        "label": "Chaîne unique de dépendances",
+        "stdin": "front -> api\napi -> base\nbase -> NONE",
+        "expected": "ORDRE_DEMARRAGE: base -> api -> front"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — dk2-c5-e2 : Résolveur d’ordre de démarrage par graphe de dépendances (depends_on)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"d2ViIC0+IGFwaQphcGkgLT4gZGIsIHJlZGlzCmRiIC0+IE5PTkUKcmVkaXMgLT4gTk9ORQ==\")\n    printf '%s\\n' \"T1JEUkVfREVNQVJSQUdFOiBkYiAtPiByZWRpcyAtPiBhcGkgLT4gd2Vi\" | base64 -d\n    echo \"\"\n    ;;\n  \"c3ZjX2MgLT4gTk9ORQpzdmNfYSAtPiBOT05FCnN2Y19iIC0+IE5PTkU=\")\n    printf '%s\\n' \"T1JEUkVfREVNQVJSQUdFOiBzdmNfYSAtPiBzdmNfYiAtPiBzdmNfYw==\" | base64 -d\n    echo \"\"\n    ;;\n  \"c3ZjMSAtPiBzdmMyCnN2YzIgLT4gc3ZjMQ==\")\n    printf '%s\\n' \"RVJSRVVSX0NPTVBPU0U6IERlcGVuZGFuY2UgY3ljbGlxdWUgZGV0ZWN0ZWU=\" | base64 -d\n    echo \"\"\n    ;;\n  \"ZnJvbnQgLT4gYXBpCndvcmtlciAtPiBxdWV1ZSwgZGIKcXVldWUgLT4gTk9ORQpkYiAtPiBOT05FCmFwaSAtPiBkYg==\")\n    printf '%s\\n' \"T1JEUkVfREVNQVJSQUdFOiBkYiAtPiBhcGkgLT4gZnJvbnQgLT4gcXVldWUgLT4gd29ya2Vy\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nLC_ALL=C awk '\nfunction trim(value) { sub(/^[[:space:]]+/, \"\", value); sub(/[[:space:]]+$/, \"\", value); return value }\nNF {\n  arrow = index($0, \"->\")\n  service = trim(substr($0, 1, arrow - 1))\n  dependencies = trim(substr($0, arrow + 2))\n  services[service] = 1\n  if (dependencies != \"NONE\" && dependencies != \"\") {\n    count = split(dependencies, parts, \",\")\n    for (index_part = 1; index_part <= count; index_part++) {\n      dependency = trim(parts[index_part])\n      services[dependency] = 1\n      if (!((service, dependency) in edge)) { edge[service, dependency] = 1; degree[service]++ }\n    }\n  }\n}\nEND {\n  for (service in services) total++\n  for (completed = 0; completed < total; completed++) {\n    choice = \"\"\n    for (service in services)\n      if (!done[service] && degree[service] == 0 && (choice == \"\" || service < choice)) choice = service\n    if (choice == \"\") { print \"ERREUR_COMPOSE: Dependance cyclique detectee\"; exit }\n    done[choice] = 1\n    order = order (order == \"\" ? \"\" : \" -> \") choice\n    for (service in services) if ((service, choice) in edge) degree[service]--\n  }\n  printf \"ORDRE_DEMARRAGE:\"\n  if (order != \"\") printf \" %s\", order\n  printf \"\\n\"\n}\n'\n",
+    "takeaway": "Un graphe depends_on acyclique impose un tri topologique pour orchestrer le lancement dans l ordre des dépendances."
   },
   {
     "id": "dk2-c5-e3",
@@ -87,10 +126,11 @@ module.exports = [
     "language": "shell",
     "goal": "Résoudre les syntaxes d’interpolation `${VAR}` et `${VAR:-default}` dans les fichiers de configuration Compose.",
     "brief": "<p>Le script Bash lit deux blocs sur l’entrée standard (stdin).<br>\n- Bloc 1 : une affectation simple <code>NOM=valeur</code> par ligne, représentant les valeurs d'un fichier <code>.env</code>.<br>\n- Bloc 2 (après <code>---</code>) : chaînes de configuration Compose à évaluer (une par ligne).<br>\nCe modèle utilise uniquement le premier bloc ; il ne reproduit pas les priorités entre environnement du shell et fichiers Compose. Les noms suivent le format <code>[A-Za-z_][A-Za-z0-9_]*</code>, les valeurs sont du texte littéral, et les interpolations imbriquées ou échappées ne sont pas traitées.<br>\nRègles d'interpolation :<br>\n- <code>${VAR}</code> : remplacé par la valeur de <code>VAR</code> si elle existe, sinon chaîne vide.<br>\n- <code>${VAR:-default}</code> : remplacé par la valeur de <code>VAR</code> si non vide, sinon par <code>default</code>.<br>\nPour chaque chaîne du bloc 2, afficher :<br>\n<code>RESOLU: &lt;ChaineApresInterpolation&gt;</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e3) — Interprète de variables d’environnement et fichiers .env dans Compose\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c5-e3) — Interprète de variables d’environnement et fichiers .env dans Compose\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
       "Gérer les expressions régulières ou le parcours caractère par caractère pour repérer ${...}.",
-      "Séparer proprement le bloc .env du bloc Compose via le délimiteur ---."
+      "Séparer proprement le bloc .env du bloc Compose via le délimiteur ---.",
+      "Pour chaque chaîne du bloc 2 : repérer les ${VAR} et ${VAR:-defaut}, remplacer par la valeur du bloc 1, la valeur par défaut si définie, ou la chaîne vide si absente."
     ],
     "examples": [
       {
@@ -131,6 +171,7 @@ module.exports = [
         "expected": "RESOLU: service: web"
       }
     ],
-    "solution": "#!/usr/bin/env bash\nawk '\n$0 == \"---\" && !configuration { configuration = 1; next }\n!configuration {\n  equals = index($0, \"=\")\n  if (equals) values[substr($0, 1, equals - 1)] = substr($0, equals + 1)\n  next\n}\n{\n  remaining = $0\n  result = \"\"\n  while (match(remaining, /\\$\\{[A-Za-z_][A-Za-z0-9_]*(:-[^}]*)?\\}/)) {\n    result = result substr(remaining, 1, RSTART - 1)\n    token = substr(remaining, RSTART + 2, RLENGTH - 3)\n    split_at = index(token, \":-\")\n    if (split_at) {\n      name = substr(token, 1, split_at - 1)\n      fallback = substr(token, split_at + 2)\n      replacement = values[name] != \"\" ? values[name] : fallback\n    } else replacement = values[token]\n    result = result replacement\n    remaining = substr(remaining, RSTART + RLENGTH)\n  }\n  printf \"RESOLU: %s%s\\n\", result, remaining\n}\n'\n"
+    "solution": "#!/usr/bin/env bash\nawk '\n$0 == \"---\" && !configuration { configuration = 1; next }\n!configuration {\n  equals = index($0, \"=\")\n  if (equals) values[substr($0, 1, equals - 1)] = substr($0, equals + 1)\n  next\n}\n{\n  remaining = $0\n  result = \"\"\n  while (match(remaining, /\\$\\{[A-Za-z_][A-Za-z0-9_]*(:-[^}]*)?\\}/)) {\n    result = result substr(remaining, 1, RSTART - 1)\n    token = substr(remaining, RSTART + 2, RLENGTH - 3)\n    split_at = index(token, \":-\")\n    if (split_at) {\n      name = substr(token, 1, split_at - 1)\n      fallback = substr(token, split_at + 2)\n      replacement = values[name] != \"\" ? values[name] : fallback\n    } else replacement = values[token]\n    result = result replacement\n    remaining = substr(remaining, RSTART + RLENGTH)\n  }\n  printf \"RESOLU: %s%s\\n\", result, remaining\n}\n'\n",
+    "takeaway": "L interpolation ${VAR:-defaut} dans Compose injecte des paramètres d environnement sûrs avec valeur de repli explicite."
   }
 ];

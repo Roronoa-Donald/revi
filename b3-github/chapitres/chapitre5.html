@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -191,10 +189,13 @@
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="gh3-c5-e1" data-lab
      data-exercise="gh3-c5-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="NAME=CI-Pipeline&#10;TRIGGERS=push,pull_request&#10;JOB id=build runs_on=ubuntu-latest steps_count=3">
@@ -202,19 +203,17 @@
 # Atelier Bash (gh3-c5-e1) — Validateur de structure de workflow GitHub Actions
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de structure de workflow GitHub Actions</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier un profil pédagogique simplifié de workflow GitHub Actions représenté sous forme de lignes.</p>
-    <p class="lab__note" id="gh3-c5-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Vérifiez un <strong>profil simplifié</strong> de workflow, et non un fichier YAML réel. Dans ce profil, le nom doit être non vide, au moins un déclencheur reconnu doit être présent et chaque job doit avoir un runner et au moins une étape. Ce ne sont pas des obligations universelles de GitHub Actions : le nom du workflow est facultatif, et un job peut appeler un workflow réutilisable avec une structure différente.<br><br>L'entrée contient <code>NAME=&lt;nom&gt;</code>, <code>TRIGGERS=&lt;événements séparés par des virgules&gt;</code> et zéro ou plusieurs lignes <code>JOB id=&lt;id&gt; runs_on=&lt;runner|NONE&gt; steps_count=&lt;n&gt;</code>. Les événements sont distincts et sans espaces ; seuls <code>push</code>, <code>pull_request</code>, <code>workflow_dispatch</code> et <code>schedule</code> sont reconnus par ce profil. Le nom peut contenir des espaces, mais pas de guillemet double ; les autres champs ne contiennent pas d'espaces. Les nombres sont des entiers de 0 à 2 147 483 647.<br><br>Vérifiez dans l'ordre le nom, les déclencheurs, l'existence de jobs, puis chaque job dans l'ordre d'entrée (runner avant étapes). Affichez <code>WORKFLOW_AUDIT name="{nom}" status={VALID|MISSING_NAME|MISSING_TRIGGERS|NO_JOBS|JOB_MISSING_RUNS_ON|JOB_ZERO_STEPS} triggers_count={n} jobs_count={m}</code>. Comptez uniquement les déclencheurs reconnus et tous les jobs déclarés.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>NAME=CI-Pipeline
@@ -224,10 +223,11 @@ JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
     </div>
     <p class="lab__note">Workflow complet et bien formé.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez d’abord les conditions globales, puis les jobs dans l’ordre de déclaration.</li>
         <li>Retournez uniquement le premier motif d’échec tout en comptant tous les jobs.</li>
+        <li>1. Compter les déclencheurs reconnus. 2. Compter les jobs et noter la première anomalie (runner NONE ou zéro étape). 3. Statut : nom manquant, puis déclencheurs, puis jobs, puis anomalie ; sinon VALID.</li>
       </ol>
     </details>
   </div>
@@ -235,7 +235,6 @@ JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
 
 <div class="lab" id="gh3-c5-e2" data-lab
      data-exercise="gh3-c5-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="MATRIX_DEF os=ubuntu,macos version=3.11,3.12&#10;EXCLUDE os=macos version=3.11">
@@ -243,19 +242,17 @@ JOB id=build runs_on=ubuntu-latest steps_count=3</pre></div>
 # Atelier Bash (gh3-c5-e2) — Générateur et évaluateur de matrice de build (strategy: matrix)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Générateur et évaluateur de matrice de build (strategy: matrix)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Calculer le produit cartésien des axes d’une matrice de test GitHub Actions et gérer les exclusions.</p>
-    <p class="lab__note" id="gh3-c5-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Simulez une matrice GitHub Actions avec deux axes. L'entrée commence par <code>MATRIX_DEF os=&lt;os1,os2,...&gt; version=&lt;v1,v2,...&gt;</code>, suivie de zéro ou plusieurs exclusions <code>EXCLUDE os=&lt;os&gt; version=&lt;v&gt;</code>. Chaque valeur d'axe est distincte, non vide et composée de lettres, chiffres, points, tirets ou soulignés ; un axe peut être entièrement vide.<br><br>Parcourez les OS dans leur ordre de déclaration et, pour chacun, les versions dans leur ordre de déclaration ; ce n'est pas un tri alphabétique. Retirez chaque paire exclue, sans compter plusieurs fois une exclusion répétée et sans compter les exclusions hors matrice. Pour chaque paire restante, affichez <code>JOB_INSTANCE os={os} version={v} tag="{os}-{v}"</code>, puis <code>MATRIX_TOTAL instances={n} excluded={nb_paires_retirées}</code>. Cet ordre de génération ne garantit pas l'ordre réel d'exécution des jobs parallèles.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>MATRIX_DEF os=ubuntu,macos version=3.11,3.12
@@ -267,10 +264,11 @@ MATRIX_TOTAL instances=3 excluded=1</pre></div>
     </div>
     <p class="lab__note">4 combinaisons initiales moins 1 exclusion = 3 instances exécutées.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Parcourez les valeurs des deux axes avec deux boucles imbriquées, dans leur ordre d’entrée.</li>
         <li>Stockez les exclusions comme ensemble de paires ; comptez uniquement les paires effectivement retirées.</li>
+        <li>1. Mémoriser les deux axes et les exclusions en paires. 2. Double boucle dans l’ordre de déclaration. 3. Paire exclue : compter l’exclusion ; sinon émettre une instance avec son tag. 4. Afficher instances et excluded.</li>
       </ol>
     </details>
   </div>
@@ -278,7 +276,6 @@ MATRIX_TOTAL instances=3 excluded=1</pre></div>
 
 <div class="lab" id="gh3-c5-e3" data-lab
      data-exercise="gh3-c5-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="STEP_INSPECT id=1 cmd=echo &quot;Le titre est ${{ github.event.issue.title }}&quot;&#10;STEP_INSPECT id=2 cmd=echo ${{ secrets.AWS_KEY }}">
@@ -286,19 +283,17 @@ MATRIX_TOTAL instances=3 excluded=1</pre></div>
 # Atelier Bash (gh3-c5-e3) — Détecteur d’injections de commandes et fuites de secrets dans les Actions
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Détecteur d’injections de commandes et fuites de secrets dans les Actions</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Repérer quelques motifs explicites de divulgation et d’injection dans des commandes GitHub Actions.</p>
-    <p class="lab__note" id="gh3-c5-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Analysez chaque ligne <code>STEP_INSPECT id=&lt;id&gt; cmd=&lt;commande&gt;</code> avec les règles lexicales suivantes, dans cet ordre :<br>1. Si la commande contient le mot <code>echo</code> ou <code>print</code> et contient aussi <code>secrets.</code> ou <code>GITHUB_TOKEN</code>, affichez <code>VULN_EXPOSED_SECRET</code>.<br>2. Sinon, si elle contient une interpolation directe <code>${{ github.event.issue.title }}</code>, <code>${{ github.event.issue.body }}</code>, <code>${{ github.event.comment.body }}</code> ou <code>${{ github.head_ref }}</code>, affichez <code>VULN_COMMAND_INJECTION</code>. Les espaces autour du nom dans <code>${{ ... }}</code> sont facultatifs.<br>3. Sinon, affichez <code>SECURE</code>.<br><br>La sortie est <code>ACTION_AUDIT step={id} status={statut}</code>. Les identifiants sont sans espaces ; la commande peut en contenir. Ce détecteur est une heuristique limitée : <code>SECURE</code> signifie seulement qu'aucun des motifs indiqués n'a été trouvé, pas que la commande est sûre. Transmettre une valeur non fiable par une variable d'environnement évite son interpolation directe dans le script, mais il faut encore la citer et la valider selon son usage.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>STEP_INSPECT id=1 cmd=echo "Le titre est ${{ github.event.issue.title }}"
@@ -308,10 +303,11 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     </div>
     <p class="lab__note">Le step 1 permet l’injection via un titre malveillant, le step 2 fait fuiter la clé AWS.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Cherchez d’abord les mots echo ou print associés à un marqueur de secret.</li>
         <li>Cherchez ensuite les quatre interpolations explicites ; l’absence de ces motifs ne prouve pas la sécurité.</li>
+        <li>1. echo ou print combiné à un secret : VULN_EXPOSED_SECRET. 2. Sinon, interpolation github.issue, github.comment ou github.head_ref : VULN_COMMAND_INJECTION. 3. Sinon : SECURE.</li>
       </ol>
     </details>
   </div>
@@ -334,8 +330,8 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le comportement d’exécution par défaut de deux jobs déclarés au même niveau dans un workflow si aucune directive « needs: » n’est précisée ?</p>
       <div class="opts">
-        <button class="opt">Ils s’exécutent en série l’un après l’autre dans l’ordre du fichier</button>
         <button class="opt" data-correct="1">Ils s’exécutent en parallèle simultanément sur des runners indépendants</button>
+        <button class="opt">Ils s’exécutent en série l’un après l’autre dans l’ordre du fichier</button>
         <button class="opt">Le premier bloque l’exécution du second jusqu’à approbation manuelle</button>
         <button class="opt">Le second écrase automatiquement les résultats du premier</button>
       </div>
@@ -345,9 +341,9 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
       <p class="q__stem">Pourquoi l’instruction « run: echo "Branche : ${{ github.head_ref }}" » représente-t-elle une vulnérabilité critique ?</p>
       <div class="opts">
         <button class="opt">Parce que GitHub Actions ne supporte pas la commande echo sous Linux</button>
-        <button class="opt" data-correct="1">Parce qu’un attaquant peut nommer sa branche avec des métacaractères shell pour exécuter du code arbitraire</button>
-        <button class="opt">Parce que le nom de branche est effacé par le runner avant l’exécution</button>
         <button class="opt">Parce que cette syntaxe consomme deux fois plus de crédits de calcul</button>
+        <button class="opt">Parce que le nom de branche est effacé par le runner avant l’exécution</button>
+        <button class="opt" data-correct="1">Parce qu’un attaquant peut nommer sa branche avec des métacaractères shell pour exécuter du code arbitraire</button>
       </div>
       <div class="q__exp">L’expression ${{ github.head_ref }} est substituée textuellement avant l’appel du shell : un nom de branche contenant des points-virgules ou guillemets permet d’injecter des commandes malveillantes (Command Injection).</div>
     </div>
@@ -355,8 +351,8 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
       <p class="q__stem">Quelle est la méthode recommandée pour assainir l’utilisation d’un paramètre dynamique issu de l’événement GitHub dans un script shell ?</p>
       <div class="opts">
         <button class="opt">L’encoder en base64 dans le message de commit</button>
-        <button class="opt" data-correct="1">Le transmettre via « env: », citer l’expansion et valider la valeur selon son usage</button>
         <button class="opt">Désactiver l’interpréteur bash au profit de sh standard</button>
+        <button class="opt" data-correct="1">Le transmettre via « env: », citer l’expansion et valider la valeur selon son usage</button>
         <button class="opt">Exécuter le workflow uniquement sur des machines Windows</button>
       </div>
       <div class="q__exp">Le bloc env: évite la substitution directe dans le script, mais ne sécurise pas automatiquement tous les usages : citer l’expansion, valider les arguments et éviter eval.</div>
@@ -374,8 +370,8 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     <div class="q">
       <p class="q__stem">Que provoque la directive « fail-fast: false » au sein d’une stratégie matricielle ?</p>
       <div class="opts">
-        <button class="opt">Le workflow s’arrête immédiatement dès qu’un job réussit</button>
         <button class="opt" data-correct="1">Tous les autres jobs de la matrice continuent de s’exécuter même si l’un d’eux échoue</button>
+        <button class="opt">Le workflow s’arrête immédiatement dès qu’un job réussit</button>
         <button class="opt">Les erreurs de tests sont ignorées et le statut final est toujours vert</button>
         <button class="opt">La matrice est exécutée séquentiellement pour économiser de la mémoire</button>
       </div>
@@ -384,20 +380,20 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
     <div class="q">
       <p class="q__stem">Comment restreindre les droits du token d’authentification automatique à la seule lecture du code source dans un workflow ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">permissions: { contents: read }</button>
+        <button class="opt">token: { write: false }</button>
         <button class="opt">security: { read-only: true }</button>
         <button class="opt">auth: { level: minimal }</button>
-        <button class="opt">token: { write: false }</button>
+        <button class="opt" data-correct="1">permissions: { contents: read }</button>
       </div>
       <div class="q__exp">Le bloc déclaratif standard permissions: permet de spécifier les scopes autorisés, ici contents: read pour autoriser uniquement la lecture du dépôt.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il fortement conseillé d’épingler les actions tierces par leur hash de commit complet (ex: uses: actions/checkout@b4ffde...) ?</p>
       <div class="opts">
-        <button class="opt">Pour accélérer le téléchargement depuis le cache local</button>
+        <button class="opt">Pour accélérer le téléchargement des couches depuis le cache local du runner d’exécution</button>
+        <button class="opt">Parce que GitHub refuse catégoriquement d’exécuter les actions tierces référencées uniquement par des tags</button>
         <button class="opt" data-correct="1">Pour se prémunir contre la compromission d’un tag de version mutable sur le dépôt de l’action (Supply Chain Attack)</button>
-        <button class="opt">Parce que GitHub refuse d’exécuter les actions référencées par des tags</button>
-        <button class="opt">Pour rendre l’action compatible avec Windows et macOS</button>
+        <button class="opt">Pour rendre l’action automatiquement compatible avec les runners Windows et macOS de la matrice</button>
       </div>
       <div class="q__exp">Un tag (comme @v4) est une référence modifiable par le propriétaire du dépôt de l’action : un attaquant qui compromettrait ce dépôt pourrait y pousser du code hostile. Le hash SHA immuable garantit l’intégrité absolue.</div>
     </div>
@@ -524,7 +520,7 @@ ACTION_AUDIT step=2 status=VULN_EXPOSED_SECRET</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

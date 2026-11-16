@@ -174,12 +174,12 @@ module.exports = {
     {
       q: 'Quel fichier stocké sur le datastore contient la carte bitmap des blocs modifiés exploitée par le Changed Block Tracking (CBT) ?',
       opts: [
-        'Le fichier se terminant par -ctk.vmdk.',
         'Le fichier se terminant par -flat.vmdk.',
+        'Le fichier se terminant par -ctk.vmdk.',
         'Le fichier se terminant par .nvram.',
         'Le fichier se terminant par .vswp.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Lorsqu\'une VM active le CBT, le VMkernel crée un fichier compagnon `-ctk.vmdk` qui maintient la cartographie bitmap des blocs ayant fait l\'objet d\'écritures depuis le dernier point de référence.'
     },
     {
@@ -196,34 +196,34 @@ module.exports = {
     {
       q: 'Que bloque le mode de sécurité vSphere Lockdown Mode en configuration "Normal" ?',
       opts: [
-        'Toute connexion administrative directe à l\'hôte ESXi (web client, API), n\'autorisant la gestion que via vCenter et la console physique DCUI.',
-        'Tous les accès aux disques durs de l\'hyperviseur pendant 24 heures.',
-        'L\'accès à Internet pour l\'ensemble des machines virtuelles du cluster.',
-        'Le démarrage des processeurs Intel si la température dépasse 30 degrés.'
+        "Tous les accès aux disques durs de l'hyperviseur pendant 24 heures après la dernière connexion administrateur enregistrée.",
+        "L'accès à Internet pour l'ensemble des machines virtuelles du cluster afin d'isoler totalement l'hôte du réseau public.",
+        "Le démarrage des processeurs Intel si la température du châssis dépasse 30 degrés Celsius pendant le POST.",
+        "Toute connexion administrative directe à l'hôte ESXi (web client, API), n'autorisant la gestion que via vCenter et la console physique DCUI."
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le mode Lockdown Normal empêche toute connexion directe par navigateur ou API à l\'adresse IP de l\'hôte ESXi pour centraliser toutes les actions dans les journaux d\'audit de vCenter, tout en conservant l\'accès d\'urgence DCUI physique.'
     },
     {
       q: 'Quel composant matériel permet de valider l\'intégrité cryptographique du chargeur et des binaires du noyau VMkernel lors du démarrage (Host Attestation) ?',
       opts: [
-        'La puce de sécurité TPM 2.0 (Trusted Platform Module) associée à Secure Boot.',
-        'Le contrôleur RAID matériel de la baie de disques.',
         'La carte réseau Gigabit Ethernet intégrée à la carte mère.',
+        'Le contrôleur RAID matériel de la baie de disques.',
+        'La puce de sécurité TPM 2.0 (Trusted Platform Module) associée à Secure Boot.',
         'La batterie de secours du contrôleur de cache de stockage.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La puce TPM 2.0 enregistre et valide cryptographiquement les empreintes de hachage de chaque composant du chargeur de démarrage UEFI et du noyau VMkernel, attestant qu\'aucun code malveillant n\'a altéré l\'hyperviseur.'
     },
     {
       q: 'Quelle est la particularité d\'un pool de postes virtuels VDI non-persistants (Floating / Instant Clones) ?',
       opts: [
-        'Les VM sont détruites à la déconnexion et recréées à l\'identique depuis une image de référence pour garantir un OS toujours propre.',
         'Chaque utilisateur a un disque dur fixe qui ne peut jamais être effacé ni mis à jour.',
+        'Les VM sont détruites à la déconnexion et recréées à l\'identique depuis une image de référence pour garantir un OS toujours propre.',
         'Les postes virtuels ne peuvent fonctionner que pendant 15 minutes par jour.',
         'Le système d\'exploitation doit impérativement être installé sur une clé USB.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Dans un pool non-persistant, les postes sont éphémères : chaque utilisateur reçoit une machine vierge dérivée de l\'image de référence (Golden Master). À la fermeture de session, la machine est détruite et reconstruite instantanément.'
     },
     {
@@ -240,23 +240,23 @@ module.exports = {
     {
       q: 'Qu\'appelle-t-on le phénomène de "Boot Storm" dans une infrastructure de postes de travail virtuels VDI ?',
       opts: [
-        'L\'avalanche d\'E/S disques simultanées lors du démarrage matinal massif de centaines de postes virtuels.',
+        'L\'inondation des ventilateurs de serveurs par de la poussière.',
         'Un orage électrique provoquant une coupure de courant dans le centre de données.',
         'La propagation fulgurante d\'un ver informatique entre machines virtuelles.',
-        'L\'inondation des ventilateurs de serveurs par de la poussière.'
+        'L\'avalanche d\'E/S disques simultanées lors du démarrage matinal massif de centaines de postes virtuels.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le Boot Storm désigne le pic massif d\'entrées/sorties de lecture disque produit lorsque des centaines d\'utilisateurs allument et initialisent leurs sessions Windows simultanément à leur arrivée au travail le matin.'
     },
     {
       q: 'Pour un parc de 200 postes VDI générant 20 IOPS moyens par utilisateur et une marge de sécurité de 50% pour absorber le Boot Storm, combien d\'IOPS globaux la baie doit-elle délivrer ?',
       opts: [
-        '6 000 IOPS.',
-        '4 000 IOPS.',
         '2 000 IOPS.',
+        '4 000 IOPS.',
+        '6 000 IOPS.',
         '8 000 IOPS.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'IOPS nominaux = 200 * 20 = 4 000 IOPS. Avec la surcapacité de 50% pour le Boot Storm : 4 000 * 1.50 = 6 000 IOPS requis au minimum en heure de pointe.'
     }
   ],

@@ -158,11 +158,11 @@ module.exports = {
       stem: 'Où est stockée en mémoire une variable déclarée comme "int x = 42;" à l’intérieur d’une méthode locale C# ?',
       opts: [
         'Sur le tas managé (Heap), gérée par le Garbage Collector.',
-        'Sur la pile d’exécution (Stack), détruite automatiquement au retour de la méthode.',
         'Dans les métadonnées globales de l’assemblage CIL.',
+        'Sur la pile d’exécution (Stack), détruite automatiquement au retour de la méthode.',
         'Dans le cache registre L1 du compilateur Roslyn.'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Les types valeur primitifs (comme int) déclarés localement dans une méthode sont alloués directement sur la pile (Stack) et libérés immédiatement au désempilement du frame de la méthode.'
     },
     {
@@ -170,30 +170,30 @@ module.exports = {
       opts: [
         'int a = 10; int b = a;',
         'string s = "test"; object o = s;',
-        'int n = 5; object obj = n;',
-        'double d = 3.14; float f = (float)d;'
+        'double d = 3.14; float f = (float)d;',
+        'int n = 5; object obj = n;'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Le boxing a lieu lorsqu’une variable de type valeur (comme int) est affectée à un type référence comme object ou une interface. Une boîte objet est alors allouée sur le tas.'
     },
     {
       stem: 'Quelle est l’obligation imposée par le compilateur C# pour un paramètre de méthode déclaré avec le mot-clé out ?',
       opts: [
-        'La variable doit être initialisée par l’appelant avant le passage de l’argument.',
         'La méthode appelée doit obligatoirement assigner une valeur au paramètre avant tout retour normal.',
+        'La variable doit être initialisée par l’appelant avant le passage de l’argument.',
         'Le paramètre ne peut pas être modifié au sein de la méthode appelée.',
         'Le paramètre doit impérativement être un type référence alloué sur le tas.'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Avec le modificateur out, l’appelant n’a pas besoin d’initialiser la variable, mais la méthode appelée a l’obligation stricte de lui affecter une valeur avant de retourner (erreur CS0177 sinon).'
     },
     {
       stem: 'Dans une switch expression C#, que représente le symbole de soulignement _ ?',
       opts: [
-        'Une référence vers l’objet parent en cours d’évaluation.',
-        'Le motif par défaut (discard) capturant toutes les valeurs non appariées par les branches précédentes.',
-        'Une directive ordonnant au compilateur de lever une NotImplementedException.',
-        'Un alias pour la valeur null.'
+        "Une référence vers l’objet parent actuellement en cours d’évaluation.",
+        "Le motif par défaut (discard) capturant toutes les valeurs non appariées par les branches précédentes.",
+        "Une directive ordonnant au compilateur de lever une NotImplementedException.",
+        "Un alias prédéfini du langage désignant systématiquement la valeur null."
       ],
       correct: 1,
       exp: 'Le symbole _ (discard pattern) fait office de branche par défaut dans une switch expression C#, équivalent au bloc default: d’une instruction switch classique.'

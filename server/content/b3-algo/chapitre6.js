@@ -81,12 +81,12 @@ module.exports = {
     {
       "stem": "Quelles sont les deux conditions fondamentales pour qu’un problème puisse être résolu efficacement par programmation dynamique ?",
       "opts": [
-        "Sous-structure optimale et sous-problèmes chevauchants",
-        "Graphe sans cycle et arêtes positives",
         "Données triées et division binaire",
+        "Graphe sans cycle et arêtes positives",
+        "Sous-structure optimale et sous-problèmes chevauchants",
         "Arbre binaire et fonction de hachage"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "La programmation dynamique exige formellement une sous-structure optimale (les solutions optimales locales forment la solution globale) et des sous-problèmes chevauchants (évitant le recalcul redondant)."
     },
     {
@@ -94,30 +94,30 @@ module.exports = {
       "opts": [
         "O(2^n)",
         "O(n + W)",
-        "O(n * W)",
-        "O(n^2 * W^2)"
+        "O(n^2 * W^2)",
+        "O(n * W)"
       ],
-      "correct": 2,
+      "correct": 3,
       "exp": "La matrice DP comporte (n + 1) lignes et (W + 1) colonnes, chaque cellule prenant un temps constant : Theta(n * W). Ce coût est pseudo-polynomial : W est une valeur numérique, pas la longueur de son encodage. D’autres algorithmes ont d’autres complexités."
     },
     {
       "stem": "Dans le problème de l’escalier où l’on peut gravir 1 ou 2 marches, que vaut dp[4] si dp[0]=1, dp[1]=1, dp[2]=2, dp[3]=3 ?",
       "opts": [
-        "4",
         "5",
+        "4",
         "6",
         "8"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "L’équation est dp[i] = dp[i-1] + dp[i-2]. Donc dp[4] = dp[3] + dp[2] = 3 + 2 = 5."
     },
     {
       "stem": "Quelle est la différence fondamentale entre l’approche Top-Down (mémoïsation) et l’approche Bottom-Up (tabulation) ?",
       "opts": [
-        "Top-Down est itératif et Bottom-Up est récursif",
+        "Top-Down est itératif et remplit une table, alors que Bottom-Up s’appelle récursivement lui-même",
         "Top-Down est récursif avec cache mémoire, alors que Bottom-Up remplit itérativement une table depuis les cas de base",
-        "Top-Down ne fonctionne pas en Python",
-        "Bottom-Up a une complexité exponentielle"
+        "Top-Down exige de connaître la réponse finale avant de commencer, alors que Bottom-Up la découvre en cours de calcul",
+        "Bottom-Up a une complexité exponentielle car il recalcule les sous-problèmes sans aucune mémoïsation"
       ],
       "correct": 1,
       "exp": "Top-Down part du problème final et mémorise les résultats intermédiaires en récursion. Bottom-Up calcule les plus petits cas d’abord et progresse itérativement vers le résultat global."
@@ -125,12 +125,12 @@ module.exports = {
     {
       "stem": "Comment reconstruit-on la liste des objets emportés dans le sac à dos 0/1 après remplissage de la table DP ?",
       "opts": [
-        "En prenant tous les objets de valeur maximale",
+        "En prenant tous les objets de valeur maximale, puis en complétant avec les objets les plus légers disponibles",
+        "En effectuant un tri par tas des objets selon leur densité valeur/poids puis en retenant les premiers",
         "En remontant depuis dp[n][W] et en observant si dp[i][w] != dp[i-1][w] pour détecter que l’objet i a été inclus",
-        "En effectuant un tri par tas des objets",
-        "En appliquant l’algorithme de Dijkstra"
+        "En appliquant l’algorithme de Dijkstra sur le graphe des objets reliés par leurs poids cumulés"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Si dp[i][w] diffère de dp[i-1][w], c’est que le choix d’inclure l’objet i a produit un gain supérieur au fait de le rejeter. On retient l’objet i et on décrémente la capacité de son poids."
     },
     {
@@ -138,32 +138,32 @@ module.exports = {
       "opts": [
         "1",
         "2",
-        "3 (\"ACD\")",
-        "4"
+        "4",
+        "3 (\"ACD\")"
       ],
-      "correct": 2,
+      "correct": 3,
       "exp": "Les lettres A, C, D apparaissent dans cet ordre dans les deux chaînes, formant la sous-séquence commune maximale \"ACD\" de longueur 3."
     },
     {
       "stem": "Pourquoi qualifie-t-on la complexité O(n * W) du sac à dos de \"pseudo-polynomiale\" ?",
       "opts": [
-        "Parce qu’elle est fausse en pratique",
         "Parce qu’elle est polynomiale en la valeur de W, mais exponentielle par rapport au nombre de bits nécessaires pour coder W",
-        "Parce qu’elle utilise des nombres complexes",
-        "Parce qu’elle n’est valable que pour n = 2"
+        "Parce qu’elle est fausse en pratique, l’algorithme donnant des résultats erronés dès que W dépasse mille",
+        "Parce qu’elle utilise des nombres complexes, qui allongent chaque comparaison de la table de programmation dynamique",
+        "Parce qu’elle n’est valable que pour n = 2 objets exactement, toute autre valeur rendant la table inutilisable"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "En théorie de la complexité, la taille de l’entrée d’un entier W est k = log2(W) bits. Le coût est donc en O(n * 2^k), ce qui est exponentiel en fonction de la taille de représentation de W."
     },
     {
       "stem": "Comment peut-on optimiser l’espace mémoire de la table du sac à dos 0/1 si seule la valeur maximale finale est demandée ?",
       "opts": [
+        "En compressant la table complète avec l’algorithme gzip avant chaque nouvelle itération de remplissage",
         "En ne conservant que les deux dernières lignes (ou un seul tableau 1D parcouru de droite à gauche), réduisant l’espace à O(W)",
-        "En compressant avec gzip",
-        "En utilisant un graphe de flot",
-        "Ce n’est pas possible"
+        "En utilisant un graphe de flot maximal, dont la coupe minimale ne conserve que les objets retenus",
+        "Ce n’est pas possible, car la reconstruction du chemin exige de conserver l’intégralité des n lignes de la table"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Comme dp[i][w] ne dépend que de la ligne immédiatement précédente dp[i-1], on peut n’allouer qu’un tableau 1D de taille W + 1 mis à jour de droite à gauche, réduisant la mémoire de O(n * W) à O(W)."
     }
   ],

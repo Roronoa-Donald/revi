@@ -4,128 +4,157 @@ module.exports = [
   {
     "id": "az3-c2-e1",
     "chapter": 2,
-    "title": "Évaluateur de permissions Azure RBAC",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser une définition de rôle Azure RBAC et déterminer si des opérations administratives sont autorisées ou refusées.",
-    "brief": "<p>Azure RBAC (Role-Based Access Control) applique une logique d'autorisation stricte : une action est autorisée si elle correspond à au moins une directive dans <code>Actions</code> (supportant le caractère générique <code>*</code>) et ne correspond à <strong>aucune</strong> directive dans <code>NotActions</code>.<br><br>\nRôles Azure prédéfinis pris en charge :<br>\n- <code>Owner</code> :<br>\n  - Actions : <code>[\"*\"]</code><br>\n  - NotActions : <code>[]</code><br>\n- <code>Contributor</code> :<br>\n  - Actions : <code>[\"*\"]</code><br>\n  - NotActions : <code>[\"Microsoft.Authorization/*/Delete\", \"Microsoft.Authorization/*/Write\", \"Microsoft.Resources/subscriptions/resourceGroups/delete\"]</code><br>\n- <code>Reader</code> :<br>\n  - Actions : <code>[\"*/read\"]</code><br>\n  - NotActions : <code>[]</code><br>\n- <code>VM_Operator</code> :<br>\n  - Actions : <code>[\"Microsoft.Compute/virtualMachines/start/*\", \"Microsoft.Compute/virtualMachines/restart/*\", \"Microsoft.Compute/virtualMachines/read\"]</code><br>\n  - NotActions : <code>[\"Microsoft.Compute/virtualMachines/delete\"]</code><br><br>\nFormat d'entrée :<br>\nLa première ligne définit le rôle assigné :<br>\n<code>ROLE &lt;nom_du_role&gt;</code><br>\nLes lignes suivantes soumettent des opérations ARM à tester :<br>\n<code>CHECK_ACTION &lt;action_path&gt;</code><br><br>\nPour chaque action :<br>\n- Si l'action est autorisée : <code>ACTION &lt;action_path&gt; -&gt; ALLOWED</code><br>\n- Si l'action est refusée : <code>ACTION &lt;action_path&gt; -&gt; DENIED</code><br>\n- Si le rôle est inconnu au départ, afficher : <code>ROLE_ERROR: Unknown role '&lt;nom_du_role&gt;'</code> et arrêter.</p>",
-    "starter": "# Grille d'analyse (az3-c2-e1) — Évaluateur de permissions Azure RBAC\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Contrôle du rôle Reader sur actions read et write]\n# Données : ROLE Reader\n# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/read\n# Données : CHECK_ACTION Microsoft.Storage/storageAccounts/read\n# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/write\nA_COMPLETER\n\n[Cas 2 — Contrôle du rôle Contributor avec exclusion NotActions]\n# Données : ROLE Contributor\n# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/write\n# Données : CHECK_ACTION Microsoft.Authorization/roleAssignments/write\n# Données : CHECK_ACTION Microsoft.Resources/subscriptions/resourceGroups/delete\nA_COMPLETER\n\n[Cas 3 — Contrôle du rôle Owner qui autorise tout]\n# Données : ROLE Owner\n# Données : CHECK_ACTION Microsoft.Authorization/roleAssignments/write\n# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/delete\nA_COMPLETER\n\n[Cas 4 — Rôle inconnu]\n# Données : ROLE SuperAdmin\n# Données : CHECK_ACTION Microsoft.Compute/virtualMachines/read\nA_COMPLETER\n",
+    "title": "Les affectations RBAC de Delcourt Logistique",
+    "exampleTitle": "Exemple résolu — les affectations RBAC du cabinet Sorgia",
+    "goal": "Lire un tableau d'affectations RBAC (rôle, étendue) et raisonner sur l'héritage des permissions.",
+    "brief": "<p><strong>Énoncé.</strong> Delcourt Logistique, PME de transport de 90 salariés, vient de déployer son environnement Azure. L'administratrice cloud dresse la liste des affectations de rôles RBAC :</p><table><tr><th>Utilisateur</th><th>Rôle</th><th>Étendue</th></tr><tr><th>Amélie (administratrice cloud)</th><td>Propriétaire</td><td>abonnement sub-prod-01</td></tr><tr><th>Karim (développeur)</th><td>Contributeur</td><td>groupe de ressources rg-web-prod-frc-01</td></tr><tr><th>Sofia (contrôleuse de gestion)</th><td>Lecteur</td><td>abonnement sub-prod-01</td></tr><tr><th>Lucas (stagiaire)</th><td>Lecteur</td><td>groupe de ressources rg-web-prod-frc-01</td></tr></table><p>Rappel du cours : une affectation RBAC accorde un rôle à une identité sur une étendue (abonnement, groupe de ressources ou ressource) ; les permissions descendent dans la hiérarchie, du haut vers le bas.</p><ol><li>Combien d'affectations de rôles le tableau comporte-t-il ?</li><li>Quel rôle permet de créer et de modifier des ressources, mais pas de gérer les accès des autres utilisateurs ?</li><li>Le rôle Lecteur de Sofia, attribué sur l'abonnement, s'applique-t-il aussi au groupe de ressources rg-web-prod-frc-01 ?</li><li>Qui, dans ce tableau, peut attribuer des rôles aux autres utilisateurs sur l'abonnement sub-prod-01 ?</li><li>Le rôle Contributeur de Karim s'applique-t-il aux ressources contenues dans rg-web-prod-frc-01 ?</li></ol>",
+    "starter": "# Exercice — Les affectations RBAC de Delcourt Logistique\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 2 : le nom du rôle. Questions 3 et 5 : oui ou non.\n\n[Question 1 — Nombre d'affectations de rôles]\nA_COMPLETER\n\n[Question 2 — Rôle permettant de créer et modifier sans gérer les accès]\nA_COMPLETER\n\n[Question 3 — Le Lecteur de Sofia s'applique-t-il au groupe de ressources]\nA_COMPLETER\n\n[Question 4 — Qui peut attribuer des rôles sur l'abonnement]\nA_COMPLETER\n\n[Question 5 — Le Contributeur de Karim s'applique-t-il aux ressources du groupe]\nA_COMPLETER\n",
     "hints": [
-      "Le module Python `fnmatch` permet d'évaluer simplement les règles avec wildcards `*`.",
-      "Penser à convertir en minuscules pour garantir l'insensibilité à la casse."
+      "Chaque ligne du tableau correspond à une affectation : une identité, un rôle, une étendue.",
+      "Hiérarchie des rôles du cours : Lecteur (consulter), Contributeur (créer et modifier), Propriétaire (tout, y compris la gestion des accès).",
+      "1. Comptez les lignes. 2. Cherchez le rôle « sans gestion des accès ». 3. Suivez le sens de l'héritage, du haut vers le bas. 4. Cherchez le rôle qui inclut la gestion des accès au niveau de l'abonnement. 5. Une ressource appartient à son groupe de ressources."
     ],
     "examples": [
       {
-        "stdin": "ROLE VM_Operator\nCHECK_ACTION Microsoft.Compute/virtualMachines/restart/action\nCHECK_ACTION Microsoft.Compute/virtualMachines/delete",
-        "expected": "ACTION Microsoft.Compute/virtualMachines/restart/action -> ALLOWED\nACTION Microsoft.Compute/virtualMachines/delete -> DENIED",
-        "note": "Le rôle VM_Operator autorise le redémarrage mais refuse la suppression."
+        "stdin": "Le cabinet Sorgia liste ses affectations RBAC :\n- Nadia, Propriétaire, sur le groupe de ressources rg-crm-prod-frc-01 ;\n- Paul, Contributeur, sur l'abonnement sub-cabinet-01 ;\n- Inès, Lecteur, sur le groupe de ressources rg-crm-prod-frc-01.\n\n1) Le tableau comporte 3 affectations.\n2) Le rôle Contributeur permet de créer et modifier sans gérer les accès.\n3) Paul, Contributeur sur l'abonnement, peut agir sur rg-crm-prod-frc-01 par héritage.\n4) Seule Nadia, Propriétaire, peut gérer les accès sur son étendue.",
+        "expected": "3 affectations — Contributeur pour créer et modifier — héritage de l'abonnement vers le groupe de ressources — le Propriétaire gère les accès",
+        "note": "Les permissions RBAC descendent de l'abonnement vers les groupes de ressources puis les ressources : une étendue large couvre automatiquement les étendues inférieures."
       }
     ],
     "tests": [
       {
-        "label": "Contrôle du rôle Reader sur actions read et write",
-        "stdin": "cas:1",
-        "expected": "ACTION Microsoft.Compute/virtualMachines/read -> ALLOWED\nACTION Microsoft.Storage/storageAccounts/read -> ALLOWED\nACTION Microsoft.Compute/virtualMachines/write -> DENIED"
+        "label": "Question 1 — Nombre d'affectations de rôles",
+        "stdin": "q:1",
+        "expected": "4||quatre"
       },
       {
-        "label": "Contrôle du rôle Contributor avec exclusion NotActions",
-        "stdin": "cas:2",
-        "expected": "ACTION Microsoft.Compute/virtualMachines/write -> ALLOWED\nACTION Microsoft.Authorization/roleAssignments/write -> DENIED\nACTION Microsoft.Resources/subscriptions/resourceGroups/delete -> DENIED"
+        "label": "Question 2 — Rôle permettant de créer et modifier sans gérer les accès",
+        "stdin": "q:2",
+        "expected": "contributeur||contributor"
       },
       {
-        "label": "Contrôle du rôle Owner qui autorise tout",
-        "stdin": "cas:3",
-        "expected": "ACTION Microsoft.Authorization/roleAssignments/write -> ALLOWED\nACTION Microsoft.Compute/virtualMachines/delete -> ALLOWED"
+        "label": "Question 3 — Le Lecteur de Sofia s'applique-t-il au groupe de ressources",
+        "stdin": "q:3",
+        "expected": "oui"
       },
       {
-        "label": "Rôle inconnu",
-        "stdin": "cas:4",
-        "expected": "ROLE_ERROR: Unknown role 'SuperAdmin'"
+        "label": "Question 4 — Qui peut attribuer des rôles sur l'abonnement",
+        "stdin": "q:4",
+        "expected": "amélie||amelie||amélie (propriétaire)||le propriétaire||propriétaire"
+      },
+      {
+        "label": "Question 5 — Le Contributeur de Karim s'applique-t-il aux ressources du groupe",
+        "stdin": "q:5",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\nACTION Microsoft.Compute/virtualMachines/restart/action -> ALLOWED\nACTION Microsoft.Compute/virtualMachines/delete -> DENIED\n\n[Cas 1 — Contrôle du rôle Reader sur actions read et write]\nACTION Microsoft.Compute/virtualMachines/read -> ALLOWED\nACTION Microsoft.Storage/storageAccounts/read -> ALLOWED\nACTION Microsoft.Compute/virtualMachines/write -> DENIED\n\n[Cas 2 — Contrôle du rôle Contributor avec exclusion NotActions]\nACTION Microsoft.Compute/virtualMachines/write -> ALLOWED\nACTION Microsoft.Authorization/roleAssignments/write -> DENIED\nACTION Microsoft.Resources/subscriptions/resourceGroups/delete -> DENIED\n\n[Cas 3 — Contrôle du rôle Owner qui autorise tout]\nACTION Microsoft.Authorization/roleAssignments/write -> ALLOWED\nACTION Microsoft.Compute/virtualMachines/delete -> ALLOWED\n\n[Cas 4 — Rôle inconnu]\nROLE_ERROR: Unknown role 'SuperAdmin'"
+    "solution": "[Question 1 — Nombre d'affectations de rôles]\n4\n\n[Question 2 — Rôle permettant de créer et modifier sans gérer les accès]\ncontributeur\n\n[Question 3 — Le Lecteur de Sofia s'applique-t-il au groupe de ressources]\noui\n\n[Question 4 — Qui peut attribuer des rôles sur l'abonnement]\namélie\n\n[Question 5 — Le Contributeur de Karim s'applique-t-il aux ressources du groupe]\noui",
+    "takeaway": "1) Le tableau comporte 4 affectations : Amélie, Karim, Sofia et Lucas.\n2) Le rôle Contributeur permet de créer et de modifier des ressources, mais pas d'attribuer des rôles : la gestion des accès appartient au Propriétaire.\n3) Oui : le rôle attribué sur l'abonnement descend par héritage vers tous les groupes de ressources qu'il contient, dont rg-web-prod-frc-01.\n4) Amélie : son rôle Propriétaire sur l'abonnement inclut la gestion des accès (attribution de rôles).\n5) Oui : les permissions du groupe de ressources s'appliquent aux ressources qu'il contient.\nContrôle : sur une même étendue, l'ordre des rôles du plus puissant au moins puissant est Propriétaire > Contributeur > Lecteur."
   },
   {
     "id": "az3-c2-e2",
     "chapter": 2,
-    "title": "Auditeur de conformité Azure Policy",
     "level": "n2",
     "language": "analyse",
-    "goal": "Auditer un ensemble de ressources Cloud Azure contre des règles de gouvernance déclaratives et détecter les non-conformités.",
-    "brief": "<p>Azure Policy permet d'imposer des normes de gouvernance organisationnelle au niveau des abonnements et groupes de ressources.<br><br>\nRègles de conformité définies pour l'organisation :<br>\n1. <code>allowedLocations</code> : la localisation géographique (<code>location</code>) doit obligatoirement être l'une des suivantes : <code>[\"westeurope\", \"northeurope\", \"francecentral\"]</code>.<br>\n   Violation : <code>DENY: Invalid location '&lt;loc&gt;'</code><br>\n2. <code>requireTags</code> : la ressource doit obligatoirement inclure les deux tags <code>Environment</code> et <code>CostCenter</code>.<br>\n   Pour chaque tag manquant : <code>AUDIT: Missing required tag '&lt;nom_tag&gt;'</code><br>\n3. <code>disallowedSKUs</code> : les SKUs surdimensionnées ou hors catalogue ne sont pas autorisées : <code>[\"Standard_M128ms\", \"Standard_G5\"]</code>.<br>\n   Violation : <code>DENY: Disallowed SKU '&lt;sku&gt;'</code><br><br>\nFormat d'entrée : chaque ligne déclare une ressource sous la forme :<br>\n<code>RESOURCE id=&lt;id&gt; type=&lt;type&gt; location=&lt;loc&gt; sku=&lt;sku&gt; tags=&lt;k1:v1,k2:v2&gt;</code> (si aucun tag : <code>tags=none</code>).<br><br>\nFormat de sortie attendu pour chaque ressource :<br>\n- Si aucune violation :<br>\n  <code>AUDIT id=&lt;id&gt; STATUS=COMPLIANT</code><br>\n- Si des violations existent :<br>\n  <code>AUDIT id=&lt;id&gt; STATUS=NON_COMPLIANT issues=[&lt;issue1&gt;; &lt;issue2&gt;]</code> (dans l'ordre de détection : location, SKU, puis tags manquants).</p>",
-    "starter": "# Grille d'analyse (az3-c2-e2) — Auditeur de conformité Azure Policy\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Ressource valide et conforme sur France Central]\n# Données : RESOURCE id=vm-api-02 type=Microsoft.Compute/virtualMachines location=francecentral sku=Standard_B2s tags=Environment:dev,CostCenter:DEV-102\nA_COMPLETER\n\n[Cas 2 — Localisation interdite et tags manquants]\n# Données : RESOURCE id=st-backup-01 type=Microsoft.Storage/storageAccounts location=eastus sku=Standard_LRS tags=Environment:test\nA_COMPLETER\n\n[Cas 3 — SKU interdite et aucun tag]\n# Données : RESOURCE id=vm-big-01 type=Microsoft.Compute/virtualMachines location=francecentral sku=Standard_M128ms tags=none\nA_COMPLETER\n\n[Cas 4 — Conformité sur North Europe avec SKU valide]\n# Données : RESOURCE id=sql-core-01 type=Microsoft.Sql/servers location=northeurope sku=GP_Gen5_4 tags=CostCenter:FIN-10,Environment:stage\nA_COMPLETER\n",
+    "title": "L'audit Azure Policy de Brume Diffusion",
+    "exampleTitle": "Exemple résolu — l'audit Azure Policy du serrurier Voltige",
+    "goal": "Évaluer la conformité de ressources face à des stratégies Azure Policy (effets Refuser et Audit) et choisir l'étendue d'application.",
+    "brief": "<p><strong>Énoncé.</strong> Brume Diffusion, PME de distribution de produits d'entretien, applique deux stratégies Azure Policy à son abonnement :</p><ul><li><strong>Stratégie « emplacements autorisés » (effet Refuser)</strong> : toute nouvelle ressource doit être déployée dans francecentral ou northeurope ; tout déploiement hors de ces régions est refusé ;</li><li><strong>Stratégie « balise propriétaire obligatoire » (effet Audit)</strong> : tout groupe de ressources doit porter une balise (tag) <code>propriétaire</code> ; les groupes sans balise sont signalés comme non conformes, sans être bloqués.</li></ul><p>L'audit du jour dresse l'état suivant :</p><table><tr><th>Ressource</th><th>Région</th><th>Observation</th></tr><tr><th>rg-compta-prod-frc-01</th><td>francecentral</td><td>balise propriétaire : oui</td></tr><tr><th>rg-marketing-prod-frc-01</th><td>francecentral</td><td>balise propriétaire : non</td></tr><tr><th>vm-facturation-01</th><td>francecentral</td><td>—</td></tr><tr><th>st-archives-01 (compte de stockage)</th><td>uksouth</td><td>créé avant la stratégie</td></tr></table><ol><li>Combien de ressources du tableau sont non conformes à la stratégie « emplacements autorisés » ?</li><li>Un développeur tente de créer une machine virtuelle dans uksouth : que fait la stratégie d'effet Refuser ?</li><li>La stratégie « balise propriétaire » (effet Audit) bloque-t-elle la création d'un groupe de ressources sans balise ?</li><li>Combien de groupes de ressources sont signalés comme non conformes à la stratégie de balise ?</li><li>Sur quelle étendue faut-il affecter une stratégie pour qu'elle s'applique à plusieurs abonnements à la fois ?</li></ol>",
+    "starter": "# Exercice — L'audit Azure Policy de Brume Diffusion\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 3 et 5 : répondez de façon courte.\n\n[Question 1 — Ressources non conformes à la stratégie d'emplacements]\nA_COMPLETER\n\n[Question 2 — Action de la stratégie d'effet Refuser sur un déploiement dans uksouth]\nA_COMPLETER\n\n[Question 3 — La stratégie d'effet Audit bloque-t-elle la création]\nA_COMPLETER\n\n[Question 4 — Groupes de ressources signalés sans balise]\nA_COMPLETER\n\n[Question 5 — Étendue pour appliquer une stratégie à plusieurs abonnements]\nA_COMPLETER\n",
     "hints": [
-      "Extraire chaque champ clé=valeur de la ligne de déclaration.",
-      "Construire la liste des anomalies dans l'ordre prescrit avant d'émettre le diagnostic."
+      "Pour chaque ressource, vérifiez d'abord la région (stratégie d'emplacements), puis la balise (stratégie de balisage) : ce sont deux contrôles indépendants.",
+      "Effet Refuser : le déploiement est rejeté. Effet Audit : la ressource existe mais est signalée non conforme.",
+      "1. Comptez les ressources hors de francecentral et northeurope. 2. Appliquez l'effet Refuser. 3. Relisez ce que fait l'effet Audit. 4. Comptez les groupes de ressources sans balise. 5. Cherchez l'étendue située au-dessus des abonnements."
     ],
     "examples": [
       {
-        "stdin": "RESOURCE id=vm-web-01 type=Microsoft.Compute/virtualMachines location=westeurope sku=Standard_D4s_v5 tags=Environment:prod,CostCenter:IT-401",
-        "expected": "AUDIT id=vm-web-01 STATUS=COMPLIANT",
-        "note": "Ressource entièrement conforme aux règles de localisation, SKU et tags."
+        "stdin": "Le serrurier Voltige applique une stratégie « emplacements autorisés » (effet Refuser,\nfrancecentral uniquement) et une stratégie « balise service obligatoire » (effet Audit).\nAudit : rg-atelier-frc-01 (francecentral, balise absente), rg-boutique-frc-01\n(francecentral, balise présente), st-voltige-01 (westeurope, créé avant la stratégie).\n\n1) 1 ressource est hors région autorisée : st-voltige-01.\n2) Un déploiement dans westeurope serait refusé (effet Refuser).\n3) La stratégie de balise (Audit) signale sans bloquer.\n4) 1 groupe de ressources est signalé sans balise : rg-atelier-frc-01.\n5) Pour viser plusieurs abonnements, on affecte la stratégie à un groupe de gestion.",
+        "expected": "1 ressource hors région — déploiement refusé — Audit signale sans bloquer — 1 groupe signalé — étendue : le groupe de gestion",
+        "note": "L'effet Refuser protège l'avenir en empêchant les déploiements non conformes ; l'effet Audit mesure l'existant sans l'empêcher."
       }
     ],
     "tests": [
       {
-        "label": "Ressource valide et conforme sur France Central",
-        "stdin": "cas:1",
-        "expected": "AUDIT id=vm-api-02 STATUS=COMPLIANT"
+        "label": "Question 1 — Ressources non conformes à la stratégie d'emplacements",
+        "stdin": "q:1",
+        "expected": "1||une"
       },
       {
-        "label": "Localisation interdite et tags manquants",
-        "stdin": "cas:2",
-        "expected": "AUDIT id=st-backup-01 STATUS=NON_COMPLIANT issues=[DENY: Invalid location 'eastus'; AUDIT: Missing required tag 'CostCenter']"
+        "label": "Question 2 — Action de la stratégie d'effet Refuser sur un déploiement dans uksouth",
+        "stdin": "q:2",
+        "expected": "refusé||refuse||le déploiement est refusé||bloqué||bloque le déploiement||deny"
       },
       {
-        "label": "SKU interdite et aucun tag",
-        "stdin": "cas:3",
-        "expected": "AUDIT id=vm-big-01 STATUS=NON_COMPLIANT issues=[DENY: Disallowed SKU 'Standard_M128ms'; AUDIT: Missing required tag 'Environment'; AUDIT: Missing required tag 'CostCenter']"
+        "label": "Question 3 — La stratégie d'effet Audit bloque-t-elle la création",
+        "stdin": "q:3",
+        "expected": "non"
       },
       {
-        "label": "Conformité sur North Europe avec SKU valide",
-        "stdin": "cas:4",
-        "expected": "AUDIT id=sql-core-01 STATUS=COMPLIANT"
+        "label": "Question 4 — Groupes de ressources signalés sans balise",
+        "stdin": "q:4",
+        "expected": "1||une"
+      },
+      {
+        "label": "Question 5 — Étendue pour appliquer une stratégie à plusieurs abonnements",
+        "stdin": "q:5",
+        "expected": "le groupe de gestion||groupe de gestion||au groupe de gestion||management group||un groupe de gestion"
       }
     ],
-    "solution": "[Exemple]\nAUDIT id=vm-web-01 STATUS=COMPLIANT\n\n[Cas 1 — Ressource valide et conforme sur France Central]\nAUDIT id=vm-api-02 STATUS=COMPLIANT\n\n[Cas 2 — Localisation interdite et tags manquants]\nAUDIT id=st-backup-01 STATUS=NON_COMPLIANT issues=[DENY: Invalid location 'eastus'; AUDIT: Missing required tag 'CostCenter']\n\n[Cas 3 — SKU interdite et aucun tag]\nAUDIT id=vm-big-01 STATUS=NON_COMPLIANT issues=[DENY: Disallowed SKU 'Standard_M128ms'; AUDIT: Missing required tag 'Environment'; AUDIT: Missing required tag 'CostCenter']\n\n[Cas 4 — Conformité sur North Europe avec SKU valide]\nAUDIT id=sql-core-01 STATUS=COMPLIANT"
+    "solution": "[Question 1 — Ressources non conformes à la stratégie d'emplacements]\n1\n\n[Question 2 — Action de la stratégie d'effet Refuser sur un déploiement dans uksouth]\nrefusé\n\n[Question 3 — La stratégie d'effet Audit bloque-t-elle la création]\nnon\n\n[Question 4 — Groupes de ressources signalés sans balise]\n1\n\n[Question 5 — Étendue pour appliquer une stratégie à plusieurs abonnements]\nle groupe de gestion",
+    "takeaway": "1) Une seule ressource est non conforme à la stratégie d'emplacements : st-archives-01, déployée dans uksouth.\n2) La stratégie d'effet Refuser rejette le déploiement : la machine virtuelle n'est pas créée.\n3) Non : l'effet Audit se contente de signaler le groupe de ressources comme non conforme ; il ne bloque rien.\n4) Un seul groupe de ressources est signalé : rg-marketing-prod-frc-01, dépourvu de balise propriétaire.\n5) Il faut affecter la stratégie à un groupe de gestion : cette étendue couvre plusieurs abonnements à la fois.\nContrôle : rg-compta-prod-frc-01 et vm-facturation-01 sont dans une région autorisée et ne violent aucune des deux stratégies."
   },
   {
     "id": "az3-c2-e3",
     "chapter": 2,
-    "title": "Analyseur de sécurité Azure Key Vault & Expiration de secrets",
     "level": "n3",
     "language": "analyse",
-    "goal": "Auditer les paramètres de sécurité d’un coffre-fort Azure Key Vault et évaluer l’état d’expiration de ses secrets et certificats.",
-    "brief": "<p>Azure Key Vault centralise la gestion des clés cryptographiques, secrets et certificats. La sécurisation du coffre exige l'activation de la suppression réversible (Soft-Delete) et de la protection contre la purge (Purge Protection).<br><br>\nFormat d'entrée :<br>\nLigne 1 : Configuration du coffre :<br>\n<code>VAULT name=&lt;nom&gt; soft_delete=&lt;enabled|disabled&gt; purge_protection=&lt;enabled|disabled&gt; auth_mode=&lt;rbac|access_policies&gt; current_day=&lt;int&gt;</code><br>\nLignes suivantes : Déclaration des secrets :<br>\n<code>SECRET name=&lt;nom&gt; expires_at=&lt;int&gt;</code> (si pas de date d'expiration : <code>expires_at=0</code>).<br><br>\nRègles d'audit du coffre (VAULT) :<br>\n- Si <code>soft_delete != enabled</code> : relever <code>CRITICAL: Soft-delete disabled</code><br>\n- Si <code>purge_protection != enabled</code> : relever <code>WARNING: Purge protection disabled</code><br>\n- Mode d'autorisation : afficher <code>AUTH=&lt;auth_mode.upper()&gt;</code><br>\nAfficher :<br>\n<code>VAULT_SECURITY name=&lt;nom&gt; AUTH=&lt;AUTH&gt; ISSUES=[&lt;issues&gt;]</code> (ou <code>ISSUES=[NONE]</code> si aucune anomalie).<br><br>\nRègles d'audit des secrets (SECRET) :<br>\n- Si <code>expires_at == 0</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=NO_EXPIRY_RISK</code><br>\n- Si <code>expires_at &lt;= current_day</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=EXPIRED</code><br>\n- Si <code>0 &lt; (expires_at - current_day) &lt;= 30</code> : <code>SECRET &lt;nom&gt; -&gt; STATUS=EXPIRING_SOON (days_left=&lt;N&gt;)</code><br>\n- Sinon : <code>SECRET &lt;nom&gt; -&gt; STATUS=VALID (days_left=&lt;N&gt;)</code></p>",
-    "starter": "# Grille d'analyse (az3-c2-e3) — Analyseur de sécurité Azure Key Vault & Expiration de secrets\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Coffre hautement sécurisé avec secrets valides et expirant bientôt]\n# Données : VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100\n# Données : SECRET name=db-password expires_at=125\n# Données : SECRET name=api-key expires_at=0\n# Données : SECRET name=ssl-cert expires_at=200\nA_COMPLETER\n\n[Cas 2 — Coffre vulnérable sans soft delete ni purge protection]\n# Données : VAULT name=kv-dev-test soft_delete=disabled purge_protection=disabled auth_mode=access_policies current_day=50\n# Données : SECRET name=token expires_at=45\nA_COMPLETER\n\n[Cas 3 — Secret expirant le jour même]\n# Données : VAULT name=kv-core soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100\n# Données : SECRET name=today-secret expires_at=100\nA_COMPLETER\n",
+    "title": "L'expiration des secrets du coffre Fortis Finance",
+    "exampleTitle": "Exemple résolu — l'audit du coffre de la mutuelle Prévia",
+    "goal": "Suivre la date d'expiration des secrets d'un coffre Azure Key Vault, calculer les délais de rotation et identifier le rôle de lecture adapté.",
+    "brief": "<p><strong>Énoncé.</strong> Fortis Finance, cabinet de conseil en gestion de patrimoine, stocke ses secrets d'application dans le coffre Azure Key Vault <code>kv-fortis-prod</code>. La politique interne impose de renouveler chaque secret avant sa date d'expiration. Voici l'état du coffre lors de l'audit du <strong>1er mai 2025</strong> :</p><table><tr><th>Secret</th><th>Date d'expiration</th></tr><tr><th>mot-de-passe-bdd</th><td>12 mars 2025</td></tr><tr><th>cle-api-banque</th><td>30 avril 2025</td></tr><tr><th>jeton-partenaires</th><td>15 juin 2025</td></tr><tr><th>certificat-signature</th><td>9 août 2025</td></tr></table><p>Rappels du cours : un secret expiré ne peut plus être lu par les applications ; le rôle RBAC « Utilisateur des secrets du coffre de clés » (Key Vault Secrets User) autorise la lecture des secrets sans autoriser leur modification. Le mois de mai compte 31 jours.</p><ol><li>Combien de secrets sont déjà expirés au 1er mai 2025 ?</li><li>Combien de jours reste-t-il avant l'expiration de jeton-partenaires ?</li><li>Quel est le prochain secret à renouveler parmi ceux encore valides ?</li><li>Une application tente de lire le secret mot-de-passe-bdd : que se passe-t-il ?</li><li>Quel rôle RBAC faut-il donner à une application pour qu'elle puisse lire les secrets sans les modifier ?</li></ol>",
+    "starter": "# Exercice — L'expiration des secrets du coffre Fortis Finance\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 2 : le nombre de jours. Question 4 : répondez de façon courte.\n\n[Question 1 — Secrets déjà expirés au 1er mai 2025]\nA_COMPLETER\n\n[Question 2 — Jours restants avant l'expiration de jeton-partenaires]\nA_COMPLETER\n\n[Question 3 — Prochain secret à renouveler]\nA_COMPLETER\n\n[Question 4 — Lecture du secret mot-de-passe-bdd]\nA_COMPLETER\n\n[Question 5 — Rôle RBAC de lecture seule des secrets]\nA_COMPLETER\n",
     "hints": [
-      "Parser la ligne VAULT pour récupérer current_day et les indicateurs de sécurité.",
-      "Comparer expires_at à current_day pour chaque secret selon les 4 cas prescrits."
+      "Classez les secrets en deux colonnes : ceux dont la date d'expiration est antérieure au 1er mai 2025 (expirés) et les autres.",
+      "Pour le délai, comptez d'abord les jours restants en mai (du 1er au 31), puis ajoutez les jours de juin.",
+      "1. Comparez chaque date au 1er mai. 2. Mai compte 31 jours. 3. Le prochain à renouveler est celui dont l'expiration est la plus proche de l'audit. 4. Rappelez-vous du comportement d'un secret expiré. 5. Le rôle de lecture porte le mot « secrets » dans son nom."
     ],
     "examples": [
       {
-        "stdin": "VAULT name=kv-prod-we soft_delete=enabled purge_protection=enabled auth_mode=rbac current_day=100\nSECRET name=db-password expires_at=125\nSECRET name=api-key expires_at=0",
-        "expected": "VAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]\nSECRET db-password -> STATUS=EXPIRING_SOON (days_left=25)\nSECRET api-key -> STATUS=NO_EXPIRY_RISK",
-        "note": "Coffre sécurisé, secret expirant dans 25 jours et secret sans date d'expiration relevé."
+        "stdin": "La mutuelle Prévia audite son coffre kv-previa-prod le 1er mars 2025 :\n- secret-ldap : expiré le 8 février 2025 ;\n- cle-paiement : expire le 20 mars 2025 ;\n- jeton-api : expire le 30 avril 2025.\n\n1) 1 secret est déjà expiré : secret-ldap.\n2) Du 1er mars au 20 mars : 19 jours avant expiration de cle-paiement.\n3) Le prochain à renouveler est cle-paiement.\n4) Lire secret-ldap échoue : un secret expiré n'est plus lisible.\n5) Le rôle « Utilisateur des secrets du coffre de clés » autorise la lecture seule.",
+        "expected": "1 secret expiré — 19 jours restants — prochain : cle-paiement — lecture refusée — rôle : Utilisateur des secrets du coffre de clés",
+        "note": "L'expiration d'un secret est une protection : mieux vaut une application en échec qu'un secret périmé encore utilisé en production."
       }
     ],
     "tests": [
       {
-        "label": "Coffre hautement sécurisé avec secrets valides et expirant bientôt",
-        "stdin": "cas:1",
-        "expected": "VAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]\nSECRET db-password -> STATUS=EXPIRING_SOON (days_left=25)\nSECRET api-key -> STATUS=NO_EXPIRY_RISK\nSECRET ssl-cert -> STATUS=VALID (days_left=100)"
+        "label": "Question 1 — Secrets déjà expirés au 1er mai 2025",
+        "stdin": "q:1",
+        "expected": "2||deux"
       },
       {
-        "label": "Coffre vulnérable sans soft delete ni purge protection",
-        "stdin": "cas:2",
-        "expected": "VAULT_SECURITY name=kv-dev-test AUTH=ACCESS_POLICIES ISSUES=[CRITICAL: Soft-delete disabled; WARNING: Purge protection disabled]\nSECRET token -> STATUS=EXPIRED"
+        "label": "Question 2 — Jours restants avant l'expiration de jeton-partenaires",
+        "stdin": "q:2",
+        "expected": "45||45 jours"
       },
       {
-        "label": "Secret expirant le jour même",
-        "stdin": "cas:3",
-        "expected": "VAULT_SECURITY name=kv-core AUTH=RBAC ISSUES=[NONE]\nSECRET today-secret -> STATUS=EXPIRED"
+        "label": "Question 3 — Prochain secret à renouveler",
+        "stdin": "q:3",
+        "expected": "jeton-partenaires||jeton partenaires"
+      },
+      {
+        "label": "Question 4 — Lecture du secret mot-de-passe-bdd",
+        "stdin": "q:4",
+        "expected": "la lecture échoue||la lecture est refusée||échec||echec||refusée||refusee||refusé||erreur"
+      },
+      {
+        "label": "Question 5 — Rôle RBAC de lecture seule des secrets",
+        "stdin": "q:5",
+        "expected": "utilisateur des secrets du coffre de clés||key vault secrets user||utilisateur des secrets key vault||utilisateur de secrets du coffre de clés"
       }
     ],
-    "solution": "[Exemple]\nVAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]\nSECRET db-password -> STATUS=EXPIRING_SOON (days_left=25)\nSECRET api-key -> STATUS=NO_EXPIRY_RISK\n\n[Cas 1 — Coffre hautement sécurisé avec secrets valides et expirant bientôt]\nVAULT_SECURITY name=kv-prod-we AUTH=RBAC ISSUES=[NONE]\nSECRET db-password -> STATUS=EXPIRING_SOON (days_left=25)\nSECRET api-key -> STATUS=NO_EXPIRY_RISK\nSECRET ssl-cert -> STATUS=VALID (days_left=100)\n\n[Cas 2 — Coffre vulnérable sans soft delete ni purge protection]\nVAULT_SECURITY name=kv-dev-test AUTH=ACCESS_POLICIES ISSUES=[CRITICAL: Soft-delete disabled; WARNING: Purge protection disabled]\nSECRET token -> STATUS=EXPIRED\n\n[Cas 3 — Secret expirant le jour même]\nVAULT_SECURITY name=kv-core AUTH=RBAC ISSUES=[NONE]\nSECRET today-secret -> STATUS=EXPIRED"
+    "solution": "[Question 1 — Secrets déjà expirés au 1er mai 2025]\n2\n\n[Question 2 — Jours restants avant l'expiration de jeton-partenaires]\n45\n\n[Question 3 — Prochain secret à renouveler]\njeton-partenaires\n\n[Question 4 — Lecture du secret mot-de-passe-bdd]\nla lecture échoue\n\n[Question 5 — Rôle RBAC de lecture seule des secrets]\nutilisateur des secrets du coffre de clés",
+    "takeaway": "1) Deux secrets sont expirés : mot-de-passe-bdd (12 mars 2025) et cle-api-banque (30 avril 2025), deux dates antérieures au 1er mai 2025.\n2) Du 1er mai au 31 mai : 30 jours ; du 31 mai au 15 juin : 15 jours ; soit 45 jours avant l'expiration de jeton-partenaires.\n3) Parmi les secrets encore valides, jeton-partenaires (15 juin) expire avant certificat-signature (9 août) : c'est le prochain à renouveler.\n4) La lecture échoue : un secret expiré n'est plus retourné par le coffre ; l'application doit récupérer la version renouvelée.\n5) Le rôle « Utilisateur des secrets du coffre de clés » (Key Vault Secrets User) donne la lecture des secrets sans droit de modification.\nContrôle : au 1er mai, les quatre secrets se répartissent en 2 expirés, 1 secret encore valable 45 jours et 1 secret encore valable 100 jours (30 jours en mai + 30 en juin + 31 en juillet + 9 en août)."
   }
 ];

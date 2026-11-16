@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c5-e1) — Méthode du Coin Nord-Ouest (Transport)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux origines deux destinations]\n# Données : 25,25;30,20;2,4|3,5\nA_COMPLETER\n\n[Cas 2 — Trois origines deux destinations]\n# Données : 10,20,30;25,35;4,6|2,5|3,1\nA_COMPLETER\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\n# Données : 20,30;20,30;5,8|4,2\nA_COMPLETER\n",
     "hints": [
       "La méthode du coin Nord-Ouest initialise la matrice de transport en saturant d’abord la case (1, 1).",
-      "À chaque étape, allouez min(offre restante, demande restante) et déplacez-vous vers la droite ou vers le bas selon la saturation."
+      "À chaque étape, allouez min(offre restante, demande restante) et déplacez-vous vers la droite ou vers le bas selon la saturation.",
+      "Partez impérativement de la case (1,1) en allouant min(offre, demande) : réduisez offre et demande puis avancez à droite ou vers le bas jusqu à épuisement."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "FLUX: (1,1)=20.0,(2,2)=30.0 COUT_TOTAL=160.0"
       }
     ],
-    "solution": "[Exemple]\nFLUX: (1,1)=20.0,(1,2)=10.0,(2,2)=20.0,(2,3)=20.0 COUT_TOTAL=310.0\n\n[Cas 1 — Deux origines deux destinations]\nFLUX: (1,1)=25.0,(2,1)=5.0,(2,2)=20.0 COUT_TOTAL=165.0\n\n[Cas 2 — Trois origines deux destinations]\nFLUX: (1,1)=10.0,(2,1)=15.0,(2,2)=5.0,(3,2)=30.0 COUT_TOTAL=125.0\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\nFLUX: (1,1)=20.0,(2,2)=30.0 COUT_TOTAL=160.0\n"
+    "solution": "[Exemple]\nFLUX: (1,1)=20.0,(1,2)=10.0,(2,2)=20.0,(2,3)=20.0 COUT_TOTAL=310.0\n\n[Cas 1 — Deux origines deux destinations]\nFLUX: (1,1)=25.0,(2,1)=5.0,(2,2)=20.0 COUT_TOTAL=165.0\n\n[Cas 2 — Trois origines deux destinations]\nFLUX: (1,1)=10.0,(2,1)=15.0,(2,2)=5.0,(3,2)=30.0 COUT_TOTAL=125.0\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\nFLUX: (1,1)=20.0,(2,2)=30.0 COUT_TOTAL=160.0\n",
+    "takeaway": "À retenir : Construire une solution de base réalisable initiale par la règle du coin Nord-Ouest.\nRepère : O1=30, D1=20 -> (1,1)=20. D1 est satisfaite. O1 restant=10, D2=30 -> (1,2)=10. O1 épuisée. O2=40, D2 restant=20 -> (2,2)=20. O2 restant=20, D3=20 -> (2,3)=20. Coût: 20*3 + 10*5 + 20*4 + 20*6 = 60+50+80+120 = 310.0."
   },
   {
     "id": "ro2-c5-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c5-e2) — Méthode du Moindre Coût (Transport économique)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2x2 contrastée]\n# Données : 30,20;25,25;4,2|3,5\nA_COMPLETER\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\n# Données : 40,40;30,50;1,3|2,1\nA_COMPLETER\n\n[Cas 3 — Avantage net sur la diagonale]\n# Données : 15,15;15,15;1,9|9,2\nA_COMPLETER\n",
     "hints": [
       "Repère les indices (i, j) non encore saturés avec le coût min.",
-      "Soustrait q de l'offre i et de la demande j jusqu'à épuisement."
+      "Soustrait q de l'offre i et de la demande j jusqu'à épuisement.",
+      "À chaque itération, repérez la case encore active au coût unitaire minimal, allouez min(offre, demande), barrez la ligne ou colonne saturée puis recalculez."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "MOINDRE_COUT: COUT_TOTAL=45.0"
       }
     ],
-    "solution": "[Exemple]\nMOINDRE_COUT: COUT_TOTAL=170.0\n\n[Cas 1 — Matrice 2x2 contrastée]\nMOINDRE_COUT: COUT_TOTAL=130.0\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\nMOINDRE_COUT: COUT_TOTAL=100.0\n\n[Cas 3 — Avantage net sur la diagonale]\nMOINDRE_COUT: COUT_TOTAL=45.0\n"
+    "solution": "[Exemple]\nMOINDRE_COUT: COUT_TOTAL=170.0\n\n[Cas 1 — Matrice 2x2 contrastée]\nMOINDRE_COUT: COUT_TOTAL=130.0\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\nMOINDRE_COUT: COUT_TOTAL=100.0\n\n[Cas 3 — Avantage net sur la diagonale]\nMOINDRE_COUT: COUT_TOTAL=45.0\n",
+    "takeaway": "À retenir : Construire une solution initiale de transport par allocation gloutonne sur la case la moins chère.\nRepère : Allocation : (2,1)=25 (coût 2), (2,2)=5 (coût 4), (1,2)=20 (coût 5). Coût total = 25*2 + 5*4 + 20*5 = 50 + 20 + 100 = 170.0."
   },
   {
     "id": "ro2-c5-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c5-e3) — Algorithme Hongrois (Affectation minimale)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 3x3 diagonale optimale]\n# Données : 4,8,9|6,3,7|8,5,2\nA_COMPLETER\n\n[Cas 2 — Matrice 3x3 avec permutation croisée]\n# Données : 15,10,9|9,15,10|10,12,8\nA_COMPLETER\n\n[Cas 3 — Coûts identiques sur plusieurs cases]\n# Données : 5,5,5|5,5,5|5,5,5\nA_COMPLETER\n",
     "hints": [
       "Pour une matrice 3x3, il y a exactement 3! = 6 permutations d'affectation.",
-      "Évalue les 6 sommes des coûts d'origine pour trouver la bijection optimale."
+      "Évalue les 6 sommes des coûts d'origine pour trouver la bijection optimale.",
+      "Soustrayez d abord le minimum de chaque ligne, puis celui de chaque colonne ; vérifiez ensuite que l affectation finale attribue une tâche unique par agent."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "COUT_MIN=15 AFFECTATION=1,2,3"
       }
     ],
-    "solution": "[Exemple]\nCOUT_MIN=29 AFFECTATION=1,2,3\n\n[Cas 1 — Matrice 3x3 diagonale optimale]\nCOUT_MIN=9 AFFECTATION=1,2,3\n\n[Cas 2 — Matrice 3x3 avec permutation croisée]\nCOUT_MIN=27 AFFECTATION=2,1,3\n\n[Cas 3 — Coûts identiques sur plusieurs cases]\nCOUT_MIN=15 AFFECTATION=1,2,3\n"
+    "solution": "[Exemple]\nCOUT_MIN=29 AFFECTATION=1,2,3\n\n[Cas 1 — Matrice 3x3 diagonale optimale]\nCOUT_MIN=9 AFFECTATION=1,2,3\n\n[Cas 2 — Matrice 3x3 avec permutation croisée]\nCOUT_MIN=27 AFFECTATION=2,1,3\n\n[Cas 3 — Coûts identiques sur plusieurs cases]\nCOUT_MIN=15 AFFECTATION=1,2,3\n",
+    "takeaway": "À retenir : Appliquer les étapes de réduction de matrice pour résoudre un problème d’affectation.\nRepère : Affectation : P1->T1 (10), P2->T2 (8), P3->T3 (11). Coût total = 10 + 8 + 11 = 29."
   }
 ];

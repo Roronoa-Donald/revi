@@ -171,10 +171,10 @@ module.exports = {
     {
       stem: 'En ingénierie logicielle, qu’appelle-t-on le « Bus Factor » (ou Facteur de Camion) d’un projet ?',
       opts: [
-        'La bande passante réseau maximale des bus de communication entre les serveurs',
-        'Le nombre minimal de membres d’une équipe dont la perte soudaine paralyserait le projet faute de transmission des connaissances',
-        'Le coût moyen du transport des serveurs vers le datacenter',
-        'La vitesse de compilation du code source'
+        "La bande passante réseau maximale des bus de communication internes reliant les serveurs de production entre eux",
+        "Le nombre minimal de membres d’une équipe dont la perte soudaine paralyserait le projet faute de transmission des connaissances",
+        "Le coût moyen de transport et d’acheminement des serveurs physiques vers le datacenter de l’entreprise",
+        "La vitesse moyenne de compilation de l’intégralité du code source sur les serveurs d’intégration continue"
       ],
       correct: 1,
       exp: 'Le Bus Factor évalue la concentration des connaissances critiques : un Bus Factor de 1 signifie que si l’unique expert quitte l’entreprise, le système devient inmaintenable.'
@@ -182,43 +182,43 @@ module.exports = {
     {
       stem: 'Dans le cadre méthodologique 5W1H (QQOQCP), quelle question correspond à la dimension « OÙ » (Where) appliquée à un document IT ?',
       opts: [
-        'Le nom de l’auteur du document',
-        'L’environnement technique d’exécution du système (ex. poste local, cluster Kubernetes, cloud public)',
-        'Le budget financier alloué au projet',
-        'La date de livraison prévue'
+        "L’environnement technique d’exécution du système (ex. poste local, cluster Kubernetes, cloud public)",
+        "Le nom et la fonction de l’auteur ou du rédacteur responsable de la rédaction du document",
+        "Le budget financier alloué au projet et le mode de facturation des prestations associées",
+        "La date de livraison prévue et l’échéancier contractuel de mise en production du système"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La dimension OÙ (Where) précise la localisation d’infrastructure et l’environnement d’exécution physique ou logique des composants décrits.'
     },
     {
       stem: 'À quelle audience s’adresse prioritairement un Dossier d’Architecture Technique (DAT) ?',
       opts: [
-        'Aux clients finaux qui naviguent sur l’application mobile',
-        'Aux architectes d’entreprise, responsables sécurité (RSSI) et ingénieurs d’infrastructure',
-        'Aux comptables de l’entreprise',
-        'Aux graphistes designers'
+        "Aux clients finaux qui naviguent quotidiennement sur l’application mobile de l’entreprise",
+        "Aux comptables et responsables financiers chargés du suivi budgétaire de la direction",
+        "Aux graphistes et designers chargés de l’identité visuelle et des maquettes d’interface",
+        "Aux architectes d’entreprise, responsables sécurité (RSSI) et ingénieurs d’infrastructure"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le DAT est un document de haut niveau technique décrivant les briques logicielles, serveurs, flux réseau, redondance et sécurité pour les architectes et le RSSI.'
     },
     {
       stem: 'Quel est l’objectif principal d’un Dossier d’Exploitation (DEX ou Runbook) ?',
       opts: [
-        'Négocier le contrat commercial avec le client',
-        'Fournir les procédures opérationnelles pas-à-pas (démarrage, sauvegardes, restauration, diagnostic) aux équipes d’astreinte et d’exploitation',
-        'Présenter la maquette graphique de l’interface utilisateur',
-        'Lister les CV des développeurs du projet'
+        "Négocier le contrat commercial, les pénalités de retard et le devis des prestations de maintenance avec le client",
+        "Présenter la maquette graphique, les parcours utilisateurs et l’ergonomie de l’interface aux équipes de design",
+        "Fournir les procédures opérationnelles pas-à-pas (démarrage, sauvegardes, restauration, diagnostic) aux équipes d’astreinte et d’exploitation",
+        "Lister les CV, les diplômes et les années d’expérience des développeurs ayant contribué au projet"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le DEX est le guide opérationnel des exploitants : il consigne les consignes d’action concrètes et ordonnancées pour faire tourner le système et gérer les incidents.'
     },
     {
       stem: 'Quelle caractéristique distingue une Spécification Fonctionnelle Détaillée (SFD) d’une Spécification Technique Détaillée (STD) ?',
       opts: [
-        'La SFD est rédigée en anglais tandis que la STD est rédigée en français',
-        'La SFD décrit le comportement attendu du système du point de vue des besoins métier et de l’utilisateur, tandis que la STD décrit les choix d’implémentation technique (bases de données, microservices, API)',
-        'La SFD n’est jamais validée par le client',
-        'La STD ne contient aucun schéma technique'
+        "La SFD est rédigée en anglais à destination des équipes internationales de l’entreprise, tandis que la STD est rédigée exclusivement en français pour les équipes locales de développement",
+        "La SFD décrit le comportement attendu du système du point de vue des besoins métier et de l’utilisateur, tandis que la STD décrit les choix d’implémentation technique (bases de données, microservices, API)",
+        "La SFD n’est jamais soumise à la validation du client final, contrairement à la STD qui doit obligatoirement être signée et approuvée par la direction métier",
+        "La SFD se limite aux schémas de bases de données et aux choix d’infrastructure, tandis que la STD ne décrit que le parcours utilisateur et les règles de gestion métier"
       ],
       correct: 1,
       exp: 'La SFD exprime le « quoi » (règles métier, parcours client, cas d’utilisation), tandis que la STD spécifie le « comment » technique (schéma de base de données, algorithmes, protocoles).'
@@ -226,34 +226,34 @@ module.exports = {
     {
       stem: 'Pourquoi est-il déconseillé d’utiliser des termes comme « mutex », « sockets TCP » ou « token JWT » dans un guide utilisateur grand public ?',
       opts: [
-        'Car ces termes sont protégés par le droit d’auteur',
-        'Car ce jargon technique obscurcit la compréhension des utilisateurs métier et nuit à l’utilisabilité du document',
-        'Car ces termes augmentent le poids du fichier PDF',
-        'Car les navigateurs web refusent d’afficher ces mots'
+        "Car ce jargon technique obscurcit la compréhension des utilisateurs métier et nuit à l’utilisabilité du document",
+        "Car ces termes sont protégés par le droit d’auteur et ne peuvent être reproduits sans licence payante",
+        "Car ces termes augmentent le poids du fichier PDF et ralentissent son téléchargement",
+        "Car les navigateurs web refusent d’afficher ces mots lors de la génération des pages HTML"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le registre lexical doit être adapté à la cible. Pour un utilisateur métier, ces termes techniques créent une surcharge cognitive et empêchent la résolution autonome des tâches.'
     },
     {
       stem: 'Comment la documentation technique contribue-t-elle à réduire le MTTR (Mean Time To Restore) lors d’une panne critique ?',
       opts: [
-        'En permettant aux techniciens d’astreinte d’exécuter immédiatement des procédures de diagnostic et de bascule éprouvées sans perdre de temps en tâtonnements',
-        'En éteignant automatiquement les serveurs défaillants',
-        'En masquant les logs d’erreur aux clients',
-        'En prolongeant la durée de l’astreinte'
+        "En éteignant automatiquement les serveurs défaillants dès que la supervision détecte une anomalie de charge réseau",
+        "En masquant les journaux d’erreurs techniques aux clients finaux afin de préserver l’image de marque de l’entreprise",
+        "En prolongeant la durée des astreintes nocturnes afin de multiplier les essais de restauration et de diagnostic successifs",
+        "En permettant aux techniciens d’astreinte d’exécuter immédiatement des procédures de diagnostic et de bascule éprouvées sans perdre de temps en tâtonnements"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Un Runbook clair fournit des arbres de diagnostic et des commandes exactes, permettant à l’opérateur d’isoler la cause et de restaurer le service en quelques minutes.'
     },
     {
       stem: 'Que doit impérativement contenir le cartouche d’en-tête d’un document technique formel ?',
       opts: [
-        'La photo du directeur général',
-        'Le titre, la version, la date de mise à jour, l’auteur/rédacteur, le statut de validation et le périmètre d’audience',
-        'Le relevé d’identité bancaire de l’entreprise',
-        'La liste de tous les logiciels installés sur l’ordinateur de l’auteur'
+        "La photographie officielle du directeur général et la liste des membres du comité de direction",
+        "Le relevé d’identité bancaire de l’entreprise et son numéro d’enregistrement au registre du commerce",
+        "Le titre, la version, la date de mise à jour, l’auteur/rédacteur, le statut de validation et le périmètre d’audience",
+        "La liste exhaustive de tous les logiciels installés sur l’ordinateur personnel de l’auteur du document"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Les métadonnées d’en-tête garantissent la traçabilité documentaire : identification de la version, date de dernière révision, auteurs et statut d’approbation formelle.'
     }
   ],

@@ -18,6 +18,7 @@
     RUNTIME_ERROR: 'runtime_error',
     COMPILE_ERROR: 'compile_error',
     API_ERROR: 'api_error',
+    RATE_LIMITED: 'rate_limited',
     CANCELLED: 'cancelled'
   };
 
@@ -69,7 +70,7 @@
       if (!res.ok) {
         var isLimit = res.status === 429;
         return createResult({
-          status: isLimit ? STATUS.API_ERROR : STATUS.API_ERROR,
+          status: isLimit ? STATUS.RATE_LIMITED : STATUS.API_ERROR,
           exitCode: 1,
           executionTime: elapsed,
           stderr: httpErrorMessage(res.status, res.data),

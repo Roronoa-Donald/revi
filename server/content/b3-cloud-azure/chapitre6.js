@@ -127,8 +127,8 @@ module.exports = {
   questions: [
     {
       stem: 'Quel opérateur KQL est utilisé pour filtrer les lignes d\'une table de journaux selon une condition logique ?',
-      opts: ['select', 'filter', 'where', 'having'],
-      correct: 2,
+      opts: ['where', 'filter', 'select', 'having'],
+      correct: 0,
       exp: 'En langage KQL (Kusto Query Language), l\'opérateur where permet de filtrer les enregistrements d\'une table selon un prédicat booléen (ex: where Status == "Failed").'
     },
     {
@@ -141,17 +141,17 @@ module.exports = {
       stem: 'Quel outil de surveillance de la sécurité fournit le Secure Score pour évaluer la posture de conformité d\'un tenant Azure ?',
       opts: [
         'Azure Cost Management',
-        'Microsoft Defender for Cloud',
         'Azure Network Watcher',
+        'Microsoft Defender for Cloud',
         'Azure Bastion'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Microsoft Defender for Cloud (anciennement Azure Security Center) évalue en continu les configurations et calcule le Secure Score avec des recommandations prioritaires.'
     },
     {
       stem: 'Dans Azure Monitor, quel composant regroupe la liste des destinataires (adresses email, numéros SMS, webhooks Teams/Slack) appelés lorsqu\'une alerte se déclenche ?',
-      opts: ['Notification Hub', 'Action Group', 'Alert Manager', 'Dispatch Queue'],
-      correct: 1,
+      opts: ['Notification Hub', 'Dispatch Queue', 'Alert Manager', 'Action Group'],
+      correct: 3,
       exp: 'Un Action Group regroupe l\'ensemble des actions de notification et de remédiation automatisée à exécuter lors du déclenchement d\'une règle d\'alerte.'
     },
     {
@@ -163,10 +163,10 @@ module.exports = {
     {
       stem: 'Quel est l\'avantage du langage déclaratif Bicep par rapport aux templates JSON Azure Resource Manager (ARM) traditionnels ?',
       opts: [
-        'Bicep ne fonctionne que sous Linux',
-        'Syntaxe beaucoup plus concise et lisible, absence de guillemets et accolades superflues, et validation de types native',
-        'Bicep est payant tandis qu\'ARM est gratuit',
-        'Bicep supprime les règles de pare-feu'
+        "Bicep ne fonctionne que sur les postes de travail sous Linux et reste incompatible avec Windows",
+        "Syntaxe beaucoup plus concise et lisible, absence de guillemets et accolades superflues, et validation de types native",
+        "Bicep est un service payant tandis que les templates ARM JSON restent entièrement gratuits",
+        "Bicep supprime automatiquement les règles de pare-feu configurées sur les ressources déployées"
       ],
       correct: 1,
       exp: 'Bicep est un DSL moderne conçu par Microsoft offrant une syntaxe modulaire et épurée tout en compilant directement en templates ARM standards de manière totalement transparente.'
@@ -174,23 +174,23 @@ module.exports = {
     {
       stem: 'Dans un budget Azure Cost Management, quelle est la différence entre une alerte basée sur "Actual" et une alerte basée sur "Forecasted" ?',
       opts: [
-        'Actual concerne les devises en euros, Forecasted en dollars',
-        'Actual se déclenche sur les dépenses réelles déjà facturées, Forecasted sur la projection mathématique de dépassement d\'ici la fin du mois',
-        'Forecasted s\'applique uniquement aux disques SSD',
-        'Il n\'y a aucune différence technique'
+        "Actual concerne uniquement les dépenses facturées en euros, Forecasted celles réglées en dollars américains",
+        "Forecasted s'applique uniquement aux disques SSD managés et ignore tous les autres types de ressources",
+        "Actual se déclenche sur les dépenses réelles déjà facturées, Forecasted sur la projection mathématique de dépassement d'ici la fin du mois",
+        "Il n'y a aucune différence technique réelle, les deux types d'alertes sont strictement équivalents"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Une alerte "Actual" surveille la somme réellement consommée à l\'instant T, tandis que "Forecasted" utilise l\'analyse prédictive de consommation pour alerter dès que la trajectoire projetée dépasse le budget avant la fin du cycle mensuel.'
     },
     {
       stem: 'Que se passe-t-il lors du déploiement d\'un gabarit d\'Infrastructure as Code ARM ou Bicep contenant une dépendance circulaire entre deux ressources ?',
       opts: [
-        'Le moteur ARM crée une ressource fictive pour casser la boucle',
-        'Le déploiement échoue immédiatement lors de l\'étape de validation préalable avec une erreur de dépendance circulaire',
-        'Le déploiement prend 48 heures',
-        'Azure ignore la directive dependsOn'
+        "Le moteur ARM crée une ressource fictive temporaire pour casser la boucle de dépendances",
+        "Le déploiement s'exécute en arrière-plan et prend systématiquement 48 heures complètes",
+        "Azure ignore silencieusement la directive dependsOn et déploie les ressources en parallèle",
+        "Le déploiement échoue immédiatement lors de l'étape de validation préalable avec une erreur de dépendance circulaire"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le moteur d\'orchestration ARM construit un graphe acyclique dirigé (DAG) avant tout déploiement. Si une boucle est détectée, la validation échoue immédiatement et aucune ressource n\'est créée.'
     }
   ],

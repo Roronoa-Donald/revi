@@ -88,13 +88,14 @@ test('K1 — Suppression de l’exécution locale de shell et durcissement Fail-
     }
   });
 
-  await t.test('(d) runSql refuse une requête récursive sans l’exécuter localement', async () => {
+  await t.test('(d) runSql borne les requêtes récursives en mémoire WASM (2000 lignes max, exit_code=1)', async () => {
     const res = await localRunner.runSql(
       'WITH RECURSIVE cnt(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM cnt) SELECT x FROM cnt;',
       ''
     );
     assert.equal(res.ok, false);
-    assert.equal(res.httpStatus, 503);
+    assert.equal(res.data.exit_code, 1);
     assert.equal(res.data.stdout, '');
+    assert.match(res.data.stderr, /Limite.*2000 lignes/i);
   });
 });

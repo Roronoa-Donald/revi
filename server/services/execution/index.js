@@ -326,7 +326,9 @@ function normalizeResponse(response, providerOverride) {
   }
 
   let status = 'success';
-  if (compileError) {
+  if (String(values.runStatus || '').toLowerCase() === 'timeout' || String(data.status || '').toLowerCase() === 'timeout') {
+    status = 'timeout';
+  } else if (compileError) {
     status = 'compile_error';
   } else if (signal) {
     status = 'runtime_error';
@@ -382,9 +384,16 @@ async function execute(input, deps = {}) {
     return normalizeResponse(response, activeProvider.PROVIDER_NAME);
   }
 
-  if (payload.languageId === 'analyse') {
-    const localRes = await localRunner.runAnalyse(payload.code, payload.stdin);
-    return normalizeResponse(localRes, 'local');
+  if (localRunner.canHandle(payload.languageId)) {
+    const localRes = await localRunner.run({
+      language: payload.languageId,
+      code: payload.code,
+      stdin: payload.stdin
+    });
+    const normalizedInput = localRes && localRes.httpStatus === 200 && localRes.data && typeof localRes.data === 'object'
+      ? { ...localRes, ok: true }
+      : localRes;
+    return normalizeResponse(normalizedInput, 'local');
   }
 
   if (piston.isConfigured()) {

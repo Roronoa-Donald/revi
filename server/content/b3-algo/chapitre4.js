@@ -81,12 +81,12 @@ module.exports = {
     {
       "stem": "Combien d’arêtes comporte obligatoirement un arbre couvrant minimal d’un graphe connexe ayant 12 sommets ?",
       "opts": [
-        "10 arêtes",
         "11 arêtes",
+        "10 arêtes",
         "12 arêtes",
         "13 arêtes"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "Dans tout arbre à |V| sommets, le nombre d’arêtes est strictement égal à |V| - 1. Pour 12 sommets, un arbre couvrant compte obligatoirement 11 arêtes."
     },
     {
@@ -94,21 +94,21 @@ module.exports = {
       "opts": [
         "O(1)",
         "O(|V|)",
-        "O(|V| + |E|)",
-        "O(|V|^2)"
+        "O(|V|^2)",
+        "O(|V| + |E|)"
       ],
-      "correct": 2,
+      "correct": 3,
       "exp": "Une liste d’adjacence alloue une entrée pour chaque sommet et stocke chaque arête (une fois pour un graphe orienté, deux fois pour un non-orienté), soit un coût en O(|V| + |E|)."
     },
     {
       "stem": "Quel parcours garantit de trouver le chemin avec le nombre minimal d’arêtes entre deux sommets dans un graphe non pondéré ?",
       "opts": [
         "Parcours en profondeur (DFS)",
-        "Parcours en largeur (BFS)",
         "Tri topologique",
+        "Parcours en largeur (BFS)",
         "Algorithme de Kruskal"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Le parcours BFS explore les sommets par couches de distance croissante (0 arête, puis 1 arête, puis 2 arêtes...). Le premier chemin atteignant la cible est obligatoirement minimal."
     },
     {
@@ -125,21 +125,21 @@ module.exports = {
     {
       "stem": "Que se passe-t-il si l’on applique l’algorithme de Kruskal sur un graphe comportant deux composantes connexes disjointes ?",
       "opts": [
-        "L’algorithme plante avec une erreur de division par zéro",
         "Il génère une forêt couvrante minimale (un arbre couvrant par composante)",
+        "L’algorithme plante avec une erreur de division par zéro",
         "Il connecte artificiellement les deux composantes",
         "Il rejette toutes les arêtes"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "Kruskal va connecter tous les sommets connectables au sein de chaque composante, formant ainsi une forêt couvrante minimale (Minimum Spanning Forest) avec moins de |V|-1 arêtes."
     },
     {
       "stem": "Pourquoi l’optimisation de compression de chemin (Path Compression) est-elle cruciale dans Union-Find ?",
       "opts": [
-        "Elle évite d’allouer de la mémoire",
+        "Elle évite d’allouer de la mémoire supplémentaire lors de la création des ensembles disjoints",
         "Elle aplatit la structure arborescente pour que chaque nœud pointe directement vers la racine représentative",
-        "Elle trie les sommets par ordre alphabétique",
-        "Elle supprime les cycles du graphe"
+        "Elle trie les sommets du graphe par ordre alphabétique afin d’accélérer les futures recherches",
+        "Elle supprime les cycles du graphe afin de maintenir une structure d’arbre couvrant minimale"
       ],
       "correct": 1,
       "exp": "Lors de l’appel à find(x), la compression de chemin rattache tous les ancêtres traversés directement à la racine, réduisant la hauteur de l’arbre à presque 1 pour les accès ultérieurs."
@@ -147,23 +147,23 @@ module.exports = {
     {
       "stem": "Dans un graphe dense où |E| est proche de |V|^2, quelle structure de données peut s’avérer plus rapide pour tester l’existence d’une arête spécifique ?",
       "opts": [
-        "La matrice d’adjacence",
+        "L’arbre binaire de recherche",
         "La liste d’adjacence",
         "La pile LIFO",
-        "L’arbre binaire de recherche"
+        "La matrice d’adjacence"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Une matrice d’adjacence permet de tester si (u, v) existe en un accès mémoire immédiat O(1), contre O(deg(u)) dans une liste d’adjacence."
     },
     {
       "stem": "Quel autre algorithme glouton célèbre résout le problème de l’arbre couvrant minimal en faisant croître un arbre unique depuis un sommet arbitraire ?",
       "opts": [
         "L’algorithme de Dijkstra",
-        "L’algorithme de Prim",
         "L’algorithme de Bellman-Ford",
+        "L’algorithme de Prim",
         "L’algorithme de Floyd-Warshall"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "L’algorithme de Prim résout le MST en partant d’un sommet initial et en ajoutant à chaque étape l’arête de poids minimal reliant l’arbre courant à un sommet extérieur."
     }
   ],

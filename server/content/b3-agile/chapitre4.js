@@ -146,10 +146,10 @@ module.exports = {
     {
       stem: 'Dans le modèle des 3C de Ron Jeffries, que représente le « C » de « Confirmation » ?',
       opts: [
-        'La signature d’un bon de commande par la direction',
-        'Les critères d’acceptation formels permettant de vérifier objectivement si la story est achevée et conforme',
-        'Un e-mail de félicitations envoyé aux développeurs',
-        'La confirmation de présence à la réunion'
+        "La signature d’un bon de commande par la direction avant le démarrage du prochain sprint",
+        "Les critères d’acceptation formels permettant de vérifier objectivement si la story est achevée et conforme",
+        "Un e-mail de félicitations envoyé aux développeurs après la démonstration finale",
+        "La confirmation de présence à la réunion de planification du prochain sprint"
       ],
       correct: 1,
       exp: 'Confirmation désigne les critères d’acceptation (critères de validation) vérifiant que le besoin exprimé fonctionne comme attendu.'
@@ -157,43 +157,43 @@ module.exports = {
     {
       stem: 'Dans la grille d’évaluation INVEST, que signifie le critère « Small » ?',
       opts: [
-        'Le texte de la story ne doit pas dépasser 5 mots',
         'La story doit pouvoir être facilement conçue, codée et testée au cours d’un seul Sprint',
+        'Le texte de la story ne doit pas dépasser 5 mots',
         'Elle doit être confiée au développeur le plus jeune',
         'Elle ne doit nécessiter aucune base de données'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une story Small est suffisamment réduite pour être achevée intégralement dans le cadre d’un sprint sans déborder sur le suivant.'
     },
     {
       stem: 'Dans la syntaxe BDD / Gherkin, quel mot-clé introduit l’action déclenchante réalisée par l’utilisateur ?',
       opts: [
         'GIVEN (Étant donné)',
-        'WHEN (Quand / Lorsque)',
+        'AND (Et)',
         'THEN (Alors)',
-        'AND (Et)'
+        'WHEN (Quand / Lorsque)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'WHEN décrit l’événement ou l’action stimulatrice (ex: « Quand l’utilisateur clique sur Valider »).'
     },
     {
       stem: 'Pourquoi le vote du Planning Poker est-il obligatoirement réalisé face cachée et révélé simultanément ?',
       opts: [
-        'Pour éviter que les développeurs ne copient sur leurs voisins pendant l’examen',
-        'Pour neutraliser les biais cognitifs d’ancrage et empêcher les développeurs expérimentés d’influencer les autres',
-        'Parce que les cartes sont magiques',
-        'Pour accélérer la réunion en interdisant toute discussion'
+        "Pour éviter que les développeurs ne copient sur leurs voisins pendant cette épreuve notée",
+        "Parce que les cartes du jeu suivent une progression mathématique soumise au hasard",
+        "Pour neutraliser les biais cognitifs d’ancrage et empêcher les développeurs expérimentés d’influencer les autres",
+        "Pour accélérer la réunion en interdisant toute discussion entre les participants"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le vote simultané élimine le biais d’ancrage psychologique : chacun exprime son estimation authentique sans autocensure.'
     },
     {
       stem: 'Pourquoi la suite de Fibonacci (1, 2, 3, 5, 8, 13, 20...) est-elle utilisée pour calibrer les Story Points plutôt qu’une échelle linéaire (1, 2, 3, 4, 5, 6...) ?',
       opts: [
-        'Parce que Fibonacci était un grand informaticien',
-        'Parce que l’incertitude grandit proportionnellement à la taille de la tâche, rendant illusoire toute précision fine sur les gros volumes',
-        'Pour limiter le nombre de réunions',
-        'Parce que les nombres pairs sont interdits en agile'
+        "Parce que Fibonacci, mathématicien du XIIIe siècle, est considéré comme le pionnier des méthodes agiles",
+        "Parce que l’incertitude grandit proportionnellement à la taille de la tâche, rendant illusoire toute précision fine sur les gros volumes",
+        "Pour limiter le nombre de réunions d’estimation organisées chaque semaine par l’équipe de développement",
+        "Parce que les nombres pairs sont formellement interdits par les frameworks agiles certifiés du marché"
       ],
       correct: 1,
       exp: 'Les écarts exponentiels reflètent l’augmentation de l’incertitude : plus une tâche est volumineuse, plus les détails cachés sont imprévisibles.'
@@ -201,34 +201,34 @@ module.exports = {
     {
       stem: 'Quelle formulation est un exemple parfait d’anti-pattern dans la rédaction d’une User Story ?',
       opts: [
-        'En tant que client, je veux consulter mon historique d’achats afin de retrouver mes factures passées',
         'En tant que développeur backend, je veux créer la table Postgres users afin d’avoir des colonnes en base',
+        'En tant que client, je veux consulter mon historique d’achats afin de retrouver mes factures passées',
         'En tant que gestionnaire de stock, je veux recevoir une alerte SMS en cas de rupture afin de réapprovisionner à temps',
         'En tant que visiteur anonyme, je veux réinitialiser mon mot de passe afin de récupérer l’accès à mon compte'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une story technique centrée sur l’implémentation interne sans valeur métier ni persona utilisateur réel est un anti-pattern.'
     },
     {
       stem: 'Lors d’un tour de Planning Poker, deux développeurs votent 2 points et deux autres votent 13 points. Que doit faire le Scrum Master ?',
       opts: [
-        'Calculer la moyenne : (2 + 2 + 13 + 13) / 4 = 7.5 et arrondir à 8 points',
-        'Inviter le vote le plus bas et le vote le plus haut à expliquer leurs visions techniques respectives pour partager l’information avant un second vote',
-        'Imposer la décision du Product Owner',
-        'Annuler le projet'
+        "Calculer la moyenne arithmétique des quatre votes, soit (2 + 2 + 13 + 13) / 4 = 7.5, puis arrondir à 8 points",
+        "Imposer directement la décision du Product Owner, sans débat, afin de préserver le temps de la réunion de planification",
+        "Inviter le vote le plus bas et le vote le plus haut à expliquer leurs visions techniques respectives pour partager l’information avant un second vote",
+        "Annuler le projet en cours et le renvoyer en phase de cadrage initial pour redéfinir l’ensemble du périmètre"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’intérêt du Planning Poker réside dans le débat : le vote bas a peut-être trouvé une bibliothèque existante, tandis que le vote haut a vu un piège architectural.'
     },
     {
       stem: 'Que désigne le terme « Epic » dans la hiérarchie du Product Backlog ?',
       opts: [
-        'Une grande User Story trop volumineuse pour être réalisée en un seul sprint et qui doit être découpée en stories plus petites',
-        'Un bug critique ayant causé une panne de serveur',
-        'Un développeur d’élite ayant 20 ans d’expérience',
-        'Le document d’architecture système'
+        "Un bug critique ayant causé une panne du serveur en environnement de production cette semaine",
+        "Un développeur d’élite comptant vingt ans d’expérience et réservé aux tâches les plus complexes",
+        "Le document d’architecture système validé avant le démarrage officiel du développement",
+        "Une grande User Story trop volumineuse pour être réalisée en un seul sprint et qui doit être découpée en stories plus petites"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Un Epic est un macro-besoin ou thème de haut niveau nécessitant d’être décomposé verticalement en plusieurs User Stories INVEST.'
     }
   ],

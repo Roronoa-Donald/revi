@@ -91,14 +91,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Modifier un produit exige…', opts: ['une sélection dans le tableau', 'un nouveau formulaire', 'un export'], correct: 0, exp: 'Sans sélection : showwarning, pas d\'UPDATE.' },
-      { q: 'La suppression réelle ne suit que si…', opts: ['askyesno renvoie oui', 'le champ est vide', 'le stock est nul'], correct: 0, exp: 'Confirmation obligatoire avant DELETE.' },
-      { q: 'La requête de modification :', opts: ['UPDATE … WHERE id=%s', 'UPDATE tout', 'INSERT id'], correct: 0, exp: 'Le WHERE id cible une seule ligne.' },
+      { q: 'Modifier un produit exige…', opts: ['un export', 'un nouveau formulaire', 'une sélection dans le tableau'], correct: 2, exp: 'Sans sélection : showwarning, pas d\'UPDATE.' },
+      { q: 'La suppression réelle ne suit que si…', opts: ['askyesno renvoie oui', 'le champ est vide', 'le stock est nul'], correct: 0, exp: "askyesno doit renvoyer oui : la confirmation précède le DELETE, sinon aucune ligne n'est retirée ; un champ vide bloque seulement le formulaire." },
+      { q: 'La requête de modification :', opts: ['UPDATE tout', 'UPDATE … WHERE id=%s', 'INSERT id'], correct: 1, exp: "UPDATE produits SET … WHERE id=%s cible la seule ligne sélectionnée ; sans le WHERE, la mise à jour s'appliquerait à toute la table." },
       { q: 'Une sortie de stock supérieure au disponible :', opts: ['refusée', 'acceptée en négatif', 'convertie'], correct: 0, exp: 'Le stock ne devient jamais négatif : refus motivé.' },
-      { q: 'Après un ajout réussi, l\'application…', opts: ['efface les champs et actualise le tableau', 'ferme la fenêtre', 'recrée la table'], correct: 0, exp: 'effacer_champs() + actualiser_tableau().' },
-      { q: 'Un produit déjà parti de la table :', opts: ['introuvable', 'supprimé', 'modifié'], correct: 0, exp: 'Le refus est rapporté, pas compté en suppression.' },
-      { q: 'La mise à jour d\'un stock de +X s\'écrit…', opts: ['SET quantite = quantite + X WHERE id', 'SET quantite = X sans WHERE', 'INSERT quantite'], correct: 0, exp: 'Incrément relatif, ciblé par id.' },
-      { q: 'Le squelette de chaque action :', opts: ['valider, appeler, rafraîchir', 'connecter, créer, fermer', 'lire, écrire, exporter'], correct: 0, exp: 'Le même chemin trois fois dans le tutoriel.' }
+      { q: 'Après un ajout réussi, l\'application…', opts: ["ferme la fenêtre et rouvre la connexion","recrée la table produits de zéro","efface les champs et actualise le tableau"], correct: 2, exp: "Après un ajout validé, effacer_champs() vide le formulaire et actualiser_tableau() recharge les lignes : la fenêtre reste ouverte." },
+      { q: 'Un produit déjà parti de la table :', opts: ['supprimé', 'introuvable', 'modifié'], correct: 1, exp: 'Le refus est rapporté, pas compté en suppression.' },
+      { q: 'La mise à jour d\'un stock de +X s\'écrit…', opts: ['SET quantite = quantite + X WHERE id', 'SET quantite = X sans WHERE', 'INSERT quantite'], correct: 0, exp: "SET quantite = quantite + X WHERE id applique un incrément relatif à la ligne ciblée ; une affectation absolue sans WHERE écraserait toute la table." },
+      { q: 'Le squelette de chaque action :', opts: ['lire, écrire, exporter', 'connecter, créer, fermer', 'valider, appeler, rafraîchir'], correct: 2, exp: 'Le même chemin trois fois dans le tutoriel.' }
     ],
 
     pitfalls: [
@@ -226,14 +226,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un produit à 0 en stock est en…', opts: ['rupture', 'alerte', 'ok'], correct: 0, exp: 'Rupture : plus rien à vendre.' },
-      { q: 'Un stock exactement égal au seuil est…', opts: ['ok', 'en alerte', 'en rupture'], correct: 0, exp: 'L\'alerte exige un stock strictement inférieur.' },
-      { q: 'La valeur d\'une ligne vaut…', opts: ['quantite × prix', 'quantite + prix', 'prix seul'], correct: 0, exp: 'Le produit des deux, accumulé au total.' },
-      { q: 'Le total du stock s\'affiche…', opts: ['après la boucle', 'dans la boucle', 'avant la lecture'], correct: 0, exp: 'Accumulateur hors boucle, affichage unique à la fin.' },
-      { q: 'Le maximum se met à jour quand le prix est…', opts: ['strictement supérieur', 'supérieur ou égal', 'différent'], correct: 0, exp: 'À égalité, le premier rencontré garde la place.' },
-      { q: 'Si la catégorie cible ne contient rien :', opts: ['trouves : 0', 'une erreur', 'tout le catalogue'], correct: 0, exp: 'Le bilan l\'annonce : trouves : 0, meilleur « - ».' },
+      { q: 'Un produit à 0 en stock est en…', opts: ['alerte', 'rupture', 'ok'], correct: 1, exp: "La cascade des états teste d'abord l'égalité : stock = 0 est une rupture, il n'y a plus rien à vendre ; l'alerte exige un stock strictement sous le seuil mais non nul." },
+      { q: 'Un stock exactement égal au seuil est…', opts: ['en rupture', 'en alerte', 'ok'], correct: 2, exp: 'L\'alerte exige un stock strictement inférieur.' },
+      { q: 'La valeur d\'une ligne vaut…', opts: ['quantite × prix', 'quantite + prix', 'prix seul'], correct: 0, exp: "La valeur d'une ligne est le produit quantite × prix, accumulé dans le total général affiché après la boucle ; additionner les deux n'aurait aucune unité." },
+      { q: 'Le total du stock s\'affiche…', opts: ['dans la boucle', 'après la boucle', 'avant la lecture'], correct: 1, exp: 'Accumulateur hors boucle, affichage unique à la fin.' },
+      { q: 'Le maximum se met à jour quand le prix est…', opts: ['différent', 'supérieur ou égal', 'strictement supérieur'], correct: 2, exp: 'À égalité, le premier rencontré garde la place.' },
+      { q: 'Si la catégorie cible ne contient rien :', opts: ['une erreur', 'trouves : 0', 'tout le catalogue'], correct: 1, exp: 'Le bilan l\'annonce : trouves : 0, meilleur « - ».' },
       { q: 'Deux ruptures et trois alertes produisent…', opts: ['deux bilans distincts', 'un seul total', 'une erreur'], correct: 0, exp: 'ruptures : R puis alertes : A, sur deux lignes.' },
-      { q: 'Le filtre par catégorie compare…', opts: ['la catégorie du produit à la cible', 'le prix au seuil', 'l\'id au nom'], correct: 0, exp: 'Seules les correspondances s\'affichent et comptent.' }
+      { q: 'Le filtre par catégorie compare…', opts: ['le prix au seuil', 'la catégorie du produit à la cible', 'l\'id au nom'], correct: 1, exp: 'Seules les correspondances s\'affichent et comptent.' }
     ],
 
     pitfalls: [
@@ -362,18 +362,26 @@ module.exports = [
             '      <li>Le tableau de bord : total + alertes + maximum, trois accumulateurs hors boucle.</li>\n' +
             '    </ul>')
         ].join('\n')
+      },
+      {
+        title: 'Préparer la soutenance',
+        html: [
+          '<p>La soutenance dure une dizaine de minutes. Un plan efficace suit le fil du projet, pas le fil du code :</p>',
+          '<ol>\n<li><strong>Le besoin</strong> (1 min) : le problème du commerçant et le cahier des charges ;</li>\n<li><strong>La conception</strong> (2 min) : le MCD, le MLD et la table <code>produits</code> ;</li>\n<li><strong>L’architecture</strong> (2 min) : <code>database.py</code> (modèle), Tkinter (vue), fonctions des boutons (contrôleur) ;</li>\n<li><strong>La démonstration</strong> (3 min) : ajouter un produit, déclencher une alerte de seuil, exporter le CSV ;</li>\n<li><strong>Le bilan</strong> (2 min) : difficultés rencontrées, historique Git, pistes d’amélioration (authentification, statistiques).</li>\n</ol>',
+          '<p>Préparez la démonstration sur une base de données propre, avec un jeu d’essai connu, et gardez une capture d’écran de secours. Le jury pose presque toujours une question sur la séparation des couches et une sur la gestion des erreurs : sachez montrer où se trouve le <code>try/except</code>.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { q: '« No module named psycopg2 » se corrige par…', opts: ['pip install psycopg2-binary', 'apt install postgresql', 'un redémarrage'], correct: 0, exp: 'Dépendance Python : pip, pas apt.' },
-      { q: '« No module named tkinter » se corrige par…', opts: ['sudo apt install python3-tk', 'pip install tkinter', 'un import raté'], correct: 0, exp: 'Bibliothèque système : apt.' },
-      { q: '« SyntaxError: Non-ASCII character » exige…', opts: ['l\'en-tête coding utf-8', 'des variables anglaises', 'un autre éditeur'], correct: 0, exp: 'Première ligne du fichier : # -*- coding: utf-8 -*-.' },
+      { q: '« No module named psycopg2 » se corrige par…', opts: ['pip install psycopg2-binary', 'apt install postgresql', 'un redémarrage'], correct: 0, exp: "psycopg2-binary est une dépendance Python : elle s'installe par pip ; apt installe le serveur PostgreSQL, pas la bibliothèque cliente." },
+      { q: '« No module named tkinter » se corrige par…', opts: ['un import raté', 'pip install tkinter', 'sudo apt install python3-tk'], correct: 2, exp: "tkinter est une bibliothèque système livrée par le paquet python3-tk : elle s'installe par apt, jamais par pip." },
+      { q: '« SyntaxError: Non-ASCII character » exige…', opts: ['un autre éditeur', 'des variables anglaises', 'l\'en-tête coding utf-8'], correct: 2, exp: 'Première ligne du fichier : # -*- coding: utf-8 -*-.' },
       { q: 'Impossible de se connecter : vérifier d\'abord…', opts: ['le service PostgreSQL', 'le prix du stock', 'le CSV'], correct: 0, exp: 'Service, mot de passe, existence de la base.' },
-      { q: 'L\'en-tête CSV est généré…', opts: ['avant la boucle', 'après la boucle', 'par produit'], correct: 0, exp: 'Il sort même pour un catalogue vide.' },
+      { q: 'L\'en-tête CSV est généré…', opts: ['après la boucle', 'avant la boucle', 'par produit'], correct: 1, exp: "L'en-tête nom;categorie;quantite;prix sort avant la boucle : il apparaît une seule fois, même si le catalogue est vide." },
       { q: 'Le séparateur CSV du tutoriel :', opts: ['le point-virgule', 'la virgule', 'la tabulation'], correct: 0, exp: 'Convention francophone : nom;categorie;quantite;prix.' },
-      { q: 'La vitrine du tableau de bord se choisit sur…', opts: ['la valeur de ligne', 'le prix unitaire', 'le nom'], correct: 0, exp: 'quantite × prix, pas le prix seul.' },
-      { q: 'L\'améliorations qui reste ouverte (non traitée dans le cours) :', opts: ['l\'authentification et les droits', 'les alertes de seuil', 'l\'export CSV'], correct: 0, exp: 'Alertes, valeur et export sont faites ; auth et statistiques restent des pistes.' }
+      { q: 'La vitrine du tableau de bord se choisit sur…', opts: ['le nom', 'le prix unitaire', 'la valeur de ligne'], correct: 2, exp: "La vitrine est la plus grande valeur de ligne, quantite × prix ; retenir le prix unitaire seul ignorerait les quantités." },
+      { q: 'L\'améliorations qui reste ouverte (non traitée dans le cours) :', opts: ['les alertes de seuil', 'l\'authentification et les droits', 'l\'export CSV'], correct: 1, exp: 'Alertes, valeur et export sont faites ; auth et statistiques restent des pistes.' }
     ],
 
     pitfalls: [

@@ -113,23 +113,23 @@ module.exports = {
     {
       stem: 'Pourquoi la méthode dict.TryGetValue(cle, out var val) est-elle préférée à l’indexeur direct dict[cle] ?',
       opts: [
-        'Parce qu’elle alloue moins de mémoire sur la pile d’exécution.',
-        'Parce qu’elle évite de lever une KeyNotFoundException si la clé est absente et n’effectue qu’une seule recherche de hachage.',
-        'Parce qu’elle trie automatiquement le dictionnaire par ordre croissant.',
-        'Parce qu’elle crypte la clé lors de la recherche.'
+        "Parce qu’elle alloue beaucoup moins de mémoire sur la pile d’exécution du programme appelant.",
+        "Parce qu’elle trie automatiquement l’ensemble du dictionnaire par ordre croissant des clés.",
+        "Parce qu’elle crypte systématiquement la clé lors de chaque opération de recherche effectuée.",
+        "Parce qu’elle évite de lever une KeyNotFoundException si la clé est absente et n’effectue qu’une seule recherche de hachage."
       ],
-      correct: 1,
+      correct: 3,
       exp: 'TryGetValue évite le coût élevé de la levée d’exception KeyNotFoundException sur les clés absentes et évite le double hachage qu’imposerait un if (dict.ContainsKey(k)) { v = dict[k]; }.'
     },
     {
       stem: 'Quel est l’intérêt de la clause catch (Exception ex) when (condition) introduite en C# 6 ?',
       opts: [
-        'Elle filtre la capture selon une expression booléenne sans dépiler la pile d’appels si la condition est fausse.',
-        'Elle accélère l’exécution du ramasse-miettes pendant l’interception.',
-        'Elle remplace obligatoirement le bloc finally.',
-        'Elle force l’exécution asynchrone du bloc catch.'
+        "Elle accélère considérablement l’exécution du ramasse-miettes pendant l’interception.",
+        "Elle remplace obligatoirement le bloc finally par une variante conditionnelle.",
+        "Elle filtre la capture selon une expression booléenne sans dépiler la pile d’appels si la condition est fausse.",
+        "Elle force l’exécution asynchrone du bloc catch dans un thread séparé dédié."
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La clause when permet de n’intercepter l’exception que si la condition est vérifiée, préservant la stack trace intacte si l’exception doit être traitée par un bloc englobant supérieur.'
     },
     {
@@ -146,12 +146,12 @@ module.exports = {
     {
       stem: 'Dans un bloc try/catch/finally, quand le bloc finally est-il exécuté ?',
       opts: [
-        'Uniquement si aucune exception n’a été levée.',
-        'Uniquement si une exception a été interceptée par un bloc catch.',
         'Dans tous les cas, que le bloc try se termine avec succès ou qu’une exception soit survenue.',
+        'Uniquement si une exception a été interceptée par un bloc catch.',
+        'Uniquement si aucune exception n’a été levée.',
         'Seulement si le mot-clé return n’est pas rencontré dans le bloc try.'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le bloc finally est garanti d’être exécuté systématiquement, qu’une exception ait été levée, interceptée, propagée, ou qu’un return anticipe la fin de la méthode.'
     }
   ],

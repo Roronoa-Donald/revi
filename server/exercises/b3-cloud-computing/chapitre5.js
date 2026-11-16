@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c5-e1) — Matrice du modèle de responsabilité partagée (Shared Responsibility)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sécurité physique du datacenter en IaaS]\n# Données : RESP_CHECK modele=IaaS domaine=CENTRE_DONNEES\nA_COMPLETER\n\n[Cas 2 — Règles de pare-feu réseau en IaaS]\n# Données : RESP_CHECK modele=IaaS domaine=FIREWALL_RESEAU\nA_COMPLETER\n\n[Cas 3 — Contrôle des accès utilisateurs en SaaS]\n# Données : RESP_CHECK modele=SaaS domaine=IAM_UTILISATEURS\nA_COMPLETER\n",
     "hints": [
       "En IaaS, le patch de l’OS invité (ex: Ubuntu ou Windows dans la VM) est 100% de la responsabilité du client.",
-      "Les données du client et leurs droits d’accès restent toujours sous la responsabilité juridique et technique du client."
+      "Les données du client et leurs droits d’accès restent toujours sous la responsabilité juridique et technique du client.",
+      "1. Centre de données, matériel, hyperviseur et patch de l’OS hôte : toujours CSP. 2. Patch OS invité et pare-feu : CLIENT en IaaS, CSP en PaaS et SaaS. 3. IAM et données : toujours CLIENT."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "RESPONSABILITE: modele=SaaS domaine=IAM_UTILISATEURS -> RESPONSABLE=CLIENT"
       }
     ],
-    "solution": "[Exemple]\nRESPONSABILITE: modele=IaaS domaine=PATCH_OS_INVITE -> RESPONSABLE=CLIENT\nRESPONSABILITE: modele=PaaS domaine=PATCH_OS_INVITE -> RESPONSABLE=CSP\nRESPONSABILITE: modele=SaaS domaine=DONNEES_CLIENT -> RESPONSABLE=CLIENT\n\n[Cas 1 — Sécurité physique du datacenter en IaaS]\nRESPONSABILITE: modele=IaaS domaine=CENTRE_DONNEES -> RESPONSABLE=CSP\n\n[Cas 2 — Règles de pare-feu réseau en IaaS]\nRESPONSABILITE: modele=IaaS domaine=FIREWALL_RESEAU -> RESPONSABLE=CLIENT\n\n[Cas 3 — Contrôle des accès utilisateurs en SaaS]\nRESPONSABILITE: modele=SaaS domaine=IAM_UTILISATEURS -> RESPONSABLE=CLIENT"
+    "solution": "[Exemple]\nRESPONSABILITE: modele=IaaS domaine=PATCH_OS_INVITE -> RESPONSABLE=CLIENT\nRESPONSABILITE: modele=PaaS domaine=PATCH_OS_INVITE -> RESPONSABLE=CSP\nRESPONSABILITE: modele=SaaS domaine=DONNEES_CLIENT -> RESPONSABLE=CLIENT\n\n[Cas 1 — Sécurité physique du datacenter en IaaS]\nRESPONSABILITE: modele=IaaS domaine=CENTRE_DONNEES -> RESPONSABLE=CSP\n\n[Cas 2 — Règles de pare-feu réseau en IaaS]\nRESPONSABILITE: modele=IaaS domaine=FIREWALL_RESEAU -> RESPONSABLE=CLIENT\n\n[Cas 3 — Contrôle des accès utilisateurs en SaaS]\nRESPONSABILITE: modele=SaaS domaine=IAM_UTILISATEURS -> RESPONSABLE=CLIENT",
+    "takeaway": "Dans le modèle de responsabilité partagée, le client reste toujours responsable des données, des identités IAM et de la configuration exposée."
   },
   {
     "id": "cc3-c5-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c5-e2) — Auditeur de posture de sécurité du stockage Cloud (CSPM)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Seul le chiffrement est manquant]\n# Données : BUCKET nom=archive_db public_read=NON encryption=NONE versioning=OUI logging=OUI\nA_COMPLETER\n\n[Cas 2 — Accès public et pas de logging]\n# Données : BUCKET nom=web_assets public_read=OUI encryption=SSE_S3 versioning=OUI logging=NON\nA_COMPLETER\n\n[Cas 3 — Chiffrement avec SSE_S3 valide]\n# Données : BUCKET nom=docs_rh public_read=NON encryption=SSE_S3 versioning=OUI logging=OUI\nA_COMPLETER\n",
     "hints": [
       "L’exposition publique d’un bucket est la première cause de fuite de données dans le Cloud.",
-      "Garder l'ordre exact des alertes séparées par une virgule."
+      "Garder l'ordre exact des alertes séparées par une virgule.",
+      "1. Partir de 100 points. 2. Déduire 50 si lecture publique, 25 sans chiffrement, 15 sans versioning, 10 sans journalisation. 3. Plancher à 0. 4. 100 : CONFORME ; 50 ou plus : VULNERABLE ; sinon CRITIQUE."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "AUDIT_STORAGE: docs_rh | SCORE=100/100 | STATUT=CONFORME | ALERTES=AUCUNE"
       }
     ],
-    "solution": "[Exemple]\nAUDIT_STORAGE: data_prod | SCORE=100/100 | STATUT=CONFORME | ALERTES=AUCUNE\nAUDIT_STORAGE: bucket_leak | SCORE=0/100 | STATUT=CRITIQUE | ALERTES=ACCES_PUBLIC_OUVERT,CHIFFREMENT_ABSENT,VERSIONING_DESACTIVE,LOGGING_DESACTIVE\nAUDIT_STORAGE: backup_dev | SCORE=85/100 | STATUT=VULNERABLE | ALERTES=VERSIONING_DESACTIVE\n\n[Cas 1 — Seul le chiffrement est manquant]\nAUDIT_STORAGE: archive_db | SCORE=75/100 | STATUT=VULNERABLE | ALERTES=CHIFFREMENT_ABSENT\n\n[Cas 2 — Accès public et pas de logging]\nAUDIT_STORAGE: web_assets | SCORE=40/100 | STATUT=CRITIQUE | ALERTES=ACCES_PUBLIC_OUVERT,LOGGING_DESACTIVE\n\n[Cas 3 — Chiffrement avec SSE_S3 valide]\nAUDIT_STORAGE: docs_rh | SCORE=100/100 | STATUT=CONFORME | ALERTES=AUCUNE"
+    "solution": "[Exemple]\nAUDIT_STORAGE: data_prod | SCORE=100/100 | STATUT=CONFORME | ALERTES=AUCUNE\nAUDIT_STORAGE: bucket_leak | SCORE=0/100 | STATUT=CRITIQUE | ALERTES=ACCES_PUBLIC_OUVERT,CHIFFREMENT_ABSENT,VERSIONING_DESACTIVE,LOGGING_DESACTIVE\nAUDIT_STORAGE: backup_dev | SCORE=85/100 | STATUT=VULNERABLE | ALERTES=VERSIONING_DESACTIVE\n\n[Cas 1 — Seul le chiffrement est manquant]\nAUDIT_STORAGE: archive_db | SCORE=75/100 | STATUT=VULNERABLE | ALERTES=CHIFFREMENT_ABSENT\n\n[Cas 2 — Accès public et pas de logging]\nAUDIT_STORAGE: web_assets | SCORE=40/100 | STATUT=CRITIQUE | ALERTES=ACCES_PUBLIC_OUVERT,LOGGING_DESACTIVE\n\n[Cas 3 — Chiffrement avec SSE_S3 valide]\nAUDIT_STORAGE: docs_rh | SCORE=100/100 | STATUT=CONFORME | ALERTES=AUCUNE",
+    "takeaway": "Un outil CSPM repère automatiquement les buckets publics, volumes non chiffrés et politiques permissives avant qu’ils ne soient exploités."
   },
   {
     "id": "cc3-c5-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d’analyse (cc3-c5-e3) — Inventaire préalable\n\n[Cas 1 — Transfert déclaré et qualification à vérifier]\n# Données : ANALYSE org=banque transfert_hors_eee=OUI qualification=SECNUMCLOUD\nA_COMPLETER\n\n[Cas 2 — Transfert non déclaré et autre qualification]\n# Données : ANALYSE org=industrie transfert_hors_eee=NON qualification=ISO27001\nA_COMPLETER\n\n[Cas 3 — Informations incomplètes]\n# Données : ANALYSE org=association transfert_hors_eee=INCONNU qualification=AUCUNE\nA_COMPLETER\n",
     "hints": [
       "Une déclaration de qualification n’est pas la vérification de son périmètre ni de sa validité.",
-      "Une localisation seule ne permet pas de conclure à la conformité RGPD ou à une immunité juridique."
+      "Une localisation seule ne permet pas de conclure à la conformité RGPD ou à une immunité juridique.",
+      "1. Transfert hors EEE déclaré : A_ETUDIER ; non déclaré : NON_DECLARE ; inconnu : INCONNU. 2. Qualification déclarée : DECLARATION_A_VERIFIER, sinon NON_DECLAREE. 3. Conformité toujours NON_EVALUEE."
     ],
     "examples": [
       {
@@ -115,6 +120,7 @@ module.exports = [
         "expected": "ANALYSE: association | TRANSFERT=INCONNU | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE"
       }
     ],
-    "solution": "[Exemple]\nANALYSE: ecole | TRANSFERT=A_ETUDIER | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE\n\n[Cas 1 — Transfert déclaré et qualification à vérifier]\nANALYSE: banque | TRANSFERT=A_ETUDIER | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE\n\n[Cas 2 — Transfert non déclaré et autre qualification]\nANALYSE: industrie | TRANSFERT=NON_DECLARE | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE\n\n[Cas 3 — Informations incomplètes]\nANALYSE: association | TRANSFERT=INCONNU | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE"
+    "solution": "[Exemple]\nANALYSE: ecole | TRANSFERT=A_ETUDIER | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE\n\n[Cas 1 — Transfert déclaré et qualification à vérifier]\nANALYSE: banque | TRANSFERT=A_ETUDIER | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE\n\n[Cas 2 — Transfert non déclaré et autre qualification]\nANALYSE: industrie | TRANSFERT=NON_DECLARE | QUALIFICATION=DECLARATION_A_VERIFIER | CONFORMITE=NON_EVALUEE\n\n[Cas 3 — Informations incomplètes]\nANALYSE: association | TRANSFERT=INCONNU | QUALIFICATION=NON_DECLAREE | CONFORMITE=NON_EVALUEE",
+    "takeaway": "Qualifier la sensibilité et les contraintes de résidence des données précède toute décision technique d’hébergement Cloud."
   }
 ];

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -187,32 +185,31 @@ J_i = J_{i-1} + (|D_i| - J_{i-1}) / 16.0</code></pre>
      data-exercise="vo3-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="INVITE sip:bob@biloxi.com SIP/2.0&#10;Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds&#10;Max-Forwards: 70&#10;To: Bob &lt;sip:bob@biloxi.com&gt;&#10;From: Alice &lt;sip:alice@atlanta.com&gt;;tag=1928301774&#10;Call-ID: a84b4c76e66710@pc33.atlanta.com&#10;CSeq: 314159 INVITE&#10;Contact: &lt;sip:alice@pc33.atlanta.com&gt;&#10;Content-Type: application/sdp">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c2-e1) — Parseur d'En-têtes de Messages SIP RFC 3261
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le support de Pharmavie teste son IPBX. Trace de l'appel du poste 104 vers le poste 117 :&#10;10:02:15  INVITE — 10:02:16  180 Ringing — 10:02:31  200 OK — 10:02:31  ACK — 10:05:00  BYE — 10:05:00  200 OK.&#10;&#10;1) La session s'ouvre par INVITE.&#10;2) 180 Ringing : le poste appelé sonne.&#10;3) Décrochage : 10:02:31 (200 OK).&#10;4) Sonnerie : de 10:02:16 à 10:02:31, soit 15 secondes.&#10;5) BYE met fin à la conversation.">
+  <script type="text/plain" data-lab-starter># Exercice — Le premier appel SIP de l'entreprise Alpacom
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2, 5 et 6 : un mot ou un code. Question 3 : hh:mm:ss. Question 4 : le nombre seul.
 
-[Cas 1 — Cas de test 1]
-# Données : SIP/2.0 200 OK
-# Données : Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds
-# Données : To: Bob <sip:bob@biloxi.com>;tag=a6c85cf
-# Données : From: Alice <sip:alice@atlanta.com>;tag=1928301774
-# Données : Call-ID: a84b4c76e66710@pc33.atlanta.com
-# Données : CSeq: 314159 INVITE
-# Données : Contact: <sip:bob@192.0.2.4>
+[Question 1 — Méthode qui ouvre la session]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : BYE sip:alice@pc33.atlanta.com SIP/2.0
-# Données : Via: SIP/2.0/UDP 192.0.2.4;branch=z9hG4bKnas77
-# Données : Max-Forwards: 70
-# Données : From: <sip:bob@biloxi.com>;tag=a6c85cf
-# Données : To: <sip:alice@atlanta.com>;tag=1928301774
-# Données : Call-ID: 987654321@biloxi.com
-# Données : CSeq: 2 BYE
+[Question 2 — Signification du code 180]
+A_COMPLETER
+
+[Question 3 — Horodatage du décrochage]
+A_COMPLETER
+
+[Question 4 — Durée de la sonnerie (en secondes)]
+A_COMPLETER
+
+[Question 5 — Méthode qui termine la conversation]
+A_COMPLETER
+
+[Question 6 — Famille du code 100 Trying]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Parseur d'En-têtes de Messages SIP RFC 3261</h3>
+    <h3 class="lab__title">Exercice 1 — Le premier appel SIP de l'entreprise Alpacom</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -221,27 +218,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser la structure syntaxique d'une trame SIP RFC 3261 et extraire les en-têtes fondamentaux (Call-ID, CSeq, From, To).</p>
-    <div class="lab__brief"><p>Le protocole SIP (Session Initiation Protocol, RFC 3261) est un protocole textuel de signalisation inspiré d'HTTP. Un message SIP débute par :</p><ul><li>Une ligne de requête (Request-Line) : <code>&lt;METHODE&gt; &lt;SIP-URI&gt; SIP/2.0</code> (ex: <code>INVITE sip:bob@biloxi.com SIP/2.0</code>), OU</li><li>Une ligne d'état (Status-Line) : <code>SIP/2.0 &lt;STATUS_CODE&gt; &lt;REASON_PHRASE&gt;</code> (ex: <code>SIP/2.0 200 OK</code>).</li></ul>
-<p>Suivent les en-têtes obligatoires :</p><ul><li><code>Call-ID</code>: identifiant unique et aléatoire de l'appel</li><li><code>CSeq</code>: numéro de séquence entier suivi de la méthode (ex: <code>1 INVITE</code>)</li><li><code>From</code>: identité de l'émetteur avec URI et tag optionnel (ex: <code>&lt;sip:alice@atlanta.com&gt;;tag=1928301774</code>)</li><li><code>To</code>: identité du destinataire (ex: <code>&lt;sip:bob@biloxi.com&gt;</code>)</li><li><code>Contact</code>: adresse directe pour acheminer les requêtes ultérieures</li></ul>
-<p>Format d'entrée :<br>Un bloc de message SIP les données d’entrée (en-têtes séparés par des retours à la ligne).<br>Le bloc se termine par une ligne vide ou la fin du flux.</p>
-<p>Format de sortie :<br>Extraire et afficher :<br>TYPE:&lt;REQUEST|RESPONSE&gt;<br>ACTION_OR_STATUS:&lt;METHODE ou CODE_STATUS&gt;<br>CALL_ID:&lt;valeur de Call-ID&gt;<br>CSEQ_NUM:&lt;entier&gt;<br>CSEQ_METHOD:&lt;nom de méthode&gt;<br>FROM_URI:&lt;uri nettoyée sans chevrons ni paramètres&gt;<br>TO_URI:&lt;uri nettoyée sans chevrons ni paramètres&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une trace d'appel SIP et identifier méthodes, codes de réponse et chronologie d'une session.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'entreprise Alpacom vient d'installer son IPBX Asterisk. Pour vérifier la chaîne de signalisation, la technicienne capture le premier appel interne : Mme Diallo (poste 201) appelle M. Weber (poste 215). La trace des messages SIP est la suivante :</p><table><tr><th>Horodatage</th><th>Émetteur</th><th>Message SIP</th></tr><tr><th>09:14:02</th><td>poste 201</td><td>INVITE sip:215@alpacom.fr</td></tr><tr><th>09:14:02</th><td>proxy</td><td>100 Trying</td></tr><tr><th>09:14:03</th><td>proxy</td><td>180 Ringing</td></tr><tr><th>09:14:11</th><td>proxy</td><td>200 OK</td></tr><tr><th>09:14:11</th><td>poste 201</td><td>ACK</td></tr><tr><th>09:15:40</th><td>poste 201</td><td>BYE</td></tr><tr><th>09:15:40</th><td>proxy</td><td>200 OK</td></tr></table><p>La conversation téléphonique a bien eu lieu entre le moment où M. Weber a décroché et le moment où Mme Diallo a raccroché.</p><ol><li>Quelle méthode SIP ouvre la session d'appel ?</li><li>Que signale le code 180 reçu à 09:14:03 ?</li><li>À quel horodatage M. Weber décroche-t-il ?</li><li>Combien de secondes la sonnerie a-t-elle duré ?</li><li>Quelle méthode SIP met fin à la conversation ?</li><li>À quelle famille de codes (1xx, 2xx, … 6xx) appartient le 100 Trying, réponse provisoire ?</li></ol><p>Répondez de façon courte : un mot pour les questions 1, 2, 5 et 6, l'horodatage exact pour la question 3, le nombre seul pour la question 4.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INVITE sip:bob@biloxi.com SIP/2.0
-Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds
-Max-Forwards: 70
-To: Bob &lt;sip:bob@biloxi.com&gt;
-From: Alice &lt;sip:alice@atlanta.com&gt;;tag=1928301774
-Call-ID: a84b4c76e66710@pc33.atlanta.com
-CSeq: 314159 INVITE
-Contact: &lt;sip:alice@pc33.atlanta.com&gt;
-Content-Type: application/sdp</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le support de Pharmavie teste son IPBX. Trace de l'appel du poste 104 vers le poste 117 :
+10:02:15  INVITE — 10:02:16  180 Ringing — 10:02:31  200 OK — 10:02:31  ACK — 10:05:00  BYE — 10:05:00  200 OK.
+
+1) La session s'ouvre par INVITE.
+2) 180 Ringing : le poste appelé sonne.
+3) Décrochage : 10:02:31 (200 OK).
+4) Sonnerie : de 10:02:16 à 10:02:31, soit 15 secondes.
+5) BYE met fin à la conversation.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Distinguez la ligne de requête de la ligne de statut pour qualifier TYPE en REQUEST ou RESPONSE.</li>
-        <li>Nettoyez les URIs SIP pour retirer les chevrons et les tags.</li>
+        <li>Parcourez la trace dans l'ordre : INVITE ouvre, les codes à trois chiffres répondent, ACK confirme, BYE clôt.</li>
+        <li>Le code 180 appartient à la famille 1xx : il décrit un état provisoire de l'appel avant le décrochage.</li>
+        <li>1. La session s'ouvre par INVITE. 2. 180 Ringing : le poste appelé sonne. 3. Le décrochage correspond au 200 OK de 09:14:11. 4. Sonnerie : de 09:14:03 à 09:14:11. 5. BYE raccroche. 6. 100 est un code provisoire : famille 1xx.</li>
       </ol>
     </details>
   </div>
@@ -251,37 +245,31 @@ Content-Type: application/sdp</pre></div>
      data-exercise="vo3-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="v=0&#10;o=Alice 2890844526 2890844526 IN IP4 192.168.1.50&#10;s=-&#10;c=IN IP4 192.168.1.50&#10;t=0 0&#10;m=audio 16384 RTP/AVP 0 8 101&#10;a=rtpmap:0 PCMU/8000&#10;a=rtpmap:8 PCMA/8000&#10;a=rtpmap:101 telephone-event/8000&#10;a=sendrecv">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c2-e2) — Analyseur de Négociation de Session SDP RFC 4566
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Deux postes de l'INC négocient une session audio.&#10;Offre : m=audio 49170 RTP/AVP 9 0 101 — a=rtpmap:9 G.722/8000 — a=rtpmap:0 PCMU/8000 — a=rtpmap:101 telephone-event/8000.&#10;Réponse : m=audio 49252 RTP/AVP 9 101 — a=rtpmap:9 G.722/8000 — a=rtpmap:101 telephone-event/8000.&#10;&#10;1) Codec préféré de l'offre : G.722 (charge utile 9, en tête).&#10;2) Port proposé par l'appelant : 49170.&#10;3) Codec retenu : G.722, premier numéro commun.&#10;4) La charge utile 101 désigne telephone-event, les touches DTMF.&#10;5) Port demandé par l'appelé : 49252.&#10;6) L'adresse IP de réception est déclarée par la ligne c=.">
+  <script type="text/plain" data-lab-starter># Exercice — La négociation SDP de la visioconférence BioMédia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez de façon courte : un codec, un port ou un champ SDP.
 
-[Cas 1 — Cas de test 1]
-# Données : v=0
-# Données : o=asterisk 12345 12345 IN IP4 10.0.0.1
-# Données : s=Asterisk PBX
-# Données : c=IN IP4 10.0.0.1
-# Données : t=0 0
-# Données : m=audio 10000 RTP/AVP 8 18
-# Données : a=rtpmap:8 PCMA/8000
-# Données : a=rtpmap:18 G729/8000
-# Données : a=sendonly
+[Question 1 — Codec préféré de Camille dans l'offre]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : v=0
-# Données : o=gateway 4455 1 IN IP4 172.16.20.10
-# Données : s=VoIP Gateway
-# Données : c=IN IP4 172.16.20.10
-# Données : t=0 0
-# Données : m=audio 24000 RTP/AVP 9 0 8
-# Données : a=rtpmap:9 G722/8000
-# Données : a=rtpmap:0 PCMU/8000
-# Données : a=rtpmap:8 PCMA/8000
-# Données : a=recvonly
+[Question 2 — Port RTP proposé par l'offre]
+A_COMPLETER
+
+[Question 3 — Codec finalement retenu]
+A_COMPLETER
+
+[Question 4 — Signification de la charge utile 101]
+A_COMPLETER
+
+[Question 5 — Port RTP demandé par la réponse]
+A_COMPLETER
+
+[Question 6 — Ligne SDP déclarant l'adresse IP de réception]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Analyseur de Négociation de Session SDP RFC 4566</h3>
+    <h3 class="lab__title">Exercice 2 — La négociation SDP de la visioconférence BioMédia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -290,27 +278,43 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Décoder un corps de message SDP RFC 4566 pour extraire l'adresse IP média, le port RTP et les codecs audio négociés.</p>
-    <div class="lab__brief"><p>Le protocole SDP (Session Description Protocol, RFC 4566) transporte la description des flux multimédias négociés lors de l'établissement d'un appel SIP. Un corps SDP typique contient :   - <code>0</code> : PCMU/8000 (G.711 µ-law)   - <code>8</code> : PCMA/8000 (G.711 A-law)   - <code>9</code> : G722/8000   - <code>18</code> : G729/8000   - <code>101</code> : telephone-event/8000 (DTMF RFC 2833 / 4733)</p><ul><li><code>v=0</code> : version SDP</li><li><code>o=&lt;username&gt; &lt;sess-id&gt; &lt;sess-version&gt; IN IP4 &lt;ip&gt;</code> : origine</li><li><code>c=IN IP4 &lt;ip_media&gt;</code> : adresse IP de réception du média RTP</li><li><code>m=audio &lt;port_rtp&gt; RTP/AVP &lt;payload_types...&gt;</code> : description du média (ex: audio sur port 10000 avec codecs 0, 8, 18, 101)</li><li>Lignes d'attributs <code>a=rtpmap:&lt;pt&gt; &lt;encoding_name&gt;/&lt;clock_rate&gt;</code> :</li><li>Ligne de direction <code>a=&lt;sendrecv|sendonly|recvonly|inactive&gt;</code></li></ul>
-<p>Format d'entrée :<br>Un corps SDP les données d’entrée.</p>
-<p>Format de sortie :<br>Extraire et afficher :<br>IP_MEDIA:&lt;adresse_ip_media&gt;<br>PORT_RTP:&lt;port_entier&gt;<br>DIRECTION:&lt;sendrecv|sendonly|recvonly|inactive&gt;<br>CODECS:&lt;liste ordonnée des noms de codecs mappés avec leur payload type, format pt:NOM/RATE séparés par virgule&gt;</p></div>
-    <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>v=0
-o=Alice 2890844526 2890844526 IN IP4 192.168.1.50
+    <p class="lab__goal"><strong>Objectif :</strong> Décoder une offre et une réponse SDP pour déterminer codecs, ports UDP et champ déclaratif du flux média.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'agence BioMédia organise une conférence de presse à distance entre deux postes ToIP. Camille (poste 310) appelle Jules (poste 322). L'offre SDP est transportée dans le corps de l'INVITE, la réponse dans le 200 OK :</p><p>Offre de Camille (INVITE) :</p><pre>v=0
+o=Camille 2890844526 2890844526 IN IP4 10.20.5.31
 s=-
-c=IN IP4 192.168.1.50
+c=IN IP4 10.20.5.31
 t=0 0
-m=audio 16384 RTP/AVP 0 8 101
-a=rtpmap:0 PCMU/8000
+m=audio 16384 RTP/AVP 8 0 101
 a=rtpmap:8 PCMA/8000
+a=rtpmap:0 PCMU/8000
 a=rtpmap:101 telephone-event/8000
-a=sendrecv</pre></div>
+a=sendrecv</pre><p>Réponse de Jules (200 OK) :</p><pre>v=0
+o=Jules 2890842807 2890842807 IN IP4 10.20.5.44
+s=-
+c=IN IP4 10.20.5.44
+t=0 0
+m=audio 20000 RTP/AVP 0 101
+a=rtpmap:0 PCMU/8000
+a=rtpmap:101 telephone-event/8000
+a=sendrecv</pre><p>Rappel du cours : la ligne m=audio liste les types de charges utiles acceptés par ordre de préférence ; a=rtpmap associe chaque numéro à un codec ; c= déclare l'adresse IP de réception du flux.</p><ol><li>Quel codec l'offre place-t-elle en tête, c'est-à-dire celui que Camille préfère ?</li><li>Sur quel port UDP Camille propose-t-elle de recevoir le flux RTP ?</li><li>Quel codec commun est finalement retenu par la réponse de Jules ?</li><li>Que désigne le type de charge utile 101 ?</li><li>Sur quel port UDP Jules demande-t-il de recevoir le flux RTP ?</li><li>Quelle ligne SDP déclare l'adresse IP de réception du flux média ?</li></ol><p>Répondez de façon courte (un codec, un port, une lettre de champ).</p></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Deux postes de l'INC négocient une session audio.
+Offre : m=audio 49170 RTP/AVP 9 0 101 — a=rtpmap:9 G.722/8000 — a=rtpmap:0 PCMU/8000 — a=rtpmap:101 telephone-event/8000.
+Réponse : m=audio 49252 RTP/AVP 9 101 — a=rtpmap:9 G.722/8000 — a=rtpmap:101 telephone-event/8000.
+
+1) Codec préféré de l'offre : G.722 (charge utile 9, en tête).
+2) Port proposé par l'appelant : 49170.
+3) Codec retenu : G.722, premier numéro commun.
+4) La charge utile 101 désigne telephone-event, les touches DTMF.
+5) Port demandé par l'appelé : 49252.
+6) L'adresse IP de réception est déclarée par la ligne c=.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez la ligne c= pour l'adresse IP et m=audio pour le port de réception.</li>
-        <li>Associez les numéros de payload types aux noms de codecs déclarés dans les lignes a=rtpmap.</li>
+        <li>Dans la ligne m=audio, les numéros de charges utiles sont classés par ordre de préférence : le premier est le codec préféré de l'émetteur.</li>
+        <li>La réponse ne conserve que les charges utiles qu'elle accepte : le premier numéro commun aux deux lignes m=audio devient le codec de la session.</li>
+        <li>1. Traduisez le premier numéro de l'offre avec son a=rtpmap. 2. Le port suit le mot audio dans m=. 3. Comparez les deux lignes m=audio. 4. Cherchez la ligne a=rtpmap:101. 5. Lisez le m= de la réponse. 6. La connexion (adresse IP) est déclarée par la ligne c=.</li>
       </ol>
     </details>
   </div>
@@ -320,27 +324,31 @@ a=sendrecv</pre></div>
      data-exercise="vo3-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="CLOCK_RATE=8000&#10;SEQ=100 SEND_TS=10000 RECV_TS=10200&#10;SEQ=101 SEND_TS=10160 RECV_TS=10370&#10;SEQ=102 SEND_TS=10320 RECV_TS=10510">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c2-e3) — Décodeur d'En-tête RTP & Calculateur de Gigue (RFC 3550)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La retransmission du club des Dogues part en G.711 avec des paquets de 15 ms.&#10;Reçus : numéros de séquence 5240, 5241, 5242, 5244, 5245.&#10;&#10;1) Incrément d'horodatage pour 15 ms : 8 000 × 0,015 = 120 ticks.&#10;2) Le numéro 5243 manque entre 5242 et 5244 : paquet perdu.&#10;3) La perte est révélée par les numéros de séquence.&#10;4) Si le RTP occupe le port 20002, RTCP échange sur 20003.">
+  <script type="text/plain" data-lab-starter># Exercice — La capture RTP du webinaire du Cnam Pays de la Loire
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le nombre ou le mot attendu.
 
-[Cas 1 — Cas de test 1]
-# Données : CLOCK_RATE=8000
-# Données : SEQ=1 SEND_TS=0 RECV_TS=160
-# Données : SEQ=2 SEND_TS=160 RECV_TS=380
-# Données : SEQ=3 SEND_TS=320 RECV_TS=500
-# Données : SEQ=4 SEND_TS=480 RECV_TS=740
+[Question 1 — Progression de l'horodatage entre deux paquets (en ticks)]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : CLOCK_RATE=16000
-# Données : SEQ=500 SEND_TS=50000 RECV_TS=50500
-# Données : SEQ=501 SEND_TS=50320 RECV_TS=50900
-# Données : SEQ=502 SEND_TS=50640 RECV_TS=51100
+[Question 2 — Numéro de séquence perdu]
+A_COMPLETER
+
+[Question 3 — Champ RTP qui révèle la perte]
+A_COMPLETER
+
+[Question 4 — Taille de l'en-tête RTP fixe (en octets)]
+A_COMPLETER
+
+[Question 5 — Port RTCP associé au port RTP 16384]
+A_COMPLETER
+
+[Question 6 — Protocole de transport de RTP]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Décodeur d'En-tête RTP &amp; Calculateur de Gigue (RFC 3550)</h3>
+    <h3 class="lab__title">Exercice 3 — La capture RTP du webinaire du Cnam Pays de la Loire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -349,22 +357,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la gigue inter-paquets lissée selon la RFC 3550 à partir des timestamps de transmission et de réception.</p>
-    <div class="lab__brief"><p>Le protocole RTP (Real-time Transport Protocol, RFC 3550) transporte les trames audio numérisées. Chaque paquet RTP comporte un en-tête fixe de 12 octets contenant :</p><ul><li>Numéro de séquence (Sequence Number, 16 bits) : incrémenté de 1 à chaque paquet.</li><li>Timestamp (32 bits) : échantillon temporel d'horloge (pour G.711 à 8 kHz et 20 ms, l'incrément théorique est de 160 ticks).</li><li>SSRC (Synchronization Source, 32 bits) : identifiant unique de la source.</li></ul>
-<p>Calcul de la gigue inter-paquets (Jitter <code>J</code> en millisecondes) selon l'algorithme RFC 3550 : Soient :   <code>J_i = J_{i-1} + (|D_i| - J_{i-1}) / 16.0</code> (avec <code>J_0 = 0.0</code>).</p><ul><li><code>S_i</code> : timestamp d'émission du paquet i en ticks d'horloge.</li><li><code>R_i</code> : timestamp d'arrivée du paquet i en ticks d'horloge (exprimé à la même échelle d'échantillonnage, ex: 8 000 ticks/sec).</li><li>Différence relative de transit pour le paquet i : <code>D_i = (R_i - S_i) - (R_{i-1} - S_{i-1})</code></li><li>La gigue estimée <code>J_i</code> est lissée selon un filtre passe-bas :</li><li>Conversion de la gigue en millisecondes (pour horloge 8 kHz) : <code>J_ms = (J_i / 8000.0) * 1000.0</code>.</li></ul>
-<p>Format d'entrée :<br>Première ligne : <code>CLOCK_RATE=&lt;fréquence_en_Hz&gt;</code> (ex: 8000)<br>Lignes suivantes : paquets reçus ordonnés sous la forme :<br><code>SEQ=&lt;seq&gt; SEND_TS=&lt;ts_emission&gt; RECV_TS=&lt;ts_reception&gt;</code></p>
-<p>Format de sortie :<br>Pour chaque paquet à partir du 2e, afficher :<br><code>SEQ:&lt;seq&gt; | DIFF_TRANSIT:&lt;D_i&gt; | JITTER_TICKS:&lt;J_i:.2f&gt; | JITTER_MS:&lt;J_ms:.2f&gt;ms</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Analyser une capture RTP : numéros de séquence, horodatage, détection de perte et rôle de RTCP.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le Cnam Pays de la Loire diffuse un webinaire audio depuis son studio. Le flux part en G.711, paquets de 20 ms, horloge d'horodatage à 8 000 Hz. Sur le poste d'un auditeur, l'analyste réseau relève les paquets RTP reçus :</p><table><tr><th>Ordre de réception</th><th>Numéro de séquence</th><th>Horodatage (ticks)</th></tr><tr><th>1er</th><td>1000</td><td>16000</td></tr><tr><th>2e</th><td>1001</td><td>16160</td></tr><tr><th>3e</th><td>1003</td><td>16480</td></tr><tr><th>4e</th><td>1004</td><td>16640</td></tr></table><p>L'auditeur signale par ailleurs un léger crochet audible au début de la diffusion. Rappels du cours : l'en-tête RTP fixe mesure 12 octets ; le numéro de séquence s'incrémente de 1 par paquet émis ; RTCP accompagne RTP sur le port UDP immédiatement supérieur (impair).</p><ol><li>De combien de ticks l'horodatage progresse-t-il entre deux paquets consécutifs de 20 ms ?</li><li>Quel numéro de séquence a été perdu en route ?</li><li>Quel champ de l'en-tête RTP a permis de détecter cette perte ?</li><li>Quelle est la taille, en octets, de l'en-tête RTP fixe ?</li><li>Le flux RTP occupe le port UDP 16384 : sur quel port le protocole compagnon RTCP échange-t-il ses rapports ?</li><li>Sur quel protocole de transport, TCP ou UDP, le flux RTP est-il véhiculé ?</li></ol><p>Répondez par le nombre ou le mot attendu.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLOCK_RATE=8000
-SEQ=100 SEND_TS=10000 RECV_TS=10200
-SEQ=101 SEND_TS=10160 RECV_TS=10370
-SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La retransmission du club des Dogues part en G.711 avec des paquets de 15 ms.
+Reçus : numéros de séquence 5240, 5241, 5242, 5244, 5245.
+
+1) Incrément d'horodatage pour 15 ms : 8 000 × 0,015 = 120 ticks.
+2) Le numéro 5243 manque entre 5242 et 5244 : paquet perdu.
+3) La perte est révélée par les numéros de séquence.
+4) Si le RTP occupe le port 20002, RTCP échange sur 20003.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Calculez l'écart de transit relatif Di = (Ri - Si) - (Ri-1 - Si-1).</li>
-        <li>Appliquez le filtre passe-bas du 1er ordre : Ji = Ji-1 + (|Di| - Ji-1) / 16.0.</li>
+        <li>L'horodatage avance au rythme de l'horloge d'échantillonnage : 20 ms de voix à 8 000 Hz valent 8 000 × 0,02 ticks.</li>
+        <li>Comparez les numéros de séquence reçus à la suite attendue 1000, 1001, 1002, 1003… pour repérer le trou.</li>
+        <li>1. Incrément d'horodatage : 8 000 × 0,02 = 160 ticks. 2. Le trou est entre 1001 et 1003. 3. C'est le compteur de paquets qui révèle les manques. 4. L'en-tête RTP fixe est annoncé dans le cours. 5. RTCP utilise le port RTP + 1. 6. RTP circule au-dessus du protocole sans connexion.</li>
       </ol>
     </details>
   </div>
@@ -378,8 +387,8 @@ SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
       <p class="q__stem">Quel protocole est responsable de la description des paramètres multimédias (codecs audio, adresses IP et ports) échangés dans le corps d'un message SIP INVITE ?</p>
       <div class="opts">
         <button class="opt">RTP</button>
-        <button class="opt">RTCP</button>
         <button class="opt" data-correct="1">SDP</button>
+        <button class="opt">RTCP</button>
         <button class="opt">DNS</button>
       </div>
       <div class="q__exp">SDP (Session Description Protocol, RFC 4566) transporte la négociation des capacités médias dans le corps des requêtes et réponses SIP.</div>
@@ -387,8 +396,8 @@ SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
     <div class="q">
       <p class="q__stem">Quelle méthode SIP est utilisée par un terminal pour notifier périodiquement le serveur Registrar de son adresse IP et de son port d'écoute ?</p>
       <div class="opts">
-        <button class="opt">INVITE</button>
         <button class="opt" data-correct="1">REGISTER</button>
+        <button class="opt">INVITE</button>
         <button class="opt">SUBSCRIBE</button>
         <button class="opt">NOTIFY</button>
       </div>
@@ -398,8 +407,8 @@ SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
       <p class="q__stem">Dans le protocole SIP, à quelle catégorie de réponse appartient le code d'état 180 Ringing ?</p>
       <div class="opts">
         <button class="opt">Réponse définitive de succès</button>
-        <button class="opt" data-correct="1">Réponse provisoire</button>
         <button class="opt">Erreur client</button>
+        <button class="opt" data-correct="1">Réponse provisoire</button>
         <button class="opt">Redirection</button>
       </div>
       <div class="q__exp">Les codes 1xx sont des réponses informatives provisoires indiquant que le traitement est en cours (ici, le poste distant sonne).</div>
@@ -409,8 +418,8 @@ SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
       <div class="opts">
         <button class="opt">Le champ Version</button>
         <button class="opt">Le champ Payload Type</button>
-        <button class="opt" data-correct="1">Le champ Sequence Number</button>
         <button class="opt">Le champ SSRC</button>
+        <button class="opt" data-correct="1">Le champ Sequence Number</button>
       </div>
       <div class="q__exp">Le numéro de séquence (Sequence Number sur 16 bits), incrémenté de 1 par paquet, permet au récepteur de réordonner les trames audio et de détecter les pertes.</div>
     </div>
@@ -427,18 +436,18 @@ SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
     <div class="q">
       <p class="q__stem">Dans une négociation SDP, que signifie la directive m=audio 16384 RTP/AVP 8 ?</p>
       <div class="opts">
-        <button class="opt">L'audio est diffusé en multicast</button>
+        <button class="opt">L'audio est diffusé en multicast sur l'adresse de groupe 224.0.0.56 du réseau local</button>
+        <button class="opt">L'audio est chiffré avec une clé RSA de 16384 bits négociée par la session TLS</button>
+        <button class="opt">Le fichier audio annoncé pèse exactement 16 384 octets sur le serveur de médias</button>
         <button class="opt" data-correct="1">Le terminal recevra le flux voix sur le port 16384/UDP avec le codec PCMA (G.711 A-law)</button>
-        <button class="opt">L'audio est chiffré avec une clé RSA 16384 bits</button>
-        <button class="opt">Le fichier audio pèse 16 384 octets</button>
       </div>
       <div class="q__exp">La ligne m=audio spécifie le port UDP de réception (16384), le profil de transport RTP/AVP et le type de charge utile 8 (correspondant à PCMA / G.711 A-law).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle méthode SIP permet à un appelant d'annuler une tentative d'appel en cours alors que le destinataire n'a pas encore décroché (avant l'émission du 200 OK) ?</p>
       <div class="opts">
-        <button class="opt">BYE</button>
         <button class="opt" data-correct="1">CANCEL</button>
+        <button class="opt">BYE</button>
         <button class="opt">HANGUP</button>
         <button class="opt">DISCONNECT</button>
       </div>
@@ -572,7 +581,7 @@ SEQ=102 SEND_TS=10320 RECV_TS=10510</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

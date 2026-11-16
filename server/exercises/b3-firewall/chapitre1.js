@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c1-e1) — Classificateur de génération et d’architecture de pare-feu\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Appliance UTM intégrée FortiGate]\n# Données : EQUIPEMENT nom=FortiGate60F couche_max=L7 suivi_etat=OUI utm_modules=OUI ia_zero_day=NON\nA_COMPLETER\n\n[Cas 2 — Pare-feu stateful classique Cisco ASA]\n# Données : EQUIPEMENT nom=CiscoASA5505 couche_max=L4 suivi_etat=OUI utm_modules=NON ia_zero_day=NON\nA_COMPLETER\n\n[Cas 3 — Routeur avec simples ACLs stateless]\n# Données : EQUIPEMENT nom=RouteurBorder couche_max=L3 suivi_etat=NON utm_modules=NON ia_zero_day=NON\nA_COMPLETER\n",
     "hints": [
       "Évaluer les critères dans l’ordre de la spécification.",
-      "Extraire les arguments par découpage ou regex."
+      "Extraire les arguments par découpage ou regex.",
+      "Tester les critères dans l’ordre : ia_zero_day avant utm_modules, puis suivi_etat, sinon pare-feu stateless ; afficher la génération et le type correspondants."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "FIREWALL_CLASS: RouteurBorder -> GEN1_STATELESS | FILTRAGE_PAQUETS_STATIQUE"
       }
     ],
-    "solution": "[Exemple]\nFIREWALL_CLASS: PaloAlto5200 -> GEN4_NGFW | PAREFEU_NOUVELLE_GENERATION\n\n[Cas 1 — Appliance UTM intégrée FortiGate]\nFIREWALL_CLASS: FortiGate60F -> GEN3_UTM | GESTION_UNIFIEE_MENACES\n\n[Cas 2 — Pare-feu stateful classique Cisco ASA]\nFIREWALL_CLASS: CiscoASA5505 -> GEN2_STATEFUL | INSPECTION_AVEC_ETAT\n\n[Cas 3 — Routeur avec simples ACLs stateless]\nFIREWALL_CLASS: RouteurBorder -> GEN1_STATELESS | FILTRAGE_PAQUETS_STATIQUE"
+    "solution": "[Exemple]\nFIREWALL_CLASS: PaloAlto5200 -> GEN4_NGFW | PAREFEU_NOUVELLE_GENERATION\n\n[Cas 1 — Appliance UTM intégrée FortiGate]\nFIREWALL_CLASS: FortiGate60F -> GEN3_UTM | GESTION_UNIFIEE_MENACES\n\n[Cas 2 — Pare-feu stateful classique Cisco ASA]\nFIREWALL_CLASS: CiscoASA5505 -> GEN2_STATEFUL | INSPECTION_AVEC_ETAT\n\n[Cas 3 — Routeur avec simples ACLs stateless]\nFIREWALL_CLASS: RouteurBorder -> GEN1_STATELESS | FILTRAGE_PAQUETS_STATIQUE",
+    "takeaway": "Distinguant filtrage L3/L4 stateless, pare-feu stateful et NGFW L7, on choisit le moteur adapté au risque et au débit visé."
   },
   {
     "id": "fw3-c1-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c1-e2) — Auditeur de séparation des zones de confiance réseau\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trafic web public entrant vers serveur DMZ]\n# Données : FLUX src_zone=WAN dst_zone=DMZ port=443 proto=TCP\nA_COMPLETER\n\n[Cas 2 — Tentative directe WAN vers LAN bloquée]\n# Données : FLUX src_zone=WAN dst_zone=LAN port=22 proto=TCP\nA_COMPLETER\n\n[Cas 3 — Administration légitime depuis LAN vers MGMT]\n# Données : FLUX src_zone=LAN dst_zone=MGMT port=22 proto=TCP\nA_COMPLETER\n",
     "hints": [
       "Traiter en priorité l’interdiction absolue de DMZ vers LAN.",
-      "Valider les ports autorisés vers la DMZ et vers MGMT."
+      "Valider les ports autorisés vers la DMZ et vers MGMT.",
+      "1. DMZ vers LAN : rejet critique. 2. WAN vers LAN : rejet. 3. WAN vers DMZ : accepté uniquement en TCP sur port 80 ou 443. 4. Sinon appliquer la matrice restante du brief."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "ZONE_AUDIT: LAN->MGMT:TCP/22 -> AUTORISE_ADMINISTRATION_MGMT"
       }
     ],
-    "solution": "[Exemple]\nZONE_AUDIT: DMZ->LAN:TCP/3306 -> REJET_CRITIQUE_VIOLATION_DMZ_VERS_LAN\n\n[Cas 1 — Trafic web public entrant vers serveur DMZ]\nZONE_AUDIT: WAN->DMZ:TCP/443 -> AUTORISE_SERVICE_PUBLIC_DMZ\n\n[Cas 2 — Tentative directe WAN vers LAN bloquée]\nZONE_AUDIT: WAN->LAN:TCP/22 -> REJET_SECURITE_WAN_DIRECT_VERS_LAN\n\n[Cas 3 — Administration légitime depuis LAN vers MGMT]\nZONE_AUDIT: LAN->MGMT:TCP/22 -> AUTORISE_ADMINISTRATION_MGMT"
+    "solution": "[Exemple]\nZONE_AUDIT: DMZ->LAN:TCP/3306 -> REJET_CRITIQUE_VIOLATION_DMZ_VERS_LAN\n\n[Cas 1 — Trafic web public entrant vers serveur DMZ]\nZONE_AUDIT: WAN->DMZ:TCP/443 -> AUTORISE_SERVICE_PUBLIC_DMZ\n\n[Cas 2 — Tentative directe WAN vers LAN bloquée]\nZONE_AUDIT: WAN->LAN:TCP/22 -> REJET_SECURITE_WAN_DIRECT_VERS_LAN\n\n[Cas 3 — Administration légitime depuis LAN vers MGMT]\nZONE_AUDIT: LAN->MGMT:TCP/22 -> AUTORISE_ADMINISTRATION_MGMT",
+    "takeaway": "Le cloisonnement par zones (WAN, DMZ, LAN, Admin) limite la surface d’attaque latérale dès qu’un serveur exposé est compromis."
   },
   {
     "id": "fw3-c1-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c1-e3) — Moteur de filtrage de paquets sans état (Stateless Packet Filter)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Paquet bloqué par règle drop explicite]\n# Données : RULE id=10 src=203.0.113.5 dst=ANY proto=ANY dport=ANY action=DROP\n# Données : RULE id=20 src=ANY dst=ANY proto=TCP dport=22 action=ACCEPT\n# Données : PACKET src=203.0.113.5 dst=192.168.1.1 proto=TCP dport=22\nA_COMPLETER\n\n[Cas 2 — Paquet tombant sur la politique par défaut]\n# Données : RULE id=100 src=192.168.1.0/24 dst=ANY proto=UDP dport=53 action=ACCEPT\n# Données : PACKET src=10.0.0.1 dst=8.8.8.8 proto=TCP dport=80\nA_COMPLETER\n\n[Cas 3 — Règle Reject avec code d’erreur simulé]\n# Données : RULE id=50 src=ANY dst=192.168.1.254 proto=TCP dport=23 action=REJECT\n# Données : RULE id=60 src=ANY dst=ANY proto=ANY dport=ANY action=DROP\n# Données : PACKET src=172.16.0.4 dst=192.168.1.254 proto=TCP dport=23\nA_COMPLETER\n",
     "hints": [
       "Gérer ANY comme joker universel sur chaque critère.",
-      "Arrêter l’évaluation dès la première règle correspondante."
+      "Arrêter l’évaluation dès la première règle correspondante.",
+      "Pour chaque paquet, parcourir les règles dans l’ordre ; dès que tous les champs concordent (ANY accepte tout), appliquer l’action trouvée et citer l’index de la règle."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "PACKET_DECISION: REJECT (MATCH_RULE=50) -> 172.16.0.4:TCP/23->192.168.1.254"
       }
     ],
-    "solution": "[Exemple]\nPACKET_DECISION: ACCEPT (MATCH_RULE=1) -> 10.0.0.5:TCP/80->192.168.1.10\n\n[Cas 1 — Paquet bloqué par règle drop explicite]\nPACKET_DECISION: DROP (MATCH_RULE=10) -> 203.0.113.5:TCP/22->192.168.1.1\n\n[Cas 2 — Paquet tombant sur la politique par défaut]\nPACKET_DECISION: DEFAULT_DROP (MATCH_RULE=NONE) -> 10.0.0.1:TCP/80->8.8.8.8\n\n[Cas 3 — Règle Reject avec code d’erreur simulé]\nPACKET_DECISION: REJECT (MATCH_RULE=50) -> 172.16.0.4:TCP/23->192.168.1.254"
+    "solution": "[Exemple]\nPACKET_DECISION: ACCEPT (MATCH_RULE=1) -> 10.0.0.5:TCP/80->192.168.1.10\n\n[Cas 1 — Paquet bloqué par règle drop explicite]\nPACKET_DECISION: DROP (MATCH_RULE=10) -> 203.0.113.5:TCP/22->192.168.1.1\n\n[Cas 2 — Paquet tombant sur la politique par défaut]\nPACKET_DECISION: DEFAULT_DROP (MATCH_RULE=NONE) -> 10.0.0.1:TCP/80->8.8.8.8\n\n[Cas 3 — Règle Reject avec code d’erreur simulé]\nPACKET_DECISION: REJECT (MATCH_RULE=50) -> 172.16.0.4:TCP/23->192.168.1.254",
+    "takeaway": "Un filtre sans état inspecte chaque paquet isolément selon 5-tuple IP/port/protocole sans mémoriser les flux de retour légitimes."
   }
 ];

@@ -159,88 +159,88 @@ module.exports = {
       stem: 'À quel niveau de l’échelle TRL une technologie démontre-t-elle pour la première fois un prototype complet en environnement opérationnel réel ?',
       opts: [
         'TRL 3',
-        'TRL 5',
         'TRL 7',
+        'TRL 5',
         'TRL 9'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Le TRL 7 correspond à la démonstration d’un prototype en environnement opérationnel réel (bêta-test grandeur nature).'
     },
     {
       stem: 'Dans quelle phase du Gartner Hype Cycle observe-t-on un effondrement de l’intérêt médiatique après que les promesses initiales n’ont pas été tenues ?',
       opts: [
-        'Innovation Trigger',
-        'Peak of Inflated Expectations',
-        'Trough of Disillusionment (Gouffre des désillusions)',
-        'Plateau of Productivity'
+        "Trough of Disillusionment (Gouffre des désillusions)",
+        "Innovation Trigger (Déclencheur d’innovation)",
+        "Peak of Inflated Expectations (Pic des attentes gonflées)",
+        "Plateau of Productivity (Plateau de productivité)"
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le Trough of Disillusionment survient lorsque le battage médiatique retombe face aux difficultés réelles de mise en œuvre.'
     },
     {
       stem: 'Quel macro-palier de l’échelle TRL correspond aux niveaux TRL 4 à 6 ?',
       opts: [
         'Recherche fondamentale',
-        'Développement technologique',
+        'Maintenance de fin de vie',
         'Industrialisation et commercialisation',
-        'Maintenance de fin de vie'
+        'Développement technologique'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les niveaux TRL 4 à 6 constituent la macro-phase de développement technologique et de validation de maquettes.'
     },
     {
       stem: 'Selon le modèle de Clayton Christensen (Dilemme de l’Innovateur), comment démarrent généralement les innovations de rupture ?',
       opts: [
-        'Par les produits les plus luxueux et les plus chers',
-        'En bas de marché avec des performances initiales inférieures mais un coût bien plus faible et une simplicité d’usage',
-        'Par des décisions gouvernementales obligatoires',
-        'Par des logiciels open source uniquement'
+        "Par les produits les plus luxueux et les plus chers du segment premium du marché",
+        "Par des décisions gouvernementales obligatoires imposées par la nouvelle réglementation",
+        "En bas de marché avec des performances initiales inférieures mais un coût bien plus faible et une simplicité d’usage",
+        "Par des logiciels open source uniquement, sans aucune version commerciale concurrente"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Les innovations de rupture s’implantent d’abord sur des segments négligés avec une offre moins chère et plus simple, avant de monter en gamme.'
     },
     {
       stem: 'Dans l’analyse PESTEL, sous quelle dimension classe-t-on les obligations de conformité liées au règlement européen NIS 2 ?',
       opts: [
         'Dimension Économique (E)',
-        'Dimension Sociétale (S)',
         'Dimension Légale (L)',
+        'Dimension Sociétale (S)',
         'Dimension Environnementale (ENV)'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Les lois, directives européennes, décrets et sanctions relèvent de la dimension Légale (L) du modèle PESTEL.'
     },
     {
       stem: 'Quelle recommandation stratégique applique-t-on lorsqu’une technologie atteint le Plateau de productivité de Gartner ?',
       opts: [
-        'Veille active prudente',
-        'Déploiement standard et adoption généralisée',
-        'Abandon immédiat',
-        'Gel de tout investissement'
+        "Déploiement standard et adoption généralisée",
+        "Veille active prudente et projets pilotes limités",
+        "Abandon immédiat de toute expérimentation engagée",
+        "Gel de tout investissement technique sur le sujet"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Sur le Plateau de productivité, la technologie est éprouvée, fiable et rentable : elle devient le standard de déploiement en production.'
     },
     {
       stem: 'Que signifie un indice de résilience technologique de 80 % dans une analyse SWOT/PESTEL ?',
       opts: [
-        'Que 80 % des serveurs sont en panne',
-        'Que les opportunités identifiées représentent 80 % de l’ensemble des facteurs d’impact pondérés face aux menaces',
-        'Que le coût du projet est multiplié par 8',
-        'Que la technologie date de 1980'
+        "Que 80 % des serveurs de production de l’entreprise sont simultanément en panne",
+        "Que le coût total du projet est multiplié par huit par rapport au budget initial",
+        "Que la technologie étudiée a été inventée et diffusée pour la première fois en 1980",
+        "Que les opportunités identifiées représentent 80 % de l’ensemble des facteurs d’impact pondérés face aux menaces"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’indice de résilience mesure la proportion d’opportunités favorables par rapport au total des impacts externes pondérés.'
     },
     {
       stem: 'Quel organisme a initialement développé l’échelle TRL dans les années 1970 ?',
       opts: [
         'L’UNESCO',
-        'La NASA',
         'Microsoft',
+        'La NASA',
         'L’AFNOR'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La NASA a conçu l’échelle TRL pour évaluer objectivement la maturité des technologies spatiales avant embarquement en mission.'
     }
   ],

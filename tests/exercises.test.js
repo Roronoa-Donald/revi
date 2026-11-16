@@ -378,6 +378,7 @@ test('API : /api/execute exige une session', async () => {
   }
 });
 
+
 test('API : langage refusé avant tout appel sortant', async () => {
   const jwt = require('jsonwebtoken');
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'secret-de-test';
@@ -399,6 +400,7 @@ test('API : langage refusé avant tout appel sortant', async () => {
   }
 });
 
+
 test('API : soumission sur un exercice inconnu', async () => {
   const jwt = require('jsonwebtoken');
   process.env.JWT_SECRET = process.env.JWT_SECRET || 'secret-de-test';
@@ -418,6 +420,7 @@ test('API : soumission sur un exercice inconnu', async () => {
     await app.close();
   }
 });
+
 
 test('API : la clé du fournisseur n’est jamais renvoyée au navigateur', async () => {
   const jwt = require('jsonwebtoken');
@@ -463,6 +466,7 @@ test('API /code-help : authentification requise pour les chapitres 2+', async ()
     await app.close();
   }
 });
+
 
 test('API /code-help : libre pour le chapitre 1 et transmet les variables sans erreur 500', async () => {
   const { buildApp } = require('../server/app');
@@ -510,4 +514,33 @@ test('API /code-help : libre pour le chapitre 1 et transmet les variables sans e
     await app.close();
   }
 });
+
+test('politique de correction : 0 exercice suspendu sur tout le catalogue et fail-closed sur mutation/inconnu', () => {
+  const gradingPolicy = require('../server/exercises/grading-policy');
+  const all = exercises.listExercises();
+  assert.ok(all.length >= 1250, `catalogue attendu >= 1250 exercices, trouvé ${all.length}`);
+
+  const suspended = all.filter((ex) => gradingPolicy.isGradingSuspended(ex.course, ex.id));
+  assert.strictEqual(
+    suspended.length,
+    0,
+    `Aucun exercice ne doit être suspendu en production, trouvé ${suspended.length} : ${suspended.slice(0, 10).map((e) => e.id).join(', ')}`
+  );
+
+  // Vérification fail-closed : un exercice inconnu ou une fiche mutée sans preuve doit rester suspendu.
+  assert.strictEqual(gradingPolicy.isGradingSuspended('b1-python', 'exercice-inconnu-test'), true);
+  assert.strictEqual(gradingPolicy.isGradingSuspended('cours-inconnu-test'), false);
+
+  const sample = exercises.getExercise('py-c1-e1');
+  assert.ok(sample && sample.solution);
+  const originalSolution = sample.solution;
+  try {
+    sample.solution = `${originalSolution}\n# mutation non prouvée`;
+    assert.strictEqual(gradingPolicy.isGradingSuspended(sample.course, sample.id), true);
+  } finally {
+    sample.solution = originalSolution;
+  }
+  assert.strictEqual(gradingPolicy.isGradingSuspended(sample.course, sample.id), false);
+});
+
 

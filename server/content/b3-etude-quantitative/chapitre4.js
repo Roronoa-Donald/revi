@@ -155,33 +155,33 @@ module.exports = {
       stem: 'Quelle est la caractéristique distinctive majeure d’un entretien semi-directif par rapport à un entretien directif ?',
       opts: [
         'Il impose une formulation et un ordre stricts de questions fermées sans aucune liberté d’improvisation',
-        'L’entretien semi-directif s’appuie sur un guide de thèmes prédéfinis mais laisse l’enquêté libre de développer sa pensée et d’aborder les sujets dans son propre ordre',
         'Il se déroule sans aucun guide préalable en laissant l’enquêté choisir entièrement les thèmes d’étude',
+        'L’entretien semi-directif s’appuie sur un guide de thèmes prédéfinis mais laisse l’enquêté libre de développer sa pensée et d’aborder les sujets dans son propre ordre',
         'Il exclut toute relance de l’enquêteur pour préserver une observation purement passive'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le semi-directif allie la directivité sur les thèmes (le guide) et la non-directivité sur les réponses et le cheminement discursif de l’interviewé.'
     },
     {
       stem: 'Lors d’un entretien de recherche, qu’appelle-t-on une relance « en écho » (ou relance miroir) ?',
       opts: [
         'Reformuler le discours de l’enquêté avec des concepts théoriques nouveaux introduits par le chercheur',
-        'Répéter le dernier mot ou la dernière idée formulée par l’enquêté avec une intonation interrogative neutre pour l’inviter à expliciter sa pensée',
+        'Résumer les trois dernières réponses avant de passer au thème suivant du guide',
         'Poser une question alternative fermée pour contraindre l’enquêté à trancher entre deux interprétations',
-        'Résumer les trois dernières réponses avant de passer au thème suivant du guide'
+        'Répéter le dernier mot ou la dernière idée formulée par l’enquêté avec une intonation interrogative neutre pour l’inviter à expliciter sa pensée'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La relance en écho renvoie à l’informateur son propre mot sans introduire aucun vocabulaire nouveau, l’encourageant à approfondir en toute neutralité.'
     },
     {
       stem: 'Dans un focus group, quel risque méthodologique survient lorsqu’un participant charismatique ou hiérarchiquement supérieur accapare plus de 40% du temps de parole ?',
       opts: [
-        'Le biais de désirabilité sociale où l’ensemble du groupe cherche à flatter l’animateur de la session',
         'Le biais de dominance étouffe la parole divergente et provoque un effet de conformisme (effet Asch), faussant la représentativité des opinions du groupe',
+        'Le biais de désirabilité sociale où l’ensemble du groupe cherche à flatter l’animateur de la session',
         'L’effet de halo où l’enquêteur attribue une valeur disproportionnée aux premières minutes de l’enregistrement',
         'Le biais d’attrition où les participants quittent prématurément la salle avant la fin du protocole'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La domination par un leader crée une autocensure chez les autres participants qui s’alignent par conformisme social, masquant les dissensus réels du terrain.'
     },
     {
@@ -199,22 +199,22 @@ module.exports = {
       stem: 'Que peut-on conclure d’un accord brut de 90% entre deux observateurs ?',
       opts: [
         'La grille est nécessairement objective et sans ambiguïté',
-        'Il faut aussi examiner les marges, les désaccords et, si défini, le kappa',
         'Le kappa est nécessairement égal à 0,90',
+        'Il faut aussi examiner les marges, les désaccords et, si défini, le kappa',
         'Aucun désaccord n’est possible'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Avec le tableau 90, 5, 5, 0, l’accord brut vaut 90% mais le kappa non pondéré vaut environ −0,053 ; aucun seuil brut ne garantit l’absence d’ambiguïté.'
     },
     {
       stem: 'Pourquoi le silence de 4 à 5 secondes de l’enquêteur après une réponse est-il considéré comme un outil puissant en entretien qualitatif ?',
       opts: [
-        'Car il signale à l’enquêté que sa réponse est jugée insuffisante ou erronée',
-        'Car ce temps de pause incite naturellement l’enquêté à combler le vide en approfondissant sa pensée et en livrant souvent des éléments plus intimes et révélateurs',
-        'Car il permet à l’enquêteur de vérifier si l’enquêté maintient une cohérence logique parfaite',
-        'Car il marque formellement la transition obligatoire vers le thème suivant du protocole'
+        "Car il signale silencieusement à l’enquêté que la réponse qu’il vient de donner est jugée insuffisante ou erronée par l’enquêteur",
+        "Car il permet à l’enquêteur de vérifier si l’enquêté maintient une cohérence logique parfaite entre toutes ses réponses",
+        "Car il marque formellement la transition obligatoire vers le thème suivant du protocole d’entretien qui a été préétabli par l’étude",
+        "Car ce temps de pause incite naturellement l’enquêté à combler le vide en approfondissant sa pensée et en livrant souvent des éléments plus intimes et révélateurs"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La gestion du silence tolère le temps de réflexion de l’interlocuteur et l’invite à dépasser la réponse superficielle convenue pour livrer des anecdotes plus riches.'
     },
     {
@@ -231,12 +231,12 @@ module.exports = {
     {
       stem: 'Quelle est la première étape indispensable à respecter lors de la phase d’accueil d’un entretien qualitatif ?',
       opts: [
-        'Exposer en détail les hypothèses théoriques de la recherche et les résultats attendus du projet',
         'Présenter les objectifs scientifiques, rappeler la garantie d’anonymat et recueillir le consentement éclairé pour l’enregistrement audio',
+        'Exposer en détail les hypothèses théoriques de la recherche et les résultats attendus du projet',
         'Faire signer une clause de non-divulgation interdisant à l’enquêté de reparler du sujet abordé',
         'Commencer immédiatement par la question la plus controversée du guide pour tester la réactivité de l’enquêté'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le cadrage éthique et la garantie d’anonymat instaurent la relation de confiance indispensable pour obtenir un discours authentique et dénué d’autocensure.'
     }
   ],

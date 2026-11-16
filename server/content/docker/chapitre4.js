@@ -231,31 +231,31 @@ module.exports = {
       stem: 'Quel signal UNIX la commande « docker stop » envoie-t-elle initialement au processus principal du conteneur pour demander un arrêt propre ?',
       opts: [
         'SIGKILL (9)',
-        'SIGTERM (15)',
+        'SIGINT (2)',
         'SIGHUP (1)',
-        'SIGINT (2)'
+        'SIGTERM (15)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'docker stop envoie SIGTERM (signal 15). Si le conteneur ne s’arrête pas dans le délai de grâce (10 secondes par défaut), Docker émet alors un SIGKILL (signal 9).'
     },
     {
       stem: 'Pourquoi est-il fortement recommandé de créer un réseau bridge personnalisé (docker network create) plutôt que d’utiliser le bridge par défaut « docker0 » ?',
       opts: [
-        'Parce que le bridge par défaut désactive la connexion Internet',
-        'Parce que les réseaux personnalisés intègrent un serveur DNS interne permettant la résolution automatique des conteneurs par leur nom',
-        'Parce que le bridge personnalisé est deux fois plus rapide en calcul mathématique',
-        'Parce que le bridge par défaut est payant'
+        "Parce que le bridge par défaut désactive complètement la connexion Internet sortante des conteneurs",
+        "Parce que le bridge personnalisé est deux fois plus rapide en calcul mathématique intensive",
+        "Parce que les réseaux personnalisés intègrent un serveur DNS interne permettant la résolution automatique des conteneurs par leur nom",
+        "Parce que l’usage du bridge par défaut est payant au-delà de cinq conteneurs simultanément connectés"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Sur un réseau bridge personnalisé, Docker active un serveur DNS embarqué (127.0.0.11) qui résout automatiquement les noms de conteneurs en adresses IP.'
     },
     {
       stem: 'Où sont physiquement stockées les données d’un Volume Nommé Docker (ex: « docker volume create mon_vol ») sur un système Linux ?',
       opts: [
-        'Dans le BIOS de la carte mère',
-        'Dans le répertoire interne géré par le démon Docker à l’emplacement « /var/lib/docker/volumes/ »',
-        'Dans le dossier Téléchargements de l’utilisateur',
-        'Sur une clé USB externe'
+        "Dans le BIOS de la carte mère, aux côtés des paramètres matériels",
+        "Dans le répertoire interne géré par le démon Docker à l’emplacement « /var/lib/docker/volumes/ »",
+        "Dans le dossier Téléchargements de l’utilisateur ayant créé le volume",
+        "Sur une clé USB externe branchée à la machine hôte hébergeant le démon"
       ],
       correct: 1,
       exp: 'Docker isole les volumes nommés sous /var/lib/docker/volumes/&lt;nom_volume&gt;/_data, préservant ainsi les données en toute sécurité même si les conteneurs sont supprimés.'
@@ -263,43 +263,43 @@ module.exports = {
     {
       stem: 'Quelle option de la commande « docker run » permet de mapper le port 8080 de la machine hôte vers le port 80 à l’intérieur du conteneur ?',
       opts: [
-        '-v 8080:80',
         '-p 8080:80',
+        '-v 8080:80',
         '--expose 8080:80',
         '-net 8080:80'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’option -p 8080:80 (ou --publish) ordonne à Docker de configurer les règles iptables pour transférer les paquets arrivant sur le port 8080 de l’hôte vers le port 80 du conteneur.'
     },
     {
       stem: 'Quelle commande lance un nouveau shell interactif dans un conteneur déjà en cours d’exécution ?',
       opts: [
         'docker run -it mon_conteneur',
-        'docker exec -it mon_conteneur /bin/sh',
+        'docker inspect mon_conteneur',
         'docker attach mon_conteneur',
-        'docker inspect mon_conteneur'
+        'docker exec -it mon_conteneur /bin/sh'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'docker exec lance une nouvelle commande dans le conteneur tant que son processus principal fonctionne. docker attach relie les flux au processus principal existant, qui peut lui-même être un shell interactif ; il ne crée pas un nouveau processus.'
     },
     {
       stem: 'Que caractérise un montage de type « Tmpfs » (--tmpfs /tmp) sous Docker ?',
       opts: [
-        'Les données sont stockées sur un serveur distant en Chine',
-        'Les données sont écrites exclusivement dans la mémoire vive RAM de l’hôte et disparaissent immédiatement à l’arrêt du conteneur',
-        'Les données sont compressées au format MP3',
-        'Le disque dur est formaté'
+        "Les données sont stockées sur un serveur distant hébergé à l’étranger, en Chine par exemple",
+        "Les données sont systématiquement compressées au format MP3 avant chaque écriture sur disque",
+        "Les données sont écrites exclusivement dans la mémoire vive RAM de l’hôte et disparaissent immédiatement à l’arrêt du conteneur",
+        "Le disque dur de la machine hôte est intégralement formaté par le démon Docker au démarrage"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Tmpfs crée un point de montage en RAM pure : les écritures sont ultra-rapides et aucune trace n’est conservée sur le disque physique lors de l’extinction du conteneur.'
     },
     {
       stem: 'Comment rendre un point de montage Bind Mount strictement en lecture seule afin que le conteneur ne puisse pas modifier les fichiers hôtes ?',
       opts: [
-        'En ajoutant le suffixe « :ro » à la fin de la déclaration (ex: -v /etc/config:/app/config:ro)',
-        'En supprimant le fichier après l’avoir monté',
-        'En désactivant le pare-feu Linux',
-        'En passant le conteneur en mode root'
+        "En ajoutant le suffixe « :ro » à la fin de la déclaration (ex: -v /etc/config:/app/config:ro)",
+        "En supprimant le fichier hôte immédiatement après l’avoir monté dans le conteneur",
+        "En désactivant complètement le pare-feu Linux de la machine hôte",
+        "En exécutant le conteneur avec un utilisateur root disposant de tous les droits"
       ],
       correct: 0,
       exp: 'L’option :ro (read-only) indique au noyau Linux de monter le répertoire avec l’attribut de lecture seule, empêchant tout conteneur compromis d’altérer les fichiers de l’hôte.'

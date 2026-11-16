@@ -178,8 +178,8 @@ module.exports = {
   questions: [
     {
       stem: 'Combien de types de diagrammes officiels la spécification UML 2.5 de l’OMG définit-elle exactement ?',
-      opts: ['9 diagrammes', '13 diagrammes', '14 diagrammes', '21 diagrammes'],
-      correct: 2,
+      opts: ['9 diagrammes', '13 diagrammes', '21 diagrammes', '14 diagrammes'],
+      correct: 3,
       exp: 'UML 2.5 définit très précisément 14 diagrammes officiels : 7 diagrammes structurels et 7 diagrammes comportementaux.'
     },
     {
@@ -202,24 +202,24 @@ module.exports = {
     {
       stem: 'Dans le patron de stéréotypes ECB (Entity-Control-Boundary), quel composant est responsable de la gestion des interactions avec l’utilisateur ou les systèmes externes ?',
       opts: [
-        'Le stéréotype «entity»',
-        'Le stéréotype «control»',
         'Le stéréotype «boundary»',
+        'Le stéréotype «control»',
+        'Le stéréotype «entity»',
         'Le stéréotype «service»'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le stéréotype «boundary» (Frontière) encapsule les entrées/sorties avec le monde extérieur (IHM, contrôleurs web, API REST, adaptateurs de périphériques).'
     },
     {
       stem: 'Quel mot-clé OCL est utilisé pour déclarer une condition impérative qui doit toujours être vraie pour toute instance d’une classe ?',
-      opts: ['pre:', 'post:', 'inv:', 'assert:'],
-      correct: 2,
+      opts: ['pre:', 'post:', 'assert:', 'inv:'],
+      correct: 3,
       exp: 'Le mot-clé OCL «inv:» (invariant) stipule une règle d’intégrité qui doit être respectée en permanence par toute instance valide de la classe.'
     },
     {
       stem: 'Dans une post-condition OCL, comment fait-on référence à la valeur d’un attribut AVANT l’exécution de l’opération ?',
-      opts: ['attribut.old', 'attribut@pre', 'attribut.previous()', 'old(attribut)'],
-      correct: 1,
+      opts: ['attribut.old', 'attribut.previous()', 'attribut@pre', 'old(attribut)'],
+      correct: 2,
       exp: 'La syntaxe OCL standard utilise le modificateur «@pre» (ex: solde = solde@pre - montant) pour désigner la valeur d’un attribut au début de l’exécution.'
     },
     {
@@ -236,12 +236,12 @@ module.exports = {
     {
       stem: 'Lequel de ces diagrammes est le plus adapté pour modéliser le cycle de vie événementiel d’un objet réactif (ex: Commande avec états Payée, Expédiée, Annulée) ?',
       opts: [
-        'Le diagramme de cas d’utilisation',
         'Le diagramme d’états-transitions (State Machine)',
+        'Le diagramme de cas d’utilisation',
         'Le diagramme de déploiement',
         'Le diagramme de structures composites'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le diagramme d’états-transitions est spécialement conçu pour représenter les états stables successifs d’un objet et les transitions déclenchées par des événements.'
     }
   ],

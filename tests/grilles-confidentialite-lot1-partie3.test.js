@@ -82,7 +82,7 @@ async function harness(testContext, options = {}) {
   await app.ready();
   testContext.after(() => app.close());
 
-  const token = jwt.sign({ userId: 'test-grilles-confidentialite' }, process.env.JWT_SECRET);
+  const token = jwt.sign({ userId: 'test-grilles-confidentialite', level: 'b3', subscribed: true }, process.env.JWT_SECRET);
   let requestCount = 0;
   async function request(url, payload, settings = {}) {
     requestCount++;
@@ -140,8 +140,8 @@ function normalized(value) {
     : '';
 }
 
-test('projection et JSON : champs de correction et notes d’exemple absents pour 830 grilles', testContext => {
-  assert.equal(grids.length, 830);
+test('projection et JSON : champs de correction et notes d’exemple absents pour 848 grilles', testContext => {
+  assert.equal(grids.length, 848);
   let caseCount = 0;
   let exampleCount = 0;
   for (const exercise of grids) {
@@ -480,35 +480,47 @@ test('limitation de fréquence : réponse d’erreur générique', async testCon
   assertNoMarker(response.json(), 'limitation de fréquence');
 });
 
-test('aide formative : aucune réponse privée, aucun modèle génératif', async testContext => {
+test('aide formative : tuteur IA contextuel sans fuite de corrigé ni d’attendu privé', async testContext => {
   const exercise = fixture();
   let calls = 0;
+  let capturedPrompts = [];
   const api = await harness(testContext, {
     getExercise: () => exercise,
-    chat: async () => { calls++; throw new Error(privateMarker); }
+    chat: async opts => {
+      calls++;
+      capturedPrompts.push(JSON.stringify(opts.messages || []));
+      return {
+        data: { choices: [{ message: { content: 'Relisez la contrainte de capacité et vérifiez votre étape.' } }] }
+      };
+    }
   });
   const payload = { exerciseId: exercise.id, code: 'réponse personnelle', status: 'wrong_output' };
   const baseline = await api.help(payload);
   assert.equal(baseline.statusCode, 200);
   assertFields(baseline.json(), ['explanation', 'notice', 'stripped'], 'aide formative');
   assertNoMarker(baseline.json(), 'aide formative');
-  for (const field of ['code', 'stdout', 'stderr', 'compileError', 'expected', 'actual', 'question']) {
-    const response = await api.help({ ...payload, [field]: privateMarker });
-    assert.equal(response.statusCode, 200, field);
-    assert.deepEqual(response.json(), baseline.json(), field);
-    assertNoMarker(response.json(), field);
-  }
-  assert.equal(calls, 0);
+  assert.ok(calls >= 1);
+
+  const responseWithInjectedExpected = await api.help({ ...payload, expected: privateMarker });
+  assert.equal(responseWithInjectedExpected.statusCode, 200);
+  assertNoMarker(responseWithInjectedExpected.json(), 'expected');
+  assert.ok(!capturedPrompts[capturedPrompts.length - 1].includes(privateMarker), 'expected client ne doit pas atteindre le modèle');
 });
 
-test('aide formative : aucun corrigé ni appel au modèle pour les 830 grilles', async testContext => {
+test('aide formative : aucun corrigé ni attendu privé transmis au modèle pour les 830 grilles', async testContext => {
   let current;
   let calls = 0;
   const api = await harness(testContext, {
     getExercise: () => current,
-    chat: async () => { calls++; throw new Error(privateMarker); }
+    chat: async opts => {
+      calls++;
+      const serialized = JSON.stringify(opts.messages || []);
+      assert.equal(serialized.includes(privateMarker), false, `${current.id} : fuite vers le modèle`);
+      return {
+        data: { choices: [{ message: { content: 'Vérifiez votre méthode étape par étape.' } }] }
+      };
+    }
   });
-  let reference;
   for (const exercise of grids) {
     current = {
       ...exercise,
@@ -516,14 +528,12 @@ test('aide formative : aucun corrigé ni appel au modèle pour les 830 grilles',
       tests: exercise.tests.map(entry => ({ ...entry, expected: privateMarker, hint: privateMarker })),
       examples: exercise.examples.map(entry => ({ ...entry, expected: privateMarker, note: privateMarker }))
     };
-    const response = await api.help({ exerciseId: exercise.id, code: 'réponse personnelle' });
+    const response = await api.help({ exerciseId: exercise.id, code: 'réponse personnelle', expected: privateMarker });
     assert.equal(response.statusCode, 200, exercise.id);
     assertNoMarker(response.json(), exercise.id);
-    if (!reference) reference = response.json();
-    assert.deepEqual(response.json(), reference, exercise.id);
   }
-  assert.equal(calls, 0);
-  testContext.diagnostic(`${grids.length} grilles : une aide générale constante, aucun appel au modèle et aucun champ de correction transmis.`);
+  assert.equal(calls, grids.length);
+  testContext.diagnostic(`${grids.length} grilles : tuteur contextuel appelé sans aucune fuite de corrigé ni d’attendu.`);
 });
 
 test('tuteur : authentification et exception hors du fournisseur ne divulguent pas les messages', async testContext => {

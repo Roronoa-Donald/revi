@@ -146,45 +146,45 @@ module.exports = {
     {
       stem: 'Quelle conclusion scientifique majeure ressort des recherches DORA (DevOps Research and Assessment) publiées dans Accelerate ?',
       opts: [
-        'Pour éviter les pannes, il est scientifiquement prouvé qu’il faut réduire les déploiements à un par trimestre',
         'Rapidité de livraison et stabilité peuvent coexister, sans garantie automatique pour chaque équipe',
+        'Pour éviter les pannes, il est scientifiquement prouvé qu’il faut réduire les déploiements à un par trimestre',
         'L’automatisation des tests augmente les coûts de développement sans aucun gain mesurable',
         'Le langage de programmation est le seul facteur expliquant la réussite d’un projet'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les recherches rapportent que rapidité et stabilité peuvent coexister ; il faut examiner le contexte et éviter de déduire une causalité automatique.'
     },
     {
       stem: 'Selon le guide DORA consulté en octobre 2026, quel ensemble présente les cinq métriques de livraison ?',
       opts: [
         'Nombre de lignes de code, Nombre de bugs, Heures supplémentaires, Coût des serveurs',
-        'Deployment Frequency, Change Lead Time, Failed Deployment Recovery Time, Change Fail Rate et Deployment Rework Rate',
         'Vitesse CPU, Bande passante réseau, Taux de mémoire vive, Taille du disque dur',
+        'Deployment Frequency, Change Lead Time, Failed Deployment Recovery Time, Change Fail Rate et Deployment Rework Rate',
         'Nombre de réunions, Points de vélocité Scrum, Nombre de commits, Salaire moyen'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le guide actuel décrit cinq métriques ; un MTTR général ne correspond pas nécessairement au rétablissement après un déploiement échoué.'
     },
     {
       stem: 'Une équipe réalise 200 déploiements en production sur une année. Parmi ceux-ci, 10 déploiements ont provoqué un incident nécessitant un retour arrière immédiat. Quel est le Change Failure Rate (CFR) ?',
       opts: [
         '20%',
-        '10%',
         '5%',
+        '10%',
         '2%'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'CFR = (Nombre de déploiements nécessitant une intervention / Nombre total de déploiements) × 100 = (10 / 200) × 100 = 5 %. Ce chiffre ne classe pas universellement l’équipe.'
     },
     {
       stem: 'Dans la modélisation de fiabilité d’un système réparable, que vaut le MTBF (Mean Time Between Failures) ?',
       opts: [
         'MTBF = MTTF - MTTR',
-        'MTBF = MTTF + MTTR',
+        'MTBF = MTTR / MTTF',
         'MTBF = MTTF * MTTR',
-        'MTBF = MTTR / MTTF'
+        'MTBF = MTTF + MTTR'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le MTBF est le temps moyen entre deux pannes consécutives, soit la somme du temps moyen de fonctionnement nominal (MTTF) et du temps moyen de réparation (MTTR).'
     },
     {
@@ -192,30 +192,30 @@ module.exports = {
       opts: [
         '90%',
         '95%',
-        '99%',
-        '99.9%'
+        '99.9%',
+        '99%'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Disponibilité A = MTTF / (MTTF + MTTR) = 990 / (990 + 10) = 990 / 1000 = 0.99, soit exactement 99.0% de disponibilité.'
     },
     {
       stem: 'Qu’appelle-t-on le « Blast Radius » (rayon d’impact) d’une défaillance dans une architecture distribuée ?',
       opts: [
         'La distance physique en mètres entre les serveurs dans la salle informatique',
-        'L’étendue maximale des dommages et des services affectés par la panne d’un composant donné',
         'La vitesse de propagation des ondes radio du Wi-Fi',
+        'L’étendue maximale des dommages et des services affectés par la panne d’un composant donné',
         'La consommation électrique lors d’un pic de calcul'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Blast Radius mesure l’impact collatéral d’une défaillance. Une architecture moderne compartimente ses composants (via cloisons étanches et circuit breakers) pour minimiser ce rayon.'
     },
     {
       stem: 'Quel est le principe directeur fondamental d’un « Blameless Post-Mortem » (post-mortem sans recherche de coupable) ?',
       opts: [
-        'Cacher la panne à la direction générale',
-        'Considérer que les ingénieurs agissent de bonne foi et auditer les défaillances systémiques de conception pour empêcher qu’une erreur humaine ne suffise à faire tomber le système',
-        'Payer une prime financière à la personne qui a provoqué la panne',
-        'Remplacer systématiquement tous les membres de l’équipe de développement'
+        "Occulter volontairement la panne auprès de la direction générale et des clients afin de préserver l’image de fiabilité de l’équipe",
+        "Considérer que les ingénieurs agissent de bonne foi et auditer les défaillances systémiques de conception pour empêcher qu’une erreur humaine ne suffise à faire tomber le système",
+        "Verser une prime financière de compensation à la personne qui a provoqué la panne afin de préserver sa motivation et sa loyauté envers l’entreprise",
+        "Remplacer systématiquement la totalité des membres de l’équipe de développement jugés responsables de la survenue de l’incident de production"
       ],
       correct: 1,
       exp: 'L’erreur humaine est une conséquence des failles d’architecture et de l’absence de garde-fous. Le post-mortem sans blâme s’attaque aux causes profondes organisationnelles et techniques.'
@@ -223,12 +223,12 @@ module.exports = {
     {
       stem: 'Pourquoi la philosophie SRE préconise-t-elle d’investir prioritairement dans la réduction du MTTR plutôt que dans la recherche d’un MTTF infini ?',
       opts: [
-        'Car réparer un incident est toujours gratuit',
-        'Car dans les systèmes complexes distribués, les pannes sont inévitables ; la capacité à restaurer le service en quelques minutes confère une résilience supérieure à un coût maîtrisé',
-        'Car les exploitants préfèrent être appelés la nuit',
-        'Car les disques durs ne tombent jamais en panne'
+        "Car dans les systèmes complexes distribués, les pannes sont inévitables ; la capacité à restaurer le service en quelques minutes confère une résilience supérieure à un coût maîtrisé",
+        "Car la réparation d’un incident de production ne coûte jamais rien à l’entreprise, ni en heures de travail, ni en matériel à remplacer",
+        "Car les exploitants préfèrent unanimement être appelés la nuit pour intervenir plutôt que de concevoir des systèmes intrinsèquement fiables",
+        "Car les disques durs et les autres composants matériels ne tombent jamais en panne dans un centre de données professionnel correctement climatisé"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Tenter de concevoir un système qui ne tombe jamais en panne coûte des sommes exponentielles. Automatiser la détection et la restauration rapide (MTTR très faible) maximise la disponibilité réelle.'
     }
   ],

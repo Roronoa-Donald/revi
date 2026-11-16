@@ -30,6 +30,7 @@ const RAW_EXERCISES = {
   'b1-virtualisation': require('./b1-virtualisation'),
   'b1-projet': require('./b1-projet'),
   'b1-sql': require('./b1-sql'),
+  'b1-vb-excel': require('./b1-vb-excel'),
   'linux': require('./linux'),
   'php': require('./php'),
   'probabilites': require('./probabilites'),
@@ -172,4 +173,39 @@ function validateCatalogue() {
   return problems;
 }
 
-module.exports = { getExercise, listExercises, toClient, validateCatalogue };
+const LANGUAGE_PITFALLS = {
+  python: 'Vérifiez le typage des entrées (int/float), les bornes des boucles et le format exact de print().',
+  c: 'Contrôlez les types (scanf/printf), les dépassements d’index, les retours à la ligne et la valeur de retour de main.',
+  cpp: 'Vérifiez la lecture sur std::cin, le formatage sur std::cout et les cas limites (tableau vide, valeurs nulles ou négatives).',
+  php: 'Vérifiez la lecture de STDIN, les conversions de types et l’affichage exact sans espaces ou retours superflus.',
+  javascript: 'Contrôlez la lecture complète de l’entrée standard, la conversion Number/parseInt et le format exact de console.log.',
+  java: 'Vérifiez la classe Main, la lecture complète de Scanner et le format exact des sorties.',
+  csharp: 'Vérifiez Console.ReadLine(), le parsing numérique invariant et le format exact de Console.WriteLine().',
+  bash: 'Protégez vos variables entre guillemets, vérifiez les espaces autour des crochets [ ... ] et gérez les entrées vides.',
+  powershell: 'Vérifiez le parsing des entrées, le nommage exact des variables et le format de sortie Write-Output.',
+  algo: 'Vérifiez l’initialisation des variables, les bornes des boucles Pour/TantQue et le format exact des instructions Ecrire.',
+  analyse: 'Vérifiez chaque critère demandé, les unités, la justification pas à pas et les hypothèses ou cas limites.'
+};
+
+/**
+ * Construit un résumé pédagogique (« Ce qu'il faut retenir ») pour un exercice
+ * une fois le corrigé débloqué. Ne doit jamais être exposé par toClient().
+ */
+function buildTakeaway(exercise) {
+  if (!exercise || typeof exercise !== 'object') return '';
+  if (typeof exercise.takeaway === 'string' && exercise.takeaway.trim()) {
+    return exercise.takeaway.trim();
+  }
+  const goal = typeof exercise.goal === 'string' && exercise.goal.trim()
+    ? exercise.goal.trim().replace(/\.$/, '')
+    : 'Maîtriser le principe de l’exercice';
+  const lang = String(exercise.language || '').toLowerCase();
+  const pitfall = LANGUAGE_PITFALLS[lang]
+    || 'Relisez les cas limites, le format des données en entrée et le format exact de la sortie attendue.';
+  const hint = Array.isArray(exercise.hints) && typeof exercise.hints[0] === 'string' && exercise.hints[0].trim()
+    ? ` Point d’attention : ${exercise.hints[0].trim().replace(/\.$/, '')}.`
+    : '';
+  return `Objectif clé : ${goal}. Réflexe à retenir : ${pitfall}${hint}`;
+}
+
+module.exports = { getExercise, listExercises, toClient, buildTakeaway, validateCatalogue };

@@ -159,34 +159,34 @@ module.exports = {
     {
       q: 'Quel mathématicien américain a inventé l’algorithme du simplexe en 1947 ?',
       opts: [
-        'George Dantzig',
+        'Claude Shannon',
         'John von Neumann',
         'Alan Turing',
-        'Claude Shannon'
+        'George Dantzig'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'George Dantzig a formalisé la programmation linéaire et publié l’algorithme du simplexe en 1947. John von Neumann a prouvé le théorème du minimax en théorie des jeux et formalisé la dualité forte, Alan Turing est le pionnier de l’informatique théorique et du cassage d’Enigma, et Claude Shannon est le père de la théorie de l’information.'
     },
     {
       q: 'Dans le modèle de production du cours, les variables représentent des quantités fabriquées. Quelle condition leur impose-t-on ?',
       opts: [
-        'x_j ≥ 0 (non-négativité)',
-        'x_j ≤ 1 (normalisation)',
         'x_j ∈ ℤ (variables entières obligatoires)',
+        'x_j ≤ 1 (normalisation)',
+        'x_j ≥ 0 (non-négativité)',
         'x_j = 0 (tous les choix à zéro)'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Dans ce modèle, la non-négativité impose des quantités fabriquées positives ou nulles. La borne 1 n’est pas demandée ici ; l’intégralité est une hypothèse supplémentaire et fixer toutes les quantités à zéro interdirait la production. D’autres modèles peuvent utiliser des variables signées.'
     },
     {
       q: 'Quelle expression mathématique est NON LINÉAIRE et donc formellement interdite dans un programme linéaire classique ?',
       opts: [
-        '3*x1 + 4*x1*x2',
         '5*x1 - 2*x2',
+        '3*x1 + 4*x1*x2',
         '0.5*x1 + 10',
         'x1 + x2 + x3'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le produit croisé de deux variables de décision ($x_1 \\cdot x_2$) est bilinéaire et n’est pas une expression affine. Les trois autres expressions sont affines : une constante est admise dans un modèle linéaire.'
     },
     {
@@ -203,34 +203,34 @@ module.exports = {
     {
       q: 'Dans le problème du menuisier (3*x1 + 1*x2 ≤ 90), si le plan candidat est x1 = 20 tables et x2 = 10 chaises, quelle est la consommation de bois ?',
       opts: [
-        '70 m²',
+        '60 m²',
         '90 m²',
         '80 m²',
-        '60 m²'
+        '70 m²'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La consommation vaut 3 * 20 + 1 * 10 = 60 + 10 = 70 m², laissant 20 m² de marge. 90 m² est la capacité, 60 m² la part des tables seules ; 80 m² ne résulte pas de ce calcul.'
     },
     {
       q: 'Un plan respecte toutes les contraintes et la non-négativité, sans autre information. Quelle conclusion est nécessairement vraie ?',
       opts: [
-        'Il est réalisable (feasible)',
-        'Il est nécessairement optimal',
         'Il est nécessairement dégénéré',
+        'Il est nécessairement optimal',
+        'Il est réalisable (feasible)',
         'Il est nécessairement une solution duale'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le respect des contraintes définit la réalisabilité. Il ne prouve ni l’optimalité, ni la dégénérescence d’une solution de base ; une solution duale concerne un autre problème. Un plan réalisable peut aussi être optimal ou dégénéré, mais ce n’est pas garanti ici.'
     },
     {
       q: 'Dans le modèle de mix de production présenté ici, quel objectif économique a été choisi ?',
       opts: [
-        'Maximiser la marge contributive totale (profit sur coûts variables)',
         'Minimiser le nombre de machines mobilisées',
+        'Maximiser la marge contributive totale (profit sur coûts variables)',
         'Égaliser les temps de travail sur tous les postes',
         'Maximiser le volume des stocks résiduels'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le modèle présenté maximise la marge contributive. Le nombre de machines, l’équilibrage des postes et les stocks sont d’autres objectifs possibles, mais ne sont pas celui choisi dans cet exemple.'
     },
     {
@@ -247,23 +247,23 @@ module.exports = {
     {
       q: 'Dans quel cas doit-on modéliser une contrainte par une égalité stricte (=) plutôt que par une inéquation (≤ ou ≥) ?',
       opts: [
-        'Pour imposer un quota ferme de livraison contractuelle ou un bilan strict de conservation de flux',
+        'Pour contraindre les variables de décision à devenir des nombres entiers',
         'Pour forcer la fonction objectif à atteindre son maximum absolu',
         'Lorsque le nombre de variables est supérieur au nombre de contraintes',
-        'Pour contraindre les variables de décision à devenir des nombres entiers'
+        'Pour imposer un quota ferme de livraison contractuelle ou un bilan strict de conservation de flux'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Une contrainte d’égalité (=) s’impose lorsque la réalité physique ou contractuelle interdit tout excédent et tout déficit (ex. conservation de matière : flux entrant = flux sortant, ou commande ferme imposant exactement 50 unités livrées). Elle ne garantit en rien l’optimalité de Z, n’a aucun rapport avec le ratio variables/contraintes, et ne force nullement les variables à être entières.'
     },
     {
       q: 'Pourquoi l’introduction de variables de décision binaires (xj ∈ {0, 1}) empêche-t-elle l’utilisation directe de l’algorithme du simplexe standard ?',
       opts: [
-        'Parce que le simplexe résout la relaxation continue, qui peut fournir des valeurs non entières',
-        'Parce qu’une variable binaire ne peut jamais être positive ou nulle',
         'Parce que le calcul de la fonction objectif devient obligatoirement non linéaire',
+        'Parce qu’une variable binaire ne peut jamais être positive ou nulle',
+        'Parce que le simplexe résout la relaxation continue, qui peut fournir des valeurs non entières',
         'Parce que George Dantzig a interdit l’utilisation de nombres entiers dans son théorème de 1947'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le simplexe appliqué à la relaxation continue peut donner des valeurs fractionnaires : il ne suffit donc pas en général pour garantir une solution binaire. Une variable binaire peut valoir 0 ou 1 ; la fonction objectif peut rester linéaire et aucune interdiction historique ne fonde cette limite. Des méthodes comme Branch & Bound traitent les contraintes entières.'
     }
   ],

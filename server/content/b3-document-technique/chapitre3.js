@@ -137,42 +137,42 @@ module.exports = {
       stem: 'Quelle métrique quantifie la durée maximale admissible d’interruption de service entre le déclenchement d’un sinistre et sa remise en service opérationnelle ?',
       opts: [
         'Le RPO (Recovery Point Objective)',
-        'Le RTO (Recovery Time Objective)',
         'Le CPU Throttle',
+        'Le RTO (Recovery Time Objective)',
         'Le taux de clics (CTR)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le RTO (Recovery Time Objective) est la durée maximale tolérée pour restaurer le service après un incident critique.'
     },
     {
       stem: 'Si une entreprise effectue une sauvegarde de base de données complète chaque nuit à minuit et qu’un sinistre détruit les serveurs à 15h00 le lendemain, quelle est la perte maximale de données constatée (RPO effectif) ?',
       opts: [
         '0 minute',
-        '15 heures de transactions perdues',
+        '45 minutes',
         '24 heures',
-        '45 minutes'
+        '15 heures de transactions perdues'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Entre minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.'
     },
     {
       stem: 'Dans quelle séquence logique doit-on éteindre une architecture web 3-tiers (Base de données, API applicative, Passerelle Web NGINX) lors d’un arrêt planifié de production ?',
       opts: [
-        'Base de données -> API applicative -> Passerelle Web',
         'Passerelle Web -> API applicative -> Base de données',
+        'Base de données -> API applicative -> Passerelle Web',
         'API applicative -> Passerelle Web -> Base de données',
         'Les trois composants doivent être éteints de manière simultanée'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'À l’extinction, on coupe d’abord les accès extérieurs (Web) pour cesser de recevoir des requêtes, puis l’API pour vider les files, et enfin la BDD pour une clôture saine.'
     },
     {
       stem: 'Quel élément technique indispensable distingue le Dossier d’Exploitation (DEX) du Dossier d’Architecture Technique (DAT) ?',
       opts: [
-        'Le DEX est imprimé en couleur tandis que le DAT est en noir et blanc',
-        'Le DEX contient les consignes opérationnelles d’action (Runbooks, redémarrages, sauvegardes, astreinte), tandis que le DAT décrit la topologie et le dimensionnement statique du système',
-        'Le DEX est réservé aux commerciaux de l’entreprise',
-        'Le DAT ne contient aucune information sur les serveurs'
+        "Le DEX est imprimé en couleur et distribué aux équipes techniques, tandis que le DAT est archivé en noir et blanc dans le coffre de la direction",
+        "Le DEX contient les consignes opérationnelles d’action (Runbooks, redémarrages, sauvegardes, astreinte), tandis que le DAT décrit la topologie et le dimensionnement statique du système",
+        "Le DEX est réservé aux commerciaux et aux équipes marketing, tandis que le DAT n’est consultable que par les auditeurs financiers externes",
+        "Le DEX décrit la topologie réseau et le dimensionnement des serveurs, tandis que le DAT se limite strictement aux procédures de redémarrage"
       ],
       correct: 1,
       exp: 'Le DAT cartographie la structure du système, alors que le DEX fournit le mode d’emploi opérationnel au quotidien et les consignes de dépannage pour l’exploitation.'
@@ -191,34 +191,34 @@ module.exports = {
     {
       stem: 'Pourquoi est-il impératif de tester régulièrement la restauration effective des sauvegardes plutôt que de simplement surveiller le succès des sauvegardes dans un DEX ?',
       opts: [
-        'Pour occuper les ingénieurs pendant la nuit',
-        'Car une sauvegarde peut réussir sur le plan logiciel tout en produisant une archive corrompue, illisible ou incomplète rendant le RTO impossible à tenir lors d’une vraie crise',
-        'Pour effacer les données des clients et faire de la place sur le disque',
-        'Pour payer moins d’impôts'
+        "Car une sauvegarde peut réussir sur le plan logiciel tout en produisant une archive corrompue, illisible ou incomplète rendant le RTO impossible à tenir lors d’une vraie crise",
+        "Car il faut occuper les ingénieurs d’astreinte pendant les plages nocturnes afin de justifier le budget opérationnel de l’équipe infrastructure",
+        "Pour libérer de l’espace disque en effaçant progressivement les données clients les plus anciennes archivées sur les serveurs de production",
+        "Pour bénéficier d’avantages fiscaux liés aux exercices de continuité d’activité réalisés régulièrement par l’entreprise"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une sauvegarde dont la restauration n’a jamais été testée avec succès n’est pas une sauvegarde : seul le test de restauration prouve que le RTO et le RPO sont atteignables.'
     },
     {
       stem: 'Dans un DAT, que désigne la « DMZ » (Zone Démilitarisée) ?',
       opts: [
-        'Une zone où aucun serveur n’est installé',
-        'Un sous-réseau isolé intermédiaire séparant le réseau public non fiable (Internet) du réseau privé d’entreprise hautement sécurisé',
-        'Le bureau du directeur de la sécurité informatique',
-        'La salle de repos des développeurs'
+        "Une zone tampon totalement vide où aucun serveur ni aucun équipement réseau ne peut jamais être installé",
+        "Le bureau du directeur de la sécurité informatique, où sont conservés les plans d’accès aux salles serveurs",
+        "La salle de repos des développeurs, isolée acoustiquement des zones de production et de test",
+        "Un sous-réseau isolé intermédiaire séparant le réseau public non fiable (Internet) du réseau privé d’entreprise hautement sécurisé"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La DMZ héberge les services exposés à Internet (proxy, serveurs web publics) tout en empêchant un attaquant ayant compromis la DMZ d’accéder directement au réseau interne critique.'
     },
     {
       stem: 'Quel est l’impact direct d’un RPO contractuel fixé à zéro (RPO = 0) sur l’architecture technique du DAT ?',
       opts: [
-        'Aucune conséquence, une sauvegarde quotidienne suffit',
-        'L’obligation d’implémenter une réplication synchrone en temps réel des données sur au moins deux sites géographiquement distincts',
-        'L’interdiction d’utiliser des bases de données relationnelles',
-        'L’arrêt obligatoire du système tous les soirs à 18h00'
+        "Aucune conséquence architecturale, une simple sauvegarde quotidienne suffit à garantir cet objectif",
+        "L’interdiction d’utiliser des bases de données relationnelles dans le système d’information",
+        "L’obligation d’implémenter une réplication synchrone en temps réel des données sur au moins deux sites géographiquement distincts",
+        "L’arrêt obligatoire du système chaque soir pour figer les données et consolider les sauvegardes"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un RPO = 0 signifie qu’aucune transaction confirmée ne peut être perdue. Cela exige une écriture synchrone confirmée sur deux datacenters avant de valider la requête utilisateur.'
     }
   ],

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -209,10 +207,11 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RTO_RPO_AUDIT service=Paiement rto_estime_min=15 rto_max_min=30 rpo_estime_min=5 rpo_max_min=10</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Convertir les valeurs en entiers pour faire les comparaisons.</li>
-        <li>Calculer les dépassements positifs en minutes si les seuils sont enfreints.</li>
+        <li>Rappelez-vous les objectifs contractuels du PCA : le RTO borne la durée de reprise, le RPO borne la perte de données admissible.</li>
+        <li>Comparez chaque valeur estimée à son maximum, puis calculez le dépassement éventuel en minutes.</li>
+        <li>1. Si rto_estime &lt;= rto_max : RTO CONFORME, sinon écart positif en minutes. 2. Idem pour le RPO. 3. Verdict global conforme seulement si les deux le sont.</li>
       </ol>
     </details>
   </div>
@@ -260,10 +259,11 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RUNBOOK action=DEMARRAGE couches=BDD,API,WEB</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Pour l’action ARRET, inverser la liste avec list(reversed(couches)) ou couches[::-1].</li>
-        <li>Joindre les composants avec " -&gt; ".</li>
+        <li>Rappelez-vous la règle d’orchestration : au démarrage on remonte les dépendances, à l’arrêt on les parcourt en sens inverse.</li>
+        <li>Conservez la liste déclarée pour un DEMARRAGE ; pour un ARRET, inversez-la avant de composer la séquence.</li>
+        <li>1. Identifier l’action. 2. DEMARRAGE : garder l’ordre déclaré ; ARRET : ordre inverse. 3. Relier les couches par des flèches entre crochets.</li>
       </ol>
     </details>
   </div>
@@ -316,10 +316,11 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PRA_FAILOVER nom=DC_Secours t_detect_s=30 t_decision_s=60 t_bascule_s=120 t_verif_s=30 sla_max_s=300</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Additionner les 4 temps en secondes.</li>
-        <li>Comparer la somme au sla_max_s.</li>
+        <li>Rappelez-vous que l’indisponibilité d’une bascule additionne détection, décision, bascule technique et vérification finale.</li>
+        <li>Sommez les quatre durées en secondes, puis confrontez le total au SLA maximum.</li>
+        <li>1. T = somme des quatre temps. 2. Si T &lt;= sla_max : SUCCES avec marge = sla_max - T. 3. Sinon : ECHEC avec retard = T - sla_max.</li>
       </ol>
     </details>
   </div>
@@ -333,8 +334,8 @@ Afficher :<br>
       <p class="q__stem">Quelle métrique quantifie la durée maximale admissible d’interruption de service entre le déclenchement d’un sinistre et sa remise en service opérationnelle ?</p>
       <div class="opts">
         <button class="opt">Le RPO (Recovery Point Objective)</button>
-        <button class="opt" data-correct="1">Le RTO (Recovery Time Objective)</button>
         <button class="opt">Le CPU Throttle</button>
+        <button class="opt" data-correct="1">Le RTO (Recovery Time Objective)</button>
         <button class="opt">Le taux de clics (CTR)</button>
       </div>
       <div class="q__exp">Le RTO (Recovery Time Objective) est la durée maximale tolérée pour restaurer le service après un incident critique.</div>
@@ -343,17 +344,17 @@ Afficher :<br>
       <p class="q__stem">Si une entreprise effectue une sauvegarde de base de données complète chaque nuit à minuit et qu’un sinistre détruit les serveurs à 15h00 le lendemain, quelle est la perte maximale de données constatée (RPO effectif) ?</p>
       <div class="opts">
         <button class="opt">0 minute</button>
-        <button class="opt" data-correct="1">15 heures de transactions perdues</button>
-        <button class="opt">24 heures</button>
         <button class="opt">45 minutes</button>
+        <button class="opt">24 heures</button>
+        <button class="opt" data-correct="1">15 heures de transactions perdues</button>
       </div>
       <div class="q__exp">Entre minuit et 15h00, 15 heures de transactions se sont écoulées sans sauvegarde. Le RPO effectif subi par l’entreprise est donc de 15 heures.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans quelle séquence logique doit-on éteindre une architecture web 3-tiers (Base de données, API applicative, Passerelle Web NGINX) lors d’un arrêt planifié de production ?</p>
       <div class="opts">
-        <button class="opt">Base de données -&gt; API applicative -&gt; Passerelle Web</button>
         <button class="opt" data-correct="1">Passerelle Web -&gt; API applicative -&gt; Base de données</button>
+        <button class="opt">Base de données -&gt; API applicative -&gt; Passerelle Web</button>
         <button class="opt">API applicative -&gt; Passerelle Web -&gt; Base de données</button>
         <button class="opt">Les trois composants doivent être éteints de manière simultanée</button>
       </div>
@@ -362,10 +363,10 @@ Afficher :<br>
     <div class="q">
       <p class="q__stem">Quel élément technique indispensable distingue le Dossier d’Exploitation (DEX) du Dossier d’Architecture Technique (DAT) ?</p>
       <div class="opts">
-        <button class="opt">Le DEX est imprimé en couleur tandis que le DAT est en noir et blanc</button>
+        <button class="opt">Le DEX est imprimé en couleur et distribué aux équipes techniques, tandis que le DAT est archivé en noir et blanc dans le coffre de la direction</button>
         <button class="opt" data-correct="1">Le DEX contient les consignes opérationnelles d’action (Runbooks, redémarrages, sauvegardes, astreinte), tandis que le DAT décrit la topologie et le dimensionnement statique du système</button>
-        <button class="opt">Le DEX est réservé aux commerciaux de l’entreprise</button>
-        <button class="opt">Le DAT ne contient aucune information sur les serveurs</button>
+        <button class="opt">Le DEX est réservé aux commerciaux et aux équipes marketing, tandis que le DAT n’est consultable que par les auditeurs financiers externes</button>
+        <button class="opt">Le DEX décrit la topologie réseau et le dimensionnement des serveurs, tandis que le DAT se limite strictement aux procédures de redémarrage</button>
       </div>
       <div class="q__exp">Le DAT cartographie la structure du système, alors que le DEX fournit le mode d’emploi opérationnel au quotidien et les consignes de dépannage pour l’exploitation.</div>
     </div>
@@ -382,30 +383,30 @@ Afficher :<br>
     <div class="q">
       <p class="q__stem">Pourquoi est-il impératif de tester régulièrement la restauration effective des sauvegardes plutôt que de simplement surveiller le succès des sauvegardes dans un DEX ?</p>
       <div class="opts">
-        <button class="opt">Pour occuper les ingénieurs pendant la nuit</button>
         <button class="opt" data-correct="1">Car une sauvegarde peut réussir sur le plan logiciel tout en produisant une archive corrompue, illisible ou incomplète rendant le RTO impossible à tenir lors d’une vraie crise</button>
-        <button class="opt">Pour effacer les données des clients et faire de la place sur le disque</button>
-        <button class="opt">Pour payer moins d’impôts</button>
+        <button class="opt">Car il faut occuper les ingénieurs d’astreinte pendant les plages nocturnes afin de justifier le budget opérationnel de l’équipe infrastructure</button>
+        <button class="opt">Pour libérer de l’espace disque en effaçant progressivement les données clients les plus anciennes archivées sur les serveurs de production</button>
+        <button class="opt">Pour bénéficier d’avantages fiscaux liés aux exercices de continuité d’activité réalisés régulièrement par l’entreprise</button>
       </div>
       <div class="q__exp">Une sauvegarde dont la restauration n’a jamais été testée avec succès n’est pas une sauvegarde : seul le test de restauration prouve que le RTO et le RPO sont atteignables.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un DAT, que désigne la « DMZ » (Zone Démilitarisée) ?</p>
       <div class="opts">
-        <button class="opt">Une zone où aucun serveur n’est installé</button>
+        <button class="opt">Une zone tampon totalement vide où aucun serveur ni aucun équipement réseau ne peut jamais être installé</button>
+        <button class="opt">Le bureau du directeur de la sécurité informatique, où sont conservés les plans d’accès aux salles serveurs</button>
+        <button class="opt">La salle de repos des développeurs, isolée acoustiquement des zones de production et de test</button>
         <button class="opt" data-correct="1">Un sous-réseau isolé intermédiaire séparant le réseau public non fiable (Internet) du réseau privé d’entreprise hautement sécurisé</button>
-        <button class="opt">Le bureau du directeur de la sécurité informatique</button>
-        <button class="opt">La salle de repos des développeurs</button>
       </div>
       <div class="q__exp">La DMZ héberge les services exposés à Internet (proxy, serveurs web publics) tout en empêchant un attaquant ayant compromis la DMZ d’accéder directement au réseau interne critique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’impact direct d’un RPO contractuel fixé à zéro (RPO = 0) sur l’architecture technique du DAT ?</p>
       <div class="opts">
-        <button class="opt">Aucune conséquence, une sauvegarde quotidienne suffit</button>
+        <button class="opt">Aucune conséquence architecturale, une simple sauvegarde quotidienne suffit à garantir cet objectif</button>
+        <button class="opt">L’interdiction d’utiliser des bases de données relationnelles dans le système d’information</button>
         <button class="opt" data-correct="1">L’obligation d’implémenter une réplication synchrone en temps réel des données sur au moins deux sites géographiquement distincts</button>
-        <button class="opt">L’interdiction d’utiliser des bases de données relationnelles</button>
-        <button class="opt">L’arrêt obligatoire du système tous les soirs à 18h00</button>
+        <button class="opt">L’arrêt obligatoire du système chaque soir pour figer les données et consolider les sauvegardes</button>
       </div>
       <div class="q__exp">Un RPO = 0 signifie qu’aucune transaction confirmée ne peut être perdue. Cela exige une écriture synchrone confirmée sur deux datacenters avant de valider la requête utilisateur.</div>
     </div>
@@ -530,7 +531,7 @@ Afficher :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

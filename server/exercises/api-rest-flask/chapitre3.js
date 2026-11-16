@@ -71,7 +71,8 @@ else:
     type_conv = "float" if est_float else "string"
 
 print(f"<{type_conv}:{nom_var}>")
-`
+`,
+    takeaway: "Les convertisseurs Flask (<int:id>, <uuid:u>, <path:p>) typent et filtrent les paramètres directement au niveau du routeur."
   },
   {
     id: 'fl2-c3-e2',
@@ -151,7 +152,8 @@ else:
         print(resultat)
     else:
         print("404 Not Found")
-`
+`,
+    takeaway: "Faire correspondre une URL entrante à un gabarit extrait les variables de chemin tout en rejetant les structures incompatibles."
   },
   {
     id: 'fl2-c3-e3',
@@ -206,6 +208,7 @@ if methode in autorisees:
 else:
     liste = ",".join(sorted(autorisees))
     print(f"405 Method Not Allowed: Verbes autorises: {liste}")
-`
+`,
+    takeaway: "Quand une route existe mais refuse le verbe HTTP employé, Flask répond 405 Method Not Allowed avec Allow."
   }
 ];

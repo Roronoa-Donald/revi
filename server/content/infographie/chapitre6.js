@@ -160,33 +160,33 @@ module.exports = {
       stem: 'Quel est le budget temps maximum accordé pour calculer et afficher une image afin de garantir un framerate stable de 60 images par seconde (FPS) ?',
       opts: [
         '100 millisecondes',
-        '33.3 millisecondes',
         '16.6 millisecondes',
+        '33.3 millisecondes',
         '1.0 milliseconde'
       ],
-      correct: 2,
+      correct: 1,
       exp: '1 seconde / 60 images = 1000 ms / 60 ≈ 16.66 millisecondes par image pour l’ensemble des calculs CPU et de rendu GPU.'
     },
     {
       stem: 'Quelle est la cause la plus fréquente d’un goulot d’étranglement de rendu de type « CPU-bound » dans une scène 3D complexe ?',
       opts: [
-        'Un écran trop lumineux',
-        'Un nombre excessif de Draw Calls provoqué par une multitude de petits objets utilisant chacun des matériaux et textures différents',
-        'Une batterie trop froide',
-        'Un disque dur trop plein'
+        "Un nombre excessif de Draw Calls provoqué par une multitude de petits objets utilisant chacun des matériaux et textures différents",
+        "Un rétroéclairage d’écran réglé trop lumineusement, ce qui fatiguerait la carte graphique pendant les scènes nocturnes",
+        "Une batterie de l’ordinateur portable trop froide pour fournir une tension stable au processeur central",
+        "Un disque dur trop rempli de fichiers de sauvegarde qui ralentirait la lecture des ressources du jeu vidéo"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Chaque objet avec un matériau unique exige que le processeur central prépare et soumette un ordre de tracé (Draw Call) au pilote graphique, saturant le CPU.'
     },
     {
       stem: 'Pourquoi les processeurs graphiques (GPU) ne peuvent-ils pas stocker les textures en mémoire vidéo directement au format PNG ou JPEG ?',
       opts: [
-        'Parce que le GPU exige un accès aléatoire instantané par bloc (O(1)) à n’importe quel texel (u, v), impossible avec des formats séquentiels comme JPEG/PNG',
-        'Parce que PNG et JPEG sont trop récents pour les cartes graphiques',
-        'Parce que les câbles DisplayPort refusent les fichiers compressés',
-        'Parce que PNG utilise trop de voyelles'
+        "Parce que les formats PNG et JPEG sont beaucoup trop récents pour être compris par les cartes graphiques actuelles",
+        "Parce que les câbles DisplayPort reliant la carte à l’écran refusent catégoriquement le transfert de fichiers compressés",
+        "Parce que l’acronyme PNG contient trop de voyelles et ralentirait la lecture des en-têtes des fichiers graphiques",
+        "Parce que le GPU exige un accès aléatoire instantané par bloc (O(1)) à n’importe quel texel (u, v), impossible avec des formats séquentiels comme JPEG/PNG"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le silicium GPU décode des blocs de taille fixe en mémoire instantanément. Décompresser un JPEG nécessiterait de recalculer toute la chaîne de blocs depuis le début.'
     },
     {
@@ -194,32 +194,32 @@ module.exports = {
       opts: [
         '16 Mo',
         '8 Mo',
-        '4 Mo',
-        '2 Mo'
+        '2 Mo',
+        '4 Mo'
       ],
-      correct: 3,
+      correct: 2,
       exp: '2048 × 2048 = 4 194 304 pixels. Avec 4 bpp (0.5 octet par pixel), cela donne 2 097 152 octets = 2048 Ko = exactement 2.0 Mo (contre 16 Mo en RGBA8 non compressé).'
     },
     {
       stem: 'Quel ratio de réduction de taille le format moderne ASTC 8x8 (2 bits par pixel) offre-t-il par rapport à une texture non compressée RGBA8 (32 bits par pixel) ?',
       opts: [
         '2.0x',
-        '4.0x',
+        '16.0x',
         '8.0x',
-        '16.0x'
+        '4.0x'
       ],
-      correct: 3,
+      correct: 1,
       exp: '32 bpp divisé par 2 bpp = un ratio de compression massif de 16.0x, idéal pour diviser par 16 l’empreinte mémoire des textures sur smartphone.'
     },
     {
       stem: 'Comment la technique du « Static Batching » permet-elle d’accélérer le rendu d’un décor composé de centaines de cailloux et d’arbres immobiles ?',
       opts: [
-        'En supprimant les arbres de la scène',
-        'En fusionnant la géométrie de tous les maillages partageant le même matériau dans un seul tampon de sommets, réduisant les Draw Calls à un seul appel par lot',
-        'En baissant le volume sonore de l’application',
-        'En augmentant la vitesse du processeur'
+        "En fusionnant la géométrie de tous les maillages partageant le même matériau dans un seul tampon de sommets, réduisant les Draw Calls à un seul appel par lot",
+        "En supprimant purement et simplement tous les arbres et la végétation de la scène 3D afin d’alléger le rendu graphique",
+        "En baissant fortement le volume sonore de l’application afin de libérer de la puissance de calcul du processeur central",
+        "En augmentant artificiellement la vitesse d’horloge du processeur central bien au-delà de sa fréquence nominale d’usine"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Static Batching regroupe les sommets dans un tampon partagé, permettant au GPU de dessiner tous les objets identiques en une seule instruction de dessin.'
     },
     {
@@ -227,21 +227,21 @@ module.exports = {
       opts: [
         '+100 % (mémoire doublée)',
         '+50 %',
-        '+33.33 % (exactement un tiers)',
-        '+5 %'
+        '+5 %',
+        '+33.33 % (exactement un tiers)'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La somme de la suite géométrique 1/4 + 1/16 + 1/64 + ... converge rigoureusement vers 1/3, soit exactement un surcoût mémoire de +33.33 %.'
     },
     {
       stem: 'Quel est le bénéfice principal des Mipmaps sur le processeur graphique en dehors de l’élimination de l’aliasing ?',
       opts: [
-        'Elles réduisent la température de la pièce',
-        'Elles améliorent massivement la localité du cache de texture GPU, car les texels consécutifs des niveaux réduits sont contigus en mémoire vidéo',
-        'Elles permettent de jouer en réseau sans connexion Internet',
-        'Elles créent de la musique d’ambiance'
+        "Elles réduisent sensiblement la température ambiante de la pièce où tourne la station de travail graphique",
+        "Elles permettent de jouer en réseau avec plusieurs autres joueurs sans disposer d’aucune connexion Internet active",
+        "Elles améliorent massivement la localité du cache de texture GPU, car les texels consécutifs des niveaux réduits sont contigus en mémoire vidéo",
+        "Elles génèrent automatiquement une musique d’ambiance adaptée au rythme et à l’ambiance du niveau de jeu en cours"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Sans mipmaps, échantillonner une texture 4K vue de loin saute des centaines de texels entre chaque pixel, créant des défauts de cache incessants qui ruinent la bande passante.'
     }
   ],

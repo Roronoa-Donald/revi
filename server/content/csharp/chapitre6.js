@@ -139,21 +139,21 @@ module.exports = {
     {
       stem: 'Quel est l’effet de l’opérateur await sur le thread appelant lors d’une opération d’E/S asynchrone ?',
       opts: [
-        'Le thread est bloqué en sommeil actif jusqu’à ce que l’E/S soit achevée.',
         'Le thread est immédiatement libéré et renvoyé à la ThreadPool pour traiter d’autres requêtes en parallèle.',
+        'Le thread est bloqué en sommeil actif jusqu’à ce que l’E/S soit achevée.',
         'Le thread est détruit définitivement par le Garbage Collector.',
         'Le thread bascule en mode d’exécution synchrone prioritaire.'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’opérateur await suspend l’exécution logique de la méthode asynchrone et libère immédiatement le thread d’exécution appelant, maximisant le débit et la scalabilité du système sans saturer la ThreadPool.'
     },
     {
       stem: 'Pourquoi la signature "async void" est-elle formellement déconseillée en dehors des gestionnaires d’événements d’interface graphique ?',
       opts: [
-        'Parce que le compilateur refuse catégoriquement d’exécuter le code.',
-        'Parce que l’appelant ne peut pas attendre (await) la fin de la méthode et que toute exception non interceptée fait crasher le processus entier.',
-        'Parce qu’elle alloue trop de mémoire sur la pile d’exécution.',
-        'Parce qu’elle empêche l’utilisation de variables locales.'
+        "Parce que le compilateur refuse catégoriquement d’exécuter le moindre code asynchrone écrit de cette manière.",
+        "Parce que l’appelant ne peut pas attendre (await) la fin de la méthode et que toute exception non interceptée fait crasher le processus entier.",
+        "Parce qu’elle alloue beaucoup trop de mémoire vive sur la pile d’exécution du thread appelant initial.",
+        "Parce qu’elle empêche totalement l’utilisation de variables locales déclarées à l’intérieur de la méthode."
       ],
       correct: 1,
       exp: 'Une méthode async void est du type "fire-and-forget" : elle ne renvoie aucun objet Task. L’appelant ne peut ni l’attendre ni capturer ses exceptions, lesquelles sont envoyées directement au SynchronizationContext et provoquent l’arrêt brutal du processus applicatif.'
@@ -161,23 +161,23 @@ module.exports = {
     {
       stem: 'Lorsqu’on attend plusieurs tâches avec Task.WhenAll(t1, t2), si t1 et t2 échouent toutes les deux, où sont conservées les deux exceptions ?',
       opts: [
-        'Dans le fichier de logs du système d’exploitation.',
-        'Dans l’instance de AggregateException associée à la tâche globale renvoyée par WhenAll (propriété InnerExceptions).',
-        'La deuxième exception est définitivement supprimée par le compilateur.',
-        'Dans la pile d’appels de la méthode Main.'
+        "Dans le fichier de journalisation standard du système d’exploitation hébergeant l’application.",
+        "La deuxième exception est purement et simplement supprimée par le compilateur lors de la génération.",
+        "Dans l’instance de AggregateException associée à la tâche globale renvoyée par WhenAll (propriété InnerExceptions).",
+        "Dans la pile d’appels de la méthode Main du processus applicatif en cours d’exécution."
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Task.WhenAll rassemble toutes les erreurs survenues dans une AggregateException accessible via la propriété Exception de la tâche combinée, garantissant qu’aucune cause de défaillance ne soit perdue.'
     },
     {
       stem: 'Quel code de bas niveau le compilateur Roslyn génère-t-il automatiquement lorsqu’on utilise l’instruction "using var res = new MonObjet();" ?',
       opts: [
         'Une boucle while avec appel du Garbage Collector à chaque tour.',
-        'Un bloc try / finally garantissant l’appel inconditionnel de res.Dispose() dans la section finally.',
+        'Une sérialisation binaire de l’objet vers le disque.',
         'Une allocation de mémoire non managée protégée par un mutex global.',
-        'Une sérialisation binaire de l’objet vers le disque.'
+        'Un bloc try / finally garantissant l’appel inconditionnel de res.Dispose() dans la section finally.'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’instruction using est un sucre syntaxique traduisant le code en une structure try / finally où res.Dispose() est invoqué dans le bloc finally, assurant la libération déterministe même en cas de crash dans le try.'
     }
   ],

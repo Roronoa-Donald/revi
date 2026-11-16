@@ -88,17 +88,54 @@ module.exports = {
         '  <li><code>request.get_json()</code> : désérialise le corps de la requête en dictionnaire ou liste Python. Renvoie <code>None</code> si le <code>Content-Type</code> n’est pas <code>application/json</code>.</li>\n' +
         '</ul>'
       ].join('\n')
+    },
+    {
+      title: 'Labo Flask appliqué : routage dynamique, filtrage request.args et test_client()',
+      html: [
+        '<p>Voici un exemple exécutable combinant convertisseur de route <code>&lt;int:livre_id&gt;</code>, filtrage via ' +
+        '<code>request.args</code>, création via <code>request.get_json()</code> et tests avec <code>app.test_client()</code> :</p>',
+        '<pre><code class="language-python">from flask import Flask, request, jsonify\n\n' +
+        'app = Flask(__name__)\n' +
+        'LIVRES = [\n' +
+        '    {"id": 1, "titre": "Architecture REST", "auteur": "Fielding", "annee": 2000},\n' +
+        '    {"id": 2, "titre": "Python & Flask", "auteur": "Ronacher", "annee": 2010}\n' +
+        ']\n\n' +
+        '@app.route("/api/v1/livres", methods=["GET", "POST"])\n' +
+        'def collection_livres():\n' +
+        '    if request.method == "GET":\n' +
+        '        auteur = request.args.get("auteur", type=str)\n' +
+        '        resultats = [l for l in LIVRES if not auteur or l["auteur"].lower() == auteur.lower()]\n' +
+        '        return jsonify({"count": len(resultats), "items": resultats}), 200\n\n' +
+        '    payload = request.get_json(silent=True)\n' +
+        '    if not payload:\n' +
+        '        return jsonify({"error": "JSON manquant"}), 400\n' +
+        '    if "titre" not in payload or "auteur" not in payload:\n' +
+        '        return jsonify({"error": "Champs titre et auteur requis"}), 422\n' +
+        '    nouveau = {"id": len(LIVRES) + 1, "titre": payload["titre"], "auteur": payload["auteur"], "annee": payload.get("annee", 2026)}\n' +
+        '    LIVRES.append(nouveau)\n' +
+        '    return jsonify(nouveau), 201\n\n' +
+        '@app.route("/api/v1/livres/<int:livre_id>", methods=["GET"])\n' +
+        'def detail_livre(livre_id):\n' +
+        '    for livre in LIVRES:\n' +
+        '        if livre["id"] == livre_id:\n' +
+        '            return jsonify(livre), 200\n' +
+        '    return jsonify({"error": "Livre introuvable"}), 404\n\n' +
+        'if __name__ == "__main__":\n' +
+        '    client = app.test_client()\n' +
+        '    assert client.get("/api/v1/livres?auteur=Fielding").get_json()["count"] == 1\n' +
+        '    assert client.get("/api/v1/livres/99").status_code == 404</code></pre>'
+      ].join('\n')
     }
   ],
 
   questions: [
-    { stem: 'Quel micro-framework Python est réputé pour sa simplicité et sa flexibilité ?', opts: ['Flask', 'Django', 'Spring Boot'], correct: 0, exp: 'Flask est un micro-framework minimaliste très populaire en Python.' },
-    { stem: 'Quel décorateur associe une URL à une fonction dans Flask ?', opts: ['@app.route()', '@app.endpoint()', '@app.listen()'], correct: 0, exp: '@app.route("/chemin") enregistre l’association URL-fonction dans l’application.' },
-    { stem: 'Quel convertisseur de route Flask garantit que l’argument reçu est un entier positif ?', opts: ['&lt;int:id&gt;', '&lt;number:id&gt;', '&lt;integer:id&gt;'], correct: 0, exp: '&lt;int:...&gt; valide et caste directement la portion d’URL en entier.' },
+    { stem: 'Quel micro-framework Python est réputé pour sa simplicité et sa flexibilité ?', opts: ['Spring Boot', 'Django', 'Flask'], correct: 2, exp: 'Flask est un micro-framework minimaliste très populaire en Python.' },
+    { stem: 'Quel décorateur associe une URL à une fonction dans Flask ?', opts: ['@app.endpoint()', '@app.route()', '@app.listen()'], correct: 1, exp: '@app.route("/chemin") enregistre l’association URL-fonction dans l’application.' },
+    { stem: 'Quel convertisseur de route Flask garantit que l’argument reçu est un entier positif ?', opts: ['&lt;number:id&gt;', '&lt;int:id&gt;', '&lt;integer:id&gt;'], correct: 1, exp: '&lt;int:...&gt; valide et caste directement la portion d’URL en entier.' },
     { stem: 'Par défaut, quelle méthode HTTP une route Flask accepte-t-elle sans configuration ?', opts: ['GET uniquement', 'GET et POST', 'Toutes les méthodes HTTP'], correct: 0, exp: 'Par défaut, une route Flask ne répond qu’aux requêtes GET.' },
-    { stem: 'Quel code d’état HTTP Flask renvoie-t-il si la méthode utilisée n’est pas autorisée ?', opts: ['405 Method Not Allowed', '404 Not Found', '400 Bad Request'], correct: 0, exp: 'Le code 405 signale que la méthode demandée n’est pas supportée par l’endpoint.' },
-    { stem: 'Comment récupère-t-on un paramètre passé dans la query string avec Flask ?', opts: ['request.args.get("cle")', 'request.query["cle"]', 'request.params("cle")'], correct: 0, exp: 'request.args est le conteneur MultiDict dédié aux paramètres d’URL.' },
-    { stem: 'Quelle méthode de l’objet request extrait et décode le corps JSON d’une requête ?', opts: ['request.get_json()', 'request.json_decode()', 'request.parse_body()'], correct: 0, exp: 'request.get_json() parse le corps de la requête en objet Python.' },
+    { stem: 'Quel code d’état HTTP Flask renvoie-t-il si la méthode utilisée n’est pas autorisée ?', opts: ['400 Bad Request', '404 Not Found', '405 Method Not Allowed'], correct: 2, exp: 'Le code 405 signale que la méthode demandée n’est pas supportée par l’endpoint.' },
+    { stem: 'Comment récupère-t-on un paramètre passé dans la query string avec Flask ?', opts: ['request.query["cle"]', 'request.args.get("cle")', 'request.params("cle")'], correct: 1, exp: 'request.args est le conteneur MultiDict dédié aux paramètres d’URL.' },
+    { stem: 'Quelle méthode de l’objet request extrait et décode le corps JSON d’une requête ?', opts: ['request.parse_body()', 'request.json_decode()', 'request.get_json()'], correct: 2, exp: 'request.get_json() parse le corps de la requête en objet Python.' },
     { stem: 'Que vaut __name__ passé au constructeur Flask(__name__) ?', opts: ['Le nom du module Python courant', 'Le nom d’utilisateur de la machine', 'L’adresse IP du serveur'], correct: 0, exp: '__name__ permet à Flask de localiser les ressources et modules du projet.' }
   ],
 

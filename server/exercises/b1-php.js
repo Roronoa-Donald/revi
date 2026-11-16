@@ -32,8 +32,9 @@ $nom = trim(fgets(STDIN));
 // À compléter : afficher "Bonjour <nom> !"
 `,
     hints: [
-      'Comment lire une ligne et retirer le saut de ligne avant de l’utiliser ?',
-      'Entre guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.'
+      "Comment lire une ligne et retirer le saut de ligne avant de l’utiliser ?",
+      "Entre guillemets doubles, une variable est remplacée par sa valeur : c’est l’interpolation.",
+      "Étapes : lire la ligne et la nettoyer ; construire la phrase « Bonjour », le nom et « ! » dans un seul affichage interpolé, terminé par un saut de ligne."
     ],
     examples: [
       { stdin: 'Alice', expected: 'Bonjour Alice !', note: 'Le prénom est inséré dans le message.' }
@@ -47,7 +48,8 @@ $nom = trim(fgets(STDIN));
 $nom = trim(fgets(STDIN));
 
 echo "Bonjour $nom !\\n";
-`
+`,
+    takeaway: "En PHP CLI, fgets(STDIN) lit une ligne incluant le saut de ligne final, qu il faut nettoyer avec trim()."
   },
   {
     id: 'php-c1-e2',
@@ -64,8 +66,9 @@ $prix = (int)trim(fgets(STDIN));
 // À compléter : afficher la fiche sur deux lignes.
 `,
     hints: [
-      'Quel type de valeur faut-il obtenir avant d’effectuer le calcul ?',
-      'Deux echo, chacun terminé par le saut de ligne.'
+      "Quel type de valeur faut-il obtenir avant d’effectuer le calcul ?",
+      "Deux echo, chacun terminé par le saut de ligne.",
+      "Étapes : lire le nom puis le prix converti en entier ; afficher « Article : » avec le nom, puis « Prix : » avec le montant, chacun sur sa ligne."
     ],
     examples: [
       { stdin: 'Clavier\n29', expected: 'Article : Clavier\nPrix : 29 EUR', note: 'Deux affichages dans l’ordre de l’énoncé.' }
@@ -81,7 +84,8 @@ $prix = (int)trim(fgets(STDIN));
 
 echo "Article : $article\\n";
 echo "Prix : $prix EUR\\n";
-`
+`,
+    takeaway: "Concaténez proprement variables et chaînes via \"$var\" ou l opérateur point (.) selon le format exact attendu."
   },
   {
     id: 'php-c1-e3',
@@ -98,8 +102,9 @@ $quantite = (int)trim(fgets(STDIN));
 // À compléter : calculer et afficher le total.
 `,
     hints: [
-      'Quelle opération relie le prix unitaire, la quantité et le total ?',
-      'L’interpolation évalue aussi les expressions simples mises dans des variables : calculez d’abord, affichez ensuite.'
+      "Quelle opération relie le prix unitaire, la quantité et le total ?",
+      "L’interpolation évalue aussi les expressions simples mises dans des variables : calculez d’abord, affichez ensuite.",
+      "Étapes : lire le prix et la quantité ; total = prix × quantité ; afficher « Total : », le total et « EUR » dans une phrase interpolée."
     ],
     examples: [
       { stdin: '12\n5', expected: 'Total : 60 EUR', note: '12 × 5 = 60.' }
@@ -115,7 +120,8 @@ $quantite = (int)trim(fgets(STDIN));
 
 $total = $prix * $quantite;
 echo "Total : $total EUR\\n";
-`
+`,
+    takeaway: "Transtypez les saisies numériques en (int) ou (float) avant de multiplier ou d additionner en PHP."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -137,8 +143,9 @@ $c = (int)trim(fgets(STDIN));
 // À compléter : afficher la moyenne à deux décimales.
 `,
     hints: [
-      'En PHP, la division de deux entiers avec / produit déjà un nombre décimal : pas de piège de division entière ici.',
-      'number_format formate un nombre : ses arguments fixent le nombre de décimales et les séparateurs.'
+      "En PHP, la division de deux entiers avec / produit déjà un nombre décimal : pas de piège de division entière ici.",
+      "number_format formate un nombre : ses arguments fixent le nombre de décimales et les séparateurs.",
+      "Étapes : additionner les trois notes ; diviser la somme par trois ; afficher le résultat formaté avec deux décimales et le point comme séparateur."
     ],
     examples: [
       { stdin: '12\n14\n16', expected: '14.00', note: '(12 + 14 + 16) / 3 = 14.00.' }
@@ -155,7 +162,8 @@ $c = (int)trim(fgets(STDIN));
 
 $moyenne = ($a + $b + $c) / 3;
 echo number_format($moyenne, 2, '.', '') . "\\n";
-`
+`,
+    takeaway: "number_format($val, 2, \".\", \"\") garantit exactement deux décimales sans séparateur de milliers parasite."
   },
   {
     id: 'php-c2-e2',
@@ -171,8 +179,9 @@ $mot = trim(fgets(STDIN));
 // À compléter : longueur puis version majuscule.
 `,
     hints: [
-      'strlen compte les caractères de la chaîne.',
-      'strtoupper renvoie une copie en majuscules : la variable d’origine n’est pas modifiée.'
+      "strlen compte les caractères de la chaîne.",
+      "strtoupper renvoie une copie en majuscules : la variable d’origine n’est pas modifiée.",
+      "Étapes : afficher « Longueur : » suivi du décompte des caractères du mot ; puis « Majuscules : » suivi de sa copie en majuscules."
     ],
     examples: [
       { stdin: 'Bonjour', expected: 'Longueur : 7\nMajuscules : BONJOUR', note: 'Sept caractères, copie en majuscules.' }
@@ -187,7 +196,8 @@ $mot = trim(fgets(STDIN));
 
 echo "Longueur : " . strlen($mot) . "\\n";
 echo "Majuscules : " . strtoupper($mot) . "\\n";
-`
+`,
+    takeaway: "strlen(), strtolower() / strtoupper() et substr() transforment et contrôlent efficacement une chaîne PHP."
   },
   {
     id: 'php-c2-e3',
@@ -204,8 +214,9 @@ $capacite = (int)trim(fgets(STDIN));
 // À compléter : nombre de trajets pleins et reste.
 `,
     hints: [
-      'intdiv donne le quotient entier d’une division : c’est le nombre de cabines remplies.',
-      'Le modulo % donne le reste : les visiteurs qui attendent le trajet suivant.'
+      "intdiv donne le quotient entier d’une division : c’est le nombre de cabines remplies.",
+      "Le modulo % donne le reste : les visiteurs qui attendent le trajet suivant.",
+      "Étapes : trajets = quotient entier de la division des visiteurs par la capacité ; reste = reste de cette division ; afficher chaque résultat sur sa ligne."
     ],
     examples: [
       { stdin: '23\n6', expected: 'Trajets : 3\nReste : 5', note: '3 cabines pleines (18 personnes), 5 en attente.' }
@@ -224,7 +235,8 @@ $reste = $visiteurs % $capacite;
 
 echo "Trajets : $trajets\\n";
 echo "Reste : $reste\\n";
-`
+`,
+    takeaway: "intdiv($total, $capacite) fournit directement le quotient entier et % le reliquat dans la dernière unité."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -244,8 +256,9 @@ $note = (int)trim(fgets(STDIN));
 // À compléter : la cascade de mentions.
 `,
     hints: [
-      'Dans une cascade, la première condition satisfaite gagne : testez les mentions de la plus haute à la plus basse.',
-      'Un seul affichage doit se produire : les branches s’excluent mutuellement.'
+      "Dans une cascade, la première condition satisfaite gagne : testez les mentions de la plus haute à la plus basse.",
+      "Un seul affichage doit se produire : les branches s’excluent mutuellement.",
+      "Étapes : seize ou plus, « Tres bien » ; quatorze ou plus, « Bien » ; douze ou plus, « Assez bien » ; dix ou plus, « Passable » ; sinon « Ajourne »."
     ],
     examples: [
       { stdin: '17', expected: 'Tres bien', note: '17 ≥ 16 : mention maximale.' }
@@ -269,7 +282,8 @@ if ($note >= 16) {
 } else {
     echo "Ajourne\\n";
 }
-`
+`,
+    takeaway: "L opérateur strict === évite les conversions implicites pièges de PHP lors des comparaisons conditionnelles."
   },
   {
     id: 'php-c3-e2',
@@ -285,8 +299,9 @@ $panier = (int)trim(fgets(STDIN));
 // À compléter : livraison puis total.
 `,
     hints: [
-      'Le seuil fait partie de l’énoncé : un panier de 50 EUR exactement bénéficie de l’offre.',
-      'Le total à payer ajoute la livraison au panier seulement quand elle est payante.'
+      "Le seuil fait partie de l’énoncé : un panier de 50 EUR exactement bénéficie de l’offre.",
+      "Le total à payer ajoute la livraison au panier seulement quand elle est payante.",
+      "Étapes : si le panier atteint cinquante, livraison offerte et total égal au panier ; sinon livraison à cinq et total majoré ; afficher les deux lignes."
     ],
     examples: [
       { stdin: '75', expected: 'Livraison : offerte\nTotal : 75 EUR', note: '75 ≥ 50 : livraison offerte.' }
@@ -307,7 +322,8 @@ if ($panier >= 50) {
     $total = $panier + 5;
 }
 echo "Total : $total EUR\\n";
-`
+`,
+    takeaway: "N appliquez la gratuité des frais de port qu une fois la comparaison de seuil validée sur le sous-total HT/TTC."
   },
   {
     id: 'php-c3-e3',
@@ -323,8 +339,9 @@ $age = (int)trim(fgets(STDIN));
 // À compléter : les trois tarifs.
 `,
     hints: [
-      'Deux tranches donnent la gratuité : elles se combinent avec le OU logique.',
-      'La tranche réduite a deux bornes : les deux doivent être vérifiées en même temps.'
+      "Deux tranches donnent la gratuité : elles se combinent avec le OU logique.",
+      "La tranche réduite a deux bornes : les deux doivent être vérifiées en même temps.",
+      "Étapes : âge inférieur à douze ou atteignant soixante-cinq, « Gratuit » ; sinon jusqu’à dix-sept, « Reduit » ; sinon « Plein »."
     ],
     examples: [
       { stdin: '15', expected: 'Reduit', note: 'Entre 12 et 17 : tarif réduit.' }
@@ -344,7 +361,8 @@ if ($age < 12 || $age >= 65) {
 } else {
     echo "Plein\\n";
 }
-`
+`,
+    takeaway: "Groupez les conditions OU entre parenthèses devant ET (&&) pour traduire fidèlement les règles d éligibilité."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -364,8 +382,9 @@ $n = (int)trim(fgets(STDIN));
 // À compléter : le compte à rebours.
 `,
     hints: [
-      'Une boucle for se décline en trois parties : initialisation, condition de poursuite, pas.',
-      'Le pas peut être négatif : la variable diminue à chaque tour jusqu’à la borne basse.'
+      "Une boucle for se décline en trois parties : initialisation, condition de poursuite, pas.",
+      "Le pas peut être négatif : la variable diminue à chaque tour jusqu’à la borne basse.",
+      "Étapes : compteur à n ; tant qu’il reste au moins un, afficher sa valeur puis le décrémenter ; après la boucle, afficher « Decollage »."
     ],
     examples: [
       { stdin: '3', expected: '3\n2\n1\nDecollage', note: 'De 3 à 1, puis le message final.' }
@@ -382,7 +401,8 @@ for ($i = $n; $i >= 1; $i--) {
     echo $i . "\\n";
 }
 echo "Decollage\\n";
-`
+`,
+    takeaway: "Une boucle for ($i = $n; $i >= 0; $i--) décrémente l indice à chaque pas jusqu à la borne d arrêt inclusive."
   },
   {
     id: 'php-c4-e2',
@@ -398,8 +418,9 @@ $n = (int)trim(fgets(STDIN));
 // À compléter : accumuler avec une boucle.
 `,
     hints: [
-      'L’accumulateur s’initialise avant la boucle : sinon il repart de zéro à chaque tour.',
-      'La boucle monte de 1 jusqu’à n inclus : la condition de poursuite porte sur cette borne.'
+      "L’accumulateur s’initialise avant la boucle : sinon il repart de zéro à chaque tour.",
+      "La boucle monte de 1 jusqu’à n inclus : la condition de poursuite porte sur cette borne.",
+      "Étapes : somme à zéro avant la boucle ; pour chaque entier de 1 à n inclus, l’additionner à la somme ; afficher la somme en sortie de boucle."
     ],
     examples: [
       { stdin: '10', expected: '55', note: '1 + 2 + … + 10 = 55.' }
@@ -417,7 +438,8 @@ for ($i = 1; $i <= $n; $i++) {
     $somme += $i;
 }
 echo $somme . "\\n";
-`
+`,
+    takeaway: "Accumuler dans une boucle for ou foreach évite de stocker un tableau intermédiaire inutile lorsque seul le total compte."
   },
   {
     id: 'php-c4-e3',
@@ -433,8 +455,9 @@ $n = (int)trim(fgets(STDIN));
 // À compléter : les puissances de deux, une par ligne.
 `,
     hints: [
-      'Chaque puissance de deux est le double de la précédente : une seule multiplication par tour suffit.',
-      'L’accumulateur multiplicatif démarre à 1 : élément neutre de la multiplication.'
+      "Chaque puissance de deux est le double de la précédente : une seule multiplication par tour suffit.",
+      "L’accumulateur multiplicatif démarre à 1 : élément neutre de la multiplication.",
+      "Étapes : puissance à un ; répéter n fois — multiplier par deux et afficher le résultat ; chaque ligne montre la puissance suivante."
     ],
     examples: [
       { stdin: '4', expected: '2\n4\n8\n16', note: 'Quatre puissances : 2, 4, 8, 16.' }
@@ -452,7 +475,8 @@ for ($i = 1; $i <= $n; $i++) {
     $puissance *= 2;
     echo $puissance . "\\n";
 }
-`
+`,
+    takeaway: "Partir de 1 et multiplier par 2 à chaque pas génère exactement les puissances de 2 sans appel flottant à pow()."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -476,8 +500,9 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : somme puis moyenne.
 `,
     hints: [
-      'array_sum additionne tous les éléments d’un tableau ; count en donne la taille. Une boucle classique fait aussi l’affaire.',
-      'La moyenne doit rester décimale : formatez-la au moment de l’affichage.'
+      "array_sum additionne tous les éléments d’un tableau ; count en donne la taille. Une boucle classique fait aussi l’affaire.",
+      "La moyenne doit rester décimale : formatez-la au moment de l’affichage.",
+      "Étapes : lire n puis chaque note dans un tableau ; additionner les notes ; diviser la somme par l’effectif ; afficher somme puis moyenne à deux décimales."
     ],
     examples: [
       { stdin: '4\n12\n15\n14\n19', expected: 'Somme : 60\nMoyenne : 15.00', note: 'Total 60, moyenne 60 / 4 = 15.00.' }
@@ -499,7 +524,8 @@ $moyenne = $somme / count($notes);
 
 echo "Somme : $somme\\n";
 echo "Moyenne : " . number_format($moyenne, 2, '.', '') . "\\n";
-`
+`,
+    takeaway: "explode() découpe une ligne d entrée en tableau, que count() et foreach permettent d agréger simplement."
   },
   {
     id: 'php-c5-e2',
@@ -520,8 +546,9 @@ $cible = (int)trim(fgets(STDIN));
 // À compléter : position de la cible ou "absent".
 `,
     hints: [
-      'array_search renvoie la clé de la première occurrence, mais la numérotation du tableau commence à zéro.',
-      'Quand la valeur ne figure pas, array_search renvoie false : prévoyez ce cas avant d’afficher.'
+      "array_search renvoie la clé de la première occurrence, mais la numérotation du tableau commence à zéro.",
+      "Quand la valeur ne figure pas, array_search renvoie false : prévoyez ce cas avant d’afficher.",
+      "Étapes : lire le tableau et la cible ; chercher la première occurrence (rappel : indices depuis zéro) ; si rien n’est trouvé, « absent », sinon la position plus un."
     ],
     examples: [
       { stdin: '5\n10\n20\n30\n20\n50\n20', expected: '2', note: 'La première occurrence de 20 est à la position 2.' }
@@ -546,7 +573,8 @@ if ($cle === false) {
 } else {
     echo ($cle + 1) . "\\n";
 }
-`
+`,
+    takeaway: "Dès qu une cible est repérée dans un tableau, conservez son indice et sortez ou renvoyez -1 si absente."
   },
   {
     id: 'php-c5-e3',
@@ -566,8 +594,9 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : tri par sélection, sans sort().
 `,
     hints: [
-      'La partie triée grandit depuis le début : à chaque tour, repérez le minimum de ce qui reste et échangez-le avec la première position libre.',
-      'Un échange en PHP passe par une variable temporaire (ou par list($a, $b) = [$b, $a]).'
+      "La partie triée grandit depuis le début : à chaque tour, repérez le minimum de ce qui reste et échangez-le avec la première position libre.",
+      "Un échange en PHP passe par une variable temporaire (ou par list($a, $b) = [$b, $a]).",
+      "Étapes : pour chaque position de départ, chercher l’indice du minimum sur la zone restante puis l’échanger avec la position de départ ; afficher le tout."
     ],
     examples: [
       { stdin: '5\n5\n2\n8\n1\n9', expected: '1 2 5 8 9', note: 'Tri croissant complet.' }
@@ -599,7 +628,8 @@ for ($debut = 0; $debut < $n - 1; $debut++) {
 }
 
 echo implode(' ', $tableau) . "\\n";
-`
+`,
+    takeaway: "Implémenter un tri par comparaison manuellement ancre la maîtrise des indices avant d utiliser sort() / usort()."
   },
 
   // ═══════════════════════════════════════════════════════════════════
@@ -623,8 +653,9 @@ $nom = trim(fgets(STDIN));
 echo carte($nom) . "\n";
 `,
     hints: [
-      'Une fonction PHP se déclare avec function, son nom et ses paramètres entre parenthèses.',
-      'return transmet la valeur à l’appelant : echo dans la fonction ne suffit pas, la valeur doit sortir.'
+      "Une fonction PHP se déclare avec function, son nom et ses paramètres entre parenthèses.",
+      "return transmet la valeur à l’appelant : echo dans la fonction ne suffit pas, la valeur doit sortir.",
+      "Étapes : déclarer la fonction qui reçoit le nom ; renvoyer la phrase « Bienvenue » suivie du nom ; l’affichage reste dans le programme principal."
     ],
     examples: [
       { stdin: 'Alice', expected: 'Bienvenue Alice', note: 'La fonction assemble le message et le renvoie.' }
@@ -642,7 +673,8 @@ function carte($nom)
 
 $nom = trim(fgets(STDIN));
 echo carte($nom) . "\n";
-`
+`,
+    takeaway: "Une fonction PHP utilise return pour transmettre sa valeur ; déclarer les types aide à détecter les appels invalides."
   },
   {
     id: 'php-c6-e2',
@@ -663,8 +695,9 @@ $age = (int)trim(fgets(STDIN));
 echo ticket($age) . "\n";
 `,
     hints: [
-      'La fonction contient la cascade de conditions ; le programme principal se limite à lire et afficher.',
-      'Chaque branche renvoie son prix : dès que return s’exécute, la fonction se termine.'
+      "La fonction contient la cascade de conditions ; le programme principal se limite à lire et afficher.",
+      "Chaque branche renvoie son prix : dès que return s’exécute, la fonction se termine.",
+      "Étapes : dans la fonction, traiter d’abord la gratuité (moins de douze ou soixante-cinq et plus), puis le tarif réduit, sinon le tarif plein ; chaque branche renvoie son prix."
     ],
     examples: [
       { stdin: '12', expected: '5', note: 'Entre 12 et 17 : tarif à 5.' }
@@ -688,7 +721,8 @@ function ticket($age)
 
 $age = (int)trim(fgets(STDIN));
 echo ticket($age) . "\n";
-`
+`,
+    takeaway: "Les retours précoces (early return) sur chaque tranche tarifaire éliminent les variables intermédiaires inutiles."
   },
   {
     id: 'php-c6-e3',
@@ -715,8 +749,9 @@ for ($i = 0; $i < $n; $i++) {
 echo number_format($moyenne, 2, '.', '') . " $max\n";
 `,
     hints: [
-      'Une fonction ne renvoie qu’une seule chose : groupez moyenne et maximum dans un tableau de deux éléments.',
-      'Le maximum se mémorise en partant de la première note, puis en remplaçant le candidat dès qu’une note le dépasse.'
+      "Une fonction ne renvoie qu’une seule chose : groupez moyenne et maximum dans un tableau de deux éléments.",
+      "Le maximum se mémorise en partant de la première note, puis en remplaçant le candidat dès qu’une note le dépasse.",
+      "Étapes : dans la fonction, somme à zéro et maximum à la première note ; parcourir en additionnant et en mettant à jour le maximum ; renvoyer moyenne et maximum."
     ],
     examples: [
       { stdin: '4\n12\n15\n14\n19', expected: '15.00 19', note: 'Moyenne 15.00, maximum 19.' }
@@ -749,7 +784,8 @@ for ($i = 0; $i < $n; $i++) {
 
 [$moyenne, $max] = stats($notes);
 echo number_format($moyenne, 2, '.', '') . " $max\n";
-`
+`,
+    takeaway: "Une fonction PHP peut retourner un tableau indexé ou associatif [moyenne, max] dépaquetable par l appelant."
   },
 
   // ═══════════════════════════════════════════════════════════════════
@@ -771,8 +807,9 @@ $note = (int)trim(fgets(STDIN));
 echo $mentions[$note] . "\n";
 `,
     hints: [
-      'Un tableau associatif associe chaque clé à sa valeur : la clé est la note, la valeur est la mention.',
-      'Les mentions partagées par plusieurs notes se déclarent une fois par note : 9 et 10 mènent toutes deux à la même mention.'
+      "Un tableau associatif associe chaque clé à sa valeur : la clé est la note, la valeur est la mention.",
+      "Les mentions partagées par plusieurs notes se déclarent une fois par note : 9 et 10 mènent toutes deux à la même mention.",
+      "Étapes : construire la table note → mention pour toutes les notes de un à dix ; lire la note ; afficher la mention associée par simple accès à la clé."
     ],
     examples: [
       { stdin: '8', expected: 'Tres bien', note: 'La clé 8 vaut la mention Tres bien.' }
@@ -799,7 +836,8 @@ $mentions = [
 
 $note = (int)trim(fgets(STDIN));
 echo $mentions[$note] . "\n";
-`
+`,
+    takeaway: "Un tableau associatif ($map[$cle]) remplace élégamment de longs blocs if / elseif en offrant un accès O(1)."
   },
   {
     id: 'php-c7-e2',
@@ -820,8 +858,9 @@ for ($i = 0; $i < $n; $i++) {
 echo 0 . "\n";
 `,
     hints: [
-      'explode découpe une chaîne selon un séparateur et renvoie un tableau de morceaux : le premier est le nom, le second la quantité.',
-      'Un parcours foreach sur le tableau associatif donne accès à chaque valeur ; la clé, ici, n’intervient pas dans le total.'
+      "explode découpe une chaîne selon un séparateur et renvoie un tableau de morceaux : le premier est le nom, le second la quantité.",
+      "Un parcours foreach sur le tableau associatif donne accès à chaque valeur ; la clé, ici, n’intervient pas dans le total.",
+      "Étapes : lire chaque ligne, la découper en nom et quantité, ranger la quantité sous la clé du nom ; additionner toutes les quantités ; afficher le total."
     ],
     examples: [
       { stdin: '2\nclefs 7\nfermoirs 3', expected: '10', note: '7 + 3 = 10 articles en stock.' }
@@ -845,7 +884,8 @@ foreach ($stock as $quantite) {
     $total += $quantite;
 }
 echo $total . "\n";
-`
+`,
+    takeaway: "Parcourir un tableau associatif via foreach ($stock as $produit => $qte) donne simultanément la clé et la valeur."
   },
   {
     id: 'php-c7-e3',
@@ -866,8 +906,9 @@ for ($i = 0; $i < $n; $i++) {
 echo "\n";
 `,
     hints: [
-      'isset teste l’existence d’une clé : le premier exemplaire d’un mot doit créer sa case à zéro avant d’incrémenter.',
-      'Un parcours foreach du compteur donne le couple mot → occurrences : gardez le meilleur candidat vu jusqu’ici.'
+      "isset teste l’existence d’une clé : le premier exemplaire d’un mot doit créer sa case à zéro avant d’incrémenter.",
+      "Un parcours foreach du compteur donne le couple mot → occurrences : gardez le meilleur candidat vu jusqu’ici.",
+      "Étapes : pour chaque mot, créer sa case à zéro si absente puis incrémenter ; parcourir le compteur en gardant le mot le plus fréquent ; l’afficher."
     ],
     examples: [
       { stdin: '3\nhtml\ncss\nhtml', expected: 'html 2', note: 'html apparaît deux fois, css une fois.' }
@@ -898,7 +939,8 @@ foreach ($compteur as $mot => $occurrences) {
     }
 }
 echo "$motFrequent $max\n";
-`
+`,
+    takeaway: "Initialisez isset($freq[$mot]) ou ($freq[$mot] ?? 0) + 1 avant d extraire la clé associée au maximum."
   },
 
   // ═══════════════════════════════════════════════════════════════════
@@ -919,8 +961,9 @@ $motDePasse = trim(fgets(STDIN));
 // À compléter : les deux conditions doivent être vraies ensemble.
 `,
     hints: [
-      'str_contains teste la présence d’une sous-chaîne, strlen la longueur d’une chaîne.',
-      'Les deux règles doivent être vraies en même temps : c’est le ET logique qui les combine.'
+      "str_contains teste la présence d’une sous-chaîne, strlen la longueur d’une chaîne.",
+      "Les deux règles doivent être vraies en même temps : c’est le ET logique qui les combine.",
+      "Étapes : lire l’email et le mot de passe ; si l’email contient le caractère attendu ET le mot de passe atteint six caractères, afficher « OK », sinon « Refuse »."
     ],
     examples: [
       { stdin: 'alice@ex.fr\nmotdepasse', expected: 'OK', note: 'Arobase présente, mot de passe assez long.' }
@@ -939,7 +982,8 @@ if (str_contains($email, '@') && strlen($motDePasse) >= 6) {
 } else {
     echo "Refuse\n";
 }
-`
+`,
+    takeaway: "Contrôlez présence (!empty), format (filter_var) et bornes avant d accepter toute donnée saisie côté serveur."
   },
   {
     id: 'php-c8-e2',
@@ -961,8 +1005,9 @@ for ($i = 0; $i < $n; $i++) {
 echo "\n";
 `,
     hints: [
-      'Un tableau associatif nom → âge joue le rôle du jeu de résultats : un foreach visite chaque ligne.',
-      'Gardez le meilleur candidat vu jusqu’ici : nom et âge avancent ensemble quand un âge supérieur apparaît.'
+      "Un tableau associatif nom → âge joue le rôle du jeu de résultats : un foreach visite chaque ligne.",
+      "Gardez le meilleur candidat vu jusqu’ici : nom et âge avancent ensemble quand un âge supérieur apparaît.",
+      "Étapes : remplir la table nom → âge ; parcourir les lignes en gardant le nom et l’âge du plus âgé vu ; afficher le nom retenu et son âge."
     ],
     examples: [
       { stdin: '2\nInes 19\nPaul 22', expected: 'Paul 22', note: 'Paul est le plus âgé des deux.' }
@@ -990,7 +1035,8 @@ foreach ($personnes as $nom => $age) {
     }
 }
 echo "$plusAgee $ageMax\n";
-`
+`,
+    takeaway: "Les lignes retournées par PDO::FETCH_ASSOC se manipulent exactement comme une liste de tableaux associatifs PHP."
   },
   {
     id: 'php-c8-e3',
@@ -1011,8 +1057,9 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : vérifier chaque note et afficher le verdict.
 `,
     hints: [
-      'Une seule note hors bornes rend tout le lot refusable : le verdict se construit pendant le parcours.',
-      'Un drapeau booléen démarre à true et passe à false dès qu’une valeur sort de l’intervalle autorisé.'
+      "Une seule note hors bornes rend tout le lot refusable : le verdict se construit pendant le parcours.",
+      "Un drapeau booléen démarre à true et passe à false dès qu’une valeur sort de l’intervalle autorisé.",
+      "Étapes : remplir la table nom → note ; drapeau à vrai ; si une note sort de l’intervalle zéro-vingt, passer le drapeau à faux ; afficher le verdict."
     ],
     examples: [
       { stdin: '2\nLea 15\nAdam 18', expected: 'Valide', note: 'Deux notes dans l’intervalle autorisé.' }
@@ -1038,6 +1085,7 @@ foreach ($notes as $note) {
     }
 }
 echo $valide ? "Valide\n" : "Invalide\n";
-`
+`,
+    takeaway: "Rejeter ou assainir les lignes invalides avant l insertion SQL protège l intégrité de la base de données."
   }
 ];

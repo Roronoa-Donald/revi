@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -161,15 +159,61 @@ def gerer_articles():
 
 </section>
 
+<section class="sec">
+
+<h2>5. Labo Flask appliqué : routage dynamique, filtrage request.args et test_client()</h2>
+
+<p>Voici un exemple exécutable combinant convertisseur de route <code>&lt;int:livre_id&gt;</code>, filtrage via <code>request.args</code>, création via <code>request.get_json()</code> et tests avec <code>app.test_client()</code> :</p>
+<pre><code class="language-python">from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+LIVRES = [
+    {"id": 1, "titre": "Architecture REST", "auteur": "Fielding", "annee": 2000},
+    {"id": 2, "titre": "Python &amp; Flask", "auteur": "Ronacher", "annee": 2010}
+]
+
+@app.route("/api/v1/livres", methods=["GET", "POST"])
+def collection_livres():
+    if request.method == "GET":
+        auteur = request.args.get("auteur", type=str)
+        resultats = [l for l in LIVRES if not auteur or l["auteur"].lower() == auteur.lower()]
+        return jsonify({"count": len(resultats), "items": resultats}), 200
+
+    payload = request.get_json(silent=True)
+    if not payload:
+        return jsonify({"error": "JSON manquant"}), 400
+    if "titre" not in payload or "auteur" not in payload:
+        return jsonify({"error": "Champs titre et auteur requis"}), 422
+    nouveau = {"id": len(LIVRES) + 1, "titre": payload["titre"], "auteur": payload["auteur"], "annee": payload.get("annee", 2026)}
+    LIVRES.append(nouveau)
+    return jsonify(nouveau), 201
+
+@app.route("/api/v1/livres/&lt;int:livre_id&gt;", methods=["GET"])
+def detail_livre(livre_id):
+    for livre in LIVRES:
+        if livre["id"] == livre_id:
+            return jsonify(livre), 200
+    return jsonify({"error": "Livre introuvable"}), 404
+
+if __name__ == "__main__":
+    client = app.test_client()
+    assert client.get("/api/v1/livres?auteur=Fielding").get_json()["count"] == 1
+    assert client.get("/api/v1/livres/99").status_code == 404</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="fl2-c3-e1" data-lab
      data-exercise="fl2-c3-e1"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="42&#10;user_id">
@@ -182,13 +226,11 @@ nom_var = input().strip()
     <h3 class="lab__title">Exercice 1 — Convertisseurs de route Flask</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer le type de convertisseur Flask adapté à une valeur reçue.</p>
-    <p class="lab__note" id="fl2-c3-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief">&lt;p&gt;Dans Flask, les variables de routes acceptent des convertisseurs pour typer les paramètres :<br>- <code>int</code> pour les entiers positifs (ex: <code>42</code>)<br>- <code>float</code> pour les nombres décimaux à virgule (ex: <code>19.99</code>)<br>- <code>path</code> pour les chaînes contenant au moins un slash <code>/</code> (ex: <code>docs/api/v1</code>)<br>- <code>string</code> pour toute autre chaîne de caractères standard sans slash.<br><p>Lit une valeur textuelle et le nom de variable souhaité (deux lignes en entrée). Affichez la syntaxe de route Flask correspondante sous la forme <code>&lt;type:nom_variable&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>42
@@ -209,7 +251,6 @@ user_id</pre></div>
 
 <div class="lab" id="fl2-c3-e2" data-lab
      data-exercise="fl2-c3-e2"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="/articles/&lt;int:id&gt;&#10;/articles/73">
@@ -222,13 +263,11 @@ url = input().strip()
     <h3 class="lab__title">Exercice 2 — Simulateur de dispatch de route</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la correspondance entre une URL demandée et un modèle de route avec paramètre.</p>
-    <p class="lab__note" id="fl2-c3-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Flask associe chaque requête entrante au pattern de route correspondant. Par exemple, la route <code>/livres/&lt;int:id&gt;</code> doit capturer <code>/livres/15</code> et extraire <code>id=15</code>.</p><p>Le programme reçoit deux lignes :<br>1. Le modèle de route avec une variable au format <code>&lt;type:nom&gt;</code> (ex: <code>/articles/&lt;int:id&gt;</code>)<br>2. L’URL demandée (ex: <code>/articles/73</code>)<br>Si l’URL correspond au modèle et que le type est valide (par exemple <code>int</code> ne contient que des chiffres), affiche <code>Match: &lt;nom&gt;=&lt;valeur&gt;</code>.<br>Sinon, affichez <code>404 Not Found</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>/articles/&lt;int:id&gt;
@@ -249,7 +288,6 @@ url = input().strip()
 
 <div class="lab" id="fl2-c3-e3" data-lab
      data-exercise="fl2-c3-e3"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="GET,POST&#10;DELETE">
@@ -262,13 +300,11 @@ methode = input().strip().upper()
     <h3 class="lab__title">Exercice 3 — Filtrage de méthodes HTTP Flask</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le contrôle des méthodes autorisées sur un endpoint Flask (@app.route(..., methods=[...])).</p>
-    <p class="lab__note" id="fl2-c3-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Par défaut, une route Flask n’accepte que la méthode <code>GET</code>. Pour autoriser d’autres verbes, on fournit le paramètre <code>methods=['GET', 'POST']</code>. Si un client sollicite l’endpoint avec une méthode non autorisée, Flask renvoie automatiquement le code d’état <code>405 Method Not Allowed</code>.</p><p>Lit deux lignes sur l’entrée standard :<br>1. La liste des méthodes autorisées séparées par des virgules (ex: <code>GET,POST</code>)<br>2. La méthode utilisée par la requête entrante (ex: <code>DELETE</code>)<br>Si la méthode est autorisée, affiche <code>200 OK: Traitement &lt;METHODE&gt;</code>.<br>Sinon, affichez <code>405 Method Not Allowed: Verbes autorises: &lt;liste triee separee par des virgules&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>GET,POST
@@ -288,23 +324,23 @@ DELETE</pre></div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quel micro-framework Python est réputé pour sa simplicité et sa flexibilité ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Flask</button>
-        <button class="opt">Django</button>
         <button class="opt">Spring Boot</button>
+        <button class="opt">Django</button>
+        <button class="opt" data-correct="1">Flask</button>
       </div>
       <div class="q__exp">Flask est un micro-framework minimaliste très populaire en Python.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel décorateur associe une URL à une fonction dans Flask ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">@app.route()</button>
         <button class="opt">@app.endpoint()</button>
+        <button class="opt" data-correct="1">@app.route()</button>
         <button class="opt">@app.listen()</button>
       </div>
       <div class="q__exp">@app.route("/chemin") enregistre l’association URL-fonction dans l’application.</div>
@@ -312,8 +348,8 @@ DELETE</pre></div>
     <div class="q">
       <p class="q__stem">Quel convertisseur de route Flask garantit que l’argument reçu est un entier positif ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">&lt;int:id&gt;</button>
         <button class="opt">&lt;number:id&gt;</button>
+        <button class="opt" data-correct="1">&lt;int:id&gt;</button>
         <button class="opt">&lt;integer:id&gt;</button>
       </div>
       <div class="q__exp">&lt;int:...&gt; valide et caste directement la portion d’URL en entier.</div>
@@ -330,17 +366,17 @@ DELETE</pre></div>
     <div class="q">
       <p class="q__stem">Quel code d’état HTTP Flask renvoie-t-il si la méthode utilisée n’est pas autorisée ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">405 Method Not Allowed</button>
-        <button class="opt">404 Not Found</button>
         <button class="opt">400 Bad Request</button>
+        <button class="opt">404 Not Found</button>
+        <button class="opt" data-correct="1">405 Method Not Allowed</button>
       </div>
       <div class="q__exp">Le code 405 signale que la méthode demandée n’est pas supportée par l’endpoint.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment récupère-t-on un paramètre passé dans la query string avec Flask ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">request.args.get("cle")</button>
         <button class="opt">request.query["cle"]</button>
+        <button class="opt" data-correct="1">request.args.get("cle")</button>
         <button class="opt">request.params("cle")</button>
       </div>
       <div class="q__exp">request.args est le conteneur MultiDict dédié aux paramètres d’URL.</div>
@@ -348,9 +384,9 @@ DELETE</pre></div>
     <div class="q">
       <p class="q__stem">Quelle méthode de l’objet request extrait et décode le corps JSON d’une requête ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">request.get_json()</button>
-        <button class="opt">request.json_decode()</button>
         <button class="opt">request.parse_body()</button>
+        <button class="opt">request.json_decode()</button>
+        <button class="opt" data-correct="1">request.get_json()</button>
       </div>
       <div class="q__exp">request.get_json() parse le corps de la requête en objet Python.</div>
     </div>
@@ -369,7 +405,7 @@ DELETE</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -386,7 +422,7 @@ DELETE</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Déclarer un point d’entrée REST avec Flask</div>
@@ -403,7 +439,7 @@ DELETE</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -434,7 +470,7 @@ DELETE</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -483,7 +519,7 @@ DELETE</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

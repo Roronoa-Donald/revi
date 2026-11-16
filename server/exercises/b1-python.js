@@ -36,8 +36,9 @@ valeur = int(input())
 print(convertir_temperature(valeur))
 `,
     hints: [
-      'Comment la fonction peut-elle transmettre la valeur calculée à l’instruction qui l’appelle ?',
-      'Pour obtenir un résultat décimal, la division doit être décimale : en Python, 9 / 5 vaut 1.8 alors que 9 // 5 vaut 1.'
+      "Comment la fonction peut-elle transmettre la valeur calculée à l’instruction qui l’appelle ?",
+      "Pour obtenir un résultat décimal, la division doit être décimale : en Python, 9 / 5 vaut 1.8 alors que 9 // 5 vaut 1.",
+      "Étapes : lire la température ; calculer F = C × 9 / 5 + 32 avec la division décimale ; afficher le résultat renvoyé par la fonction."
     ],
     examples: [
       { stdin: '25', expected: '77.0', note: '25 °C correspondent à 77 °F.' }
@@ -53,7 +54,8 @@ print(convertir_temperature(valeur))
 
 valeur = int(input())
 print(convertir_temperature(valeur))
-`
+`,
+    takeaway: "Une fonction convertit une donnée via return sans afficher, puis le bloc principal lit stdin et formate le résultat."
   },
   {
     id: 'py-c1-e2',
@@ -70,8 +72,9 @@ note3 = int(input())
 # À compléter : calculer puis afficher la moyenne avec deux décimales.
 `,
     hints: [
-      'Quel opérateur de division conserve une partie décimale lorsqu’elle est nécessaire ?',
-      'L’arrondi se fait au moment de l’affichage, pas dans le calcul : le format d’un f-string permet de fixer le nombre de décimales.'
+      "Quel opérateur de division conserve une partie décimale lorsqu’elle est nécessaire ?",
+      "L’arrondi se fait au moment de l’affichage, pas dans le calcul : le format d’un f-string permet de fixer le nombre de décimales.",
+      "Étapes : lire les trois notes ; moyenne = somme des notes divisée par trois ; afficher la moyenne avec exactement deux décimales."
     ],
     examples: [
       { stdin: '12\n15\n9', expected: '12.00', note: '12 + 15 + 9 = 36, et 36 / 3 = 12.00.' }
@@ -87,7 +90,8 @@ note3 = int(input())
 
 moyenne = (note1 + note2 + note3) / 3
 print(f"{moyenne:.2f}")
-`
+`,
+    takeaway: "Enchaînez conversion float(), somme puis formatage f\"{val:.2f}\" pour éviter toute dérive décimale d affichage."
   },
   {
     id: 'py-c1-e3',
@@ -102,8 +106,9 @@ print(f"{moyenne:.2f}")
 # À compléter : découper la durée en heures, minutes et secondes.
 `,
     hints: [
-      'Comment trouver le nombre d’heures complètes, puis les secondes qui restent à répartir ?',
-      'Le même raisonnement s’applique une deuxième fois pour extraire les minutes du reste, et le reste final est la réponse en secondes.'
+      "Comment trouver le nombre d’heures complètes, puis les secondes qui restent à répartir ?",
+      "Le même raisonnement s’applique une deuxième fois pour extraire les minutes du reste, et le reste final est la réponse en secondes.",
+      "Étapes : heures = division entière du total par 3600 ; sur le reste, minutes = division entière par 60 ; secondes = reste final ; afficher avec unités."
     ],
     examples: [
       { stdin: '3723', expected: '1 h 2 min 3 s', note: '1 h 2 min 3 s : 3600 + 120 + 3.' }
@@ -121,7 +126,8 @@ minutes = (total % 3600) // 60
 secondes = total % 60
 
 print(heures, "h", minutes, "min", secondes, "s")
-`
+`,
+    takeaway: "En Python, la division entière // donne les tranches complètes et le modulo % extrait toujours le reliquat."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -140,8 +146,9 @@ print(heures, "h", minutes, "min", secondes, "s")
 # À compléter : accumuler les entiers de 1 à n.
 `,
     hints: [
-      'La borne de fin d’un range n’est jamais atteinte : pour aller jusqu’à n, il faut lui demander n + 1.',
-      'Un accumulateur s’initialise avant la boucle : s’il est initialisé dedans, il repart de zéro à chaque tour.'
+      "La borne de fin d’un range n’est jamais atteinte : pour aller jusqu’à n, il faut lui demander n + 1.",
+      "Un accumulateur s’initialise avant la boucle : s’il est initialisé dedans, il repart de zéro à chaque tour.",
+      "Étapes : total à zéro avant la boucle ; pour chaque entier de 1 à n inclus, l’additionner au total ; afficher le total en sortie de boucle."
     ],
     examples: [
       { stdin: '10', expected: '55', note: '1 + 2 + … + 10 = 55.' }
@@ -158,7 +165,8 @@ for i in range(1, n + 1):
     total += i
 
 print(total)
-`
+`,
+    takeaway: "Une boucle d accumulation initialise total = 0 avant d itérer sur range(1, n + 1) sans dépendre de sum()."
   },
   {
     id: 'py-c2-e2',
@@ -175,8 +183,9 @@ for i in range(n):
     # À compléter : choisir le bon message.
 `,
     hints: [
-      'L’ordre des conditions change le résultat : si vous testez les seuils par le haut, commencez par celui de 10.',
-      'Un enchaînement de conditions s’écrit en cascade : la première branche satisfaite prend la main et les suivantes sont ignorées.'
+      "L’ordre des conditions change le résultat : si vous testez les seuils par le haut, commencez par celui de 10.",
+      "Un enchaînement de conditions s’écrit en cascade : la première branche satisfaite prend la main et les suivantes sont ignorées.",
+      "Étapes : pour chaque note lue : dix ou plus, « Admis » ; huit ou neuf, « Rattrapage » ; sinon « Ajourné » — un seul affichage par note."
     ],
     examples: [
       { stdin: '3\n12\n9\n5', expected: 'Admis\nRattrapage\nAjourné', note: '12 est admis, 9 passe en rattrapage, 5 est ajourné.' }
@@ -196,7 +205,8 @@ for i in range(n):
         print("Rattrapage")
     else:
         print("Ajourné")
-`
+`,
+    takeaway: "Ordonnez vos branches if / elif du cas le plus restrictif vers le plus large pour ne jamais masquer un palier."
   },
   {
     id: 'py-c2-e3',
@@ -211,8 +221,9 @@ for i in range(n):
 # À compléter : additionner les chiffres du nombre.
 `,
     hints: [
-      'Un nombre peut se parcourir caractère par caractère une fois converti en texte : chaque morceau redevient un entier pour le calcul.',
-      'Autre voie sans conversion : le reste de la division par 10 isole le dernier chiffre, et la division entière par 10 le supprime.'
+      "Un nombre peut se parcourir caractère par caractère une fois converti en texte : chaque morceau redevient un entier pour le calcul.",
+      "Autre voie sans conversion : le reste de la division par 10 isole le dernier chiffre, et la division entière par 10 le supprime.",
+      "Étapes : total à zéro ; convertir le nombre en texte ; pour chaque caractère, le reconvertir en entier et l’additionner ; afficher le total."
     ],
     examples: [
       { stdin: '4729', expected: '22', note: '4 + 7 + 2 + 9 = 22.' }
@@ -229,7 +240,8 @@ for chiffre in str(nombre):
     total += int(chiffre)
 
 print(total)
-`
+`,
+    takeaway: "Extraire le dernier chiffre par % 10 puis réduire n //= 10 décompose n importe quel entier en boucle while."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -258,8 +270,9 @@ moyenne, maximum = calcul_statistiques(notes)
 print(f"{moyenne:.2f} {maximum}")
 `,
     hints: [
-      'Une fonction ne renvoie qu’une seule chose : pour en faire passer deux, il faut les grouper dans un couple, en les séparant par une virgule.',
-      'Le maximum se cherche en mémorisant un candidat, puis en le remplaçant dès qu’un élément le dépasse : le premier élément de la liste est un bon point de départ.'
+      "Une fonction ne renvoie qu’une seule chose : pour en faire passer deux, il faut les grouper dans un couple, en les séparant par une virgule.",
+      "Le maximum se cherche en mémorisant un candidat, puis en le remplaçant dès qu’un élément le dépasse : le premier élément de la liste est un bon point de départ.",
+      "Étapes : dans la fonction, total à zéro et maximum à la première note ; parcourir en additionnant et en mettant à jour le maximum ; renvoyer moyenne et maximum."
     ],
     examples: [
       { stdin: '5\n12\n15\n14\n9\n18', expected: '13.60 18', note: 'Moyenne 13.60 et maximum 18.' }
@@ -286,7 +299,8 @@ for i in range(n):
 
 moyenne, maximum = calcul_statistiques(notes)
 print(f"{moyenne:.2f} {maximum}")
-`
+`,
+    takeaway: "En Python, return a, b renvoie un tuple dépaquetable directement côté appelant sans variable globale."
   },
   {
     id: 'py-c3-e2',
@@ -306,8 +320,9 @@ b = int(input())
 print(diviser(a, b))
 `,
     hints: [
-      'Une division par zéro n’est pas une valeur : l’interpréteur interrompt le programme. Il faut donc empêcher l’opération d’être tentée.',
-      'Deux stratégies existent : vérifier avant de calculer, ou tenter le calcul et rattraper l’erreur. Dans les deux cas, la valeur renvoyée doit être la même.'
+      "Une division par zéro n’est pas une valeur : l’interpréteur interrompt le programme. Il faut donc empêcher l’opération d’être tentée.",
+      "Deux stratégies existent : vérifier avant de calculer, ou tenter le calcul et rattraper l’erreur. Dans les deux cas, la valeur renvoyée doit être la même.",
+      "Étapes : dans la fonction, tenter la division et renvoyer son résultat ; en cas d’erreur de division par zéro, renvoyer la valeur d’erreur prévue par l’énoncé."
     ],
     examples: [
       { stdin: '10\n2', expected: '5.0', note: 'Division normale : 5.0.' }
@@ -327,7 +342,8 @@ print(diviser(a, b))
 a = int(input())
 b = int(input())
 print(diviser(a, b))
-`
+`,
+    takeaway: "Un bloc try / except ciblé (ZeroDivisionError, ValueError) intercepte l erreur prévue sans masquer d autres bugs."
   },
   {
     id: 'py-c3-e3',
@@ -346,8 +362,9 @@ n = int(input())
 print("oui" if est_premier(n) else "non")
 `,
     hints: [
-      '1 n’est pas premier : c’est le premier cas particulier à traiter avant même de chercher un diviseur.',
-      'Un nombre premier n’a aucun diviseur autre que 1 et lui-même : dès qu’un diviseur est trouvé, la réponse est fixée et le parcours peut s’arrêter là.'
+      "1 n’est pas premier : c’est le premier cas particulier à traiter avant même de chercher un diviseur.",
+      "Un nombre premier n’a aucun diviseur autre que 1 et lui-même : dès qu’un diviseur est trouvé, la réponse est fixée et le parcours peut s’arrêter là.",
+      "Étapes : dans la fonction, refuser tout n inférieur à deux ; parcourir les diviseurs de deux à n moins un ; un reste nul fait refuser, sinon accepter."
     ],
     examples: [
       { stdin: '17', expected: 'oui', note: '17 n’a aucun diviseur autre que 1 et lui-même.' }
@@ -369,7 +386,8 @@ print("oui" if est_premier(n) else "non")
 
 n = int(input())
 print("oui" if est_premier(n) else "non")
-`
+`,
+    takeaway: "Retourner False dès le premier diviseur trouvé (jusqu à sqrt(n)) évite les tours de boucle inutiles."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -388,8 +406,9 @@ print("oui" if est_premier(n) else "non")
 # À compléter : construire la liste des pairs, la trier, la convertir en tuple.
 `,
     hints: [
-      'La parité se teste avec le reste de la division par 2 : un reste nul signifie que le nombre est pair.',
-      'Une liste et un tuple s’affichent presque pareil, mais les crochets deviennent des parenthèses. Un tuple vide s’affiche avec deux parenthèses collées.'
+      "La parité se teste avec le reste de la division par 2 : un reste nul signifie que le nombre est pair.",
+      "Une liste et un tuple s’affichent presque pareil, mais les crochets deviennent des parenthèses. Un tuple vide s’affiche avec deux parenthèses collées.",
+      "Étapes : pour chaque valeur de 1 à n, ne garder que les paires ; trier la liste obtenue ; afficher sa taille, puis la liste convertie en tuple."
     ],
     examples: [
       { stdin: '20', expected: '10\n(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)', note: 'Dix nombres pairs, du plus petit au plus grand.' }
@@ -409,7 +428,8 @@ for valeur in range(1, n + 1):
 resultat = tuple(sorted(pairs))
 print(len(resultat))
 print(resultat)
-`
+`,
+    takeaway: "Construisez la liste filtrée, triez-la avec sorted() sans muter l original si besoin, puis figez-la en tuple()."
   },
   {
     id: 'py-c4-e2',
@@ -424,8 +444,9 @@ print(resultat)
 # À compléter : lire chaque ligne, puis afficher nom et moyenne.
 `,
     hints: [
-      'Une ligne se découpe sur les espaces : le premier morceau est le nom, les suivants sont les notes.',
-      'Un morceau de texte reste du texte : pour calculer une moyenne, chaque note doit d’abord redevenir un nombre entier.'
+      "Une ligne se découpe sur les espaces : le premier morceau est le nom, les suivants sont les notes.",
+      "Un morceau de texte reste du texte : pour calculer une moyenne, chaque note doit d’abord redevenir un nombre entier.",
+      "Étapes : pour chaque ligne, découper sur les espaces ; le premier morceau est le nom ; additionner les suivants convertis en entiers ; afficher nom et moyenne."
     ],
     examples: [
       { stdin: '2\nJean 12 15 14\nMarie 18 17 19', expected: 'Jean 13.67\nMarie 18.00', note: 'Deux lignes lues, deux lignes affichées, dans le même ordre.' }
@@ -445,7 +466,8 @@ for i in range(n):
         total += int(valeur)
     moyenne = total / len(morceaux[1:])
     print(nom, f"{moyenne:.2f}")
-`
+`,
+    takeaway: "Itérer sur un dictionnaire de listes via .items() permet de calculer chaque moyenne indépendamment."
   },
   {
     id: 'py-c4-e3',
@@ -460,8 +482,9 @@ for i in range(n):
 # À compléter : compter les occurrences de chaque mot.
 `,
     hints: [
-      'Un dictionnaire ne connaît que deux opérations utiles ici : lire la valeur associée à un mot, et l’incrémenter.',
-      'Une lecture de clé absente interrompt le programme : il faut une lecture qui accepte une valeur de repli quand le mot est vu pour la première fois.'
+      "Un dictionnaire ne connaît que deux opérations utiles ici : lire la valeur associée à un mot, et l’incrémenter.",
+      "Une lecture de clé absente interrompt le programme : il faut une lecture qui accepte une valeur de repli quand le mot est vu pour la première fois.",
+      "Étapes : découper le texte en mots minuscules ; pour chaque mot, lire son compteur avec une valeur de repli nulle puis incrémenter ; afficher chaque couple."
     ],
     examples: [
       { stdin: 'le chat le chien le rat', expected: 'le 3\nchat 1\nchien 1\nrat 1', note: 'Le premier mot apparaît trois fois.' }
@@ -479,7 +502,8 @@ for mot in texte.lower().split():
 
 for mot in frequences:
     print(mot, frequences[mot])
-`
+`,
+    takeaway: "Le motif comptes[mot] = comptes.get(mot, 0) + 1 évite KeyError lors du comptage de fréquences."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -502,8 +526,9 @@ for i in range(n):
 # À compléter : écrire les lignes dans notes.txt, puis les relire et calculer.
 `,
     hints: [
-      'Le mode d’ouverture décide de tout : l’un repart d’un fichier vide, l’autre exige que le fichier existe déjà.',
-      'Une ligne relue peut se terminer par un saut de ligne ; séparez les champs avant de convertir la note.'
+      "Le mode d’ouverture décide de tout : l’un repart d’un fichier vide, l’autre exige que le fichier existe déjà.",
+      "Une ligne relue peut se terminer par un saut de ligne ; séparez les champs avant de convertir la note.",
+      "Étapes : lire les lignes ; écrire chaque ligne suivie d’un saut dans le fichier en mode écriture ; rouvrir en lecture ; découper chaque ligne et additionner les notes."
     ],
     examples: [
       { stdin: '2\nJean 15\nMarie 18', expected: '2\n16.50', note: 'Deux lignes écrites, moyenne 16.50.' }
@@ -535,7 +560,8 @@ with open("notes.txt", "r", encoding="utf-8") as fichier:
 
 print(compte)
 print(f"{total / compte:.2f}")
-`
+`,
+    takeaway: "Utilisez with open(..., encoding=\"utf-8\") pour garantir la fermeture automatique du fichier avant de le relire."
   },
   {
     id: 'py-c5-e2',
@@ -553,8 +579,9 @@ for i in range(n):
 # À compléter : écrire, puis ajouter, puis relire.
 `,
     hints: [
-      'Deux modes d’ouverture en écriture existent : l’un repart de zéro, l’autre se place à la fin du fichier.',
-      'Une ligne vide en fin de fichier ne compte pas : une relecture naïve additionnerait un élément fantôme.'
+      "Deux modes d’ouverture en écriture existent : l’un repart de zéro, l’autre se place à la fin du fichier.",
+      "Une ligne vide en fin de fichier ne compte pas : une relecture naïve additionnerait un élément fantôme.",
+      "Étapes : écrire les premières lignes en mode écriture ; rouvrir en mode ajout pour les suivantes ; relire le fichier en ignorant la ligne vide finale ; compter."
     ],
     examples: [
       { stdin: '1\npremier\n1\nsecond', expected: '2\nsecond', note: 'Deux lignes au total, la dernière est « second ».' }
@@ -591,7 +618,8 @@ with open("journal.txt", "r", encoding="utf-8") as fichier:
 
 print(len(lignes))
 print(lignes[-1])
-`
+`,
+    takeaway: "Le mode \"w\" écrase un fichier existant alors que le mode \"a\" positionne l écriture en fin de flux."
   },
   {
     id: 'py-c5-e3',
@@ -608,8 +636,9 @@ n = int(input())
 # À compléter : construire, sauvegarder, relire.
 `,
     hints: [
-      'Un dictionnaire complet se sauvegarde et se recharge en une seule opération : cherchez les deux fonctions du module json qui font exactement cela.',
-      'Après relecture, on retrouve un dictionnaire ordinaire : les valeurs se consultent comme avant.'
+      "Un dictionnaire complet se sauvegarde et se recharge en une seule opération : cherchez les deux fonctions du module json qui font exactement cela.",
+      "Après relecture, on retrouve un dictionnaire ordinaire : les valeurs se consultent comme avant.",
+      "Étapes : remplir le dictionnaire nom → note ; le sauvegarder en une opération du module json ; le recharger depuis le fichier ; afficher les couples retrouvés."
     ],
     examples: [
       { stdin: '2\nJean 15\nMarie 18', expected: '2\n18', note: 'Deux entrées relues, la meilleure note est 18.' }
@@ -637,7 +666,8 @@ with open("notes.json", "r", encoding="utf-8") as fichier:
 
 print(len(relues))
 print(max(relues.values()))
-`
+`,
+    takeaway: "json.dumps() / json.loads() (ou dump/load) sérialisent et restaurent fidèlement listes et dictionnaires Python."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -660,8 +690,9 @@ for i in range(n):
 print(notes[0], "-", notes[len(notes)])
 `,
     hints: [
-      'Un indice valide commence à zéro : il suffit de vérifier ce que renvoie len pour une liste de n éléments, et quel est le dernier indice atteignable.',
-      'Python accepte aussi des indices négatifs : ils comptent à partir de la fin.'
+      "Un indice valide commence à zéro : il suffit de vérifier ce que renvoie len pour une liste de n éléments, et quel est le dernier indice atteignable.",
+      "Python accepte aussi des indices négatifs : ils comptent à partir de la fin.",
+      "Étapes : remplir la liste des notes ; afficher le premier élément, un séparateur, puis le dernier — l’indice du dernier se déduit de la taille moins un."
     ],
     examples: [
       { stdin: '5\n12\n15\n14\n9\n18', expected: '12 - 18', note: 'La première note est 12, la dernière 18.' }
@@ -677,7 +708,8 @@ for i in range(n):
     notes.append(int(input()))
 
 print(notes[0], "-", notes[len(notes) - 1])
-`
+`,
+    takeaway: "Un IndexError provient d un indice hors [0, len(seq)-1] : corrigez la borne supérieure ou l initialisation de boucle."
   },
   {
     id: 'py-c6-e2',
@@ -692,8 +724,9 @@ print(notes[0], "-", notes[len(notes) - 1])
 # À compléter : additionner ce qui est numérique, compter le reste.
 `,
     hints: [
-      'Tout ce qui n’est pas un entier littéral fait échouer la conversion : cela concerne aussi les nombres à virgule.',
-      'Il faut deux compteurs distincts : ce qui entre dans la somme et ce qui est écarté.'
+      "Tout ce qui n’est pas un entier littéral fait échouer la conversion : cela concerne aussi les nombres à virgule.",
+      "Il faut deux compteurs distincts : ce qui entre dans la somme et ce qui est écarté.",
+      "Étapes : total et écartés à zéro ; pour chaque valeur, tenter la conversion en entier et l’additionner ; en cas d’échec, compter une valeur écartée ; afficher les deux."
     ],
     examples: [
       { stdin: '4\n10\nabc\n5\n3.5', expected: '15\n2', note: '10 et 5 sont valides ; abc et 3.5 sont écartés.' }
@@ -716,7 +749,8 @@ for i in range(n):
 
 print(total)
 print(ecartees)
-`
+`,
+    takeaway: "Valider et convertir chaque entrée dans un try / except ValueError garde le flux intact malgré des lignes invalides."
   },
   {
     id: 'py-c6-e3',
@@ -738,8 +772,9 @@ valeur = int(input())
 # À compléter : afficher le résultat ou le message d'erreur.
 `,
     hints: [
-      'Signaler une entrée inacceptable et la rattraper relèvent de deux instructions différentes : l’une déclenche l’alarme, l’autre l’intercepte.',
-      'La racine carrée d’un nombre négatif n’existe pas dans les réels : le module de calcul refuse de la produire.'
+      "Signaler une entrée inacceptable et la rattraper relèvent de deux instructions différentes : l’une déclenche l’alarme, l’autre l’intercepte.",
+      "La racine carrée d’un nombre négatif n’existe pas dans les réels : le module de calcul refuse de la produire.",
+      "Étapes : dans la fonction, refuser tout nombre négatif en déclenchant l’alarme ; sinon renvoyer la racine ; le principal tente l’appel et affiche racine ou « erreur »."
     ],
     examples: [
       { stdin: '9', expected: '3.00', note: 'La racine carrée de 9 vaut 3.00.' }
@@ -763,6 +798,7 @@ try:
     print(f"{racine(valeur):.2f}")
 except ValueError:
     print("erreur")
-`
+`,
+    takeaway: "Lever ValueError (raise) à l intérieur d une fonction de validation force l appelant à traiter le refus proprement."
   }
 ];

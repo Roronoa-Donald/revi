@@ -185,23 +185,23 @@ module.exports = {
     {
       stem: 'Si un utilisateur dispose de l’autorisation Partage « Change » et de la permission NTFS « Full Control », quel est son droit effectif à distance ?',
       opts: [
-        'Full Control',
         'Change (Modify)',
+        'Full Control',
         'Read uniquement',
         'Accès interdit'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'En vertu de la règle du plus restrictif, le partage SMB (Change) bride le contrôle total NTFS : l’utilisateur peut modifier mais pas changer les ACLs.'
     },
     {
       stem: 'Quelle entrée de contrôle d’accès possède la plus haute priorité d’évaluation dans une DACL NTFS ?',
       opts: [
         'Inherited Allow',
-        'Explicit Allow',
+        'Explicit Deny',
         'Inherited Deny',
-        'Explicit Deny'
+        'Explicit Allow'
       ],
-      correct: 3,
+      correct: 1,
       exp: 'L’Explicit Deny (refus direct) est évalué en priorité absolue et surpasse immédiatement toutes les autorisations explicites ou héritées.'
     },
     {
@@ -229,12 +229,12 @@ module.exports = {
     {
       stem: 'Si un utilisateur reçoit une autorisation directe « Explicit Allow » sur un droit et hérite d’un « Inherited Deny », que se passe-t-il ?',
       opts: [
-        'Le droit est refusé car tout Deny l’emporte',
-        'Le droit est accordé car l’Explicit Allow l’emporte sur un refus hérité (Inherited Deny)',
-        'L’ordinateur redémarre immédiatement',
-        'Le fichier est verrouillé par l’administrateur'
+        "Le droit est accordé car l’Explicit Allow l’emporte sur un refus hérité (Inherited Deny)",
+        "Le droit est refusé car tout Deny l’emporte systématiquement sur toute autorisation",
+        "L’ordinateur redémarre immédiatement pour appliquer la nouvelle permission",
+        "Le fichier est verrouillé par l’administrateur jusqu’à validation manuelle"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Dans l’ordre des ACEs, l’Explicit Allow (priorité 2) est supérieur à l’Inherited Deny (priorité 3) : l’autorisation directe gagne sur le refus parent.'
     },
     {
@@ -251,23 +251,23 @@ module.exports = {
     {
       stem: 'Comment la déduplication de données Windows Server libère-t-elle de l’espace disque ?',
       opts: [
-        'En compressant tous les fichiers au format ZIP',
-        'En supprimant les fichiers qui n’ont pas été ouverts depuis 6 mois',
-        'En remplaçant les blocs de données dupliqués par des pointeurs vers une copie unique stockée dans le Chunk Store',
-        'En transférant automatiquement les fichiers vers le Cloud Azure'
+        "En compressant l’intégralité des fichiers du volume au format ZIP avant leur écriture sur le disque",
+        "En supprimant automatiquement les fichiers qui n’ont pas été ouverts depuis plus de 6 mois par les utilisateurs",
+        "En transférant automatiquement les fichiers peu consultés vers le stockage Cloud Azure distant",
+        "En remplaçant les blocs de données dupliqués par des pointeurs vers une copie unique stockée dans le Chunk Store"
       ],
-      correct: 2,
+      correct: 3,
       exp: 'La déduplication découpe les fichiers en blocs, stocke une copie unique dans le Chunk Store et insère des points de réanalyse dans les fichiers.'
     },
     {
       stem: 'Quelle est la bonne pratique recommandée par Microsoft pour la gestion des partages de fichiers SMB ?',
       opts: [
-        'Bloquer le partage et ne travailler que localement sur le serveur',
-        'Accorder Change ou Full Control au niveau du partage SMB et gérer les droits réels fins dans les permissions NTFS',
-        'Attribuer un mot de passe différent par sous-dossier',
-        'Désactiver totalement le protocole SMB pour utiliser FTP'
+        "Bloquer tout partage réseau et ne travailler que localement sur le serveur de fichiers physique",
+        "Attribuer un mot de passe différent pour chaque sous-dossier partagé sur le serveur de fichiers",
+        "Accorder Change ou Full Control au niveau du partage SMB et gérer les droits réels fins dans les permissions NTFS",
+        "Désactiver totalement le protocole SMB au profit du protocole FTP non chiffré"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Ouvrir largement le partage SMB (Change/Full Control) permet de centraliser toute la sécurité dans les permissions NTFS sans redondance conflictuelle.'
     }
   ],

@@ -195,7 +195,7 @@ test('RD-RO Chapitre 1 : QCM à 10 questions avec explications complètes des di
     const q = ch1Content.questions[i];
     assert.ok(q.q && q.q.length > 15, `Q${i + 1} : énoncé trop court`);
     assert.strictEqual(q.opts.length, 4, `Q${i + 1} : 4 options requises`);
-    assert.strictEqual(q.correct, 0, `Q${i + 1} : indice canonique 0 requis`);
+    assert.ok(Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.opts.length, `Q${i + 1} : indice correct valide requis`);
     assert.ok(q.exp && q.exp.length > 50, `Q${i + 1} : explication pédagogique détaillée requise`);
   }
 

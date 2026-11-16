@@ -26,7 +26,7 @@
   var MONACO_TIMEOUT_MS = 12000;
   var ANALYSE_FORMAT = '# Format REVI-ANALYSE:1';
   var ANALYSE_ESCAPE = '\\=';
-  var ANALYSE_RESERVED_HEADER = /^\[(?:cas\s*\d+|exemple)\b.*\]$/i;
+  var ANALYSE_RESERVED_HEADER = /^\[(?:cas\s*\d+|question\s*\d+|exemple)\b.*\]$/i;
 
   // La sauvegarde locale est cloisonnée par cours : le premier segment du
   // chemin sert de clé (`/b1-c-cpp/chapitres/…` → `b1-c-cpp:lab:`). Le même
@@ -163,6 +163,23 @@
   var routerInstance = null;
   var routerPromise = null;
 
+  function isPseudoLanguage(lang) {
+    var key = String(lang || '').toLowerCase().trim();
+    return key === 'algo' || key === 'pseudocode' || key === 'pseudo-code' || key === 'pseudo_code';
+  }
+
+  function runPseudoInBrowser(code, stdin, opts) {
+    var ready = window.PseudoCodeEngine
+      ? Promise.resolve()
+      : loadScript('/assets/js/engines/pseudo-code-engine.js');
+    return ready.then(function () {
+      if (!window.PseudoCodeEngine || typeof window.PseudoCodeEngine.execute !== 'function') {
+        throw new Error('Moteur de pseudo-code indisponible.');
+      }
+      return window.PseudoCodeEngine.execute(code, stdin, opts || {});
+    });
+  }
+
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
       var existing = document.querySelector('script[src="' + src + '"]');
@@ -205,14 +222,25 @@
         .catch(function (err) {
           console.warn('[CodeLab] Routeur indisponible ; repli serveur pour les autres langages :', err);
           routerInstance = {
-            supportsBrowser: function () { return false; },
+            supportsBrowser: function (lang) { return isPseudoLanguage(lang); },
             getProvenanceInfo: function (lang) {
+              if (isPseudoLanguage(lang)) {
+                return {
+                  mode: 'browser',
+                  label: 'Navigateur (local)',
+                  title: 'Exécution immédiate du pseudo-code dans votre navigateur sans quota serveur.',
+                  icon: 'code'
+                };
+              }
               if (String(lang || '').toLowerCase().trim() === 'sql') {
                 return { mode: 'browser', label: 'Navigateur indisponible', title: 'Moteur SQL local indisponible.', icon: 'warning' };
               }
               return { mode: 'server', label: 'Serveur', title: 'Serveur distant', icon: 'cloud' };
             },
-            execute: function (lang, code, stdin) {
+            execute: function (lang, code, stdin, opts) {
+              if (isPseudoLanguage(lang)) {
+                return runPseudoInBrowser(code, stdin, opts);
+              }
               if (String(lang || '').toLowerCase().trim() === 'sql') {
                 return Promise.resolve({
                   status: 'runtime_error',
@@ -260,6 +288,37 @@
 
   var monacoPromise = null;
   var themeReady = false;
+  var pseudoCodeRegistered = false;
+
+  /** Langage Monaco pour un identifiant de l'atelier (pseudo-code et étude de cas). */
+  function monacoLanguage(language) {
+    var norm = String(language || '').toLowerCase().trim();
+    if (norm === 'algo' || norm === 'pseudocode' || norm === 'pseudo-code') return 'pseudocode';
+    if (norm === 'analyse') return 'plaintext';
+    return norm;
+  }
+
+  /** Coloration du pseudo-code français : mots-clés, chaînes, nombres, commentaires. */
+  function registerPseudoCodeLanguage(monaco) {
+    if (pseudoCodeRegistered) return;
+    if (!monaco || !monaco.languages || !monaco.languages.register || !monaco.languages.setMonarchTokensProvider) return;
+    pseudoCodeRegistered = true;
+    monaco.languages.register({ id: 'pseudocode' });
+    monaco.languages.setMonarchTokensProvider('pseudocode', {
+      ignoreCase: true,
+      tokenizer: {
+        root: [
+          [/\/\/.*/, 'comment'],
+          [/\/\*[\s\S]*?\*\//, 'comment'],
+          [/["'][^"'\n]*["']/, 'string'],
+          [/\b(\d+\.?\d*)\b/, 'number'],
+          [/\b(algorithme|algo|variables?|var|debut|fin|tableau|fonction|finfonction|retourner|renvoyer|si|alors|sinon|finsi|pour|de|a|à|pas|faire|finpour|tantque|tant|que|fintantque|repeter|répéter|jusqua|jusqu|lire|afficher|ecrire|écrire|et|ou|non|mod|div|vrai|faux|sortirdeboucle|entier|reel|réel|chaine|chaîne|booleen|booléen|caractere|caractère)\b/, 'keyword'],
+          [/(<-|:=|==|!=|<>|<=|>=|[=<>+\-*/%&])/, 'operator'],
+          [/[a-zA-Z_\u00C0-\u024F][\w\u00C0-\u024F]*/, 'identifier']
+        ]
+      }
+    });
+  }
 
   function defineTheme(monaco) {
     if (themeReady) return;
@@ -308,7 +367,7 @@
     if (monacoPromise) return monacoPromise;
 
     monacoPromise = new Promise(function (resolve, reject) {
-      if (window.monaco && window.monaco.editor) return resolve(window.monaco);
+      if (window.monaco && window.monaco.editor) { registerPseudoCodeLanguage(window.monaco); return resolve(window.monaco); }
 
       function boot() {
         if (!window.require || !window.require.config) {
@@ -318,6 +377,7 @@
         window.require(['vs/editor/editor.main'], function () {
           if (!window.monaco || !window.monaco.editor) return reject(new Error('éditeur absent'));
           defineTheme(window.monaco);
+          registerPseudoCodeLanguage(window.monaco);
           resolve(window.monaco);
         }, function (error) {
           reject(error || new Error('module éditeur introuvable'));
@@ -354,7 +414,7 @@
     var lines = String(starter || '').replace(/\r\n?/g, '\n').split('\n');
     var escapedFormat = lines[0] === ANALYSE_FORMAT;
     if (escapedFormat) lines.shift();
-    var headerRe = /^\[(?:cas\s*(\d+)|exemple)\b\s*(?:[—–-]\s*(.*?))?\]$/i;
+    var headerRe = /^\[(?:(cas|question)\s*(\d+)|exemple)\b\s*(?:[—–:\-]\s*(.*?))?\]$/i;
     var cases = [];
     var currentCase = null;
     var preamble = [];
@@ -377,9 +437,11 @@
       var match = escapedAnswer ? null : headerRe.exec(trimmed);
       if (match) {
         finishCase();
+        var kindRaw = (match[1] || 'Cas').toLowerCase();
         currentCase = {
-          index: match[1] ? parseInt(match[1], 10) : (cases.length + 1),
-          label: (match[2] || '').trim(),
+          index: match[2] ? parseInt(match[2], 10) : (cases.length + 1),
+          kind: kindRaw === 'question' ? 'Question' : 'Cas',
+          label: (match[3] || '').trim(),
           dataLines: [],
           value: ''
         };
@@ -415,6 +477,7 @@
     this.root = root;
     this.exerciseId = root.getAttribute('data-exercise') || '';
     this.gradingSuspended = root.getAttribute('data-grading-suspended') === '1';
+    this.previewMode = root.getAttribute('data-preview') || '';
     this.language = root.getAttribute('data-language') || 'python';
     this.isAnalyse = this.language === 'analyse';
     this.height = parseInt(root.getAttribute('data-height'), 10) || 300;
@@ -431,6 +494,15 @@
     this.activeRun = null;
     this.lastOutcome = null;
     this.activeTab = 'out';
+    this.revealMinFailures = 3;
+    var att = this.loadAttemptState();
+    this.failuresCount = att.failuresCount;
+    this.solved = att.solved;
+    this.solutionRevealed = false;
+    this.revealEl = null;
+    this.revealBtn = null;
+    this.revealHintEl = null;
+    this.revealPanelEl = null;
   }
 
   function readStarter(root) {
@@ -441,6 +513,36 @@
 
   Lab.prototype.storageKey = function () {
     return STORAGE_PREFIX + (this.exerciseId || 'libre') + ':' + this.language;
+  };
+
+  Lab.prototype.attemptStorageKey = function () {
+    return STORAGE_PREFIX + 'attempts:' + (this.exerciseId || 'libre');
+  };
+
+  Lab.prototype.loadAttemptState = function () {
+    if (!this.exerciseId) return { failuresCount: 0, solved: false };
+    try {
+      var raw = localStorage.getItem(this.attemptStorageKey());
+      if (!raw) return { failuresCount: 0, solved: false };
+      var parsed = JSON.parse(raw);
+      return {
+        failuresCount: parsed && typeof parsed.failuresCount === 'number' && parsed.failuresCount >= 0
+          ? parsed.failuresCount : 0,
+        solved: Boolean(parsed && parsed.solved)
+      };
+    } catch (_) {
+      return { failuresCount: 0, solved: false };
+    }
+  };
+
+  Lab.prototype.saveAttemptState = function () {
+    if (!this.exerciseId) return;
+    try {
+      localStorage.setItem(this.attemptStorageKey(), JSON.stringify({
+        failuresCount: this.failuresCount,
+        solved: this.solved
+      }));
+    } catch (_) {}
   };
 
   Lab.prototype.getCode = function () {
@@ -494,10 +596,25 @@
     this.reportEl.setAttribute('aria-label', 'Résultat de la correction');
     this.reportEl.hidden = true;
     this.tutorEl = this.buildTutor();
+    this.revealEl = this.exerciseId ? this.buildReveal() : null;
 
     if (this.isAnalyse) {
       this.stdinBlock.hidden = true;
       this.consoleEl.hidden = true;
+
+      var modeBadge = this.root.querySelector('.lab__mode-badge');
+      if (!modeBadge) {
+        modeBadge = document.createElement('div');
+        modeBadge.className = 'lab__mode-badge';
+        modeBadge.setAttribute('data-lab-mode-badge', '');
+        modeBadge.innerHTML = icon('layers') +
+          '<div><strong>Étude de cas structurée · Réponses par question</strong> — ' +
+          'Rédigez chaque réponse sous son repère (<code>[Question 1]</code>, <code>[Cas 1]</code>, etc.) sans compilateur.</div>';
+        var badgeHost = this.root.querySelector('.lab__body');
+        if (badgeHost) badgeHost.insertBefore(modeBadge, badgeHost.firstChild);
+        else this.root.appendChild(modeBadge);
+      }
+      this.modeBadgeEl = modeBadge;
 
       var notice = this.root.querySelector('.lab__formative-notice');
       if (!notice) {
@@ -536,6 +653,19 @@
     this.root.appendChild(this.consoleEl);
     this.root.appendChild(this.reportEl);
     this.root.appendChild(this.tutorEl);
+    if (this.revealEl) {
+      this.root.appendChild(this.revealEl);
+      this.refreshRevealState();
+    }
+  };
+
+  Lab.prototype.getRunLabel = function () {
+    return this.isAnalyse ? 'Tester mes réponses' : 'Exécuter';
+  };
+
+  Lab.prototype.getSubmitLabel = function () {
+    if (this.gradingSuspended) return 'Validation suspendue';
+    return this.isAnalyse ? "Valider l'étude de cas" : 'Valider';
   };
 
   Lab.prototype.buildBar = function () {
@@ -551,14 +681,22 @@
         '</select></label>';
     }
 
+    var runLabel = this.getRunLabel();
     var runBtn = this.isAnalyse ? '' : (
-      '<button type="button" class="lab__btn lab__btn--run" data-lab-run>' +
-      icon('play') + '<span>Exécuter</span></button>' +
+      '<button type="button" class="lab__btn lab__btn--run lab__run" data-lab-run>' +
+      icon('play') + '<span>' + esc(runLabel) + '</span></button>' +
       '<button type="button" class="lab__btn lab__btn--stop" data-lab-stop hidden>' +
       icon('x') + '<span>Arrêter</span></button>'
     );
 
-    var submitLabel = this.gradingSuspended ? 'Validation suspendue' : (this.isAnalyse ? 'Vérifier mes réponses' : 'Valider');
+    var submitLabel = this.getSubmitLabel();
+    var submitAria = (this.isAnalyse && !this.gradingSuspended)
+      ? ' aria-label="Vérifier mes réponses — Valider l&#39;étude de cas"'
+      : '';
+    var templateBtn = this.isAnalyse
+      ? '<button type="button" class="lab__btn lab__btn--ghost lab__insert-template" data-lab-insert-template title="Pré-remplir ou restaurer les repères [Question N]">' +
+        icon('layers') + '<span>Pré-remplir la trame [Question N]</span></button>'
+      : '';
     var modeBtn = this.isAnalyse
       ? '<button type="button" class="lab__btn lab__btn--ghost" data-lab-mode title="Basculer entre formulaire et texte brut">' +
         icon('code') + '<span>Mode texte</span></button>'
@@ -568,12 +706,14 @@
       picker +
       runBtn +
       (this.exerciseId
-        ? '<button type="button" class="lab__btn ' + (this.isAnalyse ? 'lab__btn--primary ' : '') + 'lab__btn--submit" data-lab-submit' +
+        ? '<button type="button" class="lab__btn ' + (this.isAnalyse ? 'lab__btn--primary ' : '') + 'lab__btn--submit lab__submit" data-lab-submit' +
+          submitAria +
           (this.gradingSuspended ? ' disabled aria-describedby="' + esc(this.exerciseId + '-grading-notice') + '"' : '') + '>' +
           icon('check') + '<span>' + esc(submitLabel) + '</span></button>'
         : '') +
       '<button type="button" class="lab__btn lab__btn--help" data-lab-help disabled>' +
       icon('brain') + '<span>Expliquer mon erreur</span></button>' +
+      templateBtn +
       '<button type="button" class="lab__btn lab__btn--ghost" data-lab-reset>' +
       icon('refresh') + '<span>Réinitialiser</span></button>' +
       modeBtn +
@@ -585,6 +725,7 @@
       stop: bar.querySelector('[data-lab-stop]'),
       submit: bar.querySelector('[data-lab-submit]'),
       help: bar.querySelector('[data-lab-help]'),
+      insertTemplate: bar.querySelector('[data-lab-insert-template]'),
       reset: bar.querySelector('[data-lab-reset]'),
       mode: bar.querySelector('[data-lab-mode]'),
       provenance: bar.querySelector('[data-lab-provenance]'),
@@ -635,11 +776,17 @@
     var uid = 'lab-' + Math.random().toString(36).slice(2, 9);
     this.uid = uid;
 
+    var hasPreview = this.previewMode === 'html';
     consoleEl.innerHTML =
       '<div class="lab__tabs" role="tablist" aria-label="Console d’exécution">' +
       '<button type="button" class="lab__tab" role="tab" id="' + uid + '-tab-out" ' +
       'aria-controls="' + uid + '-out" aria-selected="true" data-lab-tab="out">' +
       icon('terminal') + 'Sortie<b data-lab-count="out" hidden>0</b></button>' +
+      (hasPreview
+        ? '<button type="button" class="lab__tab" role="tab" id="' + uid + '-tab-preview" ' +
+          'aria-controls="' + uid + '-preview" aria-selected="false" data-lab-tab="preview">' +
+          icon('book') + 'Aperçu Web</button>'
+        : '') +
       '<button type="button" class="lab__tab" role="tab" id="' + uid + '-tab-err" ' +
       'aria-controls="' + uid + '-err" aria-selected="false" data-lab-tab="err">' +
       icon('warning') + 'Erreurs<b data-lab-count="err" hidden>0</b></button>' +
@@ -651,6 +798,13 @@
       '<pre class="lab__pane" role="tabpanel" id="' + uid + '-out" ' +
       'aria-labelledby="' + uid + '-tab-out" data-lab-pane="out" tabindex="0" ' +
       'data-empty="1" data-empty-text="Rien à afficher pour l’instant. Lancez l’exécution."></pre>' +
+      (hasPreview
+        ? '<div class="lab__pane lab__pane--preview" role="tabpanel" id="' + uid + '-preview" hidden ' +
+          'aria-labelledby="' + uid + '-tab-preview" data-lab-pane="preview" tabindex="0" ' +
+          'data-empty="1" data-empty-text="Exécutez le code pour afficher le rendu HTML/CSS/JS isolé.">' +
+          '<iframe class="lab__preview-frame" data-lab-preview sandbox="allow-scripts" ' +
+          'title="Aperçu HTML/CSS/JS isolé"></iframe></div>'
+        : '') +
       '<pre class="lab__pane lab__pane--err" role="tabpanel" id="' + uid + '-err" hidden ' +
       'aria-labelledby="' + uid + '-tab-err" data-lab-pane="err" tabindex="0" ' +
       'data-empty="1" data-empty-text="Aucune erreur signalée."></pre>' +
@@ -674,6 +828,13 @@
       err: consoleEl.querySelector('[data-lab-tab="err"]'),
       detail: consoleEl.querySelector('[data-lab-tab="detail"]')
     };
+    if (hasPreview) {
+      this.panes.preview = consoleEl.querySelector('[data-lab-pane="preview"]');
+      this.tabs.preview = consoleEl.querySelector('[data-lab-tab="preview"]');
+      this.previewIframe = consoleEl.querySelector('[data-lab-preview]');
+    } else {
+      this.previewIframe = null;
+    }
     this.counts = {
       out: consoleEl.querySelector('[data-lab-count="out"]'),
       err: consoleEl.querySelector('[data-lab-count="err"]')
@@ -687,13 +848,13 @@
       });
     }
 
-    Object.keys(this.tabs).forEach(function (name) {
+    var tabOrder = hasPreview ? ['out', 'preview', 'err', 'detail'] : ['out', 'err', 'detail'];
+    tabOrder.forEach(function (name) {
       self.tabs[name].addEventListener('click', function () { self.showTab(name); });
       self.tabs[name].addEventListener('keydown', function (event) {
-        var order = ['out', 'err', 'detail'];
-        var index = order.indexOf(name);
-        if (event.key === 'ArrowRight') { event.preventDefault(); self.focusTab(order[(index + 1) % order.length]); }
-        if (event.key === 'ArrowLeft') { event.preventDefault(); self.focusTab(order[(index + order.length - 1) % order.length]); }
+        var index = tabOrder.indexOf(name);
+        if (event.key === 'ArrowRight') { event.preventDefault(); self.focusTab(tabOrder[(index + 1) % tabOrder.length]); }
+        if (event.key === 'ArrowLeft') { event.preventDefault(); self.focusTab(tabOrder[(index + tabOrder.length - 1) % tabOrder.length]); }
       });
     });
 
@@ -727,6 +888,98 @@
     });
 
     return tutor;
+  };
+
+  Lab.prototype.buildReveal = function () {
+    var wrap = document.createElement('div');
+    wrap.className = 'lab__reveal';
+    wrap.innerHTML =
+      '<div class="lab__reveal-head">' +
+      '<button type="button" class="lab__btn lab__reveal-btn" data-lab-reveal disabled>' +
+      icon('lock') + '<span>Corrigé commenté &amp; À retenir</span></button>' +
+      '<span class="lab__reveal-hint" data-lab-reveal-hint></span>' +
+      '</div>' +
+      '<div class="lab__reveal-panel" data-lab-reveal-panel hidden></div>';
+
+    this.revealBtn = wrap.querySelector('[data-lab-reveal]');
+    this.revealHintEl = wrap.querySelector('[data-lab-reveal-hint]');
+    this.revealPanelEl = wrap.querySelector('[data-lab-reveal-panel]');
+
+    var self = this;
+    this.revealBtn.addEventListener('click', function () {
+      self.revealSolution();
+    });
+
+    return wrap;
+  };
+
+  Lab.prototype.refreshRevealState = function () {
+    if (!this.revealEl || !this.revealBtn) return;
+    var unlocked = Boolean(this.solved || this.failuresCount >= this.revealMinFailures);
+    var remaining = this.solved ? 0 : Math.max(0, this.revealMinFailures - this.failuresCount);
+    this.revealBtn.disabled = this.running || !unlocked;
+    this.revealBtn.setAttribute('data-unlocked', unlocked ? '1' : '0');
+
+    var panelOpen = this.solutionRevealed && this.revealPanelEl && !this.revealPanelEl.hidden;
+    this.revealBtn.innerHTML = icon(unlocked ? 'key' : 'lock') +
+      '<span>' + (panelOpen ? 'Masquer le corrigé commenté' : 'Corrigé commenté & À retenir') + '</span>';
+
+    if (this.revealHintEl) {
+      if (this.solved) {
+        this.revealHintEl.textContent = 'Débloqué (exercice validé)';
+      } else if (unlocked) {
+        this.revealHintEl.textContent = 'Débloqué (3 essais effectués)';
+      } else {
+        this.revealHintEl.textContent = 'Débloqué après réussite ou 3 essais — ' + remaining + ' restant' + (remaining > 1 ? 's' : '');
+      }
+    }
+  };
+
+  Lab.prototype.revealSolution = function () {
+    var self = this;
+    if (this.running || !this.exerciseId || !this.revealPanelEl) return;
+    if (this.solutionRevealed) {
+      this.revealPanelEl.hidden = !this.revealPanelEl.hidden;
+      this.refreshRevealState();
+      return;
+    }
+
+    this.setBusy(true, 'Chargement du corrigé…');
+    postJSON('/api/exercise/reveal', { exerciseId: this.exerciseId })
+      .then(function (result) {
+        if (!result.ok) {
+          if (result.status === 403 && result.data && typeof result.data.attemptsRemaining === 'number') {
+            self.failuresCount = Math.max(0, self.revealMinFailures - result.data.attemptsRemaining);
+            self.saveAttemptState();
+            self.refreshRevealState();
+          }
+          self.revealPanelEl.hidden = false;
+          self.revealPanelEl.innerHTML = '<p class="lab__note">' + icon('warning') + ' ' +
+            esc(httpMessage(result.status, result.data)) + '</p>';
+          return;
+        }
+        var data = result.data || {};
+        self.solutionRevealed = true;
+        self.revealPanelEl.innerHTML =
+          '<div class="lab__reveal-section">' +
+          '<h5>' + icon('code') + '<span>Corrigé de référence</span></h5>' +
+          '<pre class="lab__reveal-code">' + esc(data.solution || '(aucun corrigé disponible)') + '</pre>' +
+          '</div>' +
+          '<div class="lab__reveal-takeaway">' +
+          '<h5>' + icon('lightbulb') + '<span>Ce qu’il faut retenir</span></h5>' +
+          '<p>' + esc(data.takeaway || '') + '</p>' +
+          '</div>';
+        self.revealPanelEl.hidden = false;
+        self.refreshRevealState();
+      })
+      .catch(function () {
+        self.revealPanelEl.hidden = false;
+        self.revealPanelEl.innerHTML = '<p class="lab__note">' + icon('warning') +
+          ' Impossible de récupérer le corrigé pour le moment.</p>';
+      })
+      .then(function () {
+        self.setBusy(false);
+      });
   };
 
   Lab.prototype.focusTab = function (name) {
@@ -786,13 +1039,15 @@
       this.controls.stop.disabled = !busy;
     }
     if (this.controls.submit) this.controls.submit.disabled = busy || this.gradingSuspended;
+    if (this.controls.insertTemplate) this.controls.insertTemplate.disabled = busy;
     this.controls.reset.disabled = busy;
     if (this.controls.run) {
       this.controls.run.innerHTML = busy
-        ? '<span class="lab__spinner" aria-hidden="true"></span><span>' + esc(label || 'Exécution…') + '</span>'
-        : icon('play') + '<span>Exécuter</span>';
+        ? '<span class="lab__spinner" aria-hidden="true"></span><span>' + esc(label || (this.isAnalyse ? 'Vérification…' : 'Exécution…')) + '</span>'
+        : icon('play') + '<span>' + esc(this.getRunLabel()) + '</span>';
     }
     this.refreshHelpState();
+    this.refreshRevealState();
   };
 
   Lab.prototype.stop = function () {
@@ -1079,7 +1334,8 @@
     }
     for (var i = 0; i < this.analyseCases.length; i++) {
       var c = this.analyseCases[i];
-      out += '[Cas ' + c.index + (c.label ? ' — ' + c.label : '') + ']\n';
+      var kindPrefix = c.kind === 'Question' ? 'Question ' : 'Cas ';
+      out += '[' + kindPrefix + c.index + (c.label ? ' — ' + c.label : '') + ']\n';
       for (var d = 0; d < c.dataLines.length; d++) {
         out += '# Données : ' + c.dataLines[d] + '\n';
       }
@@ -1094,6 +1350,78 @@
       if (i < this.analyseCases.length - 1) out += '\n';
     }
     return out;
+  };
+
+  Lab.prototype.buildDefaultQuestionTemplate = function (count) {
+    var total = count && count > 0 ? count : (this.analyseCases && this.analyseCases.length ? this.analyseCases.length : 3);
+    var blocks = [ANALYSE_FORMAT];
+    if (this.analysePreamble && this.analysePreamble.length > 0) {
+      blocks.push(this.analysePreamble.join('\n'));
+    }
+    for (var i = 1; i <= total; i++) {
+      var existing = this.analyseCases && this.analyseCases[i - 1];
+      var headerLabel = existing && existing.label ? ' — ' + existing.label : '';
+      var answer = existing && existing.value && existing.value.trim() ? existing.value.trim() : 'Votre réponse structurée ici...';
+      blocks.push('[Question ' + i + headerLabel + ']\n' + answer);
+    }
+    return blocks.join('\n\n') + '\n';
+  };
+
+  Lab.prototype.insertTemplate = function () {
+    if (!this.isAnalyse || this.running) return;
+    if (!this.analyseCases || !this.analyseCases.length) {
+      var parsedStarter = parseAnalyseStarter(this.starter);
+      if (parsedStarter.cases.length) {
+        this.analysePreamble = parsedStarter.preamble;
+        this.analyseCases = parsedStarter.cases;
+      } else {
+        this.analysePreamble = [];
+        this.analyseCases = [
+          { index: 1, kind: 'Question', label: 'Analyse de la situation', dataLines: [], value: '' },
+          { index: 2, kind: 'Question', label: 'Diagnostic et justification', dataLines: [], value: '' },
+          { index: 3, kind: 'Question', label: 'Recommandation opérationnelle', dataLines: [], value: '' }
+        ];
+      }
+    }
+
+    if (this.rawMode && this.rawTextarea) {
+      var rawVal = String(this.rawTextarea.value || '');
+      var hasMarkers = /\[(?:question|cas)\s*\d+/i.test(rawVal);
+      if (!hasMarkers) {
+        var preserved = rawVal.replace(/^#\s*Format\s+REVI-ANALYSE:1\s*/i, '').trim();
+        if (preserved && this.analyseCases[0] && !this.analyseCases[0].value) {
+          this.analyseCases[0].value = preserved;
+        }
+        this.rawTextarea.value = this.buildDefaultQuestionTemplate(this.analyseCases.length);
+        this.rawFormatRequired = true;
+      } else {
+        for (var m = 0; m < this.analyseCases.length; m++) {
+          var cItem = this.analyseCases[m];
+          var markerRe = new RegExp('\\[(?:question|cas)\\s*' + cItem.index + '\\b', 'i');
+          if (!markerRe.test(rawVal)) {
+            rawVal = rawVal.replace(/\s*$/, '\n\n[Question ' + cItem.index + (cItem.label ? ' — ' + cItem.label : '') + ']\nVotre réponse structurée ici...\n');
+          }
+        }
+        this.rawTextarea.value = rawVal;
+      }
+      this.invalidateAnalyseFeedback();
+      this.saveDraft();
+      this.setStatus('idle', 'Trame [Question N] pré-remplie dans l’éditeur.');
+      return;
+    }
+
+    for (var i = 0; i < this.analyseCases.length; i++) {
+      var c = this.analyseCases[i];
+      if (!c.value || !c.value.trim()) {
+        c.value = '[Question ' + c.index + (c.label ? ' — ' + c.label : '') + '] ';
+      } else if (!/\[(?:question|cas)\s*\d+/i.test(c.value)) {
+        c.value = '[Question ' + c.index + (c.label ? ' — ' + c.label : '') + ']\n' + c.value;
+      }
+    }
+    this.renderAnalyseCases();
+    this.invalidateAnalyseFeedback();
+    this.saveDraft();
+    this.setStatus('idle', 'Trame [Question N] restaurée.');
   };
 
   Lab.prototype.updateAnalyseFeedback = function (report) {
@@ -1180,7 +1508,7 @@
 
       self.editor = monaco.editor.create(host, {
         value: self.loadDraft(),
-        language: self.language,
+        language: monacoLanguage(self.language),
         theme: 'latte',
         automaticLayout: true,
         fontSize: 13,
@@ -1223,9 +1551,27 @@
 
   Lab.prototype.setEditorLanguage = function (language) {
     this.language = language;
+    this.isAnalyse = String(language || '').toLowerCase().trim() === 'analyse';
+    if (this.controls) {
+      if (this.controls.run) {
+        this.controls.run.hidden = this.isAnalyse;
+        var runSpan = this.controls.run.querySelector('span');
+        if (runSpan) runSpan.textContent = this.getRunLabel();
+      }
+      if (this.controls.stop && this.isAnalyse) this.controls.stop.hidden = true;
+      if (this.controls.insertTemplate) this.controls.insertTemplate.hidden = !this.isAnalyse;
+      if (this.controls.mode) this.controls.mode.hidden = !this.isAnalyse;
+      if (this.controls.submit) {
+        var subSpan = this.controls.submit.querySelector('span');
+        if (subSpan) subSpan.textContent = this.getSubmitLabel();
+      }
+    }
+    if (this.stdinBlock) this.stdinBlock.hidden = this.isAnalyse;
+    if (this.consoleEl) this.consoleEl.hidden = this.isAnalyse;
+    if (this.modeBadgeEl) this.modeBadgeEl.hidden = !this.isAnalyse;
     this.saveDraft();
     if (this.editor && window.monaco) {
-      window.monaco.editor.setModelLanguage(this.editor.getModel(), language === 'analyse' ? 'plaintext' : language);
+      window.monaco.editor.setModelLanguage(this.editor.getModel(), monacoLanguage(language));
     }
     this.setCode(this.loadDraft());
     this.updateProvenanceBadge();
@@ -1277,6 +1623,9 @@
       if (self.activeRun !== activeRun) return null;
       self.router = router;
       activeRun.router = router;
+      if (isPseudoLanguage(self.language) && (!router || !router.supportsBrowser || !router.supportsBrowser(self.language))) {
+        return runPseudoInBrowser(code, self.stdinEl.value, { timeoutMs: 6000 });
+      }
       return router.execute(self.language, code, self.stdinEl.value, { timeoutMs: 6000 });
     }).then(function (payload) {
       if (self.activeRun !== activeRun) return;
@@ -1290,6 +1639,7 @@
       var errText = [compileError, stderr].filter(function (part) { return part && part.trim(); }).join('\n\n');
       self.setPane('err', errText, errText.trim() ? String(errText.trim().split('\n').length) : 0);
       self.renderDetails(payload);
+      if (self.previewIframe) self.renderPreview(stdout);
 
       var statusText = payload.status === 'success'
         ? (stdout.trim() ? 'Exécution terminée' : 'Exécution terminée (aucune sortie)')
@@ -1298,6 +1648,8 @@
 
       if (compileError.trim() || stderr.trim() || payload.status === 'compile_error' || payload.status === 'runtime_error' || payload.status === 'timeout') {
         self.showTab('err');
+      } else if (self.previewIframe && /<[a-z][\s\S]*>/i.test(stdout)) {
+        self.showTab('preview');
       } else {
         self.showTab('out');
       }
@@ -1426,6 +1778,17 @@
         self.refreshHelpState();
 
         var allPassed = self.isAnalyse ? analyseIsComplete(report) : report.total > 0 && report.passed === report.total;
+        var providerStopped = report.stop && ['api_error', 'rate_limited', 'unknown_error', 'cancelled'].indexOf(report.stop.reason) !== -1;
+        if (!providerStopped) {
+          if (allPassed) {
+            self.solved = true;
+          } else {
+            self.failuresCount += 1;
+          }
+          self.saveAttemptState();
+        }
+        self.refreshRevealState();
+
         var failedStatus = report.stop && Object.prototype.hasOwnProperty.call(STATUS_LABEL, report.stop.reason)
           ? report.stop.reason : 'runtime_error';
         self.setStatus(allPassed ? 'success' : failedStatus,
@@ -1481,10 +1844,50 @@
             ['Information', stop.userMessage || 'Réessayez.']
           ]);
         }
+      } else if (stop.reason === 'compile_error') {
+        html += this.diagBlock('Le programme ne compile pas', [
+          ['Message du compilateur', stop.compileError || stop.userMessage || 'Erreur de syntaxe ou de compilation.'],
+          ['Entrée', stop.input]
+        ]);
+      } else if (stop.reason === 'runtime_error' || stop.reason === 'timeout') {
+        html += this.diagBlock(
+          stop.reason === 'timeout' ? 'Délai d’exécution dépassé' : 'Le programme s’est arrêté sur une erreur',
+          [
+            ['Message d’erreur', stop.stderr || stop.userMessage || STATUS_LABEL[stop.reason]],
+            ['Code de sortie', stop.exitCode !== undefined && stop.exitCode !== null ? String(stop.exitCode) : ''],
+            ['Votre sortie', stop.actual]
+          ]
+        );
+      } else if (stop.reason === 'wrong_output' && stop.example) {
+        html += '<div class="lab__diag">' +
+          '<div class="lab__diag-title">' + icon('search') +
+          '<span>L’exemple affiché n’est pas validé</span></div>' +
+          '<div class="lab__diag-grid">' +
+          this.diagCell('Entrée', stop.input || '(aucune)', 'input') +
+          this.diagCell('Sortie attendue', stop.expected, 'expected') +
+          this.diagCell('Votre sortie', stop.actual || '(vide)', 'actual') +
+          '</div>' +
+          (stop.hint || stop.category
+            ? '<p class="lab__diag-hint">' + icon('lightbulb') + '<span>' + esc(stop.hint || stop.category) + '</span></p>'
+            : '') +
+          '</div>';
+      } else if (stop.reason === 'wrong_output' && stop.hidden) {
+        var diagMsg = stop.hint || stop.category || stop.userMessage || 'La sortie obtenue diffère du résultat attendu.';
+        var hiddenCells = this.diagCell('Indice d’écart', diagMsg, 'hint');
+        if (stop.actual !== undefined) {
+          hiddenCells += this.diagCell('Votre sortie', stop.actual || '(vide)', 'actual');
+        } else if (stop.actualRedacted) {
+          hiddenCells += this.diagCell('Votre sortie', '(masquée car identique aux données secrètes du test)', 'actual');
+        }
+        html += '<div class="lab__diag">' +
+          '<div class="lab__diag-title">' + icon('search') +
+          '<span>' + esc(stop.label || 'Un test caché') + ' n’est pas validé</span></div>' +
+          '<div class="lab__diag-grid">' + hiddenCells + '</div>' +
+          '<p class="lab__diag-hint">' + icon('lock') +
+          '<span>Les données d’entrée et la sortie attendue des tests cachés restent confidentielles.</span></p>' +
+          '</div>';
       } else if (stop.hidden || stop.example) {
-        var title = stop.reason === 'wrong_output'
-          ? (stop.example ? 'L’exemple affiché n’est pas validé' : 'Un test caché n’est pas validé')
-          : (STATUS_LABEL[stop.reason] || 'La vérification n’a pas pu être exécutée');
+        var title = STATUS_LABEL[stop.reason] || 'La vérification n’a pas pu être exécutée';
         var unavailable = ['api_error', 'rate_limited', 'unknown_error'].indexOf(stop.reason) !== -1;
         var guidance = unavailable ? 'Réessayez lorsque le service est disponible.' :
           'Exécutez votre programme avec l’exemple fourni ou vos propres valeurs pour examiner son comportement.';
@@ -1499,13 +1902,6 @@
           this.diagCell('Sortie attendue', stop.expected, 'expected') +
           this.diagCell('Votre sortie', stop.actual || '(vide)', 'actual') +
           '</div></div>';
-      } else if (stop.reason === 'compile_error') {
-        html += this.diagBlock('Le programme ne compile pas', [['Message du compilateur', stop.compileError]]) ;
-      } else if (stop.reason === 'runtime_error') {
-        html += this.diagBlock('Le programme s’est arrêté sur une erreur', [
-          ['Message d’erreur', stop.stderr],
-          ['Code de sortie', stop.exitCode]
-        ]);
       } else {
         html += this.diagBlock('Le test n’a pas pu être exécuté', [
           ['Information', stop.userMessage || STATUS_LABEL[stop.reason] || stop.reason]
@@ -1578,6 +1974,7 @@
       expected: stop.expected || outcome.expected || '',
       actual: stop.actual || outcome.actual || '',
       status: stop.reason || outcome.status || '',
+      failingCaseLabel: stop.label || '',
       question: this.questionEl ? this.questionEl.value || '' : ''
     }).then(function (result) {
       if (!result.ok) {
@@ -1599,6 +1996,24 @@
     }).then(function () {
       self.setBusy(false);
     });
+  };
+
+  Lab.prototype.renderPreview = function (stdout) {
+    if (!this.previewIframe || !this.panes.preview) return;
+    var raw = String(stdout || '').trim();
+    if (!raw || !/<[a-z][\s\S]*>/i.test(raw)) {
+      this.previewIframe.removeAttribute('srcdoc');
+      this.panes.preview.setAttribute('data-empty', '1');
+      return;
+    }
+    this.panes.preview.removeAttribute('data-empty');
+    var hasDoc = /^\s*<!doctype\s+html\b|^\s*<html\b/i.test(raw);
+    this.previewIframe.srcdoc = hasDoc
+      ? raw
+      : '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">' +
+        '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<style>*,*::before,*::after{box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;margin:0;padding:14px;color:#1c1917;background:#fff;line-height:1.5}</style>' +
+        '</head><body>' + raw + '</body></html>';
   };
 
   Lab.prototype.reset = function () {
@@ -1645,6 +2060,7 @@
     this.setPane('out', '');
     this.setPane('err', '');
     this.setPane('detail', '');
+    if (this.previewIframe) this.renderPreview('');
     this.setStatus('idle', 'Code de départ restauré');
     this.refreshHelpState();
   };
@@ -1655,6 +2071,7 @@
     if (this.controls.stop) this.controls.stop.addEventListener('click', function () { self.stop(); });
     if (this.controls.submit) this.controls.submit.addEventListener('click', function () { self.submit(); });
     if (this.controls.help) this.controls.help.addEventListener('click', function () { self.explain(); });
+    if (this.controls.insertTemplate) this.controls.insertTemplate.addEventListener('click', function () { self.insertTemplate(); });
     if (this.controls.reset) this.controls.reset.addEventListener('click', function () { self.reset(); });
     if (this.controls.mode) this.controls.mode.addEventListener('click', function () { self.toggleMode(); });
   };

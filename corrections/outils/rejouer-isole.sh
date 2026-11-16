@@ -34,9 +34,11 @@ temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/revi-banc.XXXXXXXX")
 trap 'rm -rf -- "$temp_dir"' EXIT
 mkdir -p "$temp_dir/project" "$temp_dir/etc" "$temp_dir/results"
 git -C "$root" ls-files -z -- . ':!corrections/**' ':!verification/**' \
+  ':!AUDIT_COMPLET_2026-11/**' ':!revi-mu-plateforme/**' ':!docs/**' \
   ':(exclude,glob)**/.env*' ':(exclude,glob)**/.npmrc' ':(exclude,glob)**/.pypirc' \
   ':(exclude,glob)**/.ssh/**' ':(exclude,glob)**/.gnupg/**' \
   ':(exclude,glob)**/*.pem' ':(exclude,glob)**/*.key' ':(exclude,glob)**/*.p12' ':(exclude,glob)**/*.pfx' |
+  while IFS= read -r -d '' f; do [[ -e "$root/$f" ]] && printf '%s\0' "$f"; done |
   tar -C "$root" --null -T - -cf - | tar -C "$temp_dir/project" -xf -
 if [[ "$mode" == suite ]]; then
   untracked_tests=0
@@ -62,6 +64,13 @@ if [[ -f "$root/server/exercises/command-validator.js" && ! -f "$temp_dir/projec
   mkdir -p "$temp_dir/project/server/exercises"
   cp -- "$root/server/exercises/command-validator.js" "$temp_dir/project/server/exercises/command-validator.js"
 fi
+while IFS= read -r -d '' f; do
+  if [[ -f "$root/$f" && ! -L "$root/$f" && ! -e "$temp_dir/project/$f" ]]; then
+    mkdir -p -- "$temp_dir/project/$(dirname "$f")"
+    cp -- "$root/$f" "$temp_dir/project/$f"
+  fi
+done < <(git -C "$root" ls-files --others --exclude-standard -z -- server/ assets/ scripts/ b1-vb-excel/ \
+  ':(exclude,glob)**/.env*' ':(exclude,glob)**/*.pem' ':(exclude,glob)**/*.key' ':(exclude,glob)**/*.p12' ':(exclude,glob)**/*.pfx')
 if [[ "$mode" == sql-audit ]]; then
   if [[ $# -eq 1 ]]; then
     git -C "$root" ls-files -z > "$temp_dir/results/sql-tracked"

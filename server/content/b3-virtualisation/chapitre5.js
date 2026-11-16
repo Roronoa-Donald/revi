@@ -178,23 +178,23 @@ module.exports = {
     {
       q: 'Comment l\'agent vSphere HA (FDM) fait-il la différence entre un hôte physique en panne totale et un hôte simplement isolé du réseau ?',
       opts: [
-        'En consultant les fichiers de heartbeat sur les datastores partagés en complément du heartbeat réseau.',
-        'En envoyant un SMS automatique à l\'administrateur du centre de données.',
         'En mesurant la consommation électrique de l\'onduleur de la salle serveurs.',
+        'En envoyant un SMS automatique à l\'administrateur du centre de données.',
+        'En consultant les fichiers de heartbeat sur les datastores partagés en complément du heartbeat réseau.',
         'En redémarrant immédiatement l\'appliance vCenter Server sur le cloud.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Si le heartbeat réseau est interrompu mais que l\'hôte continue d\'écrire son heartbeat sur les datastores partagés, l\'hôte est déclaré Isolé (Isolated). S\'il ne répond sur aucun canal, il est déclaré En Panne (Failed).'
     },
     {
       q: 'Que fait vSphere HA lorsqu\'un serveur physique subit une panne matérielle brutale (carte mère ou alimentation grillée) ?',
       opts: [
-        'Il redémarre les machines virtuelles qui tournaient sur cet hôte sur les autres serveurs sains du cluster.',
+        'Il supprime l\'ensemble des fichiers .vmx du datastore par mesure de sécurité.',
         'Il synchronise les registres CPU en temps réel sans que la VM ne redémarre.',
         'Il convertit automatiquement les disques des machines virtuelles au format Thin.',
-        'Il supprime l\'ensemble des fichiers .vmx du datastore par mesure de sécurité.'
+        'Il redémarre les machines virtuelles qui tournaient sur cet hôte sur les autres serveurs sains du cluster.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'vSphere HA protège contre les pannes par redémarrage (Restart) : les VM qui étaient sur l\'hôte en panne sont relancées sur les serveurs ESXi survivants selon leur ordre de priorité de redémarrage.'
     },
     {
@@ -211,34 +211,34 @@ module.exports = {
     {
       q: 'Pourquoi configure-t-on une règle d\'anti-affinité VM-VM dans vSphere DRS ?',
       opts: [
-        'Pour forcer deux VM redondantes (ex: 2 contrôleurs AD ou 2 serveurs web) à s\'exécuter sur des hôtes physiques différents.',
         'Pour empêcher une machine virtuelle d\'accéder à Internet en dehors des heures de bureau.',
+        'Pour forcer deux VM redondantes (ex: 2 contrôleurs AD ou 2 serveurs web) à s\'exécuter sur des hôtes physiques différents.',
         'Pour fusionner la mémoire vive de deux VM distinctes dans un seul fichier .vswp.',
         'Pour désactiver la carte réseau virtuelle en cas de détection d\'un virus.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Une règle d\'anti-affinité VM-VM garantit que deux machines virtuelles assurant le même rôle applicatif ne résident jamais sur le même serveur physique, éliminant tout point de défaillance unique (SPOF).'
     },
     {
       q: 'Dans le modèle simplifié de pré-copie à débits constants, sans compression ni ralentissement de la VM, quelle condition permet de réduire les données restantes ?',
       opts: [
-        'Le débit réseau effectif vMotion doit être supérieur au rythme de modification mémoire (Dirty Rate) de la VM.',
-        'La taille de la RAM de la VM doit être strictement inférieure à 4 Go.',
         'Le datastore doit obligatoirement être formaté en système de fichiers FAT32.',
+        'La taille de la RAM de la VM doit être strictement inférieure à 4 Go.',
+        'Le débit réseau effectif vMotion doit être supérieur au rythme de modification mémoire (Dirty Rate) de la VM.',
         'L\'hôte source et l\'hôte cible doivent posséder le même numéro de série constructeur.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Dans ce modèle, les pages distinctes modifiées à chaque passe doivent représenter moins de données que le réseau ne peut transférer. Une migration réelle dépend aussi de mécanismes et de contraintes que ce modèle ne représente pas.'
     },
     {
       q: 'Que fait le mécanisme SDPS (Stun During Page Send) lors d\'une migration vMotion difficile ?',
       opts: [
-        'Il ralentit temporairement l\'exécution de la VM pour réduire son rythme d\'écriture et favoriser la convergence.',
+        'Il duplique le fichier .vmx sur l\'ensemble des datastores du datacenter.',
         'Il éteint brusquement la machine virtuelle sans sauvegarder les données.',
         'Il bascule la liaison réseau en Wi-Fi pour contourner le commutateur physique.',
-        'Il duplique le fichier .vmx sur l\'ensemble des datastores du datacenter.'
+        'Il ralentit temporairement l\'exécution de la VM pour réduire son rythme d\'écriture et favoriser la convergence.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'SDPS peut imposer de courtes pauses aux processeurs virtuels pour limiter le rythme de modification mémoire ; cela peut aider la pré-copie sans garantir son succès ni l\'absence d\'impact applicatif.'
     },
     {
@@ -255,12 +255,12 @@ module.exports = {
     {
       q: 'Quelle est la différence fondamentale entre vMotion et Storage vMotion ?',
       opts: [
-        'vMotion migre l\'état CPU et la mémoire vive entre hôtes ; Storage vMotion migre les fichiers de disques virtuels VMDK entre datastores.',
         'vMotion nécessite d\'éteindre la VM, alors que Storage vMotion fonctionne à chaud.',
+        'vMotion migre l\'état CPU et la mémoire vive entre hôtes ; Storage vMotion migre les fichiers de disques virtuels VMDK entre datastores.',
         'vMotion ne fonctionne qu\'avec Linux, tandis que Storage vMotion ne fonctionne qu\'avec Windows.',
         'Storage vMotion exige de remplacer physiquement les disques durs dans la baie.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'vMotion déplace le traitement (calcul CPU et mémoire vive) entre serveurs physiques, tandis que Storage vMotion déplace les fichiers disques VMDK d\'un datastore à un autre. Dans les deux cas, l\'impact sur les applications doit être mesuré.'
     }
   ],

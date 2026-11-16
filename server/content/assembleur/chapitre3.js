@@ -102,6 +102,24 @@ module.exports = {
           '$0\\text{x07C0} \\times 16 + 0 = 0\\text{x07C00}$ (l’adresse standard de démarrage du MBR).</p>'
         ].join('\n'))
       ].join('\n')
+    },
+    {
+      title: 'Trace mémoire Little-Endian &amp; Simulateur d’accès RAM x86-16',
+      html: [
+        '<p>Simulons l’écriture d’un mot 16 bits (<code>0x1234</code>) en mémoire vive à l’adresse <code>[0x10]</code> ' +
+        'et observons le rangement Little-Endian (octet de poids faible <code>0x34</code> stocké à <code>[0x10]</code>, octet de poids fort <code>0x12</code> à <code>[0x11]</code>) :</p>',
+        '<table class="table">',
+        '  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>AX</th><th>BX</th><th>CX</th><th>Mémoire [0x10..0x11]</th><th>Explication</th></tr></thead>',
+        '  <tbody>',
+        '    <tr><td>1</td><td><code>MOV AX, 0x1234</code></td><td><code>0x1234</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>00 00</code></td><td><code>AH = 0x12</code> (octet fort), <code>AL = 0x34</code> (octet faible).</td></tr>',
+        '    <tr><td>2</td><td><code>MOV [0x10], AX</code></td><td><code>0x1234</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>34 12</code></td><td>Écriture 16 bits en Little-Endian : <code>[0x10] = 0x34</code>, <code>[0x11] = 0x12</code>.</td></tr>',
+        '    <tr><td>3</td><td><code>MOV BL, [0x10]</code></td><td><code>0x1234</code></td><td><code>0x0034</code></td><td><code>0x0000</code></td><td><code>34 12</code></td><td>Lecture d’un octet à <code>[0x10]</code> : récupère l’octet faible <code>0x34</code>.</td></tr>',
+        '    <tr><td>4</td><td><code>MOV CX, [0x10]</code></td><td><code>0x1234</code></td><td><code>0x0034</code></td><td><code>0x1234</code></td><td><code>34 12</code></td><td>Lecture 16 bits complète : reconstitue <code>0x1234</code> dans <code>CX</code>.</td></tr>',
+        '  </tbody>',
+        '</table>',
+        '<div class="asm-sim" data-asm-simulator data-asm-code="MOV AX, 0x1234\\nMOV [0x10], AX\\nMOV BL, [0x10]\\nMOV BH, [0x11]\\nMOV CX, [0x10]\\nHLT"></div>',
+        '<script src="/assets/js/engines/asm-simulator.js" defer></script>'
+      ].join('\n')
     }
   ],
 
@@ -109,34 +127,34 @@ module.exports = {
     {
       stem: 'Quelle est la caractéristique fondamentale de l’architecture Harvard par rapport à celle de Von Neumann ?',
       opts: [
-        'La mémoire des instructions et la mémoire des données sont physiquement séparées avec des bus distincts',
-        'Elle n’utilise aucun signal d’horloge',
-        'Elle ne possède aucun registre général',
-        'Elle ne permet pas d’exécuter de boucles'
+        "Elle fonctionne entièrement sans signal d’horloge pour synchroniser ses circuits internes",
+        "Elle ne possède aucun registre général pour effectuer ses calculs arithmétiques",
+        "Elle ne permet pas du tout d’exécuter de boucles dans les programmes chargés",
+        "La mémoire des instructions et la mémoire des données sont physiquement séparées avec des bus distincts"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Harvard sépare physiquement le code et les données, permettant un chargement simultané sans goulot d’étranglement.'
     },
     {
       stem: 'Dans un microcontrôleur ATmega328P, où le code exécutable du programme est-il stocké de façon permanente ?',
       opts: [
-        'Dans la mémoire Flash (32 Ko non volatile)',
-        'Dans la SRAM (2 Ko)',
-        'Dans l’accumulateur EAX',
-        'Dans le cache L2'
+        "Dans la SRAM volatile (2 Ko)",
+        "Dans l’accumulateur EAX du processeur",
+        "Dans la mémoire Flash (32 Ko non volatile)",
+        "Dans le cache L2 du processeur"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La mémoire Flash est non volatile et conserve le firmware même hors tension.'
     },
     {
       stem: 'Sur microcontrôleur AVR, comment configure-t-on la broche PB5 en SORTIE ?',
       opts: [
-        'En mettant le bit 5 du registre DDRB à 1',
         'En mettant le bit 5 du registre DDRB à 0',
+        'En mettant le bit 5 du registre DDRB à 1',
         'En lisant le registre PINB',
         'En désactivant les interruptions globales'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'DDR (Data Direction Register) : 1 = Sortie, 0 = Entrée.'
     },
     {
@@ -164,34 +182,34 @@ module.exports = {
     {
       stem: 'En mode réel x86, quelle est l’adresse physique 20 bits correspondant à Segment = 0x1000 et Offset = 0x0250 ?',
       opts: [
-        '0x10250',
         '0x12500',
+        '0x10250',
         '0x01250',
         '0x1000250'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Adresse = (Segment << 4) + Offset = 0x10000 + 0x0250 = 0x10250.'
     },
     {
       stem: 'À quoi sert le registre PINx sur microcontrôleur AVR ?',
       opts: [
-        'À lire l’état logique présent sur les broches matérielles du port',
-        'À changer la fréquence de l’horloge quartz',
-        'À configurer le sens d’entrée/sortie',
-        'À allouer la pile d’exécution'
+        "À changer la fréquence de l’horloge quartz du microcontrôleur",
+        "À configurer le sens d’entrée ou de sortie de chaque broche",
+        "À lire l’état logique présent sur les broches matérielles du port",
+        "À allouer la pile d’exécution des sous-programmes"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'PIN (Port Input Pins) est le registre en lecture seule qui reflète la tension réelle appliquée sur les broches.'
     },
     {
       stem: 'Quelle est la taille maximale de l’espace mémoire adressable directement par un bus d’adresses 20 bits ?',
       opts: [
-        '1 Mo (1 048 576 octets)',
+        '16 Mo',
         '64 Ko',
         '4 Go',
-        '16 Mo'
+        '1 Mo (1 048 576 octets)'
       ],
-      correct: 0,
+      correct: 3,
       exp: '2^20 octets = 1 048 576 octets = exactement 1 Mo.'
     }
   ],

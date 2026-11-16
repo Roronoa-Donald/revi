@@ -173,32 +173,32 @@ module.exports = {
   questions: [
     {
       stem: 'Pourquoi l\'attribution de rôles primitifs (comme roles/editor) est-elle proscrite dans un environnement de production ?',
-      opts: ['Parce qu\'ils sont payants', 'Parce qu\'ils accordent des privilèges excessifs sur tous les services du projet et violent le moindre privilège', 'Parce qu\'ils ne fonctionnent pas avec Linux', 'Parce qu\'ils empêchent l\'accès à la console'],
-      correct: 1,
+      opts: ["Parce qu'ils sont payants et facturés à l'usage sur chaque service du projet consommé","Parce qu'ils ne fonctionnent pas avec les instances de machines virtuelles sous Linux","Parce qu'ils empêchent définitivement l'accès à la console web du projet Cloud","Parce qu'ils accordent des privilèges excessifs sur tous les services du projet et violent le moindre privilège"],
+      correct: 3,
       exp: 'Les rôles primitifs accordent des permissions très larges sur l\'ensemble des services GCP, ce qui expose l\'entreprise à des erreurs catastrophiques ou à des failles de sécurité majeures.'
     },
     {
       stem: 'Quelle est la recommandation de sécurité officielle de Google Cloud pour authentifier des conteneurs GKE auprès des API GCP sans manipuler de clés statiques ?',
-      opts: ['Télécharger une clé JSON sur chaque conteneur', 'Utiliser GKE Workload Identity pour lier le compte Kubernetes au compte IAM', 'Donner le rôle Owner au cluster', 'Désactiver l\'authentification sur les API'],
-      correct: 1,
+      opts: ["Utiliser GKE Workload Identity pour lier le compte Kubernetes au compte IAM","Télécharger une clé JSON de compte de service et la monter sur chaque conteneur du pod","Donner le rôle primitif Owner au cluster sur l'ensemble du projet sans restriction","Désactiver l'authentification sur les API afin de simplifier les appels internes"],
+      correct: 0,
       exp: 'GKE Workload Identity associe directement le ServiceAccount Kubernetes au compte de service GCP, éliminant totalement le besoin de générer ou de stocker des clés JSON privées.'
     },
     {
       stem: 'Quel est le format standard d\'une permission atomique dans Google Cloud ?',
-      opts: ['action:resource:service', 'service.resource.action (ex: compute.instances.create)', 'service/action/resource', 'permission_service_action'],
+      opts: ["action:resource:service, avec l'action en tête de la permission","service.resource.action (ex: compute.instances.create)","service/action/resource, séparés par des barres obliques","permission_service_action, préfixée par le mot permission"],
       correct: 1,
       exp: 'Les permissions atomiques GCP respectent rigoureusement la convention à trois segments « service.resource.action » (ex: storage.buckets.list ou compute.instances.start).'
     },
     {
       stem: 'Selon le référentiel de conformité CIS Google Cloud Benchmark, quel est l\'âge maximal autorisé pour une clé de compte de service avant rotation obligatoire ?',
-      opts: ['30 jours', '90 jours', '180 jours', '365 jours'],
-      correct: 1,
+      opts: ['30 jours', '180 jours', '90 jours', '365 jours'],
+      correct: 2,
       exp: 'Le benchmark CIS GCP impose une rotation obligatoire des clés gérées par l\'utilisateur au minimum tous les 90 jours pour limiter la durée d\'exposition en cas de fuite discrète.'
     },
     {
       stem: 'Quel langage d\'expression est utilisé pour définir des conditions d\'accès dynamiques dans les liaisons IAM Google Cloud ?',
-      opts: ['SQL', 'JavaScript', 'CEL (Common Expression Language)', 'Bash'],
-      correct: 2,
+      opts: ['SQL', 'JavaScript', 'Bash', 'CEL (Common Expression Language)'],
+      correct: 3,
       exp: 'Google Cloud utilise CEL (Common Expression Language), un langage d\'expression rapide et sûr développé par Google, pour évaluer les conditions logiques et temporelles d\'activation des rôles.'
     }
   ],

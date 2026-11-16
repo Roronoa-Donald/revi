@@ -94,13 +94,13 @@ module.exports = {
 
   questions: [
     { stem: 'Que représente un PV ?', opts: ['Un disque physique', 'Un volume logique', 'Un pool'], correct: 0, exp: 'Le Physical Volume est un disque ou une partition.' },
-    { stem: 'Que regroupe un VG ?', opts: ['Les PV en un pool', 'Les VM', 'Les VLAN'], correct: 0, exp: 'Le Volume Group agrège les disques physiques.' },
-    { stem: 'À quoi sert un LV ?', opts: ['Devenir le disque d’une VM', 'Router le réseau', 'Sauvegarder'], correct: 0, exp: 'Le Logical Volume est le volume utilisé par la VM.' },
-    { stem: 'Quel stockage pour ISO et backups ?', opts: ['Directory', 'Ceph', 'LVM-thin'], correct: 0, exp: 'Directory est simple et adapté aux fichiers.' },
+    { stem: 'Que regroupe un VG ?', opts: ['Les VM', 'Les PV en un pool', 'Les VLAN'], correct: 1, exp: 'Le Volume Group agrège les disques physiques.' },
+    { stem: 'À quoi sert un LV ?', opts: ['Sauvegarder', 'Router le réseau', 'Devenir le disque d’une VM'], correct: 2, exp: 'Le Logical Volume est le volume utilisé par la VM.' },
+    { stem: 'Quel stockage pour ISO et backups ?', opts: ['LVM-thin', 'Ceph', 'Directory'], correct: 2, exp: 'Directory est simple et adapté aux fichiers.' },
     { stem: 'NFS vs iSCSI ?', opts: ['Partage fichier vs disque réseau', 'Réseau vs stockage', 'Aucune différence'], correct: 0, exp: 'NFS partage des fichiers, iSCSI un disque en réseau.' },
-    { stem: 'Que structure la stratégie GFS ?', opts: ['La rétention des sauvegardes', 'Les VLAN', 'Les vCPU'], correct: 0, exp: 'Grandfather-Father-Son organise les fréquences.' },
-    { stem: 'Règle d’or de sauvegarde ?', opts: ['3-2-1', '1-1-1', '5-5-5'], correct: 0, exp: '3 copies, 2 supports, 1 hors site.' },
-    { stem: 'Un snapshot est-il une sauvegarde ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: 'Il est local et temporaire.' }
+    { stem: 'Que structure la stratégie GFS ?', opts: ['Les VLAN', 'La rétention des sauvegardes', 'Les vCPU'], correct: 1, exp: 'Grandfather-Father-Son organise les fréquences.' },
+    { stem: 'Règle d’or de sauvegarde ?', opts: ['5-5-5', '1-1-1', '3-2-1'], correct: 2, exp: "La règle 3-2-1 impose 3 copies, sur 2 supports différents, dont 1 hors site. 1-1-1 et 5-5-5 ne correspondent à aucune règle de sauvegarde." },
+    { stem: 'Un snapshot est-il une sauvegarde ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: "Non : un snapshot reste local et temporaire, sur le même stockage — si celui-ci tombe, le snapshot tombe avec. Une sauvegarde, elle, vit ailleurs." }
   ],
 
   pitfalls: [

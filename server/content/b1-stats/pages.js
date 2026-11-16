@@ -392,7 +392,7 @@ function examens(course) {
           text: 'La moyenne et la médiane de deux séries valent toutes deux 12. La série A a un écart-type de 0,5, la série B de 4,1. ' +
             'Que pouvez-vous dire des deux séries ?',
           sol: 'Même moyenne et même médiane ; l’écart-type est plus élevé pour B (4,1 contre 0,5).\n' +
-            'Si le zéro est naturel et la moyenne pertinente, les CV valent environ 4,2 % pour A et 34,2 % pour B : la dispersion relative de B est supérieure.\n' +
+            'Si la grandeur a un zéro naturel et la moyenne est pertinente, les CV valent environ 4,2 % pour A et 34,2 % pour B : la dispersion relative de B est supérieure.\n' +
             'Leur appréciation dépend du contexte : une moyenne seule ne suffit pas à décrire la dispersion.'
         }
       ]
@@ -475,7 +475,7 @@ function examens(course) {
     sujets.map(sujet => '  <h2>' + sujet.title + '</h2>\n\n  <p class="lead">' + sujet.intro + '</p>\n\n' +
       sujet.items.map(itemHtml).join('\n\n')).join('\n\n'),
     '  <h2>QCM final — toutes notions</h2>',
-    '  ' + qcm(mastery, { mastery: true }),
+    '  ' + qcm(mastery, { mastery: true, secure: true }),
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },

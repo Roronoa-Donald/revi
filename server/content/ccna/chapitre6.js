@@ -194,33 +194,33 @@ module.exports = {
       stem: 'Combien de bits compte le champ VLAN Identifier (VID) dans l’en-tête de la balise IEEE 802.1Q, et combien de VLANs distincts permet-il d’adresser au maximum ?',
       opts: [
         '8 bits permettant 256 VLANs',
-        '12 bits permettant 4096 VLANs (de 0 à 4095)',
         '16 bits permettant 65536 VLANs',
+        '12 bits permettant 4096 VLANs (de 0 à 4095)',
         '10 bits permettant 1024 VLANs'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le champ VID de la balise 802.1Q fait 12 bits, ce qui autorise 2^12 = 4096 valeurs (de 0 à 4095). Les VLANs exploitables s’étendent de 1 à 4094 (0 et 4095 étant réservés).'
     },
     {
       stem: 'Quelle est la particularité fondamentale du VLAN natif sur une liaison Trunk IEEE 802.1Q ?',
       opts: [
         'Ses trames sont chiffrées en AES-256',
-        'Ses trames circulent sur le trunk sans aucune balise 802.1Q (untagged)',
+        'Il est automatiquement désactivé si plus de 10 VLANs sont présents',
         'Il ne peut transporter que du trafic de gestion SSH',
-        'Il est automatiquement désactivé si plus de 10 VLANs sont présents'
+        'Ses trames circulent sur le trunk sans aucune balise 802.1Q (untagged)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Sur un trunk 802.1Q, les trames appartenant au VLAN natif ne reçoivent aucune balise (untagged). Tous les autres VLANs reçoivent la balise 802.1Q de 4 octets.'
     },
     {
       stem: 'Sur un routeur configuré en Router-on-a-Stick, quelle commande doit être impérativement saisie sur la sous-interface AVANT de lui attribuer une adresse IP ?',
       opts: [
-        'no switchport',
         'encapsulation dot1Q <vlan_id>',
+        'no switchport',
         'ip routing',
         'switchport mode trunk'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Cisco IOS exige d’abord de définir le protocole d’encapsulation et le VLAN associé avec « encapsulation dot1Q <vlan_id> » avant d’autoriser la saisie de la commande « ip address » sur une sous-interface.'
     },
     {
@@ -232,35 +232,35 @@ module.exports = {
     {
       stem: 'Que se passe-t-il si deux commutateurs reliés par un trunk ont un VLAN natif différent (ex: VLAN 1 d’un côté et VLAN 99 de l’autre) ?',
       opts: [
-        'Le lien trunk s’éteint électriquement',
-        'Un Native VLAN Mismatch survient : le trafic du VLAN 1 fuite dans le VLAN 99 et des alertes CDP d’erreur sont générées',
-        'Les commutateurs négocient automatiquement le plus petit numéro sans conséquence',
-        'Toutes les trames 802.1Q sont converties en trames IPv6'
+        "Le lien trunk s’éteint électriquement des deux côtés de la liaison simultanément",
+        "Les commutateurs négocient automatiquement le plus petit numéro sans aucune conséquence",
+        "Un Native VLAN Mismatch survient : le trafic du VLAN 1 fuite dans le VLAN 99 et des alertes CDP d’erreur sont générées",
+        "Toutes les trames 802.1Q du trunk sont alors immédiatement converties en trames IPv6"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'C’est une anomalie grave : la trame non balisée émise sur le VLAN 1 est reçue sans étiquette par l’autre switch qui l’attribue à son propre VLAN natif (le 99). Cela cause des fuites de trafic entre VLANs et des dysfonctionnements Spanning Tree.'
     },
     {
       stem: 'Quel protocole propriétaire Cisco négocie automatiquement le mode Trunk ou Access entre deux ports de switches interconnectés ?',
-      opts: ['VTP (VLAN Trunking Protocol)', 'DTP (Dynamic Trunking Protocol)', 'CDP (Cisco Discovery Protocol)', 'STP (Spanning Tree Protocol)'],
-      correct: 1,
+      opts: ['VTP (VLAN Trunking Protocol)', 'STP (Spanning Tree Protocol)', 'CDP (Cisco Discovery Protocol)', 'DTP (Dynamic Trunking Protocol)'],
+      correct: 3,
       exp: 'DTP (Dynamic Trunking Protocol) négocie automatiquement la mise en trunk ou access. En environnement sécurisé, les bonnes pratiques recommandent de désactiver DTP avec « switchport nonegotiate ».'
     },
     {
       stem: 'Quelle est la taille totale de l’en-tête de balisage IEEE 802.1Q inséré dans une trame Ethernet ?',
-      opts: ['2 octets', '4 octets (32 bits)', '8 octets', '14 octets'],
-      correct: 1,
+      opts: ['4 octets (32 bits)', '2 octets', '8 octets', '14 octets'],
+      correct: 0,
       exp: 'La balise 802.1Q fait exactement 4 octets (32 bits) : 2 octets pour le TPID (0x8100) et 2 octets pour le champ TCI (PCP 3 bits + DEI 1 bit + VID 12 bits).'
     },
     {
       stem: 'Pourquoi est-il nécessaire d’activer la commande « no shutdown » sur l’interface physique principale (ex: GigabitEthernet0/0) d’un routeur dans une architecture Router-on-a-Stick ?',
       opts: [
-        'Parce que si l’interface physique parent est éteinte, toutes ses sous-interfaces logiques sont obligatoirement inactives',
-        'Pour lui attribuer une adresse IP par défaut',
-        'Pour activer le serveur DHCP sur le routeur',
-        'Pour désactiver le protocole Spanning Tree sur le routeur'
+        "Pour lui attribuer automatiquement une adresse IP par défaut issue du sous-réseau parent",
+        "Parce que si l’interface physique parent est éteinte, toutes ses sous-interfaces logiques sont obligatoirement inactives",
+        "Pour activer le service de serveur DHCP intégré au routeur de la branche distante correspondante",
+        "Pour désactiver entièrement le protocole Spanning Tree sur le routeur lui-même"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Les sous-interfaces héritent de l’état physique de l’interface mère. Si l’interface GigabitEthernet0/0 reste sous shutdown, aucune sous-interface (.10, .20) ne pourra émettre ou recevoir de trafic.'
     }
   ],

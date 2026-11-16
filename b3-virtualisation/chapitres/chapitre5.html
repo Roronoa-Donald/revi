@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -198,6 +196,12 @@ A_COMPLETER
 [Cas 2 — Durée modélisée entre 30 et 90 secondes]
 # Données : VM=vm-heavy RAM_GB=48 DIRTY_RATE_MBPS=10 NET_GBPS=10
 A_COMPLETER
+
+[Cas 3 — Charge sale extrême et mémoires volumineuses]
+# Données : VM=vm-churn RAM_GB=8 DIRTY_RATE_MBPS=400 NET_GBPS=25
+# Données : VM=vm-hot RAM_GB=16 DIRTY_RATE_MBPS=2500 NET_GBPS=1
+# Données : VM=vm-cold RAM_GB=64 DIRTY_RATE_MBPS=20 NET_GBPS=25
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Modèle simplifié de deux passes de pré-copie vMotion</h3>
@@ -229,10 +233,11 @@ VM=vm-db01 RAM_GB=64 DIRTY_RATE_MBPS=50 NET_GBPS=1
 VM=vm-cache RAM_GB=8 DIRTY_RATE_MBPS=150 NET_GBPS=1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertissez le débit nominal de Gbit/s en Mo/s, puis appliquez la proportion supposée dans la grille.</li>
         <li>Comparez le rythme des pages modifiées au débit disponible avant de calculer le volume et la durée des deux passes.</li>
+        <li>1. débit = NET_GBPS * 1000 * 0.8 / 8 Mo/s. 2. DIRTY_RATE &gt;= débit : CONVERGENCE_FAILURE. 3. total = RAM_GB * 1000 * (1 + DIRTY_RATE / débit). 4. durée = total / débit ; statut selon 30 et 90 s.</li>
       </ol>
     </details>
   </div>
@@ -253,6 +258,11 @@ A_COMPLETER
 
 [Cas 2 — Capacité disponible tout juste égale à la demande]
 # Données : HOSTS=2 CPU_GHZ=50 RAM_GB=128 FAILURES=1 VMS_CPU=50 VMS_RAM=128
+A_COMPLETER
+
+[Cas 3 — Admission refusée en CPU et généreuse en RAM]
+# Données : HOSTS=8 CPU_GHZ=40 RAM_GB=1024 FAILURES=2 VMS_CPU=200 VMS_RAM=6000
+# Données : HOSTS=10 CPU_GHZ=30 RAM_GB=256 FAILURES=1 VMS_CPU=280 VMS_RAM=1500
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -288,10 +298,11 @@ Format de sortie :<br>
 HOSTS=3 CPU_GHZ=50 RAM_GB=256 FAILURES=1 VMS_CPU=110 VMS_RAM=400</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez le pourcentage réservé avec (FAILURES / HOSTS) * 100.0.</li>
         <li>Comparez la consommation des VMs à la capacité disponible après réserve.</li>
+        <li>1. reserved_pct = FAILURES / HOSTS * 100. 2. avail = total * (1 - reserved_pct / 100) pour le CPU et la RAM. 3. VMS_CPU et VMS_RAM tous deux sous avail : ADMISSION_PASSED, sinon FAILED.</li>
       </ol>
     </details>
   </div>
@@ -315,6 +326,12 @@ A_COMPLETER
 # Données : HOSTS=esxi01:85,esxi02:25,esxi03:50
 # Données : VMS=vm1:esxi01,vm2:esxi02
 # Données : ANTI_AFFINITY=NONE
+A_COMPLETER
+
+[Cas 3 — Violation sur l’hôte le plus idle du cluster]
+# Données : HOSTS=esxi20:10,esxi21:35,esxi22:40
+# Données : VMS=db01:esxi20,db02:esxi20
+# Données : ANTI_AFFINITY=db01+db02
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -351,10 +368,11 @@ VMS=dc01:esxi01,dc02:esxi01,web:esxi02
 ANTI_AFFINITY=dc01+dc02</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez d'abord si les deux VMs d'une règle d'anti-affinité sont hébergées sur le même nœud.</li>
         <li>Pour la cible de migration, choisissez l'hôte différent ayant le CPU le plus faible.</li>
+        <li>1. Les deux VMs de la règle sur le même hôte : MIGRATE la seconde vers l’hôte de CPU minimal, hors hôte source. 2. Sinon spread = max(CPU) - min(CPU). 3. spread &gt; 30 : REBALANCE_NEEDED ; sinon ACTION:NONE.</li>
       </ol>
     </details>
   </div>
@@ -367,9 +385,9 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="q">
       <p class="q__stem">Comment l'agent vSphere HA (FDM) fait-il la différence entre un hôte physique en panne totale et un hôte simplement isolé du réseau ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">En consultant les fichiers de heartbeat sur les datastores partagés en complément du heartbeat réseau.</button>
-        <button class="opt">En envoyant un SMS automatique à l'administrateur du centre de données.</button>
         <button class="opt">En mesurant la consommation électrique de l'onduleur de la salle serveurs.</button>
+        <button class="opt">En envoyant un SMS automatique à l'administrateur du centre de données.</button>
+        <button class="opt" data-correct="1">En consultant les fichiers de heartbeat sur les datastores partagés en complément du heartbeat réseau.</button>
         <button class="opt">En redémarrant immédiatement l'appliance vCenter Server sur le cloud.</button>
       </div>
       <div class="q__exp">Si le heartbeat réseau est interrompu mais que l'hôte continue d'écrire son heartbeat sur les datastores partagés, l'hôte est déclaré Isolé (Isolated). S'il ne répond sur aucun canal, il est déclaré En Panne (Failed).</div>
@@ -377,10 +395,10 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="q">
       <p class="q__stem">Que fait vSphere HA lorsqu'un serveur physique subit une panne matérielle brutale (carte mère ou alimentation grillée) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Il redémarre les machines virtuelles qui tournaient sur cet hôte sur les autres serveurs sains du cluster.</button>
+        <button class="opt">Il supprime l'ensemble des fichiers .vmx du datastore par mesure de sécurité.</button>
         <button class="opt">Il synchronise les registres CPU en temps réel sans que la VM ne redémarre.</button>
         <button class="opt">Il convertit automatiquement les disques des machines virtuelles au format Thin.</button>
-        <button class="opt">Il supprime l'ensemble des fichiers .vmx du datastore par mesure de sécurité.</button>
+        <button class="opt" data-correct="1">Il redémarre les machines virtuelles qui tournaient sur cet hôte sur les autres serveurs sains du cluster.</button>
       </div>
       <div class="q__exp">vSphere HA protège contre les pannes par redémarrage (Restart) : les VM qui étaient sur l'hôte en panne sont relancées sur les serveurs ESXi survivants selon leur ordre de priorité de redémarrage.</div>
     </div>
@@ -397,8 +415,8 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi configure-t-on une règle d'anti-affinité VM-VM dans vSphere DRS ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Pour forcer deux VM redondantes (ex: 2 contrôleurs AD ou 2 serveurs web) à s'exécuter sur des hôtes physiques différents.</button>
         <button class="opt">Pour empêcher une machine virtuelle d'accéder à Internet en dehors des heures de bureau.</button>
+        <button class="opt" data-correct="1">Pour forcer deux VM redondantes (ex: 2 contrôleurs AD ou 2 serveurs web) à s'exécuter sur des hôtes physiques différents.</button>
         <button class="opt">Pour fusionner la mémoire vive de deux VM distinctes dans un seul fichier .vswp.</button>
         <button class="opt">Pour désactiver la carte réseau virtuelle en cas de détection d'un virus.</button>
       </div>
@@ -407,9 +425,9 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="q">
       <p class="q__stem">Dans le modèle simplifié de pré-copie à débits constants, sans compression ni ralentissement de la VM, quelle condition permet de réduire les données restantes ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le débit réseau effectif vMotion doit être supérieur au rythme de modification mémoire (Dirty Rate) de la VM.</button>
-        <button class="opt">La taille de la RAM de la VM doit être strictement inférieure à 4 Go.</button>
         <button class="opt">Le datastore doit obligatoirement être formaté en système de fichiers FAT32.</button>
+        <button class="opt">La taille de la RAM de la VM doit être strictement inférieure à 4 Go.</button>
+        <button class="opt" data-correct="1">Le débit réseau effectif vMotion doit être supérieur au rythme de modification mémoire (Dirty Rate) de la VM.</button>
         <button class="opt">L'hôte source et l'hôte cible doivent posséder le même numéro de série constructeur.</button>
       </div>
       <div class="q__exp">Dans ce modèle, les pages distinctes modifiées à chaque passe doivent représenter moins de données que le réseau ne peut transférer. Une migration réelle dépend aussi de mécanismes et de contraintes que ce modèle ne représente pas.</div>
@@ -417,10 +435,10 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="q">
       <p class="q__stem">Que fait le mécanisme SDPS (Stun During Page Send) lors d'une migration vMotion difficile ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Il ralentit temporairement l'exécution de la VM pour réduire son rythme d'écriture et favoriser la convergence.</button>
+        <button class="opt">Il duplique le fichier .vmx sur l'ensemble des datastores du datacenter.</button>
         <button class="opt">Il éteint brusquement la machine virtuelle sans sauvegarder les données.</button>
         <button class="opt">Il bascule la liaison réseau en Wi-Fi pour contourner le commutateur physique.</button>
-        <button class="opt">Il duplique le fichier .vmx sur l'ensemble des datastores du datacenter.</button>
+        <button class="opt" data-correct="1">Il ralentit temporairement l'exécution de la VM pour réduire son rythme d'écriture et favoriser la convergence.</button>
       </div>
       <div class="q__exp">SDPS peut imposer de courtes pauses aux processeurs virtuels pour limiter le rythme de modification mémoire ; cela peut aider la pré-copie sans garantir son succès ni l'absence d'impact applicatif.</div>
     </div>
@@ -437,8 +455,8 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre vMotion et Storage vMotion ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">vMotion migre l'état CPU et la mémoire vive entre hôtes ; Storage vMotion migre les fichiers de disques virtuels VMDK entre datastores.</button>
         <button class="opt">vMotion nécessite d'éteindre la VM, alors que Storage vMotion fonctionne à chaud.</button>
+        <button class="opt" data-correct="1">vMotion migre l'état CPU et la mémoire vive entre hôtes ; Storage vMotion migre les fichiers de disques virtuels VMDK entre datastores.</button>
         <button class="opt">vMotion ne fonctionne qu'avec Linux, tandis que Storage vMotion ne fonctionne qu'avec Windows.</button>
         <button class="opt">Storage vMotion exige de remplacer physiquement les disques durs dans la baie.</button>
       </div>
@@ -562,7 +580,7 @@ ANTI_AFFINITY=dc01+dc02</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

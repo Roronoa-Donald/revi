@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 3 — Propriétés (Value, Formula, Interior.Color, Font.Bold), Méthodes (Select, ClearContents, Copy, AutoFit) et Événements (Workbook_Open, Worksheet_Change) | VB Excel B1</title>
+<meta name="description" content="Chapitre 3 du cours de Programmation VBA sous Excel B1 : Distinguer Propriété (attribut =) et Méthode (action) ; Value, Formula, Font.Bold, Interior.Color/ColorIndex ; Select, Clear vs ClearContents, Copy, AutoFit ; bloc With...End With et WorksheetFunction ; événements Workbook_Open et Worksheet_Change(Target). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-vb-excel/chapitres/chapitre3.html">
+<meta property="og:title" content="Chapitre 3 — Propriétés (Value, Formula, Interior.Color, Font.Bold), Méthodes (Select, ClearContents, Copy, AutoFit) et Événements (Workbook_Open, Worksheet_Change) | VB Excel B1">
+<meta property="og:description" content="Chapitre 3 du cours de Programmation VBA sous Excel B1 : Distinguer Propriété (attribut =) et Méthode (action) ; Value, Formula, Font.Bold, Interior.Color/ColorIndex ; Select, Clear vs ClearContents, Copy, AutoFit ; bloc With...End With et WorksheetFunction ; événements Workbook_Open et Worksheet_Change(Target). Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="3" class="page page--chapter">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<header class="vbanav"><div class="vbanav__in">
+  <a class="vbanav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
+    <span class="vbanav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
+    <span class="vbanav__word">cours.interactifs</span>
+  </a>
+  <div class="vbanav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="vbanav__chip" href="../index.html">VB Excel B1</a></div>
+  <nav class="vbanav__links" aria-label="Navigation du cours">
+      <a href="../sommaire.html">Sommaire</a>
+      <a href="../chapitres/chapitre1.html">Ch. 1</a>
+      <a href="../chapitres/chapitre2.html">Ch. 2</a>
+      <a href="../chapitres/chapitre3.html" class="is-active">Ch. 3</a>
+      <a href="../chapitres/chapitre4.html">Ch. 4</a>
+      <a href="../chapitres/chapitre5.html">Ch. 5</a>
+      <a href="../chapitres/chapitre6.html">Ch. 6</a>
+      <a href="../chapitres/cartes.html">Cartes</a>
+      <a href="../chapitres/formules.html">Mémo</a>
+      <a href="../exercices/exercices.html">Exercices</a>
+      <a href="../atelier.html">Atelier</a>
+      <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </nav>
+  <div class="vbanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></header>
+
+<main id="content" class="vbawrap">
+<p class="crumb"><a href="../index.html">VB Excel B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 3</p>
+
+<div class="chapmeta">
+    <span class="tag tag--module">Module 3</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--lock">Réservé B1 et plus</span>
+  </div>
+
+<h1>Chapitre 3 — Propriétés (Value, Formula, Interior.Color, Font.Bold), Méthodes (Select, ClearContents, Copy, AutoFit) et Événements (Workbook_Open, Worksheet_Change)</h1>
+
+<div class="lead">  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Maintenant que nous savons désigner précisément un classeur, une feuille ou une plage de cellules, que pouvons-nous faire dessus ? En VBA, on agit sur un objet de trois façons : lire ou modifier ses caractéristiques (ses Propriétés), lui ordonner d’exécuter une action (ses Méthodes), ou programmer une réaction automatique lorsqu’un événement survient sur le classeur ou la feuille (les Événements).</p>
+  </div></div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
+    <ol>
+      <li>distinguer syntaxiquement et conceptuellement une Propriété (attribut affecté avec =) d’une Méthode (action exécutée sur l’objet) ;</li>
+      <li>manipuler les propriétés clés de Range : Value, Formula, Count, Row, Column, Font (Bold, Size, Color) et Interior (Color, ColorIndex) ;</li>
+      <li>utiliser les méthodes essentielles : Select, Activate, Clear vs ClearContents vs ClearFormats, Copy, Delete, Insert, AutoFit ;</li>
+      <li>factoriser le code avec With...End With et appeler les fonctions Excel via Application.WorksheetFunction ;</li>
+      <li>écrire des procédures événementielles Workbook_Open (dans ThisWorkbook) et Worksheet_Change(ByVal Target As Range) (dans une feuille).</li>
+    </ol>
+  </div>
+
+<section class="sec">
+
+<h2>1. Propriétés : lire et modifier les caractéristiques d’un objet (Value, Formula, Font, Interior)</h2>
+
+<p>Une <strong>propriété</strong> est un attribut (une caractéristique) d’un objet que l’on peut <strong>lire</strong> ou <strong>modifier</strong> à l’aide de l’opérateur d’affectation <code>=</code> (syntaxe : <code>Objet.Propriete = Valeur</code>). Certaines propriétés sont en <em>lecture/écriture</em> (comme <code>Value</code> ou <code>Name</code>), tandis que d’autres sont en <em>lecture seule</em> (comme <code>Count</code>, <code>Row</code>, <code>Column</code> ou <code>Address</code>).</p>
+<ul>
+  <li><strong><code>Value</code></strong> : contient la valeur de la cellule (propriété par défaut de <code>Range</code>). Ex. : <code>Range("B2").Value = 15000</code> ou <code>montant = Range("B2").Value</code>.</li>
+  <li><strong><code>Formula</code> et <code>FormulaLocal</code></strong> : <code>Formula</code> injecte une formule en syntaxe anglaise avec séparateur virgule (ex. <code>Range("C2").Formula = "=SUM(A2:B2)"</code>), tandis que <code>FormulaLocal</code> utilise les noms de fonctions de la langue d’Excel installée (ex. <code>"=SOMME(A2:B2)"</code>).</li>
+  <li><strong>Mise en forme de la police (sous-objet <code>Font</code>)</strong> : <code>Range("A1").Font.Bold = True</code> (gras), <code>.Font.Italic = True</code> (italique), <code>.Font.Size = 14</code> (taille), <code>.Font.Name = "Calibri"</code>, <code>.Font.Color = RGB(255, 0, 0)</code> (texte rouge).</li>
+  <li><strong>Couleur de fond de cellule (sous-objet <code>Interior</code>)</strong> : <code>Range("A1:D1").Interior.Color = RGB(220, 240, 255)</code> ou via la palette de 56 couleurs d’Excel <code>Range("A1").Interior.ColorIndex = 6</code> (jaune). Pour retirer la couleur de fond : <code>.Interior.ColorIndex = xlNone</code>.</li>
+  <li><strong>Propriétés de feuille et d’application</strong> : <code>Worksheets(1).Name = "Bilan_2026"</code> renomme l’onglet ; <code>Worksheets("Calculs").Visible = False</code> masque la feuille ; <code>Application.ScreenUpdating = False</code> fige le rafraîchissement de l’écran pendant l’exécution d’une macro lourde (ce qui l’accélère considérablement et évite le scintillement).</li>
+</ul>
+  <div class="box box--mnemo">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Écrire directement dans .Value sans passer par .Select</div>
+    <p>L’enregistreur de macros génère deux lignes : <code>Range("B2").Select</code> puis <code>ActiveCell.FormulaR1C1 = "100"</code>. En vrai code VBA professionnel, on écrit directement en une seule ligne <strong><code>Range("B2").Value = 100</code></strong> sans déplacer le curseur de sélection : le code est 10 fois plus rapide et plus lisible.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Méthodes (Select, ClearContents, Copy, AutoFit), bloc With...End With et WorksheetFunction</h2>
+
+<p>Une <strong>méthode</strong> est une <strong>action</strong> que l’on ordonne à un objet d’accomplir (syntaxe : <code>Objet.Methode [Arguments]</code>, sans signe <code>=</code> devant la méthode) :</p>
+<ul>
+  <li><strong>Effacer une plage (la distinction cruciale d’examen)</strong> :    <ul>      <li><strong><code>Range("A2:D20").ClearContents</code></strong> : efface <strong>uniquement le contenu</strong> (valeurs et formules) tout en <strong>conservant la mise en forme</strong> (bordures, couleurs, formats numériques) ;</li>      <li><strong><code>Range("A2:D20").ClearFormats</code></strong> : réinitialise uniquement la mise en forme en gardant les valeurs ;</li>      <li><strong><code>Range("A2:D20").Clear</code></strong> : efface absolument tout (contenu, formats et commentaires).</li>    </ul>  </li>
+  <li><strong>Copier, supprimer, ajuster</strong> : <code>Range("A1:B10").Copy Destination:=Range("E1")</code> copie la plage vers E1 en une seule instruction ; <code>Rows(5).Delete</code> supprime la ligne 5 ; <code>Columns("A:F").AutoFit</code> ajuste automatiquement la largeur des colonnes A à F à leur contenu.</li>
+  <li><strong>Gérer les classeurs et feuilles</strong> : <code>Workbooks.Add</code> (nouveau classeur), <code>Workbooks.Open("C:\Rapports\Mai.xlsx")</code>, <code>ThisWorkbook.Save</code>, <code>Worksheets.Add</code> (nouvelle feuille).</li>
+</ul>
+<p>Lorsqu’on modifie plusieurs propriétés ou appelle plusieurs méthodes sur le <strong>même objet</strong>, le bloc <strong><code>With ... End With</code></strong> évite de répéter le nom de l’objet à chaque ligne. De plus, l’objet <strong><code>Application.WorksheetFunction</code></strong> permet d’utiliser directement les fonctions de calcul d’Excel (<code>Sum</code>, <code>Average</code>, <code>Max</code>, <code>Min</code>, <code>VLookup</code>, <code>CountIf</code>) en VBA :</p>
+<pre><code>With Worksheets("Facture").Range("A1:E1")
+    .Font.Bold = True
+    .Font.Size = 12
+    .Interior.Color = RGB(33, 115, 70)
+    .Columns.AutoFit
+End With
+
+' Calculer la somme de B2:B50 via WorksheetFunction :
+Range("B51").Value = Application.WorksheetFunction.Sum(Range("B2:B50"))</code></pre>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Les procédures événementielles : Workbook_Open et Worksheet_Change</h2>
+
+<p>Jusqu’ici, nos macros étaient lancées manuellement (bouton, raccourci clavier ou menu). Une <strong>procédure événementielle</strong> s’exécute <strong>automatiquement</strong> en réponse à un événement déclenché par l’utilisateur ou par Excel. Contrairement aux macros classiques, elle ne se place <strong>jamais dans un module standard (<code>Module1</code>)</strong>, mais dans le module de l’objet surveillé :</p>
+<ul>
+  <li><strong>Dans le module <code>ThisWorkbook</code> (événements du classeur)</strong> :    <ul>      <li><strong><code>Private Sub Workbook_Open()</code></strong> : s’exécute automatiquement dès l’ouverture du classeur (idéal pour afficher un message d’accueil, activer la feuille du menu principal ou initialiser des paramètres).</li>      <li><strong><code>Private Sub Workbook_BeforeClose(Cancel As Boolean)</code></strong> : s’exécute juste avant la fermeture du classeur (mettre <code>Cancel = True</code> annule la fermeture si une vérification échoue).</li>    </ul>  </li>
+  <li><strong>Dans le module d’une feuille <code>Feuil1</code> (événements de feuille)</strong> :    <ul>      <li><strong><code>Private Sub Worksheet_Change(ByVal Target As Range)</code></strong> : se déclenche dès que l’utilisateur modifie la valeur d’une cellule de cette feuille. Le paramètre automatique <strong><code>Target</code></strong> désigne exactement la cellule (ou la plage) qui vient d’être modifiée !</li>      <li><strong><code>Private Sub Worksheet_SelectionChange(ByVal Target As Range)</code></strong> : se déclenche à chaque fois que l’utilisateur clique sur une autre cellule (<code>Target</code> est la nouvelle sélection).</li>      <li><strong><code>Private Sub Worksheet_Activate()</code></strong> : se déclenche lorsque l’utilisateur clique sur l’onglet de la feuille pour l’afficher.</li>    </ul>  </li>
+</ul>
+<pre><code>' Dans le module de la feuille Feuil1 (et non dans Module1) :
+Private Sub Worksheet_Change(ByVal Target As Range)
+    ' Si la cellule modifiée se trouve dans la colonne B (colonne 2) :
+    If Target.Column = 2 And Target.Row &gt;= 2 Then
+        Target.Offset(0, 1).Value = Date  ' Inscrit la date de saisie en colonne C
+    End If
+End Sub</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Pièges classiques sur les méthodes et les événements</div>
+    <ul>
+      <li>Utiliser <code>.Clear</code> au lieu de <code>.ClearContents</code> pour vider un modèle de facture : toutes les bordures et couleurs du tableau sont détruites !</li>
+      <li>Écrire <code>Sub Workbook_Open()</code> dans <code>Module1</code> : Excel ne l’exécutera pas automatiquement à l’ouverture (elle doit résider dans <code>ThisWorkbook</code>).</li>
+      <li>Oublier le point initial (<code>.Font.Bold = True</code>) à l’intérieur d’un bloc <code>With Range("A1") ... End With</code>.</li>
+    </ul>
+  </div>
+
+</section>
+
+  <section class="sec">
+
+<!-- code-labs:start -->
+  <div id="exercices">
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
+<div class="lab" id="vba-c3-e1" data-lab
+     data-exercise="vba-c3-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Mise en forme d'une cellule :&#10;- Range(&quot;A1&quot;).Font.Size = 14 -&gt; propriété (affectation avec =)&#10;- Range(&quot;A1:B5&quot;).Copy -&gt; méthode (action de copie)">
+  <script type="text/plain" data-lab-starter># Exercice — Distinguer Propriétés et Méthodes sur un modèle de facture
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Nature de Value (propriete ou methode)]
+A_COMPLETER
+
+[Question 2 — Nature de AutoFit (propriete ou methode)]
+A_COMPLETER
+
+[Question 3 — Méthode effaçant le contenu sans effacer la mise en forme]
+A_COMPLETER
+
+[Question 4 — Sous-objet gérant la couleur de fond (Font ou Interior)]
+A_COMPLETER
+
+[Question 5 — Propriété d'Application figeant le rafraîchissement écran]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Distinguer Propriétés et Méthodes sur un modèle de facture</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Qualifier chaque membre VBA comme propriété ou méthode et choisir entre Clear, ClearContents et ClearFormats.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Essi prépare un bouton « Nouvelle facture » pour vider la plage de saisie <code>B8:E25</code> tout en conservant les bordures, les couleurs et le format monétaire du tableau. Elle hésite entre plusieurs instructions VBA :</p><table>  <tr><th>Instruction VBA</th><th>Effet sur la feuille</th></tr>  <tr><td><code>Range("B4").Value = "Facture n° 104"</code></td><td>Écrit le titre dans B4</td></tr>  <tr><td><code>Range("B8:E25").ClearContents</code></td><td>Vide les valeurs sans toucher au format</td></tr>  <tr><td><code>Range("B8:E25").Clear</code></td><td>Efface tout (valeurs, bordures et couleurs)</td></tr>  <tr><td><code>Range("B4").Font.Bold = True</code></td><td>Met la police de B4 en gras</td></tr>  <tr><td><code>Columns("B:E").AutoFit</code></td><td>Ajuste la largeur des colonnes B à E</td></tr></table><ol>  <li>Dans <code>Range("B4").Value = "Facture n° 104"</code>, <code>Value</code> est-il une <code>propriete</code> ou une <code>methode</code> ?</li>  <li>Dans <code>Columns("B:E").AutoFit</code>, <code>AutoFit</code> est-il une <code>propriete</code> ou une <code>methode</code> ?</li>  <li>Quelle méthode Essi doit-elle choisir pour vider les valeurs de <code>B8:E25</code> tout en conservant ses bordures et couleurs ?</li>  <li>Quel sous-objet de <code>Range</code> permet de modifier la couleur de fond (remplissage) d’une cellule : <code>Font</code> ou <code>Interior</code> ?</li>  <li>Quelle propriété booléenne de <code>Application</code> met-on à <code>False</code> en début de macro pour figer le rafraîchissement d’écran et accélérer l’exécution ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Mise en forme d'une cellule :
+- Range("A1").Font.Size = 14 -&gt; propriété (affectation avec =)
+- Range("A1:B5").Copy -&gt; méthode (action de copie)</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Ce à quoi on affecte une valeur avec le signe = est une propriété ; ce qui déclenche une action sans signe = est une méthode.</li>
+        <li>Pour effacer seulement le contenu (contents en anglais) sans détruire le cadre du tableau, évitez Clear tout court.</li>
+        <li>Étapes : classer Value comme propriete et AutoFit comme methode ; retenir ClearContents ; choisir Interior pour la couleur de fond ; citer ScreenUpdating (Application.ScreenUpdating = False).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c3-e2" data-lab
+     data-exercise="vba-c3-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Calcul de la moyenne de B2:B30 en VBA :&#10;moy = Application.WorksheetFunction.Average(Range(&quot;B2:B30&quot;))">
+  <script type="text/plain" data-lab-starter># Exercice — Factoriser avec With...End With et calculer avec WorksheetFunction
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Mot-clé d'ouverture du bloc de factorisation]
+A_COMPLETER
+
+[Question 2 — Mots-clés de fermeture du bloc]
+A_COMPLETER
+
+[Question 3 — Signe placé devant Font et Interior dans le bloc]
+A_COMPLETER
+
+[Question 4 — Objet exposant les fonctions natives d'Excel en VBA]
+A_COMPLETER
+
+[Question 5 — Langue des fonctions dans WorksheetFunction (anglais ou francais)]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Factoriser avec With...End With et calculer avec WorksheetFunction</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Compléter un bloc With...End With et utiliser Application.WorksheetFunction pour appeler les fonctions Excel en VBA.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pour éviter de répéter cinq fois <code>Worksheets("Bilan").Range("A1:F1")</code>, Mawuli utilise un bloc de factorisation et calcule ensuite la somme de la plage <code>D2:D100</code> :</p><pre><code>With Worksheets("Bilan").Range("A1:F1")
+    .Font.Bold = True
+    .Font.Size = 12
+    .Interior.ColorIndex = 6
+End With
+
+Range("D101").Value = Application.WorksheetFunction.Sum(Range("D2:D100"))</code></pre><ol>  <li>Par quel mot-clé s’ouvre un bloc qui factorise les accès à un même objet ?</li>  <li>Par quels deux mots se ferme obligatoirement ce bloc ?</li>  <li>Par quel signe de ponctuation commence chacune des lignes à l’intérieur du bloc (devant <code>Font</code> et <code>Interior</code>) ? (écrivez le nom du signe, ex. <code>point</code>, ou le caractère <code>.</code>)</li>  <li>Quel sous-objet de <code>Application</code> permet d’appeler les fonctions de feuille de calcul d’Excel (comme <code>Sum</code>, <code>Average</code>, <code>VLookup</code>) depuis VBA ?</li>  <li>Dans <code>WorksheetFunction.Sum(...)</code>, les noms des fonctions Excel s’écrivent-ils en <code>anglais</code> ou en <code>francais</code> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Calcul de la moyenne de B2:B30 en VBA :
+moy = Application.WorksheetFunction.Average(Range("B2:B30"))</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Le bloc de factorisation porte le nom anglais signifiant « Avec ».</li>
+        <li>À l’intérieur du bloc, chaque propriété est rattachée à l’objet de l’en-tête par son point d’accès.</li>
+        <li>Étapes : noter With à l’ouverture et End With à la fermeture ; indiquer le point (.) devant les propriétés internes ; relever WorksheetFunction ; préciser anglais (Sum, Average, VLookup).</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c3-e3" data-lab
+     data-exercise="vba-c3-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="L'utilisateur clique sur la cellule D4 de Feuil2 :&#10;- Événement déclenché : Worksheet_SelectionChange dans Feuil2&#10;- Target.Address -&gt; &quot;$D$4&quot;&#10;- Target.Row -&gt; 4, Target.Column -&gt; 4">
+  <script type="text/plain" data-lab-starter># Exercice — Procédures événementielles : Workbook_Open et Worksheet_Change
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Module où placer Workbook_Open()]
+A_COMPLETER
+
+[Question 2 — Module où placer Worksheet_Change (Module1 ou Feuil1)]
+A_COMPLETER
+
+[Question 3 — Nom du paramètre représentant la cellule modifiée]
+A_COMPLETER
+
+[Question 4 — Propriété de Target donnant le numéro de colonne]
+A_COMPLETER
+
+[Question 5 — Cellule où la date est écrite si Target est B10]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Procédures événementielles : Workbook_Open et Worksheet_Change</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Placer chaque procédure événementielle dans le bon module VBE et exploiter le paramètre Target.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le directeur financier souhaite deux automatisations sans bouton :</p><ul>  <li><strong>Automatisation 1</strong> : dès l’ouverture du classeur, afficher automatiquement la feuille <code>"Accueil"</code> via l’événement <code>Workbook_Open()</code>.</li>  <li><strong>Automatisation 2</strong> : sur la feuille <code>Feuil1</code>, dès qu’un comptable modifie un montant dans la colonne B (colonne 2), inscrire automatiquement la date du jour dans la colonne C située juste à droite, grâce au code suivant :</li></ul><pre><code>Private Sub Worksheet_Change(ByVal Target As Range)
+    If Target.Column = 2 Then
+        Target.Offset(0, 1).Value = Date
+    End If
+End Sub</code></pre><ol>  <li>Dans quel module de l’Explorateur de projets faut-il écrire <code>Workbook_Open()</code> pour qu’elle se déclenche à l’ouverture du classeur ?</li>  <li>Dans quel module faut-il écrire <code>Worksheet_Change</code> : dans <code>Module1</code> ou dans le module de la feuille (<code>Feuil1</code>) ?</li>  <li>Comment s’appelle le paramètre de type <code>Range</code> qui désigne la cellule qui vient d’être modifiée dans <code>Worksheet_Change</code> ?</li>  <li>Quelle propriété de <code>Target</code> renvoie le numéro de la colonne modifiée (testée à <code>2</code> dans le code) ?</li>  <li>Si le comptable modifie la cellule <code>B10</code>, dans quelle cellule (en notation A1) l’instruction <code>Target.Offset(0, 1).Value = Date</code> écrit-elle la date ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'utilisateur clique sur la cellule D4 de Feuil2 :
+- Événement déclenché : Worksheet_SelectionChange dans Feuil2
+- Target.Address -&gt; "$D$4"
+- Target.Row -&gt; 4, Target.Column -&gt; 4</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Un événement qui concerne le classeur entier vit dans l’objet classeur ; un événement qui concerne une feuille vit dans l’objet feuille.</li>
+        <li>Dans la signature Private Sub Worksheet_Change(ByVal Target As Range), lisez le nom de l’argument avant As Range.</li>
+        <li>Étapes : placer Workbook_Open dans ThisWorkbook ; placer Worksheet_Change dans Feuil1 ; nommer le paramètre Target ; relever la propriété Column ; décaler B10 de Offset(0, 1) vers C10.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  </div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Quelle méthode de l’objet Range permet d’effacer uniquement les valeurs et formules d’une plage tout en conservant ses bordures et couleurs ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">ClearContents</button>
+        <button class="opt">Clear</button>
+        <button class="opt">ClearFormats</button>
+        <button class="opt">Delete</button>
+      </div>
+      <div class="q__exp">ClearContents vide uniquement le contenu des cellules en préservant toute la mise en forme. Clear efface tout (contenu + formats), ClearFormats n’efface que le style et Delete supprime physiquement les cellules en décalant la feuille.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Parmi les écritures suivantes appliquées à Range("A1"), laquelle met correctement le texte en gras et illustre la modification d’une propriété ?</p>
+      <div class="opts">
+        <button class="opt">Range("A1").Bold.Select</button>
+        <button class="opt" data-correct="1">Range("A1").Font.Bold = True</button>
+        <button class="opt">Range("A1").Font = Bold</button>
+        <button class="opt">Call Range("A1").Font.Bold</button>
+      </div>
+      <div class="q__exp">Bold est une propriété booléenne du sous-objet Font de Range : on lui affecte la valeur True avec le signe = (Range("A1").Font.Bold = True).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans quel module de l’Explorateur de projets faut-il placer la procédure Private Sub Workbook_Open() pour qu’elle s’exécute automatiquement à l’ouverture du fichier ?</p>
+      <div class="opts">
+        <button class="opt">Dans Module1 (dossier Modules)</button>
+        <button class="opt">Dans le module de Feuil1</button>
+        <button class="opt" data-correct="1">Dans le module de l’objet ThisWorkbook</button>
+        <button class="opt">Dans un UserForm</button>
+      </div>
+      <div class="q__exp">Les événements liés au classeur entier (Workbook_Open, Workbook_BeforeClose, Workbook_BeforeSave) doivent obligatoirement être écrits dans le module de l’objet ThisWorkbook.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans la procédure événementielle Private Sub Worksheet_Change(ByVal Target As Range), que représente le paramètre Target ?</p>
+      <div class="opts">
+        <button class="opt">Le classeur actif tout entier</button>
+        <button class="opt">La cellule A1 de la première feuille</button>
+        <button class="opt">La feuille vers laquelle les données sont copiées</button>
+        <button class="opt" data-correct="1">La cellule ou la plage de cellules qui vient d’être modifiée par l’utilisateur</button>
+      </div>
+      <div class="q__exp">Excel transmet automatiquement dans l’argument Target (de type Range) la référence exacte de la cellule ou de la plage dont la valeur vient de changer.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle propriété permet de modifier la couleur de remplissage (fond) de la cellule A1 en VBA ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Range("A1").Interior.Color (ou .Interior.ColorIndex)</button>
+        <button class="opt">Range("A1").Font.Color</button>
+        <button class="opt">Range("A1").Background.Value</button>
+        <button class="opt">Range("A1").Fill.Style</button>
+      </div>
+      <div class="q__exp">Le sous-objet Interior gère le remplissage intérieur de la cellule via ses propriétés Color (avec RGB) ou ColorIndex (palette de 1 à 56). Font.Color modifie uniquement la couleur des caractères.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel est l’intérêt principal d’un bloc With Range("A1:F1") ... End With ?</p>
+      <div class="opts">
+        <button class="opt">Répéter une boucle 10 fois sur la plage A1:F1</button>
+        <button class="opt" data-correct="1">Appliquer plusieurs propriétés et méthodes au même objet sans répéter son chemin complet à chaque ligne</button>
+        <button class="opt">Protéger la plage A1:F1 par un mot de passe</button>
+        <button class="opt">Créer un nouveau classeur contenant uniquement la plage A1:F1</button>
+      </div>
+      <div class="q__exp">With...End With factorise la référence à l’objet : à l’intérieur du bloc, chaque ligne commençant par un point (.Font.Bold = True, .Interior.ColorIndex = 6) s’applique directement à cet objet.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Comment appeler la fonction SOMME d’Excel sur la plage B2:B20 depuis du code VBA pour stocker le résultat dans une variable ?</p>
+      <div class="opts">
+        <button class="opt">total = Range("B2:B20").Sum()</button>
+        <button class="opt">total = VBA.SOMME("B2:B20")</button>
+        <button class="opt" data-correct="1">total = Application.WorksheetFunction.Sum(Range("B2:B20"))</button>
+        <button class="opt">total = ActiveSheet.Formula("=SUM(B2:B20)")</button>
+      </div>
+      <div class="q__exp">L’objet Application.WorksheetFunction expose les fonctions de feuille de calcul d’Excel (en anglais, comme Sum, Average, Max, VLookup) pour les évaluer directement en VBA.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle méthode ajuste automatiquement la largeur des colonnes A à D à la longueur de leur contenu ?</p>
+      <div class="opts">
+        <button class="opt">Columns("A:D").Resize</button>
+        <button class="opt">Range("A:D").ClearFormats</button>
+        <button class="opt">Columns("A:D").Select</button>
+        <button class="opt" data-correct="1">Columns("A:D").AutoFit</button>
+      </div>
+      <div class="q__exp">La méthode AutoFit appliquée à un objet Columns (ou Rows) ajuste automatiquement la largeur des colonnes (ou la hauteur des lignes) au contenu le plus long.</div>
+    </div>
+  </div>
+
+  </section>
+
+<section class="sec">
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Confondre Clear (efface contenu ET mise en forme) avec ClearContents (efface uniquement les valeurs/formules).</li>
+      <li>Placer une procédure événementielle (Workbook_Open ou Worksheet_Change) dans un module standard Module1 où elle restera inactive.</li>
+      <li>Oublier le point devant les propriétés (.Font.Bold) à l’intérieur d’un bloc With...End With.</li>
+      <li>Abuser de .Select et .Activate alors qu’on peut modifier directement Range("...").Value.</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — agir proprement sur une plage Excel en VBA</div>
+    <ol>
+      <li>Se demander s’il s’agit de modifier un attribut (Propriété avec =) ou de déclencher une action (Méthode sans =).</li>
+      <li>Regrouper les modifications portant sur un même objet dans un bloc With ... End With en commençant chaque ligne par un point.</li>
+      <li>Préférer ClearContents à Clear pour réinitialiser les zones de saisie d’un modèle sans détruire ses bordures.</li>
+      <li>Pour automatiser une réaction sur saisie ou ouverture, placer le code dans Feuil1 (Worksheet_Change) ou ThisWorkbook (Workbook_Open).</li>
+    </ol>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>Une propriété (Value, Formula, Font.Bold, Interior.Color, Name, Row, Column) se lit ou se modifie avec =.</li>
+      <li>Une méthode (Select, ClearContents, Clear, Copy, Delete, AutoFit, Open, Save) exécute une action sur l’objet.</li>
+      <li>With...End With factorise les accès à un même objet ; Application.WorksheetFunction appelle les fonctions natives d’Excel.</li>
+      <li>Workbook_Open (dans ThisWorkbook) et Worksheet_Change(ByVal Target As Range) (dans une feuille) réagissent automatiquement aux événements.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais distinguer une propriété d’une méthode dans n’importe quelle ligne de code VBA.</li>
+      <li>Je sais choisir entre Clear, ClearContents et ClearFormats selon le besoin.</li>
+      <li>Je sais écrire un bloc With...End With pour formater un en-tête de tableau.</li>
+      <li>Je sais utiliser Target dans Worksheet_Change(ByVal Target As Range).</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong>Propriété</strong> : caractéristique d’un objet lue ou modifiée avec <code>=</code> (<code>Value</code>, <code>Formula</code>, <code>Name</code>).</li><li><strong>Méthode</strong> : action exécutée par un objet (<code>Select</code>, <code>Copy</code>, <code>ClearContents</code>, <code>AutoFit</code>).</li><li><strong><code>ClearContents</code> vs <code>Clear</code></strong> : effacer uniquement les valeurs/formules vs effacer valeurs et mise en forme.</li><li><strong><code>Font</code> &amp; <code>Interior</code></strong> : sous-objets de <code>Range</code> gérant la police et la couleur de fond.</li><li><strong><code>With ... End With</code></strong> : structure appliquant une série d’instructions au même objet sans le répéter.</li><li><strong><code>Application.WorksheetFunction</code></strong> : passerelle permettant d’appeler les fonctions Excel (<code>Sum</code>, <code>VLookup</code>) en VBA.</li><li><strong><code>Workbook_Open()</code></strong> : procédure événementielle de <code>ThisWorkbook</code> exécutée à l’ouverture du fichier.</li><li><strong><code>Worksheet_Change(ByVal Target As Range)</code></strong> : événement de feuille déclenché à chaque modification de cellule (<code>Target</code>).</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>revoyez la différence entre Propriété (=) et Méthode ainsi que Clear vs ClearContents.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>pratiquez l’écriture des blocs With...End With et l’emplacement des événements.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, vérifiez l’utilisation du paramètre Target dans Worksheet_Change.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise complète des propriétés, méthodes et événements Excel.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+</section>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre4.html">Chapitre 4 — Variables, Types de données (Integer, Long, Double, String, Boolean, Variant, Option Explicit), Opérateurs et Fonctions (Sub vs Function) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
+  Sources : Programmation VBA sous Excel (Dr TCHAZINO Tchamiè, 47 pages, support1.pdf — programme officiel B1 IT).</p>
+</main>
+
+<footer class="cfoot">
+  <div class="cfoot__in">
+    <a class="cfoot__brand" href="/">cours.interactifs</a>
+    <p class="cfoot__copy">© 2025-2026 Cours Interactifs — RD4SLOQ · VB Excel B1</p>
+    <nav class="cfoot__links" aria-label="Liens utiles">
+      <a href="/">Tous les cours</a>
+      <a href="/epreuves/index.html">Épreuves</a>
+      <a href="/preparation-web/index.html">Atelier Web</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

@@ -147,65 +147,65 @@ module.exports = {
     {
       stem: 'Quel délai de transmission unidirectionnel maximal est officiellement recommandé par l’UIT-T pour la voix sur IP (VoIP) ?',
       opts: [
-        '10 secondes',
         '150 millisecondes',
+        '10 secondes',
         '1 milliseconde',
         '800 millisecondes'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La recommandation UIT-T G.114 préconise un délai aller simple inférieur ou égal à 150 ms pour maintenir une conversation téléphonique fluide sans écho perceptible.'
     },
     {
       stem: 'Sur combien de bits le champ Class of Service (CoS / 802.1p) est-il encodé dans le tag VLAN 802.1Q ?',
       opts: [
-        '3 bits (8 valeurs possibles de 0 à 7)',
         '6 bits (64 valeurs possibles)',
+        '3 bits (8 valeurs possibles de 0 à 7)',
         '8 bits (256 valeurs possibles)',
         '1 bit (0 ou 1)'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le champ PCP/CoS est codé sur 3 bits dans l’en-tête 802.1Q, autorisant 8 niveaux de priorité distincts (de 0 à 7).'
     },
     {
       stem: 'Quelle valeur décimale standardisée correspond à la classe DSCP « Expedited Forwarding (EF) » réservée à la VoIP ?',
       opts: [
         '0',
-        '46',
         '24',
+        '46',
         '63'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Expedited Forwarding (EF) est codé en binaire 101110, ce qui correspond à la valeur décimale 46.'
     },
     {
       stem: 'Pourquoi est-il crucial de positionner la frontière de confiance (Trust Boundary) sur le commutateur d’accès ?',
       opts: [
-        'Pour empêcher les ordinateurs des utilisateurs d’attribuer arbitrairement un marquage prioritaire à leur trafic ordinaire',
-        'Pour accélérer la vitesse de calcul du processeur',
-        'Pour chiffrer les adresses MAC des stations',
-        'Pour forcer les utilisateurs à payer un abonnement Internet plus cher'
+        "Pour accélérer la vitesse de calcul du processeur du commutateur lors du routage inter-VLAN",
+        "Pour chiffrer systématiquement les adresses MAC des stations émettrices sur le réseau",
+        "Pour forcer les utilisateurs à payer un abonnement Internet plus cher à leur opérateur",
+        "Pour empêcher les ordinateurs des utilisateurs d’attribuer arbitrairement un marquage prioritaire à leur trafic ordinaire"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La frontière de confiance protège le réseau contre les marquages frauduleux ou abusifs générés par des machines clientes non autorisées.'
     },
     {
       stem: 'Quel risque majeur l’ordonnanceur Strict Priority (SP) fait-il peser sur les files de données s’il n’est pas associé à un Policer ?',
       opts: [
-        'Une surchauffe des câbles cuivre',
-        'La famine (Starvation) des flux ordinaires si la file prioritaire est saturée en permanence',
-        'La suppression de la table de routage',
-        'Le redémarrage intempestif des commutateurs'
+        "La famine (Starvation) des flux ordinaires si la file prioritaire est saturée en permanence",
+        "Une surchauffe progressive des câbles cuivre reliant les baies de brassage",
+        "La suppression automatique de la table de routage des routeurs voisins",
+        "Le redémarrage intempestif des commutateurs en cas de pic de charge"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Strict Priority vide intégralement la file prioritaire avant d’examiner les autres files : si elle est saturée, les autres applications ne sont jamais transmises.'
     },
     {
       stem: 'Quel est l’objectif de l’algorithme WRED (Weighted Random Early Detection) dans la gestion des files d’attente ?',
       opts: [
-        'Bloquer les adresses IP russes',
-        'Détruire aléatoirement des paquets TCP avant saturation complète pour forcer la réduction de débit et éviter la synchronisation globale TCP',
-        'Augmenter la taille des paquets pour remplir la bande passante',
-        'Transformer les paquets TCP en requêtes HTTP'
+        "Bloquer préventivement les adresses IP russes identifiées comme sources d’attaques externes",
+        "Détruire aléatoirement des paquets TCP avant saturation complète pour forcer la réduction de débit et éviter la synchronisation globale TCP",
+        "Augmenter artificiellement la taille des paquets pour remplir intégralement la bande passante disponible",
+        "Transformer automatiquement les paquets TCP en requêtes HTTP prioritaires au sortir de la file"
       ],
       correct: 1,
       exp: 'WRED élimine préventivement quelques paquets TCP dans la file, incitant les émetteurs TCP à réduire leur fenêtre sans effondrer toutes les sessions simultanément.'
@@ -214,22 +214,22 @@ module.exports = {
       stem: 'Quel standard IEEE ouvert et multi-constructeurs définit le protocole LLDP (Link Layer Discovery Protocol) ?',
       opts: [
         'IEEE 802.1D',
-        'IEEE 802.1AB',
         'IEEE 802.3ad',
+        'IEEE 802.1AB',
         'RFC 791'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le protocole LLDP est spécifié par le standard international IEEE 802.1AB.'
     },
     {
       stem: 'Dans une trame LLDP 802.1AB, comment les informations échangées (nom d’équipement, port, capacités) sont-elles encapsulées ?',
       opts: [
         'En fichiers XML zippés',
-        'Sous forme de blocs TLV (Type-Length-Value)',
+        'En requêtes SQL',
         'En texte brut séparé par des virgules (CSV)',
-        'En requêtes SQL'
+        'Sous forme de blocs TLV (Type-Length-Value)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'LLDP utilise une structure modulaire en TLVs (Type-Length-Value), permettant à chaque constructeur d’insérer des attributs standardisés ou propriétaires.'
     }
   ],

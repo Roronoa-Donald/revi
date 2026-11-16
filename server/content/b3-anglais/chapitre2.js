@@ -139,12 +139,12 @@ module.exports = {
     {
       stem: 'Dans la norme RFC 2119, que signifie la directive « The server MUST NOT log bearer tokens » ?',
       opts: [
-        'Il est recommandé de ne pas journaliser les tokens sauf en cas de débogage.',
         'La journalisation des tokens est formellement interdite et constitue une non-conformité absolue.',
+        'Il est recommandé de ne pas journaliser les tokens sauf en cas de débogage.',
         'Le serveur peut journaliser les tokens s’il utilise le format JSON.',
         'Cette directive est purement informative et n’a aucune valeur contraignante.'
       ],
-      correct: 1,
+      correct: 0,
       exp: '« MUST NOT » désigne une interdiction absolue et impérative dans la norme RFC 2119.'
     },
     {
@@ -161,67 +161,67 @@ module.exports = {
     {
       stem: 'Read the excerpt: “Repeated identical idempotent requests have the same intended effect, even when responses differ.” What does it mean?',
       opts: [
-        'Repeating the same request has the same intended effect as sending it once.',
+        'No authentication is required for an idempotent request.',
         'Every response and every log entry must be identical.',
         'All payment POST requests can always be retried without precautions.',
-        'No authentication is required for an idempotent request.'
+        'Repeating the same request has the same intended effect as sending it once.'
       ],
-      correct: 0,
+      correct: 3,
       exp: '« Intended effect » signifie effet visé : il reste le même pour des requêtes identiques, même si les réponses et les journaux diffèrent. Cela ne rend pas tout paiement POST automatiquement sûr à répéter.'
     },
     {
       stem: 'Dans la documentation d’une API REST, quelle est la méthode HTTP recommandée pour créer une nouvelle commande d’achat ?',
       opts: [
         'GET',
-        'POST',
         'HEAD',
+        'POST',
         'OPTIONS'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'POST est la méthode standard pour créer de nouvelles ressources dont l’identifiant n’est pas encore déterminé par le client.'
     },
     {
       stem: 'Quelle est la différence entre les mots-clés RFC 2119 « MUST » et « SHOULD » ?',
       opts: [
-        'MUST est une exigence absolue ; SHOULD est une forte recommandation qui peut être contournée si des raisons valables existent.',
-        'MUST concerne les clients et SHOULD concerne uniquement les serveurs.',
-        'SHOULD est obligatoire tandis que MUST est purement optionnel.',
-        'Les deux termes ont exactement la même valeur juridique et technique.'
+        "MUST s’applique uniquement aux logiciels clients tandis que SHOULD s’applique exclusivement aux logiciels serveurs des architectures.",
+        "MUST est une exigence absolue ; SHOULD est une forte recommandation qui peut être contournée si des raisons valables existent.",
+        "SHOULD constitue une exigence absolue et incontournable tandis que MUST n’est qu’une simple suggestion laissée à l’appréciation de chacun.",
+        "Ces deux mots-clés sont des synonymes stricts possédant exactement la même valeur normative dans toutes les spécifications de l’IETF."
       ],
-      correct: 0,
+      correct: 1,
       exp: 'MUST impose une obligation absolue. SHOULD tolère des exceptions motivées et documentées par les ingénieurs.'
     },
     {
       stem: 'Quel code de retour HTTP est le plus approprié lorsqu’une ressource est supprimée avec succès et qu’aucun corps de réponse n’est renvoyé ?',
       opts: [
-        '200 OK',
-        '201 Created',
         '204 No Content',
+        '201 Created',
+        '200 OK',
         '304 Not Modified'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le code HTTP 204 No Content confirme le succès du traitement tout en spécifiant qu’aucun corps de réponse n’est transmis.'
     },
     {
       stem: 'Dans un fichier README.md de qualité professionnelle, quelle section doit obligatoirement détailler les versions de Node.js, Python ou Docker nécessaires ?',
       opts: [
         'License & Copyright',
-        'Prerequisites (Prérequis)',
+        'Changelog',
         'Contributing Guide',
-        'Changelog'
+        'Prerequisites (Prérequis)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La section Prerequisites énumère l’ensemble des dépendances matérielles et logicielles requises pour exécuter le projet.'
     },
     {
       stem: 'Que signale un code d’erreur HTTP 502 Bad Gateway reçu par un navigateur ?',
       opts: [
-        'Le navigateur a envoyé une URL contenant des caractères interdits.',
-        'Un serveur mandataire ou proxy inverse a reçu une réponse invalide d’un serveur en amont (upstream).',
-        'La base de données locale du client est corrompue.',
-        'Le mot de passe de l’utilisateur a expiré.'
+        "Le navigateur client a transmis une requête mal formée contenant des caractères interdits dans l’URL demandée.",
+        "Le serveur d’origine est temporairement saturé et refuse momentanément de traiter de nouvelles requêtes entrantes.",
+        "Un serveur mandataire ou proxy inverse a reçu une réponse invalide d’un serveur en amont (upstream).",
+        "La passerelle n’a reçu aucune réponse du serveur amont dans le délai imparti pour la requête envoyée."
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le code 502 Bad Gateway survient lorsqu’un reverse proxy (ex: Nginx, Traefik) ne parvient pas à obtenir une réponse valide du microservice applicatif amont.'
     }
   ],

@@ -133,34 +133,34 @@ module.exports = {
     {
       stem: 'Quelle chaîne netfilter intercepte les paquets qui traversent la machine pare-feu pour aller d’un réseau vers un autre ?',
       opts: [
-        'La chaîne FORWARD',
         'La chaîne INPUT',
+        'La chaîne FORWARD',
         'La chaîne OUTPUT',
         'La chaîne PREROUTING'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La chaîne FORWARD est dédiée au filtrage des paquets en transit traversant l’équipement lorsque celui-ci agit comme passerelle ou routeur.'
     },
     {
       stem: 'Quel est le principal avantage de nftables par rapport à iptables ?',
       opts: [
-        'Une syntaxe unifiée pour IPv4/IPv6, des opérations atomiques et une exécution par bytecode optimisé avec ensembles natifs',
-        'Il supprime totalement le besoin de configurer des adresses IP',
-        'Il remplace le protocole TCP par un protocole plus rapide',
-        'Il fonctionne uniquement sans connexion réseau'
+        "Il supprime totalement le besoin de configurer des adresses IP sur les interfaces réseau du serveur",
+        "Il remplace intégralement le protocole TCP par un protocole de transport plus rapide et plus léger",
+        "Une syntaxe unifiée pour IPv4/IPv6, des opérations atomiques et une exécution par bytecode optimisé avec ensembles natifs",
+        "Il fonctionne uniquement sur des machines dépourvues de toute connexion réseau active"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'nftables unifie la gestion de tous les protocoles, offre des performances nettement supérieures et permet des rechargements de configuration atomiques.'
     },
     {
       stem: 'Pourquoi est-il impératif d’autoriser l’interface "lo" (Loopback) dans les règles d’un pare-feu Linux ?',
       opts: [
-        'Parce que de nombreux démons locaux (ex: communication serveur web vers BDD locale) utilisent cette interface pour fonctionner',
-        'Pour permettre aux utilisateurs extérieurs de télécharger les logs',
-        'Pour éviter que la carte réseau physique ne chauffe trop',
-        'Pour activer automatiquement le mode Wi-Fi'
+        "Pour permettre aux utilisateurs externes non authentifiés de télécharger librement les journaux du serveur",
+        "Pour éviter que la carte réseau physique du serveur ne chauffe excessivement en production",
+        "Pour activer automatiquement le mode Wi-Fi sur l’ensemble des interfaces sans fil du système",
+        "Parce que de nombreux démons locaux (ex: communication serveur web vers BDD locale) utilisent cette interface pour fonctionner"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Si le trafic local (127.0.0.1 / lo) est bloqué, les composants internes du système d’exploitation ne peuvent plus communiquer entre eux.'
     },
     {
@@ -177,12 +177,12 @@ module.exports = {
     {
       stem: 'Comment l’outil Fail2ban neutralise-t-il les attaques par force brute sur un serveur SSH ?',
       opts: [
-        'Il surveille les logs d’authentification et ajoute dynamiquement l’adresse IP de l’attaquant dans une règle de blocage du pare-feu après un seuil d’échecs',
-        'Il change automatiquement le mot de passe de l’administrateur à chaque attaque',
-        'Il redémarre le serveur Linux à chaque tentative de connexion échouée',
-        'Il envoie un message texte d’avertissement au pirate'
+        "Il change automatiquement le mot de passe du compte administrateur à chaque nouvelle tentative d’attaque détectée sur le serveur",
+        "Il surveille les logs d’authentification et ajoute dynamiquement l’adresse IP de l’attaquant dans une règle de blocage du pare-feu après un seuil d’échecs",
+        "Il redémarre intégralement le serveur Linux hôte dès qu’une nouvelle tentative de connexion SSH authentifiée échoue",
+        "Il envoie automatiquement un message texte d’avertissement au pirate préalablement identifié comme attaquant par SMS"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Fail2ban analyse les journaux en continu et ordonne à netfilter (iptables ou nftables) de DROP les paquets de l’IP assaillante pendant une durée déterminée.'
     },
     {
@@ -199,23 +199,23 @@ module.exports = {
     {
       stem: 'Quelle commande nftables permet d’ajouter une adresse IP à une liste noire (blacklist) dynamique de manière instantanée ?',
       opts: [
-        'nft add element inet filter blacklist { IP }',
-        'nft remove table inet filter',
-        'nft delete rule all',
-        'nft shutdown network'
+        "nft remove table inet filter (efface toute la table)",
+        "nft delete rule all (supprime toutes les règles)",
+        "nft shutdown network (coupe le réseau brutalement)",
+        "nft add element inet filter blacklist { IP }"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La gestion native des éléments d’ensembles (Sets) permet d’ajouter ou de retirer des IPs de listes de blocage de façon atomique et instantanée.'
     },
     {
       stem: 'Pourquoi est-il dangereux d’exécuter "iptables -P INPUT DROP" sans avoir au préalable inséré de règle autorisant la connexion SSH courante ?',
       opts: [
-        'La session SSH de l’administrateur est immédiatement coupée et il perd l’accès à distance au serveur',
-        'Le serveur formate automatiquement ses disques durs',
-        'La carte mère subit une surtension électrique',
-        'Le processeur refuse de traiter les paquets pendant 24 heures'
+        "Le serveur formate automatiquement l’intégralité de ses disques durs sans confirmation",
+        "La carte mère du serveur subit immédiatement une surtension électrique destructrice",
+        "La session SSH de l’administrateur est immédiatement coupée et il perd l’accès à distance au serveur",
+        "Le processeur du serveur refuse de traiter tout nouveau paquet pendant les 24 prochaines heures"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Si la politique par défaut devient DROP sans règle autorisant la connexion active (ou le port 22), l’administrateur se verrouille lui-même hors du système.'
     }
   ],

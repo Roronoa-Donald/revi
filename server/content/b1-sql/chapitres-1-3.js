@@ -185,10 +185,10 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quel est le rôle d’une base de données ?', opts: ['Rendre tous les fichiers illisibles', 'Organiser des informations pour pouvoir les consulter et les gérer', 'Remplacer le processeur'], correct: 1, exp: 'Une base organise des informations ; elle ne remplace pas le matériel ni ne rend les fichiers illisibles.' },
-      { stem: 'Que signifie SGBD ?', opts: ['Système de Gestion de Big Data', 'Système de Gestion de Base de Données', 'Serveur de Gestion de Blocs de Données'], correct: 1, exp: 'Le logiciel qui gère la base : insertion, modification, recherche, partage.' },
+      { stem: 'Quel est le rôle d’une base de données ?', opts: ["Rendre illisibles tous les fichiers stockés sur le disque","Remplacer le processeur de la machine qui l’héberge","Organiser des informations pour pouvoir les consulter et les gérer"], correct: 2, exp: 'Une base organise des informations ; elle ne remplace pas le matériel ni ne rend les fichiers illisibles.' },
+      { stem: 'Que signifie SGBD ?', opts: ['Système de Gestion de Base de Données', 'Système de Gestion de Big Data', 'Serveur de Gestion de Blocs de Données'], correct: 0, exp: 'Le logiciel qui gère la base : insertion, modification, recherche, partage.' },
       { stem: 'Une clé primaire sert à…', opts: ['trier les lignes', 'identifier sans ambiguïté chaque ligne', 'relier deux tables entre elles'], correct: 1, exp: 'Identification unique ; relier deux tables est le rôle de la clé étrangère.' },
-      { stem: 'Quel modèle utilise des relations représentées ici par des tables ?', opts: ['Hiérarchique', 'Réseau', 'Relationnel'], correct: 2, exp: 'Le modèle relationnel décrit les données par des relations, présentées ici sous forme de tables.' },
+      { stem: 'Quel modèle utilise des relations représentées ici par des tables ?', opts: ['Relationnel', 'Réseau', 'Hiérarchique'], correct: 0, exp: 'Le modèle relationnel décrit les données par des relations, présentées ici sous forme de tables.' },
       { stem: 'Que représente NULL dans une colonne ?', opts: ['Zéro', 'Une chaîne vide', 'L’absence d’information'], correct: 2, exp: 'NULL n’est ni 0 ni vide : c’est l’absence de valeur, une information en soi.' },
       { stem: 'Que peut faire un SGBD adapté au partage multiutilisateur ?', opts: ['Interdire systématiquement tout accès simultané', 'Coordonner les opérations concurrentes', 'Dupliquer obligatoirement la base par utilisateur'], correct: 1, exp: 'Le SGBD peut coordonner les opérations selon son mécanisme de transactions et de verrouillage ; les deux autres propositions ne sont pas des règles générales.' }
     ],
@@ -387,10 +387,10 @@ module.exports = [
 
     questions: [
       { stem: 'En MySQL, quel type convient à un prix avec des centimes ?', opts: ['FLOAT', 'DECIMAL', 'VARCHAR'], correct: 1, exp: 'MySQL propose DECIMAL pour les décimaux exacts ; un flottant peut arrondir et VARCHAR est du texte.' },
-      { stem: 'En MySQL, INT(2) limite-t-il la valeur à deux chiffres ?', opts: ['Oui', 'Non, il ne limite pas la plage à deux chiffres', 'Oui, si la valeur est négative'], correct: 1, exp: 'INT(x) ne change pas la capacité de stockage ; la largeur concerne un affichage éventuel avec ZEROFILL.' },
-      { stem: 'En MySQL, quel type à longueur fixe choisir pour un code de 3 caractères ?', opts: ['VARCHAR(3)', 'CHAR(3)', 'TEXT'], correct: 1, exp: 'CHAR(3) est le type fixe ; VARCHAR est variable et TEXT ne précise pas cette longueur.' },
-      { stem: 'Dans le parc SQLite, quelle chaîne représente le 21 novembre 2014 ?', opts: ['\'21/11/2014\'', '\'2014-11-21\'', '\'11-21-2014\''], correct: 1, exp: 'Le parc choisit le format texte année, mois, jour : AAAA-MM-JJ.' },
-      { stem: 'En SQLite, que peut recevoir une colonne ordinaire omise dans INSERT ?', opts: ['Toujours zéro', 'Son DEFAULT ou NULL, sous réserve des contraintes', 'Toujours une erreur'], correct: 1, exp: 'Un DEFAULT fournit la valeur ; sinon c’est NULL, sauf si une contrainte comme NOT NULL interdit l’insertion. Une INTEGER PRIMARY KEY ordinaire peut être générée.' },
+      { stem: 'En MySQL, INT(2) limite-t-il la valeur à deux chiffres ?', opts: ["Non, il ne limite pas la plage à deux chiffres","Oui, la colonne n’accepte que 0 à 99","Oui, mais uniquement pour les valeurs négatives"], correct: 0, exp: 'INT(x) ne change pas la capacité de stockage ; la largeur concerne un affichage éventuel avec ZEROFILL.' },
+      { stem: 'En MySQL, quel type à longueur fixe choisir pour un code de 3 caractères ?', opts: ['VARCHAR(3)', 'TEXT', 'CHAR(3)'], correct: 2, exp: 'CHAR(3) est le type fixe ; VARCHAR est variable et TEXT ne précise pas cette longueur.' },
+      { stem: 'Dans le parc SQLite, quelle chaîne représente le 21 novembre 2014 ?', opts: ['\'21/11/2014\'', '\'11-21-2014\'', '\'2014-11-21\''], correct: 2, exp: 'Le parc choisit le format texte année, mois, jour : AAAA-MM-JJ.' },
+      { stem: 'En SQLite, que peut recevoir une colonne ordinaire omise dans INSERT ?', opts: ["Son DEFAULT ou NULL, sous réserve des contraintes","Toujours zéro, quelle que soit la colonne","Toujours une erreur d’exécution de l’insertion"], correct: 0, exp: 'Un DEFAULT fournit la valeur ; sinon c’est NULL, sauf si une contrainte comme NOT NULL interdit l’insertion. Une INTEGER PRIMARY KEY ordinaire peut être générée.' },
       { stem: 'Que fait IF NOT EXISTS dans CREATE TABLE ?', opts: ['Vide la table si elle existe', 'Évite une erreur si la table existe déjà', 'Crée la table en mémoire'], correct: 1, exp: 'L’instruction devient sans effet (et sans erreur) si la table existe déjà.' }
     ],
 
@@ -566,11 +566,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que fait SELECT DISTINCT marque FROM Voiture ?', opts: ['Compte les marques', 'Renvoie chaque marque une seule fois', 'Trie les marques'], correct: 1, exp: 'DISTINCT élimine les lignes dupliquées du résultat.' },
+      { stem: 'Que fait SELECT DISTINCT marque FROM Voiture ?', opts: ["Renvoie chaque marque une seule fois","Compte le nombre total de marques","Trie les marques par ordre alphabétique"], correct: 0, exp: 'DISTINCT élimine les lignes dupliquées du résultat.' },
       { stem: 'Comment tester une valeur NULL dans WHERE ?', opts: ['= NULL', 'IS NULL', '== NULL'], correct: 1, exp: 'Parmi ces propositions, IS NULL teste l’absence de valeur ; les comparaisons = NULL et == NULL ne renvoient pas vrai.' },
-      { stem: 'Dans LIKE \'%AK\', que remplace % ?', opts: ['Exactement un caractère', 'N’importe quelle suite de caractères', 'Un chiffre'], correct: 1, exp: '% = toute suite (même vide) ; _ remplace exactement un caractère.' },
-      { stem: 'ORDER BY marque, datecirc trie…', opts: ['par marque seulement', 'par date seulement', 'par marque puis par date à l’intérieur de chaque marque'], correct: 2, exp: 'Les tris multi-colonnes s’appliquent de gauche à droite, par niveaux.' },
-      { stem: 'Dans SQLite, où place-t-on LIMIT si la requête contient ORDER BY ?', opts: ['Juste après SELECT', 'Après ORDER BY, en dernière clause', 'Avant WHERE'], correct: 1, exp: 'Dans cette forme, LIMIT suit ORDER BY et clôt la requête.' },
+      { stem: 'Dans LIKE \'%AK\', que remplace % ?', opts: ["Exactement un seul caractère, ni plus","Un seul chiffre de 0 à 9","N’importe quelle suite de caractères"], correct: 2, exp: '% = toute suite (même vide) ; _ remplace exactement un caractère.' },
+      { stem: 'ORDER BY marque, datecirc trie…', opts: ["par marque seulement, la date étant ignorée","par date seulement, la marque étant ignorée","par marque puis par date à l’intérieur de chaque marque"], correct: 2, exp: 'Les tris multi-colonnes s’appliquent de gauche à droite, par niveaux.' },
+      { stem: 'Dans SQLite, où place-t-on LIMIT si la requête contient ORDER BY ?', opts: ['Après ORDER BY, en dernière clause', 'Juste après SELECT', 'Avant WHERE'], correct: 0, exp: 'Dans cette forme, LIMIT suit ORDER BY et clôt la requête.' },
       { stem: 'Quelle écriture standard est recommandée pour une chaîne SQL ?', opts: ['"DIESEL"', '\'DIESEL\'', '`DIESEL`'], correct: 1, exp: 'Les apostrophes simples délimitent une chaîne. SQLite peut aussi accepter les guillemets doubles par compatibilité, mais ce n’est pas la forme standard.' }
     ],
 

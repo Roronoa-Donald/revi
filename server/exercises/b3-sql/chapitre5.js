@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez la clause WHEN NEW.solde < 0 avant BEGIN dans la définition du trigger.",
-      "Insérez (NEW.id, NEW.solde) dans alertes_fraude."
+      "Insérez (NEW.id, NEW.solde) dans alertes_fraude.",
+      "1. Déclarer le trigger AFTER UPDATE avec condition de solde négatif. 2. Insérer l’identifiant et le montant dans la table d’alertes. 3. Laisser la mise à jour d’origine s’effectuer."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+---------------+\n| compte_id | montant_tente |\n+-----------+---------------+\n| 2         | -1            |\n+-----------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "CREATE TRIGGER trg_alerte_decouvert\nAFTER UPDATE ON comptes\nFOR EACH ROW\nWHEN NEW.solde < 0\nBEGIN\n  INSERT INTO alertes_fraude VALUES (NEW.id, NEW.solde);\nEND;"
+    "solution": "CREATE TRIGGER trg_alerte_decouvert\nAFTER UPDATE ON comptes\nFOR EACH ROW\nWHEN NEW.solde < 0\nBEGIN\n  INSERT INTO alertes_fraude VALUES (NEW.id, NEW.solde);\nEND;",
+    "takeaway": "Un déclencheur AFTER UPDATE ... WHEN garde l’audit et les alertes d’intégrité directement au plus près de la donnée, quel que soit le client."
   },
   {
     "id": "sql3-c5-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Créez la vue v_dossiers_rls appliquant la politique RLS\nCREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE 1 = 0;",
     "hints": [
       "Créez CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE ...",
-      "Combinez les deux conditions avec OR."
+      "Combinez les deux conditions avec OR.",
+      "1. Restreindre les dossiers au tenant actif de la session. 2. Autoriser néanmoins le rôle SUPERADMIN à tout voir. 3. Exposer uniquement les trois colonnes demandées."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+----+------------+---------+\n| id | tenant_id  | patient |\n+----+------------+---------+\n| 2  | clinique_b | Sena    |\n| 3  | clinique_b | Afi     |\n+----+------------+---------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "CREATE VIEW v_dossiers_rls AS\nSELECT id, tenant_id, patient FROM dossiers_patients\nWHERE tenant_id = (SELECT tenant_actif FROM contexte_session)\n   OR (SELECT role_actif FROM contexte_session) = 'SUPERADMIN';"
+    "solution": "CREATE VIEW v_dossiers_rls AS\nSELECT id, tenant_id, patient FROM dossiers_patients\nWHERE tenant_id = (SELECT tenant_actif FROM contexte_session)\n   OR (SELECT role_actif FROM contexte_session) = 'SUPERADMIN';",
+    "takeaway": "Les politiques RLS (Row-Level Security) filtrent chaque requête selon le locataire courant pour empêcher toute fuite inter-clients."
   },
   {
     "id": "sql3-c5-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Créez le trigger trg_maj_stats AFTER INSERT ON commandes\nSELECT * FROM stats_clients;",
     "hints": [
       "Utilisez CREATE TRIGGER trg_maj_stats AFTER INSERT ON commandes FOR EACH ROW BEGIN ... END;",
-      "Mettez à jour stats_clients avec NEW.montant et NEW.client_id."
+      "Mettez à jour stats_clients avec NEW.montant et NEW.client_id.",
+      "1. Se déclencher après chaque insertion de commande. 2. Incrémenter le compteur et cumuler le montant pour le client concerné. 3. La ligne de synthèse du client existe déjà."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+--------+---------------+\n| client_id | nb_cmd | cumul_montant |\n+-----------+--------+---------------+\n| 1         | 2      | 50000         |\n| 2         | 1      | 12000         |\n+-----------+--------+---------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "CREATE TRIGGER trg_maj_stats\nAFTER INSERT ON commandes\nFOR EACH ROW\nBEGIN\n  UPDATE stats_clients\n  SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant\n  WHERE client_id = NEW.client_id;\nEND;"
+    "solution": "CREATE TRIGGER trg_maj_stats\nAFTER INSERT ON commandes\nFOR EACH ROW\nBEGIN\n  UPDATE stats_clients\n  SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant\n  WHERE client_id = NEW.client_id;\nEND;",
+    "takeaway": "Maintenir une table de synthèse via trigger échange un léger surcoût en écriture contre des lectures analytiques instantanées."
   }
 ];

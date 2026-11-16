@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c6-e1) — Simulateur de pile x86 (PUSH & POP avec pointeur ESP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois empilements successifs]\n# Données : PUSH 100, PUSH 200, PUSH 300\nA_COMPLETER\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\n# Données : PUSH 42, POP\nA_COMPLETER\n\n[Cas 3 — Multiples push et pop alternés]\n# Données : PUSH 1, PUSH 2, POP, PUSH 3, PUSH 4, POP\nA_COMPLETER\n\n[Cas 4 — Un seul push]\n# Données : PUSH 999\nA_COMPLETER\n",
     "hints": [
       "La pile x86 grandit vers le bas : chaque PUSH décrémente ESP de 4 octets et écrit au sommet.",
-      "Chaque POP lit la valeur au sommet et incrémente ESP de 4 octets."
+      "Chaque POP lit la valeur au sommet et incrémente ESP de 4 octets.",
+      "Pour chaque cas : partir de ESP à 0x1000, décrémenter puis écrire à chaque PUSH, lire puis incrémenter à chaque POP, et décrire l état final de la pile."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "ESP=0x0FFC SOMMET=999 TAILLE=1"
       }
     ],
-    "solution": "[Exemple]\nESP=0x0FF8 SOMMET=30 TAILLE=2\n\n[Cas 1 — Trois empilements successifs]\nESP=0x0FF4 SOMMET=300 TAILLE=3\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\nESP=0x1000 SOMMET=VIDE TAILLE=0\n\n[Cas 3 — Multiples push et pop alternés]\nESP=0x0FF8 SOMMET=3 TAILLE=2\n\n[Cas 4 — Un seul push]\nESP=0x0FFC SOMMET=999 TAILLE=1"
+    "solution": "[Exemple]\nESP=0x0FF8 SOMMET=30 TAILLE=2\n\n[Cas 1 — Trois empilements successifs]\nESP=0x0FF4 SOMMET=300 TAILLE=3\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\nESP=0x1000 SOMMET=VIDE TAILLE=0\n\n[Cas 3 — Multiples push et pop alternés]\nESP=0x0FF8 SOMMET=3 TAILLE=2\n\n[Cas 4 — Un seul push]\nESP=0x0FFC SOMMET=999 TAILLE=1",
+    "takeaway": "Sur x86, PUSH décrémente ESP puis écrit en pile, tandis que POP lit au sommet puis ré-incrémente ESP (croissance vers le bas)."
   },
   {
     "id": "asm2-c6-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c6-e2) — Évaluateur de sauts conditionnels x86 (CMP & Jcc)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\n# Données : 15;15;JE\nA_COMPLETER\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\n# Données : 15;20;JE\nA_COMPLETER\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\n# Données : 50;30;JG\nA_COMPLETER\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\n# Données : 50;30;JL\nA_COMPLETER\n",
     "hints": [
       "Comparez A et B avec l’opérateur correspondant : JE (==), JNE (!=), JG (>), JL (<), JGE (>=), JLE (<=).",
-      "Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE."
+      "Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE.",
+      "Pour chaque cas : évaluer la comparaison de A et B selon le mnémonique ; une condition vraie donne PRIS, une fausse donne IGNORE, avec la condition reformulée."
     ],
     "examples": [
       {
@@ -87,7 +90,8 @@ module.exports = [
         "expected": "DECISION=IGNORE COND=50 >= 30"
       }
     ],
-    "solution": "[Exemple]\nDECISION=PRIS COND=10 < 20\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\nDECISION=PRIS COND=15 == 15\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\nDECISION=IGNORE COND=15 != 20\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\nDECISION=PRIS COND=50 > 30\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\nDECISION=IGNORE COND=50 >= 30"
+    "solution": "[Exemple]\nDECISION=PRIS COND=10 < 20\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\nDECISION=PRIS COND=15 == 15\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\nDECISION=IGNORE COND=15 != 20\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\nDECISION=PRIS COND=50 > 30\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\nDECISION=IGNORE COND=50 >= 30",
+    "takeaway": "CMP réalise une soustraction fictive mettant à jour les drapeaux ZF/SF/CF/OF lus ensuite par les sauts conditionnels JE, JG, JA."
   },
   {
     "id": "asm2-c6-e3",
@@ -132,6 +136,7 @@ module.exports = [
         "expected": "FRAME SUB_ESP=16 ARG1=[ebp+8] ARGN=[ebp+20] LOC1=[ebp-4] LOCN=[ebp-16]"
       }
     ],
-    "solution": "[Exemple]\nFRAME SUB_ESP=12 ARG1=[ebp+8] ARGN=[ebp+12] LOC1=[ebp-4] LOCN=[ebp-12]\n\n[Cas 1 — Fonction avec 1 argument et 1 locale]\nFRAME SUB_ESP=4 ARG1=[ebp+8] ARGN=[ebp+8] LOC1=[ebp-4] LOCN=[ebp-4]\n\n[Cas 2 — Fonction sans argument (void f(void)) et 2 locales]\nFRAME SUB_ESP=8 ARG1=AUCUN ARGN=AUCUN LOC1=[ebp-4] LOCN=[ebp-8]\n\n[Cas 3 — Fonction sans variables locales (purement calculatoire)]\nFRAME SUB_ESP=0 ARG1=[ebp+8] ARGN=[ebp+16] LOC1=AUCUN LOCN=AUCUN\n\n[Cas 4 — Quatre arguments et quatre locales]\nFRAME SUB_ESP=16 ARG1=[ebp+8] ARGN=[ebp+20] LOC1=[ebp-4] LOCN=[ebp-16]"
+    "solution": "[Exemple]\nFRAME SUB_ESP=12 ARG1=[ebp+8] ARGN=[ebp+12] LOC1=[ebp-4] LOCN=[ebp-12]\n\n[Cas 1 — Fonction avec 1 argument et 1 locale]\nFRAME SUB_ESP=4 ARG1=[ebp+8] ARGN=[ebp+8] LOC1=[ebp-4] LOCN=[ebp-4]\n\n[Cas 2 — Fonction sans argument (void f(void)) et 2 locales]\nFRAME SUB_ESP=8 ARG1=AUCUN ARGN=AUCUN LOC1=[ebp-4] LOCN=[ebp-8]\n\n[Cas 3 — Fonction sans variables locales (purement calculatoire)]\nFRAME SUB_ESP=0 ARG1=[ebp+8] ARGN=[ebp+16] LOC1=AUCUN LOCN=AUCUN\n\n[Cas 4 — Quatre arguments et quatre locales]\nFRAME SUB_ESP=16 ARG1=[ebp+8] ARGN=[ebp+20] LOC1=[ebp-4] LOCN=[ebp-16]",
+    "takeaway": "Le prologue cdecl (push ebp; mov ebp, esp) ancre un pointeur de cadre fixe pour accéder positivement aux arguments et négativement aux locales."
   }
 ];

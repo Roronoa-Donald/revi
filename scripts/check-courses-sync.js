@@ -4,8 +4,8 @@
  *
  * Vérifie la cohérence globale du catalogue de cours :
  * 1. Synchronisation du registre canonique (server/courses.js ↔ middleware.js ↔ public/js/auth-check.js)
- * 2. Intégrité structurelle des 68 cours interactifs complets :
- *    - 64 cours générés depuis server/content/*.js
+ * 2. Intégrité structurelle des 69 cours interactifs complets :
+ *    - 65 cours générés depuis server/content/*.js
  *    - 4 cours B1 autonomes (BLD-002 : b1-algo, b1-c-cpp, b1-php, b1-python)
  * 3. Présence des ressources des modules spéciaux (epreuves + PDF, preparation-web + quiz JSON)
  * 4. Résolution de tous les liens de cartes sur index.html
@@ -27,7 +27,7 @@ const STANDALONE_B1_COURSES = {
 };
 
 const SPECIAL_MODULES = ['epreuves', 'preparation-web'];
-const ARCHIVED_OR_SHELL_MODULES = ['b1-vb-excel'];
+const ARCHIVED_OR_SHELL_MODULES = [];
 
 function getInteractiveCourses() {
   return registry.COURSE_DIRS.filter(
@@ -70,7 +70,7 @@ function checkCoursesSync() {
     }
   }
 
-  // 3. Vérifier l'ensemble des 68 cours interactifs
+  // 3. Vérifier l'ensemble des 69 cours interactifs
   const interactiveCourses = getInteractiveCourses();
   for (const courseId of interactiveCourses) {
     const dir = path.join(ROOT, courseId);

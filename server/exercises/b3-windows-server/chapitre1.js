@@ -4,121 +4,172 @@ module.exports = [
   {
     "id": "ws3-c1-e1",
     "chapter": 1,
-    "title": "Validateur d’étendue DHCP, exclusions et conflits de réservation MAC",
     "level": "n1",
     "language": "analyse",
-    "goal": "Calculer la liste des adresses IP distribuables d’une étendue DHCP après déduction des exclusions et détecter les conflits de réservation.",
-    "brief": "Dans l’administration d’un serveur DHCP Windows Server, une étendue (Scope) distribue dynamiquement des adresses IP IPv4 :\n- `SCOPE net=<PREFIX> start=<N_START> end=<N_END>` : définit la plage complète d’adresses `PREFIX.N` (ex: net=192.168.1. start=10 end=30).\n- `EXCLUDE start=<N1> end=<N2>` : plage d’hôtes exclus de la distribution dynamique (inclusifs).\n- `RESERVATION mac=<MAC> ip=<PREFIX.N>` : association statique MAC / IP.\n\nRègles de validation :\n- Une réservation est en conflit (`CONFLIT`) si l’IP est hors de la plage `[start, end]`, ou si deux réservations ont la même IP avec des MAC différentes, ou si la même MAC a plusieurs IP différentes. Sinon elle est `VALIDE`.\n- Une adresse IP est distribuable dynamiquement si son numéro d’hôte est dans `[start, end]`, n’est couvert par aucune plage d’exclusion `EXCLUDE`, et n’est assigné à aucune réservation valide.\n\nEntrée :\n`SCOPE net=<PREFIX> start=<N1> end=<N2>`\n`EXCLUDE start=<N1> end=<N2>` (0 ou plusieurs)\n`RESERVATION mac=<MAC> ip=<IP>` (0 ou plusieurs)\n\nRésultat d’analyse attendu :\n- Ligne de statut des réservations :\n  `RESERVATIONS valides=<V> conflits=<C>`\n- Ligne du pool d’adresses dynamiques :\n  `POOL_DYNAMIC total_disponibles=<D> first_ip=<IP_MIN> last_ip=<IP_MAX>` (si total > 0, sinon `POOL_DYNAMIC total_disponibles=0 first_ip=NONE last_ip=NONE`)\n- Bilan :\n  `SUMMARY statut=<OK|AVERTISSEMENT> pool_pct=<PCT>%` (où pool_pct = round((total_disponibles / total_scope) * 100, 1) ; statut=OK si conflits=0, sinon AVERTISSEMENT)",
-    "starter": "# Grille d'analyse (ws3-c1-e1) — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Conflit de réservation sur même adresse IP]\n# Données : SCOPE net=10.0.0. start=100 end=110\n# Données : RESERVATION mac=AA:BB:CC:01 ip=10.0.0.105\n# Données : RESERVATION mac=AA:BB:CC:02 ip=10.0.0.105\nA_COMPLETER\n\n[Cas 2 — Réservation hors de la plage du scope]\n# Données : SCOPE net=172.16.0. start=50 end=60\n# Données : EXCLUDE start=55 end=60\n# Données : RESERVATION mac=11:22:33:44 ip=172.16.0.99\nA_COMPLETER\n\n[Cas 3 — Toutes les adresses exclues ou réservées]\n# Données : SCOPE net=192.168.10. start=1 end=3\n# Données : EXCLUDE start=1 end=2\n# Données : RESERVATION mac=AA:11 ip=192.168.10.3\nA_COMPLETER\n",
+    "title": "L'étendue DHCP du nouveau siège de Verdier SA",
+    "exampleTitle": "Exemple résolu — l'étendue DHCP de la filiale de Nantes",
+    "goal": "Dimensionner une étendue DHCP : plage d'attribution, exclusions, réservations et bail.",
+    "brief": "<p><strong>Énoncé.</strong> Verdier SA, distributeur de pièces détachées installé à Lyon, ouvre un nouveau siège de 120 salariés. La responsable informatique, Amina, déploie un serveur DHCP Windows Server sur le réseau des postes de travail <strong>10.10.70.0/24</strong> (domaine verdier.local). Elle configure l'étendue suivante :</p><ul><li>plage d'attribution : de <strong>10.10.70.60</strong> à <strong>10.10.70.180</strong>, bornes incluses ;</li><li>exclusion : <strong>10.10.70.60</strong> à <strong>10.10.70.79</strong>, vingt adresses réservées aux imprimantes réseau et au pare-feu ;</li><li>réservations DHCP : la borne Wi-Fi du rez-de-chaussée à <strong>10.10.70.90</strong> et le multifonction du deuxième étage à <strong>10.10.70.91</strong> ;</li><li>bail : <strong>8 jours</strong>.</li></ul><p>Rappel : les adresses couvertes par l'exclusion et les réservations ne sont jamais attribuées dynamiquement. Répondez par le nombre seul, sans unité, sauf pour la question 5 qui appelle une adresse IP.</p><ol><li>Combien d'adresses l'étendue couvre-t-elle avant toute exclusion ?</li><li>Combien d'adresses l'exclusion retire-t-elle du pool dynamique ?</li><li>Combien d'adresses les réservations retirent-elles en plus du pool dynamique ?</li><li>Combien d'adresses le serveur peut-il attribuer dynamiquement aux postes ?</li><li>Quelle est la première adresse qu'un poste peut réellement obtenir ?</li><li>Combien de jours au maximum un poste conserve-t-il son adresse sans renouveler son bail ?</li></ol>",
+    "starter": "# Exercice — L'étendue DHCP du nouveau siège de Verdier SA\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 et 6 : le nombre seul. Question 5 : l'adresse IP complète.\n\n[Question 1 — Taille de l'étendue avant exclusion]\nA_COMPLETER\n\n[Question 2 — Adresses retirées par l'exclusion]\nA_COMPLETER\n\n[Question 3 — Adresses retirées par les réservations]\nA_COMPLETER\n\n[Question 4 — Adresses attribuables dynamiquement]\nA_COMPLETER\n\n[Question 5 — Première adresse attribuable]\nA_COMPLETER\n\n[Question 6 — Durée du bail en jours]\nA_COMPLETER\n",
     "hints": [
-      "Stocker les entiers d’hôtes exclus dans un ensemble (set).",
-      "Vérifier les doublons de MAC et d’IP pour les réservations avec des dictionnaires.",
-      "Calculer les adresses disponibles en soustrayant exclusions et réservations valides."
+      "La plage d'attribution est inclusive aux deux bornes : le nombre d'adresses vaut (dernière − première) + 1.",
+      "Retirez de l'étendue les adresses de l'exclusion, puis celles des réservations : ce qui reste forme le pool dynamique.",
+      "Pour la question 5, parcourez la plage à partir de 10.10.70.60 : la première adresse hors exclusion et hors réservation est 10.10.70.80 ; le bail se lit dans la configuration de l'étendue."
     ],
     "examples": [
       {
-        "stdin": "SCOPE net=192.168.1. start=10 end=20\nEXCLUDE start=12 end=14\nRESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15\nRESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18",
-        "expected": "RESERVATIONS valides=2 conflits=0\nPOOL_DYNAMIC total_disponibles=6 first_ip=192.168.1.10 last_ip=192.168.1.20\nSUMMARY statut=OK pool_pct=54.5%",
-        "note": "Étendue de 11 adresses (10 à 20). 3 exclues (12, 13, 14), 2 réservées (15, 18). Reste : 10, 11, 16, 17, 19, 20 (6 adresses, 6/11 = 54.5%)."
+        "stdin": "La filiale de Nantes ouvre son réseau sur 172.24.5.0/24. Étendue : 172.24.5.100 à 172.24.5.200.\nExclusion : 172.24.5.100 à 172.24.5.119 (visioconférence et afficheurs). Réservation : 172.24.5.150 (régisseur des salles). Bail : 4 jours.\n\n1) Étendue : 200 − 100 + 1 = 101 adresses.\n2) Exclusion : 119 − 100 + 1 = 20 adresses.\n3) Réservations : 1 adresse.\n4) Pool dynamique : 101 − 20 − 1 = 80 adresses.\n5) Première adresse attribuable : 172.24.5.120 (l'exclusion s'arrête à .119, la réservation porte sur .150).\n6) Bail : 4 jours.",
+        "expected": "101 — 20 — 1 — 80 — première adresse 172.24.5.120 — bail 4 jours",
+        "note": "Le pool dynamique se calcule en trois retranchements successifs : exclusions, puis réservations ; le bail n'influence pas la taille du pool."
       }
     ],
     "tests": [
       {
-        "label": "Conflit de réservation sur même adresse IP",
-        "stdin": "cas:1",
-        "expected": "RESERVATIONS valides=0 conflits=2\nPOOL_DYNAMIC total_disponibles=11 first_ip=10.0.0.100 last_ip=10.0.0.110\nSUMMARY statut=AVERTISSEMENT pool_pct=100.0%"
+        "label": "Question 1 — Taille de l'étendue avant exclusion",
+        "stdin": "q:1",
+        "expected": "121||121 adresses"
       },
       {
-        "label": "Réservation hors de la plage du scope",
-        "stdin": "cas:2",
-        "expected": "RESERVATIONS valides=0 conflits=1\nPOOL_DYNAMIC total_disponibles=5 first_ip=172.16.0.50 last_ip=172.16.0.54\nSUMMARY statut=AVERTISSEMENT pool_pct=45.5%"
+        "label": "Question 2 — Adresses retirées par l'exclusion",
+        "stdin": "q:2",
+        "expected": "20||20 adresses"
       },
       {
-        "label": "Toutes les adresses exclues ou réservées",
-        "stdin": "cas:3",
-        "expected": "RESERVATIONS valides=1 conflits=0\nPOOL_DYNAMIC total_disponibles=0 first_ip=NONE last_ip=NONE\nSUMMARY statut=OK pool_pct=0.0%"
+        "label": "Question 3 — Adresses retirées par les réservations",
+        "stdin": "q:3",
+        "expected": "2||2 adresses"
+      },
+      {
+        "label": "Question 4 — Adresses attribuables dynamiquement",
+        "stdin": "q:4",
+        "expected": "99||99 adresses"
+      },
+      {
+        "label": "Question 5 — Première adresse attribuable",
+        "stdin": "q:5",
+        "expected": "10.10.70.80"
+      },
+      {
+        "label": "Question 6 — Durée du bail en jours",
+        "stdin": "q:6",
+        "expected": "8||8 jours"
       }
     ],
-    "solution": "[Exemple]\nRESERVATIONS valides=2 conflits=0\nPOOL_DYNAMIC total_disponibles=6 first_ip=192.168.1.10 last_ip=192.168.1.20\nSUMMARY statut=OK pool_pct=54.5%\n\n[Cas 1 — Conflit de réservation sur même adresse IP]\nRESERVATIONS valides=0 conflits=2\nPOOL_DYNAMIC total_disponibles=11 first_ip=10.0.0.100 last_ip=10.0.0.110\nSUMMARY statut=AVERTISSEMENT pool_pct=100.0%\n\n[Cas 2 — Réservation hors de la plage du scope]\nRESERVATIONS valides=0 conflits=1\nPOOL_DYNAMIC total_disponibles=5 first_ip=172.16.0.50 last_ip=172.16.0.54\nSUMMARY statut=AVERTISSEMENT pool_pct=45.5%\n\n[Cas 3 — Toutes les adresses exclues ou réservées]\nRESERVATIONS valides=1 conflits=0\nPOOL_DYNAMIC total_disponibles=0 first_ip=NONE last_ip=NONE\nSUMMARY statut=OK pool_pct=0.0%"
+    "solution": "[Question 1 — Taille de l'étendue avant exclusion]\n121\n\n[Question 2 — Adresses retirées par l'exclusion]\n20\n\n[Question 3 — Adresses retirées par les réservations]\n2\n\n[Question 4 — Adresses attribuables dynamiquement]\n99\n\n[Question 5 — Première adresse attribuable]\n10.10.70.80\n\n[Question 6 — Durée du bail en jours]\n8",
+    "takeaway": "1) Étendue : 180 − 60 + 1 = 121 adresses.\n2) Exclusion : 79 − 60 + 1 = 20 adresses retirées du pool.\n3) Réservations : 2 adresses (borne Wi-Fi et multifonction), prises sur la plage dynamique.\n4) Pool dynamique : 121 − 20 − 2 = 99 adresses.\n5) L'exclusion s'arrête à 10.10.70.79 ; les réservations portent sur .90 et .91 : la première adresse attribuable est 10.10.70.80.\n6) Le bail est de 8 jours : un poste conserve son adresse au maximum 8 jours sans renouvellement.\nContrôle : 99 + 20 + 2 = 121, on retrouve la taille de l'étendue ; 99 + 2 = 101, la première adresse attribuable est bien .80, suivie de .81."
   },
   {
     "id": "ws3-c1-e2",
     "chapter": 1,
-    "title": "Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Vérifier la réciprocité des enregistrements A et PTR et la présence des enregistrements de service SRV indispensables à Active Directory.",
-    "brief": "Dans une infrastructure Windows Server avec Active Directory, le DNS assure la résolution de noms et la découverte des contrôleurs de domaine (DC) :\n- `RECORD_A fqdn=<NOM> ip=<IP>` : résolution directe.\n- `RECORD_PTR ip=<IP> fqdn=<NOM>` : résolution inverse (Reverse Lookup).\n- `RECORD_SRV service=<SVC> proto=<PROTO> port=<PORT> target=<DC_FQDN>` : localisation de services AD (ex: _ldap, _kerberos).\n\nRègles d’audit de zone :\n1. Réciprocité A / PTR : chaque `RECORD_A` doit avoir son `RECORD_PTR` exact (même IP et même FQDN). Si le PTR manque ou pointe vers un autre nom, émettre `ANOMALIE_PTR fqdn=<NOM> ip=<IP>`.\n2. Résolution de cible SRV : la cible `target` d’un `RECORD_SRV` doit impérativement posséder un enregistrement direct `RECORD_A`. Si absent, émettre `ANOMALIE_SRV target=<DC_FQDN> service=<SVC>`.\n\nRésultat d’analyse attendu :\n- Anomalies triées par FQDN / target alphabétique croissant :\n  `ANOMALIE_PTR fqdn=<NOM> ip=<IP>` ou `ANOMALIE_SRV target=<DC_FQDN> service=<SVC>`\n- Bilan :\n  `SUMMARY total_records=<N> anomalies=<C> statut=<CONFORME|NON_CONFORME>`",
-    "starter": "# Grille d'analyse (ws3-c1-e2) — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Enregistrement PTR manquant et cible SRV inconnue]\n# Données : RECORD_A fqdn=srv01.corp.lan ip=10.0.0.5\n# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc02.corp.lan\nA_COMPLETER\n\n[Cas 2 — Désynchronisation entre A et PTR sur l’IP]\n# Données : RECORD_A fqdn=mail.corp.lan ip=192.168.1.25\n# Données : RECORD_PTR ip=192.168.1.25 fqdn=ancien-mail.corp.lan\n# Données : RECORD_A fqdn=dc.corp.lan ip=192.168.1.1\n# Données : RECORD_PTR ip=192.168.1.1 fqdn=dc.corp.lan\nA_COMPLETER\n\n[Cas 3 — Multiples SRV sur le même DC valide]\n# Données : RECORD_A fqdn=dc.dom.local ip=172.16.1.1\n# Données : RECORD_PTR ip=172.16.1.1 fqdn=dc.dom.local\n# Données : RECORD_SRV service=_ldap proto=_tcp port=389 target=dc.dom.local\n# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc.dom.local\n# Données : RECORD_SRV service=_kpasswd proto=_tcp port=464 target=dc.dom.local\nA_COMPLETER\n",
+    "title": "La zone DNS du domaine verdier.local",
+    "exampleTitle": "Exemple résolu — la zone DNS de fil-nord.fr",
+    "goal": "Lire une zone DNS : enregistrements A, CNAME et MX, et repérer un alias orphelin.",
+    "brief": "<p><strong>Énoncé.</strong> Le domaine <strong>verdier.local</strong> est hébergé sur le DNS intégré à Active Directory. Amina exporte la zone et obtient les enregistrements suivants :</p><table><tr><th>Nom</th><th>Type</th><th>Cible / donnée</th></tr><tr><th>srv-web.verdier.local</th><td>A</td><td>10.10.70.20</td></tr><tr><th>www.verdier.local</th><td>CNAME</td><td>srv-web.verdier.local</td></tr><tr><th>intranet.verdier.local</th><td>CNAME</td><td>srv-web.verdier.local</td></tr><tr><th>mx.verdier.local</th><td>A</td><td>10.10.70.25</td></tr><tr><th>verdier.local</th><td>MX (préférence 10)</td><td>mx.verdier.local</td></tr><tr><th>ftp.verdier.local</th><td>CNAME</td><td>ancien-srv.verdier.local</td></tr></table><p>L'enregistrement A de ancien-srv.verdier.local a été supprimé le mois dernier : le serveur de fichiers historique a été retiré du service. Répondez de façon courte ; la question 1 appelle une adresse IP.</p><ol><li>À quelle adresse IP www.verdier.local se résout-il ?</li><li>Quel type d'enregistrement associe www.verdier.local à srv-web.verdier.local ?</li><li>Quel est le serveur de messagerie du domaine verdier.local ?</li><li>Quelle est la valeur de préférence de l'enregistrement MX ?</li><li>La résolution du nom ftp.verdier.local aboutit-elle ?</li><li>Que doit faire Amina pour assainir la zone ?</li></ol>",
+    "starter": "# Exercice — La zone DNS du domaine verdier.local\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : l'adresse IP. Questions 2 à 6 : réponses courtes.\n\n[Question 1 — Adresse IP de www.verdier.local]\nA_COMPLETER\n\n[Question 2 — Type d'enregistrement www vers srv-web]\nA_COMPLETER\n\n[Question 3 — Serveur de messagerie du domaine]\nA_COMPLETER\n\n[Question 4 — Préférence de l'enregistrement MX]\nA_COMPLETER\n\n[Question 5 — ftp.verdier.local se résout-il ?]\nA_COMPLETER\n\n[Question 6 — Action d'assainissement]\nA_COMPLETER\n",
     "hints": [
-      "Indexer les enregistrements A sous forme {fqdn: ip} et l’inverse {ip: fqdn}.",
-      "Comparer les enregistrements PTR à l’index des A.",
-      "Vérifier que chaque target de SRV existe dans les clés de l’index A."
+      "Un CNAME est un alias : la résolution suit la chaîne CNAME puis l'enregistrement A de la cible.",
+      "L'enregistrement MX désigne le serveur qui reçoit le courrier du domaine, avec une valeur de préférence (plus elle est faible, plus le serveur est prioritaire).",
+      "Pour la question 5, cherchez l'enregistrement A de ancien-srv.verdier.local : un CNAME dont la cible n'existe plus ne se résout pas ; il faut alors nettoyer la zone."
     ],
     "examples": [
       {
-        "stdin": "RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10\nRECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan\nRECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan",
-        "expected": "SUMMARY total_records=3 anomalies=0 statut=CONFORME",
-        "note": "Enregistrement direct et inverse synchronisés, cible SRV résolue."
+        "stdin": "La zone de fil-nord.fr contient :\nweb01.fil-nord.fr A 172.24.5.10 ; boutique.fil-nord.fr CNAME web01.fil-nord.fr ;\nmail01.fil-nord.fr A 172.24.5.15 ; fil-nord.fr MX (préférence 20) mail01.fil-nord.fr ;\nvpn.fil-nord.fr CNAME routeur-retire.fil-nord.fr (l'enregistrement A de la cible a été supprimé).\n\n1) boutique.fil-nord.fr se résout en 172.24.5.10 (CNAME vers web01).\n2) Type : CNAME.\n3) Serveur de messagerie : mail01.fil-nord.fr.\n4) Préférence MX : 20.\n5) vpn.fil-nord.fr ne se résout pas (cible sans enregistrement A).\n6) Action : supprimer l'enregistrement vpn.",
+        "expected": "boutique fil-nord.fr 172.24.5.10 — CNAME — mail01.fil-nord.fr — préférence 20 — vpn ne se résout pas — supprimer l'enregistrement vpn",
+        "note": "Un alias ne vaut que par sa cible : dès que l'enregistrement A de la cible disparaît, l'alias devient orphelin et la résolution échoue."
       }
     ],
     "tests": [
       {
-        "label": "Enregistrement PTR manquant et cible SRV inconnue",
-        "stdin": "cas:1",
-        "expected": "ANOMALIE_PTR fqdn=srv01.corp.lan ip=10.0.0.5\nANOMALIE_SRV target=dc02.corp.lan service=_kerberos\nSUMMARY total_records=2 anomalies=2 statut=NON_CONFORME"
+        "label": "Question 1 — Adresse IP de www.verdier.local",
+        "stdin": "q:1",
+        "expected": "10.10.70.20"
       },
       {
-        "label": "Désynchronisation entre A et PTR sur l’IP",
-        "stdin": "cas:2",
-        "expected": "ANOMALIE_PTR fqdn=mail.corp.lan ip=192.168.1.25\nSUMMARY total_records=4 anomalies=1 statut=NON_CONFORME"
+        "label": "Question 2 — Type d'enregistrement www vers srv-web",
+        "stdin": "q:2",
+        "expected": "CNAME||un CNAME||alias||un alias"
       },
       {
-        "label": "Multiples SRV sur le même DC valide",
-        "stdin": "cas:3",
-        "expected": "SUMMARY total_records=5 anomalies=0 statut=CONFORME"
+        "label": "Question 3 — Serveur de messagerie du domaine",
+        "stdin": "q:3",
+        "expected": "mx.verdier.local||mx.verdier.local.||le serveur mx.verdier.local"
+      },
+      {
+        "label": "Question 4 — Préférence de l'enregistrement MX",
+        "stdin": "q:4",
+        "expected": "10||préférence 10"
+      },
+      {
+        "label": "Question 5 — ftp.verdier.local se résout-il ?",
+        "stdin": "q:5",
+        "expected": "Non||non||elle échoue"
+      },
+      {
+        "label": "Question 6 — Action d'assainissement",
+        "stdin": "q:6",
+        "expected": "supprimer l'enregistrement ftp||supprimer le CNAME ftp||supprimer le CNAME obsolète||supprimer l'enregistrement ftp.verdier.local"
       }
     ],
-    "solution": "[Exemple]\nSUMMARY total_records=3 anomalies=0 statut=CONFORME\n\n[Cas 1 — Enregistrement PTR manquant et cible SRV inconnue]\nANOMALIE_PTR fqdn=srv01.corp.lan ip=10.0.0.5\nANOMALIE_SRV target=dc02.corp.lan service=_kerberos\nSUMMARY total_records=2 anomalies=2 statut=NON_CONFORME\n\n[Cas 2 — Désynchronisation entre A et PTR sur l’IP]\nANOMALIE_PTR fqdn=mail.corp.lan ip=192.168.1.25\nSUMMARY total_records=4 anomalies=1 statut=NON_CONFORME\n\n[Cas 3 — Multiples SRV sur le même DC valide]\nSUMMARY total_records=5 anomalies=0 statut=CONFORME"
+    "solution": "[Question 1 — Adresse IP de www.verdier.local]\n10.10.70.20\n\n[Question 2 — Type d'enregistrement www vers srv-web]\nCNAME\n\n[Question 3 — Serveur de messagerie du domaine]\nmx.verdier.local\n\n[Question 4 — Préférence de l'enregistrement MX]\n10\n\n[Question 5 — ftp.verdier.local se résout-il ?]\nNon\n\n[Question 6 — Action d'assainissement]\nsupprimer l'enregistrement ftp",
+    "takeaway": "1) www.verdier.local est un CNAME vers srv-web.verdier.local, qui porte l'enregistrement A 10.10.70.20 : la résolution donne 10.10.70.20.\n2) Le type est CNAME : un alias pointant vers un nom existant.\n3) Le courrier du domaine est remis à mx.verdier.local (enregistrement MX de la racine).\n4) La préférence MX vaut 10.\n5) Non : ftp.verdier.local est un CNAME vers ancien-srv.verdier.local, dont l'enregistrement A a été supprimé ; l'alias est orphelin, la résolution échoue.\n6) Amina doit supprimer l'enregistrement ftp (le CNAME obsolète) pour assainir la zone.\nContrôle : intranet.verdier.local, alias de la même cible, se résout encore en 10.10.70.20 ; seul ftp est orphelin."
   },
   {
     "id": "ws3-c1-e3",
     "chapter": 1,
-    "title": "Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer le nombre de packs de licences cœurs requis et déterminer l’édition financièrement optimale (Standard vs Datacenter).",
-    "brief": "Les règles officielles de licences par cœur Microsoft Windows Server imposent :\n- Règle 1 : minimum 8 cœurs physiques par socket CPU (si < 8, compter 8).\n- Règle 2 : minimum 16 cœurs physiques par serveur physique au total.\n- Licences vendues par packs de 2 cœurs : `packs_base = ceil(total_coeurs / 2)`.\n\nRègles de virtualisation Windows Server :\n- `Édition Standard` (120 € / pack 2 cœurs) : chaque licence complète de l’hôte accorde 2 VMs. Pour $V$ machines virtuelles, multiplier les packs de base par `max(1, ceil(V / 2))`.\n- `Édition Datacenter` (750 € / pack 2 cœurs) : une seule licence complète de l’hôte accorde un nombre illimité de VMs (`packs_base` invariants).\n\nEntrée :\n`SERVER nom=<NOM> sockets=<S> cores_per_socket=<C> vms=<V>`\n\nRésultat d’analyse attendu :\n- Profil hôte :\n  `SERVER_PROFILE nom=<NOM> base_cores=<COEURS> packs_base=<PACKS>`\n- Coûts par édition :\n  `EDITION_STANDARD packs=<PACKS_STD> cout=<COUT_STD>EUR`\n  `EDITION_DATACENTER packs=<PACKS_DC> cout=<COUT_DC>EUR`\n- Recommandation finale (Standard si cout_std <= cout_dc, sinon Datacenter) :\n  `RECOMMENDATION nom=<NOM> edition_recommandee=<STANDARD|DATACENTER> economie=<DIFF>EUR`",
-    "starter": "# Grille d'analyse (ws3-c1-e3) — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Forte densité de virtualisation justifiant l’édition Datacenter]\n# Données : SERVER nom=CLUSTER-NODE-A sockets=2 cores_per_socket=16 vms=18\nA_COMPLETER\n\n[Cas 2 — Mono-socket avec minimums 8 et 16 cœurs appliqués]\n# Données : SERVER nom=EDGE-SERVER sockets=1 cores_per_socket=4 vms=2\nA_COMPLETER\n\n[Cas 3 — Aucune machine virtuelle (serveur physique bare-metal)]\n# Données : SERVER nom=BARE-METAL sockets=2 cores_per_socket=10 vms=0\nA_COMPLETER\n",
+    "title": "Le dimensionnement des licences de l'hôte HYP-01",
+    "exampleTitle": "Exemple résolu — les licences du serveur EDGE-02",
+    "goal": "Appliquer le modèle de licences par cœur de Windows Server et arbitrer entre éditions Standard et Datacenter.",
+    "brief": "<p><strong>Énoncé.</strong> Verdier SA consolide ses serveurs sur un hôte Hyper-V, <strong>HYP-01</strong>, équipé de <strong>2 sockets de 10 cœurs</strong> chacun. Amina doit choisir l'édition de Windows Server pour l'hôte, selon les règles du cours :</p><ul><li>minimum <strong>8 cœurs par socket</strong> et <strong>16 cœurs par serveur</strong> à licencier ;</li><li>licences vendues par <strong>packs de 2 cœurs</strong> : <strong>Standard</strong> à 120 € le pack, chaque passage complet de licence de l'hôte couvre <strong>2 VM</strong> ;</li><li><strong>Datacenter</strong> à 750 € le pack : un seul passage complet de l'hôte couvre un nombre <strong>illimité</strong> de VM.</li></ul><p>Rappel : pour V machines virtuelles en édition Standard, le nombre de passages vaut ceil(V / 2). Répondez par le nombre seul en euros (par exemple 4800), sauf les questions 5 et 6 qui appellent une édition.</p><ol><li>Combien de cœurs physiques doivent être licenciés sur HYP-01 ?</li><li>Combien de packs de 2 cœurs faut-il pour couvrir l'hôte ?</li><li>Quel est le coût de la licence Datacenter de l'hôte ?</li><li>Quel est le coût de la licence Standard si l'hôte doit héberger 8 VM ?</li><li>Quelle édition retenir pour 8 VM ?</li><li>Quelle édition retenir pour 16 VM ?</li></ol>",
+    "starter": "# Exercice — Le dimensionnement des licences de l'hôte HYP-01\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : le nombre seul. Questions 5 et 6 : Standard ou Datacenter.\n\n[Question 1 — Cœurs à licencier]\nA_COMPLETER\n\n[Question 2 — Packs de 2 cœurs]\nA_COMPLETER\n\n[Question 3 — Coût Datacenter (en €)]\nA_COMPLETER\n\n[Question 4 — Coût Standard pour 8 VM (en €)]\nA_COMPLETER\n\n[Question 5 — Édition recommandée pour 8 VM]\nA_COMPLETER\n\n[Question 6 — Édition recommandée pour 16 VM]\nA_COMPLETER\n",
     "hints": [
-      "Appliquer max(8, cores) par socket, puis max(16, total).",
-      "Calculer les packs Standard en multipliant packs_base par math.ceil(vms / 2) si vms > 0.",
-      "Comparer les coûts totaux (120€ vs 750€ par pack)."
+      "Vérifiez d'abord les deux minimums : 10 cœurs par socket dépasse 8, et 20 cœurs au total dépasse 16 ; les cœurs réels suffisent donc.",
+      "Un passage de licence Standard couvre 2 VM : pour 8 VM, il faut ceil(8/2) = 4 passages ; pour 16 VM, 8 passages.",
+      "Comparez toujours le coût Standard total (packs de base × passages × 120 €) au coût Datacenter (packs de base × 750 €, unique)."
     ],
     "examples": [
       {
-        "stdin": "SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4",
-        "expected": "SERVER_PROFILE nom=HOTE-PROD-01 base_cores=16 packs_base=8\nEDITION_STANDARD packs=16 cout=1920EUR\nEDITION_DATACENTER packs=8 cout=6000EUR\nRECOMMENDATION nom=HOTE-PROD-01 edition_recommandee=STANDARD economie=4080EUR",
-        "note": "16 cœurs = 8 packs. 4 VMs = 2 passages de licence Standard (16 packs = 1920€). Datacenter = 8 packs (6000€). Standard est plus économique de 4080€."
+        "stdin": "Le serveur EDGE-02 comporte 1 socket de 6 cœurs et hébergera 4 VM.\n\n1) Par socket : max(8, 6) = 8 cœurs ; au total 8 < 16, donc 16 cœurs à licencier.\n2) Packs : 16 / 2 = 8 packs.\n3) Datacenter : 8 × 750 = 6000 €.\n4) Standard pour 4 VM : 2 passages, soit 8 × 2 × 120 = 1920 €.\n5) Pour 4 VM : Standard (1920 < 6000).\n6) Pour 16 VM : 8 passages, 8 × 8 × 120 = 7680 € > 6000 €, donc Datacenter.",
+        "expected": "16 cœurs — 8 packs — Datacenter 6000 € — Standard 1920 € pour 4 VM — Standard pour 4 VM — Datacenter pour 16 VM",
+        "note": "Les minimums 8 et 16 se vérifient avant tout calcul : un petit serveur paie au moins 16 cœurs, soit 8 packs."
       }
     ],
     "tests": [
       {
-        "label": "Forte densité de virtualisation justifiant l’édition Datacenter",
-        "stdin": "cas:1",
-        "expected": "SERVER_PROFILE nom=CLUSTER-NODE-A base_cores=32 packs_base=16\nEDITION_STANDARD packs=144 cout=17280EUR\nEDITION_DATACENTER packs=16 cout=12000EUR\nRECOMMENDATION nom=CLUSTER-NODE-A edition_recommandee=DATACENTER economie=5280EUR"
+        "label": "Question 1 — Cœurs à licencier",
+        "stdin": "q:1",
+        "expected": "20||20 cœurs"
       },
       {
-        "label": "Mono-socket avec minimums 8 et 16 cœurs appliqués",
-        "stdin": "cas:2",
-        "expected": "SERVER_PROFILE nom=EDGE-SERVER base_cores=16 packs_base=8\nEDITION_STANDARD packs=8 cout=960EUR\nEDITION_DATACENTER packs=8 cout=6000EUR\nRECOMMENDATION nom=EDGE-SERVER edition_recommandee=STANDARD economie=5040EUR"
+        "label": "Question 2 — Packs de 2 cœurs",
+        "stdin": "q:2",
+        "expected": "10||10 packs"
       },
       {
-        "label": "Aucune machine virtuelle (serveur physique bare-metal)",
-        "stdin": "cas:3",
-        "expected": "SERVER_PROFILE nom=BARE-METAL base_cores=20 packs_base=10\nEDITION_STANDARD packs=10 cout=1200EUR\nEDITION_DATACENTER packs=10 cout=7500EUR\nRECOMMENDATION nom=BARE-METAL edition_recommandee=STANDARD economie=6300EUR"
+        "label": "Question 3 — Coût Datacenter (en €)",
+        "stdin": "q:3",
+        "expected": "7500||7500 €||7500€"
+      },
+      {
+        "label": "Question 4 — Coût Standard pour 8 VM (en €)",
+        "stdin": "q:4",
+        "expected": "4800||4800 €||4800€"
+      },
+      {
+        "label": "Question 5 — Édition recommandée pour 8 VM",
+        "stdin": "q:5",
+        "expected": "Standard||l'édition Standard||édition Standard"
+      },
+      {
+        "label": "Question 6 — Édition recommandée pour 16 VM",
+        "stdin": "q:6",
+        "expected": "Datacenter||l'édition Datacenter||édition Datacenter"
       }
     ],
-    "solution": "[Exemple]\nSERVER_PROFILE nom=HOTE-PROD-01 base_cores=16 packs_base=8\nEDITION_STANDARD packs=16 cout=1920EUR\nEDITION_DATACENTER packs=8 cout=6000EUR\nRECOMMENDATION nom=HOTE-PROD-01 edition_recommandee=STANDARD economie=4080EUR\n\n[Cas 1 — Forte densité de virtualisation justifiant l’édition Datacenter]\nSERVER_PROFILE nom=CLUSTER-NODE-A base_cores=32 packs_base=16\nEDITION_STANDARD packs=144 cout=17280EUR\nEDITION_DATACENTER packs=16 cout=12000EUR\nRECOMMENDATION nom=CLUSTER-NODE-A edition_recommandee=DATACENTER economie=5280EUR\n\n[Cas 2 — Mono-socket avec minimums 8 et 16 cœurs appliqués]\nSERVER_PROFILE nom=EDGE-SERVER base_cores=16 packs_base=8\nEDITION_STANDARD packs=8 cout=960EUR\nEDITION_DATACENTER packs=8 cout=6000EUR\nRECOMMENDATION nom=EDGE-SERVER edition_recommandee=STANDARD economie=5040EUR\n\n[Cas 3 — Aucune machine virtuelle (serveur physique bare-metal)]\nSERVER_PROFILE nom=BARE-METAL base_cores=20 packs_base=10\nEDITION_STANDARD packs=10 cout=1200EUR\nEDITION_DATACENTER packs=10 cout=7500EUR\nRECOMMENDATION nom=BARE-METAL edition_recommandee=STANDARD economie=6300EUR"
+    "solution": "[Question 1 — Cœurs à licencier]\n20\n\n[Question 2 — Packs de 2 cœurs]\n10\n\n[Question 3 — Coût Datacenter (en €)]\n7500\n\n[Question 4 — Coût Standard pour 8 VM (en €)]\n4800\n\n[Question 5 — Édition recommandée pour 8 VM]\nStandard\n\n[Question 6 — Édition recommandée pour 16 VM]\nDatacenter",
+    "takeaway": "1) 2 sockets × 10 cœurs = 20 cœurs ; chaque socket dépasse 8 cœurs et le total dépasse 16 : on licencie 20 cœurs.\n2) Packs de base : 20 / 2 = 10 packs.\n3) Datacenter : 10 × 750 = 7500 € (VM illimitées).\n4) Standard pour 8 VM : ceil(8/2) = 4 passages, soit 10 × 4 × 120 = 4800 €.\n5) Pour 8 VM : 4800 € < 7500 €, on retient Standard.\n6) Pour 16 VM : ceil(16/2) = 8 passages, soit 10 × 8 × 120 = 9600 € > 7500 € : on retient Datacenter.\nContrôle : le seuil de bascule se situe à 13 VM (6 passages coûtent 7200 €, 7 passages 8400 €)."
   }
 ];

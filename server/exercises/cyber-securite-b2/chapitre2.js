@@ -12,12 +12,13 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c2-e1) — Chiffrement symétrique par masque jetable XOR (Vernam)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 032035272a;KEY\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : ffff;AB\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 00112233;CYBER\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 41424344;Z\nA_COMPLETER\n",
     "hints": [
       "Le masque jetable (chiffre de Vernam) applique un OU exclusif (XOR) bit à bit entre le message clair et la clé.",
-      "L’opération XOR est involutive : le chiffrement et le déchiffrement utilisent exactement la même opération."
+      "L’opération XOR est involutive : le chiffrement et le déchiffrement utilisent exactement la même opération.",
+      "Pour chaque cas : convertir le flux hexadécimal en octets, appliquer le XOR avec le caractère de clé correspondant, puis reformater en hexadécimal minuscule."
     ],
     "examples": [
       {
-        "stdin": "48656c6c6f;KEY",
-        "expected": "032035272a",
+        "stdin": "576f726c64;KEY",
+        "expected": "1c2a2b2721",
         "note": "Exemple de référence."
       }
     ],
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "1b18191e"
       }
     ],
-    "solution": "[Exemple]\n032035272a\n\n[Cas 1 — Test de validation 1]\n48656c6c6f\n\n[Cas 2 — Test de validation 2]\nbebd\n\n[Cas 3 — Test de validation 3]\n43486076\n\n[Cas 4 — Test de validation 4]\n1b18191e"
+    "solution": "[Exemple]\n1c2a2b2721\n\n[Cas 1 — Test de validation 1]\n48656c6c6f\n\n[Cas 2 — Test de validation 2]\nbebd\n\n[Cas 3 — Test de validation 3]\n43486076\n\n[Cas 4 — Test de validation 4]\n1b18191e",
+    "takeaway": "Le XOR avec une clé aléatoire aussi longue que le message et jamais réutilisée assure la réversibilité exacte C = M ^ K."
   },
   {
     "id": "cs2-c2-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c2-e2) — Comparaison SHA-256 et fiabilité de la référence\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : fiable;Transfert de 500 EUR;0000000000000000000000000000000000000000000000000000000000000000\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : fiable;Cybersecurite B2;4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : fiable;Cybersecurite B2;4F488E082C757C61D3E1AC9961723EA2C83A5C80595E6432800739ADEA006A0A\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : non_fiable;Transfert de 900 EUR;30f821c94461cff75f24ea420033f1511b157cb7167a5efe43ade362b92c4140\nA_COMPLETER\n\n[Cas 5 — Test de validation 5]\n# Données : non_fiable;Transfert de 900 EUR;0000000000000000000000000000000000000000000000000000000000000000\nA_COMPLETER\n\n[Cas 6 — Test de validation 6]\n# Données : fiable;Message legitime;1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\nA_COMPLETER\n",
     "hints": [
       "Calculez l’empreinte des octets exacts puis comparez-la à la référence sans distinguer majuscules et minuscules hexadécimales.",
-      "Une correspondance avec une référence non fiable n’établit pas l’intégrité ; une différence ne permet pas d’attribuer une intention."
+      "Une correspondance avec une référence non fiable n’établit pas l’intégrité ; une différence ne permet pas d’attribuer une intention.",
+      "Pour chaque cas : calculer l empreinte des octets exacts, la comparer à la référence sans tenir compte de la casse, puis conclure selon la fiabilité annoncée."
     ],
     "examples": [
       {
@@ -97,7 +100,8 @@ module.exports = [
         "expected": "SHA256=9fa3f8dc8ae6867d4a4271408066e8968866ff12a6ad261f4f427d2cd7e7f6e7 | COMPARAISON=DIFFERENTE | CONCLUSION=DIFFERENCE_DETECTEE"
       }
     ],
-    "solution": "[Exemple]\nSHA256=6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf | COMPARAISON=IDENTIQUE | CONCLUSION=AUCUNE_MODIFICATION_DETECTEE\n\n[Cas 1 — Test de validation 1]\nSHA256=6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf | COMPARAISON=DIFFERENTE | CONCLUSION=DIFFERENCE_DETECTEE\n\n[Cas 2 — Test de validation 2]\nSHA256=4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a | COMPARAISON=IDENTIQUE | CONCLUSION=AUCUNE_MODIFICATION_DETECTEE\n\n[Cas 3 — Test de validation 3]\nSHA256=4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a | COMPARAISON=IDENTIQUE | CONCLUSION=AUCUNE_MODIFICATION_DETECTEE\n\n[Cas 4 — Test de validation 4]\nSHA256=30f821c94461cff75f24ea420033f1511b157cb7167a5efe43ade362b92c4140 | COMPARAISON=IDENTIQUE | CONCLUSION=INTEGRITE_NON_ETABLIE\n\n[Cas 5 — Test de validation 5]\nSHA256=30f821c94461cff75f24ea420033f1511b157cb7167a5efe43ade362b92c4140 | COMPARAISON=DIFFERENTE | CONCLUSION=INTEGRITE_NON_ETABLIE\n\n[Cas 6 — Test de validation 6]\nSHA256=9fa3f8dc8ae6867d4a4271408066e8968866ff12a6ad261f4f427d2cd7e7f6e7 | COMPARAISON=DIFFERENTE | CONCLUSION=DIFFERENCE_DETECTEE"
+    "solution": "[Exemple]\nSHA256=6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf | COMPARAISON=IDENTIQUE | CONCLUSION=AUCUNE_MODIFICATION_DETECTEE\n\n[Cas 1 — Test de validation 1]\nSHA256=6b120e5d190c04b00f51804bdd3daa3cfe22d81210f31321f69794f879c513bf | COMPARAISON=DIFFERENTE | CONCLUSION=DIFFERENCE_DETECTEE\n\n[Cas 2 — Test de validation 2]\nSHA256=4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a | COMPARAISON=IDENTIQUE | CONCLUSION=AUCUNE_MODIFICATION_DETECTEE\n\n[Cas 3 — Test de validation 3]\nSHA256=4f488e082c757c61d3e1ac9961723ea2c83a5c80595e6432800739adea006a0a | COMPARAISON=IDENTIQUE | CONCLUSION=AUCUNE_MODIFICATION_DETECTEE\n\n[Cas 4 — Test de validation 4]\nSHA256=30f821c94461cff75f24ea420033f1511b157cb7167a5efe43ade362b92c4140 | COMPARAISON=IDENTIQUE | CONCLUSION=INTEGRITE_NON_ETABLIE\n\n[Cas 5 — Test de validation 5]\nSHA256=30f821c94461cff75f24ea420033f1511b157cb7167a5efe43ade362b92c4140 | COMPARAISON=DIFFERENTE | CONCLUSION=INTEGRITE_NON_ETABLIE\n\n[Cas 6 — Test de validation 6]\nSHA256=9fa3f8dc8ae6867d4a4271408066e8968866ff12a6ad261f4f427d2cd7e7f6e7 | COMPARAISON=DIFFERENTE | CONCLUSION=DIFFERENCE_DETECTEE",
+    "takeaway": "Comparer une empreinte SHA-256 à une référence détecte toute altération d un bit, à condition d obtenir cette référence par canal fiable."
   },
   {
     "id": "cs2-c2-e3",
@@ -110,7 +114,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c2-e3) — Vérification de signature numérique asymétrique RSA\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 42;89;7;187\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 123;2746;17;3233\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 123;999;17;3233\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 7;4;3;33\nA_COMPLETER\n",
     "hints": [
       "Dans cette grille, VALIDE désigne une égalité arithmétique et non une signature résistante aux falsifications.",
-      "Une signature réelle utilise un schéma sûr tel que RSA-PSS et se vérifie avec une clé publique authentifiée."
+      "Une signature réelle utilise un schéma sûr tel que RSA-PSS et se vérifie avec une clé publique authentifiée.",
+      "Pour chaque cas : élever la signature reçue à l exposant public modulo n, comparer le résultat au message attendu, puis conclure avec les valeurs obtenues."
     ],
     "examples": [
       {
@@ -141,6 +146,7 @@ module.exports = [
         "expected": "INVALIDE (obtenu: 31, attendu: 7)"
       }
     ],
-    "solution": "[Exemple]\nVALIDE (m = 42)\n\n[Cas 1 — Test de validation 1]\nINVALIDE (obtenu: 166, attendu: 42)\n\n[Cas 2 — Test de validation 2]\nVALIDE (m = 123)\n\n[Cas 3 — Test de validation 3]\nINVALIDE (obtenu: 2464, attendu: 123)\n\n[Cas 4 — Test de validation 4]\nINVALIDE (obtenu: 31, attendu: 7)"
+    "solution": "[Exemple]\nVALIDE (m = 42)\n\n[Cas 1 — Test de validation 1]\nINVALIDE (obtenu: 166, attendu: 42)\n\n[Cas 2 — Test de validation 2]\nVALIDE (m = 123)\n\n[Cas 3 — Test de validation 3]\nINVALIDE (obtenu: 2464, attendu: 123)\n\n[Cas 4 — Test de validation 4]\nINVALIDE (obtenu: 31, attendu: 7)",
+    "takeaway": "En RSA, vérifier une signature élève la signature s à l exposant public e mod n et compare à l empreinte h attendue."
   }
 ];

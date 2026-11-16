@@ -13,7 +13,7 @@ module.exports = [
     language: 'powershell',
     title: 'Type d’hyperviseur',
     goal: 'Classifier un produit selon qu’il s’installe sur le matériel ou sur un système hôte.',
-    brief: '<p>Le script lit le <strong>type</strong> de l’hyperviseur (<code>1</code> ou ' +
+    brief: '<p>Dans un inventaire d’hôtes de virtualisation (<code>Get-VMHost</code> sous Hyper-V ou inventaire ESXi), le script lit le <strong>type</strong> de l’hyperviseur (<code>1</code> ou ' +
       '<code>2</code>), puis le <strong>nom</strong> du produit. Affichez ' +
       '<code>produit : NOM (bare-metal)</code> pour le type 1 et ' +
       '<code>produit : NOM (heberge)</code> pour le type 2.</p>',
@@ -24,8 +24,9 @@ $produit = [Console]::In.ReadLine()
 # "produit : NOM (heberge)" selon le type.
 `,
     hints: [
-      'Un type 1 tourne directement sur le matériel : bare-metal.',
-      'Le type 2 s’installe sur un OS existant : « heberge ».'
+      "Un type 1 tourne directement sur le matériel : bare-metal.",
+      "Le type 2 s’installe sur un OS existant : « heberge ».",
+      "Étapes : lire le type puis le produit ; type 1 → « (bare-metal) », sinon « (heberge) » ; afficher « produit : » suivi du nom et du qualificatif."
     ],
     examples: [
       { stdin: '1\nESXi', expected: 'produit : ESXi (bare-metal)', note: 'ESXi est un hyperviseur de type 1.' }
@@ -43,7 +44,8 @@ if ($type -eq 1) {
 } else {
     Write-Output ("produit : " + $produit + " (heberge)")
 }
-`
+`,
+    takeaway: "Un hyperviseur Type 1 (Hyper-V, ESXi) s exécute directement sur le matériel, au contraire d un Type 2 hébergé sur un OS."
   },
   {
     id: 'ws2-c5-e2',
@@ -62,8 +64,9 @@ if ($type -eq 1) {
 # selon le mode (nat, bridge, host-only).
 `,
     hints: [
-      'Un switch sur $mode associe chaque mode à ses deux réponses.',
-      'NAT : Internet oui, LAN non. Bridge : Internet oui, LAN oui. Host-Only : Internet non, LAN non.'
+      "Un switch sur $mode associe chaque mode à ses deux réponses.",
+      "NAT : Internet oui, LAN non. Bridge : Internet oui, LAN oui. Host-Only : Internet non, LAN non.",
+      "Étapes : lire le mode ; nat → internet oui, lan non ; bridge → oui et oui ; host-only → non et non ; autre valeur → non et non. Deux lignes en sortie."
     ],
     examples: [
       { stdin: 'nat', expected: 'internet : oui\nlan : non', note: 'La VM sort via l’hôte, pas d’accès entrant.' }
@@ -81,7 +84,8 @@ switch ($mode) {
     "host-only" { Write-Output "internet : non"; Write-Output "lan : non" }
     default { Write-Output "internet : non"; Write-Output "lan : non" }
 }
-`
+`,
+    takeaway: "NAT partage l IP de l hôte vers Internet, le pont expose la VM sur le LAN, et Host-Only l isole sur le poste hôte."
   },
   {
     id: 'ws2-c5-e3',
@@ -101,8 +105,9 @@ $coeurs = [int][Console]::In.ReadLine()
 # "surallocation : oui/non" et "vcpu en exces : X".
 `,
     hints: [
-      'Surallocation active quand `($vcpu -gt $coeurs)`.',
-      'L’excédent vaut `$vcpu - $coeurs` ; il vaut 0 sinon.'
+      "Surallocation active quand `($vcpu -gt $coeurs)`.",
+      "L’excédent vaut `$vcpu - $coeurs` ; il vaut 0 sinon.",
+      "Étapes : lire vcpu puis coeurs ; si vcpu dépasse coeurs, « surallocation : oui » et l’excédent vaut la différence ; sinon « non » avec excédent 0."
     ],
     examples: [
       { stdin: '32\n16', expected: 'surallocation : oui\nvcpu en exces : 16', note: 'Deux fois plus de vCPU que de cœurs.' }
@@ -122,6 +127,7 @@ if ($vcpu -gt $coeurs) {
     Write-Output "surallocation : non"
     Write-Output "vcpu en exces : 0"
 }
-`
+`,
+    takeaway: "Additionner tous les vCPU alloués face aux cœurs physiques alerte dès que le ratio de contention dépasse le seuil cible."
   }
 ];

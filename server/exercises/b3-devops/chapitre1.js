@@ -4,41 +4,54 @@ module.exports = [
   {
     "id": "do3-c1-e1",
     "chapter": 1,
-    "title": "Évaluateur de maturité du modèle CALMS (DevOps Maturity Score)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Calculer le score de maturité DevOps d’une organisation selon les 5 piliers du modèle CALMS et identifier les axes d’amélioration prioritaires.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas..5&gt;</code>.<br>\nFormules :<br>\n- Moyenne globale = $\\sum score / 5.0$ (sur 5, arrondie à 2 décimales)<br>\n- Pourcentage = $(Moyenne / 5.0) \\times 100$ (arrondi à 1 décimale)<br>\n- Niveau de maturité :<br>\n  - Si $Moyenne \\ge 4.0$ : <code>NIVEAU=ELITE</code><br>\n  - Sinon si $Moyenne \\ge 2.5$ : <code>NIVEAU=EN_TRANSITION</code><br>\n  - Sinon : <code>NIVEAU=INITIAL</code><br>\n- Axes prioritaires : liste des piliers ayant un score strictement inférieur à 3 (ordonnés selon l'ordre standard <code>CULTURE</code>, <code>AUTOMATION</code>, <code>LEAN</code>, <code>MEASUREMENT</code>, <code>SHARING</code>), ou <code>AUCUN</code> si tous sont $\\ge 3$.<br><br>\nAfficher :<br>\n<code>MATURITE_CALMS: MOYENNE=&lt;moy:.2f&gt;/5 (&lt;pct:.1f&gt;%) | NIVEAU=&lt;NIVEAU&gt; | AXES_PRIORITAIRES=[&lt;axes&gt;]</code></p>",
-    "starter": "# Grille d'analyse (do3-c1-e1) — Évaluateur de maturité du modèle CALMS (DevOps Maturity Score)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Organisation en début de transition avec faiblesses]\n# Données : CALMS pilier=CULTURE score=2\n# Données : CALMS pilier=AUTOMATION score=1\n# Données : CALMS pilier=LEAN score=3\n# Données : CALMS pilier=MEASUREMENT score=2\n# Données : CALMS pilier=SHARING score=3\nA_COMPLETER\n\n[Cas 2 — Bonne automatisation mais retard culturel]\n# Données : CALMS pilier=CULTURE score=2\n# Données : CALMS pilier=AUTOMATION score=4\n# Données : CALMS pilier=LEAN score=4\n# Données : CALMS pilier=MEASUREMENT score=3\n# Données : CALMS pilier=SHARING score=4\nA_COMPLETER\n\n[Cas 3 — Scores parfaits sur tous les axes]\n# Données : CALMS pilier=CULTURE score=5\n# Données : CALMS pilier=AUTOMATION score=5\n# Données : CALMS pilier=LEAN score=5\n# Données : CALMS pilier=MEASUREMENT score=5\n# Données : CALMS pilier=SHARING score=5\nA_COMPLETER\n",
+    "title": "Le diagnostic CALMS de la société NovaLog",
+    "exampleTitle": "Exemple résolu — l'audit CALMS de la fintech PayFlux",
+    "goal": "Évaluer la maturité DevOps d'une organisation avec le modèle CALMS et repérer ses axes d'amélioration prioritaires.",
+    "brief": "<p><strong>Énoncé.</strong> La société NovaLog édite <strong>ColisTrack</strong>, une application de gestion de transport destinée aux transporteurs. Après un trimestre marqué par des tensions entre les développeurs et l'équipe d'exploitation, la direction lance un atelier d'évaluation de la maturité DevOps selon le modèle <strong>CALMS</strong>. Chaque pilier reçoit une note de <strong>0 à 5</strong> :</p><table><tr><th>Pilier CALMS</th><th>Culture</th><th>Automation</th><th>Lean</th><th>Measurement</th><th>Sharing</th></tr><tr><th>Note attribuée</th><td>2</td><td>3</td><td>3</td><td>2</td><td>1</td></tr></table><p>Convention de l'atelier : un pilier noté <strong>strictement en dessous de 3</strong> constitue un axe prioritaire d'amélioration. Répondez aux questions suivantes. Pour les questions 2, 3 et 5, répondez par le nom exact du pilier ; pour la question 1, donnez la valeur seule à une décimale près.</p><ol><li>Quelle est la moyenne des cinq notes (à une décimale) ?</li><li>Quel pilier obtient la note la plus faible ?</li><li>Que désigne le « C » de CALMS ?</li><li>Combien d'axes prioritaires (piliers notés en dessous de 3) compte ce diagnostic ?</li><li>Que désigne le « M » de CALMS ?</li></ol>",
+    "starter": "# Exercice — Le diagnostic CALMS de la société NovaLog\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Moyenne des cinq notes]\nA_COMPLETER\n\n[Question 2 — Pilier le plus faible]\nA_COMPLETER\n\n[Question 3 — Le C de CALMS]\nA_COMPLETER\n\n[Question 4 — Nombre d'axes prioritaires]\nA_COMPLETER\n\n[Question 5 — Le M de CALMS]\nA_COMPLETER\n",
     "hints": [
-      "Garder l’ordre officiel CALMS (Culture, Automation, Lean, Measurement, Sharing) pour l’affichage des axes.",
-      "Un score < 3 signale un goulet d’étranglement culturel ou technique."
+      "CALMS est l'acronyme des cinq piliers de la maturité DevOps : Culture, Automation, Lean, Measurement, Sharing.",
+      "La moyenne se calcule en additionnant les cinq notes puis en divisant par 5 ; les axes prioritaires sont les piliers strictement en dessous de 3.",
+      "1. Additionnez les cinq notes. 2. Divisez par 5 pour la moyenne. 3. Comptez les notes strictement inférieures à 3. 4. Associez chaque lettre de CALMS à son pilier pour répondre aux questions 3 et 5."
     ],
     "examples": [
       {
-        "stdin": "CALMS pilier=CULTURE score=4\nCALMS pilier=AUTOMATION score=5\nCALMS pilier=LEAN score=4\nCALMS pilier=MEASUREMENT score=4\nCALMS pilier=SHARING score=4",
-        "expected": "MATURITE_CALMS: MOYENNE=4.20/5 (84.0%) | NIVEAU=ELITE | AXES_PRIORITAIRES=[AUCUN]",
-        "note": "Tous les piliers sont solides (>= 3) et la moyenne dépasse 4.0 : niveau Élite."
+        "stdin": "La fintech PayFlux passe le même audit. Notes : Culture 3, Automation 1, Lean 3, Measurement 4, Sharing 3.\n\n1) Moyenne : (3 + 1 + 3 + 4 + 3) / 5 = 14/5 = 2,8 sur 5.\n2) Le pilier le plus faible est Automation (1).\n3) Le C de CALMS désigne la Culture.\n4) Seul Automation est sous 3 : un seul axe prioritaire.\n5) Le M de CALMS désigne la Measurement (la mesure des flux et de la performance).",
+        "expected": "2,8 — Automation — Culture — 1 axe prioritaire — Measurement",
+        "note": "Un seul pilier faible suffit à freiner toute la transformation : ici, l'automatisation des pipelines est l'axe prioritaire."
       }
     ],
     "tests": [
       {
-        "label": "Organisation en début de transition avec faiblesses",
-        "stdin": "cas:1",
-        "expected": "MATURITE_CALMS: MOYENNE=2.20/5 (44.0%) | NIVEAU=INITIAL | AXES_PRIORITAIRES=[CULTURE, AUTOMATION, MEASUREMENT]"
+        "label": "Question 1 — Moyenne des cinq notes",
+        "stdin": "q:1",
+        "expected": "2,2||2.2||2,2/5||2.2/5"
       },
       {
-        "label": "Bonne automatisation mais retard culturel",
-        "stdin": "cas:2",
-        "expected": "MATURITE_CALMS: MOYENNE=3.40/5 (68.0%) | NIVEAU=EN_TRANSITION | AXES_PRIORITAIRES=[CULTURE]"
+        "label": "Question 2 — Pilier le plus faible",
+        "stdin": "q:2",
+        "expected": "sharing"
       },
       {
-        "label": "Scores parfaits sur tous les axes",
-        "stdin": "cas:3",
-        "expected": "MATURITE_CALMS: MOYENNE=5.00/5 (100.0%) | NIVEAU=ELITE | AXES_PRIORITAIRES=[AUCUN]"
+        "label": "Question 3 — Le C de CALMS",
+        "stdin": "q:3",
+        "expected": "culture||la culture"
+      },
+      {
+        "label": "Question 4 — Nombre d'axes prioritaires",
+        "stdin": "q:4",
+        "expected": "3"
+      },
+      {
+        "label": "Question 5 — Le M de CALMS",
+        "stdin": "q:5",
+        "expected": "measurement||mesure||la mesure"
       }
     ],
-    "solution": "[Exemple]\nMATURITE_CALMS: MOYENNE=4.20/5 (84.0%) | NIVEAU=ELITE | AXES_PRIORITAIRES=[AUCUN]\n\n[Cas 1 — Organisation en début de transition avec faiblesses]\nMATURITE_CALMS: MOYENNE=2.20/5 (44.0%) | NIVEAU=INITIAL | AXES_PRIORITAIRES=[CULTURE, AUTOMATION, MEASUREMENT]\n\n[Cas 2 — Bonne automatisation mais retard culturel]\nMATURITE_CALMS: MOYENNE=3.40/5 (68.0%) | NIVEAU=EN_TRANSITION | AXES_PRIORITAIRES=[CULTURE]\n\n[Cas 3 — Scores parfaits sur tous les axes]\nMATURITE_CALMS: MOYENNE=5.00/5 (100.0%) | NIVEAU=ELITE | AXES_PRIORITAIRES=[AUCUN]"
+    "solution": "[Question 1 — Moyenne des cinq notes]\n2,2\n\n[Question 2 — Pilier le plus faible]\nsharing\n\n[Question 3 — Le C de CALMS]\nculture\n\n[Question 4 — Nombre d'axes prioritaires]\n3\n\n[Question 5 — Le M de CALMS]\nmeasurement",
+    "takeaway": "1) Moyenne : (2 + 3 + 3 + 2 + 1) / 5 = 11 / 5 = 2,2 sur 5.\n2) La note la plus faible est 1, attribuée à Sharing : le partage des connaissances entre équipes est le pilier le plus fragile.\n3) Le C de CALMS désigne la Culture : la confiance et la responsabilité partagée entre Dev et Ops.\n4) Les piliers sous 3 sont Culture (2), Measurement (2) et Sharing (1) : 3 axes prioritaires.\n5) Le M de CALMS désigne la Measurement : mesurer les flux de travail et la performance pour décider sur des faits.\nContrôle : la somme des notes (2 + 3 + 3 + 2 + 1 = 11) divisée par 5 redonne bien la moyenne de 2,2."
   },
   {
     "id": "do3-c1-e2",
@@ -51,7 +64,8 @@ module.exports = [
     "starter": "# Grille d'analyse (do3-c1-e2) — Barème pédagogique fictif : quatre mesures de livraison\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Équipe performante High niveau]\n# Données : DORA df_per_day=0.50 lt_hours=8.0 cfr_pct=10.0 mttr_hours=4.0\nA_COMPLETER\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\n# Données : DORA df_per_day=0.10 lt_hours=48.0 cfr_pct=20.0 mttr_hours=72.0\nA_COMPLETER\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\n# Données : DORA df_per_day=0.01 lt_hours=720.0 cfr_pct=45.0 mttr_hours=200.0\nA_COMPLETER\n",
     "hints": [
       "Appliquez les seuils fictifs dans l’ordre A, B, C, puis D.",
-      "Ne confondez pas ce barème sur quatre données avec les cinq métriques actuelles DORA."
+      "Ne confondez pas ce barème sur quatre données avec les cinq métriques actuelles DORA.",
+      "Calculez séparément DF, LT, CFR et MTTR selon les unités demandées puis classez uniquement d après le barème pédagogique daté de l énoncé."
     ],
     "examples": [
       {
@@ -77,45 +91,64 @@ module.exports = [
         "expected": "BAREME_PEDAGOGIQUE: CLASSE=D | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h | CINQUIEME=NON_MESURE"
       }
     ],
-    "solution": "[Exemple]\nBAREME_PEDAGOGIQUE: CLASSE=A | DF=3.50 dep/j | LT=0.5h | CFR=2.0% | MTTR=0.4h | CINQUIEME=NON_MESURE\n\n[Cas 1 — Équipe performante High niveau]\nBAREME_PEDAGOGIQUE: CLASSE=B | DF=0.50 dep/j | LT=8.0h | CFR=10.0% | MTTR=4.0h | CINQUIEME=NON_MESURE\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\nBAREME_PEDAGOGIQUE: CLASSE=C | DF=0.10 dep/j | LT=48.0h | CFR=20.0% | MTTR=72.0h | CINQUIEME=NON_MESURE\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\nBAREME_PEDAGOGIQUE: CLASSE=D | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h | CINQUIEME=NON_MESURE"
+    "solution": "[Exemple]\nBAREME_PEDAGOGIQUE: CLASSE=A | DF=3.50 dep/j | LT=0.5h | CFR=2.0% | MTTR=0.4h | CINQUIEME=NON_MESURE\n\n[Cas 1 — Équipe performante High niveau]\nBAREME_PEDAGOGIQUE: CLASSE=B | DF=0.50 dep/j | LT=8.0h | CFR=10.0% | MTTR=4.0h | CINQUIEME=NON_MESURE\n\n[Cas 2 — Équipe intermédiaire Medium niveau]\nBAREME_PEDAGOGIQUE: CLASSE=C | DF=0.10 dep/j | LT=48.0h | CFR=20.0% | MTTR=72.0h | CINQUIEME=NON_MESURE\n\n[Cas 3 — Déploiements manuels trimestriels à risque élevé Low]\nBAREME_PEDAGOGIQUE: CLASSE=D | DF=0.01 dep/j | LT=720.0h | CFR=45.0% | MTTR=200.0h | CINQUIEME=NON_MESURE",
+    "takeaway": "À retenir : Appliquer un barème pédagogique daté sans prétendre classifier officiellement une équipe.\nRepère : Les valeurs satisfont les seuils A du barème fictif, sans classement réel."
   },
   {
     "id": "do3-c1-e3",
     "chapter": 1,
-    "title": "Simulateur de flux tiré Kanban et limitation du travail en cours (WIP)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Appliquer les principes du Lean Manufacturing au flux logiciel en faisant respecter strictement les plafonds de WIP (Work In Progress) sur chaque colonne du tableau Kanban.",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br><br>\nRègles :<br>\n- La colonne <code>DONE</code> n’a aucune limite de WIP.<br>\n- Pour déplacer une tâche vers une colonne cible : si le nombre actuel de tâches déjà dans cette colonne est <strong>strictement inférieur</strong> à la limite autorisée, le déplacement est <code>ACCEPTE</code> (la tâche quitte son ancienne colonne et entre dans la nouvelle).<br>\n- Si la colonne cible a déjà atteint sa limite WIP : le déplacement est <code>REJETE_WIP_SATURATION</code> et la tâche reste dans sa colonne actuelle.<br><br>\nAfficher pour chaque commande <code>MOVE</code> :<br>\n<code>KANBAN_MOVE: task=&lt;id&gt; to=&lt;to&gt; -&gt; &lt;ACCEPTE|REJETE_WIP_SATURATION&gt; (WIP_CIBLE=&lt;nouveau_total&gt;/&lt;limite&gt;)</code><br>\n(Note : pour DONE, afficher <code>(WIP_CIBLE=&lt;nouveau_total&gt;/ILLIMITE)</code>).</p>",
-    "starter": "# Grille d'analyse (do3-c1-e3) — Simulateur de flux tiré Kanban et limitation du travail en cours (WIP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Saturation immédiate de la colonne DEV]\n# Données : WIP_LIMITS dev=1 review=2 deploy=2\n# Données : TASK id=A col=DEV\n# Données : TASK id=B col=TODO\n# Données : MOVE id=B to=DEV\nA_COMPLETER\n\n[Cas 2 — Sortie vers DONE illimité]\n# Données : WIP_LIMITS dev=2 review=2 deploy=1\n# Données : TASK id=X col=DEPLOY\n# Données : MOVE id=X to=DONE\nA_COMPLETER\n\n[Cas 3 — Déplacement séquentiel multi-tâches respectant le flux]\n# Données : WIP_LIMITS dev=2 review=2 deploy=2\n# Données : TASK id=T1 col=DEV\n# Données : TASK id=T2 col=DEV\n# Données : MOVE id=T1 to=REVIEW\n# Données : MOVE id=T2 to=REVIEW\nA_COMPLETER\n",
+    "title": "Le tableau Kanban de l'équipe MobileBank",
+    "exampleTitle": "Exemple résolu — le tableau Kanban de l'équipe Stockly",
+    "goal": "Appliquer les limites de WIP d'un tableau Kanban et utiliser la loi de Little pour relier travail en cours, débit et temps de cycle.",
+    "brief": "<p><strong>Énoncé.</strong> Une équipe de six développeurs maintient <strong>MobileBank</strong>, une application bancaire mobile. Son tableau Kanban affiche : <strong>À FAIRE</strong> (12 cartes), <strong>EN DEV</strong> (3 cartes, limite de WIP 4), <strong>EN REVUE</strong> (2 cartes, limite 2), <strong>EN DÉPLOIEMENT</strong> (0 carte, limite 1) et <strong>TERMINÉ</strong> (28 cartes). Le débit moyen mesuré de l'équipe est de <strong>10 cartes par semaine</strong>. La loi de Little relie les trois grandeurs : temps de cycle = travail en cours (WIP) / débit. Le WIP compte les cartes commencées non terminées (EN DEV + EN REVUE + EN DÉPLOIEMENT).</p><p>Répondez aux questions 2, 3 et 6 par oui ou non ; aux questions 1, 4 et 5 par la valeur seule (virgule décimale).</p><ol><li>Quel est le travail en cours actuel (nombre de cartes) ?</li><li>La colonne EN REVUE a-t-elle atteint sa limite de WIP ?</li><li>Peut-on tirer une nouvelle carte de À FAIRE vers EN DEV sans violer la limite ?</li><li>Quel est le temps de cycle moyen (en semaines) ?</li><li>L'équipe vise un temps de cycle de 0,25 semaine : quel WIP maximal doit-elle respecter (en nombre de cartes) ?</li><li>La colonne TERMINÉ possède-t-elle une limite de WIP ?</li></ol>",
+    "starter": "# Exercice — Le tableau Kanban de l'équipe MobileBank\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Travail en cours actuel]\nA_COMPLETER\n\n[Question 2 — Limite de EN REVUE atteinte ?]\nA_COMPLETER\n\n[Question 3 — Peut-on tirer une carte vers EN DEV ?]\nA_COMPLETER\n\n[Question 4 — Temps de cycle moyen en semaines]\nA_COMPLETER\n\n[Question 5 — WIP maximal pour 0,25 semaine]\nA_COMPLETER\n\n[Question 6 — TERMINÉ possède-t-elle une limite ?]\nA_COMPLETER\n",
     "hints": [
-      "Limiter le WIP réduit le temps de cycle (Loi de Little : Lead Time = WIP / Throughput).",
-      "Mettre à jour l’état de la tâche immédiatement en cas d’acceptation."
+      "Une limite de WIP est un maximum de cartes par colonne ; la colonne TERMINÉ n'en a jamais.",
+      "La loi de Little s'écrit temps de cycle = WIP / débit ; elle se retourne en WIP = temps de cycle × débit.",
+      "1. Additionnez les cartes d'EN DEV, EN REVUE et EN DÉPLOIEMENT. 2. Comparez 2 cartes à la limite d'EN REVUE. 3. Comparez 3 cartes à la limite d'EN DEV. 4. Divisez le WIP par 10. 5. Multipliez 0,25 par le débit."
     ],
     "examples": [
       {
-        "stdin": "WIP_LIMITS dev=2 review=1 deploy=1\nTASK id=T1 col=DEV\nTASK id=T2 col=REVIEW\nMOVE id=T1 to=REVIEW\nMOVE id=T2 to=DEPLOY\nMOVE id=T1 to=REVIEW",
-        "expected": "KANBAN_MOVE: task=T1 to=REVIEW -> REJETE_WIP_SATURATION (WIP_CIBLE=1/1)\nKANBAN_MOVE: task=T2 to=DEPLOY -> ACCEPTE (WIP_CIBLE=1/1)\nKANBAN_MOVE: task=T1 to=REVIEW -> ACCEPTE (WIP_CIBLE=1/1)",
-        "note": "T1 ne peut entrer en REVIEW car T2 y est déjà (limite 1). Dès que T2 avance en DEPLOY, T1 peut franchir REVIEW."
+        "stdin": "L'équipe Stockly (application de gestion de stocks) : À FAIRE 9 cartes, EN DEV 3 cartes (limite 3), EN REVUE 1 carte (limite 2), EN DÉPLOIEMENT 0 carte, TERMINÉ 20 cartes. Débit : 5 cartes par semaine.\n\n1) WIP : 3 + 1 + 0 = 4 cartes.\n2) EN REVUE (1 sur 2) n'a pas atteint sa limite : non.\n3) EN DEV est saturée (3 sur 3) : non.\n4) Temps de cycle : 4 / 5 = 0,8 semaine.\n5) WIP maximal pour 0,25 semaine : 0,25 × 5 = 1,25 carte.\n6) TERMINÉ n'a jamais de limite.",
+        "expected": "4 cartes — revue non saturée — tirage refusé en DEV — 0,8 semaine — 1,25 carte — TERMINÉ sans limite",
+        "note": "À débit constant, abaisser le WIP abaisse le temps de cycle : c'est l'intérêt des limites explicites."
       }
     ],
     "tests": [
       {
-        "label": "Saturation immédiate de la colonne DEV",
-        "stdin": "cas:1",
-        "expected": "KANBAN_MOVE: task=B to=DEV -> REJETE_WIP_SATURATION (WIP_CIBLE=1/1)"
+        "label": "Question 1 — Travail en cours actuel",
+        "stdin": "q:1",
+        "expected": "5||5 cartes"
       },
       {
-        "label": "Sortie vers DONE illimité",
-        "stdin": "cas:2",
-        "expected": "KANBAN_MOVE: task=X to=DONE -> ACCEPTE (WIP_CIBLE=1/ILLIMITE)"
+        "label": "Question 2 — Limite de EN REVUE atteinte ?",
+        "stdin": "q:2",
+        "expected": "oui"
       },
       {
-        "label": "Déplacement séquentiel multi-tâches respectant le flux",
-        "stdin": "cas:3",
-        "expected": "KANBAN_MOVE: task=T1 to=REVIEW -> ACCEPTE (WIP_CIBLE=1/2)\nKANBAN_MOVE: task=T2 to=REVIEW -> ACCEPTE (WIP_CIBLE=2/2)"
+        "label": "Question 3 — Peut-on tirer une carte vers EN DEV ?",
+        "stdin": "q:3",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 4 — Temps de cycle moyen en semaines",
+        "stdin": "q:4",
+        "expected": "0,5||0.5"
+      },
+      {
+        "label": "Question 5 — WIP maximal pour 0,25 semaine",
+        "stdin": "q:5",
+        "expected": "2,5||2.5"
+      },
+      {
+        "label": "Question 6 — TERMINÉ possède-t-elle une limite ?",
+        "stdin": "q:6",
+        "expected": "non"
       }
     ],
-    "solution": "[Exemple]\nKANBAN_MOVE: task=T1 to=REVIEW -> REJETE_WIP_SATURATION (WIP_CIBLE=1/1)\nKANBAN_MOVE: task=T2 to=DEPLOY -> ACCEPTE (WIP_CIBLE=1/1)\nKANBAN_MOVE: task=T1 to=REVIEW -> ACCEPTE (WIP_CIBLE=1/1)\n\n[Cas 1 — Saturation immédiate de la colonne DEV]\nKANBAN_MOVE: task=B to=DEV -> REJETE_WIP_SATURATION (WIP_CIBLE=1/1)\n\n[Cas 2 — Sortie vers DONE illimité]\nKANBAN_MOVE: task=X to=DONE -> ACCEPTE (WIP_CIBLE=1/ILLIMITE)\n\n[Cas 3 — Déplacement séquentiel multi-tâches respectant le flux]\nKANBAN_MOVE: task=T1 to=REVIEW -> ACCEPTE (WIP_CIBLE=1/2)\nKANBAN_MOVE: task=T2 to=REVIEW -> ACCEPTE (WIP_CIBLE=2/2)"
+    "solution": "[Question 1 — Travail en cours actuel]\n5\n\n[Question 2 — Limite de EN REVUE atteinte ?]\noui\n\n[Question 3 — Peut-on tirer une carte vers EN DEV ?]\noui\n\n[Question 4 — Temps de cycle moyen en semaines]\n0,5\n\n[Question 5 — WIP maximal pour 0,25 semaine]\n2,5\n\n[Question 6 — TERMINÉ possède-t-elle une limite ?]\nnon",
+    "takeaway": "1) WIP = 3 + 2 + 0 = 5 cartes en cours.\n2) EN REVUE contient 2 cartes pour une limite de 2 : la limite est atteinte, réponse oui.\n3) EN DEV contient 3 cartes pour une limite de 4 (3 sur 4) : on peut tirer une carte, réponse oui.\n4) Loi de Little : temps de cycle = WIP / débit = 5 / 10 = 0,5 semaine.\n5) WIP = temps de cycle × débit = 0,25 × 10 = 2,5 cartes au maximum.\n6) TERMINÉ ne possède jamais de limite de WIP : le travail achevé ne consomme plus d'attention.\nContrôle : avec un WIP de 2,5 cartes et un débit de 10, on retrouve bien 2,5 / 10 = 0,25 semaine."
   }
 ];

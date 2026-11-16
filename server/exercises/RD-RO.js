@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (ro2-c1-e1) — Validation de fonction objectif & positivité\n# Complétez la résolution mathématique sous chaque cas ci-dessous :\n\n[Cas 1 — Plan A]\n# Modèle : MAX Z = 25·x1 + 30·x2\n# Plan candidat : x1 = 2, x2 = 3\nA_COMPLETER\n\n[Cas 2 — Plan B]\n# Modèle : MIN Z = 10·x1 + 8·x2\n# Plan candidat : x1 = 0, x2 = 7\nA_COMPLETER\n\n[Cas 3 — Plan C]\n# Modèle : MAX Z = 15·x1 + 20·x2\n# Plan candidat : x1 = -2, x2 = 5\nA_COMPLETER\n",
     "hints": [
       "Quelles valeurs des variables sont autorisées dans ce modèle ? Vérifiez chaque composante du plan avant le calcul.",
-      "Si le plan respecte les signes, remplacez les variables par leurs valeurs dans la fonction objectif ; le sens MAX ou MIN ne change pas cette évaluation."
+      "Si le plan respecte les signes, remplacez les variables par leurs valeurs dans la fonction objectif ; le sens MAX ou MIN ne change pas cette évaluation.",
+      "Vérifiez d abord x_j >= 0 pour toutes les variables ; si aucune n est négative, évaluez Z = sum(c_j * x_j) sans omettre un seul coefficient."
     ],
     "examples": [
       {
@@ -41,7 +42,8 @@ module.exports = [
         "hint": "x1 = -2 viole impérativement la contrainte physique de non-négativité (x1 >= 0)."
       }
     ],
-    "solution": "[Exemple]\nVALIDE Z=160\n\n[Cas 1 — Maximisation valide]\nVALIDE Z=140\n\n[Cas 2 — Minimisation avec variable nulle]\nVALIDE Z=56\n\n[Cas 3 — Violation de non-négativité sur x1]\nNON_VALIDE VIOLATION_SIGNE\n"
+    "solution": "[Exemple]\nVALIDE Z=160\n\n[Cas 1 — Maximisation valide]\nVALIDE Z=140\n\n[Cas 2 — Minimisation avec variable nulle]\nVALIDE Z=56\n\n[Cas 3 — Violation de non-négativité sur x1]\nNON_VALIDE VIOLATION_SIGNE\n",
+    "takeaway": "À retenir : Distinguer coefficients et variables, vérifier la non-négativité (x_j ≥ 0) et évaluer la fonction objectif Z sur un plan candidat.\nRepère : Pour MAX Z = 15·x1 + 20·x2 avec (x1=4, x2=5) : x1 >= 0 et x2 >= 0 sont valides. Z = 15*4 + 20*5 = 160. Attention : ce calcul évalue la fonction en ce point mais ne prouve pas son optimalité globale."
   },
   {
     "id": "ro2-c1-e2",
@@ -54,7 +56,8 @@ module.exports = [
     "starter": "# Grille d'analyse (ro2-c1-e2) — Faisabilité de contraintes de ressources & écarts\n# Complétez l'analyse de faisabilité pour chaque cas ci-dessous :\n\n[Cas 1 — Plan A]\n# Contraintes : R1: 3·x1 + 1·x2 <= 12 | R2: 1·x1 + 4·x2 <= 14\n# Plan candidat : x1 = 2, x2 = 2\nA_COMPLETER\n\n[Cas 2 — Plan B]\n# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 8\n# Plan candidat : x1 = 4, x2 = 2\nA_COMPLETER\n\n[Cas 3 — Plan C]\n# Contraintes : R1: 2·x1 + 1·x2 <= 10 | R2: 1·x1 + 2·x2 <= 12\n# Plan candidat : x1 = 5, x2 = 2\nA_COMPLETER\n",
     "hints": [
       "Que signifie le signe de la différence entre capacité et consommation ?",
-      "Contrôlez les signes, puis calculez séparément les deux écarts avant de conclure."
+      "Contrôlez les signes, puis calculez séparément les deux écarts avant de conclure.",
+      "Calculez l écart s_i = b_i - sum(a_ij * x_j) : si tous les écarts >= 0 le plan est REALISABLE (s_i = 0 signifie ressource saturée)."
     ],
     "examples": [
       {
@@ -83,7 +86,8 @@ module.exports = [
         "hint": "R1: 2(5)+1(2)=12 > 10 (dépassement de 2 unités, s1=-2). Seule R1 est violée car R2 consomme 9 <= 12."
       }
     ],
-    "solution": "[Exemple]\nREALISABLE s1=2 s2=1\n\n[Cas 1 — Plan réalisable avec marge inemployée]\nREALISABLE s1=4 s2=4\n\n[Cas 2 — Saturation exacte des deux ressources]\nREALISABLE s1=0 s2=0\n\n[Cas 3 — Dépassement de capacité sur la ressource R1]\nIRREALISABLE VIOLATION_R1\n"
+    "solution": "[Exemple]\nREALISABLE s1=2 s2=1\n\n[Cas 1 — Plan réalisable avec marge inemployée]\nREALISABLE s1=4 s2=4\n\n[Cas 2 — Saturation exacte des deux ressources]\nREALISABLE s1=0 s2=0\n\n[Cas 3 — Dépassement de capacité sur la ressource R1]\nIRREALISABLE VIOLATION_R1\n",
+    "takeaway": "À retenir : Vérifier la non-négativité préalable, calculer la consommation et l'écart (slack) pour chaque ressource, et qualifier la saturation ou la violation.\nRepère : Pour (x1=3, x2=2) avec R1: 2·x1 + 1·x2 <= 10 et R2: 1·x1 + 2·x2 <= 8 : Conso R1 = 8 <= 10 (s1=2). Conso R2 = 7 <= 8 (s2=1). Les deux ressources ont une marge résiduelle positive."
   },
   {
     "id": "ro2-c1-e3",
@@ -96,7 +100,8 @@ module.exports = [
     "starter": "# Grille d'analyse (ro2-c1-e3) — Arbitrage de mélange de coût minimal (Blending)\n# Analysez les mélanges candidats et retenez le meilleur plan réalisable :\n\n[Cas 1 — Liste A]\n# Coûts : c1 = 5 €/kg, c2 = 8 €/kg (MIN C = 5·x1 + 8·x2)\n# Exigences : R1: 1·x1 + 2·x2 >= 20 | R2: 2·x1 + 1·x2 >= 15\n# Candidats soumis : A(10, 6), B(8, 5), C(12, 4)\nA_COMPLETER\n\n[Cas 2 — Liste B]\n# Coûts : c1 = 3 €/kg, c2 = 2 €/kg (MIN C = 3·x1 + 2·x2)\n# Exigences : R1: 2·x1 + 1·x2 >= 10 | R2: 1·x1 + 3·x2 >= 12\n# Candidats soumis : A(2, 2), B(4, 3), C(1, 1)\nA_COMPLETER\n\n[Cas 3 — Liste C]\n# Coûts : c1 = 10 €/kg, c2 = 15 €/kg (MIN C = 10·x1 + 15·x2)\n# Exigences : R1: 2·x1 + 3·x2 >= 50 | R2: 3·x1 + 1·x2 >= 40\n# Candidats soumis : A(5, 5), B(10, 2), C(2, 8)\nA_COMPLETER\n",
     "hints": [
       "Que devez-vous vérifier sur chaque candidat avant de comparer les coûts ?",
-      "Pour chaque candidat, calculez les deux apports et comparez-les aux seuils ; comparez ensuite les coûts des candidats conservés."
+      "Pour chaque candidat, calculez les deux apports et comparez-les aux seuils ; comparez ensuite les coûts des candidats conservés.",
+      "Éliminez d abord les plans qui violent au moins une contrainte >= ou la non-négativité, puis comparez les coûts totaux des seuls plans réalisables."
     ],
     "examples": [
       {
@@ -125,7 +130,8 @@ module.exports = [
         "hint": "A(5,5) apporte 25 < 50 sur R1. B(10,2) apporte 26 < 50 sur R1. C(2,8) apporte 28 < 50 sur R1. Tous sont éliminés."
       }
     ],
-    "solution": "[Exemple]\nMEILLEUR: x1=25 x2=10 COUT=160\n\n[Cas 1 — Trois candidats avec un vainqueur économique net]\nMEILLEUR: x1=12 x2=4 COUT=92\n\n[Cas 2 — Candidats dont certains violent les seuils minimaux]\nMEILLEUR: x1=4 x2=3 COUT=18\n\n[Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]\nBILAN: AUCUN\n"
+    "solution": "[Exemple]\nMEILLEUR: x1=25 x2=10 COUT=160\n\n[Cas 1 — Trois candidats avec un vainqueur économique net]\nMEILLEUR: x1=12 x2=4 COUT=92\n\n[Cas 2 — Candidats dont certains violent les seuils minimaux]\nMEILLEUR: x1=4 x2=3 COUT=18\n\n[Cas 3 — Aucun candidat ne satisfait l'ensemble des exigences]\nBILAN: AUCUN\n",
+    "takeaway": "À retenir : Filtrer les candidats satisfaisant les exigences minimales (≥), justifier le rejet des non conformes et sélectionner le mélange réalisable de coût minimal.\nRepère : Pour c1=4, c2=6 avec exigences (0.2x1+0.5x2 >= 10, 0.4x1+0.2x2 >= 12) : (25, 10) est réalisable et coûte 160, plus économique que (20, 15) à 170. Le candidat (10, 20) est irréalisable."
   },
   {
     "id": "ro2-c1-e4",
@@ -138,7 +144,8 @@ module.exports = [
     "starter": "# Grille d'analyse (ro2-c1-e4) — Modélisation guidée & contrainte d'égalité\n# Formalisez chaque composante demandée à partir de l'énoncé :\n\n[Cas 1 — Définition de la fonction objectif]\n# Énoncé : Maximiser la marge totale quotidienne (Standard: 40 €, Premium: 70 €)\n# Forme : MAX Z = <expression en x1 et x2>\nA_COMPLETER\n\n[Cas 2 — Contrainte de ressource en cellules]\n# Énoncé : 4 cellules par Standard, 8 par Premium, stock disponible <= 800 cellules\n# Forme : <consommation> <= <capacité>\nA_COMPLETER\n\n[Cas 3 — Contrainte d'engagement contractuel strict]\n# Énoncé : Engagement ferme de livrer exactement 50 panneaux Standard chaque jour\n# Forme : <variable> = <quantité>\nA_COMPLETER\n",
     "hints": [
       "Quelles variables, coefficients et unité correspondent à chaque modèle ?",
-      "Distinguez une limite de capacité d’une obligation exacte, puis choisissez l’opérateur adapté."
+      "Distinguez une limite de capacité d’une obligation exacte, puis choisissez l’opérateur adapté.",
+      "Traduisez « au maximum » par <=, « au moins » par >= et une proportion imposée par une contrainte d égalité stricte = avec les variables x1, x2."
     ],
     "examples": [
       {
@@ -167,7 +174,8 @@ module.exports = [
         "hint": "Un engagement contractuel exact sans marge se modélise par une égalité stricte : x1 = 50."
       }
     ],
-    "solution": "[Exemple]\n2*x1 + 3*x2 <= 360\n\n[Cas 1 — Définition de la fonction objectif]\nMAX Z = 40*x1 + 70*x2\n\n[Cas 2 — Contrainte de ressource en cellules]\n4*x1 + 8*x2 <= 800\n\n[Cas 3 — Contrainte d'engagement contractuel strict]\nx1 = 50\n"
+    "solution": "[Exemple]\n2*x1 + 3*x2 <= 360\n\n[Cas 1 — Définition de la fonction objectif]\nMAX Z = 40*x1 + 70*x2\n\n[Cas 2 — Contrainte de ressource en cellules]\n4*x1 + 8*x2 <= 800\n\n[Cas 3 — Contrainte d'engagement contractuel strict]\nx1 = 50\n",
+    "takeaway": "À retenir : Traduire un énoncé industriel en fonction objectif, contrainte de ressource et contrainte d'égalité stricte.\nRepère : Contrainte de banc d'essai : 2 min par Standard et 3 min par Premium, capacité 360 min. Formule : 2*x1 + 3*x2 <= 360."
   },
   {
     "id": "ro2-c1-e5",
@@ -180,7 +188,8 @@ module.exports = [
     "starter": "# Grille d'analyse (ro2-c1-e5) — 4 hypothèses & nature des variables\n# Identifiez la notion ou l'hypothèse mise en jeu pour chaque situation :\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\n# Situation : Le fournisseur accorde 20 % de réduction sur le prix du bois au-delà de 100 m² achetés\n# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :\nA_COMPLETER\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\n# Situation : Décision binaire « ouvrir (1) ou ne pas ouvrir (0) le site de Lyon »\n# Type de modèle : Choisissez le type de modèle adapté parmi les mots-clés.\nA_COMPLETER\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\n# Situation : Le tarif du kWh varie chaque heure selon une loi de probabilité météo\n# Hypothèse violée parmi (proportionnalité / additivité / divisibilité / certitude) :\nA_COMPLETER\n",
     "hints": [
       "La situation modifie-t-elle les coefficients, associe-t-elle des activités ou restreint-elle les valeurs d’une variable ?",
-      "Comparez la situation aux définitions des hypothèses et distinguez une hypothèse violée du type de modèle demandé."
+      "Comparez la situation aux définitions des hypothèses et distinguez une hypothèse violée du type de modèle demandé.",
+      "Vérifiez si l énoncé met en jeu proportionnalité (rendements constants), additivité (indépendance des produits), divisibilité (valeurs réelles) ou certitude."
     ],
     "examples": [
       {
@@ -209,7 +218,8 @@ module.exports = [
         "hint": "L'aléa sur les paramètres relève de l'optimisation stochastique et viole l'hypothèse de certitude déterministe."
       }
     ],
-    "solution": "[Exemple]\nNOTION: ADDITIVITE\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\nNOTION: PROPORTIONNALITE\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\nNOTION: PLNE\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\nNOTION: CERTITUDE\n"
+    "solution": "[Exemple]\nNOTION: ADDITIVITE\n\n[Cas 1 — Remise sur volume chez le fournisseur de bois]\nNOTION: PROPORTIONNALITE\n\n[Cas 2 — Choix d'ouverture d'un nouvel entrepôt logistique]\nNOTION: PLNE\n\n[Cas 3 — Fluctuations imprévisibles du coût de l'électricité sur le marché spot]\nNOTION: CERTITUDE\n",
+    "takeaway": "À retenir : Identifier des hypothèses de modélisation et distinguer variables continues et binaires/entières.\nRepère : Deux produits dont le mélange dégage une réaction thermique égale à 3*x1*x2 : le terme non linéaire croisé viole l'hypothèse d'additivité."
   },
   {
     "id": "ro2-c2-e1",
@@ -222,7 +232,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c2-e1) — Conversion en forme standard (Écart & Excès)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Contrainte <= standard]\n# Données : 2;2,5;LE;30\nA_COMPLETER\n\n[Cas 2 — Contrainte >= avec variable d excès]\n# Données : 1;1,3;GE;15\nA_COMPLETER\n\n[Cas 3 — Coefficients décimaux]\n# Données : 3;0.5,1.5;LE;12\nA_COMPLETER\n",
     "hints": [
       "Découpez la ligne par \";\".",
-      "Selon que SENS == \"LE\" ou \"GE\", choisis \"+ s{num}\" ou \"- e{num}\"."
+      "Selon que SENS == \"LE\" ou \"GE\", choisis \"+ s{num}\" ou \"- e{num}\".",
+      "Ajoutez une variable d écart +s_i pour une contrainte <= et retranchez une variable d excès -e_i pour une contrainte >= sans changer le second membre."
     ],
     "examples": [
       {
@@ -248,7 +259,8 @@ module.exports = [
         "expected": "0.5*x1 + 1.5*x2 + s3 = 12"
       }
     ],
-    "solution": "[Exemple]\n3*x1 + 4*x2 + s1 = 24\n\n[Cas 1 — Contrainte <= standard]\n2*x1 + 5*x2 + s2 = 30\n\n[Cas 2 — Contrainte >= avec variable d excès]\n1*x1 + 3*x2 - e1 = 15\n\n[Cas 3 — Coefficients décimaux]\n0.5*x1 + 1.5*x2 + s3 = 12\n"
+    "solution": "[Exemple]\n3*x1 + 4*x2 + s1 = 24\n\n[Cas 1 — Contrainte <= standard]\n2*x1 + 5*x2 + s2 = 30\n\n[Cas 2 — Contrainte >= avec variable d excès]\n1*x1 + 3*x2 - e1 = 15\n\n[Cas 3 — Coefficients décimaux]\n0.5*x1 + 1.5*x2 + s3 = 12\n",
+    "takeaway": "À retenir : Transformer une inégalité de contrainte en équation standard par ajout de variable d’écart ou d’excès.\nRepère : Contrainte <= transformée avec la variable d’écart s1."
   },
   {
     "id": "ro2-c2-e2",
@@ -261,7 +273,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c2-e2) — Intersection de deux droites par la règle de Cramer\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Intersection nette à coordonnées entières]\n# Données : 3,1,15;1,2,10\nA_COMPLETER\n\n[Cas 2 — Droites parallèles (pentes identiques)]\n# Données : 2,4,12;1,2,9\nA_COMPLETER\n\n[Cas 3 — Intersection avec coordonnées décimales]\n# Données : 2,3,13;4,1,11\nA_COMPLETER\n",
     "hints": [
       "Calculez delta = a1 * b2 - a2 * b1.",
-      "Si abs(delta) < 1e-6, affiche le cas des droites parallèles."
+      "Si abs(delta) < 1e-6, affiche le cas des droites parallèles.",
+      "Calculez le déterminant DELTA = a1*b2 - a2*b1 puis x1 et x2 par les déterminants de Cramer à deux décimales (ou signalez DELTA=0 si parallèles)."
     ],
     "examples": [
       {
@@ -287,7 +300,8 @@ module.exports = [
         "expected": "INTERSECTION x1=2.00 x2=3.00 DELTA=-10.00"
       }
     ],
-    "solution": "[Exemple]\nINTERSECTION x1=4.00 x2=2.00 DELTA=3.00\n\n[Cas 1 — Intersection nette à coordonnées entières]\nINTERSECTION x1=4.00 x2=3.00 DELTA=5.00\n\n[Cas 2 — Droites parallèles (pentes identiques)]\nPARALLELES DELTA=0.0\n\n[Cas 3 — Intersection avec coordonnées décimales]\nINTERSECTION x1=2.00 x2=3.00 DELTA=-10.00\n"
+    "solution": "[Exemple]\nINTERSECTION x1=4.00 x2=2.00 DELTA=3.00\n\n[Cas 1 — Intersection nette à coordonnées entières]\nINTERSECTION x1=4.00 x2=3.00 DELTA=5.00\n\n[Cas 2 — Droites parallèles (pentes identiques)]\nPARALLELES DELTA=0.0\n\n[Cas 3 — Intersection avec coordonnées décimales]\nINTERSECTION x1=2.00 x2=3.00 DELTA=-10.00\n",
+    "takeaway": "À retenir : Calculer le point d’intersection de deux droites de frontière dans le plan.\nRepère : Delta = 2*2 - 1*1 = 3. x1 = (10*2 - 8*1)/3 = 4. x2 = (2*8 - 1*10)/3 = 2."
   },
   {
     "id": "ro2-c2-e3",
@@ -300,7 +314,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c2-e3) — Résolution graphique par évaluation des sommets\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\n# Données : 4,3;1,1,8|2,1,12;0,0|6,0|0,8|4,4\nA_COMPLETER\n\n[Cas 2 — Optimum situé sur un axe]\n# Données : 10,2;1,1,5|3,1,9;0,0|3,0|0,5|2,3\nA_COMPLETER\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\n# Données : 5,5;1,1,4|2,1,6;10,10|5,5|0,8\nA_COMPLETER\n",
     "hints": [
       "Parse les contraintes dans une liste de tuples (a1, a2, b).",
-      "Pour chaque sommet, vérifie qu'il satisfait chaque contrainte (avec marge EPS) et compare Z."
+      "Pour chaque sommet, vérifie qu'il satisfait chaque contrainte (avec marge EPS) et compare Z.",
+      "Ne retenez que les sommets satisfaisant TOUTES les contraintes (y compris x1 >= 0, x2 >= 0) avant d évaluer Z sur chacun pour trouver l optimum."
     ],
     "examples": [
       {
@@ -326,7 +341,8 @@ module.exports = [
         "expected": "REGION_VIDE"
       }
     ],
-    "solution": "[Exemple]\nOPTIMUM: (x1=7.0, x2=2.0) Z=31.0\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\nOPTIMUM: (x1=4.0, x2=4.0) Z=28.0\n\n[Cas 2 — Optimum situé sur un axe]\nOPTIMUM: (x1=3.0, x2=0.0) Z=30.0\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\nREGION_VIDE\n"
+    "solution": "[Exemple]\nOPTIMUM: (x1=7.0, x2=2.0) Z=31.0\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\nOPTIMUM: (x1=4.0, x2=4.0) Z=28.0\n\n[Cas 2 — Optimum situé sur un axe]\nOPTIMUM: (x1=3.0, x2=0.0) Z=30.0\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\nREGION_VIDE\n",
+    "takeaway": "À retenir : Identifier le sommet optimal maximisant la fonction objectif dans la région réalisable.\nRepère : Sommets réalisables : (0,0)->Z=0, (8,0)->Z=24, (0,5.5)->Z=27.5, (7,2)->Z=31.0. Le point (9,1) viole la contrainte 1 (2*9+1=19 > 16)."
   },
   {
     "id": "ro2-c3-e1",
@@ -339,7 +355,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e1) — Critère de Dantzig (Choix de la variable entrante)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux variables candidates positives]\n# Données : x1:3.5,x2:2.0,x3:5.8,s1:0.0\nA_COMPLETER\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\n# Données : x1:0.0,x2:-2.5,s1:-1.2,s2:0.0\nA_COMPLETER\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\n# Données : x1:4.0,x2:4.0,s1:0.0\nA_COMPLETER\n",
     "hints": [
       "Découpez par virgule puis chaque couple par deux-points.",
-      "Cherchez le maximum strictement positif. S’il n’y en a aucun, c’est optimal."
+      "Cherchez le maximum strictement positif. S’il n’y en a aucun, c’est optimal.",
+      "En maximisation avec coûts réduits c_j - z_j en ligne Z, choisissez la variable hors-base ayant le coût réduit positif le plus élevé."
     ],
     "examples": [
       {
@@ -365,7 +382,8 @@ module.exports = [
         "expected": "ENTRANTE: x1 COUT_REDUIT=4.00"
       }
     ],
-    "solution": "[Exemple]\nENTRANTE: x2 COUT_REDUIT=6.00\n\n[Cas 1 — Deux variables candidates positives]\nENTRANTE: x3 COUT_REDUIT=5.80\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\nOPTIMALITE_ATTEINTE\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\nENTRANTE: x1 COUT_REDUIT=4.00\n"
+    "solution": "[Exemple]\nENTRANTE: x2 COUT_REDUIT=6.00\n\n[Cas 1 — Deux variables candidates positives]\nENTRANTE: x3 COUT_REDUIT=5.80\n\n[Cas 2 — Solution optimale (tous négatifs ou nuls)]\nOPTIMALITE_ATTEINTE\n\n[Cas 3 — Égalité de coût réduit (règle de Bland du plus petit indice)]\nENTRANTE: x1 COUT_REDUIT=4.00\n",
+    "takeaway": "À retenir : Identifier la variable hors-base entrante selon la règle du plus grand coût réduit.\nRepère : x2 a le plus fort coût réduit positif (+6.0)."
   },
   {
     "id": "ro2-c3-e2",
@@ -378,7 +396,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e2) — Règle du ratio minimum & variable sortante\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Minimum en première ligne]\n# Données : 10,20,30;5,2,1\nA_COMPLETER\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\n# Données : 15,25;0,-2\nA_COMPLETER\n\n[Cas 3 — Un seul coefficient strictement positif]\n# Données : 12,8,20;-3,4,-1\nA_COMPLETER\n",
     "hints": [
       "Ignore les lignes où aik <= 0.",
-      "Parcourez les ratios et retiens le minimum strictement positif."
+      "Parcourez les ratios et retiens le minimum strictement positif.",
+      "Ne divisez le membre de droite b_i que par les coefficients STRICTEMENT positifs (> 0) de la colonne entrante, et retenez la ligne au ratio minimum."
     ],
     "examples": [
       {
@@ -404,7 +423,8 @@ module.exports = [
         "expected": "SORTANTE: LIGNE_2 MIN_RATIO=2.00"
       }
     ],
-    "solution": "[Exemple]\nSORTANTE: LIGNE_3 MIN_RATIO=6.00\n\n[Cas 1 — Minimum en première ligne]\nSORTANTE: LIGNE_1 MIN_RATIO=2.00\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\nPROBLEME_NON_BORNE\n\n[Cas 3 — Un seul coefficient strictement positif]\nSORTANTE: LIGNE_2 MIN_RATIO=2.00\n"
+    "solution": "[Exemple]\nSORTANTE: LIGNE_3 MIN_RATIO=6.00\n\n[Cas 1 — Minimum en première ligne]\nSORTANTE: LIGNE_1 MIN_RATIO=2.00\n\n[Cas 2 — Colonne pivot avec coefficients négatifs ou nuls]\nPROBLEME_NON_BORNE\n\n[Cas 3 — Un seul coefficient strictement positif]\nSORTANTE: LIGNE_2 MIN_RATIO=2.00\n",
+    "takeaway": "À retenir : Déterminer la variable de base sortante par le test du ratio minimum de Dantzig.\nRepère : Ratios : L1=18/2=9.0, L2=42/3=14.0, L3=24/4=6.0. Le minimum est en Ligne 3."
   },
   {
     "id": "ro2-c3-e3",
@@ -417,7 +437,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c3-e3) — Opération de pivotage de Gauss-Jordan\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n# Données : 1,2;1,3,9|2,1,8\nA_COMPLETER\n\n[Cas 2 — Pivot en deuxième ligne]\n# Données : 2,1;3,2,12|2,4,16\nA_COMPLETER\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n# Données : 2,2;1,2,5|0,4,8|2,1,6\nA_COMPLETER\n",
     "hints": [
       "Convertissez r et c en indices 0-indexés (r-1, c-1).",
-      "Sauvegarde bien la ligne pivot normalisée avant de modifier les autres lignes."
+      "Sauvegarde bien la ligne pivot normalisée avant de modifier les autres lignes.",
+      "Normalisez d abord la ligne du pivot en la divisant par l élément pivot, puis annulez toute la colonne du pivot dans les autres lignes (y compris Z)."
     ],
     "examples": [
       {
@@ -443,7 +464,8 @@ module.exports = [
         "expected": "1.00,0.00,1.00 | 0.00,1.00,2.00 | 2.00,0.00,4.00"
       }
     ],
-    "solution": "[Exemple]\n1.00,2.00,5.00 | 0.00,-1.00,-1.00\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n0.33,1.00,3.00 | 1.67,0.00,5.00\n\n[Cas 2 — Pivot en deuxième ligne]\n0.00,-4.00,-12.00 | 1.00,2.00,8.00\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n1.00,0.00,1.00 | 0.00,1.00,2.00 | 2.00,0.00,4.00\n"
+    "solution": "[Exemple]\n1.00,2.00,5.00 | 0.00,-1.00,-1.00\n\n[Cas 1 — Matrice 2x3 avec pivot à 3.0]\n0.33,1.00,3.00 | 1.67,0.00,5.00\n\n[Cas 2 — Pivot en deuxième ligne]\n0.00,-4.00,-12.00 | 1.00,2.00,8.00\n\n[Cas 3 — Matrice 3x3 avec ligne identité]\n1.00,0.00,1.00 | 0.00,1.00,2.00 | 2.00,0.00,4.00\n",
+    "takeaway": "À retenir : Effectuer un pivot complet de Gauss-Jordan sur une matrice de simplexe.\nRepère : Pivot à la ligne 1, colonne 1 (valeur 2). L1 devient L1/2 = [1, 2, 5]. L2 devient L2 - 1*L1 = [0, -1, -1]."
   },
   {
     "id": "ro2-c4-e1",
@@ -456,7 +478,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c4-e1) — Construction du problème Dual canonique\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Primal standard 2 variables 2 contraintes]\n# Données : 4,6;2,1,10;1,3,15\nA_COMPLETER\n\n[Cas 2 — Coefficients décimaux]\n# Données : 1.5,2.5;0.5,1.0,4;1.0,0.5,5\nA_COMPLETER\n\n[Cas 3 — Primal avec coefficients dissymétriques]\n# Données : 10,20;4,2,40;1,5,30\nA_COMPLETER\n",
     "hints": [
       "Remarque la transposition : la première contrainte duale utilise a11 et a21 (première colonne de A).",
-      "La fonction objectif duale utilise les seconds membres b1 et b2 du primal."
+      "La fonction objectif duale utilise les seconds membres b1 et b2 du primal.",
+      "Échangez objectif MAX/MIN, transformez les c_j primaux en membres de droite duaux, les b_i primaux en coefficients de W, et transposez la matrice A."
     ],
     "examples": [
       {
@@ -482,7 +505,8 @@ module.exports = [
         "expected": "MIN W=40*y1 + 30*y2\nCONTRAINTES: 4*y1 + 1*y2 >= 10 | 2*y1 + 5*y2 >= 20"
       }
     ],
-    "solution": "[Exemple]\nMIN W=6*y1 + 9*y2\nCONTRAINTES: 1*y1 + 3*y2 >= 3 | 2*y1 + 1*y2 >= 5\n\n[Cas 1 — Primal standard 2 variables 2 contraintes]\nMIN W=10*y1 + 15*y2\nCONTRAINTES: 2*y1 + 1*y2 >= 4 | 1*y1 + 3*y2 >= 6\n\n[Cas 2 — Coefficients décimaux]\nMIN W=4*y1 + 5*y2\nCONTRAINTES: 0.5*y1 + 1.0*y2 >= 1.5 | 1.0*y1 + 0.5*y2 >= 2.5\n\n[Cas 3 — Primal avec coefficients dissymétriques]\nMIN W=40*y1 + 30*y2\nCONTRAINTES: 4*y1 + 1*y2 >= 10 | 2*y1 + 5*y2 >= 20\n"
+    "solution": "[Exemple]\nMIN W=6*y1 + 9*y2\nCONTRAINTES: 1*y1 + 3*y2 >= 3 | 2*y1 + 1*y2 >= 5\n\n[Cas 1 — Primal standard 2 variables 2 contraintes]\nMIN W=10*y1 + 15*y2\nCONTRAINTES: 2*y1 + 1*y2 >= 4 | 1*y1 + 3*y2 >= 6\n\n[Cas 2 — Coefficients décimaux]\nMIN W=4*y1 + 5*y2\nCONTRAINTES: 0.5*y1 + 1.0*y2 >= 1.5 | 1.0*y1 + 0.5*y2 >= 2.5\n\n[Cas 3 — Primal avec coefficients dissymétriques]\nMIN W=40*y1 + 30*y2\nCONTRAINTES: 4*y1 + 1*y2 >= 10 | 2*y1 + 5*y2 >= 20\n",
+    "takeaway": "À retenir : Transposer un programme primal MAX en son programme dual MIN symétrique.\nRepère : Objectif MIN W = 6*y1 + 9*y2. Transposée de [[1,2],[3,1]] = [[1,3],[2,1]]."
   },
   {
     "id": "ro2-c4-e2",
@@ -495,7 +519,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c4-e2) — Théorème fort de la dualité & Gap de dualité\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\n# Données : 3,5;7,2;16,11;0.333333,2.333333\nA_COMPLETER\n\n[Cas 2 — Points sous-optimaux avec gap net]\n# Données : 2,3;2,1;10,8;1.5,1.0\nA_COMPLETER\n\n[Cas 3 — Autre optimum parfait]\n# Données : 10,12;5,5;50,30;1.0,2.0\nA_COMPLETER\n",
     "hints": [
       "Calculez z = c1*x1 + c2*x2 et w = b1*y1 + b2*y2.",
-      "Si abs(w - z) < 1e-5, le gap est nul et l’optimum est prouvé."
+      "Si abs(w - z) < 1e-5, le gap est nul et l’optimum est prouvé.",
+      "Calculez Z et W puis le gap W - Z : par dualité faible Z <= W, l optimalité n est certifiée que lorsque le gap est nul."
     ],
     "examples": [
       {
@@ -521,7 +546,8 @@ module.exports = [
         "expected": "OPTIMUM_ATTEINT Z=W=110.00 GAP=0.00"
       }
     ],
-    "solution": "[Exemple]\nNON_OPTIMAL Z=22.00 W=30.91 GAP=8.91\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\nOPTIMUM_ATTEINT Z=W=31.00 GAP=0.00\n\n[Cas 2 — Points sous-optimaux avec gap net]\nNON_OPTIMAL Z=7.00 W=23.00 GAP=16.00\n\n[Cas 3 — Autre optimum parfait]\nOPTIMUM_ATTEINT Z=W=110.00 GAP=0.00\n"
+    "solution": "[Exemple]\nNON_OPTIMAL Z=22.00 W=30.91 GAP=8.91\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\nOPTIMUM_ATTEINT Z=W=31.00 GAP=0.00\n\n[Cas 2 — Points sous-optimaux avec gap net]\nNON_OPTIMAL Z=7.00 W=23.00 GAP=16.00\n\n[Cas 3 — Autre optimum parfait]\nOPTIMUM_ATTEINT Z=W=110.00 GAP=0.00\n",
+    "takeaway": "À retenir : Vérifier l’égalité des optimums primal et dual et calculer le gap de dualité.\nRepère : Z = 3*4 + 5*2 = 22.0. W = 16*0.33 + 11*2.33 = 30.91. Gap de dualité = 8.91."
   },
   {
     "id": "ro2-c4-e3",
@@ -534,7 +560,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c4-e3) — Théorème des écarts complémentaires (Slackness)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les conditions respectées]\n# Données : 0.0,0.0,2.0,0.0;3.0,1.5,0.0,4.2\nA_COMPLETER\n\n[Cas 2 — Violation sur la deuxième contrainte]\n# Données : 0.0,3.0,0.0;2.0,1.0,4.0\nA_COMPLETER\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\n# Données : 1.5,0.0,2.0;2.0,0.0,1.0\nA_COMPLETER\n",
     "hints": [
       "Découpez par \";\" puis sépare les valeurs s et y.",
-      "Une violation apparaît si abs(s * y) > 1e-5."
+      "Une violation apparaît si abs(s * y) > 1e-5.",
+      "Vérifiez deux jeux de produits nuls : u_i * s_i = 0 (variable duale ou écart primal nul) et v_j * x_j = 0 (variable primale ou coût réduit dual nul)."
     ],
     "examples": [
       {
@@ -560,7 +587,8 @@ module.exports = [
         "expected": "VIOLATION_CONTRAINTE_1 VIOLATION_CONTRAINTE_3"
       }
     ],
-    "solution": "[Exemple]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 1 — Toutes les conditions respectées]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 2 — Violation sur la deuxième contrainte]\nVIOLATION_CONTRAINTE_2\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\nVIOLATION_CONTRAINTE_1 VIOLATION_CONTRAINTE_3\n"
+    "solution": "[Exemple]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 1 — Toutes les conditions respectées]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 2 — Violation sur la deuxième contrainte]\nVIOLATION_CONTRAINTE_2\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\nVIOLATION_CONTRAINTE_1 VIOLATION_CONTRAINTE_3\n",
+    "takeaway": "À retenir : Vérifier les conditions d’écarts complémentaires entre solutions primale et duale.\nRepère : C1: 0*1.2=0, C2: 4.5*0=0, C3: 0*3.5=0. Tout est nul."
   },
   {
     "id": "ro2-c5-e1",
@@ -573,7 +601,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c5-e1) — Méthode du Coin Nord-Ouest (Transport)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux origines deux destinations]\n# Données : 25,25;30,20;2,4|3,5\nA_COMPLETER\n\n[Cas 2 — Trois origines deux destinations]\n# Données : 10,20,30;25,35;4,6|2,5|3,1\nA_COMPLETER\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\n# Données : 20,30;20,30;5,8|4,2\nA_COMPLETER\n",
     "hints": [
       "La méthode du coin Nord-Ouest initialise la matrice de transport en saturant d’abord la case (1, 1).",
-      "À chaque étape, allouez min(offre restante, demande restante) et déplacez-vous vers la droite ou vers le bas selon la saturation."
+      "À chaque étape, allouez min(offre restante, demande restante) et déplacez-vous vers la droite ou vers le bas selon la saturation.",
+      "Partez impérativement de la case (1,1) en allouant min(offre, demande) : réduisez offre et demande puis avancez à droite ou vers le bas jusqu à épuisement."
     ],
     "examples": [
       {
@@ -599,7 +628,8 @@ module.exports = [
         "expected": "FLUX: (1,1)=20.0,(2,2)=30.0 COUT_TOTAL=160.0"
       }
     ],
-    "solution": "[Exemple]\nFLUX: (1,1)=20.0,(1,2)=10.0,(2,2)=20.0,(2,3)=20.0 COUT_TOTAL=310.0\n\n[Cas 1 — Deux origines deux destinations]\nFLUX: (1,1)=25.0,(2,1)=5.0,(2,2)=20.0 COUT_TOTAL=165.0\n\n[Cas 2 — Trois origines deux destinations]\nFLUX: (1,1)=10.0,(2,1)=15.0,(2,2)=5.0,(3,2)=30.0 COUT_TOTAL=125.0\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\nFLUX: (1,1)=20.0,(2,2)=30.0 COUT_TOTAL=160.0\n"
+    "solution": "[Exemple]\nFLUX: (1,1)=20.0,(1,2)=10.0,(2,2)=20.0,(2,3)=20.0 COUT_TOTAL=310.0\n\n[Cas 1 — Deux origines deux destinations]\nFLUX: (1,1)=25.0,(2,1)=5.0,(2,2)=20.0 COUT_TOTAL=165.0\n\n[Cas 2 — Trois origines deux destinations]\nFLUX: (1,1)=10.0,(2,1)=15.0,(2,2)=5.0,(3,2)=30.0 COUT_TOTAL=125.0\n\n[Cas 3 — Matrice 2x2 avec égalité parfaite sur la première case]\nFLUX: (1,1)=20.0,(2,2)=30.0 COUT_TOTAL=160.0\n",
+    "takeaway": "À retenir : Construire une solution de base réalisable initiale par la règle du coin Nord-Ouest.\nRepère : O1=30, D1=20 -> (1,1)=20. D1 est satisfaite. O1 restant=10, D2=30 -> (1,2)=10. O1 épuisée. O2=40, D2 restant=20 -> (2,2)=20. O2 restant=20, D3=20 -> (2,3)=20. Coût: 20*3 + 10*5 + 20*4 + 20*6 = 60+50+80+120 = 310.0."
   },
   {
     "id": "ro2-c5-e2",
@@ -612,7 +642,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c5-e2) — Méthode du Moindre Coût (Transport économique)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 2x2 contrastée]\n# Données : 30,20;25,25;4,2|3,5\nA_COMPLETER\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\n# Données : 40,40;30,50;1,3|2,1\nA_COMPLETER\n\n[Cas 3 — Avantage net sur la diagonale]\n# Données : 15,15;15,15;1,9|9,2\nA_COMPLETER\n",
     "hints": [
       "Repère les indices (i, j) non encore saturés avec le coût min.",
-      "Soustrait q de l'offre i et de la demande j jusqu'à épuisement."
+      "Soustrait q de l'offre i et de la demande j jusqu'à épuisement.",
+      "À chaque itération, repérez la case encore active au coût unitaire minimal, allouez min(offre, demande), barrez la ligne ou colonne saturée puis recalculez."
     ],
     "examples": [
       {
@@ -638,7 +669,8 @@ module.exports = [
         "expected": "MOINDRE_COUT: COUT_TOTAL=45.0"
       }
     ],
-    "solution": "[Exemple]\nMOINDRE_COUT: COUT_TOTAL=170.0\n\n[Cas 1 — Matrice 2x2 contrastée]\nMOINDRE_COUT: COUT_TOTAL=130.0\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\nMOINDRE_COUT: COUT_TOTAL=100.0\n\n[Cas 3 — Avantage net sur la diagonale]\nMOINDRE_COUT: COUT_TOTAL=45.0\n"
+    "solution": "[Exemple]\nMOINDRE_COUT: COUT_TOTAL=170.0\n\n[Cas 1 — Matrice 2x2 contrastée]\nMOINDRE_COUT: COUT_TOTAL=130.0\n\n[Cas 2 — Matrice 2x2 avec coûts équilibrés]\nMOINDRE_COUT: COUT_TOTAL=100.0\n\n[Cas 3 — Avantage net sur la diagonale]\nMOINDRE_COUT: COUT_TOTAL=45.0\n",
+    "takeaway": "À retenir : Construire une solution initiale de transport par allocation gloutonne sur la case la moins chère.\nRepère : Allocation : (2,1)=25 (coût 2), (2,2)=5 (coût 4), (1,2)=20 (coût 5). Coût total = 25*2 + 5*4 + 20*5 = 50 + 20 + 100 = 170.0."
   },
   {
     "id": "ro2-c5-e3",
@@ -651,7 +683,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c5-e3) — Algorithme Hongrois (Affectation minimale)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matrice 3x3 diagonale optimale]\n# Données : 4,8,9|6,3,7|8,5,2\nA_COMPLETER\n\n[Cas 2 — Matrice 3x3 avec permutation croisée]\n# Données : 15,10,9|9,15,10|10,12,8\nA_COMPLETER\n\n[Cas 3 — Coûts identiques sur plusieurs cases]\n# Données : 5,5,5|5,5,5|5,5,5\nA_COMPLETER\n",
     "hints": [
       "Pour une matrice 3x3, il y a exactement 3! = 6 permutations d'affectation.",
-      "Évalue les 6 sommes des coûts d'origine pour trouver la bijection optimale."
+      "Évalue les 6 sommes des coûts d'origine pour trouver la bijection optimale.",
+      "Soustrayez d abord le minimum de chaque ligne, puis celui de chaque colonne ; vérifiez ensuite que l affectation finale attribue une tâche unique par agent."
     ],
     "examples": [
       {
@@ -677,7 +710,8 @@ module.exports = [
         "expected": "COUT_MIN=15 AFFECTATION=1,2,3"
       }
     ],
-    "solution": "[Exemple]\nCOUT_MIN=29 AFFECTATION=1,2,3\n\n[Cas 1 — Matrice 3x3 diagonale optimale]\nCOUT_MIN=9 AFFECTATION=1,2,3\n\n[Cas 2 — Matrice 3x3 avec permutation croisée]\nCOUT_MIN=27 AFFECTATION=2,1,3\n\n[Cas 3 — Coûts identiques sur plusieurs cases]\nCOUT_MIN=15 AFFECTATION=1,2,3\n"
+    "solution": "[Exemple]\nCOUT_MIN=29 AFFECTATION=1,2,3\n\n[Cas 1 — Matrice 3x3 diagonale optimale]\nCOUT_MIN=9 AFFECTATION=1,2,3\n\n[Cas 2 — Matrice 3x3 avec permutation croisée]\nCOUT_MIN=27 AFFECTATION=2,1,3\n\n[Cas 3 — Coûts identiques sur plusieurs cases]\nCOUT_MIN=15 AFFECTATION=1,2,3\n",
+    "takeaway": "À retenir : Appliquer les étapes de réduction de matrice pour résoudre un problème d’affectation.\nRepère : Affectation : P1->T1 (10), P2->T2 (8), P3->T3 (11). Coût total = 10 + 8 + 11 = 29."
   },
   {
     "id": "ro2-c6-e1",
@@ -690,7 +724,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c6-e1) — Dates au plus tôt (Forward Pass PERT/CPM)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne linéaire simple]\n# Données : A:AUCUN,4 | B:A,5 | C:B,6\nA_COMPLETER\n\n[Cas 2 — Deux branches parallèles convergeant vers une tâche]\n# Données : A:AUCUN,5 | B:AUCUN,8 | C:A-B,3\nA_COMPLETER\n\n[Cas 3 — Graphe à 5 nœuds]\n# Données : A:AUCUN,2 | B:A,3 | C:A,5 | D:B,4 | E:C-D,2\nA_COMPLETER\n",
     "hints": [
       "Parse chaque tâche dans un dictionnaire avec sa durée et ses prédécesseurs.",
-      "Parcourez les tâches dans l'ordre de dépendance (ou itère jusqu'à stabilisation des dates ES)."
+      "Parcourez les tâches dans l'ordre de dépendance (ou itère jusqu'à stabilisation des dates ES).",
+      "Parcourez le graphe dans l ordre topologique : ES(v) = max(ES(u) + duree(u)) sur tous les prédécesseurs u ; la durée projet est max(ES + duree)."
     ],
     "examples": [
       {
@@ -716,7 +751,8 @@ module.exports = [
         "expected": "DATES_ES: A=0,B=2,C=2,D=5,E=9 DUREE_PROJET=11"
       }
     ],
-    "solution": "[Exemple]\nDATES_ES: A=0,B=3,C=3,D=7 DUREE_PROJET=12\n\n[Cas 1 — Chaîne linéaire simple]\nDATES_ES: A=0,B=4,C=9 DUREE_PROJET=15\n\n[Cas 2 — Deux branches parallèles convergeant vers une tâche]\nDATES_ES: A=0,B=0,C=8 DUREE_PROJET=11\n\n[Cas 3 — Graphe à 5 nœuds]\nDATES_ES: A=0,B=2,C=2,D=5,E=9 DUREE_PROJET=11\n"
+    "solution": "[Exemple]\nDATES_ES: A=0,B=3,C=3,D=7 DUREE_PROJET=12\n\n[Cas 1 — Chaîne linéaire simple]\nDATES_ES: A=0,B=4,C=9 DUREE_PROJET=15\n\n[Cas 2 — Deux branches parallèles convergeant vers une tâche]\nDATES_ES: A=0,B=0,C=8 DUREE_PROJET=11\n\n[Cas 3 — Graphe à 5 nœuds]\nDATES_ES: A=0,B=2,C=2,D=5,E=9 DUREE_PROJET=11\n",
+    "takeaway": "À retenir : Calculer la date de début au plus tôt de chaque tâche et la durée totale du projet.\nRepère : ES(A)=0. ES(B)=0+3=3. ES(C)=0+3=3. ES(D)=max(3+4, 3+2)=7. Fin D = 7+5=12."
   },
   {
     "id": "ro2-c6-e2",
@@ -729,7 +765,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c6-e2) — Marges totales & Chemin critique\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les tâches sont critiques (projet mono-branche)]\n# Données : A:0,4,4 | B:4,9,5 | C:9,12,3\nA_COMPLETER\n\n[Cas 2 — Deux tâches avec marge positive]\n# Données : A:0,5,5 | B:0,5,2 | C:2,8,3 | D:5,10,5\nA_COMPLETER\n\n[Cas 3 — Projet à 4 tâches avec bifurcation]\n# Données : X:0,2,2 | Y:2,6,4 | Z:2,6,1 | W:6,8,2\nA_COMPLETER\n",
     "hints": [
       "Pour chaque tâche, mt = lf - es - duree.",
-      "Filtrez les tâches avec mt == 0 pour former la chaîne critique."
+      "Filtrez les tâches avec mt == 0 pour former la chaîne critique.",
+      "Effectuez la passe arrière (LF = min(LS(succ)), LS = LF - duree) puis calculez Marge = LS - ES : les tâches à marge 0 forment le chemin critique."
     ],
     "examples": [
       {
@@ -755,7 +792,8 @@ module.exports = [
         "expected": "MARGES: X=0,Y=0,Z=3,W=0 CRITIQUES: X-Y-W"
       }
     ],
-    "solution": "[Exemple]\nMARGES: A=0,B=0,C=2,D=0 CRITIQUES: A-B-D\n\n[Cas 1 — Toutes les tâches sont critiques (projet mono-branche)]\nMARGES: A=0,B=0,C=0 CRITIQUES: A-B-C\n\n[Cas 2 — Deux tâches avec marge positive]\nMARGES: A=0,B=3,C=3,D=0 CRITIQUES: A-D\n\n[Cas 3 — Projet à 4 tâches avec bifurcation]\nMARGES: X=0,Y=0,Z=3,W=0 CRITIQUES: X-Y-W\n"
+    "solution": "[Exemple]\nMARGES: A=0,B=0,C=2,D=0 CRITIQUES: A-B-D\n\n[Cas 1 — Toutes les tâches sont critiques (projet mono-branche)]\nMARGES: A=0,B=0,C=0 CRITIQUES: A-B-C\n\n[Cas 2 — Deux tâches avec marge positive]\nMARGES: A=0,B=3,C=3,D=0 CRITIQUES: A-D\n\n[Cas 3 — Projet à 4 tâches avec bifurcation]\nMARGES: X=0,Y=0,Z=3,W=0 CRITIQUES: X-Y-W\n",
+    "takeaway": "À retenir : Calculer la marge totale de chaque tâche et identifier le chemin critique du projet.\nRepère : MT(A)=3-0-3=0, MT(B)=7-3-4=0, MT(C)=7-3-2=2, MT(D)=12-7-5=0. Tâches critiques : A, B, D."
   },
   {
     "id": "ro2-c6-e3",
@@ -768,7 +806,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c6-e3) — Goulot d’étranglement de Ford-Fulkerson\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne à trois arcs avec saturation exacte]\n# Données : s-1:15,5 | 1-2:10,2 | 2-t:8,4 ; CHAINE: s-1-2-t\nA_COMPLETER\n\n[Cas 2 — Chaîne saturée dès le premier arc]\n# Données : s-A:6,3 | A-t:12,1 ; CHAINE: s-A-t\nA_COMPLETER\n\n[Cas 3 — Graphe avec réseau maillé]\n# Données : s-u:20,10 | u-v:14,4 | v-t:18,12 ; CHAINE: s-u-v-t\nA_COMPLETER\n",
     "hints": [
       "Découpez par \";\" pour séparer le réseau de la chaîne à augmenter.",
-      "Pour chaque arc consécutif de la chaîne, calcule r = cap - flot et trouve min(r)."
+      "Pour chaque arc consécutif de la chaîne, calcule r = cap - flot et trouve min(r).",
+      "Trouvez le minimum DELTA des capacités résiduelles sur tous les arcs de la chaîne augmentante, puis augmentez le flot de DELTA (ou réduisez les arcs retour)."
     ],
     "examples": [
       {
@@ -794,6 +833,7 @@ module.exports = [
         "expected": "DELTA=6 ARCS_MAJ: s-u=16,u-v=10,v-t=18"
       }
     ],
-    "solution": "[Exemple]\nDELTA=7 ARCS_MAJ: s-a=9,a-t=8\n\n[Cas 1 — Chaîne à trois arcs avec saturation exacte]\nDELTA=4 ARCS_MAJ: s-1=9,1-2=6,2-t=8\n\n[Cas 2 — Chaîne saturée dès le premier arc]\nDELTA=3 ARCS_MAJ: s-A=6,A-t=4\n\n[Cas 3 — Graphe avec réseau maillé]\nDELTA=6 ARCS_MAJ: s-u=16,u-v=10,v-t=18\n"
+    "solution": "[Exemple]\nDELTA=7 ARCS_MAJ: s-a=9,a-t=8\n\n[Cas 1 — Chaîne à trois arcs avec saturation exacte]\nDELTA=4 ARCS_MAJ: s-1=9,1-2=6,2-t=8\n\n[Cas 2 — Chaîne saturée dès le premier arc]\nDELTA=3 ARCS_MAJ: s-A=6,A-t=4\n\n[Cas 3 — Graphe avec réseau maillé]\nDELTA=6 ARCS_MAJ: s-u=16,u-v=10,v-t=18\n",
+    "takeaway": "À retenir : Calculer la capacité résiduelle d’une chaîne augmentante et mettre à jour le flot dans un réseau.\nRepère : Sur la chaîne s-a-t : r(s-a) = 10 - 2 = 8, r(a-t) = 8 - 1 = 7. Delta = min(8, 7) = 7. Nouveaux flots : s-a = 2+7 = 9, a-t = 1+7 = 8."
   }
 ];

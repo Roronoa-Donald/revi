@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Utilisez UPPER(nom) et LENGTH(nom)\nSELECT id, nom FROM clients;",
     "hints": [
       "Utilisez UPPER(nom) AS nom_maj pour mettre en majuscules.",
-      "Utilisez LENGTH(nom) AS nb_caracteres pour compter les caractères."
+      "Utilisez LENGTH(nom) AS nb_caracteres pour compter les caractères.",
+      "Écrivez une seule requête SELECT listant id, nom_maj et nb_caracteres, close par ORDER BY id ASC."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+----+---------+---------------+\n| id | nom_maj | nb_caracteres |\n+----+---------+---------------+\n| 10 | SENA    | 4             |\n+----+---------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT id, UPPER(nom) AS nom_maj, LENGTH(nom) AS nb_caracteres FROM clients ORDER BY id ASC;"
+    "solution": "SELECT id, UPPER(nom) AS nom_maj, LENGTH(nom) AS nb_caracteres FROM clients ORDER BY id ASC;",
+    "takeaway": "UPPER() normalise la casse pour les comparaisons et LENGTH() mesure le nombre exact de caractères d une chaîne."
   },
   {
     "id": "sql2-c2-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Calculez montant_net en remplaçant remise NULL par 0 avec COALESCE\nSELECT id, montant_ht FROM factures;",
     "hints": [
       "En SQL, 10000 - NULL vaut NULL ! Utilisez COALESCE(remise, 0) pour obtenir 0 lorsque remise est NULL.",
-      "Nommez la colonne calculée AS montant_net."
+      "Nommez la colonne calculée AS montant_net.",
+      "Composez la requête : sélectionnez id, calculez montant_ht moins la remise neutralisée, nommez la colonne, puis ordonnez par id."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+----+-------------+\n| id | montant_net |\n+----+-------------+\n| 1  | 40000       |\n| 2  | 40000       |\n+----+-------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT id, montant_ht - COALESCE(remise, 0) AS montant_net FROM factures ORDER BY id ASC;"
+    "solution": "SELECT id, montant_ht - COALESCE(remise, 0) AS montant_net FROM factures ORDER BY id ASC;",
+    "takeaway": "COALESCE(val, repli) retourne le premier argument non NULL et évite qu un champ manquant n annule toute une expression."
   },
   {
     "id": "sql2-c2-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Calculez libelle et ROUND(prix_ht * 1.18, 2) AS prix_ttc\nSELECT libelle, prix_ht FROM articles;",
     "hints": [
       "Utilisez la fonction ROUND(prix_ht * 1.18, 2) AS prix_ttc.",
-      "Triez par id ASC."
+      "Triez par id ASC.",
+      "Composez le SELECT : libellé, prix multiplié par le taux puis arrondi à deux décimales, et triez par identifiant croissant."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+---------+----------+\n| libelle | prix_ttc |\n+---------+----------+\n| Licence | 235.99   |\n+---------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT libelle, ROUND(prix_ht * 1.18, 2) AS prix_ttc FROM articles ORDER BY id ASC;"
+    "solution": "SELECT libelle, ROUND(prix_ht * 1.18, 2) AS prix_ttc FROM articles ORDER BY id ASC;",
+    "takeaway": "ROUND(expr, 2) stabilise l affichage financier après multiplication ou calcul de remise."
   }
 ];

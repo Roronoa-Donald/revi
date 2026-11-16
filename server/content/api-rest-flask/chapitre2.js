@@ -104,17 +104,54 @@ module.exports = {
           'écrasés ou réinitialisés à leur valeur par défaut. <code>PATCH</code> ne transmet que les champs ' +
           'à modifier sans altérer les autres propriétés existantes.</p>')
       ].join('\n')
+    },
+    {
+      title: 'Implémentation Flask complète : ressources REST, PUT vs PATCH et test_client()',
+      html: [
+        '<p>Traduisons directement la modélisation REST et la distinction entre remplacement complet (<code>PUT</code>) ' +
+        'et modification partielle (<code>PATCH</code>) dans une route Flask authentique :</p>',
+        '<pre><code class="language-python">from flask import Flask, request, jsonify\n\n' +
+        'app = Flask(__name__)\n' +
+        'PRODUITS = {\n' +
+        '    10: {"id": 10, "nom": "Clavier mécanique", "prix": 89.0, "stock": 15}\n' +
+        '}\n\n' +
+        '@app.route("/api/v1/produits/<int:pid>", methods=["GET", "PUT", "PATCH"])\n' +
+        'def gerer_produit(pid):\n' +
+        '    if pid not in PRODUITS:\n' +
+        '        return jsonify({"error": "Produit introuvable"}), 404\n' +
+        '    if request.method == "GET":\n' +
+        '        return jsonify(PRODUITS[pid]), 200\n\n' +
+        '    data = request.get_json(silent=True)\n' +
+        '    if not isinstance(data, dict):\n' +
+        '        return jsonify({"error": "Payload JSON invalide"}), 400\n\n' +
+        '    if request.method == "PUT":\n' +
+        '        if not {"nom", "prix", "stock"}.issubset(data.keys()):\n' +
+        '            return jsonify({"error": "PUT exige la représentation complète (nom, prix, stock)"}), 422\n' +
+        '        PRODUITS[pid] = {"id": pid, "nom": data["nom"], "prix": float(data["prix"]), "stock": int(data["stock"])}\n' +
+        '        return jsonify(PRODUITS[pid]), 200\n\n' +
+        '    # Méthode PATCH : mise à jour partielle idempotente sur les clés fournies\n' +
+        '    for cle in ("nom", "prix", "stock"):\n' +
+        '        if cle in data:\n' +
+        '            PRODUITS[pid][cle] = data[cle]\n' +
+        '    return jsonify(PRODUITS[pid]), 200\n\n' +
+        'if __name__ == "__main__":\n' +
+        '    client = app.test_client()\n' +
+        '    res_patch = client.patch("/api/v1/produits/10", json={"stock": 12})\n' +
+        '    assert res_patch.status_code == 200 and res_patch.get_json()["stock"] == 12\n' +
+        '    res_put_incomplet = client.put("/api/v1/produits/10", json={"stock": 5})\n' +
+        '    assert res_put_incomplet.status_code == 422</code></pre>'
+      ].join('\n')
     }
   ],
 
   questions: [
-    { stem: 'Qui a théorisé l’architecture REST en l’an 2000 ?', opts: ['Roy Fielding', 'Tim Berners-Lee', 'Linus Torvalds'], correct: 0, exp: 'Roy Fielding a présenté les principes fondamentaux de REST dans sa thèse doctorale.' },
-    { stem: 'Que signifie la contrainte Stateless dans une API REST ?', opts: ['Le serveur ne conserve aucun état client entre deux requêtes successives', 'Le serveur ne possède aucune base de données', 'Les requêtes n’ont pas le droit de modifier les données'], correct: 0, exp: 'Chaque requête doit être auto-suffisante et fournir toutes les informations nécessaires à son traitement.' },
-    { stem: 'Quelle URI respecte le mieux les conventions de nommage REST ?', opts: ['/api/v1/etudiants/42', '/api/v1/recupererEtudiant?id=42', '/api/v1/get_etudiant_42'], correct: 0, exp: 'Les URI REST utilisent des noms au pluriel et séparent l’identifiant par un slash.' },
+    { stem: 'Qui a théorisé l’architecture REST en l’an 2000 ?', opts: ['Linus Torvalds', 'Tim Berners-Lee', 'Roy Fielding'], correct: 2, exp: 'Roy Fielding a présenté les principes fondamentaux de REST dans sa thèse doctorale.' },
+    { stem: 'Que signifie la contrainte Stateless dans une API REST ?', opts: ['Les requêtes n’ont pas le droit de modifier les données', 'Le serveur ne possède aucune base de données', 'Le serveur ne conserve aucun état client entre deux requêtes successives'], correct: 2, exp: 'Chaque requête doit être auto-suffisante et fournir toutes les informations nécessaires à son traitement.' },
+    { stem: 'Quelle URI respecte le mieux les conventions de nommage REST ?', opts: ['/api/v1/recupererEtudiant?id=42', '/api/v1/etudiants/42', '/api/v1/get_etudiant_42'], correct: 1, exp: 'Les URI REST utilisent des noms au pluriel et séparent l’identifiant par un slash.' },
     { stem: 'Quel verbe HTTP est utilisé pour remplacer intégralement une ressource ?', opts: ['PUT', 'PATCH', 'POST'], correct: 0, exp: 'PUT remplace l’intégralité de la ressource ciblée par la nouvelle représentation.' },
-    { stem: 'Une méthode HTTP est dite idempotente si…', opts: ['La répéter plusieurs fois produit le même résultat sur le serveur', 'Elle ne renvoie jamais de code d’erreur 404', 'Elle est obligatoirement chiffrée en HTTPS'], correct: 0, exp: 'L’idempotence garantit qu’une répétition d’appels identiques ne modifie pas l’état du serveur au-delà du premier.' },
+    { stem: 'Une méthode HTTP est dite idempotente si…', opts: ['Elle est obligatoirement chiffrée en HTTPS', 'Elle ne renvoie jamais de code d’erreur 404', 'La répéter plusieurs fois produit le même résultat sur le serveur'], correct: 2, exp: 'L’idempotence garantit qu’une répétition d’appels identiques ne modifie pas l’état du serveur au-delà du premier.' },
     { stem: 'Lequel de ces verbes HTTP n’est PAS idempotent ?', opts: ['POST', 'PUT', 'DELETE'], correct: 0, exp: 'Exécuter plusieurs requêtes POST identiques entraîne des créations multiples successives.' },
-    { stem: 'Quelle méthode HTTP modifie partiellement certains attributs d’une ressource ?', opts: ['PATCH', 'PUT', 'GET'], correct: 0, exp: 'PATCH est conçu spécifiquement pour les modifications différentielles ou partielles.' },
+    { stem: 'Quelle méthode HTTP modifie partiellement certains attributs d’une ressource ?', opts: ['PUT', 'PATCH', 'GET'], correct: 1, exp: 'PATCH est conçu spécifiquement pour les modifications différentielles ou partielles.' },
     { stem: 'Pour lister les commandes passées par l’utilisateur 7, quelle URI est la plus RESTful ?', opts: ['/utilisateurs/7/commandes', '/commandes_utilisateur_7', '/listeCommandes?user=7'], correct: 0, exp: 'La hiérarchie /utilisateurs/7/commandes exprime élégamment la relation parent-enfant.' }
   ],
 

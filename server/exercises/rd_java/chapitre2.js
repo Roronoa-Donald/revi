@@ -28,8 +28,9 @@ public class Main {
 }
 `,
     hints: [
-      'Le reste de la division par 2 s’obtient avec n % 2.',
-      'Une condition n % 2 == 0 signifie que le nombre est pair.'
+      "Le reste de la division par 2 s’obtient avec n % 2.",
+      "Une condition n % 2 == 0 signifie que le nombre est pair.",
+      "Étapes : lire n ; calculer le reste de n par 2 ; afficher « pair » s’il vaut 0, sinon « impair »."
     ],
     examples: [
       { stdin: '7', expected: 'impair', note: '7 est impair.' }
@@ -48,7 +49,8 @@ public class Main {
         System.out.println(n % 2 == 0 ? "pair" : "impair");
     }
 }
-`
+`,
+    takeaway: "L opérateur modulo % 2 détermine la parité d un entier, y compris pour zéro et les négatifs avec prudence sur le signe."
   },
   {
     id: 'java2-c2-e2',
@@ -74,8 +76,9 @@ public class Main {
 }
 `,
     hints: [
-      'Une boucle for (int i = 1; i <= n; i++) parcourt les entiers de 1 à n.',
-      'Ajoutez chaque i à la variable somme, puis affichez le total à la fin.'
+      "Une boucle for (int i = 1; i <= n; i++) parcourt les entiers de 1 à n.",
+      "Ajoutez chaque i à la variable somme, puis affichez le total à la fin.",
+      "Étapes : lire n ; cumuler les entiers de 1 à n ; afficher « somme : » suivi du total."
     ],
     examples: [
       { stdin: '5', expected: 'somme : 15', note: '1+2+3+4+5 = 15.' }
@@ -98,7 +101,8 @@ public class Main {
         System.out.println("somme : " + somme);
     }
 }
-`
+`,
+    takeaway: "Utiliser long pour une somme cumulée évite les débordements silencieux d int dès que n devient grand."
   },
   {
     id: 'java2-c2-e3',
@@ -122,8 +126,9 @@ public class Main {
 }
 `,
     hints: [
-      'Gardez deux variables a = 0 et b = 1, et calcule la suivante à chaque tour.',
-      'Utilisez un StringBuilder et un test (i > 0) pour n’ajouter l’espace qu’à partir du deuxième terme.'
+      "Gardez deux variables a = 0 et b = 1, et calcule la suivante à chaque tour.",
+      "Utilisez un StringBuilder et un test (i > 0) pour n’ajouter l’espace qu’à partir du deuxième terme.",
+      "Étapes : lire n ; partir de a = 0 et b = 1 ; à chaque tour afficher a, puis remplacer (a, b) par (b, a + b) ; séparer les termes par un espace."
     ],
     examples: [
       { stdin: '5', expected: '0 1 1 2 3', note: 'Cinq premiers termes.' }
@@ -154,6 +159,7 @@ public class Main {
         System.out.println(sb.toString());
     }
 }
-`
+`,
+    takeaway: "StringBuilder évite l allocation de O(n^2) objets String immuables lors de l assemblage d une suite en boucle."
   }
 ];

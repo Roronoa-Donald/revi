@@ -142,10 +142,10 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale entre une vue standard (CREATE VIEW) et une vue matérialisée (CREATE MATERIALIZED VIEW) ?',
       opts: [
-        'La vue standard réexécute sa requête à chaque appel sans stocker de données, alors que la vue matérialisée stocke physiquement le résultat sur disque',
-        'La vue standard ne peut interroger qu’une seule table',
-        'La vue matérialisée ne peut être consultée que par les administrateurs',
-        'La vue standard ne supporte pas la clause WHERE'
+        "La vue standard réexécute sa requête à chaque appel sans stocker de données, alors que la vue matérialisée stocke physiquement le résultat sur disque",
+        "La vue standard ne peut interroger qu’une seule et unique table à la fois dans l’ensemble de sa définition SQL",
+        "La vue matérialisée ne peut être consultée que par les seuls administrateurs du serveur de bases de données",
+        "La vue standard ne supporte absolument pas la clause WHERE dans la requête complète de sa définition SQL"
       ],
       correct: 0,
       exp: 'Une vue standard est une simple définition de requête qui n’occupe aucun espace de stockage. Une vue matérialisée enregistre physiquement les données calculées sur disque pour accélérer les consultations massives au prix d’un rafraîchissement (REFRESH) périodique.'
@@ -153,43 +153,43 @@ module.exports = {
     {
       stem: 'Dans une fonction déclencheur PostgreSQL de type BEFORE INSERT, que représente la pseudo-variable NEW ?',
       opts: [
-        'Le nouvel enregistrement en cours d’insertion dont les valeurs peuvent être lues et modifiées avant écriture',
-        'L’état précédent de la ligne qui va être écrasée',
-        'Le nom de l’utilisateur ayant initié la connexion',
-        'L’identifiant de la transaction courante'
+        "L’état précédent de la ligne existante qui va être écrasée par la nouvelle insertion",
+        "Le nom de l’utilisateur de la base de données ayant initié la connexion en cours",
+        "L’identifiant numérique de la transaction courante enregistrée dans le journal",
+        "Le nouvel enregistrement en cours d’insertion dont les valeurs peuvent être lues et modifiées avant écriture"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Dans une fonction PostgreSQL BEFORE INSERT ou UPDATE FOR EACH ROW, NEW contient la ligne candidate ; la fonction peut modifier NEW puis le retourner. La syntaxe et les possibilités diffèrent dans SQLite.'
     },
     {
       stem: 'Pourquoi une condition telle que WHERE YEAR(date_commande) = 2026 peut-elle transformer un Index Scan rapide en un Seq Scan très lent sur une table de 5 millions de lignes ?',
       opts: [
-        'Parce que l’application d’une fonction scalaire sur la colonne empêche le planificateur d’utiliser un index B-Tree classique posé sur date_commande',
-        'Parce que l’année 2026 est dans le futur',
-        'Parce que les dates ne peuvent pas être indexées',
-        'Parce que la fonction YEAR() verrouille la table'
+        "Parce que l’année 2026 est encore dans le futur et qu’aucune ligne de la table ne peut donc la concerner",
+        "Parce que les colonnes de dates ne peuvent tout simplement pas être indexées par les SGBD relationnels modernes",
+        "Parce que l’application d’une fonction scalaire sur la colonne empêche le planificateur d’utiliser un index B-Tree classique posé sur date_commande",
+        "Parce que la fonction YEAR() pose un verrou exclusif sur toute la table pendant la durée de son évaluation"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Enveloppe la colonne dans une fonction (YEAR(col)) oblige le SGBD à évaluer la fonction pour chaque ligne de la table au lieu de naviguer dans l’arbre d’index. Il vaut mieux écrire \'WHERE date_commande >= \'2026-01-01\' AND date_commande < \'2027-01-01\'\' pour préserver l’index.'
     },
     {
       stem: 'Quel type de structure d’indexation est utilisé par défaut dans la grande majorité des SGBD relationnels (PostgreSQL, MySQL InnoDB, Oracle) pour les clés primaires et colonnes uniques ?',
       opts: [
-        'Arbre B-Tree (B+Tree)',
         'Table de hachage (Hash index)',
+        'Arbre B-Tree (B+Tree)',
         'Index Bitmap',
         'Index Full-Text'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’arbre B-Tree équilibré est le standard universel des bases relationnelles car il optimise à la fois les recherches d’égalité stricte (=) et les requêtes par plage de valeurs (<, >, BETWEEN).'
     },
     {
       stem: 'Dans un plan d’exécution obtenu par la commande EXPLAIN ANALYZE, quelle information supplémentaire essentielle est fournie par rapport à un simple EXPLAIN ?',
       opts: [
-        'La requête est réellement exécutée et le rapport affiche le temps réel (en millisecondes) et le nombre réel de lignes retournées',
-        'Le mot de passe de l’administrateur de la base',
-        'La liste des erreurs de syntaxe du code',
-        'La version du système d’exploitation'
+        "La requête est réellement exécutée et le rapport affiche le temps réel (en millisecondes) et le nombre réel de lignes retournées",
+        "Le mot de passe chiffré de l’administrateur de la base de données, tel que stocké dans le catalogue système",
+        "La liste complète des erreurs de syntaxe présentes dans le code SQL de la requête analysée",
+        "La version exacte du système d’exploitation hébergeant le serveur de base de données"
       ],
       correct: 0,
       exp: 'EXPLAIN ne fait qu’estimer les coûts selon les statistiques du catalogue. EXPLAIN ANALYZE exécute réellement la requête et compare les estimations du planificateur avec la réalité des temps et volumes d’exécution réels.'

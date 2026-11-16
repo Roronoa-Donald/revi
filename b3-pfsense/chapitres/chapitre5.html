@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -269,10 +267,11 @@ CERT id=C2 cn=bob issuer=PFSENSE_INTERNAL_CA serial=104 algo=RSA key_len=2048 va
 CERT id=C3 cn=eve issuer=ROGUE_CA serial=200 algo=RSA key_len=4096 valid_from=1690000000 valid_to=1720000000</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquer les rejets connus, puis vérifier la sélection, l'état et le contenu de la CRL.</li>
         <li>INDETERMINATE signale une information insuffisante : il ne prédit pas la décision réelle d'OpenVPN.</li>
+        <li>1. Rejeter émetteur inconnu, dates invalides, DSA ou RSA courte. 2. CRL non sélectionnée ou indisponible : INDETERMINATE. 3. Sinon statut selon état, liste et dates.</li>
       </ol>
     </details>
   </div>
@@ -343,10 +342,11 @@ IKE_PROPOSAL id=PROP5 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=22
 IKE_PROPOSAL id=PROP6 phase=1 enc=AES-GCM key_len=256 hash=SHA256 dh_group=31</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquer les règles dans l'ordre, puis comparer le groupe à la liste explicite.</li>
         <li>Un groupe hors politique, comme 31, n'est pas automatiquement faible ; HIGH est une étiquette pédagogique.</li>
+        <li>1. Écarter chiffrements et hachés faibles, puis groupes DH interdits ou hors liste. 2. Clé AES courte : rejet. 3. Sinon APPROVED, HIGH si groupe 19 ou 20 et clé &gt;= 256.</li>
       </ol>
     </details>
   </div>
@@ -416,10 +416,11 @@ PACKET id=P2 dst_ip=8.8.8.8
 PACKET id=P3 dst_ip=172.16.50.10</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utiliser la notation CIDR du réseau et la notation CIDR du réseau.</li>
         <li>Vérifier <code>ip in net</code> pour tester l'appartenance au sous-réseau.</li>
+        <li>1. FULL : tout passe par le tunnel. 2. SPLIT : tester dst_ip contre les sous-réseaux dans l'ordre. 3. Première correspondance : tunnel, sinon sortie locale.</li>
       </ol>
     </details>
   </div>
@@ -432,10 +433,10 @@ PACKET id=P3 dst_ip=172.16.50.10</pre></div>
     <div class="q">
       <p class="q__stem">Où sont centralisées la création d’Autorités de Certification et l’émission de certificats sous pfSense ?</p>
       <div class="opts">
-        <button class="opt">Firewall &gt; Rules</button>
         <button class="opt" data-correct="1">System &gt; Certificates (Cert. Manager selon la version)</button>
-        <button class="opt">VPN &gt; OpenVPN &gt; Clients</button>
-        <button class="opt">Status &gt; Services</button>
+        <button class="opt">Firewall &gt; Rules, onglet des règles de filtrage par interface</button>
+        <button class="opt">VPN &gt; OpenVPN &gt; Clients, page des configurations distantes</button>
+        <button class="opt">Status &gt; Services, liste des démons système démarrés</button>
       </div>
       <div class="q__exp">Le menu System &gt; Certificates (Cert. Manager selon la version) gère les CAs, les certificats serveurs/clients et les listes de révocation (CRL).</div>
     </div>
@@ -453,8 +454,8 @@ PACKET id=P3 dst_ip=172.16.50.10</pre></div>
       <p class="q__stem">Quel port et protocole de transport sont utilisés par défaut pour les tunnels OpenVPN ?</p>
       <div class="opts">
         <button class="opt">TCP port 80</button>
-        <button class="opt" data-correct="1">UDP port 1194</button>
         <button class="opt">TCP port 443 obligatoire</button>
+        <button class="opt" data-correct="1">UDP port 1194</button>
         <button class="opt">UDP port 53</button>
       </div>
       <div class="q__exp">OpenVPN utilise par défaut le port UDP 1194 pour minimiser la latence et éviter l’effet d’avalanche TCP-over-TCP.</div>
@@ -463,17 +464,17 @@ PACKET id=P3 dst_ip=172.16.50.10</pre></div>
       <p class="q__stem">Quelle est la caractéristique principale d’une politique de Split Tunneling pour un client VPN ?</p>
       <div class="opts">
         <button class="opt">Tout le trafic Internet personnel passe obligatoirement par le pare-feu de l’entreprise</button>
-        <button class="opt" data-correct="1">Seuls les flux destinés aux sous-réseaux d’entreprise déclarés transitent par le tunnel VPN</button>
-        <button class="opt">Le client est déconnecté toutes les 15 minutes</button>
         <button class="opt">Le tunnel chiffre uniquement les requêtes DNS</button>
+        <button class="opt">Le client est déconnecté toutes les 15 minutes</button>
+        <button class="opt" data-correct="1">Seuls les flux destinés aux sous-réseaux d’entreprise déclarés transitent par le tunnel VPN</button>
       </div>
       <div class="q__exp">En Split Tunneling, seuls les réseaux internes de l’entreprise sont acheminés dans le VPN ; la navigation Web grand public sort localement.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un tunnel IPsec, quelle phase est responsable de négocier le chiffrement effectif des données (ESP) ?</p>
       <div class="opts">
-        <button class="opt">Phase 1 (IKE SA)</button>
         <button class="opt" data-correct="1">Phase 2 (Child SA / ESP)</button>
+        <button class="opt">Phase 1 (IKE SA)</button>
         <button class="opt">Phase 3 (NTP Sync)</button>
         <button class="opt">Phase 0 (DHCP Discovery)</button>
       </div>
@@ -483,8 +484,8 @@ PACKET id=P3 dst_ip=172.16.50.10</pre></div>
       <p class="q__stem">Selon les recommandations de durcissement de l’ANSSI, quel algorithme de hachage doit être formellement rejeté ?</p>
       <div class="opts">
         <button class="opt">SHA-256</button>
-        <button class="opt">SHA-384</button>
         <button class="opt" data-correct="1">MD5</button>
+        <button class="opt">SHA-384</button>
         <button class="opt">SHA-512</button>
       </div>
       <div class="q__exp">MD5 (tout comme SHA-1) présente des collisions cryptographiques prouvées et doit impérativement être banni des propositions IPsec et certificats.</div>
@@ -502,10 +503,10 @@ PACKET id=P3 dst_ip=172.16.50.10</pre></div>
     <div class="q">
       <p class="q__stem">Quel est l’avantage majeur du chiffrement AES-GCM par rapport à AES-CBC dans IPsec ?</p>
       <div class="opts">
-        <button class="opt">Il fonctionne sans processeur</button>
+        <button class="opt">Il fonctionne sans processeur ni accélération cryptographique matérielle dédiée</button>
+        <button class="opt">Il ne nécessite pas de clés secrètes partagées entre les deux extrémités du tunnel</button>
+        <button class="opt">Il ne fonctionne que sur le port 80 des passerelles distantes du tunnel IPsec</button>
         <button class="opt" data-correct="1">Il intègre nativement l’authentification et l’intégrité du message (AEAD) tout en étant très rapide</button>
-        <button class="opt">Il ne nécessite pas de clés secrètes</button>
-        <button class="opt">Il ne fonctionne que sur le port 80</button>
       </div>
       <div class="q__exp">AES-GCM est un mode AEAD (Authenticated Encryption with Associated Data) combinant confidentialité et intégrité avec une excellente efficacité matérielle.</div>
     </div>
@@ -631,7 +632,7 @@ PACKET id=P3 dst_ip=172.16.50.10</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

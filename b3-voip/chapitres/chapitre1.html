@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -210,10 +208,11 @@ A_COMPLETER
 CODEC=G.729 BITRATE_KBPS=8 PTIME_MS=20 CALLS=25</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Dans le modèle IPv4 sans options et RTP minimal, ajoutez 40 octets à la charge utile.</li>
         <li>Calculez la cadence de paquets par seconde : pps = 1000 / PTIME_MS.</li>
+        <li>Calculez la taille de trame RTP = payload + 40 octets (IP+UDP+RTP), le nombre de paquets par seconde (1000 / ptime_ms), puis le débit unitaire et total.</li>
       </ol>
     </details>
   </div>
@@ -223,23 +222,28 @@ CODEC=G.729 BITRATE_KBPS=8 PTIME_MS=20 CALLS=25</pre></div>
      data-exercise="vo3-c1-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="CODEC=G.711 DELAY_MS=50 LOSS_PCT=0.0&#10;CODEC=G.711 DELAY_MS=150 LOSS_PCT=2.0&#10;CODEC=G.729 DELAY_MS=220 LOSS_PCT=5.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c1-e2) — Estimateur de Qualité Vocale & Modèle E (Score R & MOS)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le lycée Vercors relie ses trois sites par ToIP. Mesures :&#10;Bastia → Ajaccio : 95 ms, gigue 12 ms, 0,2 %, MOS 4,1.&#10;Bastia → Paris : 190 ms, gigue 26 ms, 0,8 %, MOS 3,2.&#10;Ajaccio → Paris : 140 ms, gigue 40 ms, 1,5 %, MOS 3,0.&#10;&#10;1) Délai ≤ 150 ms : Bastia-Ajaccio (95) et Ajaccio-Paris (140) : 2 liaisons.&#10;2) Les trois seuils respectés : Bastia-Ajaccio (95, 12 et 0,2).&#10;3) Bastia-Paris dépasse seulement le délai (190) ; gigue 26 et pertes 0,8 sont conformes.&#10;4) MOS 3,2 : communication moyenne.&#10;5) MOS 3,0 : communication mauvaise.">
+  <script type="text/plain" data-lab-starter># Exercice — Le diagnostic qualité des liaisons ToIP de Norvia Logistique
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 4 et 5 : un seul mot (excellente, bonne, moyenne ou mauvaise).
 
-[Cas 1 — Cas de test 1]
-# Données : CODEC=G.722 DELAY_MS=80 LOSS_PCT=1.0
-# Données : CODEC=G.711 DELAY_MS=200 LOSS_PCT=6.0
-# Données : CODEC=G.729 DELAY_MS=120 LOSS_PCT=1.0
+[Question 1 — Nombre de liaisons respectant le seuil de délai]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : CODEC=G.711 DELAY_MS=300 LOSS_PCT=15.0
-# Données : CODEC=G.722 DELAY_MS=180 LOSS_PCT=0.5
+[Question 2 — Liaison respectant les trois seuils]
+A_COMPLETER
+
+[Question 3 — Indicateur dépassé par la liaison Lyon-Berlin]
+A_COMPLETER
+
+[Question 4 — Qualification du MOS 3,5 (Lyon-Berlin)]
+A_COMPLETER
+
+[Question 5 — Qualification du MOS 2,7 (Nantes-Dakar)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Estimateur de Qualité Vocale &amp; Modèle E (Score R &amp; MOS)</h3>
+    <h3 class="lab__title">Exercice 2 — Le diagnostic qualité des liaisons ToIP de Norvia Logistique</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -248,22 +252,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c1-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Estimer le facteur de qualité R et le score MOS selon la recommandation ITU-T G.107 en fonction du délai et des pertes.</p>
-    <div class="lab__brief"><p>Le standard ITU-T G.107 (E-Model) évalue la qualité de transmission vocale à travers un facteur de qualité <code>R</code> (variant typiquement de 0 à 100). Une simplification standardisée pour la ToIP prend en compte :   - Si <code>D &lt;= 100</code> : <code>Id = 0</code>   - Si <code>100 &lt; D &lt;= 177</code> : <code>Id = 0.024 * D</code>   - Si <code>D &gt; 177</code> : <code>Id = 0.024 * D + 0.11 * (D - 177)</code>   - Pour G.711 : <code>Ie = 2.5 * P</code>   - Pour G.729 : <code>Ie = 11.0 + 3.0 * P</code>   - Pour G.722 : <code>Ie = 2.0 * P</code></p><ul><li><code>R0</code> : facteur intrinsèque de base (environ 93.2 pour G.711, 83.0 pour G.729, 94.0 pour G.722).</li><li><code>Id</code> : dégradation liée au délai unidirectionnel <code>D</code> (en millisecondes) :</li><li><code>Ie</code> : dégradation liée aux pertes de paquets <code>P</code> (pourcentage 0..100) :</li><li>Calcul du facteur <code>R</code> : <code>R = max(0.0, min(100.0, R0 - Id - Ie))</code></li></ul>
-<p>Conversion du facteur R en score MOS (Mean Opinion Score entre 1.0 et 4.5) selon la formule ITU-T :   <code>MOS = 1.0 + 0.035 * R + R * (R - 60.0) * (100.0 - R) * 7e-6</code>   (borné entre 1.0 et 4.5)</p><ul><li>Si <code>R &lt; 0</code> : <code>MOS = 1.0</code></li><li>Si <code>0 &lt;= R &lt;= 100</code> :</li><li>Si <code>R &gt; 100</code> : <code>MOS = 4.5</code></li></ul>
-<p>Qualification de la qualité :</p><ul><li>MOS &gt;= 4.03 : EXCELLENT</li><li>3.60 &lt;= MOS &lt; 4.03 : BON</li><li>3.10 &lt;= MOS &lt; 3.60 : MOYEN</li><li>MOS &lt; 3.10 : MAUVAIS</li></ul>
-<p>Format d'entrée :<br>Lignes de la forme :<br>CODEC=&lt;G.711|G.729|G.722&gt; DELAY_MS=&lt;ms&gt; LOSS_PCT=&lt;pct&gt;</p>
-&lt;p&gt;Format de sortie :<br>Pour chaque ligne, afficher :<br>CODEC:&lt;nom&gt; | DELAY:&lt;d&gt;ms | LOSS:<p>% | R:&lt;R:.1f&gt; | MOS:&lt;MOS:.2f&gt; | QUALITE:&lt;label&gt;</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Confronter des mesures de délai, gigue, pertes et MOS aux seuils de l'ITU-T G.114 et qualifier la qualité perçue.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Norvia Logistique, transporteur régional, a déployé la ToIP entre ses trois agences. Le responsable télécoms relève, pour chaque liaison, le délai unidirectionnel, la gigue, le taux de pertes de paquets et le score MOS mesuré par sondage :</p><table><tr><th>Liaison</th><th>Délai (ms)</th><th>Gigue (ms)</th><th>Pertes (%)</th><th>MOS</th></tr><tr><th>Nantes → Lyon</th><td>45</td><td>8</td><td>0,1</td><td>4,2</td></tr><tr><th>Lyon → Berlin</th><td>165</td><td>22</td><td>0,4</td><td>3,5</td></tr><tr><th>Nantes → Dakar</th><td>220</td><td>35</td><td>2,5</td><td>2,7</td></tr></table><p>Seuils de la recommandation ITU-T G.114 vus en cours : délai unidirectionnel ≤ 150 ms, gigue ≤ 30 ms, pertes ≤ 1 %. Échelle du MOS : 4,03 ou plus = excellente ; de 3,60 à 4,02 = bonne ; de 3,10 à 3,59 = moyenne ; en dessous de 3,10 = mauvaise.</p><ol><li>Combien de liaisons respectent le seuil de délai de 150 ms ?</li><li>Quelle liaison respecte à la fois les trois seuils (délai, gigue et pertes) ?</li><li>Quel indicateur, et lui seul, la liaison Lyon–Berlin dépasse-t-elle ?</li><li>Comment l'échelle du cours qualifie-t-elle la communication sur la liaison Lyon–Berlin (MOS 3,5) ?</li><li>Comment l'échelle du cours qualifie-t-elle la communication sur la liaison Nantes–Dakar (MOS 2,7) ?</li></ol><p>Pour les questions 4 et 5, répondez par un seul mot.</p></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CODEC=G.711 DELAY_MS=50 LOSS_PCT=0.0
-CODEC=G.711 DELAY_MS=150 LOSS_PCT=2.0
-CODEC=G.729 DELAY_MS=220 LOSS_PCT=5.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le lycée Vercors relie ses trois sites par ToIP. Mesures :
+Bastia → Ajaccio : 95 ms, gigue 12 ms, 0,2 %, MOS 4,1.
+Bastia → Paris : 190 ms, gigue 26 ms, 0,8 %, MOS 3,2.
+Ajaccio → Paris : 140 ms, gigue 40 ms, 1,5 %, MOS 3,0.
+
+1) Délai ≤ 150 ms : Bastia-Ajaccio (95) et Ajaccio-Paris (140) : 2 liaisons.
+2) Les trois seuils respectés : Bastia-Ajaccio (95, 12 et 0,2).
+3) Bastia-Paris dépasse seulement le délai (190) ; gigue 26 et pertes 0,8 sont conformes.
+4) MOS 3,2 : communication moyenne.
+5) MOS 3,0 : communication mauvaise.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Appliquez la formule par morceaux pour Id selon les seuils de 100 ms et 177 ms.</li>
-        <li>Bornez le score MOS entre 1.0 et 4.5.</li>
+        <li>Comparez chaque colonne du tableau aux seuils de la G.114 : 150 ms de délai unidirectionnel, 30 ms de gigue, 1 % de pertes.</li>
+        <li>Pour la question 3, éliminez un à un les indicateurs de Lyon–Berlin : la gigue (22 ms) et les pertes (0,4 %) sont-elles sous les seuils ?</li>
+        <li>Pour qualifier un MOS : 4,03 ou plus = excellente ; de 3,60 à 4,02 = bonne ; de 3,10 à 3,59 = moyenne ; en dessous de 3,10 = mauvaise.</li>
       </ol>
     </details>
   </div>
@@ -273,23 +281,31 @@ CODEC=G.729 DELAY_MS=220 LOSS_PCT=5.0</pre></div>
      data-exercise="vo3-c1-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SAMPLE=150 REGION=EUROPE&#10;SAMPLE=-1500 REGION=AMERIQUE&#10;SAMPLE=25 REGION=EUROPE">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vo3-c1-e3) — Convertisseur & Échantillonneur PCM / A-law & µ-law
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le studio VoixLibres numérise une webradio dont la bande utile monte à 8 000 Hz.&#10;&#10;1) Fréquence d'échantillonnage minimale : 2 × 8 000 = 16 000 Hz.&#10;2) Le studio retient Fe = 16 000 Hz ; intervalle : 1/16 000 = 62,5 µs.&#10;3) Quantification sur 16 bits : débit = 16 000 × 16 = 256 000 bps = 256 kbps.&#10;4) Quantification sur 8 bits : 16 000 × 8 = 128 kbps.">
+  <script type="text/plain" data-lab-starter># Exercice — La numérisation vocale du standard de l'opérateur TéléSud
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 5 : le nombre seul. Question 6 : le nom du codec.
 
-[Cas 1 — Cas de test 1]
-# Données : SAMPLE=0 REGION=EUROPE
-# Données : SAMPLE=3500 REGION=EUROPE
-# Données : SAMPLE=-50 REGION=AMERIQUE
+[Question 1 — Fréquence d'échantillonnage minimale théorique (en Hz)]
 A_COMPLETER
 
-[Cas 2 — Cas de test 2]
-# Données : SAMPLE=-300 REGION=EUROPE
-# Données : SAMPLE=800 REGION=AMERIQUE
+[Question 2 — Fréquence d'échantillonnage normalisée (en Hz)]
+A_COMPLETER
+
+[Question 3 — Intervalle entre deux échantillons (en µs)]
+A_COMPLETER
+
+[Question 4 — Débit du codec G.711 (en kbps)]
+A_COMPLETER
+
+[Question 5 — Débit d'une numérisation linéaire à 13 bits (en kbps)]
+A_COMPLETER
+
+[Question 6 — Codec large bande de la téléphonie HD]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Convertisseur &amp; Échantillonneur PCM / A-law &amp; µ-law</h3>
+    <h3 class="lab__title">Exercice 3 — La numérisation vocale du standard de l'opérateur TéléSud</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -298,21 +314,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vo3-c1-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler la quantification logarithmique ITU-T G.711 A-law et µ-law et extraire les segments et pas de quantification.</p>
-    <div class="lab__brief"><p>La numérisation vocale standard G.711 échantillonne la voix à une fréquence de 8 000 Hz avec des échantillons linéaires sur 13 bits (A-law en Europe) ou 14 bits (µ-law en Amérique du Nord).<br>Ces échantillons sont compressés sur 8 bits (1 octet), produisant le débit universel de 64 kbps (8 000 éch/s * 8 bits = 64 000 bps).</p>
-<p>Principe de quantification logarithmique A-law (ITU-T G.711) : Chaque échantillon linéaire entier signé <code>S</code> (-4096 &lt;= S &lt;= 4095) est codé en un octet binaire <code>b7 b6 b5 b4 b3 b2 b1 b0</code> :   - Segment 0 : 0 &lt;= M &lt; 32 -&gt; code binaire segment <code>000</code>, pas = 2   - Segment 1 : 32 &lt;= M &lt; 64 -&gt; code <code>001</code>, pas = 2   - Segment 2 : 64 &lt;= M &lt; 128 -&gt; code <code>010</code>, pas = 4   - Segment 3 : 128 &lt;= M &lt; 256 -&gt; code <code>011</code>, pas = 8   - Segment 4 : 256 &lt;= M &lt; 512 -&gt; code <code>100</code>, pas = 16   - Segment 5 : 512 &lt;= M &lt; 1024 -&gt; code <code>101</code>, pas = 32   - Segment 6 : 1024 &lt;= M &lt; 2048 -&gt; code <code>110</code>, pas = 64   - Segment 7 : 2048 &lt;= M &lt;= 4095 -&gt; code <code>111</code>, pas = 128   où <code>nb_bits_lin</code> est le nombre de bits effectifs (segment + 4).</p><ul><li><code>b7</code> (signe) : 1 si S &gt;= 0, 0 si S &lt; 0.</li><li>L'amplitude absolue <code>M = min(abs(S), 4095)</code> détermine le segment (de 0 à 7) :</li><li>Rapport signal sur bruit de quantification approximé : <code>SQNR_dB = 6.02 * nb_bits_lin + 1.76</code></li></ul>
-<p>Format d'entrée :<br>Lignes de la forme :<br>SAMPLE=&lt;entier_signé&gt; REGION=&lt;EUROPE|AMERIQUE&gt;</p>
-<p>Règles de sortie : SAMPLE:&lt;val&gt; | NORME:&lt;A-LAW|U-LAW&gt; | SIGNE:&lt;POSITIF|NEGATIF&gt; | SEGMENT:&lt;0..7&gt; | PAS:&lt;pas&gt;</p><ul><li>Déterminer la norme : <code>A-LAW</code> si EUROPE, <code>U-LAW</code> si AMERIQUE.</li><li>Extraire le signe : <code>POSITIF</code> si &gt;= 0 sinon <code>NEGATIF</code>.</li><li>Déterminer l'indice du segment (0 à 7).</li><li>Calculer le pas de quantification associé au segment.</li><li>Afficher la ligne :</li></ul></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer le théorème de Nyquist, la quantification G.711 et les débits qui en découlent à une chaîne de numérisation réelle.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'opérateur régional TéléSud modernise le standard téléphonique de son centre d'appels. L'ingénieur audio rappelle les données du cours : la bande vocale téléphonique s'étend de <strong>300 Hz à 3 400 Hz</strong> ; la recommandation G.711 échantillonne à 8 000 Hz et compresse chaque échantillon sur <strong>8 bits</strong> (loi A en Europe, loi µ en Amérique du Nord) ; en A-law, l'échantillon linéaire d'origine porte sur 13 bits avant compression.</p><p>Rappel : théorème de Nyquist-Shannon, Fe ≥ 2 × Fmax ; intervalle entre deux échantillons = 1 / Fe ; débit = Fe × nombre de bits par échantillon.</p><p>Répondez par le nombre seul, sans unité, sauf pour la question 6 (un mot).</p><ol><li>Quelle est la fréquence d'échantillonnage minimale théorique, en Hz, pour une bande vocale limitée à 3 400 Hz ?</li><li>Quelle fréquence d'échantillonnage, en Hz, l'UIT-T a-t-elle normalisée pour la téléphonie ?</li><li>Quel intervalle, en microsecondes, sépare deux échantillons consécutifs à 8 000 Hz ?</li><li>Quel est le débit du codec G.711, en kbps ?</li><li>Quel serait, en kbps, le débit d'une numérisation linéaire à 13 bits par échantillon, sans compression ?</li><li>Quel codec du cours, débitant lui aussi 64 kbps, élargit la bande audio de 50 Hz à 7 kHz pour la téléphonie HD ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SAMPLE=150 REGION=EUROPE
-SAMPLE=-1500 REGION=AMERIQUE
-SAMPLE=25 REGION=EUROPE</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le studio VoixLibres numérise une webradio dont la bande utile monte à 8 000 Hz.
+
+1) Fréquence d'échantillonnage minimale : 2 × 8 000 = 16 000 Hz.
+2) Le studio retient Fe = 16 000 Hz ; intervalle : 1/16 000 = 62,5 µs.
+3) Quantification sur 16 bits : débit = 16 000 × 16 = 256 000 bps = 256 kbps.
+4) Quantification sur 8 bits : 16 000 × 8 = 128 kbps.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez la région géographique pour associer A-LAW (Europe) ou U-LAW (Amérique).</li>
-        <li>Identifiez le segment de 0 à 7 selon l'amplitude absolue bornée à 4095.</li>
+        <li>Le théorème de Nyquist-Shannon impose Fe ≥ 2 × Fmax : appliquez-le à la fréquence maximale de la bande vocale.</li>
+        <li>L'intervalle entre deux échantillons est l'inverse de la fréquence d'échantillonnage ; le débit est le produit de la fréquence par le nombre de bits par échantillon.</li>
+        <li>1. Fe minimale = 2 × 3 400. 2. La fréquence normalisée du RTC est 8 000 Hz. 3. 1/8 000 s = 125 µs. 4. 8 000 × 8 bits = 64 000 bps. 5. 8 000 × 13 bits = 104 000 bps. 6. Relisez le tableau des codecs : lequel offre la large bande à 64 kbps ?</li>
       </ol>
     </details>
   </div>
@@ -335,9 +352,9 @@ SAMPLE=25 REGION=EUROPE</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le débit binaire brut d'un canal voix standard numérisé selon la norme ITU-T G.711 (loi A ou loi µ) ?</p>
       <div class="opts">
-        <button class="opt">8 kbps</button>
-        <button class="opt">16 kbps</button>
         <button class="opt" data-correct="1">64 kbps</button>
+        <button class="opt">16 kbps</button>
+        <button class="opt">8 kbps</button>
         <button class="opt">128 kbps</button>
       </div>
       <div class="q__exp">G.711 échantillonne à 8 000 Hz avec 8 bits par échantillon : 8 000 * 8 = 64 000 bits/s = 64 kbps.</div>
@@ -347,8 +364,8 @@ SAMPLE=25 REGION=EUROPE</pre></div>
       <div class="opts">
         <button class="opt">14 octets</button>
         <button class="opt">28 octets</button>
-        <button class="opt" data-correct="1">40 octets</button>
         <button class="opt">64 octets</button>
+        <button class="opt" data-correct="1">40 octets</button>
       </div>
       <div class="q__exp">IPv4 sans options (20 octets) + UDP (8 octets) + RTP minimal (12 octets) = 40 octets ; des options et les autres couches peuvent ajouter de la surcharge.</div>
     </div>
@@ -366,8 +383,8 @@ SAMPLE=25 REGION=EUROPE</pre></div>
       <p class="q__stem">Quel codec audio utilise l'algorithme CS-ACELP pour compresser la parole humaine à un débit brut de seulement 8 kbps ?</p>
       <div class="opts">
         <button class="opt">G.711</button>
-        <button class="opt">G.722</button>
         <button class="opt" data-correct="1">G.729</button>
+        <button class="opt">G.722</button>
         <button class="opt">Opus</button>
       </div>
       <div class="q__exp">G.729 compresse la voix à 8 kbps grâce à la modélisation mathématique du conduit vocal par prédiction linéaire (CS-ACELP).</div>
@@ -375,8 +392,8 @@ SAMPLE=25 REGION=EUROPE</pre></div>
     <div class="q">
       <p class="q__stem">Dans quelle région géographique la loi de compression logarithmique G.711 A-law est-elle obligatoirement déployée sur les réseaux téléphoniques ?</p>
       <div class="opts">
-        <button class="opt">États-Unis et Canada</button>
         <button class="opt" data-correct="1">Europe et Afrique</button>
+        <button class="opt">États-Unis et Canada</button>
         <button class="opt">Japon uniquement</button>
         <button class="opt">Australie uniquement</button>
       </div>
@@ -387,18 +404,18 @@ SAMPLE=25 REGION=EUROPE</pre></div>
       <div class="opts">
         <button class="opt">MOS &gt;= 3.10</button>
         <button class="opt">MOS &gt;= 3.60</button>
-        <button class="opt" data-correct="1">MOS &gt;= 4.03</button>
         <button class="opt">MOS = 5.00</button>
+        <button class="opt" data-correct="1">MOS &gt;= 4.03</button>
       </div>
       <div class="q__exp">Selon la classification ITU-T, un score MOS &gt;= 4.03 qualifie une communication d'Excellente (qualité studio/réseau local optimal).</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il impossible d'utiliser le protocole de transport TCP pour acheminer les flux audio RTP en téléphonie temps réel ?</p>
       <div class="opts">
-        <button class="opt">Car TCP ne supporte pas les adresses IP</button>
+        <button class="opt">Car TCP ne sait pas acheminer les paquets audio RTP vers les adresses IP des terminaux téléphoniques distants du réseau d’entreprise</button>
+        <button class="opt">Car TCP est limité par conception à un débit maximal de 10 kbps, débit très insuffisant pour transporter un codec vocal standard</button>
         <button class="opt" data-correct="1">Car le mécanisme de retransmission (ACK/retransmission) et le contrôle de congestion de TCP introduiraient un retard et une gigue inacceptables pour la conversation</button>
-        <button class="opt">Car TCP est limité à 10 kbps</button>
-        <button class="opt">Car les pare-feux bloquent tous les flux TCP</button>
+        <button class="opt">Car les pare-feux d’entreprise bloquent systématiquement l’ensemble des flux TCP qui traversent le réseau Internet</button>
       </div>
       <div class="q__exp">La retransmission TCP en cas de paquet perdu arriverait trop tard pour être jouée dans l'oreille humaine. On privilégie UDP qui délivre les paquets sans délai ni retransmission.</div>
     </div>
@@ -520,7 +537,7 @@ SAMPLE=25 REGION=EUROPE</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

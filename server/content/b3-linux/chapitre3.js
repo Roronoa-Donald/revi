@@ -168,21 +168,21 @@ module.exports = {
     {
       stem: 'Dans l’architecture LVM, qu’est-ce qu’un « Physical Extent » (PE) ?',
       opts: [
-        'Un câble SATA reliant le disque à la carte mère',
-        'Le bloc élémentaire de taille fixe (généralement 4 Mo) qui compose la granularité d’allocation d’un Volume Group',
-        'Une partition de boot réservée à GRUB2',
-        'Un protocole réseau pour monter des disques iSCSI'
+        "Le bloc élémentaire de taille fixe (généralement 4 Mo) qui compose la granularité d’allocation d’un Volume Group",
+        "Un câble SATA dédié reliant physiquement le disque dur à la carte mère du serveur",
+        "Une petite partition de boot spéciale réservée exclusivement au chargeur d’amorçage GRUB2",
+        "Un protocole réseau haute vitesse permettant de monter des disques iSCSI à distance"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'LVM découpe l’espace des disques physiques en petits blocs de taille fixe appelés Physical Extents (PE). Toute allocation de volume logique se fait par multiples entiers de PE.'
     },
     {
       stem: 'Comment fonctionne un snapshot LVM Copy-on-Write (COW) lors de la modification d’une donnée sur le volume parent ?',
       opts: [
-        'Il duplique l’intégralité du disque à chaque écriture',
-        'Il copie l’ancien bloc intact dans l’espace réservé du snapshot avant d’autoriser l’écriture du nouveau bloc sur le volume d’origine',
-        'Il compresse le disque avec l’algorithme gzip',
-        'Il bloque toutes les écritures sur le serveur jusqu’à la fin de la sauvegarde'
+        "Il duplique l’intégralité du disque dur à chaque nouvelle opération d’écriture effectuée sur le volume logique",
+        "Il copie l’ancien bloc intact dans l’espace réservé du snapshot avant d’autoriser l’écriture du nouveau bloc sur le volume d’origine",
+        "Il compresse l’intégralité du disque avec l’algorithme gzip avant chaque opération de sauvegarde",
+        "Il bloque toutes les écritures sur le serveur jusqu’à la fin complète du processus de sauvegarde"
       ],
       correct: 1,
       exp: 'Le principe Copy-on-Write ne copie que les blocs modifiés : l’ancien bloc inchangé est d’abord sauvegardé dans la réserve du snapshot, permettant de reconstituer l’état historique figé.'
@@ -191,53 +191,53 @@ module.exports = {
       stem: 'Combien de pannes simultanées de disques une grappe en RAID 6 avec 6 disques physiques peut-elle supporter sans perte de données ?',
       opts: [
         '1 panne',
-        '2 pannes',
         '3 pannes',
+        '2 pannes',
         '5 pannes'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le RAID 6 utilise deux blocs de parité distincts (double parité) et tolère de manière garantie la défaillance simultanée de jusqu’à 2 disques quel que soit le nombre total de disques.'
     },
     {
       stem: 'Où le nom d’un fichier sous Linux est-il physiquement stocké ?',
       opts: [
-        'Dans son inode directement',
-        'Dans le bloc de données de son répertoire parent, associé à son numéro d’inode',
-        'Dans le secteur d’amorçage MBR',
-        'Dans le fichier /etc/fstab'
+        "Dans son inode directement, dans un champ dédié de 255 caractères",
+        "Dans le secteur d’amorçage MBR du premier disque physique de la machine",
+        "Dans le fichier /etc/fstab qui recense les points de montage du système",
+        "Dans le bloc de données de son répertoire parent, associé à son numéro d’inode"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’inode ne contient ni le nom ni le chemin du fichier. Les répertoires sous Unix sont de simples tables associant des noms de fichiers à des numéros d’inodes.'
     },
     {
       stem: 'Que signifie un système qui refuse de créer un nouveau fichier avec « No space left on device » alors que « df -h » indique 50 Go d’espace libre ?',
       opts: [
-        'Le processeur est en surchauffe',
-        'La table d’inodes du système de fichiers est saturée à 100% (constatable avec df -i)',
-        'Le câble réseau est débranché',
-        'La mémoire swap est désactivée'
+        "Le processeur est en surchauffe et le noyau suspend les écritures disque",
+        "Le câble réseau du serveur de fichiers est débranché accidentellement",
+        "La mémoire swap du système a été désactivée par l’administrateur",
+        "La table d’inodes du système de fichiers est saturée à 100% (constatable avec df -i)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Si un grand nombre de petits fichiers a consommé tous les inodes alloués lors du formatage, aucun nouveau fichier ne peut être créé même s’il reste des gigaoctets de blocs disques libres.'
     },
     {
       stem: 'Quelle commande permet d’étendre à chaud un système de fichiers ext4 après avoir agrandi son volume logique LVM ?',
       opts: [
         'xfs_growfs',
-        'resize2fs',
         'fdisk -l',
+        'resize2fs',
         'mkfs.ext4'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'resize2fs permet d’agrandir à chaud en ligne un système de fichiers ext4 sans démonter la partition.'
     },
     {
       stem: 'Que se passe-t-il si un second disque tombe en panne sur une grappe RAID 5 alors qu’un premier disque est déjà défaillant et en cours de reconstruction ?',
       opts: [
-        'Le système passe en mode lecture seule sans aucune perte',
-        'La grappe RAID bascule en échec complet (FAILED) et l’intégralité des données est définitivement perdue',
-        'Le noyau reconstruit les données à partir de la mémoire vive',
-        'Le système de fichiers ignore l’erreur automatiquement'
+        "Le système passe en mode lecture seule sans aucune perte de données pour les utilisateurs",
+        "La grappe RAID bascule en échec complet (FAILED) et l’intégralité des données est définitivement perdue",
+        "Le noyau reconstruit les données manquantes à partir de la mémoire vive du serveur",
+        "Le système de fichiers ignore silencieusement l’erreur et poursuit ses opérations normalement"
       ],
       correct: 1,
       exp: 'Le RAID 5 ne dispose que d’un seul niveau de parité : la perte d’un second disque avant la fin de la reconstruction rend la reconstitution mathématique impossible, provoquant la perte irrémédiable des données.'
@@ -245,12 +245,12 @@ module.exports = {
     {
       stem: 'Quelle commande LVM permet d’ajouter un nouveau disque physique dans un Volume Group existant ?',
       opts: [
-        'pvcreate',
         'vgextend',
+        'pvcreate',
         'lvextend',
         'vgchange'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'vgextend intègre un ou plusieurs nouveaux Physical Volumes (PV) au pool de stockage d’un Volume Group (VG) existant.'
     }
   ],

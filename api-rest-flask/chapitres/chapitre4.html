@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -175,15 +173,62 @@ return jsonify(article), 201, {"Location": f"/articles/{article['id']}"}</code><
 
 </section>
 
+<section class="sec">
+
+<h2>5. Implémentation Flask complète : middleware JWT (@token_required) et codes 200/201/400/401/404/422</h2>
+
+<p>Voici comment protéger des routes Flask à l’aide d’un décorateur middleware JWT (vérifiant l’en-tête <code>Authorization: Bearer &lt;token&gt;</code>) tout en renvoyant des tuples JSON normalisés :</p>
+<pre><code class="language-python">from functools import wraps
+from flask import Flask, request, jsonify, g
+import hmac, hashlib, base64, json
+
+app = Flask(__name__)
+SECRET_KEY = b"cle-secrete-b2-flask"
+
+def verifier_jwt(token):
+    try:
+        header_b64, payload_b64, sig_b64 = token.split(".")
+        msg = f"{header_b64}.{payload_b64}".encode("utf-8")
+         attendu = base64.urlsafe_b64encode(hmac.new(SECRET_KEY, msg, hashlib.sha256).digest()).rstrip(b"=").decode("utf-8")
+        if not hmac.compare_digest(sig_b64, attendu):
+            return None
+        padding = "=" * (-len(payload_b64) % 4)
+        return json.loads(base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8"))
+    except Exception:
+        return None
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"code": 401, "error": "Unauthorized", "message": "Jeton Bearer manquant"}), 401
+        claims = verifier_jwt(auth_header.split(" ", 1)[1].strip())
+        if not claims:
+            return jsonify({"code": 401, "error": "Unauthorized", "message": "Jeton JWT invalide ou expiré"}), 401
+        g.current_user = claims
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/api/v1/profil", methods=["GET"])
+@token_required
+def lire_profil():
+    return jsonify({"utilisateur": g.current_user["sub"], "role": g.current_user.get("role", "lecteur")}), 200</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="fl2-c4-e1" data-lab
      data-exercise="fl2-c4-e1"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="creation">
@@ -195,13 +240,11 @@ return jsonify(article), 201, {"Location": f"/articles/{article['id']}"}</code><
     <h3 class="lab__title">Exercice 1 — Codes d’état HTTP REST</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Identifier le code de statut HTTP approprié selon le résultat de l’opération.</p>
-    <p class="lab__note" id="fl2-c4-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une API REST communique le succès ou l’échec d’une requête via les codes de statut HTTP :<br>- <code>creation</code> &rarr; <code>201 Created</code><br>- <code>lecture</code> ou <code>succes</code> &rarr; <code>200 OK</code><br>- <code>suppression</code> (sans contenu renvoyé) &rarr; <code>204 No Content</code><br>- <code>introuvable</code> &rarr; <code>404 Not Found</code><br>- <code>invalide</code> &rarr; <code>400 Bad Request</code><br>- <code>non_autorise</code> &rarr; <code>401 Unauthorized</code><br>- <code>interdit</code> &rarr; <code>403 Forbidden</code></p><p>Lit le nom du scénario sur l’entrée standard (minuscules, sans espaces superflus) et affiche le code d’état exact suivi de son libellé officiel sous la forme <code>&lt;code&gt; &lt;libelle&gt;</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>creation</pre></div>
@@ -209,10 +252,11 @@ return jsonify(article), 201, {"Location": f"/articles/{article['id']}"}</code><
     </div>
     <p class="lab__note">Création réussie d’une nouvelle ressource.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez un dictionnaire Python associant chaque clé au tuple ou à la chaîne "CODE Libellé".</li>
         <li>Exemple : "creation": "201 Created".</li>
+        <li>Étapes : lire le scénario en minuscules ; le chercher dans la table des codes ; trouvé → afficher « CODE Libellé » ; sinon afficher « 500 Internal Server Error ».</li>
       </ol>
     </details>
   </div>
@@ -220,7 +264,6 @@ return jsonify(article), 201, {"Location": f"/articles/{article['id']}"}</code><
 
 <div class="lab" id="fl2-c4-e2" data-lab
      data-exercise="fl2-c4-e2"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="404&#10;Not Found&#10;Utilisateur 42 introuvable">
@@ -236,13 +279,11 @@ message = input().strip()
     <h3 class="lab__title">Exercice 2 — Payload d’erreur JSON standardisé</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Produire un objet JSON d’erreur uniforme avec code, type et description.</p>
-    <p class="lab__note" id="fl2-c4-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une bonne pratique d’API consiste à renvoyer une charge utile JSON standardisée en cas d’erreur. L’objet doit contenir les trois propriétés : <code>code</code> (entier), <code>error</code> (chaîne courte) et <code>message</code> (explication).</p><p>Lit trois lignes sur l’entrée standard :<br>1. Le code HTTP numérique (ex: <code>404</code>)<br>2. Le titre de l’erreur (ex: <code>Not Found</code>)<br>3. Le message explicatif (ex: <code>Ressource introuvable</code>)<br>Construis un dictionnaire Python avec ces 3 clés et affiche sa sérialisation JSON compacte (avec les clés triées alphabétiquement via <code>json.dumps(..., sort_keys=True)</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>404
@@ -264,7 +305,6 @@ Utilisateur 42 introuvable</pre></div>
 
 <div class="lab" id="fl2-c4-e3" data-lab
      data-exercise="fl2-c4-e3"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="1&#10;2&#10;[&quot;pomme&quot;, &quot;poire&quot;, &quot;cerise&quot;, &quot;banane&quot;]">
@@ -280,13 +320,11 @@ items = json.loads(input().strip())
     <h3 class="lab__title">Exercice 3 — Enveloppe paginée de collection</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Construire une enveloppe JSON complète de collection avec pagination (total, page, limit, items).</p>
-    <p class="lab__note" id="fl2-c4-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Lorsqu’une collection volumineuse est interrogée, une API REST renvoie une enveloppe contenant les métadonnées de navigation et la tranche d’éléments demandée.</p><p>Lit trois lignes sur l’entrée standard :<br>1. Le numéro de page demandé (entier, commence à 1)<br>2. La limite d’éléments par page (entier)<br>3. Une liste complète d’éléments au format JSON (tableau d’entiers ou de chaînes)<br>Calculez la tranche d’éléments correspondant à la page demandée, puis produisez le JSON contenant :<br>- <code>"total"</code>: nombre total d’éléments dans la collection<br>- <code>"page"</code>: page courante (int)<br>- <code>"limit"</code>: taille de page (int)<br>- <code>"data"</code>: liste des éléments de la tranche courante<br>Affichez le résultat avec <code>json.dumps(..., sort_keys=True)</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>1
@@ -307,7 +345,7 @@ items = json.loads(input().strip())
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -322,8 +360,8 @@ items = json.loads(input().strip())
     <div class="q">
       <p class="q__stem">Quel code de statut indique un succès sans aucun contenu dans le corps de réponse ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">204 No Content</button>
         <button class="opt">200 OK</button>
+        <button class="opt" data-correct="1">204 No Content</button>
         <button class="opt">202 Accepted</button>
       </div>
       <div class="q__exp">204 No Content est couramment employé après une suppression (DELETE).</div>
@@ -331,18 +369,18 @@ items = json.loads(input().strip())
     <div class="q">
       <p class="q__stem">Quelle est la différence entre 401 Unauthorized et 403 Forbidden ?</p>
       <div class="opts">
+        <button class="opt">401 est une erreur du serveur interne, tandis que 403 provient du navigateur client</button>
+        <button class="opt">Il n’y a aucune différence : les deux codes sont parfaitement synonymes dans la norme</button>
         <button class="opt" data-correct="1">401 concerne l’authentification (qui êtes-vous ?), 403 concerne les permissions (avez-vous le droit ?)</button>
-        <button class="opt">401 est une erreur serveur, 403 une erreur client</button>
-        <button class="opt">Il n’y a aucune différence, ils sont synonymes</button>
       </div>
-      <div class="q__exp">401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit.</div>
+      <div class="q__exp">401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit. Tous deux sont des erreurs côté client, et ils ne sont pas synonymes.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle fonction Flask sérialise un dictionnaire en réponse HTTP JSON ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">jsonify()</button>
-        <button class="opt">json.dumps()</button>
         <button class="opt">flask.encode()</button>
+        <button class="opt">json.dumps()</button>
+        <button class="opt" data-correct="1">jsonify()</button>
       </div>
       <div class="q__exp">jsonify() génère un objet Response complet avec le Content-Type application/json.</div>
     </div>
@@ -358,8 +396,8 @@ items = json.loads(input().strip())
     <div class="q">
       <p class="q__stem">Quel code HTTP utilise-t-on lorsqu’un email à inscrire existe déjà en base ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">409 Conflict</button>
         <button class="opt">404 Not Found</button>
+        <button class="opt" data-correct="1">409 Conflict</button>
         <button class="opt">500 Server Error</button>
       </div>
       <div class="q__exp">409 Conflict signale une violation de contrainte d’intégrité ou d’unicité.</div>
@@ -367,9 +405,9 @@ items = json.loads(input().strip())
     <div class="q">
       <p class="q__stem">Dans un tuple de retour Flask (corps, 201, headers), quel est le rôle du 2e élément ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le code de statut HTTP</button>
-        <button class="opt">Le nombre d’octets</button>
         <button class="opt">Le temps de réponse en millisecondes</button>
+        <button class="opt">Le nombre d’octets</button>
+        <button class="opt" data-correct="1">Le code de statut HTTP</button>
       </div>
       <div class="q__exp">Le 2e élément du tuple Flask définit le code d’état HTTP de la réponse.</div>
     </div>
@@ -388,7 +426,7 @@ items = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -405,7 +443,7 @@ items = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire une réponse REST conforme dans Flask</div>
@@ -422,7 +460,7 @@ items = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -453,7 +491,7 @@ items = json.loads(input().strip())
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -502,7 +540,7 @@ items = json.loads(input().strip())
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

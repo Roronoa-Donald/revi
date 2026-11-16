@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -226,10 +224,11 @@ INCOMING_PKT id=PKT1 ext_dst_ip=203.0.113.1 ext_dst_port=8080
 INCOMING_PKT id=PKT2 ext_dst_ip=203.0.113.1 ext_dst_port=22</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Gérer un dictionnaire associant ext_port à (int_ip, int_port).</li>
         <li>Vérifier si ext_dst_port existe dans les règles.</li>
+        <li>1. Indexer les règles NAT par port externe. 2. Port du paquet présent : REDIRECTED vers la cible interne. 3. Sinon DROPPED avec NONE.</li>
       </ol>
     </details>
   </div>
@@ -291,10 +290,11 @@ OUT_PKT id=P1 src_ip=192.168.1.15 wan_ip=203.0.113.100
 OUT_PKT id=P2 src_ip=10.0.0.5 wan_ip=203.0.113.100</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Stocker les réseaux avec la notation CIDR du réseau.</li>
         <li>Tester src_ip in net_obj pour appliquer la règle correspondante.</li>
+        <li>1. Tester si src_ip appartient à un src_subnet CIDR. 2. Si oui, choisir wan_ip ou nat_ip selon la règle touchée. 3. Sinon conserver la source (NO_NAT).</li>
       </ol>
     </details>
   </div>
@@ -371,8 +371,8 @@ GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
       <p class="q__stem">Quel type de NAT est utilisé pour exposer un serveur Web interne (port 80) sur l’IP publique du WAN ?</p>
       <div class="opts">
         <button class="opt">Outbound NAT (SNAT)</button>
-        <button class="opt" data-correct="1">Port Forwarding (DNAT)</button>
         <button class="opt">Carrier-Grade NAT (CGNAT)</button>
+        <button class="opt" data-correct="1">Port Forwarding (DNAT)</button>
         <button class="opt">NAT Traversal</button>
       </div>
       <div class="q__exp">Le Port Forwarding (Destination NAT) redirige les requêtes externes vers l’adresse IP privée et le port interne du serveur hébergé.</div>
@@ -380,19 +380,19 @@ GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi une règle de filtrage WAN est-elle nécessaire lors de la création d’une redirection de port (DNAT) ?</p>
       <div class="opts">
-        <button class="opt">Pour chiffrer les données avec TLS</button>
+        <button class="opt">Pour chiffrer les données transférées avec TLS entre le client externe et le serveur interne</button>
+        <button class="opt">Pour empêcher le serveur DHCP interne d’écraser l’adresse IP statique du serveur publié</button>
+        <button class="opt">Elle n’est jamais requise, pfSense autorise automatiquement tout flux ayant fait l’objet d’une traduction NAT</button>
         <button class="opt" data-correct="1">Car le NAT réécrit uniquement les en-têtes IP ; le paquet doit obligatoirement être autorisé à franchir le pare-feu</button>
-        <button class="opt">Pour empêcher le serveur DHCP d’écraser l’IP du serveur</button>
-        <button class="opt">Elle n’est jamais requise dans pfSense</button>
       </div>
       <div class="q__exp">Le NAT modifie les adresses mais n’autorise pas le passage : le moteur de filtrage exige une règle explicite autorisant le trafic vers l’hôte interne.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel mode d’Outbound NAT est officiellement recommandé en environnement de production sous pfSense ?</p>
       <div class="opts">
-        <button class="opt">Désactivé (Disabled)</button>
-        <button class="opt">Automatique (Automatic Outbound NAT)</button>
         <button class="opt" data-correct="1">Hybride (Hybrid Outbound NAT rule generation)</button>
+        <button class="opt">Automatique (Automatic Outbound NAT)</button>
+        <button class="opt">Désactivé (Disabled)</button>
         <button class="opt">Proxy ARP obligatoire</button>
       </div>
       <div class="q__exp">Le mode Hybride conserve la génération automatique pour les réseaux standards tout en autorisant l’ajout de règles manuelles prioritaires.</div>
@@ -400,10 +400,10 @@ GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
     <div class="q">
       <p class="q__stem">Quel type d’adresse IP Virtuelle (VIP) est utilisé lorsqu’un bloc public doit être partagé entre deux nœuds en cluster haute disponibilité ?</p>
       <div class="opts">
-        <button class="opt">IP Alias simple</button>
+        <button class="opt">IP Alias, adresse secondaire sans MAC virtuelle</button>
         <button class="opt" data-correct="1">CARP (Common Address Redundancy Protocol)</button>
-        <button class="opt">Proxy ARP</button>
-        <button class="opt">Other</button>
+        <button class="opt">Proxy ARP, réponse ARP procurée par le pare-feu</button>
+        <button class="opt">Other, type générique sans protocole d’annonce</button>
       </div>
       <div class="q__exp">Les VIPs de type CARP disposent d’une adresse MAC virtuelle et synchronisent l’état actif/passif entre deux pare-feux redondants.</div>
     </div>
@@ -420,8 +420,8 @@ GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
     <div class="q">
       <p class="q__stem">Quel démon système sous pfSense est responsable de mesurer la latence et les pertes de paquets sur les passerelles WAN ?</p>
       <div class="opts">
-        <button class="opt">pingd</button>
         <button class="opt" data-correct="1">dpinger</button>
+        <button class="opt">pingd</button>
         <button class="opt">fping</button>
         <button class="opt">netstat</button>
       </div>
@@ -430,20 +430,20 @@ GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
     <div class="q">
       <p class="q__stem">Qu’est-ce que le NAT Reflection ?</p>
       <div class="opts">
-        <button class="opt">Une attaque par réflexion DNS sur le port 53</button>
+        <button class="opt">Une attaque par réflexion DNS amplifiée utilisant le port 53 comme vecteur d’envoi de réponses falsifiées</button>
+        <button class="opt">Une sauvegarde miroir de la configuration pf.conf répliquée automatiquement sur le nœud secondaire</button>
+        <button class="opt">Un protocole de routage dynamique semblable à BGP pour annoncer les préfixes publics</button>
         <button class="opt" data-correct="1">Un mécanisme permettant à un client interne d’accéder à un serveur local via son adresse IP publique externe</button>
-        <button class="opt">Une sauvegarde miroir de la configuration pf.conf</button>
-        <button class="opt">Un protocole de routage dynamique semblable à BGP</button>
       </div>
       <div class="q__exp">Le NAT Reflection permet aux postes internes de joindre les serveurs locaux en utilisant le nom de domaine externe pointant vers l’IP WAN publique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi doit-on exclure le trafic inter-VLANs local avant d’appliquer une règle de Policy-Based Routing (PBR) vers un Gateway Group ?</p>
       <div class="opts">
-        <button class="opt">Pour éviter la saturation de la table ARP</button>
+        <button class="opt">Pour éviter la saturation de la table ARP du pare-feu lorsque le nombre d’hôtes actifs augmente</button>
+        <button class="opt">Parce que le routeur FreeBSD ne sait pas router les trames 802.1Q entre interfaces VLAN</button>
         <button class="opt" data-correct="1">Pour que les flux à destination d’autres sous-réseaux internes ne soient pas envoyés par erreur vers Internet</button>
-        <button class="opt">Parce que le routeur FreeBSD ne supporte pas les VLANs</button>
-        <button class="opt">Pour économiser des adresses DHCP</button>
+        <button class="opt">Pour économiser des adresses DHCP réservées aux passerelles des sous-réseaux internes</button>
       </div>
       <div class="q__exp">Si la règle de PBR envoie tout le trafic vers la passerelle WAN par défaut, les paquets locaux destinés à une autre interface interne sortiront vers le FAI et seront perdus.</div>
     </div>
@@ -569,7 +569,7 @@ GW_STATUS name=WAN_4G tier=2 state=ONLINE</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

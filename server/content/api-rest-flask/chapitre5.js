@@ -75,18 +75,55 @@ module.exports = {
         '<p><strong>2. Le client de test automatisé Flask :</strong></p>',
         '<pre><code>def test_creation_article():\n    client = app.test_client()\n    reponse = client.post("/api/v1/articles", json={"titre": "Test", "prix": 10})\n    assert reponse.status_code == 201\n    assert reponse.get_json()["titre"] == "Test"</code></pre>'
       ].join('\n')
+    },
+    {
+      title: 'Implémentation complète : Whitelisting, validation 400/422, @app.errorhandler et suite test_client()',
+      html: [
+        '<p>Assemblons la validation stricte des entrées, la protection contre le <em>Mass Assignment</em> et les gestionnaires ' +
+        'globaux <code>@app.errorhandler</code> avec une suite complète de tests <code>app.test_client()</code> :</p>',
+        '<pre><code class="language-python">from flask import Flask, request, jsonify, abort\n' +
+        'from werkzeug.exceptions import HTTPException\n\n' +
+        'app = Flask(__name__)\n' +
+        'CHAMPS_AUTORISES = {"nom", "email", "age"}\n' +
+        'COMPTES = {}\n\n' +
+        '@app.errorhandler(HTTPException)\n' +
+        'def gerer_exception_http(err):\n' +
+        '    return jsonify({"code": err.code, "error": err.name, "message": err.description}), err.code\n\n' +
+        '@app.route("/api/v1/comptes", methods=["POST"])\n' +
+        'def inscrire_compte():\n' +
+        '    brut = request.get_json(silent=True)\n' +
+        '    if not isinstance(brut, dict):\n' +
+        '        abort(400, description="Le corps de la requête doit être un objet JSON valide.")\n' +
+        '    # Filtrage Whitelisting anti-Mass Assignment (ignore is_admin, role, etc.)\n' +
+        '    propre = {k: brut[k] for k in CHAMPS_AUTORISES if k in brut}\n' +
+        '    if "nom" not in propre or "email" not in propre:\n' +
+        '        abort(422, description="Les attributs nom et email sont obligatoires.")\n' +
+        '    if not isinstance(propre.get("age", 18), int) or propre.get("age", 18) < 0:\n' +
+        '        abort(422, description="L’âge doit être un entier positif.")\n' +
+        '    cid = len(COMPTES) + 1\n' +
+        '    COMPTES[cid] = {"id": cid, **propre, "is_admin": False}\n' +
+        '    return jsonify(COMPTES[cid]), 201\n\n' +
+        'def executer_tests_validation():\n' +
+        '    client = app.test_client()\n' +
+        '    # Tentative de Mass Assignment avec is_admin=True\n' +
+        '    r1 = client.post("/api/v1/comptes", json={"nom": "Ines", "email": "ines@ecole.fr", "is_admin": True})\n' +
+        '    assert r1.status_code == 201 and r1.get_json()["is_admin"] is False\n' +
+        '    # Payload incomplet -> 422 Unprocessable Entity\n' +
+        '    r2 = client.post("/api/v1/comptes", json={"nom": "Ines"})\n' +
+        '    assert r2.status_code == 422</code></pre>'
+      ].join('\n')
     }
   ],
 
   questions: [
-    { stem: 'Quel code de statut doit être renvoyé si un champ obligatoire est absent du corps ?', opts: ['400 Bad Request', '404 Not Found', '500 Server Error'], correct: 0, exp: '400 Bad Request signale que la charge utile soumise par le client est incomplète ou malformée.' },
-    { stem: 'À quoi sert la fonction abort() dans Flask ?', opts: ['À interrompre immédiatement la requête et déclencher un code d’erreur HTTP', 'À fermer le serveur Flask', 'À réinitialiser la base de données'], correct: 0, exp: 'abort() lève une exception HTTPException interrompant instantanément la vue courante.' },
-    { stem: 'Quel décorateur intercepte globalement une erreur pour formater sa réponse ?', opts: ['@app.errorhandler()', '@app.catch()', '@app.interceptor()'], correct: 0, exp: '@app.errorhandler(code) enregistre un gestionnaire d’erreur global pour le code spécifié.' },
-    { stem: 'Qu’est-ce que la vulnérabilité de Mass Assignment ?', opts: ['L’injection d’attributs sensibles non autorisés dans le payload par le client', 'Le blocage du serveur par trop de requêtes simultanées', 'Le vol du mot de passe administrateur par force brute'], correct: 0, exp: 'Le Mass Assignment survient lorsqu’une application persiste sans filtre les données d’un objet JSON.' },
-    { stem: 'Quelle option de cURL permet d’afficher les en-têtes HTTP de la réponse ?', opts: ['-i (ou --include)', '-v uniquement', '-s'], correct: 0, exp: 'L’option -i affiche la ligne de statut et les en-têtes de réponse avant le corps.' },
+    { stem: 'Quel code de statut doit être renvoyé si un champ obligatoire est absent du corps ?', opts: ['404 Not Found', '400 Bad Request', '500 Server Error'], correct: 1, exp: '400 Bad Request signale que la charge utile soumise par le client est incomplète ou malformée.' },
+    { stem: 'À quoi sert la fonction abort() dans Flask ?', opts: ["À interrompre immédiatement la requête et déclencher un code d’erreur HTTP","À arrêter complètement le serveur de développement Flask","À réinitialiser la base de données entre deux requêtes"], correct: 0, exp: "abort() lève une HTTPException qui interrompt la vue courante ; le serveur tourne toujours et la base reste intacte." },
+    { stem: 'Quel décorateur intercepte globalement une erreur pour formater sa réponse ?', opts: ['@app.interceptor()', '@app.catch()', '@app.errorhandler()'], correct: 2, exp: '@app.errorhandler(code) enregistre un gestionnaire d’erreur global pour le code spécifié.' },
+    { stem: 'Qu’est-ce que la vulnérabilité de Mass Assignment ?', opts: ['Le blocage du serveur par trop de requêtes simultanées', 'L’injection d’attributs sensibles non autorisés dans le payload par le client', 'Le vol du mot de passe administrateur par force brute'], correct: 1, exp: 'Le Mass Assignment survient lorsqu’une application persiste sans filtre les données d’un objet JSON.' },
+    { stem: 'Quelle option de cURL permet d’afficher les en-têtes HTTP de la réponse ?', opts: ['-v uniquement', '-i (ou --include)', '-s'], correct: 1, exp: 'L’option -i affiche la ligne de statut et les en-têtes de réponse avant le corps.' },
     { stem: 'Comment instancie-t-on un client de test unitaire dans Flask ?', opts: ['app.test_client()', 'Flask.create_tester()', 'app.mock_client()'], correct: 0, exp: 'app.test_client() permet de simuler des requêtes HTTP sans démarrer de serveur réel.' },
-    { stem: 'Comment passer un payload JSON avec le test_client de Flask ?', opts: ['client.post("/route", json={...})', 'client.post("/route", data_json=...)', 'client.send_raw(...)'], correct: 0, exp: 'Le paramètre json={...} sérialise automatiquement l’objet et positionne le Content-Type.' },
-    { stem: 'Que contient l’attribut description d’une exception levée par abort(404, description="...") ?', opts: ['Le message personnalisé d’explication', 'La pile d’appels Python complète', 'L’adresse IP du client'], correct: 0, exp: 'description transporte le message explicatif passé lors de l’appel à abort().' }
+    { stem: 'Comment passer un payload JSON avec le test_client de Flask ?', opts: ['client.send_raw(...)', 'client.post("/route", data_json=...)', 'client.post("/route", json={...})'], correct: 2, exp: 'Le paramètre json={...} sérialise automatiquement l’objet et positionne le Content-Type.' },
+    { stem: 'Que contient l’attribut description d’une exception levée par abort(404, description="...") ?', opts: ['L’adresse IP du client', 'La pile d’appels Python complète', 'Le message personnalisé d’explication'], correct: 2, exp: 'description transporte le message explicatif passé lors de l’appel à abort().' }
   ],
 
   pitfalls: [

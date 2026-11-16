@@ -15,7 +15,7 @@ module.exports = [
     language: 'java',
     title: 'Somme de deux entiers',
     goal: 'Lire deux entiers et afficher leur somme : premier programme Java complet.',
-    brief: '<p>Le programme reçoit deux entiers, un par ligne. Lisez-les avec un <code>Scanner</code> et ' +
+    brief: '<p>Dans un utilitaire CLI Java (point d’entrée <code>public static void main(String[] args)</code> et flux typé <code>java.util.Scanner</code>), le programme reçoit deux entiers représentant deux lots d’inventaire, un par ligne. Lisez-les avec un <code>Scanner</code> et ' +
       'affichez <code>somme : X</code> où <code>X</code> est leur somme.</p>',
     starter: `import java.util.Scanner;
 
@@ -30,8 +30,9 @@ public class Main {
 }
 `,
     hints: [
-      'La somme s’écrit simplement a + b ; System.out.println affiche une ligne.',
-      'Pour mélanger texte et valeur, concatène : "somme : " + (a + b).'
+      "La somme s’écrit simplement a + b ; System.out.println affiche une ligne.",
+      "Pour mélanger texte et valeur, concatène : \"somme : \" + (a + b).",
+      "Étapes : lire a puis b ; calculer a + b ; afficher « somme : » suivi du total."
     ],
     examples: [
       { stdin: '3\n4', expected: 'somme : 7', note: 'Trois plus quatre.' }
@@ -51,7 +52,8 @@ public class Main {
         System.out.println("somme : " + (a + b));
     }
 }
-`
+`,
+    takeaway: "Un programme Java démarre par public static void main(String[] args) dans une classe homonyme du fichier."
   },
   {
     id: 'java2-c1-e2',
@@ -79,8 +81,9 @@ public class Main {
 }
 `,
     hints: [
-      'Une boucle for de 0 à n lit chaque valeur avec sc.nextInt() et l’ajoute à somme.',
-      'Pour forcer le point décimal, formate avec String.format(Locale.US, "%.2f", moyenne).'
+      "Une boucle for de 0 à n lit chaque valeur avec sc.nextInt() et l’ajoute à somme.",
+      "Pour forcer le point décimal, formate avec String.format(Locale.US, \"%.2f\", moyenne).",
+      "Étapes : lire n ; additionner les n valeurs ; diviser la somme par n ; formater à deux décimales avec un point décimal."
     ],
     examples: [
       { stdin: '4\n1\n2\n3\n4', expected: 'moyenne : 2.50', note: 'Somme 10 sur 4 valeurs.' }
@@ -105,7 +108,8 @@ public class Main {
         System.out.println("moyenne : " + String.format(Locale.US, "%.2f", moyenne));
     }
 }
-`
+`,
+    takeaway: "Scanner ou BufferedReader lisent les flux d entrée, puis String.format ou printf fixe précisément l affichage décimal."
   },
   {
     id: 'java2-c1-e3',
@@ -130,8 +134,9 @@ public class Main {
 }
 `,
     hints: [
-      'Utilisez des littéraux décimaux (9.0 / 5.0) pour éviter la division entière.',
-      'Formate avec String.format(Locale.US, "%.1f", fahrenheit).'
+      "Utilisez des littéraux décimaux (9.0 / 5.0) pour éviter la division entière.",
+      "Formate avec String.format(Locale.US, \"%.1f\", fahrenheit).",
+      "Étapes : lire la température ; appliquer c × 9,0 / 5,0 + 32,0 ; afficher à une décimale (0 donne 32,0)."
     ],
     examples: [
       { stdin: '25', expected: '77.0', note: '25 °C font 77 °F.' }
@@ -152,6 +157,7 @@ public class Main {
         System.out.println(String.format(Locale.US, "%.1f", fahrenheit));
     }
 }
-`
+`,
+    takeaway: "Attention en Java : 9 / 5 vaut 1 (division entière), écrivez 9.0 / 5.0 avec double pour conserver la partie fractionnaire."
   }
 ];

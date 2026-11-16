@@ -14,7 +14,7 @@ module.exports = [
     language: 'powershell',
     title: 'Nœuds encore actifs',
     goal: 'Calculer la capacité restante après une panne et décider si le service tient.',
-    brief: '<p>Le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds ' +
+    brief: '<p>En supervision d’un cluster Windows Server (métriques issues de <code>Get-ClusterNode</code>), le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds ' +
       '<strong>en panne</strong>. Affichez d’abord <code>actifs : X</code> (nœuds restants), puis ' +
       '<code>service : maintenu</code> s’il reste au moins un nœud, sinon ' +
       '<code>service : interrompu</code>.</p>',
@@ -27,8 +27,9 @@ $actifs = $total - $enPanne
 # ou "service : interrompu" selon le nombre de nœuds restants.
 `,
     hints: [
-      'Le nombre de nœuds restants vaut `$total - $enPanne`.',
-      'Affichez sur deux lignes : Write-Output "actifs : $actifs" puis la ligne d’état.'
+      "Le nombre de nœuds restants vaut `$total - $enPanne`.",
+      "Affichez sur deux lignes : Write-Output \"actifs : $actifs\" puis la ligne d’état.",
+      "Étapes : actifs = total − enPanne ; afficher « actifs : » ; si actifs ≥ 1, « service : maintenu », sinon « service : interrompu »."
     ],
     examples: [
       { stdin: '3\n1', expected: 'actifs : 2\nservice : maintenu', note: 'Trois nœuds, un en panne.' }
@@ -48,7 +49,8 @@ if ($actifs -ge 1) {
 } else {
     Write-Output "service : interrompu"
 }
-`
+`,
+    takeaway: "La perte d un nœud oblige à recalculer la capacité résiduelle N-1 afin de vérifier que le SLA reste tenu."
   },
   {
     id: 'ws2-c2-e2',
@@ -68,8 +70,9 @@ $requetes = [int][Console]::In.ReadLine()
 # "charge : X req/s".
 `,
     hints: [
-      'La division entière s’obtient avec `[math]::Floor($requetes / $serveurs)`.',
-      'Enveloppez le résultat dans [int] pour obtenir un entier propre.'
+      "La division entière s’obtient avec `[math]::Floor($requetes / $serveurs)`.",
+      "Enveloppez le résultat dans [int] pour obtenir un entier propre.",
+      "Étapes : lire serveurs puis requêtes ; charge = partie entière du quotient ; afficher « charge : » suivi de la valeur et de « req/s »."
     ],
     examples: [
       { stdin: '3\n1200', expected: 'charge : 400 req/s', note: '1200 requêtes sur 3 serveurs.' }
@@ -85,7 +88,8 @@ $requetes = [int][Console]::In.ReadLine()
 
 $charge = [int]([math]::Floor($requetes / $serveurs))
 Write-Output ("charge : " + $charge + " req/s")
-`
+`,
+    takeaway: "Répartir les requêtes par quotient entier donne la charge minimale équitable avant d absorber le reliquat."
   },
   {
     id: 'ws2-c2-e3',
@@ -108,8 +112,9 @@ for ($i = 0; $i -lt $n; $i++) {
 # À compléter : afficher "critiques : X" puis l'état "alerte" ou "normal".
 `,
     hints: [
-      'La comparaison de chaînes utilise -eq : ($sev -eq "critique").',
-      'Affichez `$critiques` puis testez `($critiques -gt 0)` pour choisir l’état.'
+      "La comparaison de chaînes utilise -eq : ($sev -eq \"critique\").",
+      "Affichez `$critiques` puis testez `($critiques -gt 0)` pour choisir l’état.",
+      "Étapes : lire n ; compter les lignes « critique » ; afficher « critiques : » ; compteur positif → « etat : alerte », sinon « etat : normal »."
     ],
     examples: [
       { stdin: '3\ninfo\ncritique\nwarning', expected: 'critiques : 1\netat : alerte', note: 'Un seul événement critique.' }
@@ -133,6 +138,7 @@ if ($critiques -gt 0) {
 } else {
     Write-Output "etat : normal"
 }
-`
+`,
+    takeaway: "Corréler les événements Windows selon leur niveau critique permet de prioriser les alertes nécessitant une action immédiate."
   }
 ];

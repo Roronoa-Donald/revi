@@ -156,8 +156,8 @@ module.exports = {
   questions: [
     {
       stem: 'Quel est l\'avantage principal de Filebeat par rapport à Logstash pour la collecte de journaux sur les serveurs applicatifs ?',
-      opts: ['Filebeat est une application Java lourde', 'Filebeat est un binaire autonome léger écrit en Go qui consomme très peu de CPU et de mémoire RAM', 'Filebeat remplace la base Elasticsearch', 'Filebeat ne fonctionne que sous Windows'],
-      correct: 1,
+      opts: ["Filebeat est une application Java lourde et très gourmande en ressources système","Filebeat remplace intégralement la base de données Elasticsearch du cluster","Filebeat est un binaire autonome léger écrit en Go qui consomme très peu de CPU et de mémoire RAM","Filebeat ne fonctionne que sur les systèmes d'exploitation Windows de Microsoft"],
+      correct: 2,
       exp: 'Filebeat a été spécialement conçu pour être un expéditeur ultra-léger (Go) qui n\'impacte pas les performances des serveurs hébergeant les applications métiers.'
     },
     {
@@ -168,38 +168,38 @@ module.exports = {
     },
     {
       stem: 'Dans la terminologie Logstash, que désigne un filtre « grok » ?',
-      opts: ['Un protocole de routage réseau', 'Une bibliothèque de motifs d\'expressions régulières nommées permettant de découper du texte brut en champs JSON structurés', 'Un algorithme de chiffrement asymétrique', 'Un outil de compression zip'],
-      correct: 1,
+      opts: ["Une bibliothèque de motifs d'expressions régulières nommées permettant de découper du texte brut en champs JSON structurés","Un protocole de routage réseau dynamique réservé aux échanges entre équipements supervisés","Un algorithme de chiffrement asymétrique utilisé pour sécuriser les flux de journaux","Un outil de compression zip destiné à réduire la taille des journaux avant leur archivage final"],
+      correct: 0,
       exp: 'Grok permet d\'associer des motifs regex réutilisables (ex: %{IP:client_ip}) pour transformer facilement des lignes de logs brutes en documents JSON.'
     },
     {
       stem: 'Si un cluster de logs fonctionnant habituellement à 500 EPS subit une chute brutale à 10 EPS sur un service critique, comment qualifie-t-on cette anomalie ?',
-      opts: ['Log Flood', 'Log Drop', 'Normal Drift', 'Capacity Spike'],
-      correct: 1,
+      opts: ['Log Flood', 'Capacity Spike', 'Normal Drift', 'Log Drop'],
+      correct: 3,
       exp: 'Une chute massive de débit sous la baseline normale est un Log Drop, indiquant fréquemment un arrêt inopiné du service émetteur ou une rupture de connectivité.'
     },
     {
       stem: 'Quel port TCP Kibana utilise-t-il par défaut pour son interface web d\'administration et de tableaux de bord ?',
-      opts: ['Port 9200', 'Port 5601', 'Port 3000', 'Port 8080'],
-      correct: 1,
+      opts: ['Port 9200', 'Port 3000', 'Port 5601', 'Port 8080'],
+      correct: 2,
       exp: 'Kibana est accessible sur le port 5601/TCP par défaut.'
     },
     {
       stem: 'Que signifie le concept de « backpressure » implémenté dans Filebeat ?',
-      opts: ['L\'arrêt complet du serveur Linux', 'La capacité de l\'agent à ralentir la lecture des logs si le collecteur Logstash ou Elasticsearch est saturé, évitant ainsi tout débordement mémoire', 'Le chiffrement des disques durs', 'L\'inversion des flux réseau'],
+      opts: ["L'arrêt complet et automatique du serveur Linux concerné par la collecte, déclenché afin de prévenir tout débordement mémoire","La capacité de l'agent à ralentir la lecture des logs si le collecteur Logstash ou Elasticsearch est saturé, évitant ainsi tout débordement mémoire","Le chiffrement systématique et intégral des disques durs hébergeant l'ensemble des journaux collectés par l'agent léger","L'inversion temporaire du sens de circulation des flux réseau entre le collecteur central et les agents distants de la flotte"],
       correct: 1,
       exp: 'Le contrôle de contre-pression permet à Filebeat d\'adapter son rythme d\'émission à la capacité d\'ingestion en aval sans perdre d\'événements.'
     },
     {
       stem: 'Pourquoi est-il nécessaire d\'utiliser un schéma commun comme l\'ECS (Elastic Common Schema) lors de l\'ingestion de logs provenant de sources hétérogènes ?',
-      opts: ['Pour rendre les logs illisibles aux attaquants', 'Pour standardiser les noms de champs (ex: client_ip vs src_ip) et permettre des corrélations transversales dans le SIEM', 'Pour économiser les adresses IPv4', 'Pour désactiver le pare-feu'],
-      correct: 1,
+      opts: ["Pour standardiser les noms de champs (ex: client_ip vs src_ip) et permettre des corrélations transversales dans le SIEM","Pour rendre les journaux volontairement illisibles aux attaquants éventuels du système d'information","Pour économiser les adresses IPv4 de l'entreprise lors des phases d'ingestion des journaux","Pour désactiver temporairement le pare-feu pendant les phases d'ingestion massive de journaux"],
+      correct: 0,
       exp: 'Si chaque équipement nomme différemment l\'adresse IP source (src_ip, client, host_ip, remote_addr), il est impossible d\'exécuter une requête corrélée unique.'
     },
     {
       stem: 'Dans un SIEM, quel critère permet de relier chronologiquement une attaque par injection SQL sur un serveur web à une création suspecte de compte administrateur sur une machine Linux ?',
-      opts: ['Le numéro de série de l\'ordinateur', 'L\'adresse IP source commune et l\'horodatage précis sur une fenêtre temporelle courte', 'Le nom du système d\'exploitation', 'La taille du fichier de log'],
-      correct: 1,
+      opts: ["L'adresse IP source commune et l'horodatage précis sur une fenêtre temporelle courte","Le numéro de série du fabricant de l'ordinateur ayant généré l'événement","Le nom exact du système d'exploitation installé sur la machine","La taille totale du fichier de journal analysé par la sonde du SIEM"],
+      correct: 0,
       exp: 'La corrélation spatio-temporelle repose sur des identifiants partagés (adresse IP, trace_id, identifiant utilisateur) et une synchronisation d\'horloge rigoureuse (NTP).'
     }
   ],

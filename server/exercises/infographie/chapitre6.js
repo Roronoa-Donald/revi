@@ -4,118 +4,157 @@ module.exports = [
   {
     "id": "ig2-c6-e1",
     "chapter": 6,
-    "title": "Calculateur de compression de textures GPU et bande passante",
     "level": "n1",
     "language": "analyse",
-    "goal": "Calculer l’empreinte mémoire d’une texture compressée sur GPU (BC1, BC3, BC7, ASTC) et le débit bande passante requis à 60 FPS.",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br>\nBits par pixel (bpp) selon le format :<br>\n- <code>RGBA8</code> : 32 bpp (4 octets / pixel)<br>\n- <code>BC1</code> : 4 bpp (0.5 octet / pixel)<br>\n- <code>BC3</code> : 8 bpp (1.0 octet / pixel)<br>\n- <code>BC7</code> : 8 bpp (1.0 octet / pixel)<br>\n- <code>ASTC_4x4</code> : 8 bpp (1.0 octet / pixel)<br>\n- <code>ASTC_8x8</code> : 2 bpp (0.25 octet / pixel)<br>\nFormules :<br>\n1. <code>taille_octets = L * H * (bpp / 8)</code><br>\n2. <code>taille_Ko = taille_octets / 1024</code><br>\n3. <code>ratio_compression = 32.0 / bpp</code> (par rapport à RGBA8 non compressé)<br>\n4. <code>debit_Mo_s = (taille_octets * 60) / (1024 * 1024)</code> (à 60 images/seconde).<br>\nAfficher pour chaque ligne :<br>\n<code>TEXTURE: &lt;nom&gt; (&lt;L&gt;x&lt;H&gt;) | FORMAT: &lt;FORMAT&gt; (&lt;bpp&gt; bpp) | TAILLE: &lt;taille_Ko:.1f&gt; Ko | RATIO: &lt;ratio:.1f&gt;x | DEBIT_60FPS: &lt;debit:.2f&gt; Mo/s</code></p>",
-    "starter": "# Grille d'analyse (ig2-c6-e1) — Calculateur de compression de textures GPU et bande passante\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Compression agressive ASTC 8x8 pour mobile]\n# Données : TEXTURE nom=decor_arriere L=1024 H=1024 FORMAT=ASTC_8x8\nA_COMPLETER\n\n[Cas 2 — Texture 4K en BC3 avec canal alpha]\n# Données : TEXTURE nom=feuillage_arbres L=4096 H=4096 FORMAT=BC3\nA_COMPLETER\n\n[Cas 3 — ASTC 4x4 standard qualité]\n# Données : TEXTURE nom=personnage_peau L=512 H=512 FORMAT=ASTC_4x4\nA_COMPLETER\n",
+    "title": "Le budget VRAM du jeu Ruines",
+    "exampleTitle": "Exemple résolu — le budget de la texture du héros",
+    "goal": "Calculer l'empreinte mémoire d'une texture en VRAM selon le format de compression GPU (RGBA8, BC1, BC3).",
+    "brief": "<p><strong>Énoncé.</strong> Le studio optimise le jeu mobile <strong>Ruines</strong>. La texture principale du décor mesure <strong>2048 × 2048 pixels</strong>. Décompressée en RGBA8, une texture occupe 4 octets par pixel ; les formats de compression GPU restent compressés en VRAM : <strong>BC1 pèse 4 bits par pixel (0,5 octet)</strong>, <strong>BC3 et BC7 pèsent 8 bits par pixel (1 octet)</strong>. Rappel : 1 Mo = 1024 × 1024 octets = 1 048 576 octets.</p><p>Répondez par le nombre seul (les questions 1, 2 et 4 en mégaoctets) ; la question 5 par deux mots.</p><ol><li>Quel est le poids en VRAM de la texture en RGBA8 non compressée, en mégaoctets ?</li><li>Quel est son poids une fois compressée en BC1, en mégaoctets ?</li><li>Quel est le rapport de réduction entre le RGBA8 et le BC1 ?</li><li>Le décor n'utilise pas de transparence, mais la texture du feuillage exigera un canal alpha : quel serait le poids en BC3 d'une texture identique, en mégaoctets ?</li><li>Quel type d'accès mémoire aux texels rend les formats en blocs indispensables en VRAM, là où JPEG et PNG échouent ?</li></ol>",
+    "starter": "# Exercice — Le budget VRAM du jeu Ruines\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : nombre seul (Mo pour 1, 2 et 4). Question 5 : deux mots.\n\n[Question 1 — Poids RGBA8 non compressé (en Mo)]\nA_COMPLETER\n\n[Question 2 — Poids en BC1 (en Mo)]\nA_COMPLETER\n\n[Question 3 — Rapport de réduction RGBA8 vers BC1]\nA_COMPLETER\n\n[Question 4 — Poids en BC3 (en Mo)]\nA_COMPLETER\n\n[Question 5 — Type d'accès mémoire exigé par le GPU]\nA_COMPLETER\n",
     "hints": [
-      "ASTC 8x8 offre un ratio de 16.0x (2 bpp) idéal pour les textures diffuses mobiles.",
-      "Veiller à arrondir taille_Ko à 1 décimale et debit_Mo_s à 2 décimales."
+      "Le poids VRAM se calcule comme un fichier brut : largeur × hauteur × octets par pixel.",
+      "Convertissez les bits par pixel en octets : 4 bits = 0,5 octet, 8 bits = 1 octet, 32 bits = 4 octets.",
+      "1. 2048 × 2048 × 4 = 16 Mo. 2. 2048 × 2048 × 0,5 = 2 Mo. 3. 16 / 2 = 8. 4. 2048 × 2048 × 1 = 4 Mo. 5. Le GPU doit lire un texel isolé sans décompresser tout le fichier : accès aléatoire."
     ],
     "examples": [
       {
-        "stdin": "TEXTURE nom=diffuse_sol L=2048 H=2048 FORMAT=BC1\nTEXTURE nom=normal_mur L=2048 H=2048 FORMAT=BC7\nTEXTURE nom=ui_hud L=1024 H=1024 FORMAT=RGBA8",
-        "expected": "TEXTURE: diffuse_sol (2048x2048) | FORMAT: BC1 (4 bpp) | TAILLE: 2048.0 Ko | RATIO: 8.0x | DEBIT_60FPS: 120.00 Mo/s\nTEXTURE: normal_mur (2048x2048) | FORMAT: BC7 (8 bpp) | TAILLE: 4096.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 240.00 Mo/s\nTEXTURE: ui_hud (1024x1024) | FORMAT: RGBA8 (32 bpp) | TAILLE: 4096.0 Ko | RATIO: 1.0x | DEBIT_60FPS: 240.00 Mo/s",
-        "note": "Une texture 2K en BC1 pèse 2 Mo au lieu de 16 Mo en RGBA8 non compressé."
+        "stdin": "La texture du héros du jeu Ruines mesure 1024 × 1024 pixels.\n\n1) RGBA8 : 1024 × 1024 × 4 = 4 194 304 octets, soit 4 Mo.\n2) BC1 : 1024 × 1024 × 0,5 = 524 288 octets, soit 0,5 Mo.\n3) Rapport de réduction : 4 / 0,5 = 8.\n4) BC3 : 1024 × 1024 × 1 = 1 Mo.\n5) Le GPU exige un accès aléatoire à chaque texel.",
+        "expected": "4 Mo en RGBA8 — 0,5 Mo en BC1 — rapport 8 — 1 Mo en BC3 — accès aléatoire",
+        "note": "Les formats en blocs découpent l'image en blocs de 4 × 4 pixels indépendants : le GPU calcule l'adresse d'un bloc en une addition, sans décompresser le fichier en entier."
       }
     ],
     "tests": [
       {
-        "label": "Compression agressive ASTC 8x8 pour mobile",
-        "stdin": "cas:1",
-        "expected": "TEXTURE: decor_arriere (1024x1024) | FORMAT: ASTC_8x8 (2 bpp) | TAILLE: 256.0 Ko | RATIO: 16.0x | DEBIT_60FPS: 15.00 Mo/s"
+        "label": "Question 1 — Poids RGBA8 non compressé (en Mo)",
+        "stdin": "q:1",
+        "expected": "16||16 Mo"
       },
       {
-        "label": "Texture 4K en BC3 avec canal alpha",
-        "stdin": "cas:2",
-        "expected": "TEXTURE: feuillage_arbres (4096x4096) | FORMAT: BC3 (8 bpp) | TAILLE: 16384.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 960.00 Mo/s"
+        "label": "Question 2 — Poids en BC1 (en Mo)",
+        "stdin": "q:2",
+        "expected": "2||2 Mo"
       },
       {
-        "label": "ASTC 4x4 standard qualité",
-        "stdin": "cas:3",
-        "expected": "TEXTURE: personnage_peau (512x512) | FORMAT: ASTC_4x4 (8 bpp) | TAILLE: 256.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 15.00 Mo/s"
+        "label": "Question 3 — Rapport de réduction RGBA8 vers BC1",
+        "stdin": "q:3",
+        "expected": "8||x8||8 fois"
+      },
+      {
+        "label": "Question 4 — Poids en BC3 (en Mo)",
+        "stdin": "q:4",
+        "expected": "4||4 Mo"
+      },
+      {
+        "label": "Question 5 — Type d'accès mémoire exigé par le GPU",
+        "stdin": "q:5",
+        "expected": "accès aléatoire||acces aleatoire||l'accès aléatoire"
       }
     ],
-    "solution": "[Exemple]\nTEXTURE: diffuse_sol (2048x2048) | FORMAT: BC1 (4 bpp) | TAILLE: 2048.0 Ko | RATIO: 8.0x | DEBIT_60FPS: 120.00 Mo/s\nTEXTURE: normal_mur (2048x2048) | FORMAT: BC7 (8 bpp) | TAILLE: 4096.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 240.00 Mo/s\nTEXTURE: ui_hud (1024x1024) | FORMAT: RGBA8 (32 bpp) | TAILLE: 4096.0 Ko | RATIO: 1.0x | DEBIT_60FPS: 240.00 Mo/s\n\n[Cas 1 — Compression agressive ASTC 8x8 pour mobile]\nTEXTURE: decor_arriere (1024x1024) | FORMAT: ASTC_8x8 (2 bpp) | TAILLE: 256.0 Ko | RATIO: 16.0x | DEBIT_60FPS: 15.00 Mo/s\n\n[Cas 2 — Texture 4K en BC3 avec canal alpha]\nTEXTURE: feuillage_arbres (4096x4096) | FORMAT: BC3 (8 bpp) | TAILLE: 16384.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 960.00 Mo/s\n\n[Cas 3 — ASTC 4x4 standard qualité]\nTEXTURE: personnage_peau (512x512) | FORMAT: ASTC_4x4 (8 bpp) | TAILLE: 256.0 Ko | RATIO: 4.0x | DEBIT_60FPS: 15.00 Mo/s"
+    "solution": "[Question 1 — Poids RGBA8 non compressé (en Mo)]\n16\n\n[Question 2 — Poids en BC1 (en Mo)]\n2\n\n[Question 3 — Rapport de réduction RGBA8 vers BC1]\n8\n\n[Question 4 — Poids en BC3 (en Mo)]\n4\n\n[Question 5 — Type d'accès mémoire exigé par le GPU]\naccès aléatoire",
+    "takeaway": "1) RGBA8 : 2048 × 2048 = 4 194 304 pixels ; × 4 octets = 16 777 216 octets, soit exactement 16 Mo.\n2) BC1 : 4 194 304 × 0,5 octet = 2 097 152 octets, soit 2 Mo.\n3) Rapport : 16 / 2 = 8. BC1 divise le poids par huit par rapport au RGBA8.\n4) BC3 : 4 194 304 × 1 octet = 4 194 304 octets, soit 4 Mo (l'alpha graduel coûte un octet par pixel).\n5) Le GPU doit lire n'importe quel texel isolé instantanément : il exige un accès aléatoire, impossible avec la décompression séquentielle de JPEG ou PNG.\nContrôle : BC1 = 4 bits, un huitième des 32 bits du RGBA8 : le rapport 8 est structurel, quelle que soit la taille de la texture."
   },
   {
     "id": "ig2-c6-e2",
     "chapter": 6,
-    "title": "Optimiseur de Draw Calls et Static Batching",
     "level": "n2",
     "language": "analyse",
-    "goal": "Simuler le regroupement d’objets 3D partageant le même matériau pour réduire les appels de dessin (Draw Calls).",
-    "brief": "<p>Chaque changement de matériau impose une rupture de batch et un appel de dessin distinct sur le GPU.<br>\nAnalysez les données fournies pour chaque cas.<br>\nContrainte de batching : un batch supporte au maximum 65535 sommets (indexation 16 bits).<br>\nRègles :<br>\n1. Grouper les objets par matériau <code>mat_id</code> (par ordre alphabétique de <code>mat_id</code>).<br>\n2. Pour chaque matériau :<br>\n   - Calculer le nombre total d'objets <code>nb_obj</code> et le cumul des sommets <code>total_sommets</code>.<br>\n   - Le nombre de Draw Calls nécessaires est <code>ceil(total_sommets / 65535)</code> (ou 1 si total_sommets == 0).<br>\n   - Afficher : <code>MAT: &lt;mat_id&gt; -&gt; &lt;nb_obj&gt; objet(s), &lt;total_sommets&gt; sommets =&gt; &lt;nb_dc&gt; Draw Call(s)</code>.<br>\n3. En conclusion, afficher :<br>\n   - <code>dc_init = nombre total d'objets</code>.<br>\n   - <code>dc_opti = somme des Draw Calls de tous les matériaux</code>.<br>\n   - <code>gain = ((dc_init - dc_opti) / dc_init) * 100</code>.<br>\n   <code>BILAN: INITIAL = &lt;dc_init&gt; DC -&gt; OPTIMISE = &lt;dc_opti&gt; DC | GAIN: &lt;gain:.1f&gt;%</code></p>",
-    "starter": "# Grille d'analyse (ig2-c6-e2) — Optimiseur de Draw Calls et Static Batching\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Matériau dépassant le tampon 16 bits de 65535 sommets]\n# Données : OBJET id=montagne1 MAT=roche SOMMETS=40000\n# Données : OBJET id=montagne2 MAT=roche SOMMETS=35000\nA_COMPLETER\n\n[Cas 2 — Nombreux petits objets partageant deux matériaux]\n# Données : OBJET id=piece1 MAT=or SOMMETS=100\n# Données : OBJET id=piece2 MAT=or SOMMETS=100\n# Données : OBJET id=piece3 MAT=or SOMMETS=100\n# Données : OBJET id=piece4 MAT=or SOMMETS=100\n# Données : OBJET id=caisse1 MAT=bois SOMMETS=50\n# Données : OBJET id=caisse2 MAT=bois SOMMETS=50\nA_COMPLETER\n\n[Cas 3 — Aucun partage de matériau (gain nul)]\n# Données : OBJET id=obj1 MAT=m1 SOMMETS=10\n# Données : OBJET id=obj2 MAT=m2 SOMMETS=20\nA_COMPLETER\n",
+    "title": "Les draw calls du marché médiéval",
+    "exampleTitle": "Exemple résolu — les draw calls du verger",
+    "goal": "Simuler le static batching d'une scène par matériau avec un plafond de sommets par tampon, et chiffrer la réduction des draw calls.",
+    "brief": "<p><strong>Énoncé.</strong> La scène du marché médiéval du jeu « Fief » affiche <strong>240 objets statiques</strong> (étals, caisses, tonneaux, auvents) répartis en trois matériaux :</p><table><tr><th>Matériau</th><th>Objets</th><th>Sommets au total</th></tr><tr><th>Pierre</th><td>120</td><td>90 000</td></tr><tr><th>Bois</th><td>80</td><td>20 000</td></tr><tr><th>Toile</th><td>40</td><td>12 000</td></tr></table><p>Sans optimisation, chaque objet coûte un draw call. Le static batching fusionne dans un même tampon tous les objets d'un même matériau, dans la limite de <strong>65 535 sommets par tampon</strong> (au-delà, un tampon supplémentaire est créé pour le même matériau). Répondez par le nombre seul ; la question 5 par le nom du goulot d'étranglement.</p><ol><li>Combien de draw calls la scène coûte-t-elle sans batching ?</li><li>Combien de tampons le matériau Pierre remplit-il ?</li><li>Combien de draw calls après static batching complet de la scène ?</li><li>Quel est le pourcentage de réduction des draw calls (arrondi à l'unité) ?</li><li>Le goulot d'étranglement ainsi soulagé est-il de type CPU-bound ou GPU-bound ?</li></ol>",
+    "starter": "# Exercice — Les draw calls du marché médiéval\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : nombre seul. Question 5 : le nom du goulot.\n\n[Question 1 — Draw calls sans batching]\nA_COMPLETER\n\n[Question 2 — Tampons pour le matériau Pierre]\nA_COMPLETER\n\n[Question 3 — Draw calls après batching]\nA_COMPLETER\n\n[Question 4 — Pourcentage de réduction]\nA_COMPLETER\n\n[Question 5 — Goulot d'étranglement soulagé]\nA_COMPLETER\n",
     "hints": [
-      "Trier les matériaux par ordre alphabétique croissant.",
-      "Utiliser math.ceil pour calculer les lots de 65535 sommets."
+      "Sans optimisation, chaque objet indépendant part dans son propre appel de dessin.",
+      "Le nombre de tampons d'un matériau vaut ses sommets divisés par 65 535, arrondis à l'entier supérieur.",
+      "1. 240 objets = 240 appels. 2. 90 000 / 65 535 = 1,37, donc 2 tampons. 3. Bois et toile tiennent en un tampon chacun : 2 + 1 + 1 = 4 appels. 4. (240 − 4) / 240 = 98,3 %. 5. Les draw calls saturent le processeur : CPU-bound."
     ],
     "examples": [
       {
-        "stdin": "OBJET id=arbre_01 MAT=vegetation SOMMETS=1200\nOBJET id=arbre_02 MAT=vegetation SOMMETS=1200\nOBJET id=buisson MAT=vegetation SOMMETS=600\nOBJET id=rocher MAT=roche SOMMETS=3000\nOBJET id=route MAT=asphalte SOMMETS=450",
-        "expected": "MAT: asphalte -> 1 objet(s), 450 sommets => 1 Draw Call(s)\nMAT: roche -> 1 objet(s), 3000 sommets => 1 Draw Call(s)\nMAT: vegetation -> 3 objet(s), 3000 sommets => 1 Draw Call(s)\nBILAN: INITIAL = 5 DC -> OPTIMISE = 3 DC | GAIN: 40.0%",
-        "note": "Les 3 arbres et buissons ont été fusionnés en un seul Draw Call."
+        "stdin": "Le verger du jeu affiche 60 objets en trois matériaux : terre (30 000 sommets), feuillage (40 000), troncs (10 000).\n\n1) Sans batching : 60 draw calls.\n2) Chaque matériau tient sous 65 535 sommets : 1 tampon chacun.\n3) Après batching : 3 draw calls.\n4) Réduction : (60 − 3) / 60 = 95 %.\n5) Le goulot soulagé est CPU-bound.",
+        "expected": "60 draw calls — 1 tampon par matériau — 3 draw calls — 95 % de réduction — CPU-bound",
+        "note": "Chaque draw call coûte du temps processeur au pilote graphique : fusionner les maillages décharge le CPU, le GPU n'y voit aucune différence."
       }
     ],
     "tests": [
       {
-        "label": "Matériau dépassant le tampon 16 bits de 65535 sommets",
-        "stdin": "cas:1",
-        "expected": "MAT: roche -> 2 objet(s), 75000 sommets => 2 Draw Call(s)\nBILAN: INITIAL = 2 DC -> OPTIMISE = 2 DC | GAIN: 0.0%"
+        "label": "Question 1 — Draw calls sans batching",
+        "stdin": "q:1",
+        "expected": "240||240 draw calls"
       },
       {
-        "label": "Nombreux petits objets partageant deux matériaux",
-        "stdin": "cas:2",
-        "expected": "MAT: bois -> 2 objet(s), 100 sommets => 1 Draw Call(s)\nMAT: or -> 4 objet(s), 400 sommets => 1 Draw Call(s)\nBILAN: INITIAL = 6 DC -> OPTIMISE = 2 DC | GAIN: 66.7%"
+        "label": "Question 2 — Tampons pour le matériau Pierre",
+        "stdin": "q:2",
+        "expected": "2||deux||2 tampons"
       },
       {
-        "label": "Aucun partage de matériau (gain nul)",
-        "stdin": "cas:3",
-        "expected": "MAT: m1 -> 1 objet(s), 10 sommets => 1 Draw Call(s)\nMAT: m2 -> 1 objet(s), 20 sommets => 1 Draw Call(s)\nBILAN: INITIAL = 2 DC -> OPTIMISE = 2 DC | GAIN: 0.0%"
+        "label": "Question 3 — Draw calls après batching",
+        "stdin": "q:3",
+        "expected": "4||quatre||4 draw calls"
+      },
+      {
+        "label": "Question 4 — Pourcentage de réduction",
+        "stdin": "q:4",
+        "expected": "98||98 %||98%"
+      },
+      {
+        "label": "Question 5 — Goulot d'étranglement soulagé",
+        "stdin": "q:5",
+        "expected": "CPU-bound||CPU bound||cpu-bound||CPU"
       }
     ],
-    "solution": "[Exemple]\nMAT: asphalte -> 1 objet(s), 450 sommets => 1 Draw Call(s)\nMAT: roche -> 1 objet(s), 3000 sommets => 1 Draw Call(s)\nMAT: vegetation -> 3 objet(s), 3000 sommets => 1 Draw Call(s)\nBILAN: INITIAL = 5 DC -> OPTIMISE = 3 DC | GAIN: 40.0%\n\n[Cas 1 — Matériau dépassant le tampon 16 bits de 65535 sommets]\nMAT: roche -> 2 objet(s), 75000 sommets => 2 Draw Call(s)\nBILAN: INITIAL = 2 DC -> OPTIMISE = 2 DC | GAIN: 0.0%\n\n[Cas 2 — Nombreux petits objets partageant deux matériaux]\nMAT: bois -> 2 objet(s), 100 sommets => 1 Draw Call(s)\nMAT: or -> 4 objet(s), 400 sommets => 1 Draw Call(s)\nBILAN: INITIAL = 6 DC -> OPTIMISE = 2 DC | GAIN: 66.7%\n\n[Cas 3 — Aucun partage de matériau (gain nul)]\nMAT: m1 -> 1 objet(s), 10 sommets => 1 Draw Call(s)\nMAT: m2 -> 1 objet(s), 20 sommets => 1 Draw Call(s)\nBILAN: INITIAL = 2 DC -> OPTIMISE = 2 DC | GAIN: 0.0%"
+    "solution": "[Question 1 — Draw calls sans batching]\n240\n\n[Question 2 — Tampons pour le matériau Pierre]\n2\n\n[Question 3 — Draw calls après batching]\n4\n\n[Question 4 — Pourcentage de réduction]\n98\n\n[Question 5 — Goulot d'étranglement soulagé]\nCPU-bound",
+    "takeaway": "1) Sans batching, chaque objet coûte un appel : 240 draw calls.\n2) Pierre : 90 000 / 65 535 = 1,37, arrondi à l'entier supérieur : 2 tampons.\n3) Bois (20 000 sommets) et toile (12 000) tiennent chacun en un tampon : 2 + 1 + 1 = 4 draw calls.\n4) Réduction : (240 − 4) / 240 = 236 / 240 = 98,3 %, arrondi à 98 %.\n5) Les draw calls saturent le processeur et le pilote graphique : le goulot soulagé est CPU-bound.\nContrôle : 120 + 80 + 40 = 240 objets, tous fusionnés ; 90 000 + 20 000 + 12 000 = 122 000 sommets répartis en 4 tampons."
   },
   {
     "id": "ig2-c6-e3",
     "chapter": 6,
-    "title": "Audit de chaîne de Mipmaps et surcoût VRAM",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer l’ensemble des niveaux d’une chaîne de mipmaps jusqu’à 1x1 et déterminer la surconsommation mémoire VRAM exacte.",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br>\nAlgorithme de génération des niveaux :<br>\n- Niveau 0 : dimensions <code>(L, H)</code>.<br>\n- Niveau suivant <code>k + 1</code> : <code>max(1, L // 2)</code> et <code>max(1, H // 2)</code>.<br>\n- La chaîne s'arrête dès que le niveau atteint <code>(1, 1)</code> inclus.<br>\nPour chaque niveau : <code>octets = w * h * octets_px</code>.<br>\nCalculer :<br>\n1. Le nombre total de niveaux <code>N</code>.<br>\n2. La mémoire VRAM du niveau 0 seul (en Ko).<br>\n3. La mémoire VRAM totale cumulée de tous les niveaux (en Ko).<br>\n4. Le surcoût mémoire en pourcentage : <code>((total - niv0) / niv0) * 100</code>.<br>\nAfficher :<br>\n<code>MIPMAP: &lt;nom&gt; | &lt;N&gt; NIVEAUX (&lt;L&gt;x&lt;H&gt; -&gt; 1x1) | NIV0: &lt;vram_niv0_Ko:.2f&gt; Ko | TOTAL: &lt;vram_total_Ko:.2f&gt; Ko | SURCOUT: +&lt;surcout:.2f&gt;%</code></p>",
-    "starter": "# Grille d'analyse (ig2-c6-e3) — Audit de chaîne de Mipmaps et surcoût VRAM\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Grande texture 4K carrée]\n# Données : MIPMAP nom=terrain_4k L=4096 H=4096 OCTETS_PX=4\nA_COMPLETER\n\n[Cas 2 — Texture non carrée allongée 2048x128]\n# Données : MIPMAP nom=skybox_bande L=2048 H=128 OCTETS_PX=4\nA_COMPLETER\n\n[Cas 3 — Petite icône 16x16 1 octet par pixel]\n# Données : MIPMAP nom=icone L=16 H=16 OCTETS_PX=1\nA_COMPLETER\n",
+    "title": "La chaîne de mipmaps du terrain",
+    "exampleTitle": "Exemple résolu — la chaîne de mipmaps de la texture du ciel",
+    "goal": "Dérouler une chaîne de mipmaps jusqu'à 1 × 1 et chiffrer le surcoût mémoire exact grâce à la série géométrique de raison 1/4.",
+    "brief": "<p><strong>Énoncé.</strong> La texture du terrain de <strong>Ruines</strong> est une <strong>1024 × 1024</strong> compressée en <strong>BC3</strong> (1 octet par pixel). Le moteur génère la chaîne complète de mipmaps : chaque niveau divise largeur et hauteur par deux, jusqu'à 1 × 1. Rappels du cours : le niveau 0 est la texture elle-même ; le poids total de la chaîne vaut 4/3 du poids du niveau 0 (série géométrique 1 + 1/4 + 1/16 + ...) ; 1 Ko = 1024 octets, 1 Mo = 1024 × 1024 octets.</p><p>Répondez par le nombre seul ; la question 2 au format 256 x 256 ; la question 5 par le nom de l'artefact.</p><ol><li>Combien de niveaux compte la chaîne complète ?</li><li>Quelles sont les dimensions du niveau 2 (après deux divisions) ?</li><li>Quel est le poids du niveau 2, en kilooctets ?</li><li>Quel est le poids total de la chaîne complète, en mégaoctets arrondi à deux décimales ?</li><li>Quel artefact visuel la chaîne de mipmaps élimine-t-elle quand la texture est affichée de loin ?</li></ol>",
+    "starter": "# Exercice — La chaîne de mipmaps du terrain\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 2 : dimensions au format 256 x 256. Question 5 : le nom de l'artefact.\n\n[Question 1 — Nombre de niveaux de la chaîne]\nA_COMPLETER\n\n[Question 2 — Dimensions du niveau 2]\nA_COMPLETER\n\n[Question 3 — Poids du niveau 2 (en Ko)]\nA_COMPLETER\n\n[Question 4 — Poids total de la chaîne (en Mo)]\nA_COMPLETER\n\n[Question 5 — Artefact éliminé de loin]\nA_COMPLETER\n",
     "hints": [
-      "Pour une texture carrée, la somme de la série géométrique 1/4 + 1/16 + ... tend vers 1/3 (soit un surcoût d'environ +33.33%).",
-      "Pour une texture 512x512, il y a exactement 10 niveaux (512, 256, 128, 64, 32, 16, 8, 4, 2, 1)."
+      "Une texture carrée de côté 2^n engendre n + 1 niveaux, du niveau 0 jusqu'à 1 × 1.",
+      "Diviser les dimensions par deux divise la surface, donc le poids, par quatre.",
+      "1. 1024 = 2^10 : 11 niveaux. 2. 1024 / 4 = 256 : 256 × 256. 3. 256 × 256 × 1 octet = 65 536 octets = 64 Ko. 4. Niveau 0 = 1 Mo, chaîne = 1 × 4/3 = 1,33 Mo. 5. Sans mipmaps, les textures lointaines scintillent (aliasing)."
     ],
     "examples": [
       {
-        "stdin": "MIPMAP nom=brique L=512 H=512 OCTETS_PX=4\nMIPMAP nom=ruban L=1024 H=64 OCTETS_PX=4",
-        "expected": "MIPMAP: brique | 10 NIVEAUX (512x512 -> 1x1) | NIV0: 1024.00 Ko | TOTAL: 1365.33 Ko | SURCOUT: +33.33%\nMIPMAP: ruban | 11 NIVEAUX (1024x64 -> 1x1) | NIV0: 256.00 Ko | TOTAL: 341.37 Ko | SURCOUT: +33.35%",
-        "note": "Le surcoût classique d'une chaîne complète de mipmaps est d'environ 33.3%."
+        "stdin": "La texture du ciel de Ruines est une 512 × 512 en BC3 (1 octet par pixel).\n\n1) 512 = 2^9 : la chaîne compte 10 niveaux.\n2) Le niveau 2 mesure 128 × 128.\n3) Poids du niveau 2 : 128 × 128 = 16 384 octets, soit 16 Ko.\n4) Niveau 0 : 512 × 512 = 262 144 octets ; chaîne complète : 262 144 × 4/3 = 349 525 octets, soit 0,33 Mo.\n5) Les mipmaps éliminent le scintillement des textures vues de loin.",
+        "expected": "10 niveaux — niveau 2 en 128 × 128 et 16 Ko — chaîne totale 0,33 Mo — scintillement éliminé",
+        "note": "La série 1 + 1/4 + 1/16 + ... converge vers 4/3 : toute la chaîne de mipmaps ne coûte qu'un tiers de mémoire en plus, en échange de performances et de stabilité visuelle."
       }
     ],
     "tests": [
       {
-        "label": "Grande texture 4K carrée",
-        "stdin": "cas:1",
-        "expected": "MIPMAP: terrain_4k | 13 NIVEAUX (4096x4096 -> 1x1) | NIV0: 65536.00 Ko | TOTAL: 87381.33 Ko | SURCOUT: +33.33%"
+        "label": "Question 1 — Nombre de niveaux de la chaîne",
+        "stdin": "q:1",
+        "expected": "11||onze||11 niveaux"
       },
       {
-        "label": "Texture non carrée allongée 2048x128",
-        "stdin": "cas:2",
-        "expected": "MIPMAP: skybox_bande | 12 NIVEAUX (2048x128 -> 1x1) | NIV0: 1024.00 Ko | TOTAL: 1365.37 Ko | SURCOUT: +33.34%"
+        "label": "Question 2 — Dimensions du niveau 2",
+        "stdin": "q:2",
+        "expected": "256 x 256||256 × 256||256x256"
       },
       {
-        "label": "Petite icône 16x16 1 octet par pixel",
-        "stdin": "cas:3",
-        "expected": "MIPMAP: icone | 5 NIVEAUX (16x16 -> 1x1) | NIV0: 0.25 Ko | TOTAL: 0.33 Ko | SURCOUT: +33.20%"
+        "label": "Question 3 — Poids du niveau 2 (en Ko)",
+        "stdin": "q:3",
+        "expected": "64||64 Ko||64 ko"
+      },
+      {
+        "label": "Question 4 — Poids total de la chaîne (en Mo)",
+        "stdin": "q:4",
+        "expected": "1,33||1.33||1,33 Mo||1.33 Mo"
+      },
+      {
+        "label": "Question 5 — Artefact éliminé de loin",
+        "stdin": "q:5",
+        "expected": "le scintillement||scintillement||l'aliasing||aliasing||le moiré||moiré"
       }
     ],
-    "solution": "[Exemple]\nMIPMAP: brique | 10 NIVEAUX (512x512 -> 1x1) | NIV0: 1024.00 Ko | TOTAL: 1365.33 Ko | SURCOUT: +33.33%\nMIPMAP: ruban | 11 NIVEAUX (1024x64 -> 1x1) | NIV0: 256.00 Ko | TOTAL: 341.37 Ko | SURCOUT: +33.35%\n\n[Cas 1 — Grande texture 4K carrée]\nMIPMAP: terrain_4k | 13 NIVEAUX (4096x4096 -> 1x1) | NIV0: 65536.00 Ko | TOTAL: 87381.33 Ko | SURCOUT: +33.33%\n\n[Cas 2 — Texture non carrée allongée 2048x128]\nMIPMAP: skybox_bande | 12 NIVEAUX (2048x128 -> 1x1) | NIV0: 1024.00 Ko | TOTAL: 1365.37 Ko | SURCOUT: +33.34%\n\n[Cas 3 — Petite icône 16x16 1 octet par pixel]\nMIPMAP: icone | 5 NIVEAUX (16x16 -> 1x1) | NIV0: 0.25 Ko | TOTAL: 0.33 Ko | SURCOUT: +33.20%"
+    "solution": "[Question 1 — Nombre de niveaux de la chaîne]\n11\n\n[Question 2 — Dimensions du niveau 2]\n256 x 256\n\n[Question 3 — Poids du niveau 2 (en Ko)]\n64\n\n[Question 4 — Poids total de la chaîne (en Mo)]\n1,33\n\n[Question 5 — Artefact éliminé de loin]\nle scintillement",
+    "takeaway": "1) 1024 = 2^10 : la chaîne compte 11 niveaux, de 1024 × 1024 jusqu'à 1 × 1.\n2) Niveau 1 : 512 × 512 ; niveau 2 : 256 × 256.\n3) Poids du niveau 2 : 256 × 256 × 1 octet = 65 536 octets = 64 Ko.\n4) Niveau 0 : 1024 × 1024 = 1 048 576 octets = 1 Mo. Chaîne complète : 1 048 576 × 4/3 = 1 398 101 octets, soit 1,33 Mo.\n5) Sans mipmaps, les pixels lointains se disputent les mêmes texels et l'image scintille : la chaîne élimine ce scintillement (aliasing).\nContrôle : le surcoût vaut 1,33 − 1 = 0,33 Mo, soit le tiers du niveau 0, exactement ce qu'annonce la série géométrique."
   }
 ];

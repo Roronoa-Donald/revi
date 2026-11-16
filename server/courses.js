@@ -91,7 +91,7 @@ const COURSES = {
   'b1-python':          { name: 'Python',                                    level: 'b1', icon: 'code', theme: T('light', '#3776ab', '#60a5fa', '#2b5d8a') },
   'b1-sql':             { name: 'SQL',                                       level: 'b1', icon: 'database', theme: T('light', '#2563eb', '#60a5fa', '#1e40af') },
   'b1-stats':           { name: 'Statistique descriptive',                   level: 'b1', icon: 'chart', theme: T('light', '#047857', '#34d399', '#065f46') },
-  'b1-vb-excel':        { name: 'VB Excel',                                  level: 'b1', icon: 'chart', archived: true, theme: T('light', '#217346', '#34d399', '#166534') },
+  'b1-vb-excel':        { name: 'VB Excel',                                  level: 'b1', icon: 'chart', theme: T('light', '#217346', '#34d399', '#166534') },
   'b1-virtualisation':  { name: 'Virtualisation des serveurs',               level: 'b1', icon: 'vm', theme: T('light', '#0e7490', '#22d3ee', '#155e75') },
 
   // ───────────── B3 — « COURS_B3 » spécialité Réseaux & SI ─────────────

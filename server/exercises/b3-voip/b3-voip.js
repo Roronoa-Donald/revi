@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (vo3-c1-e1) — Calculateur de Débit Voix & Bande Passante Réseau\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CODEC=G.722 BITRATE_KBPS=64 PTIME_MS=20 CALLS=5\n# Données : CODEC=OPUS BITRATE_KBPS=24 PTIME_MS=20 CALLS=50\n# Données : CODEC=OPUS BITRATE_KBPS=32 PTIME_MS=10 CALLS=2\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CODEC=G.711 BITRATE_KBPS=64 PTIME_MS=30 CALLS=1\n# Données : CODEC=G.729 BITRATE_KBPS=8 PTIME_MS=10 CALLS=100\nA_COMPLETER\n",
     "hints": [
       "Dans le modèle IPv4 sans options et RTP minimal, ajoutez 40 octets à la charge utile.",
-      "Calculez la cadence de paquets par seconde : pps = 1000 / PTIME_MS."
+      "Calculez la cadence de paquets par seconde : pps = 1000 / PTIME_MS.",
+      "Calculez la taille de trame RTP = payload + 40 octets (IP+UDP+RTP), le nombre de paquets par seconde (1000 / ptime_ms), puis le débit unitaire et total."
     ],
     "examples": [
       {
@@ -33,449 +34,724 @@ module.exports = [
         "expected": "CODEC:G.711 | PAYLOAD:240B | PACKET:280B | PER_CALL:74.7kbps | TOTAL:74.7kbps\nCODEC:G.729 | PAYLOAD:10B | PACKET:50B | PER_CALL:40.0kbps | TOTAL:4000.0kbps\n"
       }
     ],
-    "solution": "[Exemple]\nCODEC:G.711 | PAYLOAD:160B | PACKET:200B | PER_CALL:80.0kbps | TOTAL:800.0kbps\nCODEC:G.729 | PAYLOAD:20B | PACKET:60B | PER_CALL:24.0kbps | TOTAL:600.0kbps\n\n\n[Cas 1 — Cas de test 1]\nCODEC:G.722 | PAYLOAD:160B | PACKET:200B | PER_CALL:80.0kbps | TOTAL:400.0kbps\nCODEC:OPUS | PAYLOAD:60B | PACKET:100B | PER_CALL:40.0kbps | TOTAL:2000.0kbps\nCODEC:OPUS | PAYLOAD:40B | PACKET:80B | PER_CALL:64.0kbps | TOTAL:128.0kbps\n\n\n[Cas 2 — Cas de test 2]\nCODEC:G.711 | PAYLOAD:240B | PACKET:280B | PER_CALL:74.7kbps | TOTAL:74.7kbps\nCODEC:G.729 | PAYLOAD:10B | PACKET:50B | PER_CALL:40.0kbps | TOTAL:4000.0kbps"
+    "solution": "[Exemple]\nCODEC:G.711 | PAYLOAD:160B | PACKET:200B | PER_CALL:80.0kbps | TOTAL:800.0kbps\nCODEC:G.729 | PAYLOAD:20B | PACKET:60B | PER_CALL:24.0kbps | TOTAL:600.0kbps\n\n\n[Cas 1 — Cas de test 1]\nCODEC:G.722 | PAYLOAD:160B | PACKET:200B | PER_CALL:80.0kbps | TOTAL:400.0kbps\nCODEC:OPUS | PAYLOAD:60B | PACKET:100B | PER_CALL:40.0kbps | TOTAL:2000.0kbps\nCODEC:OPUS | PAYLOAD:40B | PACKET:80B | PER_CALL:64.0kbps | TOTAL:128.0kbps\n\n\n[Cas 2 — Cas de test 2]\nCODEC:G.711 | PAYLOAD:240B | PACKET:280B | PER_CALL:74.7kbps | TOTAL:74.7kbps\nCODEC:G.729 | PAYLOAD:10B | PACKET:50B | PER_CALL:40.0kbps | TOTAL:4000.0kbps",
+    "takeaway": "À retenir : Calculer l'overhead des en-têtes réseau ToIP (IP/UDP/RTP) et la bande passante cumulée selon le codec et la durée de paquetisation.\nRepère : Cas d'usage nominal."
   },
   {
     "id": "vo3-c1-e2",
     "chapter": 1,
-    "title": "Estimateur de Qualité Vocale & Modèle E (Score R & MOS)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Estimer le facteur de qualité R et le score MOS selon la recommandation ITU-T G.107 en fonction du délai et des pertes.",
-    "brief": "<p>Le standard ITU-T G.107 (E-Model) évalue la qualité de transmission vocale à travers un facteur de qualité <code>R</code> (variant typiquement de 0 à 100). Une simplification standardisée pour la ToIP prend en compte :   - Si <code>D <= 100</code> : <code>Id = 0</code>   - Si <code>100 < D <= 177</code> : <code>Id = 0.024 * D</code>   - Si <code>D > 177</code> : <code>Id = 0.024 * D + 0.11 * (D - 177)</code>   - Pour G.711 : <code>Ie = 2.5 * P</code>   - Pour G.729 : <code>Ie = 11.0 + 3.0 * P</code>   - Pour G.722 : <code>Ie = 2.0 * P</code></p><ul><li><code>R0</code> : facteur intrinsèque de base (environ 93.2 pour G.711, 83.0 pour G.729, 94.0 pour G.722).</li><li><code>Id</code> : dégradation liée au délai unidirectionnel <code>D</code> (en millisecondes) :</li><li><code>Ie</code> : dégradation liée aux pertes de paquets <code>P</code> (pourcentage 0..100) :</li><li>Calcul du facteur <code>R</code> : <code>R = max(0.0, min(100.0, R0 - Id - Ie))</code></li></ul>\n<p>Conversion du facteur R en score MOS (Mean Opinion Score entre 1.0 et 4.5) selon la formule ITU-T :   <code>MOS = 1.0 + 0.035 * R + R * (R - 60.0) * (100.0 - R) * 7e-6</code>   (borné entre 1.0 et 4.5)</p><ul><li>Si <code>R < 0</code> : <code>MOS = 1.0</code></li><li>Si <code>0 <= R <= 100</code> :</li><li>Si <code>R > 100</code> : <code>MOS = 4.5</code></li></ul>\n<p>Qualification de la qualité :</p><ul><li>MOS >= 4.03 : EXCELLENT</li><li>3.60 <= MOS < 4.03 : BON</li><li>3.10 <= MOS < 3.60 : MOYEN</li><li>MOS < 3.10 : MAUVAIS</li></ul>\n<p>Format d'entrée :<br>Lignes de la forme :<br>CODEC=<G.711|G.729|G.722> DELAY_MS=<ms> LOSS_PCT=<pct></p>\n<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>CODEC:<nom> | DELAY:<d>ms | LOSS:<p>% | R:<R:.1f> | MOS:<MOS:.2f> | QUALITE:<label></p>",
-    "starter": "# Grille d'analyse (vo3-c1-e2) — Estimateur de Qualité Vocale & Modèle E (Score R & MOS)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CODEC=G.722 DELAY_MS=80 LOSS_PCT=1.0\n# Données : CODEC=G.711 DELAY_MS=200 LOSS_PCT=6.0\n# Données : CODEC=G.729 DELAY_MS=120 LOSS_PCT=1.0\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CODEC=G.711 DELAY_MS=300 LOSS_PCT=15.0\n# Données : CODEC=G.722 DELAY_MS=180 LOSS_PCT=0.5\nA_COMPLETER\n",
+    "title": "Le diagnostic qualité des liaisons ToIP de Norvia Logistique",
+    "exampleTitle": "Exemple résolu — les liaisons du lycée Vercors",
+    "goal": "Confronter des mesures de délai, gigue, pertes et MOS aux seuils de l'ITU-T G.114 et qualifier la qualité perçue.",
+    "brief": "<p><strong>Énoncé.</strong> Norvia Logistique, transporteur régional, a déployé la ToIP entre ses trois agences. Le responsable télécoms relève, pour chaque liaison, le délai unidirectionnel, la gigue, le taux de pertes de paquets et le score MOS mesuré par sondage :</p><table><tr><th>Liaison</th><th>Délai (ms)</th><th>Gigue (ms)</th><th>Pertes (%)</th><th>MOS</th></tr><tr><th>Nantes → Lyon</th><td>45</td><td>8</td><td>0,1</td><td>4,2</td></tr><tr><th>Lyon → Berlin</th><td>165</td><td>22</td><td>0,4</td><td>3,5</td></tr><tr><th>Nantes → Dakar</th><td>220</td><td>35</td><td>2,5</td><td>2,7</td></tr></table><p>Seuils de la recommandation ITU-T G.114 vus en cours : délai unidirectionnel ≤ 150 ms, gigue ≤ 30 ms, pertes ≤ 1 %. Échelle du MOS : 4,03 ou plus = excellente ; de 3,60 à 4,02 = bonne ; de 3,10 à 3,59 = moyenne ; en dessous de 3,10 = mauvaise.</p><ol><li>Combien de liaisons respectent le seuil de délai de 150 ms ?</li><li>Quelle liaison respecte à la fois les trois seuils (délai, gigue et pertes) ?</li><li>Quel indicateur, et lui seul, la liaison Lyon–Berlin dépasse-t-elle ?</li><li>Comment l'échelle du cours qualifie-t-elle la communication sur la liaison Lyon–Berlin (MOS 3,5) ?</li><li>Comment l'échelle du cours qualifie-t-elle la communication sur la liaison Nantes–Dakar (MOS 2,7) ?</li></ol><p>Pour les questions 4 et 5, répondez par un seul mot.</p>",
+    "starter": "# Exercice — Le diagnostic qualité des liaisons ToIP de Norvia Logistique\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 4 et 5 : un seul mot (excellente, bonne, moyenne ou mauvaise).\n\n[Question 1 — Nombre de liaisons respectant le seuil de délai]\nA_COMPLETER\n\n[Question 2 — Liaison respectant les trois seuils]\nA_COMPLETER\n\n[Question 3 — Indicateur dépassé par la liaison Lyon-Berlin]\nA_COMPLETER\n\n[Question 4 — Qualification du MOS 3,5 (Lyon-Berlin)]\nA_COMPLETER\n\n[Question 5 — Qualification du MOS 2,7 (Nantes-Dakar)]\nA_COMPLETER\n",
     "hints": [
-      "Appliquez la formule par morceaux pour Id selon les seuils de 100 ms et 177 ms.",
-      "Bornez le score MOS entre 1.0 et 4.5."
+      "Comparez chaque colonne du tableau aux seuils de la G.114 : 150 ms de délai unidirectionnel, 30 ms de gigue, 1 % de pertes.",
+      "Pour la question 3, éliminez un à un les indicateurs de Lyon–Berlin : la gigue (22 ms) et les pertes (0,4 %) sont-elles sous les seuils ?",
+      "Pour qualifier un MOS : 4,03 ou plus = excellente ; de 3,60 à 4,02 = bonne ; de 3,10 à 3,59 = moyenne ; en dessous de 3,10 = mauvaise."
     ],
     "examples": [
       {
-        "stdin": "CODEC=G.711 DELAY_MS=50 LOSS_PCT=0.0\nCODEC=G.711 DELAY_MS=150 LOSS_PCT=2.0\nCODEC=G.729 DELAY_MS=220 LOSS_PCT=5.0",
-        "expected": "CODEC:G.711 | DELAY:50.0ms | LOSS:0.0% | R:93.2 | MOS:4.41 | QUALITE:EXCELLENT\nCODEC:G.711 | DELAY:150.0ms | LOSS:2.0% | R:84.6 | MOS:4.19 | QUALITE:EXCELLENT\nCODEC:G.729 | DELAY:220.0ms | LOSS:5.0% | R:47.0 | MOS:2.42 | QUALITE:MAUVAIS\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le lycée Vercors relie ses trois sites par ToIP. Mesures :\nBastia → Ajaccio : 95 ms, gigue 12 ms, 0,2 %, MOS 4,1.\nBastia → Paris : 190 ms, gigue 26 ms, 0,8 %, MOS 3,2.\nAjaccio → Paris : 140 ms, gigue 40 ms, 1,5 %, MOS 3,0.\n\n1) Délai ≤ 150 ms : Bastia-Ajaccio (95) et Ajaccio-Paris (140) : 2 liaisons.\n2) Les trois seuils respectés : Bastia-Ajaccio (95, 12 et 0,2).\n3) Bastia-Paris dépasse seulement le délai (190) ; gigue 26 et pertes 0,8 sont conformes.\n4) MOS 3,2 : communication moyenne.\n5) MOS 3,0 : communication mauvaise.",
+        "expected": "2 liaisons respectent le délai — Bastia-Ajaccio respecte tout — Bastia-Paris dépasse seulement le délai — MOS 3,2 : moyenne — MOS 3,0 : mauvaise",
+        "note": "Le MOS résume l'ensemble : dès que délai, gigue ou pertes dépassent les seuils de la G.114, le score chute nettement."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "CODEC:G.722 | DELAY:80.0ms | LOSS:1.0% | R:92.0 | MOS:4.38 | QUALITE:EXCELLENT\nCODEC:G.711 | DELAY:200.0ms | LOSS:6.0% | R:70.9 | MOS:3.64 | QUALITE:BON\nCODEC:G.729 | DELAY:120.0ms | LOSS:1.0% | R:66.1 | MOS:3.41 | QUALITE:MOYEN\n"
+        "label": "Question 1 — Nombre de liaisons respectant le seuil de délai",
+        "stdin": "q:1",
+        "expected": "1||une"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "CODEC:G.711 | DELAY:300.0ms | LOSS:15.0% | R:35.0 | MOS:1.83 | QUALITE:MAUVAIS\nCODEC:G.722 | DELAY:180.0ms | LOSS:0.5% | R:88.3 | MOS:4.30 | QUALITE:EXCELLENT\n"
+        "label": "Question 2 — Liaison respectant les trois seuils",
+        "stdin": "q:2",
+        "expected": "nantes-lyon||nantes lyon||la liaison nantes-lyon||nantes → lyon"
+      },
+      {
+        "label": "Question 3 — Indicateur dépassé par la liaison Lyon-Berlin",
+        "stdin": "q:3",
+        "expected": "le délai||délai||la latence||le delai"
+      },
+      {
+        "label": "Question 4 — Qualification du MOS 3,5 (Lyon-Berlin)",
+        "stdin": "q:4",
+        "expected": "moyenne||moyen"
+      },
+      {
+        "label": "Question 5 — Qualification du MOS 2,7 (Nantes-Dakar)",
+        "stdin": "q:5",
+        "expected": "mauvaise||mauvais"
       }
     ],
-    "solution": "[Exemple]\nCODEC:G.711 | DELAY:50.0ms | LOSS:0.0% | R:93.2 | MOS:4.41 | QUALITE:EXCELLENT\nCODEC:G.711 | DELAY:150.0ms | LOSS:2.0% | R:84.6 | MOS:4.19 | QUALITE:EXCELLENT\nCODEC:G.729 | DELAY:220.0ms | LOSS:5.0% | R:47.0 | MOS:2.42 | QUALITE:MAUVAIS\n\n\n[Cas 1 — Cas de test 1]\nCODEC:G.722 | DELAY:80.0ms | LOSS:1.0% | R:92.0 | MOS:4.38 | QUALITE:EXCELLENT\nCODEC:G.711 | DELAY:200.0ms | LOSS:6.0% | R:70.9 | MOS:3.64 | QUALITE:BON\nCODEC:G.729 | DELAY:120.0ms | LOSS:1.0% | R:66.1 | MOS:3.41 | QUALITE:MOYEN\n\n\n[Cas 2 — Cas de test 2]\nCODEC:G.711 | DELAY:300.0ms | LOSS:15.0% | R:35.0 | MOS:1.83 | QUALITE:MAUVAIS\nCODEC:G.722 | DELAY:180.0ms | LOSS:0.5% | R:88.3 | MOS:4.30 | QUALITE:EXCELLENT"
+    "solution": "[Question 1 — Nombre de liaisons respectant le seuil de délai]\n1\n\n[Question 2 — Liaison respectant les trois seuils]\nnantes-lyon\n\n[Question 3 — Indicateur dépassé par la liaison Lyon-Berlin]\nle délai\n\n[Question 4 — Qualification du MOS 3,5 (Lyon-Berlin)]\nmoyenne\n\n[Question 5 — Qualification du MOS 2,7 (Nantes-Dakar)]\nmauvaise",
+    "takeaway": "1) Seule Nantes–Lyon (45 ms) est sous 150 ms ; Lyon–Berlin (165 ms) et Nantes–Dakar (220 ms) dépassent le seuil : 1 liaison.\n2) Nantes–Lyon respecte tout : 45 ms, 8 ms de gigue, 0,1 % de pertes.\n3) Lyon–Berlin dépasse le délai (165 > 150) mais respecte la gigue (22 ≤ 30) et les pertes (0,4 ≤ 1) : seul le délai est en cause.\n4) MOS 3,5 : entre 3,10 et 3,59, la communication est moyenne.\n5) MOS 2,7 : en dessous de 3,10, la communication est mauvaise.\nContrôle : la liaison Nantes–Dakar cumule les trois dépassements (220 ms, 35 ms, 2,5 %), ce qui explique son MOS effondré à 2,7."
   },
   {
     "id": "vo3-c1-e3",
     "chapter": 1,
-    "title": "Convertisseur & Échantillonneur PCM / A-law & µ-law",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler la quantification logarithmique ITU-T G.711 A-law et µ-law et extraire les segments et pas de quantification.",
-    "brief": "<p>La numérisation vocale standard G.711 échantillonne la voix à une fréquence de 8 000 Hz avec des échantillons linéaires sur 13 bits (A-law en Europe) ou 14 bits (µ-law en Amérique du Nord).<br>Ces échantillons sont compressés sur 8 bits (1 octet), produisant le débit universel de 64 kbps (8 000 éch/s * 8 bits = 64 000 bps).</p>\n<p>Principe de quantification logarithmique A-law (ITU-T G.711) : Chaque échantillon linéaire entier signé <code>S</code> (-4096 <= S <= 4095) est codé en un octet binaire <code>b7 b6 b5 b4 b3 b2 b1 b0</code> :   - Segment 0 : 0 <= M < 32 -> code binaire segment <code>000</code>, pas = 2   - Segment 1 : 32 <= M < 64 -> code <code>001</code>, pas = 2   - Segment 2 : 64 <= M < 128 -> code <code>010</code>, pas = 4   - Segment 3 : 128 <= M < 256 -> code <code>011</code>, pas = 8   - Segment 4 : 256 <= M < 512 -> code <code>100</code>, pas = 16   - Segment 5 : 512 <= M < 1024 -> code <code>101</code>, pas = 32   - Segment 6 : 1024 <= M < 2048 -> code <code>110</code>, pas = 64   - Segment 7 : 2048 <= M <= 4095 -> code <code>111</code>, pas = 128   où <code>nb_bits_lin</code> est le nombre de bits effectifs (segment + 4).</p><ul><li><code>b7</code> (signe) : 1 si S >= 0, 0 si S < 0.</li><li>L'amplitude absolue <code>M = min(abs(S), 4095)</code> détermine le segment (de 0 à 7) :</li><li>Rapport signal sur bruit de quantification approximé : <code>SQNR_dB = 6.02 * nb_bits_lin + 1.76</code></li></ul>\n<p>Format d'entrée :<br>Lignes de la forme :<br>SAMPLE=<entier_signé> REGION=<EUROPE|AMERIQUE></p>\n<p>Règles de sortie : SAMPLE:<val> | NORME:<A-LAW|U-LAW> | SIGNE:<POSITIF|NEGATIF> | SEGMENT:<0..7> | PAS:<pas></p><ul><li>Déterminer la norme : <code>A-LAW</code> si EUROPE, <code>U-LAW</code> si AMERIQUE.</li><li>Extraire le signe : <code>POSITIF</code> si >= 0 sinon <code>NEGATIF</code>.</li><li>Déterminer l'indice du segment (0 à 7).</li><li>Calculer le pas de quantification associé au segment.</li><li>Afficher la ligne :</li></ul>",
-    "starter": "# Grille d'analyse (vo3-c1-e3) — Convertisseur & Échantillonneur PCM / A-law & µ-law\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : SAMPLE=0 REGION=EUROPE\n# Données : SAMPLE=3500 REGION=EUROPE\n# Données : SAMPLE=-50 REGION=AMERIQUE\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : SAMPLE=-300 REGION=EUROPE\n# Données : SAMPLE=800 REGION=AMERIQUE\nA_COMPLETER\n",
+    "title": "La numérisation vocale du standard de l'opérateur TéléSud",
+    "exampleTitle": "Exemple résolu — la webradio du studio VoixLibres",
+    "goal": "Appliquer le théorème de Nyquist, la quantification G.711 et les débits qui en découlent à une chaîne de numérisation réelle.",
+    "brief": "<p><strong>Énoncé.</strong> L'opérateur régional TéléSud modernise le standard téléphonique de son centre d'appels. L'ingénieur audio rappelle les données du cours : la bande vocale téléphonique s'étend de <strong>300 Hz à 3 400 Hz</strong> ; la recommandation G.711 échantillonne à 8 000 Hz et compresse chaque échantillon sur <strong>8 bits</strong> (loi A en Europe, loi µ en Amérique du Nord) ; en A-law, l'échantillon linéaire d'origine porte sur 13 bits avant compression.</p><p>Rappel : théorème de Nyquist-Shannon, Fe ≥ 2 × Fmax ; intervalle entre deux échantillons = 1 / Fe ; débit = Fe × nombre de bits par échantillon.</p><p>Répondez par le nombre seul, sans unité, sauf pour la question 6 (un mot).</p><ol><li>Quelle est la fréquence d'échantillonnage minimale théorique, en Hz, pour une bande vocale limitée à 3 400 Hz ?</li><li>Quelle fréquence d'échantillonnage, en Hz, l'UIT-T a-t-elle normalisée pour la téléphonie ?</li><li>Quel intervalle, en microsecondes, sépare deux échantillons consécutifs à 8 000 Hz ?</li><li>Quel est le débit du codec G.711, en kbps ?</li><li>Quel serait, en kbps, le débit d'une numérisation linéaire à 13 bits par échantillon, sans compression ?</li><li>Quel codec du cours, débitant lui aussi 64 kbps, élargit la bande audio de 50 Hz à 7 kHz pour la téléphonie HD ?</li></ol>",
+    "starter": "# Exercice — La numérisation vocale du standard de l'opérateur TéléSud\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 5 : le nombre seul. Question 6 : le nom du codec.\n\n[Question 1 — Fréquence d'échantillonnage minimale théorique (en Hz)]\nA_COMPLETER\n\n[Question 2 — Fréquence d'échantillonnage normalisée (en Hz)]\nA_COMPLETER\n\n[Question 3 — Intervalle entre deux échantillons (en µs)]\nA_COMPLETER\n\n[Question 4 — Débit du codec G.711 (en kbps)]\nA_COMPLETER\n\n[Question 5 — Débit d'une numérisation linéaire à 13 bits (en kbps)]\nA_COMPLETER\n\n[Question 6 — Codec large bande de la téléphonie HD]\nA_COMPLETER\n",
     "hints": [
-      "Vérifiez la région géographique pour associer A-LAW (Europe) ou U-LAW (Amérique).",
-      "Identifiez le segment de 0 à 7 selon l'amplitude absolue bornée à 4095."
+      "Le théorème de Nyquist-Shannon impose Fe ≥ 2 × Fmax : appliquez-le à la fréquence maximale de la bande vocale.",
+      "L'intervalle entre deux échantillons est l'inverse de la fréquence d'échantillonnage ; le débit est le produit de la fréquence par le nombre de bits par échantillon.",
+      "1. Fe minimale = 2 × 3 400. 2. La fréquence normalisée du RTC est 8 000 Hz. 3. 1/8 000 s = 125 µs. 4. 8 000 × 8 bits = 64 000 bps. 5. 8 000 × 13 bits = 104 000 bps. 6. Relisez le tableau des codecs : lequel offre la large bande à 64 kbps ?"
     ],
     "examples": [
       {
-        "stdin": "SAMPLE=150 REGION=EUROPE\nSAMPLE=-1500 REGION=AMERIQUE\nSAMPLE=25 REGION=EUROPE",
-        "expected": "SAMPLE:150 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:3 | PAS:8\nSAMPLE:-1500 | NORME:U-LAW | SIGNE:NEGATIF | SEGMENT:6 | PAS:64\nSAMPLE:25 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:0 | PAS:2\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le studio VoixLibres numérise une webradio dont la bande utile monte à 8 000 Hz.\n\n1) Fréquence d'échantillonnage minimale : 2 × 8 000 = 16 000 Hz.\n2) Le studio retient Fe = 16 000 Hz ; intervalle : 1/16 000 = 62,5 µs.\n3) Quantification sur 16 bits : débit = 16 000 × 16 = 256 000 bps = 256 kbps.\n4) Quantification sur 8 bits : 16 000 × 8 = 128 kbps.",
+        "expected": "16 000 Hz — 62,5 µs — 256 kbps en 16 bits — 128 kbps en 8 bits",
+        "note": "Doubler la fréquence maximale double la fréquence d'échantillonnage minimale : le théorème de Nyquist s'applique à toute bande, musicale ou vocale."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "SAMPLE:0 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:0 | PAS:2\nSAMPLE:3500 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:7 | PAS:128\nSAMPLE:-50 | NORME:U-LAW | SIGNE:NEGATIF | SEGMENT:1 | PAS:2\n"
+        "label": "Question 1 — Fréquence d'échantillonnage minimale théorique (en Hz)",
+        "stdin": "q:1",
+        "expected": "6800||6 800"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "SAMPLE:-300 | NORME:A-LAW | SIGNE:NEGATIF | SEGMENT:4 | PAS:16\nSAMPLE:800 | NORME:U-LAW | SIGNE:POSITIF | SEGMENT:5 | PAS:32\n"
+        "label": "Question 2 — Fréquence d'échantillonnage normalisée (en Hz)",
+        "stdin": "q:2",
+        "expected": "8000||8 000"
+      },
+      {
+        "label": "Question 3 — Intervalle entre deux échantillons (en µs)",
+        "stdin": "q:3",
+        "expected": "125||125 µs"
+      },
+      {
+        "label": "Question 4 — Débit du codec G.711 (en kbps)",
+        "stdin": "q:4",
+        "expected": "64||64 kbps"
+      },
+      {
+        "label": "Question 5 — Débit d'une numérisation linéaire à 13 bits (en kbps)",
+        "stdin": "q:5",
+        "expected": "104||104 kbps"
+      },
+      {
+        "label": "Question 6 — Codec large bande de la téléphonie HD",
+        "stdin": "q:6",
+        "expected": "G.722||g.722||le G.722"
       }
     ],
-    "solution": "[Exemple]\nSAMPLE:150 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:3 | PAS:8\nSAMPLE:-1500 | NORME:U-LAW | SIGNE:NEGATIF | SEGMENT:6 | PAS:64\nSAMPLE:25 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:0 | PAS:2\n\n\n[Cas 1 — Cas de test 1]\nSAMPLE:0 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:0 | PAS:2\nSAMPLE:3500 | NORME:A-LAW | SIGNE:POSITIF | SEGMENT:7 | PAS:128\nSAMPLE:-50 | NORME:U-LAW | SIGNE:NEGATIF | SEGMENT:1 | PAS:2\n\n\n[Cas 2 — Cas de test 2]\nSAMPLE:-300 | NORME:A-LAW | SIGNE:NEGATIF | SEGMENT:4 | PAS:16\nSAMPLE:800 | NORME:U-LAW | SIGNE:POSITIF | SEGMENT:5 | PAS:32"
+    "solution": "[Question 1 — Fréquence d'échantillonnage minimale théorique (en Hz)]\n6800\n\n[Question 2 — Fréquence d'échantillonnage normalisée (en Hz)]\n8000\n\n[Question 3 — Intervalle entre deux échantillons (en µs)]\n125\n\n[Question 4 — Débit du codec G.711 (en kbps)]\n64\n\n[Question 5 — Débit d'une numérisation linéaire à 13 bits (en kbps)]\n104\n\n[Question 6 — Codec large bande de la téléphonie HD]\nG.722",
+    "takeaway": "1) Fe minimale : 2 × 3 400 = 6 800 Hz.\n2) L'UIT-T a normalisé 8 000 Hz (le double théorique plus une marge pour les filtres anti-repliement).\n3) Intervalle : 1 / 8 000 = 0,000125 s = 125 µs.\n4) G.711 : 8 000 échantillons/s × 8 bits = 64 000 bps = 64 kbps.\n5) Numérisation linéaire 13 bits : 8 000 × 13 = 104 000 bps = 104 kbps.\n6) Le G.722 (SB-ADPCM) débite aussi 64 kbps mais couvre 50 Hz à 7 kHz : c'est le codec de la téléphonie HD.\nContrôle : la compression logarithmique fait passer le débit de 104 kbps (13 bits linéaires) à 64 kbps (8 bits), soit 40 kbps économisés par canal, environ 38 % du débit linéaire."
   },
   {
     "id": "vo3-c2-e1",
     "chapter": 2,
-    "title": "Parseur d'En-têtes de Messages SIP RFC 3261",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser la structure syntaxique d'une trame SIP RFC 3261 et extraire les en-têtes fondamentaux (Call-ID, CSeq, From, To).",
-    "brief": "<p>Le protocole SIP (Session Initiation Protocol, RFC 3261) est un protocole textuel de signalisation inspiré d'HTTP. Un message SIP débute par :</p><ul><li>Une ligne de requête (Request-Line) : <code><METHODE> <SIP-URI> SIP/2.0</code> (ex: <code>INVITE sip:bob@biloxi.com SIP/2.0</code>), OU</li><li>Une ligne d'état (Status-Line) : <code>SIP/2.0 <STATUS_CODE> <REASON_PHRASE></code> (ex: <code>SIP/2.0 200 OK</code>).</li></ul>\n<p>Suivent les en-têtes obligatoires :</p><ul><li><code>Call-ID</code>: identifiant unique et aléatoire de l'appel</li><li><code>CSeq</code>: numéro de séquence entier suivi de la méthode (ex: <code>1 INVITE</code>)</li><li><code>From</code>: identité de l'émetteur avec URI et tag optionnel (ex: <code><sip:alice@atlanta.com>;tag=1928301774</code>)</li><li><code>To</code>: identité du destinataire (ex: <code><sip:bob@biloxi.com></code>)</li><li><code>Contact</code>: adresse directe pour acheminer les requêtes ultérieures</li></ul>\n<p>Format d'entrée :<br>Un bloc de message SIP les données d’entrée (en-têtes séparés par des retours à la ligne).<br>Le bloc se termine par une ligne vide ou la fin du flux.</p>\n<p>Format de sortie :<br>Extraire et afficher :<br>TYPE:<REQUEST|RESPONSE><br>ACTION_OR_STATUS:<METHODE ou CODE_STATUS><br>CALL_ID:<valeur de Call-ID><br>CSEQ_NUM:<entier><br>CSEQ_METHOD:<nom de méthode><br>FROM_URI:<uri nettoyée sans chevrons ni paramètres><br>TO_URI:<uri nettoyée sans chevrons ni paramètres></p>",
-    "starter": "# Grille d'analyse (vo3-c2-e1) — Parseur d'En-têtes de Messages SIP RFC 3261\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : SIP/2.0 200 OK\n# Données : Via: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds\n# Données : To: Bob <sip:bob@biloxi.com>;tag=a6c85cf\n# Données : From: Alice <sip:alice@atlanta.com>;tag=1928301774\n# Données : Call-ID: a84b4c76e66710@pc33.atlanta.com\n# Données : CSeq: 314159 INVITE\n# Données : Contact: <sip:bob@192.0.2.4>\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : BYE sip:alice@pc33.atlanta.com SIP/2.0\n# Données : Via: SIP/2.0/UDP 192.0.2.4;branch=z9hG4bKnas77\n# Données : Max-Forwards: 70\n# Données : From: <sip:bob@biloxi.com>;tag=a6c85cf\n# Données : To: <sip:alice@atlanta.com>;tag=1928301774\n# Données : Call-ID: 987654321@biloxi.com\n# Données : CSeq: 2 BYE\nA_COMPLETER\n",
+    "title": "Le premier appel SIP de l'entreprise Alpacom",
+    "exampleTitle": "Exemple résolu — l'appel du support de Pharmavie",
+    "goal": "Lire une trace d'appel SIP et identifier méthodes, codes de réponse et chronologie d'une session.",
+    "brief": "<p><strong>Énoncé.</strong> L'entreprise Alpacom vient d'installer son IPBX Asterisk. Pour vérifier la chaîne de signalisation, la technicienne capture le premier appel interne : Mme Diallo (poste 201) appelle M. Weber (poste 215). La trace des messages SIP est la suivante :</p><table><tr><th>Horodatage</th><th>Émetteur</th><th>Message SIP</th></tr><tr><th>09:14:02</th><td>poste 201</td><td>INVITE sip:215@alpacom.fr</td></tr><tr><th>09:14:02</th><td>proxy</td><td>100 Trying</td></tr><tr><th>09:14:03</th><td>proxy</td><td>180 Ringing</td></tr><tr><th>09:14:11</th><td>proxy</td><td>200 OK</td></tr><tr><th>09:14:11</th><td>poste 201</td><td>ACK</td></tr><tr><th>09:15:40</th><td>poste 201</td><td>BYE</td></tr><tr><th>09:15:40</th><td>proxy</td><td>200 OK</td></tr></table><p>La conversation téléphonique a bien eu lieu entre le moment où M. Weber a décroché et le moment où Mme Diallo a raccroché.</p><ol><li>Quelle méthode SIP ouvre la session d'appel ?</li><li>Que signale le code 180 reçu à 09:14:03 ?</li><li>À quel horodatage M. Weber décroche-t-il ?</li><li>Combien de secondes la sonnerie a-t-elle duré ?</li><li>Quelle méthode SIP met fin à la conversation ?</li><li>À quelle famille de codes (1xx, 2xx, … 6xx) appartient le 100 Trying, réponse provisoire ?</li></ol><p>Répondez de façon courte : un mot pour les questions 1, 2, 5 et 6, l'horodatage exact pour la question 3, le nombre seul pour la question 4.</p>",
+    "starter": "# Exercice — Le premier appel SIP de l'entreprise Alpacom\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2, 5 et 6 : un mot ou un code. Question 3 : hh:mm:ss. Question 4 : le nombre seul.\n\n[Question 1 — Méthode qui ouvre la session]\nA_COMPLETER\n\n[Question 2 — Signification du code 180]\nA_COMPLETER\n\n[Question 3 — Horodatage du décrochage]\nA_COMPLETER\n\n[Question 4 — Durée de la sonnerie (en secondes)]\nA_COMPLETER\n\n[Question 5 — Méthode qui termine la conversation]\nA_COMPLETER\n\n[Question 6 — Famille du code 100 Trying]\nA_COMPLETER\n",
     "hints": [
-      "Distinguez la ligne de requête de la ligne de statut pour qualifier TYPE en REQUEST ou RESPONSE.",
-      "Nettoyez les URIs SIP pour retirer les chevrons et les tags."
+      "Parcourez la trace dans l'ordre : INVITE ouvre, les codes à trois chiffres répondent, ACK confirme, BYE clôt.",
+      "Le code 180 appartient à la famille 1xx : il décrit un état provisoire de l'appel avant le décrochage.",
+      "1. La session s'ouvre par INVITE. 2. 180 Ringing : le poste appelé sonne. 3. Le décrochage correspond au 200 OK de 09:14:11. 4. Sonnerie : de 09:14:03 à 09:14:11. 5. BYE raccroche. 6. 100 est un code provisoire : famille 1xx."
     ],
     "examples": [
       {
-        "stdin": "INVITE sip:bob@biloxi.com SIP/2.0\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:alice@pc33.atlanta.com>\nContent-Type: application/sdp",
-        "expected": "TYPE:REQUEST\nACTION_OR_STATUS:INVITE\nCALL_ID:a84b4c76e66710@pc33.atlanta.com\nCSEQ_NUM:314159\nCSEQ_METHOD:INVITE\nFROM_URI:sip:alice@atlanta.com\nTO_URI:sip:bob@biloxi.com\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le support de Pharmavie teste son IPBX. Trace de l'appel du poste 104 vers le poste 117 :\n10:02:15  INVITE — 10:02:16  180 Ringing — 10:02:31  200 OK — 10:02:31  ACK — 10:05:00  BYE — 10:05:00  200 OK.\n\n1) La session s'ouvre par INVITE.\n2) 180 Ringing : le poste appelé sonne.\n3) Décrochage : 10:02:31 (200 OK).\n4) Sonnerie : de 10:02:16 à 10:02:31, soit 15 secondes.\n5) BYE met fin à la conversation.",
+        "expected": "INVITE — le poste appelé sonne — décrochage à 10:02:31 — 15 secondes de sonnerie — BYE",
+        "note": "Les codes 1xx (100, 180) sont provisoires : seuls le 200 OK final et l'ACK établissent réellement la session."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "TYPE:RESPONSE\nACTION_OR_STATUS:200\nCALL_ID:a84b4c76e66710@pc33.atlanta.com\nCSEQ_NUM:314159\nCSEQ_METHOD:INVITE\nFROM_URI:sip:alice@atlanta.com\nTO_URI:sip:bob@biloxi.com\n"
+        "label": "Question 1 — Méthode qui ouvre la session",
+        "stdin": "q:1",
+        "expected": "INVITE||invite||la méthode INVITE"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "TYPE:REQUEST\nACTION_OR_STATUS:BYE\nCALL_ID:987654321@biloxi.com\nCSEQ_NUM:2\nCSEQ_METHOD:BYE\nFROM_URI:sip:bob@biloxi.com\nTO_URI:sip:alice@atlanta.com\n"
+        "label": "Question 2 — Signification du code 180",
+        "stdin": "q:2",
+        "expected": "le poste appelé sonne||le poste sonne||le téléphone sonne||la sonnerie||sonnerie||ringing||le correspondant sonne"
+      },
+      {
+        "label": "Question 3 — Horodatage du décrochage",
+        "stdin": "q:3",
+        "expected": "09:14:11||9:14:11"
+      },
+      {
+        "label": "Question 4 — Durée de la sonnerie (en secondes)",
+        "stdin": "q:4",
+        "expected": "8||8 secondes||8 s"
+      },
+      {
+        "label": "Question 5 — Méthode qui termine la conversation",
+        "stdin": "q:5",
+        "expected": "BYE||bye||la méthode BYE"
+      },
+      {
+        "label": "Question 6 — Famille du code 100 Trying",
+        "stdin": "q:6",
+        "expected": "1xx||les 1xx||la famille 1xx"
       }
     ],
-    "solution": "[Exemple]\nTYPE:REQUEST\nACTION_OR_STATUS:INVITE\nCALL_ID:a84b4c76e66710@pc33.atlanta.com\nCSEQ_NUM:314159\nCSEQ_METHOD:INVITE\nFROM_URI:sip:alice@atlanta.com\nTO_URI:sip:bob@biloxi.com\n\n\n[Cas 1 — Cas de test 1]\nTYPE:RESPONSE\nACTION_OR_STATUS:200\nCALL_ID:a84b4c76e66710@pc33.atlanta.com\nCSEQ_NUM:314159\nCSEQ_METHOD:INVITE\nFROM_URI:sip:alice@atlanta.com\nTO_URI:sip:bob@biloxi.com\n\n\n[Cas 2 — Cas de test 2]\nTYPE:REQUEST\nACTION_OR_STATUS:BYE\nCALL_ID:987654321@biloxi.com\nCSEQ_NUM:2\nCSEQ_METHOD:BYE\nFROM_URI:sip:bob@biloxi.com\nTO_URI:sip:alice@atlanta.com"
+    "solution": "[Question 1 — Méthode qui ouvre la session]\nINVITE\n\n[Question 2 — Signification du code 180]\nle poste appelé sonne\n\n[Question 3 — Horodatage du décrochage]\n09:14:11\n\n[Question 4 — Durée de la sonnerie (en secondes)]\n8\n\n[Question 5 — Méthode qui termine la conversation]\nBYE\n\n[Question 6 — Famille du code 100 Trying]\n1xx",
+    "takeaway": "1) La session est ouverte par la requête INVITE envoyée par le poste 201 à 09:14:02.\n2) Le code 180 Ringing signale que le poste de M. Weber sonne : c'est une réponse provisoire.\n3) M. Weber décroche à 09:14:11, matérialisé par le 200 OK suivi de l'ACK.\n4) La sonnerie a duré de 09:14:03 à 09:14:11, soit 8 secondes.\n5) La conversation se termine par le BYE envoyé par Mme Diallo à 09:15:40, acquitté par un 200 OK.\n6) Le 100 Trying appartient à la famille 1xx des réponses provisoires (100 Trying, 180 Ringing, 183 Session Progress).\nContrôle : la conversation a duré de 09:14:11 à 09:15:40, soit 89 secondes, cohérent avec un test de vérification."
   },
   {
     "id": "vo3-c2-e2",
     "chapter": 2,
-    "title": "Analyseur de Négociation de Session SDP RFC 4566",
     "level": "n2",
     "language": "analyse",
-    "goal": "Décoder un corps de message SDP RFC 4566 pour extraire l'adresse IP média, le port RTP et les codecs audio négociés.",
-    "brief": "<p>Le protocole SDP (Session Description Protocol, RFC 4566) transporte la description des flux multimédias négociés lors de l'établissement d'un appel SIP. Un corps SDP typique contient :   - <code>0</code> : PCMU/8000 (G.711 µ-law)   - <code>8</code> : PCMA/8000 (G.711 A-law)   - <code>9</code> : G722/8000   - <code>18</code> : G729/8000   - <code>101</code> : telephone-event/8000 (DTMF RFC 2833 / 4733)</p><ul><li><code>v=0</code> : version SDP</li><li><code>o=<username> <sess-id> <sess-version> IN IP4 <ip></code> : origine</li><li><code>c=IN IP4 <ip_media></code> : adresse IP de réception du média RTP</li><li><code>m=audio <port_rtp> RTP/AVP <payload_types...></code> : description du média (ex: audio sur port 10000 avec codecs 0, 8, 18, 101)</li><li>Lignes d'attributs <code>a=rtpmap:<pt> <encoding_name>/<clock_rate></code> :</li><li>Ligne de direction <code>a=<sendrecv|sendonly|recvonly|inactive></code></li></ul>\n<p>Format d'entrée :<br>Un corps SDP les données d’entrée.</p>\n<p>Format de sortie :<br>Extraire et afficher :<br>IP_MEDIA:<adresse_ip_media><br>PORT_RTP:<port_entier><br>DIRECTION:<sendrecv|sendonly|recvonly|inactive><br>CODECS:<liste ordonnée des noms de codecs mappés avec leur payload type, format pt:NOM/RATE séparés par virgule></p>",
-    "starter": "# Grille d'analyse (vo3-c2-e2) — Analyseur de Négociation de Session SDP RFC 4566\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : v=0\n# Données : o=asterisk 12345 12345 IN IP4 10.0.0.1\n# Données : s=Asterisk PBX\n# Données : c=IN IP4 10.0.0.1\n# Données : t=0 0\n# Données : m=audio 10000 RTP/AVP 8 18\n# Données : a=rtpmap:8 PCMA/8000\n# Données : a=rtpmap:18 G729/8000\n# Données : a=sendonly\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : v=0\n# Données : o=gateway 4455 1 IN IP4 172.16.20.10\n# Données : s=VoIP Gateway\n# Données : c=IN IP4 172.16.20.10\n# Données : t=0 0\n# Données : m=audio 24000 RTP/AVP 9 0 8\n# Données : a=rtpmap:9 G722/8000\n# Données : a=rtpmap:0 PCMU/8000\n# Données : a=rtpmap:8 PCMA/8000\n# Données : a=recvonly\nA_COMPLETER\n",
+    "title": "La négociation SDP de la visioconférence BioMédia",
+    "exampleTitle": "Exemple résolu — la session du pair à pair de l'INC",
+    "goal": "Décoder une offre et une réponse SDP pour déterminer codecs, ports UDP et champ déclaratif du flux média.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence BioMédia organise une conférence de presse à distance entre deux postes ToIP. Camille (poste 310) appelle Jules (poste 322). L'offre SDP est transportée dans le corps de l'INVITE, la réponse dans le 200 OK :</p><p>Offre de Camille (INVITE) :</p><pre>v=0\no=Camille 2890844526 2890844526 IN IP4 10.20.5.31\ns=-\nc=IN IP4 10.20.5.31\nt=0 0\nm=audio 16384 RTP/AVP 8 0 101\na=rtpmap:8 PCMA/8000\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=sendrecv</pre><p>Réponse de Jules (200 OK) :</p><pre>v=0\no=Jules 2890842807 2890842807 IN IP4 10.20.5.44\ns=-\nc=IN IP4 10.20.5.44\nt=0 0\nm=audio 20000 RTP/AVP 0 101\na=rtpmap:0 PCMU/8000\na=rtpmap:101 telephone-event/8000\na=sendrecv</pre><p>Rappel du cours : la ligne m=audio liste les types de charges utiles acceptés par ordre de préférence ; a=rtpmap associe chaque numéro à un codec ; c= déclare l'adresse IP de réception du flux.</p><ol><li>Quel codec l'offre place-t-elle en tête, c'est-à-dire celui que Camille préfère ?</li><li>Sur quel port UDP Camille propose-t-elle de recevoir le flux RTP ?</li><li>Quel codec commun est finalement retenu par la réponse de Jules ?</li><li>Que désigne le type de charge utile 101 ?</li><li>Sur quel port UDP Jules demande-t-il de recevoir le flux RTP ?</li><li>Quelle ligne SDP déclare l'adresse IP de réception du flux média ?</li></ol><p>Répondez de façon courte (un codec, un port, une lettre de champ).</p>",
+    "starter": "# Exercice — La négociation SDP de la visioconférence BioMédia\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez de façon courte : un codec, un port ou un champ SDP.\n\n[Question 1 — Codec préféré de Camille dans l'offre]\nA_COMPLETER\n\n[Question 2 — Port RTP proposé par l'offre]\nA_COMPLETER\n\n[Question 3 — Codec finalement retenu]\nA_COMPLETER\n\n[Question 4 — Signification de la charge utile 101]\nA_COMPLETER\n\n[Question 5 — Port RTP demandé par la réponse]\nA_COMPLETER\n\n[Question 6 — Ligne SDP déclarant l'adresse IP de réception]\nA_COMPLETER\n",
     "hints": [
-      "Isolez la ligne c= pour l'adresse IP et m=audio pour le port de réception.",
-      "Associez les numéros de payload types aux noms de codecs déclarés dans les lignes a=rtpmap."
+      "Dans la ligne m=audio, les numéros de charges utiles sont classés par ordre de préférence : le premier est le codec préféré de l'émetteur.",
+      "La réponse ne conserve que les charges utiles qu'elle accepte : le premier numéro commun aux deux lignes m=audio devient le codec de la session.",
+      "1. Traduisez le premier numéro de l'offre avec son a=rtpmap. 2. Le port suit le mot audio dans m=. 3. Comparez les deux lignes m=audio. 4. Cherchez la ligne a=rtpmap:101. 5. Lisez le m= de la réponse. 6. La connexion (adresse IP) est déclarée par la ligne c=."
     ],
     "examples": [
       {
-        "stdin": "v=0\no=Alice 2890844526 2890844526 IN IP4 192.168.1.50\ns=-\nc=IN IP4 192.168.1.50\nt=0 0\nm=audio 16384 RTP/AVP 0 8 101\na=rtpmap:0 PCMU/8000\na=rtpmap:8 PCMA/8000\na=rtpmap:101 telephone-event/8000\na=sendrecv",
-        "expected": "IP_MEDIA:192.168.1.50\nPORT_RTP:16384\nDIRECTION:sendrecv\nCODECS:0:PCMU/8000,8:PCMA/8000,101:telephone-event/8000\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Deux postes de l'INC négocient une session audio.\nOffre : m=audio 49170 RTP/AVP 9 0 101 — a=rtpmap:9 G.722/8000 — a=rtpmap:0 PCMU/8000 — a=rtpmap:101 telephone-event/8000.\nRéponse : m=audio 49252 RTP/AVP 9 101 — a=rtpmap:9 G.722/8000 — a=rtpmap:101 telephone-event/8000.\n\n1) Codec préféré de l'offre : G.722 (charge utile 9, en tête).\n2) Port proposé par l'appelant : 49170.\n3) Codec retenu : G.722, premier numéro commun.\n4) La charge utile 101 désigne telephone-event, les touches DTMF.\n5) Port demandé par l'appelé : 49252.\n6) L'adresse IP de réception est déclarée par la ligne c=.",
+        "expected": "G.722 préféré — port 49170 — G.722 retenu — 101 : telephone-event (DTMF) — port 49252 — ligne c=",
+        "note": "La réponse ne garde que les codecs qu'elle accepte : le premier de la liste commune devient le codec de la session."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "IP_MEDIA:10.0.0.1\nPORT_RTP:10000\nDIRECTION:sendonly\nCODECS:8:PCMA/8000,18:G729/8000\n"
+        "label": "Question 1 — Codec préféré de Camille dans l'offre",
+        "stdin": "q:1",
+        "expected": "PCMA||pcma||g.711 a-law||g.711 alaw||le pcma"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "IP_MEDIA:172.16.20.10\nPORT_RTP:24000\nDIRECTION:recvonly\nCODECS:9:G722/8000,0:PCMU/8000,8:PCMA/8000\n"
+        "label": "Question 2 — Port RTP proposé par l'offre",
+        "stdin": "q:2",
+        "expected": "16384||le port 16384"
+      },
+      {
+        "label": "Question 3 — Codec finalement retenu",
+        "stdin": "q:3",
+        "expected": "PCMU||pcmu||g.711 µ-law||g.711 mu-law||g.711 u-law||le pcmu"
+      },
+      {
+        "label": "Question 4 — Signification de la charge utile 101",
+        "stdin": "q:4",
+        "expected": "telephone-event||telephone-event/8000||les touches dtmf||dtmf||les tonalités dtmf"
+      },
+      {
+        "label": "Question 5 — Port RTP demandé par la réponse",
+        "stdin": "q:5",
+        "expected": "20000||le port 20000"
+      },
+      {
+        "label": "Question 6 — Ligne SDP déclarant l'adresse IP de réception",
+        "stdin": "q:6",
+        "expected": "c=||la ligne c=||c=in ip4||le champ c="
       }
     ],
-    "solution": "[Exemple]\nIP_MEDIA:192.168.1.50\nPORT_RTP:16384\nDIRECTION:sendrecv\nCODECS:0:PCMU/8000,8:PCMA/8000,101:telephone-event/8000\n\n\n[Cas 1 — Cas de test 1]\nIP_MEDIA:10.0.0.1\nPORT_RTP:10000\nDIRECTION:sendonly\nCODECS:8:PCMA/8000,18:G729/8000\n\n\n[Cas 2 — Cas de test 2]\nIP_MEDIA:172.16.20.10\nPORT_RTP:24000\nDIRECTION:recvonly\nCODECS:9:G722/8000,0:PCMU/8000,8:PCMA/8000"
+    "solution": "[Question 1 — Codec préféré de Camille dans l'offre]\nPCMA\n\n[Question 2 — Port RTP proposé par l'offre]\n16384\n\n[Question 3 — Codec finalement retenu]\nPCMU\n\n[Question 4 — Signification de la charge utile 101]\ntelephone-event\n\n[Question 5 — Port RTP demandé par la réponse]\n20000\n\n[Question 6 — Ligne SDP déclarant l'adresse IP de réception]\nc=",
+    "takeaway": "1) L'offre liste 8 0 101 : la charge utile 8, soit PCMA (G.711 A-law), est le codec préféré de Camille.\n2) La ligne m=audio 16384 indique que Camille reçoit le flux RTP sur le port UDP 16384.\n3) La réponse de Jules ne garde que 0 et 101 : le premier commun est 0, soit PCMU (G.711 µ-law). La session se fera en PCMU.\n4) La charge utile 101 correspond à telephone-event/8000 : le transport des touches DTMF.\n5) Jules demande le flux sur le port UDP 20000 (m=audio 20000).\n6) C'est la ligne c= (Connection Data, ex. c=IN IP4 10.20.5.44) qui déclare l'adresse IP de réception du média.\nContrôle : chaque numéro cité dans une ligne m=audio possède sa ligne a=rtpmap correspondante ; les deux postes partagent finalement PCMU et telephone-event, les deux seules charges utiles communes."
   },
   {
     "id": "vo3-c2-e3",
     "chapter": 2,
-    "title": "Décodeur d'En-tête RTP & Calculateur de Gigue (RFC 3550)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer la gigue inter-paquets lissée selon la RFC 3550 à partir des timestamps de transmission et de réception.",
-    "brief": "<p>Le protocole RTP (Real-time Transport Protocol, RFC 3550) transporte les trames audio numérisées. Chaque paquet RTP comporte un en-tête fixe de 12 octets contenant :</p><ul><li>Numéro de séquence (Sequence Number, 16 bits) : incrémenté de 1 à chaque paquet.</li><li>Timestamp (32 bits) : échantillon temporel d'horloge (pour G.711 à 8 kHz et 20 ms, l'incrément théorique est de 160 ticks).</li><li>SSRC (Synchronization Source, 32 bits) : identifiant unique de la source.</li></ul>\n<p>Calcul de la gigue inter-paquets (Jitter <code>J</code> en millisecondes) selon l'algorithme RFC 3550 : Soient :   <code>J_i = J_{i-1} + (|D_i| - J_{i-1}) / 16.0</code> (avec <code>J_0 = 0.0</code>).</p><ul><li><code>S_i</code> : timestamp d'émission du paquet i en ticks d'horloge.</li><li><code>R_i</code> : timestamp d'arrivée du paquet i en ticks d'horloge (exprimé à la même échelle d'échantillonnage, ex: 8 000 ticks/sec).</li><li>Différence relative de transit pour le paquet i : <code>D_i = (R_i - S_i) - (R_{i-1} - S_{i-1})</code></li><li>La gigue estimée <code>J_i</code> est lissée selon un filtre passe-bas :</li><li>Conversion de la gigue en millisecondes (pour horloge 8 kHz) : <code>J_ms = (J_i / 8000.0) * 1000.0</code>.</li></ul>\n<p>Format d'entrée :<br>Première ligne : <code>CLOCK_RATE=<fréquence_en_Hz></code> (ex: 8000)<br>Lignes suivantes : paquets reçus ordonnés sous la forme :<br><code>SEQ=<seq> SEND_TS=<ts_emission> RECV_TS=<ts_reception></code></p>\n<p>Format de sortie :<br>Pour chaque paquet à partir du 2e, afficher :<br><code>SEQ:<seq> | DIFF_TRANSIT:<D_i> | JITTER_TICKS:<J_i:.2f> | JITTER_MS:<J_ms:.2f>ms</code></p>",
-    "starter": "# Grille d'analyse (vo3-c2-e3) — Décodeur d'En-tête RTP & Calculateur de Gigue (RFC 3550)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CLOCK_RATE=8000\n# Données : SEQ=1 SEND_TS=0 RECV_TS=160\n# Données : SEQ=2 SEND_TS=160 RECV_TS=380\n# Données : SEQ=3 SEND_TS=320 RECV_TS=500\n# Données : SEQ=4 SEND_TS=480 RECV_TS=740\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CLOCK_RATE=16000\n# Données : SEQ=500 SEND_TS=50000 RECV_TS=50500\n# Données : SEQ=501 SEND_TS=50320 RECV_TS=50900\n# Données : SEQ=502 SEND_TS=50640 RECV_TS=51100\nA_COMPLETER\n",
+    "title": "La capture RTP du webinaire du Cnam Pays de la Loire",
+    "exampleTitle": "Exemple résolu — la retransmission du club des Dogues",
+    "goal": "Analyser une capture RTP : numéros de séquence, horodatage, détection de perte et rôle de RTCP.",
+    "brief": "<p><strong>Énoncé.</strong> Le Cnam Pays de la Loire diffuse un webinaire audio depuis son studio. Le flux part en G.711, paquets de 20 ms, horloge d'horodatage à 8 000 Hz. Sur le poste d'un auditeur, l'analyste réseau relève les paquets RTP reçus :</p><table><tr><th>Ordre de réception</th><th>Numéro de séquence</th><th>Horodatage (ticks)</th></tr><tr><th>1er</th><td>1000</td><td>16000</td></tr><tr><th>2e</th><td>1001</td><td>16160</td></tr><tr><th>3e</th><td>1003</td><td>16480</td></tr><tr><th>4e</th><td>1004</td><td>16640</td></tr></table><p>L'auditeur signale par ailleurs un léger crochet audible au début de la diffusion. Rappels du cours : l'en-tête RTP fixe mesure 12 octets ; le numéro de séquence s'incrémente de 1 par paquet émis ; RTCP accompagne RTP sur le port UDP immédiatement supérieur (impair).</p><ol><li>De combien de ticks l'horodatage progresse-t-il entre deux paquets consécutifs de 20 ms ?</li><li>Quel numéro de séquence a été perdu en route ?</li><li>Quel champ de l'en-tête RTP a permis de détecter cette perte ?</li><li>Quelle est la taille, en octets, de l'en-tête RTP fixe ?</li><li>Le flux RTP occupe le port UDP 16384 : sur quel port le protocole compagnon RTCP échange-t-il ses rapports ?</li><li>Sur quel protocole de transport, TCP ou UDP, le flux RTP est-il véhiculé ?</li></ol><p>Répondez par le nombre ou le mot attendu.</p>",
+    "starter": "# Exercice — La capture RTP du webinaire du Cnam Pays de la Loire\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre ou le mot attendu.\n\n[Question 1 — Progression de l'horodatage entre deux paquets (en ticks)]\nA_COMPLETER\n\n[Question 2 — Numéro de séquence perdu]\nA_COMPLETER\n\n[Question 3 — Champ RTP qui révèle la perte]\nA_COMPLETER\n\n[Question 4 — Taille de l'en-tête RTP fixe (en octets)]\nA_COMPLETER\n\n[Question 5 — Port RTCP associé au port RTP 16384]\nA_COMPLETER\n\n[Question 6 — Protocole de transport de RTP]\nA_COMPLETER\n",
     "hints": [
-      "Calculez l'écart de transit relatif Di = (Ri - Si) - (Ri-1 - Si-1).",
-      "Appliquez le filtre passe-bas du 1er ordre : Ji = Ji-1 + (|Di| - Ji-1) / 16.0."
+      "L'horodatage avance au rythme de l'horloge d'échantillonnage : 20 ms de voix à 8 000 Hz valent 8 000 × 0,02 ticks.",
+      "Comparez les numéros de séquence reçus à la suite attendue 1000, 1001, 1002, 1003… pour repérer le trou.",
+      "1. Incrément d'horodatage : 8 000 × 0,02 = 160 ticks. 2. Le trou est entre 1001 et 1003. 3. C'est le compteur de paquets qui révèle les manques. 4. L'en-tête RTP fixe est annoncé dans le cours. 5. RTCP utilise le port RTP + 1. 6. RTP circule au-dessus du protocole sans connexion."
     ],
     "examples": [
       {
-        "stdin": "CLOCK_RATE=8000\nSEQ=100 SEND_TS=10000 RECV_TS=10200\nSEQ=101 SEND_TS=10160 RECV_TS=10370\nSEQ=102 SEND_TS=10320 RECV_TS=10510",
-        "expected": "SEQ:101 | DIFF_TRANSIT:10 | JITTER_TICKS:0.62 | JITTER_MS:0.08ms\nSEQ:102 | DIFF_TRANSIT:-20 | JITTER_TICKS:1.84 | JITTER_MS:0.23ms\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "La retransmission du club des Dogues part en G.711 avec des paquets de 15 ms.\nReçus : numéros de séquence 5240, 5241, 5242, 5244, 5245.\n\n1) Incrément d'horodatage pour 15 ms : 8 000 × 0,015 = 120 ticks.\n2) Le numéro 5243 manque entre 5242 et 5244 : paquet perdu.\n3) La perte est révélée par les numéros de séquence.\n4) Si le RTP occupe le port 20002, RTCP échange sur 20003.",
+        "expected": "120 ticks — paquet 5243 perdu — détection par le numéro de séquence — RTCP sur 20003",
+        "note": "L'horodatage dépend de la charge utile (15 ms valent 120 ticks, 20 ms en valent 160) ; le numéro de séquence, lui, ne dépend que de l'ordre d'émission."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "SEQ:2 | DIFF_TRANSIT:60 | JITTER_TICKS:3.75 | JITTER_MS:0.47ms\nSEQ:3 | DIFF_TRANSIT:-40 | JITTER_TICKS:6.02 | JITTER_MS:0.75ms\nSEQ:4 | DIFF_TRANSIT:80 | JITTER_TICKS:10.64 | JITTER_MS:1.33ms\n"
+        "label": "Question 1 — Progression de l'horodatage entre deux paquets (en ticks)",
+        "stdin": "q:1",
+        "expected": "160||160 ticks"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "SEQ:501 | DIFF_TRANSIT:80 | JITTER_TICKS:5.00 | JITTER_MS:0.31ms\nSEQ:502 | DIFF_TRANSIT:-120 | JITTER_TICKS:12.19 | JITTER_MS:0.76ms\n"
+        "label": "Question 2 — Numéro de séquence perdu",
+        "stdin": "q:2",
+        "expected": "1002||le 1002"
+      },
+      {
+        "label": "Question 3 — Champ RTP qui révèle la perte",
+        "stdin": "q:3",
+        "expected": "le numéro de séquence||numéro de séquence||le numero de sequence||sequence number||le champ numéro de séquence"
+      },
+      {
+        "label": "Question 4 — Taille de l'en-tête RTP fixe (en octets)",
+        "stdin": "q:4",
+        "expected": "12||12 octets"
+      },
+      {
+        "label": "Question 5 — Port RTCP associé au port RTP 16384",
+        "stdin": "q:5",
+        "expected": "16385||le port 16385"
+      },
+      {
+        "label": "Question 6 — Protocole de transport de RTP",
+        "stdin": "q:6",
+        "expected": "UDP||udp||l'udp"
       }
     ],
-    "solution": "[Exemple]\nSEQ:101 | DIFF_TRANSIT:10 | JITTER_TICKS:0.62 | JITTER_MS:0.08ms\nSEQ:102 | DIFF_TRANSIT:-20 | JITTER_TICKS:1.84 | JITTER_MS:0.23ms\n\n\n[Cas 1 — Cas de test 1]\nSEQ:2 | DIFF_TRANSIT:60 | JITTER_TICKS:3.75 | JITTER_MS:0.47ms\nSEQ:3 | DIFF_TRANSIT:-40 | JITTER_TICKS:6.02 | JITTER_MS:0.75ms\nSEQ:4 | DIFF_TRANSIT:80 | JITTER_TICKS:10.64 | JITTER_MS:1.33ms\n\n\n[Cas 2 — Cas de test 2]\nSEQ:501 | DIFF_TRANSIT:80 | JITTER_TICKS:5.00 | JITTER_MS:0.31ms\nSEQ:502 | DIFF_TRANSIT:-120 | JITTER_TICKS:12.19 | JITTER_MS:0.76ms"
+    "solution": "[Question 1 — Progression de l'horodatage entre deux paquets (en ticks)]\n160\n\n[Question 2 — Numéro de séquence perdu]\n1002\n\n[Question 3 — Champ RTP qui révèle la perte]\nle numéro de séquence\n\n[Question 4 — Taille de l'en-tête RTP fixe (en octets)]\n12\n\n[Question 5 — Port RTCP associé au port RTP 16384]\n16385\n\n[Question 6 — Protocole de transport de RTP]\nUDP",
+    "takeaway": "1) 20 ms de voix à 8 000 Hz : 8 000 × 0,02 = 160 ticks entre deux paquets consécutifs (16000 → 16160 → …).\n2) La suite reçue saute de 1001 à 1003 : le paquet 1002 a été perdu en route.\n3) C'est le numéro de séquence, incrémenté de 1 à chaque paquet émis, qui révèle le trou (il sert aussi à réordonner les paquets délivrés dans le désordre).\n4) L'en-tête RTP fixe occupe 12 octets (numéro de séquence, horodatage, SSRC…).\n5) RTCP accompagne RTP sur le port immédiatement supérieur : 16384 + 1 = 16385.\n6) RTP est véhiculé sur UDP : la retransmission de TCP serait inadaptée au temps réel.\nContrôle : l'horodatage du paquet perdu (1002) aurait dû valoir 16320, soit 16160 + 160 ; les timestamps observés (16480 pour 1003) confirment que seuls deux paquets manquent à l'appel dans la chronologie."
   },
   {
     "id": "vo3-c3-e1",
     "chapter": 3,
-    "title": "Validateur & Générateur de Profils SIP Asterisk",
     "level": "n1",
     "language": "analyse",
-    "goal": "Valider la conformité d'une déclaration de compte utilisateur Asterisk dans sip.conf et générer la configuration normalisée.",
-    "brief": "<p>Dans Asterisk (fichiers sip.conf ou pjsip.conf), chaque utilisateur ou téléphone IP est modélisé par une section déclarative. Pour un compte SIP standard dans sip.conf, les directives clés sont :</p><ul><li><code>[numero_extension]</code> : en-tête identifiant le numéro (ex: [706438029])</li><li><code>type</code> : friend (émet et reçoit), peer (poste appelant ou trunk externe), user (uniquement entrant)</li><li><code>host</code> : dynamic (nécessite un enregistrement SIP REGISTER) ou IP statique</li><li><code>secret</code> : mot de passe d'authentification SIP (doit comporter au moins 6 caractères)</li><li><code>context</code> : contexte du dialplan dans lequel l'utilisateur évolue (ex: work, interne)</li><li><code>dtmfmode</code> : mode de transmission DTMF (rfc2833 obligatoire pour la ToIP moderne)</li><li><code>disallow</code> : all (désactive tous les codecs)</li><li><code>allow</code> : codecs autorisés (ex: ulaw, alaw, g729)</li></ul>\n<p>Format d'entrée :<br>Lignes décrivant un compte SIP sous forme :<br>NUM=<ext> TYPE=<friend|peer|user> HOST=<dynamic|ip> SECRET=<pass> CONTEXT=<nom> CODECS=<c1,c2,...></p>\n<p>Pour chaque compte, vérifier :<br>1. NUM doit être composé de 3 à 10 chiffres.<br>2. TYPE doit appartenir à {friend, peer, user}.<br>3. SECRET doit faire au moins 6 caractères.<br>4. CODECS ne doit pas être vide.<br>Si tout est valide, générer le bloc de configuration compact formaté pour Asterisk. Sinon afficher ERREUR avec le motif du refus.</p>\n<p>Format de sortie :<br>Si valide :<br>[<ext>] | type=<type> | host=<host> | secret=*** | context=<context> | dtmfmode=rfc2833 | disallow=all | allow=<codecs><br>Si invalide :<br>REJET:<ext> | MOTIF:<NUM_INVALIDE|SECRET_TROP_COURT|TYPE_INCONNU|CODECS_VIDES></p>",
-    "starter": "# Grille d'analyse (vo3-c3-e1) — Validateur & Générateur de Profils SIP Asterisk\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : NUM=6001 TYPE=peer HOST=192.168.1.100 SECRET=TrunkSecure2026 CONTEXT=incoming CODECS=g729,alaw\n# Données : NUM=8002 TYPE=admin HOST=dynamic SECRET=PassAdmin99 CONTEXT=work CODECS=alaw\n# Données : NUM=9003 TYPE=friend HOST=dynamic SECRET=MySecretPass CONTEXT=interne CODECS=\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : NUM=1001 TYPE=user HOST=dynamic SECRET=Abcdef1 CONTEXT=default CODECS=opus,ulaw\n# Données : NUM=abcdef TYPE=friend HOST=dynamic SECRET=ValidPass123 CONTEXT=work CODECS=alaw\nA_COMPLETER\n",
+    "title": "Les postes du cabinet Vergnet & Associés",
+    "exampleTitle": "Exemple résolu — l'étude notariale Beau-Séjour",
+    "goal": "Dresser la liste des comptes SIP d'une PME et citer les directives de sip.conf qui les définissent.",
+    "brief": "<p><strong>Énoncé.</strong> Le cabinet d'expertise comptable Vergnet & Associés, quatre collaborateurs, remplace son standard analogique par un IPBX Asterisk. La responsable informatique dresse la table d'extensions suivante :</p><table><tr><th>Extension</th><th>Collaborateur</th><th>Service</th><th>Contexte</th><th>Matériel</th></tr><tr><th>201</th><td>Aïcha Ndiaye</td><td>Accueil</td><td>work</td><td>Poste IP PoE</td></tr><tr><th>202</th><td>Marc Leroux</td><td>Comptabilité</td><td>work</td><td>Softphone sur portable</td></tr><tr><th>203</th><td>Sofia Pereira</td><td>Comptabilité</td><td>work</td><td>Poste IP PoE</td></tr><tr><th>204</th><td>Yanis Amrani</td><td>Direction</td><td>direction</td><td>Softphone nomade</td></tr></table><p>Le cabinet ajoute une boîte vocale générale, la numéro 250, qui accueille les appelants en dehors des horaires d'ouverture. Cette boîte n'est rattachée à aucun poste physique.</p><p>Rappel du cours : chaque poste est déclaré dans sip.conf par une section [numéro] avec les directives type, host, secret et context.</p><ol><li>Combien de comptes SIP faut-il déclarer dans sip.conf ?</li><li>Quelle directive indique qu'un poste sans adresse IP fixe doit s'enregistrer auprès du serveur ?</li><li>Quelle directive rattache chaque poste à son contexte d'acheminement du Dialplan ?</li><li>Quelle valeur du paramètre type autorise un poste à la fois à émettre et à recevoir des appels ?</li><li>Dans quel fichier les boîtes vocales, comme la 250, sont-elles déclarées ?</li></ol><p>Répondez de façon courte (un nombre, une directive, un mot).</p>",
+    "starter": "# Exercice — Les postes du cabinet Vergnet & Associés\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez de façon courte : un nombre, une directive ou un mot.\n\n[Question 1 — Nombre de comptes SIP à déclarer]\nA_COMPLETER\n\n[Question 2 — Directive d'enregistrement pour un poste sans IP fixe]\nA_COMPLETER\n\n[Question 3 — Directive de rattachement au contexte]\nA_COMPLETER\n\n[Question 4 — Valeur de type pour émettre et recevoir]\nA_COMPLETER\n\n[Question 5 — Fichier des boîtes vocales]\nA_COMPLETER\n",
     "hints": [
-      "Vérifiez que toutes les directives obligatoires (type, host, secret, context) sont présentes.",
-      "Assurez-vous que disallow=all précède les directives allow autorisant les codecs."
+      "Seuls les postes qui émettent et reçoivent des appels ont besoin d'un compte SIP : la boîte vocale générale n'en est pas un.",
+      "Relisez la fiche type du cours : [706438029] avec type=friend, host=dynamic, secret=… et context=work.",
+      "1. Comptez les postes de la table, pas les boîtes vocales. 2. host=dynamic impose l'enregistrement REGISTER. 3. La directive context fixe le contexte du Dialplan. 4. type=friend combine peer et user. 5. Les boîtes vocales se déclarent dans voicemail.conf."
     ],
     "examples": [
       {
-        "stdin": "NUM=706438029 TYPE=friend HOST=dynamic SECRET=PassSecret8190 CONTEXT=work CODECS=ulaw,alaw\nNUM=10 TYPE=friend HOST=dynamic SECRET=secret CONTEXT=work CODECS=alaw\nNUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw",
-        "expected": "[706438029] | type=friend | host=dynamic | secret=*** | context=work | dtmfmode=rfc2833 | disallow=all | allow=ulaw,alaw\nREJET:10 | MOTIF:NUM_INVALIDE\nREJET:785446979 | MOTIF:SECRET_TROP_COURT\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "L'étude notariale Beau-Séjour installe un IPBX Asterisk : extensions 101 à 105 (cinq collaborateurs,\npostes IP et softphones) et une boîte vocale générale 199.\n\n1) Il faut déclarer 5 comptes SIP (101 à 105) : la boîte 199 n'est pas un poste.\n2) Les softphones sans IP fixe utilisent host=dynamic.\n3) Chaque poste est rattaché à son contexte par la directive context.\n4) type=friend autorise l'émission et la réception.\n5) La boîte 199 se déclare dans voicemail.conf.",
+        "expected": "5 comptes — host=dynamic — context — friend — voicemail.conf",
+        "note": "Une boîte vocale n'est pas un compte SIP : elle vit dans voicemail.conf, pas dans sip.conf."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "[6001] | type=peer | host=192.168.1.100 | secret=*** | context=incoming | dtmfmode=rfc2833 | disallow=all | allow=g729,alaw\nREJET:8002 | MOTIF:TYPE_INCONNU\nREJET:9003 | MOTIF:CODECS_VIDES\n"
+        "label": "Question 1 — Nombre de comptes SIP à déclarer",
+        "stdin": "q:1",
+        "expected": "4||quatre"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "[1001] | type=user | host=dynamic | secret=*** | context=default | dtmfmode=rfc2833 | disallow=all | allow=opus,ulaw\nREJET:abcdef | MOTIF:NUM_INVALIDE\n"
+        "label": "Question 2 — Directive d'enregistrement pour un poste sans IP fixe",
+        "stdin": "q:2",
+        "expected": "host=dynamic||dynamic||la directive host=dynamic"
+      },
+      {
+        "label": "Question 3 — Directive de rattachement au contexte",
+        "stdin": "q:3",
+        "expected": "context||la directive context||context=work"
+      },
+      {
+        "label": "Question 4 — Valeur de type pour émettre et recevoir",
+        "stdin": "q:4",
+        "expected": "friend||type=friend"
+      },
+      {
+        "label": "Question 5 — Fichier des boîtes vocales",
+        "stdin": "q:5",
+        "expected": "voicemail.conf||le fichier voicemail.conf"
       }
     ],
-    "solution": "[Exemple]\n[706438029] | type=friend | host=dynamic | secret=*** | context=work | dtmfmode=rfc2833 | disallow=all | allow=ulaw,alaw\nREJET:10 | MOTIF:NUM_INVALIDE\nREJET:785446979 | MOTIF:SECRET_TROP_COURT\n\n\n[Cas 1 — Cas de test 1]\n[6001] | type=peer | host=192.168.1.100 | secret=*** | context=incoming | dtmfmode=rfc2833 | disallow=all | allow=g729,alaw\nREJET:8002 | MOTIF:TYPE_INCONNU\nREJET:9003 | MOTIF:CODECS_VIDES\n\n\n[Cas 2 — Cas de test 2]\n[1001] | type=user | host=dynamic | secret=*** | context=default | dtmfmode=rfc2833 | disallow=all | allow=opus,ulaw\nREJET:abcdef | MOTIF:NUM_INVALIDE"
+    "solution": "[Question 1 — Nombre de comptes SIP à déclarer]\n4\n\n[Question 2 — Directive d'enregistrement pour un poste sans IP fixe]\nhost=dynamic\n\n[Question 3 — Directive de rattachement au contexte]\ncontext\n\n[Question 4 — Valeur de type pour émettre et recevoir]\nfriend\n\n[Question 5 — Fichier des boîtes vocales]\nvoicemail.conf",
+    "takeaway": "1) Il faut 4 comptes SIP : les extensions 201, 202, 203 et 204. La boîte vocale 250 n'est pas un poste : aucun compte SIP pour elle.\n2) host=dynamic : le poste n'a pas d'adresse IP fixe, il doit s'enregistrer par une requête REGISTER.\n3) C'est la directive context (ex. context=work pour l'accueil et la comptabilité, context=direction pour la direction) qui rattache le poste à son contexte du Dialplan.\n4) type=friend : le poste est à la fois client (peer, il émet) et serveur (user, il reçoit).\n5) Les boîtes vocales se déclarent dans /etc/asterisk/voicemail.conf, par contexte ([work], [direction]).\nContrôle : la table compte 4 lignes de postes pour 5 numéros annoncés (201 à 204 plus la boîte 250) : la différence est précisément la boîte vocale, sans compte SIP."
   },
   {
     "id": "vo3-c3-e2",
     "chapter": 3,
-    "title": "Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Parser la configuration des boîtes vocales voicemail.conf et calculer l'espace de stockage des messages audio.",
-    "brief": "<p>Dans Asterisk, la messagerie vocale est configurée dans le fichier <code>voicemail.conf</code> sous des contextes dédiés.<br>Chaque boîte vocale est déclarée sur une ligne au format :<br><code><mailbox_num> => <pin_code>,<nom_utilisateur>,<email_notification>,<options></code></p>\n<p>Exemple :<br><code>706438029 => 8190,Pape Moussa SONKO,assoum1024@gmail.com,attach=yes</code></p>\n<p>Règles de validation :</p><ul><li><code>mailbox_num</code> : entier de 3 à 10 chiffres</li><li><code>pin_code</code> : code PIN secret à 4 chiffres (ex: 8190)</li><li><code>nom_utilisateur</code> : chaîne non vide</li><li><code>email_notification</code> : doit contenir un '@' et un '.' valide</li><li><code>quota_messages</code> : seuil maximal de messages (défaut 50)</li></ul>\n<p>Format d'entrée :<br>Lignes de la forme :<br>BOX=<num> PIN=<pin> NAME=<nom> EMAIL=<email> MSG_COUNT=<nb_messages_actuels></p>\n<p>Format de sortie :<br>Pour chaque boîte vocale :<br>1. Valider le format (numéro, PIN à 4 chiffres, email).<br>2. Si invalide, afficher : <code>VOICEMAIL_REJET:<num> | MOTIF:<PIN_INVALIDE|EMAIL_INVALIDE|NUM_INVALIDE></code>.<br>3. Si valide :<br>   Calculer le statut :<br>   - Si <code>MSG_COUNT >= 50</code> : <code>STATUT:PLEINE</code><br>   - Si <code>MSG_COUNT >= 40</code> : <code>STATUT:AVERTISSEMENT</code><br>   - Sinon : <code>STATUT:OK</code><br>   Afficher :<br>   <code>VM:<num> | NOM:<nom> | PIN:**** | EMAIL:<email> | STOCKAGE:<msg>/50 | STATUT:<statut></code></p>",
-    "starter": "# Grille d'analyse (vo3-c3-e2) — Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : BOX=5001 PIN=9988 NAME=Support Technique EMAIL=support@voip.lan MSG_COUNT=50\n# Données : BOX=5002 PIN=1122 NAME=Direction Générale EMAIL=dir@voip.lan MSG_COUNT=42\n# Données : BOX=abc PIN=1234 NAME=Invalide EMAIL=inv@voip.lan MSG_COUNT=0\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : BOX=600 PIN=0000 NAME=Accueil Standard EMAIL=accueil@corp.com MSG_COUNT=55\n# Données : BOX=700 PIN=12345 NAME=Test EMAIL=test@test.com MSG_COUNT=1\nA_COMPLETER\n",
+    "title": "La messagerie vocale du cabinet Vergnet",
+    "exampleTitle": "Exemple résolu — le standard du musée du Bord de Mer",
+    "goal": "Lire une configuration voicemail.conf et chiffrer le stockage des messages vocaux en G.711.",
+    "brief": "<p><strong>Énoncé.</strong> Le cabinet Vergnet & Associés active la messagerie vocale de son IPBX Asterisk. L'extrait de /etc/asterisk/voicemail.conf est le suivant :</p><pre>[work]\n201 => 4102,Aïcha Ndiaye,accueil@vergnet-associes.fr,,attach=yes\n202 => 8831,Marc Leroux,comptabilite@vergnet-associes.fr,,attach=no\n203 => 5150,Sofia Pereira,comptabilite@vergnet-associes.fr,,attach=no</pre><p>Le message d'accueil du cabinet invite les clients à « laisser un message de deux minutes maximum ». Les messages sont enregistrés en G.711, soit un débit de 64 kbps.</p><p>Rappel du cours : la consultation d'une boîte passe par l'application VoiceMailMain() ; le code PIN (4 chiffres) est le premier champ de la ligne de la boîte.</p><ol><li>Quel code PIN Marc Leroux compose-t-il pour consulter sa boîte vocale ?</li><li>Quelle application du Dialplan permet à un salarié de consulter sa boîte vocale ?</li><li>Pour quelle boîte le message audio est-il envoyé par courriel en pièce jointe ?</li><li>Combien d'octets par seconde occupe un message enregistré en G.711 (64 kbps) ?</li><li>Quelle taille, en octets, occupe au maximum un message de deux minutes ?</li></ol><p>Répondez par le nombre, le code ou le nom attendus.</p>",
+    "starter": "# Exercice — La messagerie vocale du cabinet Vergnet\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre, le code ou le nom attendus.\n\n[Question 1 — Code PIN de la boîte de Marc Leroux]\nA_COMPLETER\n\n[Question 2 — Application de consultation de la boîte vocale]\nA_COMPLETER\n\n[Question 3 — Boîte qui reçoit le message par courriel]\nA_COMPLETER\n\n[Question 4 — Octets par seconde d'un message G.711]\nA_COMPLETER\n\n[Question 5 — Taille maximale d'un message de deux minutes (en octets)]\nA_COMPLETER\n",
     "hints": [
-      "Découpez chaque ligne de boîte vocale par les séparateurs => et les virgules.",
-      "Calculez le volume audio en multipliant la durée par le débit G.711 de 8 000 octets/seconde."
+      "Le code PIN est le premier champ après le numéro de boîte, avant le nom du propriétaire.",
+      "Un débit de 64 kbps équivaut à 64 000 bits par seconde, donc 8 000 octets par seconde.",
+      "1. PIN de 202 : lisez la deuxième ligne. 2. La consultation passe par VoiceMailMain(). 3. attach=yes n'apparaît que sur une ligne. 4. 64 000 / 8 = 8 000 octets/s. 5. Deux minutes = 120 secondes : multipliez."
     ],
     "examples": [
       {
-        "stdin": "BOX=706438029 PIN=8190 NAME=Pape Moussa SONKO EMAIL=assoum1024@gmail.com MSG_COUNT=12\nBOX=101 PIN=12 EMAIL=test@corp.fr NAME=Alice MSG_COUNT=5\nBOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45",
-        "expected": "VM:706438029 | NOM:Pape Moussa SONKO | PIN:**** | EMAIL:assoum1024@gmail.com | STOCKAGE:12/50 | STATUT:OK\nVOICEMAIL_REJET:101 | MOTIF:PIN_INVALIDE\nVOICEMAIL_REJET:2001 | MOTIF:EMAIL_INVALIDE\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le musée du Bord de Mer configure sa messagerie : [accueil]\n300 => 2178,Perpetue Mendy,accueil@musee-bm.fr,,attach=yes\nLes messages sont limités à 90 secondes, enregistrés en G.711 (64 kbps).\n\n1) Code PIN : 2178.\n2) Consultation : VoiceMailMain().\n3) La pièce jointe part pour la boîte 300 (attach=yes).\n4) 64 000 / 8 = 8 000 octets par seconde.\n5) 90 secondes : 8 000 × 90 = 720 000 octets.",
+        "expected": "PIN 2178 — VoiceMailMain() — pièce jointe pour la boîte 300 — 8 000 octets/s — 720 000 octets",
+        "note": "attach=yes transmet le fichier WAV par courriel ; la boîte conserve néanmoins sa copie sur le serveur."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "VM:5001 | NOM:Support Technique | PIN:**** | EMAIL:support@voip.lan | STOCKAGE:50/50 | STATUT:PLEINE\nVM:5002 | NOM:Direction Générale | PIN:**** | EMAIL:dir@voip.lan | STOCKAGE:42/50 | STATUT:AVERTISSEMENT\nVOICEMAIL_REJET:abc | MOTIF:NUM_INVALIDE\n"
+        "label": "Question 1 — Code PIN de la boîte de Marc Leroux",
+        "stdin": "q:1",
+        "expected": "8831||le code 8831"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "VM:600 | NOM:Accueil Standard | PIN:**** | EMAIL:accueil@corp.com | STOCKAGE:55/50 | STATUT:PLEINE\nVOICEMAIL_REJET:700 | MOTIF:PIN_INVALIDE\n"
+        "label": "Question 2 — Application de consultation de la boîte vocale",
+        "stdin": "q:2",
+        "expected": "VoiceMailMain()||VoiceMailMain||voicemailmain()||voicemailmain"
+      },
+      {
+        "label": "Question 3 — Boîte qui reçoit le message par courriel",
+        "stdin": "q:3",
+        "expected": "201||la boîte 201||la boite 201"
+      },
+      {
+        "label": "Question 4 — Octets par seconde d'un message G.711",
+        "stdin": "q:4",
+        "expected": "8000||8 000||8000 octets"
+      },
+      {
+        "label": "Question 5 — Taille maximale d'un message de deux minutes (en octets)",
+        "stdin": "q:5",
+        "expected": "960000||960 000||960000 octets"
       }
     ],
-    "solution": "[Exemple]\nVM:706438029 | NOM:Pape Moussa SONKO | PIN:**** | EMAIL:assoum1024@gmail.com | STOCKAGE:12/50 | STATUT:OK\nVOICEMAIL_REJET:101 | MOTIF:PIN_INVALIDE\nVOICEMAIL_REJET:2001 | MOTIF:EMAIL_INVALIDE\n\n\n[Cas 1 — Cas de test 1]\nVM:5001 | NOM:Support Technique | PIN:**** | EMAIL:support@voip.lan | STOCKAGE:50/50 | STATUT:PLEINE\nVM:5002 | NOM:Direction Générale | PIN:**** | EMAIL:dir@voip.lan | STOCKAGE:42/50 | STATUT:AVERTISSEMENT\nVOICEMAIL_REJET:abc | MOTIF:NUM_INVALIDE\n\n\n[Cas 2 — Cas de test 2]\nVM:600 | NOM:Accueil Standard | PIN:**** | EMAIL:accueil@corp.com | STOCKAGE:55/50 | STATUT:PLEINE\nVOICEMAIL_REJET:700 | MOTIF:PIN_INVALIDE"
+    "solution": "[Question 1 — Code PIN de la boîte de Marc Leroux]\n8831\n\n[Question 2 — Application de consultation de la boîte vocale]\nVoiceMailMain()\n\n[Question 3 — Boîte qui reçoit le message par courriel]\n201\n\n[Question 4 — Octets par seconde d'un message G.711]\n8000\n\n[Question 5 — Taille maximale d'un message de deux minutes (en octets)]\n960000",
+    "takeaway": "1) Le code PIN de la boîte 202 (Marc Leroux) est 8831.\n2) La consultation passe par l'application VoiceMailMain() du Dialplan.\n3) attach=yes n'apparaît que sur la ligne de la boîte 201 : seul le message d'Aïcha Ndiaye part en pièce jointe vers accueil@vergnet-associes.fr.\n4) 64 kbps = 64 000 bits/s = 64 000 / 8 = 8 000 octets par seconde.\n5) Deux minutes = 120 secondes : 8 000 × 120 = 960 000 octets, soit environ 0,96 Mo par message.\nContrôle : une heure de messages en G.711 occuperait 8 000 × 3 600 = 28,8 Mo : la limite de deux minutes tient chaque boîte sous le méga-octet par message."
   },
   {
     "id": "vo3-c3-e3",
     "chapter": 3,
-    "title": "Analyseur de Télémétrie SIP Registrar & Expiration de Baux",
     "level": "n3",
     "language": "analyse",
-    "goal": "Gérer les baux d'enregistrement SIP auprès du Registrar et détecter les expirations de contacts.",
-    "brief": "<p>Le serveur SIP Registrar maintient la base des associations entre l'adresse logique (Address of Record, AOR: ex: sip:701@voip.lan) et l'adresse IP de contact réelle.<br>Chaque requête <code>REGISTER</code> comporte un en-tête <code>Expires: <secondes></code> (typiquement 3 600 s) renouvelant le bail de l'équipement.<br>Si aucun REGISTER n'est reçu avant expiration du délai (avec une tolérance de 60 s), le poste bascule en état <code>UNREACHABLE</code> (hors-ligne).<br>De plus, si la latence réseau (RTT en ms mesuré par paquets OPTIONS périodiques) dépasse 150 ms, le poste est qualifié de <code>LAGGED</code> (gigue/délai excessif).</p>\n<p>Format d'entrée :<br>Lignes au format :<br>EXTENSION=<num> IP_CONTACT=<ip:port> LAST_SEEN_SEC=<secondes_depuis_dernier_register> EXPIRES=<duree_bail> RTT_MS=<latence></p>\n<p>Règles de qualification :<br>1. Calculer le temps restant du bail : <code>REMAINING = EXPIRES - LAST_SEEN_SEC</code>.<br>2. Déterminer l'état de joignabilité :<br>   - Si <code>LAST_SEEN_SEC > EXPIRES + 60</code> : <code>STATUT = EXPIRED</code><br>   - Sinon si <code>RTT_MS < 0</code> ou <code>RTT_MS > 300</code> : <code>STATUT = UNREACHABLE</code><br>   - Sinon si <code>RTT_MS > 150</code> : <code>STATUT = LAGGED</code><br>   - Sinon : <code>STATUT = REACHABLE</code></p>\n<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>EXT:<num> | IP:<ip:port> | BAIL_RESTANT:<REMAINING>s | LATENCE:<RTT_MS>ms | STATUT:<statut></p>",
-    "starter": "# Grille d'analyse (vo3-c3-e3) — Analyseur de Télémétrie SIP Registrar & Expiration de Baux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : EXTENSION=100 IP_CONTACT=10.0.4.12:5060 LAST_SEEN_SEC=500 EXPIRES=600 RTT_MS=450\n# Données : EXTENSION=101 IP_CONTACT=10.0.4.13:5060 LAST_SEEN_SEC=50 EXPIRES=3600 RTT_MS=8\n# Données : EXTENSION=102 IP_CONTACT=10.0.4.14:5060 LAST_SEEN_SEC=4000 EXPIRES=3600 RTT_MS=-1\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : EXTENSION=800 IP_CONTACT=172.20.1.1:5060 LAST_SEEN_SEC=1700 EXPIRES=1800 RTT_MS=160\n# Données : EXTENSION=801 IP_CONTACT=172.20.1.2:5060 LAST_SEEN_SEC=1850 EXPIRES=1800 RTT_MS=30\nA_COMPLETER\n",
+    "title": "Les enregistrements SIP du serveur de Vergnet & Associés",
+    "exampleTitle": "Exemple résolu — les baux de l'agence immobilière Horizon",
+    "goal": "Suivre les baux d'enregistrement REGISTER d'un IPBX et détecter les postes injoignables.",
+    "brief": "<p><strong>Énoncé.</strong> Les postes du cabinet Vergnet & Associés sont déclarés avec host=dynamic : chacun s'enregistre périodiquement auprès du Registrar d'Asterisk. À <strong>08:45:00</strong>, la console du serveur affiche l'état des enregistrements :</p><table><tr><th>Poste</th><th>Dernier REGISTER reçu</th><th>Durée du bail (expires)</th></tr><tr><th>201</th><td>08:00:00</td><td>3600 s</td></tr><tr><th>202</th><td>08:20:00</td><td>1800 s</td></tr><tr><th>204</th><td>07:00:00</td><td>3600 s</td></tr></table><p>Rappel du cours : le bail expire à l'heure du dernier REGISTER + expires ; un poste non réenregistré devient injoignable en appel entrant ; l'enregistrement s'effectue par une requête REGISTER acquittée par un 200 OK.</p><ol><li>À 08:45:00, combien de minutes restent-ils avant l'expiration du bail du poste 201 ?</li><li>Combien de minutes restent-ils avant l'expiration du bail du poste 202 ?</li><li>Le poste 204 est-il encore enregistré à 08:45:00 (oui ou non) ?</li><li>Quelle méthode SIP un poste envoie-t-il pour renouveler son bail ?</li><li>Quel code de réponse finale confirme un enregistrement réussi ?</li><li>À quelle heure exacte le bail du poste 202 expire-t-il (format hh:mm) ?</li></ol><p>Répondez par le nombre, oui/non, la méthode ou le code attendus.</p>",
+    "starter": "# Exercice — Les enregistrements SIP du serveur de Vergnet & Associés\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre, oui/non, la méthode ou le code attendus.\n\n[Question 1 — Minutes restantes au bail du poste 201]\nA_COMPLETER\n\n[Question 2 — Minutes restantes au bail du poste 202]\nA_COMPLETER\n\n[Question 3 — Le poste 204 est-il encore enregistré]\nA_COMPLETER\n\n[Question 4 — Méthode SIP de renouvellement du bail]\nA_COMPLETER\n\n[Question 5 — Code de réponse confirmant l'enregistrement]\nA_COMPLETER\n\n[Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)]\nA_COMPLETER\n",
     "hints": [
-      "Comparez le temps écoulé depuis le dernier contact avec le paramètre expires.",
-      "Marquez le statut comme ACTIF si le bail est valide, sinon EXPIRE."
+      "Convertissez la durée du bail en minutes : 3600 s = 60 min, 1800 s = 30 min, puis ajoutez-la à l'heure du dernier REGISTER.",
+      "Un bail déjà expiré à l'heure d'observation signifie que le poste n'a pas renouvelé son enregistrement.",
+      "1. Poste 201 : dernier REGISTER 08:00 + 60 min = expiration 09:00 ; il reste 15 min à 08:45. 2. Poste 202 : 08:20 + 30 min = expiration 08:50. 3. Poste 204 : 07:00 + 60 min = 08:00, donc expiré depuis 08:45. 4. Le renouvellement passe par REGISTER. 5. La réponse finale de succès est le 200 OK."
     ],
     "examples": [
       {
-        "stdin": "EXTENSION=701 IP_CONTACT=192.168.1.50:5060 LAST_SEEN_SEC=120 EXPIRES=3600 RTT_MS=15\nEXTENSION=702 IP_CONTACT=192.168.1.51:5060 LAST_SEEN_SEC=3700 EXPIRES=3600 RTT_MS=20\nEXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS=195",
-        "expected": "EXT:701 | IP:192.168.1.50:5060 | BAIL_RESTANT:3480s | LATENCE:15ms | STATUT:REACHABLE\nEXT:702 | IP:192.168.1.51:5060 | BAIL_RESTANT:-100s | LATENCE:20ms | STATUT:EXPIRED\nEXT:703 | IP:192.168.1.52:5060 | BAIL_RESTANT:1600s | LATENCE:195ms | STATUT:LAGGED\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "L'agence immobilière Horizon observe ses postes à 09:15:00 :\n101 : REGISTER à 09:00:00, expires 1200 s (20 min) ;\n102 : REGISTER à 08:30:00, expires 3600 s (60 min) ;\n103 : REGISTER à 08:00:00, expires 1800 s (30 min).\n\n1) Poste 101 : expiration à 09:20:00, il reste 5 minutes.\n2) Poste 102 : expiration à 09:30:00, il reste 15 minutes.\n3) Poste 103 : bail expiré depuis 08:30:00 : poste non enregistré.\n4) Le renouvellement se fait par REGISTER, acquitté 200 OK.",
+        "expected": "101 : 5 minutes restantes — 102 : 15 minutes — 103 : expiré — REGISTER — 200 OK",
+        "note": "Un bail expiré rend le poste injoignable : sans réenregistrement, l'IPBX ne sait plus où acheminer les appels entrants."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "EXT:100 | IP:10.0.4.12:5060 | BAIL_RESTANT:100s | LATENCE:450ms | STATUT:UNREACHABLE\nEXT:101 | IP:10.0.4.13:5060 | BAIL_RESTANT:3550s | LATENCE:8ms | STATUT:REACHABLE\nEXT:102 | IP:10.0.4.14:5060 | BAIL_RESTANT:-400s | LATENCE:-1ms | STATUT:EXPIRED\n"
+        "label": "Question 1 — Minutes restantes au bail du poste 201",
+        "stdin": "q:1",
+        "expected": "15||15 minutes||15 min"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "EXT:800 | IP:172.20.1.1:5060 | BAIL_RESTANT:100s | LATENCE:160ms | STATUT:LAGGED\nEXT:801 | IP:172.20.1.2:5060 | BAIL_RESTANT:-50s | LATENCE:30ms | STATUT:REACHABLE\n"
+        "label": "Question 2 — Minutes restantes au bail du poste 202",
+        "stdin": "q:2",
+        "expected": "5||5 minutes||5 min"
+      },
+      {
+        "label": "Question 3 — Le poste 204 est-il encore enregistré",
+        "stdin": "q:3",
+        "expected": "non"
+      },
+      {
+        "label": "Question 4 — Méthode SIP de renouvellement du bail",
+        "stdin": "q:4",
+        "expected": "REGISTER||register||la méthode REGISTER"
+      },
+      {
+        "label": "Question 5 — Code de réponse confirmant l'enregistrement",
+        "stdin": "q:5",
+        "expected": "200 OK||200 ok||le 200 OK||200"
+      },
+      {
+        "label": "Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)",
+        "stdin": "q:6",
+        "expected": "08:50||8:50||08h50"
       }
     ],
-    "solution": "[Exemple]\nEXT:701 | IP:192.168.1.50:5060 | BAIL_RESTANT:3480s | LATENCE:15ms | STATUT:REACHABLE\nEXT:702 | IP:192.168.1.51:5060 | BAIL_RESTANT:-100s | LATENCE:20ms | STATUT:EXPIRED\nEXT:703 | IP:192.168.1.52:5060 | BAIL_RESTANT:1600s | LATENCE:195ms | STATUT:LAGGED\n\n\n[Cas 1 — Cas de test 1]\nEXT:100 | IP:10.0.4.12:5060 | BAIL_RESTANT:100s | LATENCE:450ms | STATUT:UNREACHABLE\nEXT:101 | IP:10.0.4.13:5060 | BAIL_RESTANT:3550s | LATENCE:8ms | STATUT:REACHABLE\nEXT:102 | IP:10.0.4.14:5060 | BAIL_RESTANT:-400s | LATENCE:-1ms | STATUT:EXPIRED\n\n\n[Cas 2 — Cas de test 2]\nEXT:800 | IP:172.20.1.1:5060 | BAIL_RESTANT:100s | LATENCE:160ms | STATUT:LAGGED\nEXT:801 | IP:172.20.1.2:5060 | BAIL_RESTANT:-50s | LATENCE:30ms | STATUT:REACHABLE"
+    "solution": "[Question 1 — Minutes restantes au bail du poste 201]\n15\n\n[Question 2 — Minutes restantes au bail du poste 202]\n5\n\n[Question 3 — Le poste 204 est-il encore enregistré]\nnon\n\n[Question 4 — Méthode SIP de renouvellement du bail]\nREGISTER\n\n[Question 5 — Code de réponse confirmant l'enregistrement]\n200 OK\n\n[Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)]\n08:50",
+    "takeaway": "1) Poste 201 : dernier REGISTER à 08:00:00 + 3600 s = expiration à 09:00:00 ; à 08:45:00, il reste 15 minutes.\n2) Poste 202 : 08:20:00 + 1800 s = expiration à 08:50:00 ; il reste 5 minutes.\n3) Poste 204 : 07:00:00 + 3600 s = expiration à 08:00:00 ; à 08:45:00 le bail est expiré depuis 45 minutes : le poste n'est plus enregistré (il n'a pas renouvelé son bail).\n4) Le poste renouvelle son bail par une requête REGISTER envoyée au Registrar.\n5) L'enregistrement réussi est confirmé par une réponse finale 200 OK.\n6) Le bail du poste 202 expire à 08:50.\nContrôle : le poste 203, lui, n'apparaît pas dans la console : il ne s'est jamais enregistré depuis le redémarrage du serveur, situation à distinguer d'un bail expiré."
   },
   {
     "id": "vo3-c4-e1",
     "chapter": 4,
-    "title": "Parseur & Routeur de Dialplan Asterisk (extensions.conf)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Évaluer la logique séquentielle des règles d'extensions et priorités dans le Dialplan extensions.conf d'Asterisk.",
-    "brief": "<p>Dans Asterisk, le plan de numérotation (Dialplan) est décrit dans <code>extensions.conf</code>.<br>Chaque ligne d'instruction suit la syntaxe :<br><code>exten => <extension>,<priorite>,<application>(<arguments>)</code></p>\n<p>Exemples :<br><code>exten => 100,1,Answer()</code><br><code>exten => 100,2,Playback(bienvenue)</code><br><code>exten => 100,3,Dial(SIP/100,20)</code><br><code>exten => 100,4,VoiceMail(100@default,u)</code><br><code>exten => 100,5,Hangup()</code></p>\n<p>Les applications courantes sont :</p><ul><li><code>Answer</code> : décroche l'appel</li><li><code>Playback</code> : joue un fichier son</li><li><code>Dial</code> : tente de joindre une cible (technologie/cible, timeout)</li><li><code>VoiceMail</code> : redirige vers la messagerie</li><li><code>Hangup</code> : raccroche la ligne</li></ul>\n<p>Format d'entrée :<br>Lignes de dialplan d'une extension donnée les données d’entrée.</p>\n<p>Format de sortie :<br>Pour chaque ligne :<br>1. Extraire : extension, numéro de priorité (ou 'n'), nom de l'application et arguments.<br>2. Déterminer la catégorie de l'application :<br>   - Answer -> CALL_CONTROL<br>   - Playback, Background -> MEDIA<br>   - Dial -> ROUTING<br>   - VoiceMail -> MESSAGING<br>   - Hangup -> TERMINATION<br>   - Autre -> MISC<br>3. Afficher :<br><code>EXT:<ext> | PRIO:<prio> | APP:<app> | ARGS:<args> | CATEGORIE:<cat></code></p>",
-    "starter": "# Grille d'analyse (vo3-c4-e1) — Parseur & Routeur de Dialplan Asterisk (extensions.conf)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : exten => 101,1,Dial(SIP/101,15)\n# Données : exten => 101,2,GotoIf($[\"${DIALSTATUS}\" = \"BUSY\"]?busy:unavail)\n# Données : exten => 101,3,Hangup()\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : exten => s,1,Answer()\n# Données : exten => s,2,Background(menu-acceuil)\n# Données : exten => s,3,WaitExten(5)\n# Données : exten => s,4,Hangup()\nA_COMPLETER\n",
+    "title": "Le menu vocal du standard d'UrgenceFuite",
+    "exampleTitle": "Exemple résolu — la hotline du loueur Vél'Océan",
+    "goal": "Lire un Dialplan Asterisk simple : extensions spéciales, applications Answer, Background, WaitExten et renvoi vers la boîte vocale.",
+    "brief": "<p><strong>Énoncé.</strong> La société de dépannage UrgenceFuite publie un numéro unique pour ses clients. Son IPBX Asterisk exécute le Dialplan suivant :</p><pre>[accueil]\nexten => s,1,Answer()\nexten => s,n,Background(bienvenue-urgencefuite)\nexten => s,n,WaitExten(6)\nexten => 1,1,Dial(SIP/301,15)\nexten => 1,n,VoiceMail(301@urgence)\nexten => 2,1,Queue(astreinte)\nexten => 2,n,Hangup()\nexten => t,1,Playback(merci-au-revoir)\nexten => t,n,Hangup()</pre><p>Rappel du cours : l'extension s (start) accueille un appel sans numéro composé ; l'extension t (timeout) est déclenchée quand aucune touche n'est pressée dans le délai imparti.</p><ol><li>Quelle extension spéciale sert de point d'entrée à l'appel entrant ?</li><li>Que fait l'application Answer() exécutée en priorité 1 ?</li><li>Quelle application diffuse le message d'accueil tout en restant à l'écoute des touches DTMF ?</li><li>Quelle extension spéciale est déclenchée si l'appelant ne presse aucune touche pendant les 6 secondes ?</li><li>Un client presse la touche 1 mais personne ne décroche au poste 301 pendant les 15 secondes : que devient l'appel ?</li></ol><p>Répondez de façon courte (une lettre, une application, une phrase brève pour la question 5).</p>",
+    "starter": "# Exercice — Le menu vocal du standard d'UrgenceFuite\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez de façon courte : une lettre, une application ou une phrase brève.\n\n[Question 1 — Extension spéciale de point d'entrée]\nA_COMPLETER\n\n[Question 2 — Rôle de l'application Answer()]\nA_COMPLETER\n\n[Question 3 — Application qui joue le menu en écoutant les touches]\nA_COMPLETER\n\n[Question 4 — Extension spéciale déclenchée sans aucune touche]\nA_COMPLETER\n\n[Question 5 — Devenir de l'appel si le poste 301 ne répond pas]\nA_COMPLETER\n",
     "hints": [
-      "Filtrez les règles appartenant au contexte de l'appelant.",
-      "Exécutez séquentiellement les priorités 1, 2, n associées à l'extension composée."
+      "Suivez l'exécution dans l'ordre des priorités : 1, puis n (next) : Answer, Background, WaitExten.",
+      "Deux applications jouent des sons : Background écoute les touches pendant la diffusion, Playback ne les écoute pas.",
+      "1. Un appel entrant sans numéro composé démarre sur l'extension s. 2. Answer() décroche la ligne. 3. Le menu est diffusé par Background(). 4. Sans touche pendant 6 s, l'extension t prend le relais. 5. Après Dial(SIP/301,15) sans réponse, la priorité suivante VoiceMail(301@urgence) prend l'appel."
     ],
     "examples": [
       {
-        "stdin": "exten => 600,1,Answer()\nexten => 600,2,Playback(vm-intro)\nexten => 600,3,VoiceMailMain(${CALLERID(num)}@work)\nexten => 600,4,Hangup()",
-        "expected": "EXT:600 | PRIO:1 | APP:Answer | ARGS: | CATEGORIE:CALL_CONTROL\nEXT:600 | PRIO:2 | APP:Playback | ARGS:vm-intro | CATEGORIE:MEDIA\nEXT:600 | PRIO:3 | APP:VoiceMailMain | ARGS:${CALLERID(num)}@work | CATEGORIE:MESSAGING\nEXT:600 | PRIO:4 | APP:Hangup | ARGS: | CATEGORIE:TERMINATION\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le loueur Vél'Océan diffuse ce menu : [accueil]\nexten => s,1,Answer()\nexten => s,n,Background(bienvenue-velocean)\nexten => s,n,WaitExten(4)\nexten => 1,1,Dial(SIP/101,10)\nexten => 1,n,VoiceMail(101@velocean)\nexten => t,1,Playback(au-revoir)\nexten => t,n,Hangup()\n\n1) L'appel entre par l'extension s.\n2) Answer() décroche la ligne.\n3) Background(bienvenue-velocean) joue le menu en écoutant les touches.\n4) Sans touche pendant 4 s : extension t (Playback au-revoir puis Hangup).\n5) Poste 101 sans réponse pendant 10 s : l'appel part sur la boîte vocale 101.",
+        "expected": "entrée par s — Answer() décroche — Background écoute les touches — t après 4 s — boîte vocale 101",
+        "note": "Playback, lui, joue un son sans écouter les touches : on le réserve aux annonces finales."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "EXT:101 | PRIO:1 | APP:Dial | ARGS:SIP/101,15 | CATEGORIE:ROUTING\nEXT:101 | PRIO:2 | APP:GotoIf | ARGS:$[\"${DIALSTATUS}\" = \"BUSY\"]?busy:unavail | CATEGORIE:MISC\nEXT:101 | PRIO:3 | APP:Hangup | ARGS: | CATEGORIE:TERMINATION\n"
+        "label": "Question 1 — Extension spéciale de point d'entrée",
+        "stdin": "q:1",
+        "expected": "s||l'extension s"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "EXT:s | PRIO:1 | APP:Answer | ARGS: | CATEGORIE:CALL_CONTROL\nEXT:s | PRIO:2 | APP:Background | ARGS:menu-acceuil | CATEGORIE:MEDIA\nEXT:s | PRIO:3 | APP:WaitExten | ARGS:5 | CATEGORIE:MISC\nEXT:s | PRIO:4 | APP:Hangup | ARGS: | CATEGORIE:TERMINATION\n"
+        "label": "Question 2 — Rôle de l'application Answer()",
+        "stdin": "q:2",
+        "expected": "elle décroche la ligne||elle décroche||décrocher la ligne||elle décroche l'appel||elle décroche le canal"
+      },
+      {
+        "label": "Question 3 — Application qui joue le menu en écoutant les touches",
+        "stdin": "q:3",
+        "expected": "Background||Background()||background"
+      },
+      {
+        "label": "Question 4 — Extension spéciale déclenchée sans aucune touche",
+        "stdin": "q:4",
+        "expected": "t||l'extension t"
+      },
+      {
+        "label": "Question 5 — Devenir de l'appel si le poste 301 ne répond pas",
+        "stdin": "q:5",
+        "expected": "il part sur la boîte vocale 301||il est renvoyé vers la boîte vocale 301||vers la boîte vocale 301||la boîte vocale 301||il bascule sur la messagerie vocale 301"
       }
     ],
-    "solution": "[Exemple]\nEXT:600 | PRIO:1 | APP:Answer | ARGS: | CATEGORIE:CALL_CONTROL\nEXT:600 | PRIO:2 | APP:Playback | ARGS:vm-intro | CATEGORIE:MEDIA\nEXT:600 | PRIO:3 | APP:VoiceMailMain | ARGS:${CALLERID(num)}@work | CATEGORIE:MESSAGING\nEXT:600 | PRIO:4 | APP:Hangup | ARGS: | CATEGORIE:TERMINATION\n\n\n[Cas 1 — Cas de test 1]\nEXT:101 | PRIO:1 | APP:Dial | ARGS:SIP/101,15 | CATEGORIE:ROUTING\nEXT:101 | PRIO:2 | APP:GotoIf | ARGS:$[\"${DIALSTATUS}\" = \"BUSY\"]?busy:unavail | CATEGORIE:MISC\nEXT:101 | PRIO:3 | APP:Hangup | ARGS: | CATEGORIE:TERMINATION\n\n\n[Cas 2 — Cas de test 2]\nEXT:s | PRIO:1 | APP:Answer | ARGS: | CATEGORIE:CALL_CONTROL\nEXT:s | PRIO:2 | APP:Background | ARGS:menu-acceuil | CATEGORIE:MEDIA\nEXT:s | PRIO:3 | APP:WaitExten | ARGS:5 | CATEGORIE:MISC\nEXT:s | PRIO:4 | APP:Hangup | ARGS: | CATEGORIE:TERMINATION"
+    "solution": "[Question 1 — Extension spéciale de point d'entrée]\ns\n\n[Question 2 — Rôle de l'application Answer()]\nelle décroche la ligne\n\n[Question 3 — Application qui joue le menu en écoutant les touches]\nBackground\n\n[Question 4 — Extension spéciale déclenchée sans aucune touche]\nt\n\n[Question 5 — Devenir de l'appel si le poste 301 ne répond pas]\nil part sur la boîte vocale 301",
+    "takeaway": "1) L'appel entrant, sans numéro composé, démarre sur l'extension spéciale s (start).\n2) Answer() décroche la ligne : l'IPBX répond à l'appelant dès la priorité 1.\n3) C'est Background(bienvenue-urgencefuite) qui diffuse le message tout en collectant les touches DTMF.\n4) Sans aucune touche pendant les 6 secondes de WaitExten(6), l'extension t (timeout) est déclenchée : message de remerciement puis Hangup().\n5) Dial(SIP/301,15) sonne 15 secondes ; sans décrochage, l'exécution passe à la priorité suivante : VoiceMail(301@urgence), l'appel est renvoyé sur la boîte vocale du poste 301.\nContrôle : la touche 2 mène à la file astreinte (Queue) puis à un Hangup propre : chaque branche du menu se termine par une issue explicite."
   },
   {
     "id": "vo3-c4-e2",
     "chapter": 4,
-    "title": "Matcher de Masques de Numérotation Asterisk (Pattern Matching)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Implémenter le moteur de pattern matching d'Asterisk avec masques _X, _Z, _N et extraction de variables ${EXTEN}.",
-    "brief": "<p>Dans Asterisk, les extensions peuvent être définies par des motifs (patterns) débutant par un souligné <code>_</code>. La syntaxe standard des motifs de numérotation Asterisk est :</p><ul><li><code>X</code> : correspond à n'importe quel chiffre de 0 à 9</li><li><code>Z</code> : correspond à n'importe quel chiffre de 1 à 9</li><li><code>N</code> : correspond à n'importe quel chiffre de 2 à 9</li><li><code>[1357]</code> : correspond à l'un des chiffres entre crochets</li><li><code>.</code> (point) : joker correspondant à un ou plusieurs caractères quelconques (en fin de motif)</li><li><code>!</code> (point d'exclamation) : joker correspondant à zéro ou plusieurs caractères</li></ul>\n<p>Exemples :</p><ul><li><code>_7XXXXXXXX</code> : correspond aux numéros sénégalais de 9 chiffres débutant par 7 (de 700000000 à 799999999).</li><li><code>_0[1-5]XXXXXXXX</code> : numéros géographiques français fixes (10 chiffres).</li><li><code>_9.</code> : tout appel sortant avec préfixe 9.</li></ul>\n<p>Format d'entrée :<br>Lignes de la forme :<br>PATTERN=<motif_asterisk> NUM=<numero_compose></p>\n<p>Règles :<br>1. Convertir le motif Asterisk en expression régulière équivalente.<br>2. Si le motif ne commence pas par <code>_</code>, il s'agit d'une correspondance littérale exacte.<br>3. Vérifier si NUM correspond au motif.<br>4. Si correspondance : extraire la valeur qui serait affectée à la variable <code>${EXTEN}</code> (soit le numéro entier) et indiquer <code>MATCH:OUI</code>.<br>5. Sinon indiquer <code>MATCH:NON</code>.</p>\n<p>Format de sortie :<br>Pour chaque test :<br>PATTERN:<pattern> | NUM:<num> | REGEX:<regex> | RESULTAT:<MATCH:OUI|MATCH:NON></p>",
-    "starter": "# Grille d'analyse (vo3-c4-e2) — Matcher de Masques de Numérotation Asterisk (Pattern Matching)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : PATTERN=_NXX NUM=250\n# Données : PATTERN=_NXX NUM=150\n# Données : PATTERN=_9. NUM=90123456789\n# Données : PATTERN=_9. NUM=9\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : PATTERN=_ZXXX NUM=1000\n# Données : PATTERN=_ZXXX NUM=0500\nA_COMPLETER\n",
+    "title": "Les masques de numérotation de la mutuelle Solidia",
+    "exampleTitle": "Exemple résolu — le plan du centre de formation Confluences",
+    "goal": "Faire correspondre des numéros composés aux motifs Asterisk _X, _Z, _N et extraire ${EXTEN}.",
+    "brief": "<p><strong>Énoncé.</strong> La mutuelle Solidia regroupe 300 salariés derrière un IPBX Asterisk. Le Dialplan du contexte [work] ne contient que ces trois règles à motifs :</p><table><tr><th>Règle</th><th>Motif</th><th>Action</th></tr><tr><th>A</th><td>_4XXX</td><td>Dial(SIP/${EXTEN},15) — postes internes</td></tr><tr><th>B</th><td>_0Z.</td><td>Dial(SIP/trunk-solidia/${EXTEN},30) — réseau public</td></tr><tr><th>C</th><td>_99N</td><td>Queue(conseillers) — numéros courts du service conseil</td></tr></table><p>Rappel du cours : X correspond à un chiffre de 0 à 9 ; Z à un chiffre de 1 à 9 ; N à un chiffre de 2 à 9 ; le point correspond à un ou plusieurs caractères quelconques ; ${EXTEN} contient le numéro composé. La variable ${EXTEN} vaut exactement la chaîne composée.</p><ol><li>Un salarié compose 4271 : quelle règle (A, B ou C) s'applique ?</li><li>Un salarié compose 0698765432 : quelle règle s'applique ?</li><li>Dans le motif _4XXX, que représente le symbole X ?</li><li>Quelle est la plus grande extension interne interceptée par la règle A ?</li><li>Quelle est la plus petite extension interne interceptée par la règle A ?</li><li>Quel symbole de motif correspond uniquement aux chiffres de 2 à 9 ?</li></ol><p>Répondez par la lettre de la règle, le nombre ou le symbole attendus.</p>",
+    "starter": "# Exercice — Les masques de numérotation de la mutuelle Solidia\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par la lettre de la règle, le nombre ou le symbole attendus.\n\n[Question 1 — Règle appliquée au numéro 4271]\nA_COMPLETER\n\n[Question 2 — Règle appliquée au numéro 0698765432]\nA_COMPLETER\n\n[Question 3 — Signification du symbole X]\nA_COMPLETER\n\n[Question 4 — Plus grande extension interne de la règle A]\nA_COMPLETER\n\n[Question 5 — Plus petite extension interne de la règle A]\nA_COMPLETER\n\n[Question 6 — Symbole des chiffres de 2 à 9]\nA_COMPLETER\n",
     "hints": [
-      "Les motifs de numérotation débutent obligatoirement par un caractère souligné _.",
-      "Traduisez X en [0-9], Z en [1-9] et N en [2-9] pour tester la correspondance."
+      "Un motif Asterisk commence par le souligné : chaque caractère du motif (X, Z, N, chiffre littéral, point) doit correspondre au numéro composé, chiffre par chiffre.",
+      "La règle A _4XXX capture exactement quatre chiffres commençant par 4 ; la règle B _0Z. commence par 0 puis un chiffre non nul, suivi d'au moins un caractère.",
+      "1. 4271 : quatre chiffres commençant par 4. 2. 0698765432 : 0 puis 6 (non nul) puis huit chiffres. 3. X couvre 0 à 9. 4. et 5. Balayez 4000 à 4999. 6. Le symbole réservé aux chiffres 2 à 9 est N."
     ],
     "examples": [
       {
-        "stdin": "PATTERN=_7XXXXXXXX NUM=706438029\nPATTERN=_7XXXXXXXX NUM=806438029\nPATTERN=_0[1-5]XXXXXXXX NUM=0140203040\nPATTERN=600 NUM=600",
-        "expected": "PATTERN:_7XXXXXXXX | NUM:706438029 | REGEX:^7[0-9]{8}$ | RESULTAT:MATCH:OUI\nPATTERN:_7XXXXXXXX | NUM:806438029 | REGEX:^7[0-9]{8}$ | RESULTAT:MATCH:NON\nPATTERN:_0[1-5]XXXXXXXX | NUM:0140203040 | REGEX:^0[1-5][0-9]{8}$ | RESULTAT:MATCH:OUI\nPATTERN:600 | NUM:600 | REGEX:^600$ | RESULTAT:MATCH:OUI\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le centre de formation Confluences utilise deux motifs :\n_3XXX pour les postes internes (Dial SIP) et _0[1-5]. pour le réseau public via le trunk.\n\n1) 3112 composé : quatre chiffres commençant par 3 : règle des postes internes (_3XXX).\n2) 0219876543 composé : 0 puis 2 (dans la liste 1 à 5) puis d'autres chiffres : règle du trunk (_0[1-5].).\n3) X représente un chiffre de 0 à 9.\n4) La plus grande extension interne interceptée : 3999.\n5) Le symbole [1-5] : un chiffre parmi 1, 2, 3, 4 ou 5.",
+        "expected": "3112 → postes internes — 0219876543 → trunk — X : 0 à 9 — 3999 — [1-5] : un chiffre de 1 à 5",
+        "note": "Les crochets énumèrent les chiffres admis : [1-5] accepte 1, 2, 3, 4 et 5, rien d'autre."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "PATTERN:_NXX | NUM:250 | REGEX:^[2-9][0-9]{2}$ | RESULTAT:MATCH:OUI\nPATTERN:_NXX | NUM:150 | REGEX:^[2-9][0-9]{2}$ | RESULTAT:MATCH:NON\nPATTERN:_9. | NUM:90123456789 | REGEX:^9.+$ | RESULTAT:MATCH:OUI\nPATTERN:_9. | NUM:9 | REGEX:^9.+$ | RESULTAT:MATCH:NON\n"
+        "label": "Question 1 — Règle appliquée au numéro 4271",
+        "stdin": "q:1",
+        "expected": "A||la règle A||règle A"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "PATTERN:_ZXXX | NUM:1000 | REGEX:^[1-9][0-9]{3}$ | RESULTAT:MATCH:OUI\nPATTERN:_ZXXX | NUM:0500 | REGEX:^[1-9][0-9]{3}$ | RESULTAT:MATCH:NON\n"
+        "label": "Question 2 — Règle appliquée au numéro 0698765432",
+        "stdin": "q:2",
+        "expected": "B||la règle B||règle B"
+      },
+      {
+        "label": "Question 3 — Signification du symbole X",
+        "stdin": "q:3",
+        "expected": "un chiffre de 0 à 9||n'importe quel chiffre de 0 à 9||un chiffre entre 0 et 9||un chiffre compris entre 0 et 9||un chiffre de 0 a 9"
+      },
+      {
+        "label": "Question 4 — Plus grande extension interne de la règle A",
+        "stdin": "q:4",
+        "expected": "4999||la 4999"
+      },
+      {
+        "label": "Question 5 — Plus petite extension interne de la règle A",
+        "stdin": "q:5",
+        "expected": "4000||la 4000"
+      },
+      {
+        "label": "Question 6 — Symbole des chiffres de 2 à 9",
+        "stdin": "q:6",
+        "expected": "N||le symbole N"
       }
     ],
-    "solution": "[Exemple]\nPATTERN:_7XXXXXXXX | NUM:706438029 | REGEX:^7[0-9]{8}$ | RESULTAT:MATCH:OUI\nPATTERN:_7XXXXXXXX | NUM:806438029 | REGEX:^7[0-9]{8}$ | RESULTAT:MATCH:NON\nPATTERN:_0[1-5]XXXXXXXX | NUM:0140203040 | REGEX:^0[1-5][0-9]{8}$ | RESULTAT:MATCH:OUI\nPATTERN:600 | NUM:600 | REGEX:^600$ | RESULTAT:MATCH:OUI\n\n\n[Cas 1 — Cas de test 1]\nPATTERN:_NXX | NUM:250 | REGEX:^[2-9][0-9]{2}$ | RESULTAT:MATCH:OUI\nPATTERN:_NXX | NUM:150 | REGEX:^[2-9][0-9]{2}$ | RESULTAT:MATCH:NON\nPATTERN:_9. | NUM:90123456789 | REGEX:^9.+$ | RESULTAT:MATCH:OUI\nPATTERN:_9. | NUM:9 | REGEX:^9.+$ | RESULTAT:MATCH:NON\n\n\n[Cas 2 — Cas de test 2]\nPATTERN:_ZXXX | NUM:1000 | REGEX:^[1-9][0-9]{3}$ | RESULTAT:MATCH:OUI\nPATTERN:_ZXXX | NUM:0500 | REGEX:^[1-9][0-9]{3}$ | RESULTAT:MATCH:NON"
+    "solution": "[Question 1 — Règle appliquée au numéro 4271]\nA\n\n[Question 2 — Règle appliquée au numéro 0698765432]\nB\n\n[Question 3 — Signification du symbole X]\nun chiffre de 0 à 9\n\n[Question 4 — Plus grande extension interne de la règle A]\n4999\n\n[Question 5 — Plus petite extension interne de la règle A]\n4000\n\n[Question 6 — Symbole des chiffres de 2 à 9]\nN",
+    "takeaway": "1) 4271 : le 4 littéral suivi de trois chiffres quelconques (271) : c'est la règle A (_4XXX), l'appel sonne au poste SIP/4271 pendant 15 secondes.\n2) 0698765432 : le 0 littéral, puis 6 (chiffre non nul, donc Z), puis huit caractères (le point) : règle B (_0Z.), l'appel sort par le trunk vers le réseau public.\n3) X représente n'importe quel chiffre de 0 à 9.\n4) La règle A capture les numéros de 4000 à 4999 : la plus grande extension est 4999.\n5) La plus petite est 4000.\n6) C'est le symbole N qui correspond uniquement aux chiffres de 2 à 9 (Z couvre 1 à 9, X couvre 0 à 9).\nContrôle : la règle C _99N intercepte les numéros courts 992 à 999 (trois chiffres, le dernier entre 2 et 9), tous dirigés vers la file conseillers."
   },
   {
     "id": "vo3-c4-e3",
     "chapter": 4,
-    "title": "Simulateur de Serveur Vocal Interactif SVI / IVR",
     "level": "n3",
     "language": "analyse",
-    "goal": "Simuler la navigation dans un serveur vocal interactif (SVI/IVR) avec gestion des touches DTMF, timeouts (t) et erreurs (i).",
-    "brief": "<p>Un Serveur Vocal Interactif (SVI ou IVR) oriente automatiquement les appelants selon les touches DTMF saisies. Dans Asterisk, le menu d'accueil joue un message audio avec l'application <code>Background()</code> puis attend une saisie avec <code>WaitExten()</code>. Si l'appelant appuie sur :</p><ul><li><code>1</code> : Service Commercial (routage vers <code>Queue(commercial)</code>)</li><li><code>2</code> : Support Technique (routage vers <code>Queue(support)</code>)</li><li><code>3</code> : Facturation / Comptabilité (routage vers <code>Dial(SIP/301)</code>)</li><li><code>9</code> : Répéter le menu (redirection vers <code>Goto(menu,s,1)</code>)</li><li><code>t</code> (Timeout, aucune touche après 5 secondes) : rejoue le menu ou raccroche après 2 tentatives.</li><li><code>i</code> (Touche invalide) : joue un message d'erreur <code>Playback(invalid)</code> et réinvite l'utilisateur.</li></ul>\n<p>Format d'entrée :<br>Lignes simulant des sessions d'appelants sous la forme :<br>SESSION=<id> DTMF_INPUT=<touche> ATTEMPTS=<nb_essais_deja_faits></p>\n<p>Règles de décision :   - Si ATTEMPTS >= 2 -> ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_TIMEOUT   - Sinon -> ACTION:RELANCER | CIBLE:WaitExten(5) | SUITE:RETRY   - Si ATTEMPTS >= 2 -> ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_INVALID   - Sinon -> ACTION:MESSAGE_ERREUR | CIBLE:Playback(pm-invalid-option) | SUITE:RETRY</p><ul><li>DTMF '1' -> ACTION:ROUTER | CIBLE:Queue(commercial) | SUITE:SUCCES</li><li>DTMF '2' -> ACTION:ROUTER | CIBLE:Queue(support) | SUITE:SUCCES</li><li>DTMF '3' -> ACTION:ROUTER | CIBLE:Dial(SIP/301) | SUITE:SUCCES</li><li>DTMF '9' -> ACTION:REPETER | CIBLE:Goto(menu,s,1) | SUITE:REJOUER</li><li>DTMF 'TIMEOUT' ou 't' :</li><li>Toute autre touche (invalide) :</li></ul>\n<p>Format de sortie :<br>Pour chaque session :<br>SESSION:<id> | TOUCHE:<dtmf> | ESSAIS:<attempts> | ACTION:<action> | CIBLE:<cible> | SUITE:<suite></p>",
-    "starter": "# Grille d'analyse (vo3-c4-e3) — Simulateur de Serveur Vocal Interactif SVI / IVR\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : SESSION=A10 DTMF_INPUT=3 ATTEMPTS=0\n# Données : SESSION=A11 DTMF_INPUT=9 ATTEMPTS=1\n# Données : SESSION=A12 DTMF_INPUT=t ATTEMPTS=3\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : SESSION=B20 DTMF_INPUT=* ATTEMPTS=2\n# Données : SESSION=B21 DTMF_INPUT=# ATTEMPTS=0\nA_COMPLETER\n",
+    "title": "La navigation dans le SVI d'AssurPharma",
+    "exampleTitle": "Exemple résolu — le serveur vocal du théâtre du Quartz",
+    "goal": "Suivre un appelant dans un SVI : extensions i et t, Goto, files d'attente et durées d'attente.",
+    "brief": "<p><strong>Énoncé.</strong> La mutuelle AssurPharma accueille ses adhérents par un serveur vocal interactif. Le Dialplan du contexte [menu] est le suivant :</p><pre>exten => s,1,Answer()\nexten => s,n,Background(menu-assurpharma)\nexten => s,n,WaitExten(8)\nexten => 1,1,Queue(ventes,rtt,,,60)\nexten => 1,n,Playback(repondeur-ventes)\nexten => 2,1,Queue(support,rtt,,,60)\nexten => 2,n,Playback(repondeur-support)\nexten => 3,1,Playback(horaires-agences)\nexten => 3,n,Goto(s,2)\nexten => t,1,Playback(merci-au-revoir)\nexten => t,n,Hangup()\nexten => i,1,Playback(touche-invalide)\nexten => i,n,Goto(s,2)</pre><p>Le menu diffusé annonce : « Tapez 1 pour les ventes, 2 pour le support, 3 pour les horaires des agences. »</p><p>Mme Costa appelle à 14:00. Elle écoute le menu, presse la touche 5 : un message lui signale que la touche est inconnue, puis le menu est rejoué. Elle presse alors la touche 2 à 14:02 et un conseiller du support décroche à 14:04.</p><ol><li>Quelle extension spéciale a intercepté la touche 5 ?</li><li>Quelle application rejoue le menu après le message « touche invalide » ?</li><li>Dans quelle file d'attente Mme Costa entre-t-elle en pressant la touche 2 ?</li><li>Quelle extension spéciale aurait été déclenchée si Mme Costa n'avait rien pressé pendant les 8 secondes ?</li><li>Combien de secondes Mme Costa a-t-elle attendu un conseiller, entre la pression sur la touche 2 et le décrochage ?</li><li>Que fait l'application Goto(s,2) ?</li></ol><p>Répondez de façon courte (une lettre, une application, un nom de file, un nombre, une phrase brève).</p>",
+    "starter": "# Exercice — La navigation dans le SVI d'AssurPharma\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez de façon courte : une lettre, une application, un nom de file, un nombre.\n\n[Question 1 — Extension spéciale qui intercepte la touche 5]\nA_COMPLETER\n\n[Question 2 — Application qui rejoue le menu]\nA_COMPLETER\n\n[Question 3 — File d'attente choisie par la touche 2]\nA_COMPLETER\n\n[Question 4 — Extension spéciale déclenchée sans aucune touche]\nA_COMPLETER\n\n[Question 5 — Attente du conseiller (en secondes)]\nA_COMPLETER\n\n[Question 6 — Rôle de l'application Goto(s,2)]\nA_COMPLETER\n",
     "hints": [
-      "Aiguillez l'appelant vers l'extension correspondant au chiffre DTMF saisi.",
-      "Exécutez l'extension t en cas de timeout et l'extension i si la touche est invalide."
+      "Les deux extensions spéciales du SVI : i (invalid) pour une touche inconnue, t (timeout) pour l'absence de touche.",
+      "Goto(s,2) ramène l'exécution à la priorité 2 de l'extension s : regardez ce que fait cette priorité.",
+      "1. La touche 5 n'existe pas dans le contexte : extension i. 2. La priorité 2 de s diffuse le menu. 3. La touche 2 mène à Queue(support). 4. Sans touche pendant 8 s : extension t. 5. De 14:02 à 14:04. 6. Goto(s,2) renvoie au début du menu."
     ],
     "examples": [
       {
-        "stdin": "SESSION=S001 DTMF_INPUT=1 ATTEMPTS=0\nSESSION=S002 DTMF_INPUT=2 ATTEMPTS=0\nSESSION=S003 DTMF_INPUT=TIMEOUT ATTEMPTS=1\nSESSION=S004 DTMF_INPUT=TIMEOUT ATTEMPTS=2\nSESSION=S005 DTMF_INPUT=7 ATTEMPTS=0",
-        "expected": "SESSION:S001 | TOUCHE:1 | ESSAIS:0 | ACTION:ROUTER | CIBLE:Queue(commercial) | SUITE:SUCCES\nSESSION:S002 | TOUCHE:2 | ESSAIS:0 | ACTION:ROUTER | CIBLE:Queue(support) | SUITE:SUCCES\nSESSION:S003 | TOUCHE:TIMEOUT | ESSAIS:1 | ACTION:RELANCER | CIBLE:WaitExten(5) | SUITE:RETRY\nSESSION:S004 | TOUCHE:TIMEOUT | ESSAIS:2 | ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_TIMEOUT\nSESSION:S005 | TOUCHE:7 | ESSAIS:0 | ACTION:MESSAGE_ERREUR | CIBLE:Playback(pm-invalid-option) | SUITE:RETRY\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le théâtre du Quartz diffuse : [menu]\nexten => s,1,Answer()\nexten => s,n,Background(menu-quartz)\nexten => s,n,WaitExten(5)\nexten => 1,1,Queue(billetterie)\nexten => 2,1,Playback(programmation)\nexten => 2,n,Goto(s,2)\nexten => t,1,Playback(au-revoir)\nexten => t,n,Hangup()\nexten => i,1,Playback(touche-invalide)\nexten => i,n,Goto(s,2)\n\nM. Farid appelle à 18:00, presse 7 (message « touche invalide », menu rejoué),\npuis presse 2 à 18:01 : il entend la programmation puis le menu revient.\n\n1) La touche 7 est interceptée par l'extension i.\n2) Le menu est rejoué par Background (Goto(s,2) ramène à la priorité 2 de s).\n3) S'il n'avait rien pressé pendant 5 s : extension t (au-revoir puis Hangup).\n4) Goto(s,2) renvoie l'exécution au début du menu.",
+        "expected": "touche 7 → extension i — menu rejoué par Background — aucune touche → t — Goto(s,2) renvoie au menu",
+        "note": "Les extensions t (timeout) et i (invalid) sont les garde-fous d'un SVI : sans elles, un appelant perdu resterait bloqué."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "SESSION:A10 | TOUCHE:3 | ESSAIS:0 | ACTION:ROUTER | CIBLE:Dial(SIP/301) | SUITE:SUCCES\nSESSION:A11 | TOUCHE:9 | ESSAIS:1 | ACTION:REPETER | CIBLE:Goto(menu,s,1) | SUITE:REJOUER\nSESSION:A12 | TOUCHE:t | ESSAIS:3 | ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_TIMEOUT\n"
+        "label": "Question 1 — Extension spéciale qui intercepte la touche 5",
+        "stdin": "q:1",
+        "expected": "i||l'extension i"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "SESSION:B20 | TOUCHE:* | ESSAIS:2 | ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_INVALID\nSESSION:B21 | TOUCHE:# | ESSAIS:0 | ACTION:MESSAGE_ERREUR | CIBLE:Playback(pm-invalid-option) | SUITE:RETRY\n"
+        "label": "Question 2 — Application qui rejoue le menu",
+        "stdin": "q:2",
+        "expected": "Background||Background()||background"
+      },
+      {
+        "label": "Question 3 — File d'attente choisie par la touche 2",
+        "stdin": "q:3",
+        "expected": "support||la file support||la file d'attente support"
+      },
+      {
+        "label": "Question 4 — Extension spéciale déclenchée sans aucune touche",
+        "stdin": "q:4",
+        "expected": "t||l'extension t"
+      },
+      {
+        "label": "Question 5 — Attente du conseiller (en secondes)",
+        "stdin": "q:5",
+        "expected": "120||120 secondes||120 s"
+      },
+      {
+        "label": "Question 6 — Rôle de l'application Goto(s,2)",
+        "stdin": "q:6",
+        "expected": "elle rejoue le menu||elle renvoie au menu||renvoie au menu||elle retourne au menu||revient au menu||elle ramène l'exécution au menu"
       }
     ],
-    "solution": "[Exemple]\nSESSION:S001 | TOUCHE:1 | ESSAIS:0 | ACTION:ROUTER | CIBLE:Queue(commercial) | SUITE:SUCCES\nSESSION:S002 | TOUCHE:2 | ESSAIS:0 | ACTION:ROUTER | CIBLE:Queue(support) | SUITE:SUCCES\nSESSION:S003 | TOUCHE:TIMEOUT | ESSAIS:1 | ACTION:RELANCER | CIBLE:WaitExten(5) | SUITE:RETRY\nSESSION:S004 | TOUCHE:TIMEOUT | ESSAIS:2 | ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_TIMEOUT\nSESSION:S005 | TOUCHE:7 | ESSAIS:0 | ACTION:MESSAGE_ERREUR | CIBLE:Playback(pm-invalid-option) | SUITE:RETRY\n\n\n[Cas 1 — Cas de test 1]\nSESSION:A10 | TOUCHE:3 | ESSAIS:0 | ACTION:ROUTER | CIBLE:Dial(SIP/301) | SUITE:SUCCES\nSESSION:A11 | TOUCHE:9 | ESSAIS:1 | ACTION:REPETER | CIBLE:Goto(menu,s,1) | SUITE:REJOUER\nSESSION:A12 | TOUCHE:t | ESSAIS:3 | ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_TIMEOUT\n\n\n[Cas 2 — Cas de test 2]\nSESSION:B20 | TOUCHE:* | ESSAIS:2 | ACTION:RACCROCHER | CIBLE:Hangup() | SUITE:ECHEC_INVALID\nSESSION:B21 | TOUCHE:# | ESSAIS:0 | ACTION:MESSAGE_ERREUR | CIBLE:Playback(pm-invalid-option) | SUITE:RETRY"
+    "solution": "[Question 1 — Extension spéciale qui intercepte la touche 5]\ni\n\n[Question 2 — Application qui rejoue le menu]\nBackground\n\n[Question 3 — File d'attente choisie par la touche 2]\nsupport\n\n[Question 4 — Extension spéciale déclenchée sans aucune touche]\nt\n\n[Question 5 — Attente du conseiller (en secondes)]\n120\n\n[Question 6 — Rôle de l'application Goto(s,2)]\nelle rejoue le menu",
+    "takeaway": "1) La touche 5 n'est déclarée nulle part dans le contexte : c'est l'extension i (invalid) qui l'intercepte.\n2) Après le message « touche invalide », Goto(s,2) ramène l'exécution à la priorité 2 de s, qui est Background(menu-assurpharma) : le menu est rejoué.\n3) La touche 2 déclenche Queue(support) : Mme Costa entre dans la file support.\n4) Sans aucune touche pendant les 8 secondes de WaitExten(8), l'extension t aurait diffusé le message de remerciement puis raccroché.\n5) De 14:02 (pression sur 2) à 14:04 (décrochage) : 120 secondes d'attente, dans la limite des 60 secondes imparties au Queue avant le répondeur.\n6) Goto(s,2) renvoie l'exécution à la priorité 2 de l'extension s, c'est-à-dire au début du menu.\nContrôle : la touche 3 aurait joué les horaires puis, par le même Goto(s,2), ramené Mme Costa au menu : chaque branche du SVI se referme sur une issue connue."
   },
   {
     "id": "vo3-c5-e1",
     "chapter": 5,
-    "title": "Calculateur d'Erlang B & Dimensionnement de Trunks Téléphoniques",
     "level": "n1",
     "language": "analyse",
-    "goal": "Calculer la probabilité de blocage GoS par la formule récursive d'Erlang B et dimensionner le nombre de canaux requis.",
-    "brief": "<p>La loi d'Erlang B modélise la probabilité de blocage d'appels téléphoniques (Grade of Service, GoS) sur un faisceau (trunk) de <code>N</code> canaux sans mise en attente (appels rejetés si tous les canaux sont occupés).<br>Le trafic offert <code>A</code> (en Erlangs) est calculé par :<br><code>A = (CALLS_PER_HOUR * DURATION_SEC) / 3600.0</code></p>\n<p>La formule récursive d'Erlang B pour calculer la probabilité de blocage <code>B(N, A)</code> est :</p><ul><li><code>B(0, A) = 1.0</code></li><li><code>B(k, A) = (A * B(k-1, A)) / (k + A * B(k-1, A))</code> pour <code>k = 1, 2, ..., N</code>.</li></ul>\n<p>Format d'entrée :<br>Lignes de la forme :<br>CALLS_PER_HOUR=<nb> DURATION_SEC=<duree_moyenne> CHANNELS=<nb_canaux> TARGET_GOS_PCT=<seuil_gos_max_pct></p>\n<p>Règles de calcul :<br>1. Calculer le trafic offert <code>A</code> en Erlangs.<br>2. Calculer la probabilité de blocage réelle <code>B(N, A)</code> en pourcentage (<code>B * 100.0</code>).<br>3. Comparer avec le seuil cible <code>TARGET_GOS_PCT</code> :<br>   - Si <code>blocage_pct <= TARGET_GOS_PCT</code> -> <code>CONFORME:OUI</code><br>   - Sinon -> <code>CONFORME:NON</code><br>4. Déterminer le nombre minimal de canaux <code>N_MIN</code> nécessaires pour que <code>B(N_MIN, A) * 100.0 <= TARGET_GOS_PCT</code>.</p>\n<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>TRAFIC:<A:.2f>E | CANAUX:<N> | BLOCAGE:<blocage_pct:.2f>% | TARGET:<target:.2f>% | CONFORME:<OUI|NON> | CANAUX_REQUIS:<N_MIN></p>",
-    "starter": "# Grille d'analyse (vo3-c5-e1) — Calculateur d'Erlang B & Dimensionnement de Trunks Téléphoniques\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CALLS_PER_HOUR=50 DURATION_SEC=60 CHANNELS=5 TARGET_GOS_PCT=1.0\n# Données : CALLS_PER_HOUR=300 DURATION_SEC=180 CHANNELS=25 TARGET_GOS_PCT=1.0\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CALLS_PER_HOUR=60 DURATION_SEC=120 CHANNELS=4 TARGET_GOS_PCT=5.0\n# Données : CALLS_PER_HOUR=10 DURATION_SEC=300 CHANNELS=2 TARGET_GOS_PCT=2.0\nA_COMPLETER\n",
+    "title": "Le dimensionnement du standard de la clinique Saint-Roch",
+    "exampleTitle": "Exemple résolu — le standard du garage AutoMillau",
+    "goal": "Calculer un trafic en Erlangs et lire une table d'Erlang B pour dimensionner un trunk téléphonique.",
+    "brief": "<p><strong>Énoncé.</strong> La clinique Saint-Roch veut souscrire un trunk SIP pour son standard. À l'heure de pointe, le standard reçoit <strong>90 appels</strong>, d'une durée moyenne de <strong>2 minutes</strong>. Le trafic s'écrit A = (nombre d'appels à l'heure × durée moyenne en secondes) / 3600. La direction exige un taux de blocage (GoS) d'au plus 1 %. Le tableau d'Erlang B pour le trafic de la pointe est le suivant :</p><table><tr><th>Canaux N</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr><tr><th>Blocage B(N, A)</th><td>11,0 %</td><td>5,2 %</td><td>2,2 %</td><td>0,8 %</td><td>0,3 %</td></tr></table><p>Rappel du cours : en régime Erlang B, tout appel qui arrive alors que les N canaux sont occupés est immédiatement rejeté, sans file d'attente.</p><ol><li>Quel est le trafic de l'heure de pointe, en Erlangs ?</li><li>Que représente exactement un trafic de 1 Erlang ?</li><li>Combien de canaux la clinique doit-elle au minimum souscrire pour respecter le GoS de 1 % ?</li><li>Si la clinique ne souscrivait que 6 canaux, quel pourcentage d'appels serait refusé à l'heure de pointe ?</li><li>Dans le modèle d'Erlang B, que devient un appel qui arrive quand tous les canaux sont occupés ?</li></ol><p>Répondez par le nombre ou la phrase brève attendus.</p>",
+    "starter": "# Exercice — Le dimensionnement du standard de la clinique Saint-Roch\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre ou la phrase brève attendus.\n\n[Question 1 — Trafic de l'heure de pointe (en Erlangs)]\nA_COMPLETER\n\n[Question 2 — Signification d'un trafic de 1 Erlang]\nA_COMPLETER\n\n[Question 3 — Nombre minimal de canaux pour un GoS de 1 %]\nA_COMPLETER\n\n[Question 4 — Pourcentage d'appels refusés avec 6 canaux]\nA_COMPLETER\n\n[Question 5 — Devenir d'un appel quand tous les canaux sont occupés]\nA_COMPLETER\n",
     "hints": [
-      "Appliquez la formule récursive : B(k) = (A * B(k-1)) / (k + A * B(k-1)) avec B(0) = 1.0.",
-      "Incrémentez le nombre de canaux k jusqu'à atteindre un blocage inférieur au seuil GoS."
+      "Convertissez tout en secondes : 90 appels de 120 secondes, divisés par 3600, donnent le trafic en Erlangs.",
+      "Dans la table, cherchez la première colonne où le blocage tombe à 1 % ou moins : c'est le nombre de canaux minimal.",
+      "1. A = 90 × 120 / 3600. 2. Un Erlang, c'est un canal occupé sans interruption pendant une heure. 3. Parcourez la table jusqu'à un blocage inférieur ou égal à 1 %. 4. Lisez la colonne N = 6. 5. Erlang B ne met personne en attente : l'appel excédentaire est perdu."
     ],
     "examples": [
       {
-        "stdin": "CALLS_PER_HOUR=120 DURATION_SEC=180 CHANNELS=10 TARGET_GOS_PCT=1.0\nCALLS_PER_HOUR=200 DURATION_SEC=120 CHANNELS=8 TARGET_GOS_PCT=2.0",
-        "expected": "TRAFIC:6.00E | CANAUX:10 | BLOCAGE:4.31% | TARGET:1.00% | CONFORME:NON | CANAUX_REQUIS:13\nTRAFIC:6.67E | CANAUX:8 | BLOCAGE:15.97% | TARGET:2.00% | CONFORME:NON | CANAUX_REQUIS:13\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le garage AutoMillau reçoit 60 appels à l'heure de pointe, d'une durée moyenne de 2 minutes.\nTrafic : A = 60 × 120 / 3600 = 2 Erlangs. Table d'Erlang B pour A = 2 :\nN = 4 : 9,5 % — N = 5 : 3,7 % — N = 6 : 1,2 % — N = 7 : 0,34 %.\nGoS visé : 1 %.\n\n1) Trafic : 2 Erlangs.\n2) 1 Erlang : un canal occupé à 100 % pendant une heure.\n3) 6 canaux donnent 1,2 % (trop) ; il faut 7 canaux (0,34 % ≤ 1 %).\n4) Avec 5 canaux : 3,7 % des appels refusés.",
+        "expected": "2 Erlangs — 7 canaux nécessaires — 1 Erlang : un canal occupé une heure — avec 5 canaux : 3,7 % de refus",
+        "note": "Erlang B suppose qu'aucun appel n'attend : chaque appel refusé est perdu, d'où le choix d'un GoS très faible."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "TRAFIC:0.83E | CANAUX:5 | BLOCAGE:0.15% | TARGET:1.00% | CONFORME:OUI | CANAUX_REQUIS:4\nTRAFIC:15.00E | CANAUX:25 | BLOCAGE:0.50% | TARGET:1.00% | CONFORME:OUI | CANAUX_REQUIS:24\n"
+        "label": "Question 1 — Trafic de l'heure de pointe (en Erlangs)",
+        "stdin": "q:1",
+        "expected": "3||3 Erlangs"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "TRAFIC:2.00E | CANAUX:4 | BLOCAGE:9.52% | TARGET:5.00% | CONFORME:NON | CANAUX_REQUIS:5\nTRAFIC:0.83E | CANAUX:2 | BLOCAGE:15.92% | TARGET:2.00% | CONFORME:NON | CANAUX_REQUIS:4\n"
+        "label": "Question 2 — Signification d'un trafic de 1 Erlang",
+        "stdin": "q:2",
+        "expected": "un canal occupé à 100 % pendant une heure||un canal occupé à 100% pendant une heure||un canal occupé en continu pendant une heure||un canal occupé sans interruption pendant une heure"
+      },
+      {
+        "label": "Question 3 — Nombre minimal de canaux pour un GoS de 1 %",
+        "stdin": "q:3",
+        "expected": "8||8 canaux"
+      },
+      {
+        "label": "Question 4 — Pourcentage d'appels refusés avec 6 canaux",
+        "stdin": "q:4",
+        "expected": "5,2||5.2||5,2 %||5.2%"
+      },
+      {
+        "label": "Question 5 — Devenir d'un appel quand tous les canaux sont occupés",
+        "stdin": "q:5",
+        "expected": "il est rejeté||il est refusé||rejeté||il est perdu||il entend la tonalité occupé"
       }
     ],
-    "solution": "[Exemple]\nTRAFIC:6.00E | CANAUX:10 | BLOCAGE:4.31% | TARGET:1.00% | CONFORME:NON | CANAUX_REQUIS:13\nTRAFIC:6.67E | CANAUX:8 | BLOCAGE:15.97% | TARGET:2.00% | CONFORME:NON | CANAUX_REQUIS:13\n\n\n[Cas 1 — Cas de test 1]\nTRAFIC:0.83E | CANAUX:5 | BLOCAGE:0.15% | TARGET:1.00% | CONFORME:OUI | CANAUX_REQUIS:4\nTRAFIC:15.00E | CANAUX:25 | BLOCAGE:0.50% | TARGET:1.00% | CONFORME:OUI | CANAUX_REQUIS:24\n\n\n[Cas 2 — Cas de test 2]\nTRAFIC:2.00E | CANAUX:4 | BLOCAGE:9.52% | TARGET:5.00% | CONFORME:NON | CANAUX_REQUIS:5\nTRAFIC:0.83E | CANAUX:2 | BLOCAGE:15.92% | TARGET:2.00% | CONFORME:NON | CANAUX_REQUIS:4"
+    "solution": "[Question 1 — Trafic de l'heure de pointe (en Erlangs)]\n3\n\n[Question 2 — Signification d'un trafic de 1 Erlang]\nun canal occupé à 100 % pendant une heure\n\n[Question 3 — Nombre minimal de canaux pour un GoS de 1 %]\n8\n\n[Question 4 — Pourcentage d'appels refusés avec 6 canaux]\n5,2\n\n[Question 5 — Devenir d'un appel quand tous les canaux sont occupés]\nil est rejeté",
+    "takeaway": "1) Trafic : A = 90 × 120 / 3600 = 10 800 / 3600 = 3 Erlangs.\n2) Un Erlang représente un canal téléphonique occupé à 100 % pendant une heure entière (par exemple deux canaux occupés chacun 30 minutes).\n3) Dans la table : B(7, 3) = 2,2 % (supérieur à 1 %) et B(8, 3) = 0,8 % (inférieur ou égal à 1 %) : il faut souscrire au minimum 8 canaux.\n4) Avec 6 canaux, la table donne B(6, 3) = 5,2 % : environ un appel sur vingt serait refusé à l'heure de pointe.\n5) En régime Erlang B, sans file d'attente, l'appel arrivé quand tous les canaux sont occupés est immédiatement rejeté (tonalité occupé).\nContrôle : entre 7 et 8 canaux, le blocage passe de 2,2 % à 0,8 % : le canal supplémentaire divise presque par trois le taux de refus, c'est lui qui satisfait le GoS."
   },
   {
     "id": "vo3-c5-e2",
     "chapter": 5,
-    "title": "Validateur de Marquage QoS & Mappage DSCP / CoS 802.1p",
     "level": "n2",
     "language": "analyse",
-    "goal": "Vérifier la conformité du marquage QoS (CoS 5, DSCP EF 46) et la ségrégation en Voice VLAN pour les flux ToIP.",
-    "brief": "<p>Dans les réseaux d'entreprise, la qualité de service (QoS) est indispensable pour préserver la voix en temps réel de la gigue et de la congestion. Les standards IETF et IEEE recommandent :   Dans l'en-tête IP (champ ToS / DiffServ), la valeur DSCP est décalée de 2 bits à gauche : <code>ToS = DSCP << 2</code> (ex: 46 << 2 = 184 soit 0xB8).   Le marquage de niveau 2 (802.1p CoS) associé est <code>CoS = 5</code> (Voice).   ToS = 24 << 2 = 96 (0x60) ou 26 << 2 = 104 (0x68).   Le marquage CoS associé est <code>CoS = 3</code> (Call Signaling).</p><ul><li>Médias vocaux RTP : DSCP EF (Expedited Forwarding = valeur décimale 46, binaire 101110)</li><li>Signalisation SIP : DSCP CS3 (valeur 24) ou AF31 (valeur 26)</li><li>Trafic Best-Effort (données web/bureautique) : DSCP CS0 (0, ToS = 0, CoS = 0).</li></ul>\n<p>Format d'entrée :<br>Lignes décrivant des flux réseau observés :<br>FLUX=<RTP_VOICE|SIP_SIGNALING|DATA_DEFAULT> DSCP_DEC=<valeur> COS_OBSERVED=<cos></p>\n<p>Règles de validation :<br>1. Calculer la valeur théorique du champ ToS (hexadécimal 0x..) : <code>tos = dscp << 2</code>.<br>2. Vérifier la conformité du marquage DSCP et CoS selon le type de flux :<br>   - RTP_VOICE : attendu DSCP == 46 et CoS == 5<br>   - SIP_SIGNALING : attendu DSCP in {24, 26} et CoS == 3<br>   - DATA_DEFAULT : attendu DSCP == 0 et CoS == 0<br>3. Si tout correspond -> <code>STATUT:CONFORME</code><br>   Sinon -> <code>STATUT:NON_CONFORME</code> (préciser l'anomalie : DSCP_INCORRECT, COS_INCORRECT ou TOUS_DEUX_INCORRECTS).</p>\n<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>FLUX:<nom> | DSCP:<val> | TOS:0x<hex> | COS:<cos> | STATUT:<statut> | ANOMALIE:<AUCUNE|anomalie></p>",
-    "starter": "# Grille d'analyse (vo3-c5-e2) — Validateur de Marquage QoS & Mappage DSCP / CoS 802.1p\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : FLUX=DATA_DEFAULT DSCP_DEC=0 COS_OBSERVED=0\n# Données : FLUX=DATA_DEFAULT DSCP_DEC=46 COS_OBSERVED=5\n# Données : FLUX=RTP_VOICE DSCP_DEC=46 COS_OBSERVED=0\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : FLUX=SIP_SIGNALING DSCP_DEC=46 COS_OBSERVED=3\n# Données : FLUX=SIP_SIGNALING DSCP_DEC=0 COS_OBSERVED=0\nA_COMPLETER\n",
+    "title": "L'audit QoS du lycée technique Vercors",
+    "exampleTitle": "Exemple résolu — l'audit du groupe hôtelier Les Pins",
+    "goal": "Vérifier le marquage QoS d'un réseau ToIP (DSCP EF, CS3, CoS, Voice VLAN) et confronter les mesures aux seuils G.114.",
+    "brief": "<p><strong>Énoncé.</strong> Le lycée technique Vercors bascule sa téléphonie sur IP. Le professeur réseau relève la configuration en production :</p><table><tr><th>Flux ou équipement</th><th>Configuration observée</th></tr><tr><th>Flux voix RTP</th><td>DSCP EF, valeur décimale 46</td></tr><tr><th>Signalisation SIP</th><td>DSCP CS3, valeur décimale 24</td></tr><tr><th>Trafic web et messagerie</th><td>DSCP 0 (best effort)</td></tr><tr><th>Ports des postes IP</th><td>Voice VLAN 20, CoS 802.1p = 5</td></tr><tr><th>Mesures sur la liaison</th><td>délai unidirectionnel 40 ms, gigue 9 ms, pertes 0,1 %</td></tr></table><p>Rappels du cours : la voix supporte au plus 150 ms de délai unidirectionnel, 30 ms de gigue et 1 % de pertes (ITU-T G.114) ; le champ ToS de l'en-tête IPv4 est réinterprété par DiffServ.</p><ol><li>Quel PHB DiffServ marque le flux voix RTP ?</li><li>Quelle valeur décimale du champ DSCP correspond à EF ?</li><li>Quel marquage DiffServ protège la signalisation SIP ?</li><li>Quelle valeur de CoS 802.1p les postes voix portent-ils dans le Voice VLAN ?</li><li>Quel est le seuil de délai unidirectionnel recommandé par la G.114, en ms ?</li><li>Les mesures de la liaison respectent-elles les trois seuils de la G.114 (oui ou non) ?</li></ol><p>Répondez par le nom, le nombre ou oui/non.</p>",
+    "starter": "# Exercice — L'audit QoS du lycée technique Vercors\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nom, le nombre ou oui/non.\n\n[Question 1 — PHB DiffServ du flux voix RTP]\nA_COMPLETER\n\n[Question 2 — Valeur décimale DSCP de EF]\nA_COMPLETER\n\n[Question 3 — Marquage DiffServ de la signalisation SIP]\nA_COMPLETER\n\n[Question 4 — Valeur de CoS 802.1p des postes voix]\nA_COMPLETER\n\n[Question 5 — Seuil de délai unidirectionnel G.114 (en ms)]\nA_COMPLETER\n\n[Question 6 — Les mesures respectent-elles les trois seuils]\nA_COMPLETER\n",
     "hints": [
-      "Contrôlez que les flux RTP sont marqués avec DSCP 46 (Expedited Forwarding).",
-      "Vérifiez que la signalisation SIP est protégée par un marquage CS3 (24) ou AF31 (26)."
+      "Relisez le tableau : le flux RTP porte le marquage réservé à la priorité stricte, la signalisation un marquage de classe CS.",
+      "Les seuils G.114 : 150 ms de délai unidirectionnel, 30 ms de gigue, 1 % de pertes.",
+      "1. Le PHB de la voix est EF (Expedited Forwarding). 2. Sa valeur décimale figure dans le tableau. 3. La signalisation est marquée CS3. 4. La CoS voix vaut 5. 5. Le seuil de délai est 150 ms. 6. Comparez 40 ms, 9 ms et 0,1 % aux trois seuils."
     ],
     "examples": [
       {
-        "stdin": "FLUX=RTP_VOICE DSCP_DEC=46 COS_OBSERVED=5\nFLUX=RTP_VOICE DSCP_DEC=0 COS_OBSERVED=0\nFLUX=SIP_SIGNALING DSCP_DEC=26 COS_OBSERVED=3\nFLUX=SIP_SIGNALING DSCP_DEC=24 COS_OBSERVED=5",
-        "expected": "FLUX:RTP_VOICE | DSCP:46 | TOS:0xb8 | COS:5 | STATUT:CONFORME | ANOMALIE:AUCUNE\nFLUX:RTP_VOICE | DSCP:0 | TOS:0x00 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS\nFLUX:SIP_SIGNALING | DSCP:26 | TOS:0x68 | COS:3 | STATUT:CONFORME | ANOMALIE:AUCUNE\nFLUX:SIP_SIGNALING | DSCP:24 | TOS:0x60 | COS:5 | STATUT:NON_CONFORME | ANOMALIE:COS_INCORRECT\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le groupe hôtelier Les Pins audite son réseau ToIP.\nFlux RTP : DSCP EF 46 ; signalisation : AF31 26 ; bureautique : DSCP 0 ; Voice VLAN 60, CoS 5.\nMesures : délai unidirectionnel 190 ms, gigue 12 ms, pertes 0,2 %.\n\n1) Le PHB de la voix : EF.\n2) Valeur décimale : 46.\n3) La signalisation est marquée AF31 (26).\n4) CoS voix : 5.\n5) Seuil G.114 : 150 ms ; les 190 ms mesurés le dépassent : la voix est coupée malgré une gigue et des pertes conformes.",
+        "expected": "PHB EF — 46 — AF31 pour le SIP — CoS 5 — seuil 150 ms, dépassé par les 190 ms mesurés",
+        "note": "Le marquage n'accélère rien sans file de priorité : EF n'a d'effet que si le routeur applique une file prioritaire (LLQ) aux paquets marqués."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "FLUX:DATA_DEFAULT | DSCP:0 | TOS:0x00 | COS:0 | STATUT:CONFORME | ANOMALIE:AUCUNE\nFLUX:DATA_DEFAULT | DSCP:46 | TOS:0xb8 | COS:5 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS\nFLUX:RTP_VOICE | DSCP:46 | TOS:0xb8 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:COS_INCORRECT\n"
+        "label": "Question 1 — PHB DiffServ du flux voix RTP",
+        "stdin": "q:1",
+        "expected": "EF||ef||expedited forwarding||le PHB EF"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "FLUX:SIP_SIGNALING | DSCP:46 | TOS:0xb8 | COS:3 | STATUT:NON_CONFORME | ANOMALIE:DSCP_INCORRECT\nFLUX:SIP_SIGNALING | DSCP:0 | TOS:0x00 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS\n"
+        "label": "Question 2 — Valeur décimale DSCP de EF",
+        "stdin": "q:2",
+        "expected": "46||la valeur 46"
+      },
+      {
+        "label": "Question 3 — Marquage DiffServ de la signalisation SIP",
+        "stdin": "q:3",
+        "expected": "CS3||cs3||le CS3||dscp cs3"
+      },
+      {
+        "label": "Question 4 — Valeur de CoS 802.1p des postes voix",
+        "stdin": "q:4",
+        "expected": "5||la CoS 5"
+      },
+      {
+        "label": "Question 5 — Seuil de délai unidirectionnel G.114 (en ms)",
+        "stdin": "q:5",
+        "expected": "150||150 ms"
+      },
+      {
+        "label": "Question 6 — Les mesures respectent-elles les trois seuils",
+        "stdin": "q:6",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\nFLUX:RTP_VOICE | DSCP:46 | TOS:0xb8 | COS:5 | STATUT:CONFORME | ANOMALIE:AUCUNE\nFLUX:RTP_VOICE | DSCP:0 | TOS:0x00 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS\nFLUX:SIP_SIGNALING | DSCP:26 | TOS:0x68 | COS:3 | STATUT:CONFORME | ANOMALIE:AUCUNE\nFLUX:SIP_SIGNALING | DSCP:24 | TOS:0x60 | COS:5 | STATUT:NON_CONFORME | ANOMALIE:COS_INCORRECT\n\n\n[Cas 1 — Cas de test 1]\nFLUX:DATA_DEFAULT | DSCP:0 | TOS:0x00 | COS:0 | STATUT:CONFORME | ANOMALIE:AUCUNE\nFLUX:DATA_DEFAULT | DSCP:46 | TOS:0xb8 | COS:5 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS\nFLUX:RTP_VOICE | DSCP:46 | TOS:0xb8 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:COS_INCORRECT\n\n\n[Cas 2 — Cas de test 2]\nFLUX:SIP_SIGNALING | DSCP:46 | TOS:0xb8 | COS:3 | STATUT:NON_CONFORME | ANOMALIE:DSCP_INCORRECT\nFLUX:SIP_SIGNALING | DSCP:0 | TOS:0x00 | COS:0 | STATUT:NON_CONFORME | ANOMALIE:TOUS_DEUX_INCORRECTS"
+    "solution": "[Question 1 — PHB DiffServ du flux voix RTP]\nEF\n\n[Question 2 — Valeur décimale DSCP de EF]\n46\n\n[Question 3 — Marquage DiffServ de la signalisation SIP]\nCS3\n\n[Question 4 — Valeur de CoS 802.1p des postes voix]\n5\n\n[Question 5 — Seuil de délai unidirectionnel G.114 (en ms)]\n150\n\n[Question 6 — Les mesures respectent-elles les trois seuils]\noui",
+    "takeaway": "1) Le flux voix RTP porte le PHB EF (Expedited Forwarding), celui de la file de priorité stricte.\n2) EF correspond à la valeur décimale 46 du champ DSCP (soit 0xB8 dans le champ ToS d'origine).\n3) La signalisation SIP est marquée CS3 (24) — le cours admet aussi AF31 (26) selon les plateformes.\n4) Dans le Voice VLAN 20, les postes voix portent une CoS 802.1p de 5, la valeur réservée à la voix.\n5) La G.114 recommande au plus 150 ms de délai unidirectionnel.\n6) Oui : 40 ms de délai (≤ 150), 9 ms de gigue (≤ 30) et 0,1 % de pertes (≤ 1 %) : les trois seuils sont respectés.\nContrôle : le trafic web, lui, reste en best effort (DSCP 0) : sans ces marquages distincts, un transfert de fichier massif pourrait retarder les paquets voix et faire exploser la gigue."
   },
   {
     "id": "vo3-c5-e3",
@@ -488,7 +764,8 @@ module.exports = [
     "starter": "# Grille d'analyse (vo3-c5-e3) — Observer les mappages STUN avant les vérifications ICE\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : CLIENT_LOCAL=10.0.0.2:16384 STUN1_MAPPED=82.65.1.20:45000 STUN2_MAPPED=82.65.1.20:45000\n# Données : CLIENT_LOCAL=10.0.0.2:16384 STUN1_MAPPED=82.65.1.20:45000 STUN2_MAPPED=82.65.1.20:45002\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : CLIENT_LOCAL=195.154.10.2:5060 STUN1_MAPPED=195.154.10.2:5060 STUN2_MAPPED=195.154.10.2:5060\nA_COMPLETER\n",
     "hints": [
       "Comparez les deux couples adresse et port observés par les serveurs.",
-      "Les observations seules ne démontrent pas que le trafic entre les pairs est autorisé."
+      "Les observations seules ne démontrent pas que le trafic entre les pairs est autorisé.",
+      "Comparez l adresse IP et le port renvoyés par les deux serveurs STUN : un port différent trahit un NAT symétrique, sans prouver l établisssement de flux média."
     ],
     "examples": [
       {
@@ -509,113 +786,168 @@ module.exports = [
         "expected": "LOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\n"
       }
     ],
-    "solution": "[Exemple]\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\nLOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\n\n[Cas 1 — Cas de test 1]\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45000 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45002 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\n\n[Cas 2 — Cas de test 2]\nLOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE"
+    "solution": "[Exemple]\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10500 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:192.168.1.15:5060 | MAPPED_S1:198.51.100.42:10500 | MAPPED_S2:198.51.100.42:10501 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\nLOCAL:203.0.113.10:5060 | MAPPED_S1:203.0.113.10:5060 | MAPPED_S2:203.0.113.10:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\n\n[Cas 1 — Cas de test 1]\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45000 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE\nLOCAL:10.0.0.2:16384 | MAPPED_S1:82.65.1.20:45000 | MAPPED_S2:82.65.1.20:45002 | OBSERVATION:MAPPAGES_DIFFERENTS | SUITE:VERIFIER_ICE\n\n[Cas 2 — Cas de test 2]\nLOCAL:195.154.10.2:5060 | MAPPED_S1:195.154.10.2:5060 | MAPPED_S2:195.154.10.2:5060 | OBSERVATION:MAPPAGES_IDENTIQUES | SUITE:VERIFIER_ICE",
+    "takeaway": "À retenir : Comparer deux mappages observés sans confondre cette observation avec une preuve de connectivité.\nRepère : Cas d'usage nominal."
   },
   {
     "id": "vo3-c6-e1",
     "chapter": 6,
-    "title": "Simulateur de File d'Attente ACD Asterisk (Queue Strategies)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Simuler la distribution automatique d'appels ACD selon les stratégies ringall, leastrecent et roundrobin.",
-    "brief": "<p>Dans un centre de contacts Asterisk (fichier queues.conf), les appels entrants sont distribués aux agents membres selon une stratégie définie :</p><ul><li><code>ringall</code> : fait sonner simultanément tous les postes des agents disponibles (statut AVAILABLE).</li><li><code>leastrecent</code> : sélectionne l'agent disponible dont le dernier appel terminé remonte au plus longtemps (LAST_CALL_TS le plus ancien/faible).</li><li><code>roundrobin</code> : attribue les appels à tour de rôle parmi les agents disponibles selon un pointeur circulaire.</li></ul>\n<p>Statuts d'un agent :</p><ul><li><code>AVAILABLE</code> : prêt à recevoir un appel.</li><li><code>IN_CALL</code> : en ligne, ne peut recevoir d'appel.</li><li><code>PAUSED</code> : en pause, ne reçoit aucun appel.</li></ul>\n<p>Format d'entrée :<br>Première ligne : <code>STRATEGY=<ringall|leastrecent|roundrobin></code><br>Lignes suivantes décrivant les agents de la file :<br><code>AGENT=<id> STATUS=<AVAILABLE|IN_CALL|PAUSED> LAST_CALL_TS=<timestamp_entier></code></p>\n<p>Règles de sélection :<br>1. Filtrer les agents dont <code>STATUS == \"AVAILABLE\"</code>.<br>2. Si aucun agent disponible -> afficher <code>AUCUN_AGENT_DISPONIBLE | ACTION:ATTENTE</code>.<br>3. Selon la stratégie :<br>   - <code>ringall</code> -> lister tous les IDs des agents disponibles séparés par des virgules (dans l'ordre d'apparition).<br>   - <code>leastrecent</code> -> choisir l'unique agent ayant le <code>LAST_CALL_TS</code> minimal. En cas d'égalité, prendre le premier dans l'ordre d'apparition.<br>   - <code>roundrobin</code> -> choisir le premier agent disponible dans l'ordre d'apparition.</p>\n<p>Format de sortie :<br>STRATEGY:<nom> | AGENTS_DISPOS:<nb> | SELECTION:<id(s)></p>",
-    "starter": "# Grille d'analyse (vo3-c6-e1) — Simulateur de File d'Attente ACD Asterisk (Queue Strategies)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : STRATEGY=ringall\n# Données : AGENT=201 STATUS=AVAILABLE LAST_CALL_TS=100\n# Données : AGENT=202 STATUS=AVAILABLE LAST_CALL_TS=200\n# Données : AGENT=203 STATUS=PAUSED LAST_CALL_TS=50\n# Données : AGENT=204 STATUS=AVAILABLE LAST_CALL_TS=300\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : STRATEGY=roundrobin\n# Données : AGENT=301 STATUS=IN_CALL LAST_CALL_TS=10\n# Données : AGENT=302 STATUS=AVAILABLE LAST_CALL_TS=20\n# Données : AGENT=303 STATUS=AVAILABLE LAST_CALL_TS=5\nA_COMPLETER\n\n[Cas 3 — Cas de test 3]\n# Données : STRATEGY=leastrecent\n# Données : AGENT=401 STATUS=IN_CALL LAST_CALL_TS=10\n# Données : AGENT=402 STATUS=PAUSED LAST_CALL_TS=20\nA_COMPLETER\n",
+    "title": "La file d'attente du support d'Informatique Plus",
+    "exampleTitle": "Exemple résolu — la file comptabilité du groupe Soluris",
+    "goal": "Appliquer les stratégies de distribution ACD d'Asterisk (leastrecent, ringall, roundrobin) à un appel entrant.",
+    "brief": "<p><strong>Énoncé.</strong> La société de services Informatique Plus reçoit ses appels de support dans une file d'attente ACD configurée ainsi dans /etc/asterisk/queues.conf :</p><pre>[support]\nstrategy=leastrecent\ntimeout=15\nretry=2\nwrapuptime=10\nmaxlen=20\nmember => SIP/301\nmember => SIP/302\nmember => SIP/303\nmember => SIP/304</pre><p>Le supervisor relève l'heure de fin du dernier appel traité par chaque agent :</p><table><tr><th>Agent</th><th>301</th><th>302</th><th>303</th><th>304</th></tr><tr><th>Dernier appel terminé</th><td>09:00</td><td>09:20</td><td>09:40</td><td>09:10</td></tr></table><p>À <strong>09:50</strong>, un client appelle : les quatre agents sont disponibles.</p><ol><li>Quelle stratégie de distribution la file utilise-t-elle ?</li><li>Quel agent reçoit l'appel de 09:50 ?</li><li>Quelle stratégie ferait sonner les quatre postes en même temps ?</li><li>Quelle stratégie distribue les appels à tour de rôle, dans l'ordre des membres déclarés ?</li><li>Dans quel fichier cette file d'attente est-elle déclarée ?</li></ol><p>Répondez de façon courte (le nom d'une stratégie, un numéro de poste, un nom de fichier).</p>",
+    "starter": "# Exercice — La file d'attente du support d'Informatique Plus\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez de façon courte : une stratégie, un numéro de poste, un fichier.\n\n[Question 1 — Stratégie de distribution configurée]\nA_COMPLETER\n\n[Question 2 — Agent qui reçoit l'appel de 09:50]\nA_COMPLETER\n\n[Question 3 — Stratégie qui fait sonner tous les postes]\nA_COMPLETER\n\n[Question 4 — Stratégie de distribution à tour de rôle]\nA_COMPLETER\n\n[Question 5 — Fichier de déclaration de la file]\nA_COMPLETER\n",
     "hints": [
-      "Pour leastrecent, choisissez l'agent dont la dernière fin d'appel est la plus ancienne.",
-      "Passez l'agent sélectionné en statut occupé et appliquez le wrapuptime après l'appel."
+      "Relisez la directive strategy de la configuration : c'est elle qui fixe la règle de distribution.",
+      "La stratégie configurée favorise l'agent dont le dernier appel terminé remonte au plus longtemps.",
+      "1. Lisez la ligne strategy=. 2. Comparez les heures de fin d'appel : 09:00 est la plus ancienne. 3. La sonnerie générale s'appelle ringall. 4. Le tour de rôle séquentiel s'appelle roundrobin. 5. Les files vivent dans queues.conf."
     ],
     "examples": [
       {
-        "stdin": "STRATEGY=leastrecent\nAGENT=101 STATUS=AVAILABLE LAST_CALL_TS=1600000500\nAGENT=102 STATUS=IN_CALL LAST_CALL_TS=1600000100\nAGENT=103 STATUS=AVAILABLE LAST_CALL_TS=1600000200\nAGENT=104 STATUS=PAUSED LAST_CALL_TS=1600000050",
-        "expected": "STRATEGY:leastrecent | AGENTS_DISPOS:2 | SELECTION:103\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "La file comptabilité du groupe Soluris : [compta] strategy=leastrecent,\nmembres 501, 502, 503. Derniers appels terminés : 501 à 10:00, 502 à 10:15, 503 à 10:30.\nUn appel arrive à 10:45, tous disponibles.\n\n1) Stratégie : leastrecent.\n2) L'agent 501 reçoit l'appel : son dernier appel (10:00) remonte au plus longtemps.\n3) Pour tout faire sonner : ringall.\n4) Pour le tour de rôle : roundrobin.\n5) Fichier : queues.conf.",
+        "expected": "leastrecent — agent 501 — ringall pour tout sonner — roundrobin pour le tour de rôle — queues.conf",
+        "note": "leastrecent équilibre la charge : l'agent qui n'a pas été sollicité depuis le plus longtemps est servi en premier."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "STRATEGY:ringall | AGENTS_DISPOS:3 | SELECTION:201,202,204\n"
+        "label": "Question 1 — Stratégie de distribution configurée",
+        "stdin": "q:1",
+        "expected": "leastrecent||la stratégie leastrecent"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "STRATEGY:roundrobin | AGENTS_DISPOS:2 | SELECTION:302\n"
+        "label": "Question 2 — Agent qui reçoit l'appel de 09:50",
+        "stdin": "q:2",
+        "expected": "301||l'agent 301||agent 301||SIP/301"
       },
       {
-        "label": "Cas de test 3",
-        "stdin": "cas:3",
-        "expected": "STRATEGY:leastrecent | AGENTS_DISPOS:0 | SELECTION:AUCUN_AGENT_DISPONIBLE\n"
+        "label": "Question 3 — Stratégie qui fait sonner tous les postes",
+        "stdin": "q:3",
+        "expected": "ringall||la stratégie ringall"
+      },
+      {
+        "label": "Question 4 — Stratégie de distribution à tour de rôle",
+        "stdin": "q:4",
+        "expected": "roundrobin||la stratégie roundrobin"
+      },
+      {
+        "label": "Question 5 — Fichier de déclaration de la file",
+        "stdin": "q:5",
+        "expected": "queues.conf||le fichier queues.conf"
       }
     ],
-    "solution": "[Exemple]\nSTRATEGY:leastrecent | AGENTS_DISPOS:2 | SELECTION:103\n\n\n[Cas 1 — Cas de test 1]\nSTRATEGY:ringall | AGENTS_DISPOS:3 | SELECTION:201,202,204\n\n\n[Cas 2 — Cas de test 2]\nSTRATEGY:roundrobin | AGENTS_DISPOS:2 | SELECTION:302\n\n\n[Cas 3 — Cas de test 3]\nSTRATEGY:leastrecent | AGENTS_DISPOS:0 | SELECTION:AUCUN_AGENT_DISPONIBLE"
+    "solution": "[Question 1 — Stratégie de distribution configurée]\nleastrecent\n\n[Question 2 — Agent qui reçoit l'appel de 09:50]\n301\n\n[Question 3 — Stratégie qui fait sonner tous les postes]\nringall\n\n[Question 4 — Stratégie de distribution à tour de rôle]\nroundrobin\n\n[Question 5 — Fichier de déclaration de la file]\nqueues.conf",
+    "takeaway": "1) La directive strategy=leastrecent fixe la distribution : l'appel part vers l'agent disponible dont le dernier appel terminé remonte au plus longtemps.\n2) À 09:50, l'agent 301 a terminé son dernier appel à 09:00, la période de repos la plus ancienne : c'est lui qui reçoit l'appel (301 est d'ailleurs le premier membre déclaré, mais c'est bien l'ancienneté qui décide).\n3) ringall fait sonner simultanément tous les postes des agents disponibles, le premier décroché gagne l'appel.\n4) roundrobin distribue les appels à tour de rôle dans l'ordre des membres déclarés.\n5) La file est déclarée dans /etc/asterisk/queues.conf.\nContrôle : l'ordre d'ancienneté à 09:50 est 301 (09:00), 304 (09:10), 302 (09:20), 303 (09:40) : le prochain appel échoirait à l'agent 304, la charge reste équitable."
   },
   {
     "id": "vo3-c6-e2",
     "chapter": 6,
-    "title": "Moteur de Routage LCR (Least Cost Routing) Multi-Trunks",
     "level": "n2",
     "language": "analyse",
-    "goal": "Analyser les préfixes d'appels internationaux et sélectionner l'opérateur télécoms offrant le tarif optimal à la minute.",
-    "brief": "<p>Le routage au moindre coût (Least Cost Routing, LCR) permet à un IPBX d'acheminer chaque appel sortant vers le fournisseur SIP proposant le tarif le plus bas pour la destination composée. Chaque règle de tarification opérateur associe :</p><ul><li>Un préfixe de destination (ex: '0033' pour France, '00221' pour Sénégal, '001' pour USA).</li><li>Un coût à la minute en centimes (ex: 1.5 c€/min).</li><li>Un coût d'établissement d'appel (connection fee, ex: 3.0 c€).</li></ul>\n<p>Pour un appel de durée <code>D</code> secondes :<br><code>cout_appel = connection_fee + rate_per_min * (D / 60.0)</code>.</p>\n<p>Format d'entrée :<br>Section 1 : Déclaration des trunks et tarifs sous la forme :<br><code>TRUNK=<nom> PREFIX=<prefixe> RATE_MIN=<tarif_min> CONN_FEE=<frais_connexion></code><br>Ligne de séparation : <code>---</code><br>Section 2 : Appels à router sous la forme :<br><code>CALL_ID=<id> DEST=<numero_compose> DURATION_SEC=<duree></code></p>\n<p>Règles de décision :<br>1. Pour chaque appel, identifier tous les trunks dont le <code>PREFIX</code> correspond au début du numéro <code>DEST</code> (longest prefix match si préfixes de longueurs différentes, ou évaluer tous les trunks matchant).<br>2. Pour chaque trunk éligible, calculer le coût total de l'appel :<br>   <code>cost = conn_fee + rate_min * (duration_sec / 60.0)</code>.<br>3. Sélectionner le trunk offrant le coût minimal. En cas d'égalité parfaite de coût, choisir le premier dans l'ordre alphabétique du nom de trunk.<br>4. Si aucun trunk ne correspond au préfixe, afficher <code>STATUT:ECHEC_ROUTAGE</code>.</p>\n<p>Format de sortie :<br>Pour chaque appel :<br><code>CALL:<id> | DEST:<numero> | DUREE:<d>s | TRUNK_CHOISI:<nom> | COUT:<cout:.2f>c€</code></p>",
-    "starter": "# Grille d'analyse (vo3-c6-e2) — Moteur de Routage LCR (Least Cost Routing) Multi-Trunks\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : TRUNK=Op1 PREFIX=001 RATE_MIN=0.8 CONN_FEE=2.0\n# Données : TRUNK=Op2 PREFIX=001 RATE_MIN=1.5 CONN_FEE=0.0\n# Données : ---\n# Données : CALL_ID=US1 DEST=0012125551234 DURATION_SEC=300\n# Données : CALL_ID=US2 DEST=0012125551234 DURATION_SEC=60\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : TRUNK=Alpha PREFIX=0044 RATE_MIN=5.0 CONN_FEE=0.0\n# Données : ---\n# Données : CALL_ID=K1 DEST=00442079460912 DURATION_SEC=60\n# Données : CALL_ID=K2 DEST=0099999999999 DURATION_SEC=60\nA_COMPLETER\n",
+    "title": "Le choix du trunk SIP pour le traiteur Delicealim",
+    "exampleTitle": "Exemple résolu — la ligne du cabinet d'avocats Lorelle & Fils",
+    "goal": "Comparer le coût mensuel chiffré d'un trunk SIP et de lignes analogiques, puis citer le routage au moindre coût.",
+    "brief": "<p><strong>Énoncé.</strong> Delicealim, traiteur industriel à Rennes, consomme <strong>6 000 minutes par mois</strong> d'appels vers les fixes. L'opérateur propose deux offres :</p><table><tr><th></th><th>Offre A : trunk SIP</th><th>Offre B : deux lignes analogiques</th></tr><tr><th>Abonnement mensuel</th><td>45 € (4 canaux simultanés inclus)</td><td>24 € par ligne, soit 2 × 24 €</td></tr><tr><th>Tarif vers les fixes</th><td>0,009 € par minute</td><td>0,014 € par minute</td></tr></table><p>Le coût mensuel total = abonnement(s) + (minutes × tarif par minute). Delicealim arbitre aussi sur le principe du LCR vu en cours : l'IPBX analyse le préfixe du numéro composé pour choisir l'opérateur le moins cher.</p><ol><li>Quel est le coût mensuel total de l'offre A (trunk SIP), en euros ?</li><li>Quel est le coût mensuel total de l'offre B (lignes analogiques), en euros ?</li><li>Quelle économie mensuelle, en euros, Delicealim réalise-t-elle en choisissant l'offre A ?</li><li>Cette économie représente quel pourcentage du coût de l'offre B ?</li><li>Quel mécanisme de l'IPBX choisit automatiquement l'opérateur le moins cher selon le préfixe composé ?</li></ol><p>Répondez par le nombre ou le libellé attendus.</p>",
+    "starter": "# Exercice — Le choix du trunk SIP pour le traiteur Delicealim\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : le nombre seul. Question 5 : le libellé du mécanisme.\n\n[Question 1 — Coût mensuel de l'offre A (en euros)]\nA_COMPLETER\n\n[Question 2 — Coût mensuel de l'offre B (en euros)]\nA_COMPLETER\n\n[Question 3 — Économie mensuelle en choisissant l'offre A (en euros)]\nA_COMPLETER\n\n[Question 4 — Économie en pourcentage du coût de l'offre B]\nA_COMPLETER\n\n[Question 5 — Mécanisme de choix automatique de l'opérateur]\nA_COMPLETER\n",
     "hints": [
-      "Appliquez le principe du plus long préfixe correspondant (longest prefix match).",
-      "Retenez le trunk actif proposant le coût à la minute le plus faible."
+      "Le coût mensuel total additionne l'abonnement et la consommation : minutes × tarif à la minute.",
+      "Pour l'offre B, n'oubliez pas les deux abonnements de ligne avant d'ajouter la consommation.",
+      "1. Offre A : 45 + 6 000 × 0,009. 2. Offre B : 2 × 24 + 6 000 × 0,014. 3. Économie = coût B − coût A. 4. Économie / coût B × 100. 5. Le sigle du routage au moindre coût est LCR."
     ],
     "examples": [
       {
-        "stdin": "TRUNK=TrunkA PREFIX=0033 RATE_MIN=2.0 CONN_FEE=0.0\nTRUNK=TrunkB PREFIX=0033 RATE_MIN=1.2 CONN_FEE=5.0\nTRUNK=TrunkC PREFIX=00221 RATE_MIN=18.0 CONN_FEE=0.0\nTRUNK=TrunkD PREFIX=00221 RATE_MIN=15.0 CONN_FEE=10.0\n---\nCALL_ID=C1 DEST=0033140203040 DURATION_SEC=120\nCALL_ID=C2 DEST=0033140203040 DURATION_SEC=30\nCALL_ID=C3 DEST=00221706438029 DURATION_SEC=180",
-        "expected": "CALL:C1 | DEST:0033140203040 | DUREE:120s | TRUNK_CHOISI:TrunkA | COUT:4.00c€\nCALL:C2 | DEST:0033140203040 | DUREE:30s | TRUNK_CHOISI:TrunkA | COUT:1.00c€\nCALL:C3 | DEST:00221706438029 | DUREE:180s | TRUNK_CHOISI:TrunkC | COUT:54.00c€\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le cabinet d'avocats Lorelle & Fils consomme 4 000 minutes par mois vers les fixes.\nTrunk SIP : 60 € d'abonnement + 0,008 €/min. Offre RNIS : 30 € d'abonnement + 0,012 €/min.\n\n1) Trunk SIP : 60 + 4 000 × 0,008 = 60 + 32 = 92 €.\n2) RNIS : 30 + 4 000 × 0,012 = 30 + 48 = 78 €.\n3) Ici le RNIS est moins cher : économie de 92 − 78 = 14 € par mois.\n4) En pourcentage du trunk : 14 / 92 ≈ 15 %.\n5) Le LCR choisit l'opérateur selon le préfixe composé.",
+        "expected": "trunk 92 € — RNIS 78 € — économie 14 € pour le RNIS — environ 15 % — LCR selon le préfixe",
+        "note": "Le trunk SIP n'est pas toujours gagnant : tout dépend du volume de minutes et du prix de l'abonnement, d'où l'intérêt du calcul complet."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "CALL:US1 | DEST:0012125551234 | DUREE:300s | TRUNK_CHOISI:Op1 | COUT:6.00c€\nCALL:US2 | DEST:0012125551234 | DUREE:60s | TRUNK_CHOISI:Op2 | COUT:1.50c€\n"
+        "label": "Question 1 — Coût mensuel de l'offre A (en euros)",
+        "stdin": "q:1",
+        "expected": "99||99 €||99 euros"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "CALL:K1 | DEST:00442079460912 | DUREE:60s | TRUNK_CHOISI:Alpha | COUT:5.00c€\nCALL:K2 | DEST:0099999999999 | DUREE:60s | TRUNK_CHOISI:AUCUN | COUT:0.00c€ | STATUT:ECHEC_ROUTAGE\n"
+        "label": "Question 2 — Coût mensuel de l'offre B (en euros)",
+        "stdin": "q:2",
+        "expected": "132||132 €||132 euros"
+      },
+      {
+        "label": "Question 3 — Économie mensuelle en choisissant l'offre A (en euros)",
+        "stdin": "q:3",
+        "expected": "33||33 €||33 euros"
+      },
+      {
+        "label": "Question 4 — Économie en pourcentage du coût de l'offre B",
+        "stdin": "q:4",
+        "expected": "25||25 %||25%"
+      },
+      {
+        "label": "Question 5 — Mécanisme de choix automatique de l'opérateur",
+        "stdin": "q:5",
+        "expected": "LCR||le LCR||least cost routing||routage au moindre coût||le routage au moindre coût"
       }
     ],
-    "solution": "[Exemple]\nCALL:C1 | DEST:0033140203040 | DUREE:120s | TRUNK_CHOISI:TrunkA | COUT:4.00c€\nCALL:C2 | DEST:0033140203040 | DUREE:30s | TRUNK_CHOISI:TrunkA | COUT:1.00c€\nCALL:C3 | DEST:00221706438029 | DUREE:180s | TRUNK_CHOISI:TrunkC | COUT:54.00c€\n\n\n[Cas 1 — Cas de test 1]\nCALL:US1 | DEST:0012125551234 | DUREE:300s | TRUNK_CHOISI:Op1 | COUT:6.00c€\nCALL:US2 | DEST:0012125551234 | DUREE:60s | TRUNK_CHOISI:Op2 | COUT:1.50c€\n\n\n[Cas 2 — Cas de test 2]\nCALL:K1 | DEST:00442079460912 | DUREE:60s | TRUNK_CHOISI:Alpha | COUT:5.00c€\nCALL:K2 | DEST:0099999999999 | DUREE:60s | TRUNK_CHOISI:AUCUN | COUT:0.00c€ | STATUT:ECHEC_ROUTAGE"
+    "solution": "[Question 1 — Coût mensuel de l'offre A (en euros)]\n99\n\n[Question 2 — Coût mensuel de l'offre B (en euros)]\n132\n\n[Question 3 — Économie mensuelle en choisissant l'offre A (en euros)]\n33\n\n[Question 4 — Économie en pourcentage du coût de l'offre B]\n25\n\n[Question 5 — Mécanisme de choix automatique de l'opérateur]\nLCR",
+    "takeaway": "1) Offre A : 6 000 × 0,009 = 54 € de consommation + 45 € d'abonnement = 99 € par mois.\n2) Offre B : 2 × 24 = 48 € d'abonnements + 6 000 × 0,014 = 84 € de consommation = 132 € par mois.\n3) Économie mensuelle : 132 − 99 = 33 €.\n4) Économie relative : 33 / 132 × 100 = 25 % du coût de l'offre B.\n5) C'est le routage au moindre coût (LCR, Least Cost Routing) : l'IPBX analyse le préfixe du numéro composé et sélectionne l'opérateur au tarif optimal.\nContrôle : l'écart de consommation seule vaut 6 000 × (0,014 − 0,009) = 30 € ; l'abonnement du trunk, moins cher que les deux lignes (45 € contre 48 €), ajoute 3 € d'économie : 30 + 3 = 33 €."
   },
   {
     "id": "vo3-c6-e3",
     "chapter": 6,
-    "title": "Détecteur d'Attaques Brute-Force SIP & Générateur Fail2ban",
     "level": "n3",
     "language": "analyse",
-    "goal": "Analyser les journaux d'authentification Asterisk, détecter les attaques brute-force et générer des règles pare-feu iptables.",
-    "brief": "<p>Les serveurs VoIP exposés sur Internet subissent de nombreuses attaques automatisées par scan SIP (outils sipvicious, friendly-scanner) testant des mots de passe en boucle. Lors d'une tentative frauduleuse, Asterisk retourne un code <code>401 Unauthorized</code> ou <code>403 Forbidden</code>. Pour neutraliser ces attaques, un système de défense active (Fail2ban) analyse les journaux de sécurité :</p><ul><li>Si une adresse IP source génère plus de <code>MAX_FAILURES</code> tentatives en échec (codes 401 ou 403) dans une fenêtre temporelle donnée, elle est bannie immédiatement.</li><li>La règle générée applique une commande de blocage : <code>iptables -I INPUT -s <IP> -p udp --dport 5060 -j DROP</code>.</li></ul>\n<p>Format d'entrée :<br>Première ligne : <code>MAX_FAILURES=<seuil></code><br>Lignes suivantes représentant des journaux d'événements de sécurité SIP :<br><code>TIMESTAMP=<sec> IP=<ip_source> EXTENSION=<ext_visée> STATUS_CODE=<code_http_sip></code></p>\n<p>Règles de traitement :<br>1. Compter les échecs (status_code == 401 ou status_code == 403) par adresse IP.<br>2. Lorsqu'une IP atteint ou dépasse le seuil <code>MAX_FAILURES</code>, elle bascule en statut <code>BANNI</code>.<br>3. Pour chaque ligne analysée, afficher l'état de l'IP.<br>4. Dès qu'un bannissement est prononcé pour la première fois pour une IP, afficher la règle firewall correspondante.</p>\n<p>Format de sortie :<br>Pour chaque ligne d'événement :<br>IP:<ip> | CODE:<status_code> | ECHECS:<nb_echecs_cumules> | ETAT:<OK|BANNI><br>(Si nouvellement bannie, afficher sur la ligne suivante :<br>ACTION:BAN | IP:<ip> | REGLE:iptables -I INPUT -s <ip> -p udp --dport 5060 -j DROP)</p>",
-    "starter": "# Grille d'analyse (vo3-c6-e3) — Détecteur d'Attaques Brute-Force SIP & Générateur Fail2ban\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : MAX_FAILURES=2\n# Données : TIMESTAMP=1 IP=203.0.113.88 EXTENSION=100 STATUS_CODE=401\n# Données : TIMESTAMP=2 IP=203.0.113.88 EXTENSION=101 STATUS_CODE=401\n# Données : TIMESTAMP=3 IP=10.0.0.1 EXTENSION=500 STATUS_CODE=401\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : MAX_FAILURES=5\n# Données : TIMESTAMP=10 IP=1.2.3.4 EXTENSION=701 STATUS_CODE=200\n# Données : TIMESTAMP=11 IP=1.2.3.4 EXTENSION=701 STATUS_CODE=401\n# Données : TIMESTAMP=12 IP=1.2.3.4 EXTENSION=701 STATUS_CODE=200\nA_COMPLETER\n",
+    "title": "L'attaque brute-force sur l'IPBX de Delicealim",
+    "exampleTitle": "Exemple résolu — le scan de l'IPBX du musée du Bord de Mer",
+    "goal": "Analyser un journal d'authentification Asterisk, comprendre le déclenchement de fail2ban et connaître TLS et SRTP.",
+    "brief": "<p><strong>Énoncé.</strong> Le serveur Asterisk du traiteur Delicealim est exposé sur Internet. Un matin, le journal /var/log/asterisk/messages contient :</p><pre>NOTICE[3124] chan_sip.c: Registration from 'sip:201@ipbx.delicealim.fr' failed for '203.0.113.66' - Wrong password\nNOTICE[3125] chan_sip.c: Registration from 'sip:202@ipbx.delicealim.fr' failed for '203.0.113.66' - Wrong password\nNOTICE[3126] chan_sip.c: Registration from 'sip:203@ipbx.delicealim.fr' failed for '203.0.113.66' - Wrong password\nNOTICE[3127] chan_sip.c: Registration from 'sip:admin@ipbx.delicealim.fr' failed for '203.0.113.66' - Wrong password</pre><p>Le service fail2ban surveille ce journal avec les paramètres <strong>maxretry = 3</strong> et <strong>bantime = 3600 s</strong> : dès qu'une adresse IP cumule le seuil d'échecs, une règle pare-feu iptables bloque le port SIP pour cette adresse.</p><ol><li>Quelle adresse IP mène l'attaque ?</li><li>Combien d'échecs d'enregistrement cette adresse a-t-elle cumulés dans le journal ?</li><li>Au bout de combien d'échecs fail2ban déclenche-t-il le blocage (maxretry) ?</li><li>Comment nomme-t-on ce type d'attaque qui essaie les identifiants un à un ?</li><li>Quel port UDP, cible par défaut de ces requêtes SIP, fail2ban doit-il filtrer ?</li><li>Quel protocole du cours chiffre le flux audio RTP ?</li></ol><p>Répondez par l'adresse, le nombre ou le mot attendus.</p>",
+    "starter": "# Exercice — L'attaque brute-force sur l'IPBX de Delicealim\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par l'adresse, le nombre ou le mot attendus.\n\n[Question 1 — Adresse IP de l'attaquant]\nA_COMPLETER\n\n[Question 2 — Nombre d'échecs cumulés dans le journal]\nA_COMPLETER\n\n[Question 3 — Seuil d'échecs déclenchant le blocage]\nA_COMPLETER\n\n[Question 4 — Nom du type d'attaque]\nA_COMPLETER\n\n[Question 5 — Port UDP ciblé par les requêtes SIP]\nA_COMPLETER\n\n[Question 6 — Protocole qui chiffre le flux audio RTP]\nA_COMPLETER\n",
     "hints": [
-      "Comptabilisez les échecs d'authentification 401 Unauthorized et 403 Forbidden par adresse IP.",
-      "Dès que le seuil maxretry est atteint, émettez une règle de bannissement DROP."
+      "Le champ « failed for » du journal donne l'adresse source de chaque tentative.",
+      "Comparez le nombre d'échecs cumulés au paramètre maxretry : le blocage part du seuil, pas du total du journal.",
+      "1. L'adresse revient sur les quatre lignes. 2. Comptez les lignes NOTICE. 3. maxretry = 3. 4. Essayer mot après mot s'appelle une attaque par force brute. 5. Le SIP écoute par défaut sur 5060/UDP. 6. Le chiffrement du média passe par SRTP."
     ],
     "examples": [
       {
-        "stdin": "MAX_FAILURES=3\nTIMESTAMP=100 IP=198.51.100.22 EXTENSION=100 STATUS_CODE=401\nTIMESTAMP=102 IP=198.51.100.22 EXTENSION=101 STATUS_CODE=401\nTIMESTAMP=103 IP=192.168.1.50 EXTENSION=200 STATUS_CODE=200\nTIMESTAMP=104 IP=198.51.100.22 EXTENSION=102 STATUS_CODE=403\nTIMESTAMP=105 IP=198.51.100.22 EXTENSION=103 STATUS_CODE=401",
-        "expected": "IP:198.51.100.22 | CODE:401 | ECHECS:1 | ETAT:OK\nIP:198.51.100.22 | CODE:401 | ECHECS:2 | ETAT:OK\nIP:192.168.1.50 | CODE:200 | ECHECS:0 | ETAT:OK\nIP:198.51.100.22 | CODE:403 | ECHECS:3 | ETAT:BANNI\nACTION:BAN | IP:198.51.100.22 | REGLE:iptables -I INPUT -s 198.51.100.22 -p udp --dport 5060 -j DROP\nIP:198.51.100.22 | CODE:401 | ECHECS:4 | ETAT:BANNI\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le musée du Bord de Mer détecte sur son IPBX cinq échecs consécutifs depuis 198.51.100.7\n(extensions 300, 301, 302, 303 et 304 tentées). fail2ban : maxretry = 4, bantime = 1800 s.\n\n1) Adresse attaquante : 198.51.100.7.\n2) 5 échecs cumulés.\n3) Blocage au 4e échec (maxretry = 4).\n4) Attaque par force brute.\n5) Port ciblé : 5060/UDP.\n6) Le média se chiffre avec SRTP.",
+        "expected": "IP 198.51.100.7 — 5 échecs — bannissement au 4e échec — force brute — port 5060 — SRTP",
+        "note": "Les adresses 203.0.113.0/24 et 198.51.100.0/24 sont réservées à la documentation (RFC 5737) : aucun vrai réseau n'est visé."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "IP:203.0.113.88 | CODE:401 | ECHECS:1 | ETAT:OK\nIP:203.0.113.88 | CODE:401 | ECHECS:2 | ETAT:BANNI\nACTION:BAN | IP:203.0.113.88 | REGLE:iptables -I INPUT -s 203.0.113.88 -p udp --dport 5060 -j DROP\nIP:10.0.0.1 | CODE:401 | ECHECS:1 | ETAT:OK\n"
+        "label": "Question 1 — Adresse IP de l'attaquant",
+        "stdin": "q:1",
+        "expected": "203.0.113.66||l'adresse 203.0.113.66"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "IP:1.2.3.4 | CODE:200 | ECHECS:0 | ETAT:OK\nIP:1.2.3.4 | CODE:401 | ECHECS:1 | ETAT:OK\nIP:1.2.3.4 | CODE:200 | ECHECS:1 | ETAT:OK\n"
+        "label": "Question 2 — Nombre d'échecs cumulés dans le journal",
+        "stdin": "q:2",
+        "expected": "4||quatre"
+      },
+      {
+        "label": "Question 3 — Seuil d'échecs déclenchant le blocage",
+        "stdin": "q:3",
+        "expected": "3||au bout de 3||3 échecs||trois"
+      },
+      {
+        "label": "Question 4 — Nom du type d'attaque",
+        "stdin": "q:4",
+        "expected": "brute-force||brute force||force brute||attaque par force brute||l'attaque par force brute"
+      },
+      {
+        "label": "Question 5 — Port UDP ciblé par les requêtes SIP",
+        "stdin": "q:5",
+        "expected": "5060||le port 5060||5060/UDP"
+      },
+      {
+        "label": "Question 6 — Protocole qui chiffre le flux audio RTP",
+        "stdin": "q:6",
+        "expected": "SRTP||srtp||le protocole SRTP"
       }
     ],
-    "solution": "[Exemple]\nIP:198.51.100.22 | CODE:401 | ECHECS:1 | ETAT:OK\nIP:198.51.100.22 | CODE:401 | ECHECS:2 | ETAT:OK\nIP:192.168.1.50 | CODE:200 | ECHECS:0 | ETAT:OK\nIP:198.51.100.22 | CODE:403 | ECHECS:3 | ETAT:BANNI\nACTION:BAN | IP:198.51.100.22 | REGLE:iptables -I INPUT -s 198.51.100.22 -p udp --dport 5060 -j DROP\nIP:198.51.100.22 | CODE:401 | ECHECS:4 | ETAT:BANNI\n\n\n[Cas 1 — Cas de test 1]\nIP:203.0.113.88 | CODE:401 | ECHECS:1 | ETAT:OK\nIP:203.0.113.88 | CODE:401 | ECHECS:2 | ETAT:BANNI\nACTION:BAN | IP:203.0.113.88 | REGLE:iptables -I INPUT -s 203.0.113.88 -p udp --dport 5060 -j DROP\nIP:10.0.0.1 | CODE:401 | ECHECS:1 | ETAT:OK\n\n\n[Cas 2 — Cas de test 2]\nIP:1.2.3.4 | CODE:200 | ECHECS:0 | ETAT:OK\nIP:1.2.3.4 | CODE:401 | ECHECS:1 | ETAT:OK\nIP:1.2.3.4 | CODE:200 | ECHECS:1 | ETAT:OK"
+    "solution": "[Question 1 — Adresse IP de l'attaquant]\n203.0.113.66\n\n[Question 2 — Nombre d'échecs cumulés dans le journal]\n4\n\n[Question 3 — Seuil d'échecs déclenchant le blocage]\n3\n\n[Question 4 — Nom du type d'attaque]\nbrute-force\n\n[Question 5 — Port UDP ciblé par les requêtes SIP]\n5060\n\n[Question 6 — Protocole qui chiffre le flux audio RTP]\nSRTP",
+    "takeaway": "1) L'adresse 203.0.113.66 apparaît comme source des quatre tentatives : c'est elle qui mène l'attaque.\n2) Le journal cumule 4 échecs d'enregistrement (201, 202, 203, puis le compte admin).\n3) maxretry = 3 : le blocage iptables est déclenché au troisième échec, le quatrième n'arrive même pas à l'IPBX.\n4) C'est une attaque par force brute (brute-force) : les mots de passe sont essayés un à un.\n5) Les requêtes SIP ciblent par défaut le port 5060/UDP : c'est ce port que fail2ban filtre.\n6) Le flux audio RTP se chiffre avec SRTP (RFC 3711, AES) ; côté signalisation, SIP TLS (port 5061/TCP) protège les identifiants.\nContrôle : bantime = 3600 s signifie que l'adresse 203.0.113.66 reste bloquée une heure complète : le temps de réagir et d'en informer l'opérateur."
   }
 ];

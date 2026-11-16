@@ -146,14 +146,14 @@ module.exports = {
   questions: [
     {
       stem: 'Quel type de métrique Prometheus doit obligatoirement être utilisé pour compter le nombre total de requêtes HTTP traitées par une API web ?',
-      opts: ['Gauge', 'Counter', 'Histogram', 'Summary'],
-      correct: 1,
+      opts: ['Gauge', 'Summary', 'Histogram', 'Counter'],
+      correct: 3,
       exp: 'Un volume cumulé d\'événements qui ne fait qu\'augmenter au cours du temps doit toujours être modélisé sous la forme d\'un Counter.'
     },
     {
       stem: 'Pourquoi est-il formellement interdit d\'inclure un identifiant d\'utilisateur unique (ex: user_id) dans les labels d\'une métrique Prometheus ?',
-      opts: ['Car Prometheus ne supporte que les chiffres', 'Car cela génère une cardinalité explosive créant des millions de séries temporelles distinctes et sature la mémoire (RAM)', 'Car cela empêche les alertes par email', 'Car la loi RGPD interdit les métriques'],
-      correct: 1,
+      opts: ["Car cela génère une cardinalité explosive créant des millions de séries temporelles distinctes et sature la mémoire (RAM)","Car Prometheus ne sait manipuler que des valeurs strictement numériques dans ses étiquettes","Car cela empêche mécaniquement l'envoi des notifications d'alerte par email aux équipes","Car la réglementation RGPD interdit formellement la collecte de métriques techniques sur les utilisateurs"],
+      correct: 0,
       exp: 'Chaque combinaison unique de labels crée une nouvelle série temporelle en mémoire vive. Une cardinalité infinie sature rapidement la base TSDB de Prometheus.'
     },
     {
@@ -164,32 +164,32 @@ module.exports = {
     },
     {
       stem: 'Sur quel port TCP standard l\'exportateur système Node Exporter expose-t-il les métriques matérielles d\'une machine Linux ?',
-      opts: ['Port 9090', 'Port 9100', 'Port 9093', 'Port 3000'],
-      correct: 1,
+      opts: ['Port 9090', 'Port 9093', 'Port 9100', 'Port 3000'],
+      correct: 2,
       exp: 'Node Exporter écoute sur le port 9100/TCP. Le port 9090 est le serveur Prometheus, le 9093 Alertmanager et le 3000 Grafana.'
     },
     {
       stem: 'Dans Alertmanager, quel mécanisme permet de bloquer automatiquement une alerte « HighCpuLoad » lorsqu\'une alerte « HostDown » est déjà active sur le même serveur ?',
-      opts: ['Le silence temporaire (Silence)', 'La règle d\'inhibition (Inhibit Rule)', 'Le groupement d\'alertes (Grouping)', 'L\'escalade SMTP'],
-      correct: 1,
+      opts: ['Le silence temporaire (Silence)', 'L\'escalade SMTP', 'Le groupement d\'alertes (Grouping)', 'La règle d\'inhibition (Inhibit Rule)'],
+      correct: 3,
       exp: 'Les règles d\'inhibition (Inhibit Rules) suppriment les alertes secondaires lorsque l\'alerte racine (ex: panne totale de l\'hôte) est déjà déclenchée sur la même étiquette.'
     },
     {
       stem: 'Pour quel cas d\'usage spécifique l\'outil Prometheus Pushgateway a-t-il été conçu ?',
-      opts: ['Pour superviser les bases de données SQL relationnelles', 'Pour collecter les métriques de jobs batchs ou scripts éphémères qui se terminent trop vite pour être scrapés', 'Pour afficher des graphiques dans un navigateur', 'Pour remplacer l\'agent Zabbix'],
+      opts: ["Pour superviser finement les bases de données SQL relationnelles de production","Pour collecter les métriques de jobs batchs ou scripts éphémères qui se terminent trop vite pour être scrapés","Pour afficher des tableaux de bord graphiques directement dans le navigateur des équipes techniques","Pour remplacer intégralement l'agent Zabbix sur l'ensemble du parc supervisé"],
       correct: 1,
       exp: 'La Pushgateway reçoit les métriques poussées par des scripts batchs courts (cron jobs) avant leur extinction, et les garde en mémoire pour le scraper Prometheus.'
     },
     {
       stem: 'Quelle fonction PromQL permet de calculer le 95e centile (p95) de la latence d\'une application à partir d\'un Histogramme ?',
-      opts: ['p95(http_request_duration_seconds)', 'histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))', 'rate(http_request_duration_seconds[95m])', 'quantile_95(http_request_duration_seconds)'],
-      correct: 1,
+      opts: ["histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))","p95(http_request_duration_seconds), fonction native de PromQL","rate(http_request_duration_seconds[95m]), le taux d'accroissement brut","quantile_95(http_request_duration_seconds), calcul direct du centile"],
+      correct: 0,
       exp: 'histogram_quantile() calcule les centiles à partir des compteurs de buckets cumulatifs (identifiés par l\'étiquette le).'
     },
     {
       stem: 'Quel protocole de transport et quel format de sérialisation sont utilisés nativement par Prometheus pour scraper les métriques ?',
-      opts: ['SNMP en UDP', 'Requêtes HTTP GET avec données au format texte OpenMetrics', 'Connexion SSH avec commandes bash', 'WebSockets binaires'],
-      correct: 1,
+      opts: ["Le protocole SNMP en UDP avec communauté","Une connexion SSH exécutant des commandes bash","Des WebSockets binaires persistantes et bidirectionnelles","Requêtes HTTP GET avec données au format texte OpenMetrics"],
+      correct: 3,
       exp: 'Prometheus effectue des requêtes HTTP GET standard vers l\'URL /metrics et parse le flux textuel structuré conforme au format OpenMetrics.'
     }
   ],

@@ -4,134 +4,167 @@ module.exports = [
   {
     "id": "na2-c1-e1",
     "chapter": 1,
-    "title": "Décodeur d'en-tête Ethernet II",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser les champs d'une trame Ethernet II : adresses MAC source et destination, EtherType et classification du trafic.",
-    "brief": "<p>Analysez les paramètres du problème pour chaque cas. <code>01:00:5e:...</code> ou <code>33:33:...</code>, Unicast sinon)<br>\n- <code>SRC: &lt;MAC&gt;</code><br>\n- <code>TYPE: 0x&lt;HEX&gt; (&lt;IPv4|ARP|IPv6|Inconnu&gt;)</code> (0800=IPv4, 0806=ARP, 86dd=IPv6)<br>\n- <code>TAILLE: &lt;TOTAL&gt; octets</code> (Payload + 14 octets d'en-tête Ethernet)</p>",
-    "starter": "# Grille d'analyse (na2-c1-e1) — Décodeur d'en-tête Ethernet II\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trame IPv4 unicast]\n# Données : 00:11:22:33:44:55 00:aa:bb:cc:dd:ee 0800 64\nA_COMPLETER\n\n[Cas 2 — Trame IPv6 multicast]\n# Données : 33:33:00:00:00:01 02:42:ac:11:00:02 86dd 120\nA_COMPLETER\n\n[Cas 3 — Trame protocole inconnu]\n# Données : 00:50:56:c0:00:08 00:0c:29:12:34:56 88cc 40\nA_COMPLETER\n\n[Cas 4 — Trame multicast IPv4 standard]\n# Données : 01:00:5e:00:00:05 00:10:94:ab:cd:ef 0800 80\nA_COMPLETER\n",
+    "title": "La capture Wireshark du poste de comptabilité",
+    "exampleTitle": "Exemple résolu — la capture de l'imprimimerie CopyPrint",
+    "goal": "Lire une trame Ethernet II : classer l'adressage MAC, identifier le protocole par l'EtherType et calculer la taille totale.",
+    "brief": "<p><strong>Énoncé.</strong> La menuiserie AluPlus, 45 salariés, occupe un atelier et un étage administratif reliés par le même réseau local <code>192.168.8.0/24</code>. Le serveur de fichiers, à l'adresse <code>192.168.8.60</code> (MAC <code>00:1b:44:66:77:88</code>), est installé à l'étage. Le poste de la comptable (<code>192.168.8.12</code>, MAC <code>00:1b:44:11:22:33</code>) vient d'être réimageré. Pour vérifier qu'il dialogue correctement, l'administrateur y installe Wireshark et capture les quatre premières trames sortant du poste :</p><table><tr><th>#</th><th>Description</th><th>MAC destination</th><th>MAC source</th><th>EtherType</th><th>Payload (octets)</th></tr><tr><th>1</th><td>Requête de résolution d'adresse</td><td>ff:ff:ff:ff:ff:ff</td><td>00:1b:44:11:22:33</td><td>0x0806</td><td>28</td></tr><tr><th>2</th><td>Réponse du serveur de fichiers</td><td>00:1b:44:11:22:33</td><td>00:1b:44:66:77:88</td><td>0x0806</td><td>28</td></tr><tr><th>3</th><td>Transfert du fichier de paie</td><td>00:1b:44:66:77:88</td><td>00:1b:44:11:22:33</td><td>0x0800</td><td>64</td></tr><tr><th>4</th><td>Flux de supervision</td><td>01:00:5e:00:00:0d</td><td>00:1b:44:11:22:33</td><td>0x0800</td><td>80</td></tr></table><p>Rappels du cours : l'en-tête Ethernet II fait 14 octets (6 + 6 + 2) ; <code>0x0800</code> désigne IPv4, <code>0x0806</code> désigne ARP et <code>0x86DD</code> désigne IPv6. La taille totale d'une trame s'obtient en ajoutant les 14 octets d'en-tête au payload. Répondez par le mot ou le nombre exact.</p><ol><li>Quel type d'adressage la MAC destination de la trame 1 représente-t-elle : unicast, multicast ou diffusion ?</li><li>Quel protocole les trames 1 et 2 mettent-elles en œuvre ?</li><li>Quel protocole de niveau 3 est encapsulé dans la trame 3 ?</li><li>Quelle est la taille totale de la trame 3, en-tête Ethernet de 14 octets inclus ?</li><li>La trame 4 est-elle unicast ou multicast ?</li></ol>",
+    "starter": "# Exercice — La capture Wireshark du poste de comptabilité\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le mot ou le nombre exact attendu.\n\n[Question 1 — Type d'adressage de la trame 1]\nA_COMPLETER\n\n[Question 2 — Protocole des trames 1 et 2]\nA_COMPLETER\n\n[Question 3 — Protocole de niveau 3 de la trame 3]\nA_COMPLETER\n\n[Question 4 — Taille totale de la trame 3 (en octets)]\nA_COMPLETER\n\n[Question 5 — Type d'adressage de la trame 4]\nA_COMPLETER\n",
     "hints": [
-      "L'en-tête Ethernet II standard fait 14 octets (6 octets MAC Dest + 6 octets MAC Src + 2 octets EtherType).",
-      "Le premier octet d'une MAC s'obtient par int(l’extraction des champs[0], 16). Le bit 0 indique multicast/broadcast.",
-      "La MAC ff:ff:ff:ff:ff:ff est spécifiquement BROADCAST."
+      "Dans une trame Ethernet II, les 6 premiers octets sont la MAC destination, les 6 suivants la MAC source, puis l'EtherType sur 2 octets : la lecture se fait toujours dans cet ordre.",
+      "ff:ff:ff:ff:ff:ff (tous les bits à 1) est la diffusion ; les préfixes 01:00:5e:... et 33:33:... sont réservés au multicast ; toute autre MAC est unicast.",
+      "EtherType : 0x0800 = IPv4, 0x0806 = ARP, 0x86DD = IPv6. Taille totale = payload + 14 octets : pour la trame 3, 64 + 14 = 78 octets."
     ],
     "examples": [
       {
-        "stdin": "ff:ff:ff:ff:ff:ff 00:1a:2b:3c:4d:5e 0806 28",
-        "expected": "DEST: ff:ff:ff:ff:ff:ff (BROADCAST)\nSRC: 00:1a:2b:3c:4d:5e\nTYPE: 0x0806 (ARP)\nTAILLE: 42 octets",
-        "note": "Trame de requête ARP en diffusion."
+        "stdin": "L'imprimimerie CopyPrint surveille son réseau 192.168.4.0/24. Trois trames sortent du poste de facturation (192.168.4.21) : une requête de résolution vers ff:ff:ff:ff:ff:ff (EtherType 0x0806, payload 28), puis la réponse du serveur de devis en unicast (0x0800, payload 120), enfin une annonce IPv6 vers 33:33:00:00:00:01 (0x86dd, payload 64).\n\n1) La requête part en diffusion (broadcast) : le poste ignore encore la MAC du serveur. Taille : 28 + 14 = 42 octets.\n2) La réponse est un unicast IPv4 : 120 + 14 = 134 octets.\n3) L'annonce vers 33:33:00:00:00:01 est un multicast IPv6 : 64 + 14 = 78 octets.",
+        "expected": "trame 1 : broadcast ARP, 42 octets — trame 2 : unicast IPv4, 134 octets — trame 3 : multicast IPv6, 78 octets",
+        "note": "Le bit I/G du premier octet tranche : 01:00:5e et 33:33 sont des préfixes multicast, ff:ff:ff:ff:ff:ff est la diffusion, le reste est unicast."
       }
     ],
     "tests": [
       {
-        "label": "Trame IPv4 unicast",
-        "stdin": "cas:1",
-        "expected": "DEST: 00:11:22:33:44:55 (UNICAST)\nSRC: 00:aa:bb:cc:dd:ee\nTYPE: 0x0800 (IPv4)\nTAILLE: 78 octets"
+        "label": "Question 1 — Type d'adressage de la trame 1",
+        "stdin": "q:1",
+        "expected": "broadcast||diffusion||la diffusion||broadcast (diffusion)||la diffusion (broadcast)"
       },
       {
-        "label": "Trame IPv6 multicast",
-        "stdin": "cas:2",
-        "expected": "DEST: 33:33:00:00:00:01 (MULTICAST)\nSRC: 02:42:ac:11:00:02\nTYPE: 0x86dd (IPv6)\nTAILLE: 134 octets"
+        "label": "Question 2 — Protocole des trames 1 et 2",
+        "stdin": "q:2",
+        "expected": "ARP||le protocole ARP||protocole ARP"
       },
       {
-        "label": "Trame protocole inconnu",
-        "stdin": "cas:3",
-        "expected": "DEST: 00:50:56:c0:00:08 (UNICAST)\nSRC: 00:0c:29:12:34:56\nTYPE: 0x88cc (Inconnu)\nTAILLE: 54 octets"
+        "label": "Question 3 — Protocole de niveau 3 de la trame 3",
+        "stdin": "q:3",
+        "expected": "IPv4||l'IPv4||ipv4||le protocole IPv4"
       },
       {
-        "label": "Trame multicast IPv4 standard",
-        "stdin": "cas:4",
-        "expected": "DEST: 01:00:5e:00:00:05 (MULTICAST)\nSRC: 00:10:94:ab:cd:ef\nTYPE: 0x0800 (IPv4)\nTAILLE: 94 octets"
+        "label": "Question 4 — Taille totale de la trame 3",
+        "stdin": "q:4",
+        "expected": "78||78 octets"
+      },
+      {
+        "label": "Question 5 — Type d'adressage de la trame 4",
+        "stdin": "q:5",
+        "expected": "multicast||du multicast||multicast (diffusion groupée)"
       }
     ],
-    "solution": "[Exemple]\nDEST: ff:ff:ff:ff:ff:ff (BROADCAST)\nSRC: 00:1a:2b:3c:4d:5e\nTYPE: 0x0806 (ARP)\nTAILLE: 42 octets\n\n[Cas 1 — Trame IPv4 unicast]\nDEST: 00:11:22:33:44:55 (UNICAST)\nSRC: 00:aa:bb:cc:dd:ee\nTYPE: 0x0800 (IPv4)\nTAILLE: 78 octets\n\n[Cas 2 — Trame IPv6 multicast]\nDEST: 33:33:00:00:00:01 (MULTICAST)\nSRC: 02:42:ac:11:00:02\nTYPE: 0x86dd (IPv6)\nTAILLE: 134 octets\n\n[Cas 3 — Trame protocole inconnu]\nDEST: 00:50:56:c0:00:08 (UNICAST)\nSRC: 00:0c:29:12:34:56\nTYPE: 0x88cc (Inconnu)\nTAILLE: 54 octets\n\n[Cas 4 — Trame multicast IPv4 standard]\nDEST: 01:00:5e:00:00:05 (MULTICAST)\nSRC: 00:10:94:ab:cd:ef\nTYPE: 0x0800 (IPv4)\nTAILLE: 94 octets"
+    "solution": "[Question 1 — Type d'adressage de la trame 1]\nbroadcast\n\n[Question 2 — Protocole des trames 1 et 2]\nARP\n\n[Question 3 — Protocole de niveau 3 de la trame 3]\nIPv4\n\n[Question 4 — Taille totale de la trame 3 (en octets)]\n78\n\n[Question 5 — Type d'adressage de la trame 4]\nmulticast",
+    "takeaway": "1) La trame 1 vise ff:ff:ff:ff:ff:ff, les 48 bits à 1 : c'est la diffusion (broadcast), seule façon de joindre tout le segment quand la MAC du destinataire est inconnue.\n2) L'EtherType 0x0806 des trames 1 et 2 désigne ARP : résolution puis réponse d'adresse.\n3) La trame 3 porte l'EtherType 0x0800 : le protocole de niveau 3 encapsulé est IPv4.\n4) Taille de la trame 3 : payload 64 + en-tête 14 = 78 octets.\n5) La MAC 01:00:5e:00:00:0d commence par 01:00:5e, préfixe multicast IPv4 : la trame 4 est un multicast.\nContrôle : les deux trames ARP font 28 + 14 = 42 octets, valeur exacte d'une trame ARP minimale sur Ethernet."
   },
   {
     "id": "na2-c1-e2",
     "chapter": 1,
-    "title": "Simulateur d'encapsulation et désencapsulation PDU OSI",
     "level": "n2",
     "language": "analyse",
-    "goal": "Modéliser la pile protocolaire OSI/TCP-IP en empilant (encapsulation) ou en retirant (désencapsulation) les en-têtes.",
-    "brief": "<p>Analysez les données fournies pour chaque cas.<br>\nPour <code>ENCAPSULER</code>, les 4 lignes suivantes fournissent :<br>\n- Ligne 2 : Donnée applicative (L7 Data)<br>\n- Ligne 3 : <code>&lt;PROTO_L4&gt; &lt;PORT_SRC&gt; &lt;PORT_DST&gt;</code> (ex: <code>TCP 54321 80</code>)<br>\n- Ligne 4 : <code>&lt;IP_SRC&gt; &lt;IP_DST&gt;</code> (ex: <code>192.168.1.10 93.184.216.34</code>)<br>\n- Ligne 5 : <code>&lt;MAC_SRC&gt; &lt;MAC_DST&gt;</code><br>\nIndiquez chaque étape avec son nom de PDU :<br>\n<code>[L7 Data] &lt;donnee&gt;</code><br>\n<code>[L4 Segment &lt;proto&gt;] Port &lt;src&gt;-&gt;&lt;dst&gt; | Payload: &lt;donnee&gt;</code><br>\n<code>[L3 Paquet IP] &lt;ip_src&gt;-&gt;&lt;ip_dst&gt; | Proto: &lt;proto&gt;</code><br>\n<code>[L2 Trame Eth] &lt;mac_src&gt;-&gt;&lt;mac_dst&gt; | EtherType: 0x0800</code></p>\n<p>Pour <code>DESENCAPSULER</code>, Analysez les données fournies pour chaque cas.</p>",
-    "starter": "# Grille d'analyse (na2-c1-e2) — Simulateur d'encapsulation et désencapsulation PDU OSI\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Encapsulation requête UDP DNS]\n# Données : ENCAPSULER\n# Données : query:example.com\n# Données : UDP 53000 53\n# Données : 192.168.1.50 8.8.8.8\n# Données : 11:22:33:44:55:66 cc:dd:ee:ff:00:11\nA_COMPLETER\n\n[Cas 2 — Désencapsulation trame Web]\n# Données : DESENCAPSULER\n# Données : ETH[aa:11:bb:22:cc:33->dd:44:ee:55:ff:66]|IP[172.16.0.2->172.16.0.1]|TCP[5000->80]|DATA[PING]\nA_COMPLETER\n\n[Cas 3 — Désencapsulation paquet Syslog UDP]\n# Données : DESENCAPSULER\n# Données : ETH[00:aa:bb:cc:dd:ee->11:22:33:44:55:66]|IP[192.168.0.200->192.168.0.1]|UDP[514->514]|DATA[AUTH_FAIL]\nA_COMPLETER\n\n[Cas 4 — Encapsulation commande SSH]\n# Données : ENCAPSULER\n# Données : ls -la /var/log\n# Données : TCP 60100 22\n# Données : 10.20.30.40 10.20.30.1\n# Données : fa:16:3e:01:02:03 fa:16:3e:aa:bb:cc\nA_COMPLETER\n",
+    "title": "L'encapsulation de la session SSH du technicien",
+    "exampleTitle": "Exemple résolu — la requête DNS du lycée Carnot",
+    "goal": "Suivre une commande d'administration dans la pile TCP/IP et nommer la PDU construite à chaque couche.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence de voyages VelaTravel administre son unique routeur depuis le siège. Le réseau local est <code>192.168.20.0/24</code> : le poste de la technicienne réseau est <code>192.168.20.10</code> (MAC <code>00:2c:54:0a:0b:10</code>), le routeur est <code>192.168.20.254</code> (MAC <code>00:2c:54:0a:0b:fe</code>). Depuis son poste, elle ouvre une session SSH d'administration vers le routeur et envoie la commande <code>show ip interface brief</code>. On relève, couche par couche, ce que la pile construit :</p><table><tr><th>Couche</th><th>Contenu ajouté</th></tr><tr><th>7 — Application</th><td>Donnée : « show ip interface brief »</td></tr><tr><th>4 — Transport</th><td>TCP, port source 51234, port destination 22</td></tr><tr><th>3 — Réseau</th><td>IP source 192.168.20.10, IP destination 192.168.20.254</td></tr><tr><th>2 — Liaison</th><td>MAC source 00:2c:54:0a:0b:10, MAC destination 00:2c:54:0a:0b:fe</td></tr></table><p>Répondez par le mot ou le nombre exact attendu.</p><ol><li>Quel protocole de transport SSH utilise-t-il ?</li><li>Quel est le port destination du segment ?</li><li>Quel est le port source du segment ?</li><li>Comment se nomme la PDU construite à la couche 4 ?</li><li>Comment se nomme la PDU construite à la couche 3 ?</li><li>Comment se nomme la PDU construite à la couche 2 ?</li></ol>",
+    "starter": "# Exercice — L'encapsulation de la session SSH du technicien\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le mot ou le nombre exact attendu.\n\n[Question 1 — Protocole de transport utilisé par SSH]\nA_COMPLETER\n\n[Question 2 — Port destination]\nA_COMPLETER\n\n[Question 3 — Port source]\nA_COMPLETER\n\n[Question 4 — Nom de la PDU de la couche 4]\nA_COMPLETER\n\n[Question 5 — Nom de la PDU de la couche 3]\nA_COMPLETER\n\n[Question 6 — Nom de la PDU de la couche 2]\nA_COMPLETER\n",
     "hints": [
-      "En encapsulation, on descend de L7 vers L2 en ajoutant successivement les métadonnées de transport, réseau puis liaison.",
-      "En désencapsulation, chaque couche analyse et retire son propre en-tête avant de passer la charge utile à la couche supérieure."
+      "SSH est une application interactive fiable : elle s'appuie sur le protocole de transport orienté connexion de la pile TCP/IP.",
+      "Les ports se lisent dans le tableau de l'énoncé : le port destination est celui du service joint, le port source celui choisi par l'émetteur dans la plage éphémère.",
+      "En descendant la pile, la PDU change de nom : donnée (couche 7), segment (couche 4), paquet (couche 3), trame (couche 2)."
     ],
     "examples": [
       {
-        "stdin": "ENCAPSULER\nGET /api/status\nTCP 49152 443\n10.0.0.5 10.0.0.1\n00:11:22:33:44:55 aa:bb:cc:dd:ee:ff",
-        "expected": "[L7 Data] GET /api/status\n[L4 Segment TCP] Port 49152->443 | Payload: GET /api/status\n[L3 Paquet IP] 10.0.0.5->10.0.0.1 | Proto: TCP\n[L2 Trame Eth] 00:11:22:33:44:55->aa:bb:cc:dd:ee:ff | EtherType: 0x0800",
-        "note": "Encapsulation complète du message HTTP GET."
+        "stdin": "Au lycée Carnot, un poste de documentation (10.20.0.15) interroge le serveur DNS du lycée (10.20.0.1) en émettant la requête « RESOLV www.onisep.fr ». La résolution passe par UDP, port source 49152, port destination 53.\n\n1) Protocole de transport : UDP.\n2) Port destination : 53.\n3) Port source : 49152.\n4) PDU de la couche 4 : le segment (datagramme UDP).\n5) PDU de la couche 3 : le paquet IP (10.20.0.15 vers 10.20.0.1).\n6) PDU de la couche 2 : la trame Ethernet vers la MAC du serveur DNS.",
+        "expected": "UDP — port destination 53 — port source 49152 — segment — paquet — trame",
+        "note": "DNS en UDP reste léger : pas de connexion préalable, un seul échange requête/réponse."
       }
     ],
     "tests": [
       {
-        "label": "Encapsulation requête UDP DNS",
-        "stdin": "cas:1",
-        "expected": "[L7 Data] query:example.com\n[L4 Segment UDP] Port 53000->53 | Payload: query:example.com\n[L3 Paquet IP] 192.168.1.50->8.8.8.8 | Proto: UDP\n[L2 Trame Eth] 11:22:33:44:55:66->cc:dd:ee:ff:00:11 | EtherType: 0x0800"
+        "label": "Question 1 — Protocole de transport utilisé par SSH",
+        "stdin": "q:1",
+        "expected": "TCP||le protocole TCP||le tcp"
       },
       {
-        "label": "Désencapsulation trame Web",
-        "stdin": "cas:2",
-        "expected": "L2 Decapsule: dd:44:ee:55:ff:66 -> Passe a L3 (EtherType 0x0800)\nL3 Decapsule: 172.16.0.1 -> Passe a L4 (Proto TCP)\nL4 Decapsule: Port 80 -> Delivre a Application (L7)\nL7 Recu: PING"
+        "label": "Question 2 — Port destination",
+        "stdin": "q:2",
+        "expected": "22||le port 22"
       },
       {
-        "label": "Désencapsulation paquet Syslog UDP",
-        "stdin": "cas:3",
-        "expected": "L2 Decapsule: 11:22:33:44:55:66 -> Passe a L3 (EtherType 0x0800)\nL3 Decapsule: 192.168.0.1 -> Passe a L4 (Proto UDP)\nL4 Decapsule: Port 514 -> Delivre a Application (L7)\nL7 Recu: AUTH_FAIL"
+        "label": "Question 3 — Port source",
+        "stdin": "q:3",
+        "expected": "51234||le port 51234"
       },
       {
-        "label": "Encapsulation commande SSH",
-        "stdin": "cas:4",
-        "expected": "[L7 Data] ls -la /var/log\n[L4 Segment TCP] Port 60100->22 | Payload: ls -la /var/log\n[L3 Paquet IP] 10.20.30.40->10.20.30.1 | Proto: TCP\n[L2 Trame Eth] fa:16:3e:01:02:03->fa:16:3e:aa:bb:cc | EtherType: 0x0800"
+        "label": "Question 4 — Nom de la PDU de la couche 4",
+        "stdin": "q:4",
+        "expected": "un segment||segment||le segment||un segment TCP||le segment TCP"
+      },
+      {
+        "label": "Question 5 — Nom de la PDU de la couche 3",
+        "stdin": "q:5",
+        "expected": "un paquet||paquet||le paquet||un paquet IP||le paquet IP"
+      },
+      {
+        "label": "Question 6 — Nom de la PDU de la couche 2",
+        "stdin": "q:6",
+        "expected": "une trame||trame||la trame||la trame Ethernet||une trame Ethernet"
       }
     ],
-    "solution": "[Exemple]\n[L7 Data] GET /api/status\n[L4 Segment TCP] Port 49152->443 | Payload: GET /api/status\n[L3 Paquet IP] 10.0.0.5->10.0.0.1 | Proto: TCP\n[L2 Trame Eth] 00:11:22:33:44:55->aa:bb:cc:dd:ee:ff | EtherType: 0x0800\n\n[Cas 1 — Encapsulation requête UDP DNS]\n[L7 Data] query:example.com\n[L4 Segment UDP] Port 53000->53 | Payload: query:example.com\n[L3 Paquet IP] 192.168.1.50->8.8.8.8 | Proto: UDP\n[L2 Trame Eth] 11:22:33:44:55:66->cc:dd:ee:ff:00:11 | EtherType: 0x0800\n\n[Cas 2 — Désencapsulation trame Web]\nL2 Decapsule: dd:44:ee:55:ff:66 -> Passe a L3 (EtherType 0x0800)\nL3 Decapsule: 172.16.0.1 -> Passe a L4 (Proto TCP)\nL4 Decapsule: Port 80 -> Delivre a Application (L7)\nL7 Recu: PING\n\n[Cas 3 — Désencapsulation paquet Syslog UDP]\nL2 Decapsule: 11:22:33:44:55:66 -> Passe a L3 (EtherType 0x0800)\nL3 Decapsule: 192.168.0.1 -> Passe a L4 (Proto UDP)\nL4 Decapsule: Port 514 -> Delivre a Application (L7)\nL7 Recu: AUTH_FAIL\n\n[Cas 4 — Encapsulation commande SSH]\n[L7 Data] ls -la /var/log\n[L4 Segment TCP] Port 60100->22 | Payload: ls -la /var/log\n[L3 Paquet IP] 10.20.30.40->10.20.30.1 | Proto: TCP\n[L2 Trame Eth] fa:16:3e:01:02:03->fa:16:3e:aa:bb:cc | EtherType: 0x0800"
+    "solution": "[Question 1 — Protocole de transport utilisé par SSH]\nTCP\n\n[Question 2 — Port destination]\n22\n\n[Question 3 — Port source]\n51234\n\n[Question 4 — Nom de la PDU de la couche 4]\nun segment\n\n[Question 5 — Nom de la PDU de la couche 3]\nun paquet\n\n[Question 6 — Nom de la PDU de la couche 2]\nune trame",
+    "takeaway": "1) SSH exige une livraison fiable et ordonnée : il utilise TCP.\n2) Le port destination du segment est 22, port bien connu de SSH.\n3) Le port source est 51234, choisi par le poste émetteur dans la plage éphémère.\n4) À la couche 4, la PDU de TCP est le segment.\n5) À la couche 3, la PDU est le paquet (IP source 192.168.20.10, IP destination 192.168.20.254).\n6) À la couche 2, la PDU est la trame Ethernet (MAC du poste vers MAC du routeur).\nContrôle : le récepteur répond en inversant les rôles — port destination 51234, port source 22 — et les PDU remontent la pile par désencapsulation."
   },
   {
     "id": "na2-c1-e3",
     "chapter": 1,
-    "title": "Simulateur de table et résolution ARP",
     "level": "n3",
     "language": "analyse",
-    "goal": "Implémenter la table de correspondance IP vers MAC (cache ARP) avec gestion de requêtes, apprentissage et expiration TTL.",
-    "brief": "<p>Le script gère une table ARP initialement vide. Analysez les paramètres du problème pour chaque cas. La table apprend immédiatement la correspondance <code>IP_EMETTEUR -> MAC_EMETTEUR</code> avec un TTL de 300s. Si l'IP demandée est connue dans le cache, afficher <code>REPLY: &lt;IP_DEMANDEE&gt; est a &lt;MAC_CONNUE&gt;</code>, sinon afficher <code>BROADCAST: Qui a &lt;IP_DEMANDEE&gt; ?</code>.<br>\n- <code>REPLY &lt;IP_CIBLE&gt; &lt;MAC_CIBLE&gt;</code> : réponse ARP reçue, enregistrée avec TTL de 300s.<br>\n- <code>TICK &lt;SECONDES&gt;</code> : fait avancer le temps de N secondes. Les entrées dont le TTL tombe à 0 ou moins sont purgées.<br>\n- <code>SHOW</code> : Indiquez les entrées du cache triées par IP croissante au format :<br>\n<code>&lt;IP&gt; -> &lt;MAC&gt; (TTL: &lt;ttl&gt;s)</code>. Si vide, Indiquez <code>CACHE VIDE</code>.</p>",
-    "starter": "# Grille d'analyse (na2-c1-e3) — Simulateur de table et résolution ARP\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Expiration de TTL par TICK]\n# Données : REPLY 10.0.0.1 00:aa:bb:cc:dd:01\n# Données : TICK 250\n# Données : SHOW\n# Données : TICK 60\n# Données : SHOW\nA_COMPLETER\n\n[Cas 2 — Rafraîchissement TTL sur nouvelle annonce]\n# Données : REPLY 172.16.0.5 aa:bb:cc:00:11:22\n# Données : TICK 200\n# Données : REQUEST 172.16.0.1 172.16.0.5 aa:bb:cc:00:11:22\n# Données : SHOW\nA_COMPLETER\n\n[Cas 3 — Résolution immédiate sans broadcast]\n# Données : REPLY 192.168.1.254 00:00:0c:07:ac:01\n# Données : REQUEST 192.168.1.254 192.168.1.50 11:11:11:11:11:11\nA_COMPLETER\n\n[Cas 4 — Tri numérique correct des adresses IP]\n# Données : REPLY 192.168.1.10 00:00:00:00:00:10\n# Données : REPLY 192.168.1.2 00:00:00:00:00:02\n# Données : REPLY 192.168.1.100 00:00:00:00:01:00\n# Données : SHOW\nA_COMPLETER\n",
+    "title": "Le diagnostic ARP du lundi matin chez BatiPlus",
+    "exampleTitle": "Exemple résolu — le terminal du garage MécaSwift",
+    "goal": "Interpréter une séquence ARP réelle : diffusion, réponse unicast, mise en cache et économie de requêtes.",
+    "brief": "<p><strong>Énoncé.</strong> BatiPlus, entreprise de construction de 60 salariés, a installé vendredi le poste de la dessinatrice principale (<code>192.168.15.50</code>, MAC <code>a4:bb:6d:12:34:56</code>) sur le réseau <code>192.168.15.0/24</code>. Lundi à 8 heures, le cache ARP du poste est vide. L'administrateur observe avec un analyseur les événements suivants :</p><table><tr><th>Heure</th><th>Événement observé sur le segment</th></tr><tr><th>08:01</th><td>Le poste émet en diffusion : « Qui a 192.168.15.60 ? Répondez à a4:bb:6d:12:34:56 »</td></tr><tr><th>08:01</th><td>Le serveur de fichiers (192.168.15.60) répond en unicast : « 192.168.15.60 est à 00:50:56:aa:bb:cc »</td></tr><tr><th>08:02</th><td>Le poste transmet le plan directement au serveur, en unicast</td></tr><tr><th>08:05</th><td>Le poste émet en diffusion : « Qui a 192.168.15.1 ? Répondez à a4:bb:6d:12:34:56 »</td></tr><tr><th>08:06</th><td>La passerelle (192.168.15.1) répond en unicast : « 192.168.15.1 est à 00:1c:57:dd:00:01 »</td></tr></table><p>À 08:10, le poste joint pour la première fois l'imprimante 3D (<code>192.168.15.99</code>), jamais contactée depuis son démarrage. À 08:12, il relance le même transfert vers le serveur de fichiers. Répondez par le mot, l'adresse ou le nombre exact attendu.</p><ol><li>Quelle est l'adresse MAC destination des requêtes de 08:01 et de 08:05 ?</li><li>Sous quelle forme le serveur de fichiers répond-il : unicast ou diffusion ?</li><li>Quelle adresse MAC le poste enregistre-t-il dans son cache pour 192.168.15.60 ?</li><li>Combien de requêtes ARP en diffusion le poste a-t-il émises entre 08:01 et 08:06 ?</li><li>Entre 08:10 et 08:12, combien de nouvelles requêtes ARP sont-elles nécessaires ?</li><li>Quelle est la durée de vie typique d'une entrée du cache ARP, en secondes ?</li></ol>",
+    "starter": "# Exercice — Le diagnostic ARP du lundi matin chez BatiPlus\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le mot, l'adresse ou le nombre exact attendu.\n\n[Question 1 — MAC destination des requêtes en diffusion]\nA_COMPLETER\n\n[Question 2 — Forme de la réponse du serveur]\nA_COMPLETER\n\n[Question 3 — MAC enregistrée pour 192.168.15.60]\nA_COMPLETER\n\n[Question 4 — Nombre de requêtes diffusées entre 08:01 et 08:06]\nA_COMPLETER\n\n[Question 5 — Nouvelles requêtes entre 08:10 et 08:12]\nA_COMPLETER\n\n[Question 6 — Durée de vie typique d'une entrée ARP (en secondes)]\nA_COMPLETER\n",
     "hints": [
-      "Toute requête ARP permet à la cible d'apprendre la MAC de l'émetteur (gratuitous ARP / learning).",
-      "Le tri par adresse IP s'effectue idéalement sur les 4 entiers numériques du tuple pour éviter l'ordre alphabétique faux (ex: 192.168.1.2 avant 192.168.1.10)."
+      "Une requête ARP part toujours en diffusion car l'émetteur ignore l'adresse MAC du détenteur de l'IP ; seule la réponse revient en unicast.",
+      "Le poste qui a appris une correspondance la conserve dans son cache pendant toute la durée de vie de l'entrée : pas de nouvelle requête tant qu'elle est valide.",
+      "À 08:10 l'imprimante n'a jamais été résolue (une requête), mais à 08:12 le serveur est encore en cache depuis 08:01 : la TTL de 300 secondes n'est pas écoulée."
     ],
     "examples": [
       {
-        "stdin": "REQUEST 192.168.1.1 192.168.1.10 00:11:22:33:44:55\nREPLY 192.168.1.1 aa:bb:cc:dd:ee:01\nREQUEST 192.168.1.1 192.168.1.20 00:22:33:44:55:66\nSHOW",
-        "expected": "BROADCAST: Qui a 192.168.1.1 ?\nREPLY: 192.168.1.1 est a aa:bb:cc:dd:ee:01\n192.168.1.1 -> aa:bb:cc:dd:ee:01 (TTL: 300s)\n192.168.1.10 -> 00:11:22:33:44:55 (TTL: 300s)\n192.168.1.20 -> 00:22:33:44:55:66 (TTL: 300s)",
-        "note": "Apprentissage des émetteurs et réponse au second demandeur."
+        "stdin": "Au garage MécaSwift (172.16.9.0/24), le terminal de réception (172.16.9.30) vient de démarrer, cache ARP vide.\n1) Il ping le serveur d'atelier 172.16.9.5 : requête ARP en diffusion (« Qui a 172.16.9.5 ? »).\n2) Le serveur répond en unicast ; le terminal met l'entrée en cache pour 300 secondes.\n3) Il ping ensuite la passerelle 172.16.9.1 : nouvelle requête en diffusion, puis réponse unicast.\n4) À 08:30, il repinge le serveur d'atelier : aucune requête émise, l'entrée est encore valide (moins de 300 s depuis 08:01).\n\nBilan : 2 requêtes en diffusion, réponses en unicast, TTL de 300 s.",
+        "expected": "2 requêtes en diffusion — réponses en unicast — entrée mise en cache 300 s",
+        "note": "Chaque réponse unicast enrichit le cache de l'émetteur de la requête ; c'est ce cache qui évite les requêtes suivantes."
       }
     ],
     "tests": [
       {
-        "label": "Expiration de TTL par TICK",
-        "stdin": "cas:1",
-        "expected": "10.0.0.1 -> 00:aa:bb:cc:dd:01 (TTL: 50s)\nCACHE VIDE"
+        "label": "Question 1 — MAC destination des requêtes en diffusion",
+        "stdin": "q:1",
+        "expected": "ff:ff:ff:ff:ff:ff||FF:FF:FF:FF:FF:FF"
       },
       {
-        "label": "Rafraîchissement TTL sur nouvelle annonce",
-        "stdin": "cas:2",
-        "expected": "BROADCAST: Qui a 172.16.0.1 ?\n172.16.0.5 -> aa:bb:cc:00:11:22 (TTL: 300s)"
+        "label": "Question 2 — Forme de la réponse du serveur",
+        "stdin": "q:2",
+        "expected": "unicast||en unicast||l'unicast"
       },
       {
-        "label": "Résolution immédiate sans broadcast",
-        "stdin": "cas:3",
-        "expected": "REPLY: 192.168.1.254 est a 00:00:0c:07:ac:01"
+        "label": "Question 3 — MAC enregistrée pour 192.168.15.60",
+        "stdin": "q:3",
+        "expected": "00:50:56:aa:bb:cc"
       },
       {
-        "label": "Tri numérique correct des adresses IP",
-        "stdin": "cas:4",
-        "expected": "192.168.1.2 -> 00:00:00:00:00:02 (TTL: 300s)\n192.168.1.10 -> 00:00:00:00:00:10 (TTL: 300s)\n192.168.1.100 -> 00:00:00:00:01:00 (TTL: 300s)"
+        "label": "Question 4 — Nombre de requêtes diffusées entre 08:01 et 08:06",
+        "stdin": "q:4",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 5 — Nouvelles requêtes entre 08:10 et 08:12",
+        "stdin": "q:5",
+        "expected": "1||une||une seule"
+      },
+      {
+        "label": "Question 6 — Durée de vie typique d'une entrée ARP",
+        "stdin": "q:6",
+        "expected": "300||300 secondes"
       }
     ],
-    "solution": "[Exemple]\nBROADCAST: Qui a 192.168.1.1 ?\nREPLY: 192.168.1.1 est a aa:bb:cc:dd:ee:01\n192.168.1.1 -> aa:bb:cc:dd:ee:01 (TTL: 300s)\n192.168.1.10 -> 00:11:22:33:44:55 (TTL: 300s)\n192.168.1.20 -> 00:22:33:44:55:66 (TTL: 300s)\n\n[Cas 1 — Expiration de TTL par TICK]\n10.0.0.1 -> 00:aa:bb:cc:dd:01 (TTL: 50s)\nCACHE VIDE\n\n[Cas 2 — Rafraîchissement TTL sur nouvelle annonce]\nBROADCAST: Qui a 172.16.0.1 ?\n172.16.0.5 -> aa:bb:cc:00:11:22 (TTL: 300s)\n\n[Cas 3 — Résolution immédiate sans broadcast]\nREPLY: 192.168.1.254 est a 00:00:0c:07:ac:01\n\n[Cas 4 — Tri numérique correct des adresses IP]\n192.168.1.2 -> 00:00:00:00:00:02 (TTL: 300s)\n192.168.1.10 -> 00:00:00:00:00:10 (TTL: 300s)\n192.168.1.100 -> 00:00:00:00:01:00 (TTL: 300s)"
+    "solution": "[Question 1 — MAC destination des requêtes en diffusion]\nff:ff:ff:ff:ff:ff\n\n[Question 2 — Forme de la réponse du serveur]\nunicast\n\n[Question 3 — MAC enregistrée pour 192.168.15.60]\n00:50:56:aa:bb:cc\n\n[Question 4 — Nombre de requêtes diffusées entre 08:01 et 08:06]\n2\n\n[Question 5 — Nouvelles requêtes entre 08:10 et 08:12]\n1\n\n[Question 6 — Durée de vie typique d'une entrée ARP (en secondes)]\n300",
+    "takeaway": "1) Une requête ARP est envoyée en diffusion : la MAC destination est ff:ff:ff:ff:ff:ff.\n2) Seul le détenteur de l'IP répond, directement à l'émetteur : la réponse est unicast.\n3) La réponse du serveur annonce « 192.168.15.60 est à 00:50:56:aa:bb:cc » : c'est cette MAC qui est mise en cache.\n4) Entre 08:01 et 08:06, le poste a émis deux requêtes : une pour le serveur (192.168.15.60), une pour la passerelle (192.168.15.1).\n5) À 08:10 l'imprimante 192.168.15.99 n'a jamais été résolue : une requête. À 08:12 le serveur est en cache depuis 08:01 (11 minutes < 300 s) : aucune requête. Total : 1 nouvelle requête.\n6) Une entrée ARP vit typiquement 300 secondes avant expiration.\nContrôle : à 08:12, 11 minutes se sont écoulées depuis 08:01, en deçà de la TTL de 300 s : le transfert vers le serveur part directement en unicast."
   }
 ];

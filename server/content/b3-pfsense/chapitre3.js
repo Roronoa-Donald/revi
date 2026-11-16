@@ -147,42 +147,42 @@ module.exports = {
       stem: 'Quel type de NAT est utilisé pour exposer un serveur Web interne (port 80) sur l’IP publique du WAN ?',
       opts: [
         'Outbound NAT (SNAT)',
-        'Port Forwarding (DNAT)',
         'Carrier-Grade NAT (CGNAT)',
+        'Port Forwarding (DNAT)',
         'NAT Traversal'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Port Forwarding (Destination NAT) redirige les requêtes externes vers l’adresse IP privée et le port interne du serveur hébergé.'
     },
     {
       stem: 'Pourquoi une règle de filtrage WAN est-elle nécessaire lors de la création d’une redirection de port (DNAT) ?',
       opts: [
-        'Pour chiffrer les données avec TLS',
-        'Car le NAT réécrit uniquement les en-têtes IP ; le paquet doit obligatoirement être autorisé à franchir le pare-feu',
-        'Pour empêcher le serveur DHCP d’écraser l’IP du serveur',
-        'Elle n’est jamais requise dans pfSense'
+        "Pour chiffrer les données transférées avec TLS entre le client externe et le serveur interne",
+        "Pour empêcher le serveur DHCP interne d’écraser l’adresse IP statique du serveur publié",
+        "Elle n’est jamais requise, pfSense autorise automatiquement tout flux ayant fait l’objet d’une traduction NAT",
+        "Car le NAT réécrit uniquement les en-têtes IP ; le paquet doit obligatoirement être autorisé à franchir le pare-feu"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le NAT modifie les adresses mais n’autorise pas le passage : le moteur de filtrage exige une règle explicite autorisant le trafic vers l’hôte interne.'
     },
     {
       stem: 'Quel mode d’Outbound NAT est officiellement recommandé en environnement de production sous pfSense ?',
       opts: [
-        'Désactivé (Disabled)',
-        'Automatique (Automatic Outbound NAT)',
         'Hybride (Hybrid Outbound NAT rule generation)',
+        'Automatique (Automatic Outbound NAT)',
+        'Désactivé (Disabled)',
         'Proxy ARP obligatoire'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le mode Hybride conserve la génération automatique pour les réseaux standards tout en autorisant l’ajout de règles manuelles prioritaires.'
     },
     {
       stem: 'Quel type d’adresse IP Virtuelle (VIP) est utilisé lorsqu’un bloc public doit être partagé entre deux nœuds en cluster haute disponibilité ?',
       opts: [
-        'IP Alias simple',
-        'CARP (Common Address Redundancy Protocol)',
-        'Proxy ARP',
-        'Other'
+        "IP Alias, adresse secondaire sans MAC virtuelle",
+        "CARP (Common Address Redundancy Protocol)",
+        "Proxy ARP, réponse ARP procurée par le pare-feu",
+        "Other, type générique sans protocole d’annonce"
       ],
       correct: 1,
       exp: 'Les VIPs de type CARP disposent d’une adresse MAC virtuelle et synchronisent l’état actif/passif entre deux pare-feux redondants.'
@@ -201,34 +201,34 @@ module.exports = {
     {
       stem: 'Quel démon système sous pfSense est responsable de mesurer la latence et les pertes de paquets sur les passerelles WAN ?',
       opts: [
-        'pingd',
         'dpinger',
+        'pingd',
         'fping',
         'netstat'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'dpinger est le démon officiel de surveillance sous FreeBSD/pfSense qui teste périodiquement les passerelles et déclenche le basculement si les seuils sont dépassés.'
     },
     {
       stem: 'Qu’est-ce que le NAT Reflection ?',
       opts: [
-        'Une attaque par réflexion DNS sur le port 53',
-        'Un mécanisme permettant à un client interne d’accéder à un serveur local via son adresse IP publique externe',
-        'Une sauvegarde miroir de la configuration pf.conf',
-        'Un protocole de routage dynamique semblable à BGP'
+        "Une attaque par réflexion DNS amplifiée utilisant le port 53 comme vecteur d’envoi de réponses falsifiées",
+        "Une sauvegarde miroir de la configuration pf.conf répliquée automatiquement sur le nœud secondaire",
+        "Un protocole de routage dynamique semblable à BGP pour annoncer les préfixes publics",
+        "Un mécanisme permettant à un client interne d’accéder à un serveur local via son adresse IP publique externe"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le NAT Reflection permet aux postes internes de joindre les serveurs locaux en utilisant le nom de domaine externe pointant vers l’IP WAN publique.'
     },
     {
       stem: 'Pourquoi doit-on exclure le trafic inter-VLANs local avant d’appliquer une règle de Policy-Based Routing (PBR) vers un Gateway Group ?',
       opts: [
-        'Pour éviter la saturation de la table ARP',
-        'Pour que les flux à destination d’autres sous-réseaux internes ne soient pas envoyés par erreur vers Internet',
-        'Parce que le routeur FreeBSD ne supporte pas les VLANs',
-        'Pour économiser des adresses DHCP'
+        "Pour éviter la saturation de la table ARP du pare-feu lorsque le nombre d’hôtes actifs augmente",
+        "Parce que le routeur FreeBSD ne sait pas router les trames 802.1Q entre interfaces VLAN",
+        "Pour que les flux à destination d’autres sous-réseaux internes ne soient pas envoyés par erreur vers Internet",
+        "Pour économiser des adresses DHCP réservées aux passerelles des sous-réseaux internes"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Si la règle de PBR envoie tout le trafic vers la passerelle WAN par défaut, les paquets locaux destinés à une autre interface interne sortiront vers le FAI et seront perdus.'
     }
   ],

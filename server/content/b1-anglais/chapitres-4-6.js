@@ -84,13 +84,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le son /θ/ se produit avec…', opts: ['les lèvres arrondies', 'la langue entre les dents', 'la gorge serrée'], correct: 1, exp: 'The tongue sandwich : think, thanks, three, month.' },
+      { q: 'Le son /θ/ se produit avec…', opts: ['la langue entre les dents', 'les lèvres arrondies', 'la gorge serrée'], correct: 0, exp: 'The tongue sandwich : think, thanks, three, month.' },
       { q: '« Hello » se prononce…', opts: ['\'ello, sans h', 'hello, avec le h aspiré', 'héllo avec accent français'], correct: 1, exp: 'Le /h/ se souffle : How have you been ? Happy to help !' },
-      { q: 'L\'-ed de « walked » se prononce…', opts: ['/t/', '/d/', '/ɪd/'], correct: 0, exp: 'Après son sourd (k) : /t/. Après son voisé : /d/. Après T ou D : /ɪd/.' },
+      { q: 'L\'-ed de « walked » se prononce…', opts: ['/ɪd/', '/d/', '/t/'], correct: 2, exp: 'Après son sourd (k) : /t/. Après son voisé : /d/. Après T ou D : /ɪd/.' },
       { q: 'L\'-ed de « wanted » se prononce…', opts: ['/t/', '/d/', '/ɪd/'], correct: 2, exp: 'Après T ou D : /ɪd/ — wanted, needed, started.' },
-      { q: 'REcord (accent en tête) désigne…', opts: ['le verbe enregistrer', 'le nom, un fichier', 'l\'adjectif'], correct: 1, exp: 'Accent en tête = nom ; accent en fin = verbe (reCORD).' },
-      { q: 'Une question oui/non prend une intonation…', opts: ['montante ↗', 'descendante ↘', 'plate'], correct: 0, exp: 'Rising pour Are you coming ? ; falling pour les WH et déclarations.' },
-      { q: 'Un thought group est…', opts: ['une diapositive', 'un groupe de mots séparé par une pause', 'une liaison sonore'], correct: 1, exp: 'Couper la phrase aux frontières naturelles pour ne plus sonner robot.' },
+      { q: 'REcord (accent en tête) désigne…', opts: ['le nom, un fichier', 'le verbe enregistrer', 'l\'adjectif'], correct: 0, exp: 'Accent en tête = nom ; accent en fin = verbe (reCORD).' },
+      { q: 'Une question oui/non prend une intonation…', opts: ['descendante ↘', 'montante ↗', 'plate'], correct: 1, exp: 'Rising pour Are you coming ? ; falling pour les WH et déclarations.' },
+      { q: 'Un thought group est…', opts: ["une diapositive du support de cours","une liaison sonore entre deux mots","un groupe de mots séparé par une pause"], correct: 2, exp: 'Couper la phrase aux frontières naturelles pour ne plus sonner robot.' },
       { q: '« Not at all » se lie en…', opts: ['No-ta-tall', 'not-at-all détaché', 'No-tall'], correct: 0, exp: 'Le linking soude les mots pour fluidifier le débit.' }
     ],
 
@@ -214,14 +214,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: '« I\'m gonna send that email » est…', opts: ['ok entre collègues', 'ok en présentation client', 'toujours faux'], correct: 0, exp: 'Casual speech OK avec des collègues ; formel exige going to.' },
-      { q: 'Devant un client, on dit…', opts: ['we\'re gonna deploy', 'we\'re going to deploy', 'we wanna deploy'], correct: 1, exp: 'Formal : pas de reductions.' },
-      { q: '« Gotta » signifie…', opts: ['want to', 'got to / have to', 'going to'], correct: 1, exp: 'Gonna = going to ; wanna = want to ; gotta = got to.' },
+      { q: '« I\'m gonna send that email » est…', opts: ['ok en présentation client', 'ok entre collègues', 'toujours faux'], correct: 1, exp: 'Casual speech OK avec des collègues ; formel exige going to.' },
+      { q: 'Devant un client, on dit…', opts: ['we\'re going to deploy', 'we\'re gonna deploy', 'we wanna deploy'], correct: 0, exp: "Devant un client, on garde la forme complète : going to et non gonna ; wanna est tout aussi familier et à éviter." },
+      { q: '« Gotta » signifie…', opts: ['want to', 'going to', 'got to / have to'], correct: 2, exp: 'Gonna = going to ; wanna = want to ; gotta = got to.' },
       { q: '« You\'re done ? » avec intonation montante exprime…', opts: ['un constat', 'la surprise (question)', 'une excuse'], correct: 1, exp: 'Rising = question ; falling = déclaration.' },
       { q: 'La position du support sur l\'accent :', opts: ['il faut un accent parfait', 'il faut être compris', 'il faut imiter les natifs'], correct: 1, exp: '« You need to be understood » — fluency vs perfection.' },
-      { q: 'Suivre sa fluidité demande de…', opts: ['lire des règles chaque soir', 's\'enregistrer et se réécouter', 'parler plus vite'], correct: 1, exp: 'Recording lab : un message par jour, s\'écouter, compter les défauts.' },
-      { q: 'Une liste d\'items prend une intonation…', opts: ['montante sur tous les items', 'descendante item par item', 'plate'], correct: 1, exp: 'Les listes descendent, l\'intonation remonte à l\'av-dernier ou dernier item selon l\'ouverture suivante.' },
-      { q: 'Wanna meet ? au formel devient…', opts: ['You want to meet ?', 'Would you like to meet ?', 'Wishing to meet ?'], correct: 1, exp: 'La forme polie remplace la réduction : Would you like to…' }
+      { q: 'Suivre sa fluidité demande de…', opts: ['s\'enregistrer et se réécouter', 'lire des règles chaque soir', 'parler plus vite'], correct: 0, exp: 'Recording lab : un message par jour, s\'écouter, compter les défauts.' },
+      { q: 'Une liste d\'items prend une intonation…', opts: ['montante sur tous les items', 'plate', 'descendante item par item'], correct: 2, exp: 'Les listes descendent, l\'intonation remonte à l\'av-dernier ou dernier item selon l\'ouverture suivante.' },
+      { q: 'Wanna meet ? au formel devient…', opts: ['You want to meet ?', 'Wishing to meet ?', 'Would you like to meet ?'], correct: 2, exp: 'La forme polie remplace la réduction : Would you like to…' }
     ],
 
     pitfalls: [
@@ -346,14 +346,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: '« You send file yesterday ? » se corrige en…', opts: ['You sent file yesterday ?', 'Did you send the file yesterday ?', 'Send the file yesterday ?'], correct: 1, exp: 'Sujet + auxiliaire did + verbe : la requête polie complete.' },
-      { q: '« Server crash. Fix now ! » devient…', opts: ['Server crashed. Fix now !', 'The server crashed. Could we please fix it now ?', 'Fix the server !'], correct: 1, exp: 'Sujet + verbe conjugué + formule polie (S-V-P).' },
-      { q: 'Le sujet singulier prend…', opts: ['le verbe avec -s', 'le verbe sans -s', 'un auxiliaire'], correct: 0, exp: 'The server works ; the servers work.' },
+      { q: '« You send file yesterday ? » se corrige en…', opts: ['Did you send the file yesterday ?', 'You sent file yesterday ?', 'Send the file yesterday ?'], correct: 0, exp: 'Sujet + auxiliaire did + verbe : la requête polie complete.' },
+      { q: '« Server crash. Fix now ! » devient…', opts: ["Server crashed. We need to fix it now !","The server crashed. Could we please fix it now ?","Fix the server right now, it is urgent !"], correct: 1, exp: 'Sujet + verbe conjugué + formule polie (S-V-P).' },
+      { q: 'Le sujet singulier prend…', opts: ['le verbe avec -s', 'le verbe sans -s', 'un auxiliaire'], correct: 0, exp: "Le sujet singulier prend le verbe avec -s : The server works ; au pluriel le -s disparaît : the servers work." },
       { q: 'Le refus poli se formule…', opts: ['No.', 'I cannot, puis une alternative', 'Not me.'], correct: 1, exp: 'Le support : « Can you talk to them ? I cannot. »' },
-      { q: '« I would appreciate it if you could… » sert à…', opts: ['refuser', 'formuler une requête polie', 'conclure'], correct: 1, exp: 'Formule formelle de requête, adaptée aux clients.' },
-      { q: 'Les quatre compétences de l\'évaluation finale ?', opts: ['lecture, dictée, traduction, mémorisation', 'vocabulaire, emails, présentations, prononciation', 'écoute, lecture, écriture, grammaire'], correct: 1, exp: 'Le bilan du support couvre les quatre sessions du module.' },
-      { q: 'Moyenne 76, seuil 70 : le verdict est…', opts: ['admis', 'entraînement', 'à repasser'], correct: 0, exp: '76 ≥ 70 : admis.' },
-      { q: 'La dernière phrase du support rappelle que…', opts: ['le cours est fini', 'la fluidité est une habitude, pas une destination', 'l\'accent parfait existe'], correct: 1, exp: '« Fluency is a habit, not a destination » : l\'entraînement continue.' }
+      { q: '« I would appreciate it if you could… » sert à…', opts: ['refuser', 'conclure', 'formuler une requête polie'], correct: 2, exp: 'Formule formelle de requête, adaptée aux clients.' },
+      { q: 'Les quatre compétences de l\'évaluation finale ?', opts: ['lecture, dictée, traduction, mémorisation', 'écoute, lecture, écriture, grammaire', 'vocabulaire, emails, présentations, prononciation'], correct: 2, exp: 'Le bilan du support couvre les quatre sessions du module.' },
+      { q: 'Moyenne 76, seuil 70 : le verdict est…', opts: ['admis', 'entraînement', 'à repasser'], correct: 0, exp: "Moyenne 76 contre un seuil de 70 : 76 atteint le seuil, le verdict est admis ; entraînement concernerait une moyenne sous le seuil." },
+      { q: 'La dernière phrase du support rappelle que…', opts: ["le cours est fini et rien ne continue","la fluidité est une habitude, pas une destination","l'accent parfait existe et s'obtient vite"], correct: 1, exp: '« Fluency is a habit, not a destination » : l\'entraînement continue.' }
     ],
 
     pitfalls: [

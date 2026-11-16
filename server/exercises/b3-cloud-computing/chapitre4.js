@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c4-e1) — Calculateur d’indicateur d’efficacité énergétique PUE et DCiE\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Datacenter régional moderne certifié]\n# Données : DATACENTER nom=dc_lyon E_TOTALE_KWH=140000 E_IT_KWH=100000\nA_COMPLETER\n\n[Cas 2 — Datacenter moyen vieillissant]\n# Données : DATACENTER nom=dc_legacy E_TOTALE_KWH=180000 E_IT_KWH=100000\nA_COMPLETER\n\n[Cas 3 — Hyperscaler ultra-optimisé en free-cooling]\n# Données : DATACENTER nom=google_hamina E_TOTALE_KWH=108000 E_IT_KWH=100000\nA_COMPLETER\n",
     "hints": [
       "Le PUE idéal théorique est 1.0 (100% de l’énergie va aux serveurs informatiques).",
-      "Le DCiE est simplement l’inverse mathématique du PUE multiplié par 100."
+      "Le DCiE est simplement l’inverse mathématique du PUE multiplié par 100.",
+      "1. PUE = énergie totale / énergie IT. 2. DCiE = énergie IT / énergie totale × 100. 3. Pertes = différence des deux énergies. 4. Note selon les seuils 1.20, 1.50 et 2.00."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "PUE_AUDIT: nom=google_hamina | PUE=1.08 | DCiE=92.6% | PERTES=8000 kWh | NOTE=EXCELLENT"
       }
     ],
-    "solution": "[Exemple]\nPUE_AUDIT: nom=hyperscale_nordic | PUE=1.12 | DCiE=89.3% | PERTES=12000 kWh | NOTE=EXCELLENT\nPUE_AUDIT: nom=salle_serveur_locale | PUE=2.50 | DCiE=40.0% | PERTES=150000 kWh | NOTE=INEFFICACE\n\n[Cas 1 — Datacenter régional moderne certifié]\nPUE_AUDIT: nom=dc_lyon | PUE=1.40 | DCiE=71.4% | PERTES=40000 kWh | NOTE=BON\n\n[Cas 2 — Datacenter moyen vieillissant]\nPUE_AUDIT: nom=dc_legacy | PUE=1.80 | DCiE=55.6% | PERTES=80000 kWh | NOTE=MOYEN\n\n[Cas 3 — Hyperscaler ultra-optimisé en free-cooling]\nPUE_AUDIT: nom=google_hamina | PUE=1.08 | DCiE=92.6% | PERTES=8000 kWh | NOTE=EXCELLENT"
+    "solution": "[Exemple]\nPUE_AUDIT: nom=hyperscale_nordic | PUE=1.12 | DCiE=89.3% | PERTES=12000 kWh | NOTE=EXCELLENT\nPUE_AUDIT: nom=salle_serveur_locale | PUE=2.50 | DCiE=40.0% | PERTES=150000 kWh | NOTE=INEFFICACE\n\n[Cas 1 — Datacenter régional moderne certifié]\nPUE_AUDIT: nom=dc_lyon | PUE=1.40 | DCiE=71.4% | PERTES=40000 kWh | NOTE=BON\n\n[Cas 2 — Datacenter moyen vieillissant]\nPUE_AUDIT: nom=dc_legacy | PUE=1.80 | DCiE=55.6% | PERTES=80000 kWh | NOTE=MOYEN\n\n[Cas 3 — Hyperscaler ultra-optimisé en free-cooling]\nPUE_AUDIT: nom=google_hamina | PUE=1.08 | DCiE=92.6% | PERTES=8000 kWh | NOTE=EXCELLENT",
+    "takeaway": "Un PUE proche de 1,0 signifie que l’essentiel de l’énergie alimente les serveurs IT plutôt que le refroidissement et les pertes électriques."
   },
   {
     "id": "cc3-c4-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c4-e2) — Simulateur d’empreinte carbone et réduction CO2 par migration Cloud\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Migration entreprise moyenne mix standard]\n# Données : CARBONE charge_kwh=200000 pue_onprem=1.80 fact_onprem=250.0 charge_onprem=0.20 pue_cloud=1.20 fact_cloud=100.0 charge_cloud=0.50\nA_COMPLETER\n\n[Cas 2 — Environnement déjà décarboné localement]\n# Données : CARBONE charge_kwh=100000 pue_onprem=1.60 fact_onprem=60.0 charge_onprem=0.25 pue_cloud=1.10 fact_cloud=40.0 charge_cloud=0.50\nA_COMPLETER\n\n[Cas 3 — Petite infrastructure fortement optimisée]\n# Données : CARBONE charge_kwh=50000 pue_onprem=1.50 fact_onprem=200.0 charge_onprem=0.30 pue_cloud=1.15 fact_cloud=80.0 charge_cloud=0.60\nA_COMPLETER\n",
     "hints": [
       "Le Cloud cumule trois gains majeurs : meilleur PUE, serveurs plus chargés (moins de machines allumées à vide) et électricité décarbonée.",
-      "Diviser par 1 000 000 pour convertir les grammes en tonnes."
+      "Diviser par 1 000 000 pour convertir les grammes en tonnes.",
+      "1. Sur site : énergie = charge × pue_onprem, puis × fact_onprem / 1 000 000. 2. Cloud : charge réduite par le rapport des taux, × pue_cloud et fact_cloud. 3. Gain = différence ; pourcentage = gain / CO2 sur site × 100."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "EMPREINTE: ONPREM=15.00 tCO2e | CLOUD=2.30 tCO2e | GAIN=12.70 tCO2e (-84.7%)"
       }
     ],
-    "solution": "[Exemple]\nEMPREINTE: ONPREM=350.00 tCO2e | CLOUD=7.19 tCO2e | GAIN=342.81 tCO2e (-97.9%)\n\n[Cas 1 — Migration entreprise moyenne mix standard]\nEMPREINTE: ONPREM=90.00 tCO2e | CLOUD=9.60 tCO2e | GAIN=80.40 tCO2e (-89.3%)\n\n[Cas 2 — Environnement déjà décarboné localement]\nEMPREINTE: ONPREM=9.60 tCO2e | CLOUD=2.20 tCO2e | GAIN=7.40 tCO2e (-77.1%)\n\n[Cas 3 — Petite infrastructure fortement optimisée]\nEMPREINTE: ONPREM=15.00 tCO2e | CLOUD=2.30 tCO2e | GAIN=12.70 tCO2e (-84.7%)"
+    "solution": "[Exemple]\nEMPREINTE: ONPREM=350.00 tCO2e | CLOUD=7.19 tCO2e | GAIN=342.81 tCO2e (-97.9%)\n\n[Cas 1 — Migration entreprise moyenne mix standard]\nEMPREINTE: ONPREM=90.00 tCO2e | CLOUD=9.60 tCO2e | GAIN=80.40 tCO2e (-89.3%)\n\n[Cas 2 — Environnement déjà décarboné localement]\nEMPREINTE: ONPREM=9.60 tCO2e | CLOUD=2.20 tCO2e | GAIN=7.40 tCO2e (-77.1%)\n\n[Cas 3 — Petite infrastructure fortement optimisée]\nEMPREINTE: ONPREM=15.00 tCO2e | CLOUD=2.30 tCO2e | GAIN=12.70 tCO2e (-84.7%)",
+    "takeaway": "L’empreinte carbone Cloud dépend autant du mix électrique de la région d’hébergement que du taux d’utilisation des serveurs."
   },
   {
     "id": "cc3-c4-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c4-e3) — Optimiseur d’extinction automatique d’instances (Auto-Shutdown FinOps)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Environnement de développement 100% éteignable]\n# Données : INSTANCE id=worker_dev cout_h=0.25 auto_shutdown=OUI\n# Données : INSTANCE id=front_dev cout_h=0.15 auto_shutdown=OUI\nA_COMPLETER\n\n[Cas 2 — Flotte mixte avec gros serveurs de calcul]\n# Données : INSTANCE id=compute_ai cout_h=3.00 auto_shutdown=OUI\n# Données : INSTANCE id=gateway_prod cout_h=0.50 auto_shutdown=NON\nA_COMPLETER\n\n[Cas 3 — Production critique sans coupure]\n# Données : INSTANCE id=core_bank cout_h=5.00 auto_shutdown=NON\nA_COMPLETER\n",
     "hints": [
       "L’extinction automatique permet d’économiser 118 heures de fonctionnement par semaine (soit plus de 70% d’économie sur les instances concernées).",
-      "Calculer le total sur l’ensemble du parc d’instances analysé."
+      "Calculer le total sur l’ensemble du parc d’instances analysé.",
+      "1. Coût standard = 168 × tarif horaire. 2. Extinction active : coût optimisé = 50 × tarif, sinon standard. 3. Gain unitaire = différence. 4. Sommer les trois totaux puis calculer le pourcentage global."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "INSTANCE: core_bank -> STANDARD=$840.00 | OPTIMISE=$840.00 | GAIN=$0.00\nTOTAL: STANDARD=$840.00 | OPTIMISE=$840.00 | GAIN_GLOBAL=$0.00 (-0.0%)"
       }
     ],
-    "solution": "[Exemple]\nINSTANCE: web_dev -> STANDARD=$67.20 | OPTIMISE=$20.00 | GAIN=$47.20\nINSTANCE: api_test -> STANDARD=$100.80 | OPTIMISE=$30.00 | GAIN=$70.80\nINSTANCE: db_prod -> STANDARD=$252.00 | OPTIMISE=$252.00 | GAIN=$0.00\nTOTAL: STANDARD=$420.00 | OPTIMISE=$302.00 | GAIN_GLOBAL=$118.00 (-28.1%)\n\n[Cas 1 — Environnement de développement 100% éteignable]\nINSTANCE: worker_dev -> STANDARD=$42.00 | OPTIMISE=$12.50 | GAIN=$29.50\nINSTANCE: front_dev -> STANDARD=$25.20 | OPTIMISE=$7.50 | GAIN=$17.70\nTOTAL: STANDARD=$67.20 | OPTIMISE=$20.00 | GAIN_GLOBAL=$47.20 (-70.2%)\n\n[Cas 2 — Flotte mixte avec gros serveurs de calcul]\nINSTANCE: compute_ai -> STANDARD=$504.00 | OPTIMISE=$150.00 | GAIN=$354.00\nINSTANCE: gateway_prod -> STANDARD=$84.00 | OPTIMISE=$84.00 | GAIN=$0.00\nTOTAL: STANDARD=$588.00 | OPTIMISE=$234.00 | GAIN_GLOBAL=$354.00 (-60.2%)\n\n[Cas 3 — Production critique sans coupure]\nINSTANCE: core_bank -> STANDARD=$840.00 | OPTIMISE=$840.00 | GAIN=$0.00\nTOTAL: STANDARD=$840.00 | OPTIMISE=$840.00 | GAIN_GLOBAL=$0.00 (-0.0%)"
+    "solution": "[Exemple]\nINSTANCE: web_dev -> STANDARD=$67.20 | OPTIMISE=$20.00 | GAIN=$47.20\nINSTANCE: api_test -> STANDARD=$100.80 | OPTIMISE=$30.00 | GAIN=$70.80\nINSTANCE: db_prod -> STANDARD=$252.00 | OPTIMISE=$252.00 | GAIN=$0.00\nTOTAL: STANDARD=$420.00 | OPTIMISE=$302.00 | GAIN_GLOBAL=$118.00 (-28.1%)\n\n[Cas 1 — Environnement de développement 100% éteignable]\nINSTANCE: worker_dev -> STANDARD=$42.00 | OPTIMISE=$12.50 | GAIN=$29.50\nINSTANCE: front_dev -> STANDARD=$25.20 | OPTIMISE=$7.50 | GAIN=$17.70\nTOTAL: STANDARD=$67.20 | OPTIMISE=$20.00 | GAIN_GLOBAL=$47.20 (-70.2%)\n\n[Cas 2 — Flotte mixte avec gros serveurs de calcul]\nINSTANCE: compute_ai -> STANDARD=$504.00 | OPTIMISE=$150.00 | GAIN=$354.00\nINSTANCE: gateway_prod -> STANDARD=$84.00 | OPTIMISE=$84.00 | GAIN=$0.00\nTOTAL: STANDARD=$588.00 | OPTIMISE=$234.00 | GAIN_GLOBAL=$354.00 (-60.2%)\n\n[Cas 3 — Production critique sans coupure]\nINSTANCE: core_bank -> STANDARD=$840.00 | OPTIMISE=$840.00 | GAIN=$0.00\nTOTAL: STANDARD=$840.00 | OPTIMISE=$840.00 | GAIN_GLOBAL=$0.00 (-0.0%)",
+    "takeaway": "L’extinction planifiée des environnements hors production réduit directement la facture OPEX sans affecter les SLA applicatifs."
   }
 ];

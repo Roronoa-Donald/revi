@@ -4,36 +4,54 @@ module.exports = [
   {
     "id": "az3-c5-e1",
     "chapter": 5,
-    "title": "Simulateur de cycle de vie Azure Blob Storage",
     "level": "n1",
     "language": "analyse",
-    "goal": "Appliquer des règles de gestion automatique du cycle de vie des données Blob Storage (Hot -> Cool -> Archive -> Delete) et mesurer les économies financières.",
-    "brief": "<p>Azure Blob Lifecycle Management permet de transférer automatiquement des données froides vers des paliers de stockage moins coûteux ou de les purger.<br><br>\nTarification de référence mensuelle par Go :<br>\n- <code>HOT</code> : 0.0184 USD / Go<br>\n- <code>COOL</code> : 0.0100 USD / Go<br>\n- <code>ARCHIVE</code> : 0.00099 USD / Go<br>\n- <code>DELETED</code> : 0.0000 USD / Go<br><br>\nFormat d'entrée :<br>\nLigne 1 : Déclaration de la politique de cycle de vie :<br>\n<code>POLICY cool_days=&lt;int&gt; archive_days=&lt;int&gt; delete_days=&lt;int&gt;</code><br>\nLignes suivantes : Objets blobs à évaluer :<br>\n<code>BLOB name=&lt;nom&gt; size_gb=&lt;int&gt; age_days=&lt;int&gt;</code><br><br>\nRègles de transition (évaluation par ordre de priorité descendante) :<br>\n- Si <code>age_days &gt;= delete_days</code> : palier <code>DELETED</code> (coût = 0.0000)<br>\n- Sinon si <code>age_days &gt;= archive_days</code> : palier <code>ARCHIVE</code> (coût = <code>size_gb * 0.00099</code>)<br>\n- Sinon si <code>age_days &gt;= cool_days</code> : palier <code>COOL</code> (coût = <code>size_gb * 0.0100</code>)<br>\n- Sinon : palier <code>HOT</code> (coût = <code>size_gb * 0.0184</code>)<br><br>\nFormat de sortie attendu :<br>\nPour chaque blob :<br>\n<code>BLOB &lt;nom&gt;: age=&lt;age_days&gt;d TARGET_TIER=&lt;TIER&gt; COST=$&lt;cost:.4f&gt;</code><br>\nÀ la fin, afficher le récapitulatif comparatif (coût initial si tous en HOT vs coût optimisé) :<br>\n<code>TOTAL_HOT=$&lt;total_hot:.2f&gt; TOTAL_OPTIMIZED=$&lt;total_opt:.2f&gt; SAVINGS=&lt;savings_pct:.1f&gt;%</code></p>",
-    "starter": "# Grille d'analyse (az3-c5-e1) — Simulateur de cycle de vie Azure Blob Storage\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cycle de vie complet avec Hot, Cool et Archive]\n# Données : POLICY cool_days=15 archive_days=60 delete_days=180\n# Données : BLOB name=app-events.json size_gb=5 age_days=5\n# Données : BLOB name=db-snapshot.dump size_gb=50 age_days=20\n# Données : BLOB name=old-logs.gz size_gb=200 age_days=90\nA_COMPLETER\n\n[Cas 2 — Blobs récents restant tous en palier Hot]\n# Données : POLICY cool_days=30 archive_days=90 delete_days=180\n# Données : BLOB name=data1.parquet size_gb=20 age_days=5\n# Données : BLOB name=data2.parquet size_gb=30 age_days=15\nA_COMPLETER\n",
+    "title": "Les paliers d'accès des archives de l'étude Daubrun",
+    "exampleTitle": "Exemple résolu — l'archivage des plans du cabinet Tympan",
+    "goal": "Choisir le palier d'accès d'un stockage Blob (chaud, froid, archive) selon la fréquence de consultation et calculer le coût de stockage.",
+    "brief": "<p><strong>Énoncé.</strong> L'étude notariale Daubrun, forte de 12 collaborateurs, archive ses actes scannés dans le stockage Blob Azure. Le tarif mensuel de l'énoncé distingue trois paliers d'accès :</p><table><tr><th>Palier</th><th>Prix au Go / mois</th><th>Usage prévu</th><th>Rétention minimale</th></tr><tr><th>Chaud (Hot)</th><td>0,018 €</td><td>accès fréquent</td><td>aucune</td></tr><tr><th>Froid (Cool)</th><td>0,010 €</td><td>accès occasionnel</td><td>30 jours</td></tr><tr><th>Archive</th><td>0,001 €</td><td>accès rare, récupération lente</td><td>180 jours</td></tr></table><p>L'étude stocke <strong>500 Go</strong> d'actes de l'année en cours, consultés chaque semaine par les notaires, et <strong>2 000 Go</strong> d'actes de plus de dix ans, consultés environ une fois par an.</p><ol><li>Quel palier convient aux 500 Go d'actes de l'année en cours ?</li><li>Quel palier propose le prix au Go le plus bas ?</li><li>Quel est le coût mensuel de stockage des 500 Go en palier chaud, en euros ?</li><li>Quel est le coût mensuel de stockage des 2 000 Go en palier Archive, en euros ?</li><li>Combien de jours de rétention minimale le palier Archive impose-t-il ?</li></ol>",
+    "starter": "# Exercice — Les paliers d'accès des archives de l'étude Daubrun\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : le nom du palier. Questions 3 à 5 : le nombre seul.\n\n[Question 1 — Palier adapté aux actes de l'année en cours]\nA_COMPLETER\n\n[Question 2 — Palier au prix au Go le plus bas]\nA_COMPLETER\n\n[Question 3 — Coût mensuel des 500 Go en palier chaud (en €)]\nA_COMPLETER\n\n[Question 4 — Coût mensuel des 2 000 Go en palier Archive (en €)]\nA_COMPLETER\n\n[Question 5 — Rétention minimale du palier Archive (en jours)]\nA_COMPLETER\n",
     "hints": [
-      "Vérifier les conditions d'âge dans l'ordre : delete_days, puis archive_days, puis cool_days.",
-      "Calculer total_hot = somme(size_gb * 0.0184) pour mesurer le gain du Lifecycle Management."
+      "Le palier se choisit selon la fréquence d'accès : chaque semaine, c'est un accès fréquent ; une fois par an, c'est un accès rare.",
+      "Le coût d'un volume se calcule en multipliant les Go par le prix au Go du palier concerné.",
+      "1. Les actes de l'année sont consultés chaque semaine. 2. Comparez les trois prix au Go. 3. Multipliez 500 par 0,018. 4. Multipliez 2 000 par 0,001. 5. Lisez la colonne rétention minimale."
     ],
     "examples": [
       {
-        "stdin": "POLICY cool_days=30 archive_days=90 delete_days=365\nBLOB name=log-recent.csv size_gb=10 age_days=10\nBLOB name=backup-q1.bak size_gb=100 age_days=45\nBLOB name=archive-2023.tar size_gb=500 age_days=120\nBLOB name=temp-2022.tmp size_gb=50 age_days=400",
-        "expected": "BLOB log-recent.csv: age=10d TARGET_TIER=HOT COST=$0.1840\nBLOB backup-q1.bak: age=45d TARGET_TIER=COOL COST=$1.0000\nBLOB archive-2023.tar: age=120d TARGET_TIER=ARCHIVE COST=$0.4950\nBLOB temp-2022.tmp: age=400d TARGET_TIER=DELETED COST=$0.0000\nTOTAL_HOT=$12.14 TOTAL_OPTIMIZED=$1.68 SAVINGS=86.2%",
-        "note": "Migration vers Cool, Archive et suppression générant 86.2% d'économies."
+        "stdin": "Le cabinet d'architectes Tympan archive ses plans : 800 Go de projets en cours\nconsultés chaque jour, 4 000 Go de projets livrés consultés une fois par trimestre.\n\n1) Les 800 Go de projets en cours vont en palier chaud (accès fréquent).\n2) Les 4 000 Go livrés vont en palier froid (accès occasionnel).\n3) Coût du chaud : 800 × 0,018 = 14,40 € par mois.\n4) Coût du froid : 4 000 × 0,010 = 40 € par mois.\n5) Le palier archive impose 180 jours de rétention minimale.",
+        "expected": "projets en cours : palier chaud — projets livrés : palier froid — 14,40 € — 40 € — 180 jours de rétention",
+        "note": "Le palier archive n'est pas un disque dur : la récupération y prend des heures et la rétention minimale de 180 jours dissuade d'y stocker des données réactivables."
       }
     ],
     "tests": [
       {
-        "label": "Cycle de vie complet avec Hot, Cool et Archive",
-        "stdin": "cas:1",
-        "expected": "BLOB app-events.json: age=5d TARGET_TIER=HOT COST=$0.0920\nBLOB db-snapshot.dump: age=20d TARGET_TIER=COOL COST=$0.5000\nBLOB old-logs.gz: age=90d TARGET_TIER=ARCHIVE COST=$0.1980\nTOTAL_HOT=$4.69 TOTAL_OPTIMIZED=$0.79 SAVINGS=83.2%"
+        "label": "Question 1 — Palier adapté aux actes de l'année en cours",
+        "stdin": "q:1",
+        "expected": "chaud||hot||le palier chaud||palier chaud"
       },
       {
-        "label": "Blobs récents restant tous en palier Hot",
-        "stdin": "cas:2",
-        "expected": "BLOB data1.parquet: age=5d TARGET_TIER=HOT COST=$0.3680\nBLOB data2.parquet: age=15d TARGET_TIER=HOT COST=$0.5520\nTOTAL_HOT=$0.92 TOTAL_OPTIMIZED=$0.92 SAVINGS=0.0%"
+        "label": "Question 2 — Palier au prix au Go le plus bas",
+        "stdin": "q:2",
+        "expected": "archive||l'archive||le palier archive"
+      },
+      {
+        "label": "Question 3 — Coût mensuel des 500 Go en palier chaud (en €)",
+        "stdin": "q:3",
+        "expected": "9||9,00||9.00||9 €"
+      },
+      {
+        "label": "Question 4 — Coût mensuel des 2 000 Go en palier Archive (en €)",
+        "stdin": "q:4",
+        "expected": "2||2,00||2.00||2 €"
+      },
+      {
+        "label": "Question 5 — Rétention minimale du palier Archive (en jours)",
+        "stdin": "q:5",
+        "expected": "180||180 jours"
       }
     ],
-    "solution": "[Exemple]\nBLOB log-recent.csv: age=10d TARGET_TIER=HOT COST=$0.1840\nBLOB backup-q1.bak: age=45d TARGET_TIER=COOL COST=$1.0000\nBLOB archive-2023.tar: age=120d TARGET_TIER=ARCHIVE COST=$0.4950\nBLOB temp-2022.tmp: age=400d TARGET_TIER=DELETED COST=$0.0000\nTOTAL_HOT=$12.14 TOTAL_OPTIMIZED=$1.68 SAVINGS=86.2%\n\n[Cas 1 — Cycle de vie complet avec Hot, Cool et Archive]\nBLOB app-events.json: age=5d TARGET_TIER=HOT COST=$0.0920\nBLOB db-snapshot.dump: age=20d TARGET_TIER=COOL COST=$0.5000\nBLOB old-logs.gz: age=90d TARGET_TIER=ARCHIVE COST=$0.1980\nTOTAL_HOT=$4.69 TOTAL_OPTIMIZED=$0.79 SAVINGS=83.2%\n\n[Cas 2 — Blobs récents restant tous en palier Hot]\nBLOB data1.parquet: age=5d TARGET_TIER=HOT COST=$0.3680\nBLOB data2.parquet: age=15d TARGET_TIER=HOT COST=$0.5520\nTOTAL_HOT=$0.92 TOTAL_OPTIMIZED=$0.92 SAVINGS=0.0%"
+    "solution": "[Question 1 — Palier adapté aux actes de l'année en cours]\nchaud\n\n[Question 2 — Palier au prix au Go le plus bas]\narchive\n\n[Question 3 — Coût mensuel des 500 Go en palier chaud (en €)]\n9\n\n[Question 4 — Coût mensuel des 2 000 Go en palier Archive (en €)]\n2\n\n[Question 5 — Rétention minimale du palier Archive (en jours)]\n180",
+    "takeaway": "1) Les actes de l'année sont consultés chaque semaine : un accès fréquent, qui appelle le palier chaud.\n2) Le palier Archive propose le prix au Go le plus bas (0,001 €/Go/mois).\n3) Coût du palier chaud : 500 × 0,018 = 9 € par mois.\n4) Coût du palier Archive : 2 000 × 0,001 = 2 € par mois.\n5) Le palier Archive impose 180 jours de rétention minimale.\nContrôle : les 2 000 Go d'actes anciens en palier Archive coûtent moins que les 500 Go récents en palier chaud (2 € contre 9 €) : l'écart de prix au Go compense largement le volume."
   },
   {
     "id": "az3-c5-e2",
@@ -46,7 +64,8 @@ module.exports = [
     "starter": "# Grille d'analyse (az3-c5-e2) — Validateur de requêtes avec jetons SAS (modèle fictif)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vérification normale des permissions PUT et LIST]\n# Données : SAS_CONFIG sp=rwd st=50 se=150 spr=https\n# Données : REQUEST method=PUT time=100 proto=https\n# Données : REQUEST method=LIST time=100 proto=https\nA_COMPLETER\n\n[Cas 2 — Violations de protocole et fenêtres temporelles expirées ou anticipées]\n# Données : SAS_CONFIG sp=r st=100 se=200 spr=https\n# Données : REQUEST method=GET time=150 proto=http\n# Données : REQUEST method=GET time=80 proto=https\n# Données : REQUEST method=GET time=250 proto=https\nA_COMPLETER\n\n[Cas 3 — Jeton avec protocole dual https et http et permission list]\n# Données : SAS_CONFIG sp=rl st=50 se=150 spr=https,http\n# Données : REQUEST method=LIST time=100 proto=http\n# Données : REQUEST method=PUT time=100 proto=http\nA_COMPLETER\n",
     "hints": [
       "Associez chaque opération fictive à sa lettre de permission : GET à r, PUT à w, DELETE à d et LIST à l.",
-      "Respecter l'ordre prescrit des contrôles d'erreur : protocole, puis anticipé, puis expiré, puis permissions."
+      "Respecter l'ordre prescrit des contrôles d'erreur : protocole, puis anticipé, puis expiré, puis permissions.",
+      "Vérifiez successivement les trois conditions : fenêtre temporelle validée (start <= t <= end), protocole autorisé (HTTPS) et permission requise présente dans sp="
     ],
     "examples": [
       {
@@ -72,45 +91,59 @@ module.exports = [
         "expected": "REQUEST LIST at 100: ALLOWED\nREQUEST PUT at 100: DENIED (reason=INSUFFICIENT_PERMISSIONS)"
       }
     ],
-    "solution": "[Exemple]\nREQUEST GET at 150: ALLOWED\nREQUEST DELETE at 150: DENIED (reason=INSUFFICIENT_PERMISSIONS)\n\n[Cas 1 — Vérification normale des permissions PUT et LIST]\nREQUEST PUT at 100: ALLOWED\nREQUEST LIST at 100: DENIED (reason=INSUFFICIENT_PERMISSIONS)\n\n[Cas 2 — Violations de protocole et fenêtres temporelles expirées ou anticipées]\nREQUEST GET at 150: DENIED (reason=PROTOCOL_VIOLATION)\nREQUEST GET at 80: DENIED (reason=NOT_YET_VALID)\nREQUEST GET at 250: DENIED (reason=EXPIRED)\n\n[Cas 3 — Jeton avec protocole dual https et http et permission list]\nREQUEST LIST at 100: ALLOWED\nREQUEST PUT at 100: DENIED (reason=INSUFFICIENT_PERMISSIONS)"
+    "solution": "[Exemple]\nREQUEST GET at 150: ALLOWED\nREQUEST DELETE at 150: DENIED (reason=INSUFFICIENT_PERMISSIONS)\n\n[Cas 1 — Vérification normale des permissions PUT et LIST]\nREQUEST PUT at 100: ALLOWED\nREQUEST LIST at 100: DENIED (reason=INSUFFICIENT_PERMISSIONS)\n\n[Cas 2 — Violations de protocole et fenêtres temporelles expirées ou anticipées]\nREQUEST GET at 150: DENIED (reason=PROTOCOL_VIOLATION)\nREQUEST GET at 80: DENIED (reason=NOT_YET_VALID)\nREQUEST GET at 250: DENIED (reason=EXPIRED)\n\n[Cas 3 — Jeton avec protocole dual https et http et permission list]\nREQUEST LIST at 100: ALLOWED\nREQUEST PUT at 100: DENIED (reason=INSUFFICIENT_PERMISSIONS)",
+    "takeaway": "À retenir : Analyser un modèle fictif de permissions, dates et protocoles, sans valider une signature SAS réelle.\nRepère : Dans ce modèle fictif, la lecture est autorisée et la suppression refusée par les permissions rw."
   },
   {
     "id": "az3-c5-e3",
     "chapter": 5,
-    "title": "Sélecteur d'architecture de données Azure",
     "level": "n3",
     "language": "analyse",
-    "goal": "Analyser les besoins fonctionnels et recommander le service de stockage ou de base de données managé Azure adéquat.",
-    "brief": "<p>Azure dispose d'une gamme diversifiée de services de données managés. Le choix dépend du modèle de données (relationnel, NoSQL, fichiers, objets) et des contraintes d'infrastructure.<br><br>\nMatrice de décision Azure :<br>\n- Si <code>model=RELATIONAL</code> :<br>\n  <code>SERVICE=Azure_SQL_Database JUSTIFICATION=\"Moteur relationnel transactionnel ACID et compatibilité T-SQL\"</code><br>\n- Si <code>model=NOSQL_DOCUMENT</code> :<br>\n  <code>SERVICE=Azure_Cosmos_DB JUSTIFICATION=\"Base NoSQL multi-modèle distribuée mondialement avec latence garantie &lt; 10ms\"</code><br>\n- Si <code>model=FILE_SMB</code> :<br>\n  <code>SERVICE=Azure_Files JUSTIFICATION=\"Partage de fichiers partagé natif compatible SMB/NFS sans serveur dédié\"</code><br>\n- Si <code>model=UNSTRUCTURED_OBJECTS</code> :<br>\n  <code>SERVICE=Azure_Blob_Storage JUSTIFICATION=\"Stockage objet massif hautement scalable avec gestion de cycle de vie et niveaux d'accès\"</code><br><br>\nFormat d'entrée :<br>\n<code>REQUIREMENT workload=&lt;nom&gt; model=&lt;MODEL&gt;</code><br><br>\nFormat de sortie attendu :<br>\n<code>DECISION workload=&lt;nom&gt;: SERVICE=&lt;SERVICE&gt; JUSTIFICATION=\"&lt;JUSTIFICATION&gt;\"</code><br>\n(Si le modèle est inconnu : <code>DECISION workload=&lt;nom&gt;: SERVICE=UNKNOWN JUSTIFICATION=\"Modèle non supporté\"</code>).</p>",
-    "starter": "# Grille d'analyse (az3-c5-e3) — Sélecteur d'architecture de données Azure\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Classification CRM relationnel et télémétrie IoT NoSQL]\n# Données : REQUIREMENT workload=crm-core model=RELATIONAL\n# Données : REQUIREMENT workload=iot-telemetry model=NOSQL_DOCUMENT\nA_COMPLETER\n\n[Cas 2 — Classification partage SMB et data lake Blob]\n# Données : REQUIREMENT workload=legacy-shares model=FILE_SMB\n# Données : REQUIREMENT workload=data-lake model=UNSTRUCTURED_OBJECTS\nA_COMPLETER\n\n[Cas 3 — Cas de modèle inconnu]\n# Données : REQUIREMENT workload=blockchain model=LEDGER_GRAPH\nA_COMPLETER\n",
+    "title": "La politique de cycle de vie du cabinet Ombrelys",
+    "exampleTitle": "Exemple résolu — la purge des mémos du cabinet Vigie",
+    "goal": "Appliquer une politique de cycle de vie du stockage Blob (paliers, suppression) et chiffrer le coût d'un volume par palier.",
+    "brief": "<p><strong>Énoncé.</strong> Ombrelys, cabinet d'expertise comptable à Lille, applique au conteneur <code>factures</code> la politique de cycle de vie suivante :</p><ul><li>règle 1 : les blobs versés depuis plus de <strong>30 jours</strong> passent en palier Froid ;</li><li>règle 2 : les blobs versés depuis plus de <strong>90 jours</strong> passent en palier Archive ;</li><li>règle 3 : les blobs versés depuis plus de <strong>2 550 jours</strong> (7 ans) sont supprimés.</li></ul><p>Tarifs mensuels de l'énoncé : Chaud 0,018 €/Go, Froid 0,010 €/Go, Archive 0,001 €/Go. Situation au <strong>30 avril 2025</strong> :</p><table><tr><th>Fichier</th><th>Date de versement</th><th>Ancienneté au 30 avril 2025</th></tr><tr><th>facture-2025-03-04.pdf</th><td>4 mars 2025</td><td>57 jours</td></tr><tr><th>facture-2024-09-12.pdf</th><td>12 septembre 2024</td><td>230 jours</td></tr><tr><th>facture-2018-02-01.pdf</th><td>1er février 2018</td><td>plus de 7 ans</td></tr></table><ol><li>Dans quel palier se trouve facture-2025-03-04.pdf au 30 avril 2025 ?</li><li>Dans quel palier se trouve facture-2024-09-12.pdf ?</li><li>Que devient facture-2018-02-01.pdf ?</li><li>Quel est le coût mensuel de stockage de 1 000 Go en palier Froid, en euros ?</li><li>Une facture versée le 15 mars 2025 est-elle déjà passée en palier Froid au 30 avril 2025 ?</li></ol>",
+    "starter": "# Exercice — La politique de cycle de vie du cabinet Ombrelys\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : le nom du palier. Question 5 : oui ou non.\n\n[Question 1 — Palier de facture-2025-03-04.pdf]\nA_COMPLETER\n\n[Question 2 — Palier de facture-2024-09-12.pdf]\nA_COMPLETER\n\n[Question 3 — Sort de facture-2018-02-01.pdf]\nA_COMPLETER\n\n[Question 4 — Coût mensuel de 1 000 Go en palier Froid (en €)]\nA_COMPLETER\n\n[Question 5 — Une facture versée le 15 mars 2025 est-elle déjà en palier Froid]\nA_COMPLETER\n",
     "hints": [
-      "Associer chaque mot-clé de modèle de données aux caractéristiques techniques du service managé Azure.",
-      "Soigner le formatage avec guillemets autour de la justification."
+      "Pour chaque fichier, comparez son ancienneté aux seuils 30, 90 et 2 550 jours, en commençant par le seuil le plus long.",
+      "Le coût d'un volume se calcule en multipliant les Go par le prix au Go du palier concerné.",
+      "1. 57 jours se situent entre 30 et 90. 2. 230 jours dépassent 90. 3. Comparez 7 ans au seuil de suppression. 4. Multipliez 1 000 par 0,010. 5. Comptez les jours écoulés depuis le 15 mars (mars compte 31 jours)."
     ],
     "examples": [
       {
-        "stdin": "REQUIREMENT workload=app-erp model=RELATIONAL\nREQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT",
-        "expected": "DECISION workload=app-erp: SERVICE=Azure_SQL_Database JUSTIFICATION=\"Moteur relationnel transactionnel ACID et compatibilité T-SQL\"\nDECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION=\"Base NoSQL multi-modèle distribuée mondialement avec latence garantie < 10ms\"",
-        "note": "Sélection d'Azure SQL pour l'ERP et Cosmos DB pour le panier mobile."
+        "stdin": "Le cabinet d'avocats Vigie applique : palier Froid après 60 jours, Archive après\n180 jours, suppression après 10 ans. Audit au 1er juin 2025 :\n- memo-2025-04-20.pdf : versé depuis 42 jours ;\n- memo-2024-06-15.pdf : versé depuis 351 jours ;\n- memo-2013-01-10.pdf : plus de 10 ans.\n\n1) 42 jours : moins de 60, le mémo reste en palier Chaud.\n2) 351 jours : au-delà de 180, il est en palier Archive.\n3) Le mémo de 2013 est supprimé.\n4) 2 000 Go en Froid coûtent 2 000 × 0,010 = 20 € par mois.\n5) Un versement du 20 avril 2025 (42 jours) n'est pas encore passé en Froid.",
+        "expected": "42 jours : palier chaud — 351 jours : palier archive — plus de 10 ans : supprimé — 2 000 Go en froid : 20 € — pas de bascule avant 60 jours",
+        "note": "Les seuils de cycle de vie se comptent depuis la date de versement du blob : chaque règle s'applique au franchissement du seuil, la plus longue durée l'emportant."
       }
     ],
     "tests": [
       {
-        "label": "Classification CRM relationnel et télémétrie IoT NoSQL",
-        "stdin": "cas:1",
-        "expected": "DECISION workload=crm-core: SERVICE=Azure_SQL_Database JUSTIFICATION=\"Moteur relationnel transactionnel ACID et compatibilité T-SQL\"\nDECISION workload=iot-telemetry: SERVICE=Azure_Cosmos_DB JUSTIFICATION=\"Base NoSQL multi-modèle distribuée mondialement avec latence garantie < 10ms\""
+        "label": "Question 1 — Palier de facture-2025-03-04.pdf",
+        "stdin": "q:1",
+        "expected": "froid||cool||le palier froid"
       },
       {
-        "label": "Classification partage SMB et data lake Blob",
-        "stdin": "cas:2",
-        "expected": "DECISION workload=legacy-shares: SERVICE=Azure_Files JUSTIFICATION=\"Partage de fichiers partagé natif compatible SMB/NFS sans serveur dédié\"\nDECISION workload=data-lake: SERVICE=Azure_Blob_Storage JUSTIFICATION=\"Stockage objet massif hautement scalable avec gestion de cycle de vie et niveaux d'accès\""
+        "label": "Question 2 — Palier de facture-2024-09-12.pdf",
+        "stdin": "q:2",
+        "expected": "archive||le palier archive"
       },
       {
-        "label": "Cas de modèle inconnu",
-        "stdin": "cas:3",
-        "expected": "DECISION workload=blockchain: SERVICE=UNKNOWN JUSTIFICATION=\"Modèle non supporté\""
+        "label": "Question 3 — Sort de facture-2018-02-01.pdf",
+        "stdin": "q:3",
+        "expected": "supprimée||supprime||elle est supprimée||suppression"
+      },
+      {
+        "label": "Question 4 — Coût mensuel de 1 000 Go en palier Froid (en €)",
+        "stdin": "q:4",
+        "expected": "10||10,00||10.00||10 €"
+      },
+      {
+        "label": "Question 5 — Une facture versée le 15 mars 2025 est-elle déjà en palier Froid",
+        "stdin": "q:5",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\nDECISION workload=app-erp: SERVICE=Azure_SQL_Database JUSTIFICATION=\"Moteur relationnel transactionnel ACID et compatibilité T-SQL\"\nDECISION workload=mobile-cart: SERVICE=Azure_Cosmos_DB JUSTIFICATION=\"Base NoSQL multi-modèle distribuée mondialement avec latence garantie < 10ms\"\n\n[Cas 1 — Classification CRM relationnel et télémétrie IoT NoSQL]\nDECISION workload=crm-core: SERVICE=Azure_SQL_Database JUSTIFICATION=\"Moteur relationnel transactionnel ACID et compatibilité T-SQL\"\nDECISION workload=iot-telemetry: SERVICE=Azure_Cosmos_DB JUSTIFICATION=\"Base NoSQL multi-modèle distribuée mondialement avec latence garantie < 10ms\"\n\n[Cas 2 — Classification partage SMB et data lake Blob]\nDECISION workload=legacy-shares: SERVICE=Azure_Files JUSTIFICATION=\"Partage de fichiers partagé natif compatible SMB/NFS sans serveur dédié\"\nDECISION workload=data-lake: SERVICE=Azure_Blob_Storage JUSTIFICATION=\"Stockage objet massif hautement scalable avec gestion de cycle de vie et niveaux d'accès\"\n\n[Cas 3 — Cas de modèle inconnu]\nDECISION workload=blockchain: SERVICE=UNKNOWN JUSTIFICATION=\"Modèle non supporté\""
+    "solution": "[Question 1 — Palier de facture-2025-03-04.pdf]\nfroid\n\n[Question 2 — Palier de facture-2024-09-12.pdf]\narchive\n\n[Question 3 — Sort de facture-2018-02-01.pdf]\nsupprimée\n\n[Question 4 — Coût mensuel de 1 000 Go en palier Froid (en €)]\n10\n\n[Question 5 — Une facture versée le 15 mars 2025 est-elle déjà en palier Froid]\noui",
+    "takeaway": "1) facture-2025-03-04.pdf a 57 jours d'ancienneté : au-delà du seuil de 30 jours, elle est passée en palier Froid.\n2) facture-2024-09-12.pdf a 230 jours d'ancienneté : au-delà du seuil de 90 jours, elle est passée en palier Archive.\n3) facture-2018-02-01.pdf dépasse 2 550 jours (7 ans) : elle a été supprimée par la règle 3.\n4) 1 000 Go en palier Froid coûtent 1 000 × 0,010 = 10 € par mois.\n5) Oui : versée le 15 mars 2025, la facture a 46 jours d'ancienneté au 30 avril (16 jours restants en mars + 30 jours en avril), au-delà du seuil de 30 jours : elle est en palier Froid.\nContrôle : 4 mars + 30 jours = 3 avril (bascule en Froid) et 15 mars + 30 jours = 14 avril (bascule en Froid) ; les deux dates précèdent le 30 avril 2025."
   }
 ];

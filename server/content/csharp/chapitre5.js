@@ -126,44 +126,44 @@ module.exports = {
       stem: 'Quelle est la signature du délégué Func<string, int, bool> ?',
       opts: [
         'Une méthode prenant un booléen et renvoyant une chaîne et un entier.',
-        'Une méthode prenant une string et un int en arguments et renvoyant un booléen.',
+        'Une expression de requête SQL différée.',
         'Une méthode ne renvoyant rien (void) et prenant trois arguments.',
-        'Une expression de requête SQL différée.'
+        'Une méthode prenant une string et un int en arguments et renvoyant un booléen.'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Dans un délégué Func, le dernier argument de type spécifié correspond toujours au type de retour. Ainsi, Func<string, int, bool> prend une string et un int et renvoie un booléen.'
     },
     {
       stem: 'Que signifie le concept d’exécution différée (Deferred Execution) dans une requête LINQ ?',
       opts: [
-        'La requête est exécutée en arrière-plan sur un thread séparé.',
-        'Les éléments ne sont pas filtrés ni calculés lors de la définition de la requête, mais uniquement lors de son énumération effective.',
-        'La requête est mise en pause pendant un délai de temps configurable.',
-        'Le compilateur convertit immédiatement la requête en code assembleur.'
+        "La requête est exécutée automatiquement en arrière-plan sur un thread séparé dédié du pool de threads.",
+        "La requête est mise en pause pendant un délai de temps configurable par le développeur à l’avance.",
+        "Les éléments ne sont pas filtrés ni calculés lors de la définition de la requête, mais uniquement lors de son énumération effective.",
+        "Le compilateur convertit immédiatement l’intégralité de la requête LINQ en code assembleur natif."
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En LINQ, les opérateurs de transformation comme Where et Select construisent un itérateur différé : aucun traitement n’a lieu tant qu’un consommateur n’itère pas sur la séquence (via foreach, ToList, etc.).'
     },
     {
       stem: 'Quelle méthode LINQ force la matérialisation immédiate en mémoire d’une séquence différée ?',
       opts: [
         '.Where()',
-        '.Select()',
+        '.ToList()',
         '.OrderBy()',
-        '.ToList()'
+        '.Select()'
       ],
-      correct: 3,
+      correct: 1,
       exp: '.ToList() est un opérateur terminal qui parcourt immédiatement l’intégralité de la séquence et stocke tous les éléments dans une nouvelle instance de List<T> en mémoire.'
     },
     {
       stem: 'Pourquoi le mot-clé event est-il préférable à un délégué public simple pour notifier des abonnés ?',
       opts: [
-        'Parce qu’il empêche le Garbage Collector de supprimer les objets abonnés.',
-        'Parce qu’il interdit aux tiers d’écraser la liste des abonnés avec un simple = ou de déclencher l’événement arbitrairement.',
-        'Parce qu’il force l’exécution séquentielle sur un thread dédié.',
-        'Parce qu’il autorise uniquement un seul abonné à la fois.'
+        "Parce qu’il interdit aux tiers d’écraser la liste des abonnés avec un simple = ou de déclencher l’événement arbitrairement.",
+        "Parce qu’il empêche définitivement le Garbage Collector de supprimer les objets abonnés.",
+        "Parce qu’il force l’exécution strictement séquentielle des abonnés sur un thread dédié unique.",
+        "Parce qu’il n’autorise qu’un seul et unique abonné à la fois sur l’ensemble de l’événement."
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le mot-clé event restreint l’accès extérieur aux seuls opérateurs d’abonnement (+=) et désabonnement (-=). Seule la classe déclarante a le droit d’invoquer ou de réassigner le délégué sous-jacent.'
     }
   ],

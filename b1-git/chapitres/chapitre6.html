@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -164,39 +162,55 @@ git archive --format=tar --prefix=dossier/ HEAD | gzip &gt; v1.4.0.tar.gz</code>
      data-exercise="gt-c6-e1"
      data-language="shell"
      data-height="300"
-     data-stdin="5&#10;modifie&#10;modifie&#10;stash&#10;etat&#10;pop&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+     data-stdin="5&#10;modifie app.txt brouillon&#10;stash&#10;etat&#10;pop&#10;etat&#10;">
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+echo "v0" > app.txt
+echo "d0" > doc.txt
+git add app.txt doc.txt
+git commit -q -m "init"
+
+read -r n
 for ((i=0; i<n; i++)); do
-  read -r op
-  # À compléter : une pile de remises et un compteur de copie.
+  read -r op arg1 arg2
+  # À compléter : modifie, git stash push -q, git stash pop -q, etat.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — stash : remiser et reprendre</h3>
+    <h3 class="lab__title">Exercice 1 — git stash push et git stash pop réels</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler git stash / stash pop : les modifications partent en attente puis reviennent.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>modifie</code> (une modification de plus sur la copie), <code>stash</code> (empile toute la copie : elle devient propre), <code>pop</code> (dépile : les modifications remises reviennent ; si la pile est vide, affiche <code>rien à reprendre</code>), ou <code>etat</code> (affiche <code>copie : K</code> et <code>remises : K</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser git stash et git stash pop sur des fichiers suivis pour mettre de côté des modifications en cours.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt où <code>app.txt</code> et <code>doc.txt</code> sont déjà suivis et commités, le script lit <strong>n opérations</strong> : <code>modifie fichier texte</code> (ajoute <code>texte</code> à <code>fichier</code>), <code>stash</code> (exécute <code>git stash push -q</code>), <code>pop</code> (exécute <code>git stash pop -q</code> ; si la pile est vide, affiche <code>rien à reprendre</code>), ou <code>etat</code> (affiche <code>copie : propre|modifiée</code> selon <code>git status --porcelain</code> et <code>remises : K</code> selon <code>git stash list | wc -l</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>5
-modifie
-modifie
+modifie app.txt brouillon
 stash
 etat
 pop
+etat
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>copie : 0
-remises : 1</pre></div>
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>copie : propre
+remises : 1
+copie : modifiée
+remises : 0</pre></div>
     </div>
+    <p class="lab__note">Le stash nettoie la copie ; pop la restaure et vide la pile.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>stash transfère tout le compteur de copie dans la pile : la copie repart à zéro.</li>
-        <li>pop rend ce qui était remisé : copie + remise dépilée.</li>
+        <li>git stash ne remise que des fichiers suivis (déjà présents dans app.txt ou doc.txt) sauf avec l’option -u.</li>
+        <li>git stash list | wc -l donne le nombre exact de remises empilées.</li>
+        <li>Si git stash pop -q &gt;/dev/null 2&gt;&amp;1 échoue sur une pile vide, affichez « rien à reprendre ».</li>
       </ol>
     </details>
   </div>
@@ -207,27 +221,36 @@ remises : 1</pre></div>
      data-language="shell"
      data-height="300"
      data-stdin="2&#10;*.log&#10;build/&#10;3&#10;add main.py&#10;add debug.log&#10;index&#10;">
-  <script type="text/plain" data-lab-starter>read -r g
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+
+read -r g
+: > .gitignore
 for ((i=0; i<g; i++)); do
   read -r motif
-  # À compléter : retenir les motifs.
+  echo "$motif" >> .gitignore
 done
 read -r n
 for ((i=0; i<n; i++)); do
   read -r op fichier
-  # À compléter : filtrer puis indexer.
+  # À compléter : mkdir -p, créer fichier, git add "$fichier" >/dev/null 2>&1 || echo "ignoré", et index.
 done
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — gitignore : filtrer les adds</h3>
+    <h3 class="lab__title">Exercice 2 — .gitignore réel et filtrage de git add</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les motifs .gitignore aux fichiers ajoutés à l’index.</p>
-    <div class="lab__brief"><p>Le script lit d’abord <strong>g motifs</strong> (un par ligne : un nom exact comme <code>build/</code> filtre le dossier build ; un suffixe comme <code>*.log</code> filtre tout fichier finissant par .log). Puis <strong>n opérations</strong> : <code>add fichier</code> ou <code>index</code>. Un add d’un fichier filtré est refusé avec <code>ignoré</code> ; l’index affiche ses fichiers, un par ligne, dans l’ordre.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Écrire un vrai fichier .gitignore et laisser Git refuser automatiquement l’ajout des fichiers ignorés.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt Git temporaire, le script lit d’abord <strong>g motifs</strong> à écrire dans <code>.gitignore</code> (ex. <code>*.log</code>, <code>build/</code>, <code>secret.txt</code>). Puis il lit <strong>n opérations</strong> : <code>add fichier</code> (crée le fichier et ses dossiers parents puis tente <code>git add "$fichier"</code> ; si Git le refuse car il correspond à <code>.gitignore</code>, affiche <code>ignoré</code>), ou <code>index</code> (affiche <code>git diff --cached --name-only</code>).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
 *.log
@@ -240,12 +263,13 @@ index
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>ignoré
 main.py</pre></div>
     </div>
-    <p class="lab__note">debug.log tombe sous le coup de *.log : l'add est refusé.</p>
+    <p class="lab__note">debug.log correspond à *.log : git add le refuse.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Deux familles de motifs : ceux qui finissent par / (dossier : le fichier commence par ce nom) et ceux qui commencent par * (suffixe).</li>
-        <li>Un motif exact sans * ni / filtre le fichier de ce nom exact.</li>
+        <li>Pour un chemin imbriqué comme build/output.o, créez d’abord les dossiers avec mkdir -p "$(dirname "$fichier")" avant touch "$fichier".</li>
+        <li>Sans -f, git add échoue avec un code non nul dès qu’un fichier correspond à une règle de .gitignore.</li>
+        <li>git diff --cached --name-only liste tous les fichiers effectivement acceptés dans l’index.</li>
       </ol>
     </details>
   </div>
@@ -255,42 +279,54 @@ main.py</pre></div>
      data-exercise="gt-c6-e3"
      data-language="shell"
      data-height="300"
-     data-stdin="4&#10;120 main.py&#10;30 README.md&#10;5 logo.png&#10;220 build.o&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+     data-stdin="4&#10;120 main.py&#10;30 README.md&#10;220 build/app.o&#10;50 notes.txt&#10;">
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+mkdir -p "$WORK/repo"
+cd "$WORK/repo" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+printf '*.o\nbuild/\n' > .gitignore
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r taille nom
-  # À compléter : cumuler, chercher le max, retenir les fichiers.
+  # À compléter : créer le fichier à la taille exacte, tenter git add "$nom" 2>/dev/null || true.
 done
-# À compléter : le rapport complet.
+# À compléter : commiter, exécuter git archive --format=tar -o "$WORK/release.tar" HEAD, lister et sommer les tailles.
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — archive : le rapport de version</h3>
+    <h3 class="lab__title">Exercice 3 — git archive : exporter une livraison propre</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Produire le récapitulatif d’une version : fichiers versionnés, ignorés exclus, taille totale.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>taille nom</code> (taille en Ko, nom de fichier). Il affiche un rapport : <code>fichiers : K</code>, <code>taille : T</code> (somme des tailles, T en Ko), <code>plus gros : NOM</code> (premier fichier de taille maximale), puis la liste des fichiers de taille strictement supérieure à la moyenne entière (somme ÷ nombre, division entière), un par ligne, dans l’ordre d’entrée — ou rien si aucun.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Construire un dépôt avec .gitignore, commiter les sources et générer une archive tar avec git archive.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> <code>taille nom</code> (taille en octets, chemin de fichier). Dans un vrai dépôt configuré avec un <code>.gitignore</code> excluant <code>*.o</code> et <code>build/</code>, créez chaque fichier avec la taille exacte demandée (<code>dd</code> ou <code>truncate</code>), tentez <code>git add "$nom"</code> (les fichiers ignorés sont rejetés automatiquement par Git), puis commitez et exportez une archive avec <code>git archive --format=tar -o release.tar HEAD</code>. Affichez les fichiers réellement inclus dans <code>release.tar</code> (<code>tar -tf release.tar | sort</code>), suivis de <code>fichiers : K</code> et <code>taille : T</code> (octets archivés).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 120 main.py
 30 README.md
-5 logo.png
-220 build.o
+220 build/app.o
+50 notes.txt
 </pre></div>
-      <div class="lab__sample-part"><b>Sortie attendue</b><pre>fichiers : 4
-taille : 375
-plus gros : build.o
+      <div class="lab__sample-part"><b>Sortie attendue</b><pre>README.md
 main.py
-build.o</pre></div>
+notes.txt
+fichiers : 3
+taille : 200</pre></div>
     </div>
+    <p class="lab__note">build/app.o est exclu par .gitignore et ne figure pas dans release.tar.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>La moyenne entière se calcule après la boucle : division entière de la somme par n.</li>
-        <li>Un tableau parallèle noms/tailles permet un second passage pour la liste.</li>
+        <li>Pour créer un fichier d’exactement $taille octets sans zéro binaire superflu dans Git, printf '%*s' "$taille" '' &gt; "$nom" ou head -c "$taille" /dev/zero &gt; "$nom" fonctionne.</li>
+        <li>Exécutez git add "$nom" &gt;/dev/null 2&gt;&amp;1 || true : Git n’ajoutera que les fichiers non couverts par .gitignore.</li>
+        <li>Après git commit et git archive --format=tar -o "$WORK/release.tar" HEAD, parcourez tar -tf "$WORK/release.tar" | sort (en ignorant les répertoires terminant par /) et additionnez wc -c &lt; "$f".</li>
       </ol>
     </details>
   </div>
@@ -303,35 +339,35 @@ build.o</pre></div>
     <div class="q">
       <p class="q__stem">Que fait git stash ?</p>
       <div class="opts">
-        <button class="opt">Il commite</button>
         <button class="opt" data-correct="1">Il remise les modifications et rend la copie propre</button>
-        <button class="opt">Il pousse</button>
+        <button class="opt">Il crée un commit provisoire dans l'historique</button>
+        <button class="opt">Il pousse les modifications vers le dépôt distant</button>
       </div>
       <div class="q__exp">stash empile les modifications de la copie : elle redevient propre, rien ne se perd.</div>
     </div>
     <div class="q">
       <p class="q__stem">git stash pop fait quoi ?</p>
       <div class="opts">
-        <button class="opt">Ajoute une remise</button>
+        <button class="opt">Ajoute une nouvelle remise au sommet de la pile</button>
+        <button class="opt">Liste les remises en attente sans y toucher</button>
         <button class="opt" data-correct="1">Reprend la remise la plus récente et la retire de la pile</button>
-        <button class="opt">Liste les remises</button>
       </div>
       <div class="q__exp">pop dépile : les modifications remises reviennent dans la copie de travail.</div>
     </div>
     <div class="q">
       <p class="q__stem">pop sur une pile vide…</p>
       <div class="opts">
-        <button class="opt">crée une remise vide</button>
+        <button class="opt">crée une remise vide pour la prochaine fois</button>
+        <button class="opt">efface le contenu de la copie de travail</button>
         <button class="opt" data-correct="1">signale qu'il n'y a rien à reprendre</button>
-        <button class="opt">efface la copie</button>
       </div>
       <div class="q__exp">Sans remise en attente, pop n'a rien à rendre — l'atelier reproduit ce cas.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel .gitignore pour un projet Python du TP1 ?</p>
       <div class="opts">
-        <button class="opt">*.py seulement</button>
         <button class="opt" data-correct="1">__pycache__/, *.pyc, venv/</button>
+        <button class="opt">*.py seulement</button>
         <button class="opt">main.py</button>
       </div>
       <div class="q__exp">Cache d'exécution, fichiers compilés et environnement virtuel : les trois pollutions du TP1.</div>
@@ -339,36 +375,36 @@ build.o</pre></div>
     <div class="q">
       <p class="q__stem">Comment vérifier ce que le .gitignore exclut ?</p>
       <div class="opts">
-        <button class="opt">git status</button>
+        <button class="opt">git status, qui liste aussi les fichiers ignorés</button>
         <button class="opt" data-correct="1">git ls-files --other --ignored --exclude-standard</button>
-        <button class="opt">git diff</button>
+        <button class="opt">git diff, qui compare l'index et la copie de travail</button>
       </div>
       <div class="q__exp">Cette commande liste tous les fichiers exclus du suivi dans le projet.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que produit git archive ?</p>
       <div class="opts">
-        <button class="opt">Un clone du dépôt</button>
         <button class="opt" data-correct="1">Une archive de la version courante sans le dossier .git</button>
-        <button class="opt">Un commit spécial</button>
+        <button class="opt">Un clone complet du dépôt avec son historique</button>
+        <button class="opt">Un commit spécial versé dans l'historique</button>
       </div>
       <div class="q__exp">archive livre la branche courante en tar/tar.gz, préfixe de dossier au choix.</div>
     </div>
     <div class="q">
       <p class="q__stem">Où active-t-on GitHub Pages ?</p>
       <div class="opts">
-        <button class="opt">Dans le README</button>
+        <button class="opt">Dans le fichier README du dépôt principal</button>
+        <button class="opt">Dans le fichier .gitignore à la racine</button>
         <button class="opt" data-correct="1">Settings → Pages, branch main, dossier /root</button>
-        <button class="opt">Dans .gitignore</button>
       </div>
       <div class="q__exp">Le service se règle dans Settings → Pages : il sert l'URL user.github.io/depot.</div>
     </div>
     <div class="q">
       <p class="q__stem">Stash ou commit avant de changer de branche ?</p>
       <div class="opts">
-        <button class="opt">Toujours commit</button>
+        <button class="opt">Toujours commiter, même un chantier inachevé</button>
         <button class="opt" data-correct="1">stash si le travail est en cours et ne mérite pas une trace</button>
-        <button class="opt">Aucun des deux</button>
+        <button class="opt">Aucun des deux : checkout bascule sans rien perdre</button>
       </div>
       <div class="q__exp">stash remise sans polluer l'historique : idéal pour un chantier inachevé.</div>
     </div>
@@ -491,7 +527,7 @@ build.o</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

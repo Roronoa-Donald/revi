@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c4-e1) — Contrôleur de conformité des flux de sécurité DMZ\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tentative de connexion WAN directe vers le LAN]\n# Données : FLOW id=W1 src_zone=WAN dst_zone=LAN dport=22\n# Données : FLOW id=W2 src_zone=WAN dst_zone=DMZ dport=80\nA_COMPLETER\n\n[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]\n# Données : FLOW id=L1 src_zone=LAN dst_zone=DMZ dport=3306\n# Données : FLOW id=L2 src_zone=LAN dst_zone=DMZ dport=139\n# Données : FLOW id=D1 src_zone=DMZ dst_zone=WAN dport=443\n# Données : FLOW id=D2 src_zone=DMZ dst_zone=WAN dport=22\nA_COMPLETER\n\n[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]\n# Données : FLOW id=N1 src_zone=LAN dst_zone=WAN dport=80\n# Données : FLOW id=N2 src_zone=LAN dst_zone=WAN dport=6667\nA_COMPLETER\n",
     "hints": [
       "Traiter en priorité les violations absolues (DMZ->LAN et WAN->LAN).",
-      "Vérifier si le port destination fait partie de la liste blanche autorisée pour le couple (src, dst)."
+      "Vérifier si le port destination fait partie de la liste blanche autorisée pour le couple (src, dst).",
+      "Traiter chaque flux : interdictions absolues d’abord (DMZ vers LAN, WAN vers LAN), puis contrôle du port destination contre la liste blanche du couple de zones pour statuer CONFORME ou non."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "AUDIT flow=N1 status=CONFORME\nAUDIT flow=N2 status=SERVICE_NON_AUTORISE"
       }
     ],
-    "solution": "[Exemple]\nAUDIT flow=F1 status=CONFORME\nAUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN\n\n[Cas 1 — Tentative de connexion WAN directe vers le LAN]\nAUDIT flow=W1 status=VIOLATION_WAN_VERS_LAN_INTERDIT\nAUDIT flow=W2 status=CONFORME\n\n[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]\nAUDIT flow=L1 status=CONFORME\nAUDIT flow=L2 status=SERVICE_NON_AUTORISE\nAUDIT flow=D1 status=CONFORME\nAUDIT flow=D2 status=SERVICE_NON_AUTORISE\n\n[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]\nAUDIT flow=N1 status=CONFORME\nAUDIT flow=N2 status=SERVICE_NON_AUTORISE"
+    "solution": "[Exemple]\nAUDIT flow=F1 status=CONFORME\nAUDIT flow=F2 status=VIOLATION_CRITIQUE_DMZ_VERS_LAN\n\n[Cas 1 — Tentative de connexion WAN directe vers le LAN]\nAUDIT flow=W1 status=VIOLATION_WAN_VERS_LAN_INTERDIT\nAUDIT flow=W2 status=CONFORME\n\n[Cas 2 — Flux applicatif LAN vers base de données DMZ et service non autorisé]\nAUDIT flow=L1 status=CONFORME\nAUDIT flow=L2 status=SERVICE_NON_AUTORISE\nAUDIT flow=D1 status=CONFORME\nAUDIT flow=D2 status=SERVICE_NON_AUTORISE\n\n[Cas 3 — Navigation LAN vers Internet WAN légitime et interdite]\nAUDIT flow=N1 status=CONFORME\nAUDIT flow=N2 status=SERVICE_NON_AUTORISE",
+    "takeaway": "En DMZ, aucun flux entrant non sollicité ne doit joindre directement le LAN sans traverser un relais applicatif ou une politique stricte."
   },
   {
     "id": "fw3-c4-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c4-e2) — Évaluateur d’architectures et topologies pare-feu\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]\n# Données : TOPOLOGY nom=PME_Site firewalls=1 zones=LAN,DMZ,WAN constructeurs=1\nA_COMPLETER\n\n[Cas 2 — Routeur basique sans DMZ]\n# Données : TOPOLOGY nom=Agence_Locale firewalls=1 zones=LAN,WAN constructeurs=1\nA_COMPLETER\n\n[Cas 3 — Back-to-back avec équipements du même fabricant]\n# Données : TOPOLOGY nom=Campus_Univ firewalls=2 zones=LAN,DMZ,WAN constructeurs=1\nA_COMPLETER\n",
     "hints": [
       "Compter le nombre de pare-feux et la présence de la zone DMZ.",
-      "Distinguer les topologies Back-to-Back selon le nombre de constructeurs différents."
+      "Distinguer les topologies Back-to-Back selon le nombre de constructeurs différents.",
+      "Identifier le modèle : un pare-feu sans DMZ = dual-homed ; un pare-feu avec DMZ = triple-homed ; deux pare-feux = back-to-back, homogène ou hétérogène selon le nombre de constructeurs."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "TOPOLOGY_AUDIT nom=Campus_Univ arch=BACK_TO_BACK_HOMOGENE score=8/10 verdict=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE"
       }
     ],
-    "solution": "[Exemple]\nTOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR\n\n[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]\nTOPOLOGY_AUDIT nom=PME_Site arch=TRIPLE_HOMED score=7/10 verdict=ACCEPTABLE_SPOF_FIREWALL_UNIQUE\n\n[Cas 2 — Routeur basique sans DMZ]\nTOPOLOGY_AUDIT nom=Agence_Locale arch=DUAL_HOMED score=4/10 verdict=INSUFFISANT_PAS_DE_DMZ\n\n[Cas 3 — Back-to-back avec équipements du même fabricant]\nTOPOLOGY_AUDIT nom=Campus_Univ arch=BACK_TO_BACK_HOMOGENE score=8/10 verdict=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE"
+    "solution": "[Exemple]\nTOPOLOGY_AUDIT nom=Siege_Banque arch=BACK_TO_BACK_HETEROGENE score=9/10 verdict=EXCELLENT_DEFENSE_EN_PROFONDEUR\n\n[Cas 1 — Petite entreprise avec un seul pare-feu 3 pattes]\nTOPOLOGY_AUDIT nom=PME_Site arch=TRIPLE_HOMED score=7/10 verdict=ACCEPTABLE_SPOF_FIREWALL_UNIQUE\n\n[Cas 2 — Routeur basique sans DMZ]\nTOPOLOGY_AUDIT nom=Agence_Locale arch=DUAL_HOMED score=4/10 verdict=INSUFFISANT_PAS_DE_DMZ\n\n[Cas 3 — Back-to-back avec équipements du même fabricant]\nTOPOLOGY_AUDIT nom=Campus_Univ arch=BACK_TO_BACK_HOMOGENE score=8/10 verdict=TRES_BON_VULNERABILITE_COMMUNE_POSSIBLE",
+    "takeaway": "Une architecture multi-couches sépare filtrage périmétrique et pare-feu interne pour éviter tout point de défaillance sécuritaire unique."
   },
   {
     "id": "fw3-c4-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c4-e3) — Passerelle d’administration sécurisée et Bastion SSH / Jump Host\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Connexion directe avec port non SSH]\n# Données : ACCESS_REQ id=T1 user=bob target_zone=PROD port=80 via_bastion=NON mfa_valid=NON\nA_COMPLETER\n\n[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]\n# Données : ACCESS_REQ id=T2 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=NON\n# Données : ACCESS_REQ id=T3 user=charlie target_zone=BASTION port=22 via_bastion=NON mfa_valid=OUI\nA_COMPLETER\n\n[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]\n# Données : ACCESS_REQ id=T4 user=david target_zone=PROD port=22 via_bastion=OUI mfa_valid=NON\nA_COMPLETER\n",
     "hints": [
       "Vérifier d’abord le port SSH (22).",
-      "Exiger obligatoirement le passage par le bastion et le MFA valide pour la zone PROD."
+      "Exiger obligatoirement le passage par le bastion et le MFA valide pour la zone PROD.",
+      "1. Port différent de 22 : refus. 2. Zone PROD : exiger le passage par le bastion et un MFA valide. 3. Autres zones : appliquer les règles restantes du brief avant de trancher."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "BASTION_GATEWAY req=T4 decision=DENY motif=MFA_REQUIS"
       }
     ],
-    "solution": "[Exemple]\nBASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION\nBASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE\n\n[Cas 1 — Connexion directe avec port non SSH]\nBASTION_GATEWAY req=T1 decision=DENY motif=PORT_NON_ADMINISTRATIF\n\n[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]\nBASTION_GATEWAY req=T2 decision=DENY motif=MFA_REQUIS\nBASTION_GATEWAY req=T3 decision=PERMIT motif=AUTHENTIFICATION_BASTION_OK\n\n[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]\nBASTION_GATEWAY req=T4 decision=DENY motif=MFA_REQUIS"
+    "solution": "[Exemple]\nBASTION_GATEWAY req=R1 decision=DENY motif=ACCES_DIRECT_INTERDIT_PASSER_PAR_BASTION\nBASTION_GATEWAY req=R2 decision=PERMIT motif=SESSION_BASTION_VALIDEE\n\n[Cas 1 — Connexion directe avec port non SSH]\nBASTION_GATEWAY req=T1 decision=DENY motif=PORT_NON_ADMINISTRATIF\n\n[Cas 2 — Échec MFA lors de la tentative de connexion au bastion]\nBASTION_GATEWAY req=T2 decision=DENY motif=MFA_REQUIS\nBASTION_GATEWAY req=T3 decision=PERMIT motif=AUTHENTIFICATION_BASTION_OK\n\n[Cas 3 — Passage par bastion mais sans validation MFA vers PROD]\nBASTION_GATEWAY req=T4 decision=DENY motif=MFA_REQUIS",
+    "takeaway": "Centraliser les connexions SSH d’administration via un bastion journalisé réduit l’exposition directe des serveurs critiques."
   }
 ];

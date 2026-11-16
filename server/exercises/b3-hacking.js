@@ -4,201 +4,272 @@ module.exports = [
   {
     "id": "hk3-c1-e1",
     "chapter": 1,
-    "title": "Calculateur de Score CVSS v3.1 Base Metrics",
     "level": "n1",
     "language": "analyse",
-    "goal": "Calculer le sous-score d'exploitabilité, d'impact et le Base Score CVSS v3.1 d'une vulnérabilité avec sa sévérité.",
-    "brief": "<p>Le standard CVSS v3.1 (Common Vulnerability Scoring System) quantifie la sévérité d'une faille de sécurité.<br><br>\nMétriques de base (Scope Unchanged 'U') :<br>\n- <code>AV</code> (Attack Vector) : Network (N)=0.85, Adjacent (A)=0.62, Local (L)=0.55, Physical (P)=0.20<br>\n- <code>AC</code> (Attack Complexity) : Low (L)=0.77, High (H)=0.44<br>\n- <code>PR</code> (Privileges Required) : None (N)=0.85, Low (L)=0.62, High (H)=0.27<br>\n- <code>UI</code> (User Interaction) : None (N)=0.85, Required (R)=0.62<br>\n- <code>C, I, A</code> (Confidentiality, Integrity, Availability) : None (N)=0.0, Low (L)=0.22, High (H)=0.56<br><br>\nFormules (Scope Unchanged) :<br>\n1. <code>Exploitability = 8.22 * AV * AC * PR * UI</code><br>\n2. <code>ISS = 1.0 - ((1.0 - C) * (1.0 - I) * (1.0 - A))</code><br>\n3. <code>Impact = 6.42 * ISS</code><br>\n4. Si <code>Impact &lt;= 0</code> : <code>BaseScore = 0.0</code><br>\n   Sinon : <code>BaseScore = min(10.0, math.ceil(round(Impact + Exploitability, 4) * 10) / 10.0)</code><br><br>\nSévérités CVSS v3.1 :<br>\n- <code>0.0</code> : <code>NONE</code><br>\n- <code>0.1 à 3.9</code> : <code>LOW</code><br>\n- <code>4.0 à 6.9</code> : <code>MEDIUM</code><br>\n- <code>7.0 à 8.9</code> : <code>HIGH</code><br>\n- <code>9.0 à 10.0</code> : <code>CRITICAL</code><br><br>\nDonnées du cas : <code>CVSS_CALC AV=&lt;N|A|L|P&gt; AC=&lt;L|H&gt; PR=&lt;N|L|H&gt; UI=&lt;N|R&gt; C=&lt;N|L|H&gt; I=&lt;N|L|H&gt; A=&lt;N|L|H&gt;</code>.<br>\nRésultat d’analyse attendu : <code>CVSS: exploitability=&lt;exp:.2f&gt; impact=&lt;imp:.2f&gt; base_score=&lt;score:.1f&gt; severity=&lt;sev&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c1-e1) — Calculateur de Score CVSS v3.1 Base Metrics\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vulnérabilité locale avec interaction utilisateur et impact moyen]\n# Données : CVSS_CALC AV=L AC=L PR=N UI=R C=L I=L A=N\nA_COMPLETER\n\n[Cas 2 — Vulnérabilité réseau complexe nécessitant hauts privilèges]\n# Données : CVSS_CALC AV=N AC=H PR=H UI=N C=H I=N A=N\nA_COMPLETER\n\n[Cas 3 — Aucun impact de sécurité (Impact nul -> score 0.0)]\n# Données : CVSS_CALC AV=N AC=L PR=N UI=N C=N I=N A=N\nA_COMPLETER\n",
+    "title": "Le mandat du pentest de la mairie de Saint-Amand",
+    "exampleTitle": "Exemple résolu — le mandat de la médiathèque de Pont-Céran",
+    "goal": "Lire un mandat de test d'intrusion et identifier les garanties juridiques qui protègent l'auditeur.",
+    "brief": "<p><strong>Énoncé.</strong> La mairie de Saint-Amand, 12 400 habitants, vient d'ouvrir son portail de démarches en ligne. Pour le sécuriser, elle confie un test d'intrusion à la société Vexin Sécurité. Le contrat, signé par le maire et par le directeur de l'audit, précise :</p><ul><li><strong>Périmètre</strong> : le portail demarches.saint-amand.fr et son serveur web (51.75.12.40), à l'exclusion de tout autre équipement ;</li><li><strong>Fenêtre d'intervention</strong> : trois semaines consécutives, du 4 au 24 mars, jours ouvrés, de 9 h à 18 h ;</li><li><strong>Techniques interdites</strong> : attaques par déni de service, ingénierie sociale des agents municipaux ;</li><li><strong>Livrables</strong> : rapport d'audit et restitution devant la commission numérique.</li></ul><p>Répondez par un mot ou un article pour les questions 1 à 3 et 5, par un nombre pour la question 4.</p><ol><li>Quel article du Code pénal punit l'accès frauduleux à un système de traitement automatisé de données, et auquel seul le mandat signé permet d'échapper ?</li><li>Quel document contractuel fixe le périmètre, la fenêtre horaire et les techniques interdites ?</li><li>Comment désigne-t-on un auditeur qui ne teste des systèmes qu'avec une autorisation écrite ?</li><li>Combien de semaines la fenêtre d'intervention couvre-t-elle ?</li><li>Les attaques par déni de service sont interdites par le contrat : quel acronyme anglais de trois lettres désigne ce type d'attaque ?</li></ol>",
+    "starter": "# Exercice — Le mandat du pentest de la mairie de Saint-Amand\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 3 et 5 : un mot ou un article. Question 4 : un nombre.\n\n[Question 1 — Article du Code pénal couvrant l'accès frauduleux]\nA_COMPLETER\n\n[Question 2 — Document contractuel fixant périmètre, fenêtre et interdits]\nA_COMPLETER\n\n[Question 3 — Type d'auditeur testant uniquement avec autorisation]\nA_COMPLETER\n\n[Question 4 — Nombre de semaines de la fenêtre d'intervention]\nA_COMPLETER\n\n[Question 5 — Acronyme anglais du déni de service]\nA_COMPLETER\n",
     "hints": [
-      "Créez des dictionnaires pour les pondérations numériques de chaque métrique.",
-      "Calculez ISS = 1.0 - ((1.0 - C) * (1.0 - I) * (1.0 - A)) puis Impact = 6.42 * ISS.",
-      "Arrondissez au dixième supérieur : math.ceil(round(Impact + Exploitability, 4) * 10) / 10.0."
+      "Sans autorisation, l'auditeur commet une infraction : cherchez l'article du Code pénal qui réprime l'accès frauduleux à un système de traitement automatisé de données.",
+      "Le document qui liste périmètre, créneau horaire et techniques interdites porte le même nom que celui d'un avocat mandaté par un client.",
+      "L'auditeur contractuel est appelé « chapeau blanc » en français ; l'acronyme anglais du déni de service s'écrit avec trois lettres."
     ],
     "examples": [
       {
-        "stdin": "CVSS_CALC AV=N AC=L PR=N UI=N C=H I=H A=H",
-        "expected": "CVSS: exploitability=3.89 impact=5.87 base_score=9.8 severity=CRITICAL",
-        "note": "RCE non-authentifiée à distance critique maximale (Impact et exploitabilité élevés)."
+        "stdin": "La médiathèque de Pont-Céran confie un audit à l'ESN Calme Audit.\nPérimètre : portail reservations.pont-ceran.fr et son serveur (203.0.113.20).\nFenêtre : deux semaines consécutives, du 2 au 15 octobre, de 8 h à 17 h.\nInterdits : déni de service et hameçonnage du personnel.\n\n1) Sans mandat signé, l'accès frauduleux relèverait de l'article 323-1 du Code pénal.\n2) Le document qui fixe périmètre, fenêtre et interdits est le mandat.\n3) L'auditeur autorisé est un white hat.\n4) La fenêtre couvre 2 semaines.\n5) L'acronyme du déni de service est DoS.",
+        "expected": "article 323-1 — le mandat — white hat — 2 semaines — DoS",
+        "note": "Le mandat transforme un acte pénalement répréhensible en prestation contractuelle : sans lui, aucune excuse technique ne protège l'auditeur."
       }
     ],
     "tests": [
       {
-        "label": "Vulnérabilité locale avec interaction utilisateur et impact moyen",
-        "stdin": "cas:1",
-        "expected": "CVSS: exploitability=1.83 impact=2.51 base_score=4.4 severity=MEDIUM"
+        "label": "Question 1 — Article du Code pénal",
+        "stdin": "q:1",
+        "expected": "323-1||l'article 323-1||article 323-1||323 1"
       },
       {
-        "label": "Vulnérabilité réseau complexe nécessitant hauts privilèges",
-        "stdin": "cas:2",
-        "expected": "CVSS: exploitability=0.71 impact=3.60 base_score=4.4 severity=MEDIUM"
+        "label": "Question 2 — Document contractuel",
+        "stdin": "q:2",
+        "expected": "le mandat||mandat||le contrat||les règles d'engagement||règles d'engagement||le mandat de test d'intrusion"
       },
       {
-        "label": "Aucun impact de sécurité (Impact nul -> score 0.0)",
-        "stdin": "cas:3",
-        "expected": "CVSS: exploitability=3.89 impact=0.00 base_score=0.0 severity=NONE"
+        "label": "Question 3 — Type d'auditeur",
+        "stdin": "q:3",
+        "expected": "white hat||un white hat||chapeau blanc||pirate éthique||un pirate éthique"
+      },
+      {
+        "label": "Question 4 — Nombre de semaines",
+        "stdin": "q:4",
+        "expected": "3||trois"
+      },
+      {
+        "label": "Question 5 — Acronyme du déni de service",
+        "stdin": "q:5",
+        "expected": "dos||DoS||DOS||le DoS||déni de service"
       }
     ],
-    "solution": "[Exemple]\nCVSS: exploitability=3.89 impact=5.87 base_score=9.8 severity=CRITICAL\n\n[Cas 1 — Vulnérabilité locale avec interaction utilisateur et impact moyen]\nCVSS: exploitability=1.83 impact=2.51 base_score=4.4 severity=MEDIUM\n\n[Cas 2 — Vulnérabilité réseau complexe nécessitant hauts privilèges]\nCVSS: exploitability=0.71 impact=3.60 base_score=4.4 severity=MEDIUM\n\n[Cas 3 — Aucun impact de sécurité (Impact nul -> score 0.0)]\nCVSS: exploitability=3.89 impact=0.00 base_score=0.0 severity=NONE"
+    "solution": "[Question 1 — Article du Code pénal couvrant l'accès frauduleux]\n323-1\n\n[Question 2 — Document contractuel fixant périmètre, fenêtre et interdits]\nle mandat\n\n[Question 3 — Type d'auditeur testant uniquement avec autorisation]\nwhite hat\n\n[Question 4 — Nombre de semaines de la fenêtre d'intervention]\n3\n\n[Question 5 — Acronyme anglais du déni de service]\ndos",
+    "takeaway": "1) L'article 323-1 du Code pénal réprime l'accès ou le maintien frauduleux dans un système de traitement automatisé de données : seul le mandat signé autorise l'auditeur.\n2) C'est le mandat (les règles d'engagement) qui fixe le périmètre, la fenêtre horaire et les techniques interdites.\n3) Un auditeur qui ne teste qu'avec autorisation écrite est un white hat, par opposition aux grey hat et black hat.\n4) La fenêtre d'intervention couvre 3 semaines consécutives, du 4 au 24 mars.\n5) Le déni de service se désigne par l'acronyme anglais DoS (Denial of Service).\nContrôle : périmètre, fenêtre et interdits figurent tous les trois dans le mandat ; toute action hors de ces limites sortirait du cadre contractuel et redeviendrait une infraction."
   },
   {
     "id": "hk3-c1-e2",
     "chapter": 1,
-    "title": "Validateur de Règles d'Engagement (RoE) et Périmètre d'Audit",
     "level": "n2",
     "language": "analyse",
-    "goal": "Vérifier qu'une action d'audit de sécurité respecte le contrat de mandat de pentest (IP, ports, techniques interdites, créneau horaire).",
-    "brief": "<p>Dans un test d'intrusion éthique, toute action en dehors des Règles d'Engagement (RoE) constitue une faute juridique grave (art. 323-1 du Code Pénal).<br><br>\nOpérations soumises à l’analyse :<br>\n1. <code>ROE_CONFIG target_ips=&lt;ip1,ip2,...&gt; allowed_ports=&lt;p1,p2,...&gt; forbidden_techniques=&lt;t1,t2,...&gt; window=&lt;start_h-end_h&gt;</code> : configure le périmètre.<br>\n2. <code>AUDIT_ACTION ip=&lt;ip&gt; port=&lt;p&gt; technique=&lt;tech&gt; hour=&lt;h&gt;</code> : soumet une action à validation.<br><br>\nRègles de validation (évaluées dans cet ordre précis) :<br>\n1. Si l'IP n'est pas dans <code>target_ips</code> : <code>DENIED: reason=OUT_OF_SCOPE_IP target=&lt;ip&gt;</code><br>\n2. Si le port n'est pas dans <code>allowed_ports</code> : <code>DENIED: reason=FORBIDDEN_PORT port=&lt;p&gt;</code><br>\n3. Si la technique est dans <code>forbidden_techniques</code> : <code>DENIED: reason=PROHIBITED_TECHNIQUE technique=&lt;tech&gt;</code><br>\n4. Si l'heure <code>h</code> est strictement hors créneau <code>start_h &lt;= h &lt;= end_h</code> : <code>DENIED: reason=OUTSIDE_TIME_WINDOW hour=&lt;h&gt;</code><br>\n5. Sinon : <code>PERMITTED: target=&lt;ip&gt;:&lt;p&gt; technique=&lt;tech&gt; status=AUTHORIZED</code></p>",
-    "starter": "# Grille d'analyse (hk3-c1-e2) — Validateur de Règles d'Engagement (RoE) et Périmètre d'Audit\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Rejet IP hors périmètre (Out of scope)]\n# Données : ROE_CONFIG target_ips=10.0.0.5 allowed_ports=80,443 forbidden_techniques=DOS window=09-17\n# Données : AUDIT_ACTION ip=10.0.0.99 port=80 technique=DIR_BRUTEFORCE hour=10\nA_COMPLETER\n\n[Cas 2 — Rejet technique prohibée par le mandat (Déni de service)]\n# Données : ROE_CONFIG target_ips=172.16.0.10 allowed_ports=80,443 forbidden_techniques=DOS,EXPLOIT_BRUTEFORCE window=08-20\n# Données : AUDIT_ACTION ip=172.16.0.10 port=80 technique=DOS hour=11\nA_COMPLETER\n\n[Cas 3 — Rejet action exécutée en dehors de la fenêtre horaire convenue]\n# Données : ROE_CONFIG target_ips=192.168.10.50 allowed_ports=22,80 forbidden_techniques=EXPLOIT_UNAPPROVED window=20-23\n# Données : AUDIT_ACTION ip=192.168.10.50 port=22 technique=SSH_AUDIT hour=15\nA_COMPLETER\n",
+    "title": "Le score CVSS de la faille de l'espace client d'Aérovel",
+    "exampleTitle": "Exemple résolu — la divulgation d'informations du site de Rivery",
+    "goal": "Calculer les sous-scores et le score de base CVSS v3.1 d'une vulnérabilité déclarée en bug bounty.",
+    "brief": "<p><strong>Énoncé.</strong> La compagnie régionale Aérovel publie un programme de bug bounty pour son espace client. Un chasseur de primes y découvre une injection côté serveur et la déclare avec les métriques CVSS v3.1 suivantes (portée inchangée) :</p><table><tr><th>Métrique</th><th>Valeur retenue</th><th>Poids</th></tr><tr><th>AV — vecteur d'attaque</th><td>Réseau (N)</td><td>0,85</td></tr><tr><th>AC — complexité d'attaque</th><td>Faible (L)</td><td>0,77</td></tr><tr><th>PR — privilèges requis</th><td>Bas (L)</td><td>0,62</td></tr><tr><th>UI — interaction utilisateur</th><td>Aucune (N)</td><td>0,85</td></tr><tr><th>C — confidentialité</th><td>Totale (H)</td><td>0,56</td></tr><tr><th>I — intégrité</th><td>Faible (L)</td><td>0,22</td></tr><tr><th>A — disponibilité</th><td>Aucune (N)</td><td>0,00</td></tr></table><p>Rappels du cours (portée inchangée) : <code>Exploitabilité = 8,22 × AV × AC × PR × UI</code> ; <code>ISS = 1 − (1 − C)(1 − I)(1 − A)</code> ; <code>Impact = 6,42 × ISS</code> ; <code>Score de base = arrondi au dixième supérieur de (Impact + Exploitabilité)</code>, plafonné à 10.</p><p>Pour les questions 1 à 3, donnez les valeurs arrondies à deux décimales avec une virgule ; la question 2 demande quatre décimales.</p><ol><li>Quel est le sous-score d'exploitabilité ?</li><li>Que vaut l'ISS ?</li><li>Quel est le sous-score d'impact ?</li><li>Quel est le score de base CVSS, arrondi au dixième ?</li><li>Quelle est la sévérité de la faille selon CVSS v3.1 ?</li><li>À partir de quel score une vulnérabilité est-elle qualifiée de critique ?</li></ol>",
+    "starter": "# Exercice — Le score CVSS de la faille de l'espace client d'Aérovel\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : valeurs numériques, séparateur virgule. Questions 5 et 6 : un mot / un nombre.\n\n[Question 1 — Sous-score d'exploitabilité]\nA_COMPLETER\n\n[Question 2 — Valeur de l'ISS (quatre décimales)]\nA_COMPLETER\n\n[Question 3 — Sous-score d'impact]\nA_COMPLETER\n\n[Question 4 — Score de base CVSS]\nA_COMPLETER\n\n[Question 5 — Sévérité de la faille]\nA_COMPLETER\n\n[Question 6 — Score minimum d'une vulnérabilité critique]\nA_COMPLETER\n",
     "hints": [
-      "Stockez target_ips, allowed_ports et forbidden_techniques sous forme d'ensembles (set) pour des tests efficaces.",
-      "Découpez window sur le tiret pour obtenir start_h et end_h convertis en int.",
-      "Validez les conditions séquentiellement dès qu'une règle de sécurité est violée."
+      "Multipliez d'abord les quatre poids d'exploitabilité entre eux, puis par 8,22 : AV, AC, PR et UI se combinent multiplicativement.",
+      "L'ISS se calcule avec les impacts C, I et A : chaque impact laisse « passer » (1 − valeur), et l'ISS complète ce qui n'est pas passé.",
+      "Pour l'ordre de grandeur : une sévérité est moyenne de 4,0 à 6,9, élevée de 7,0 à 8,9 et critique à partir de 9,0 ; le score final s'arrondit au dixième supérieur."
     ],
     "examples": [
       {
-        "stdin": "ROE_CONFIG target_ips=192.168.1.10,192.168.1.20 allowed_ports=80,443,22 forbidden_techniques=DOS,SOCIAL_ENG window=08-18\nAUDIT_ACTION ip=192.168.1.10 port=443 technique=PORT_SCAN hour=14",
-        "expected": "PERMITTED: target=192.168.1.10:443 technique=PORT_SCAN status=AUTHORIZED",
-        "note": "Action autorisée dans le périmètre et pendant le créneau contractuel."
+        "stdin": "La ville de Rivery récompense la divulgation responsable des failles de son site.\nUne divulgation d'informations est déclarée avec : AV=N (0,85), AC=L (0,77), PR=N (0,85), UI=N (0,85),\nC=L (0,22), I=N (0,00), A=N (0,00).\n\n1) Exploitabilité : 8,22 × 0,85 × 0,77 × 0,85 × 0,85 = 3,89.\n2) ISS : 1 − (1 − 0,22)(1 − 0)(1 − 0) = 0,22.\n3) Impact : 6,42 × 0,22 = 1,41.\n4) Score de base : arrondi au dixième supérieur de (1,41 + 3,89) = 5,3.\n5) Sévérité : moyenne.\n6) Une faille est critique à partir de 9,0.",
+        "expected": "exploitabilité 3,89 — ISS 0,22 — impact 1,41 — score 5,3 — sévérité moyenne — critique à partir de 9,0",
+        "note": "Une exploitabilité élevée (3,89) avec un impact faible (1,41) donne un score moyen : les deux sous-scores se combinent selon la formule, jamais à la main."
       }
     ],
     "tests": [
       {
-        "label": "Rejet IP hors périmètre (Out of scope)",
-        "stdin": "cas:1",
-        "expected": "DENIED: reason=OUT_OF_SCOPE_IP target=10.0.0.99"
+        "label": "Question 1 — Sous-score d'exploitabilité",
+        "stdin": "q:1",
+        "expected": "2,84||2.84"
       },
       {
-        "label": "Rejet technique prohibée par le mandat (Déni de service)",
-        "stdin": "cas:2",
-        "expected": "DENIED: reason=PROHIBITED_TECHNIQUE technique=DOS"
+        "label": "Question 2 — Valeur de l'ISS",
+        "stdin": "q:2",
+        "expected": "0,6568||0.6568"
       },
       {
-        "label": "Rejet action exécutée en dehors de la fenêtre horaire convenue",
-        "stdin": "cas:3",
-        "expected": "DENIED: reason=OUTSIDE_TIME_WINDOW hour=15"
+        "label": "Question 3 — Sous-score d'impact",
+        "stdin": "q:3",
+        "expected": "4,22||4.22"
+      },
+      {
+        "label": "Question 4 — Score de base CVSS",
+        "stdin": "q:4",
+        "expected": "7,1||7.1"
+      },
+      {
+        "label": "Question 5 — Sévérité de la faille",
+        "stdin": "q:5",
+        "expected": "élevée||high||haute||l'élevée"
+      },
+      {
+        "label": "Question 6 — Score minimum d'une vulnérabilité critique",
+        "stdin": "q:6",
+        "expected": "9,0||9.0||9||à partir de 9,0||9.0"
       }
     ],
-    "solution": "[Exemple]\nPERMITTED: target=192.168.1.10:443 technique=PORT_SCAN status=AUTHORIZED\n\n[Cas 1 — Rejet IP hors périmètre (Out of scope)]\nDENIED: reason=OUT_OF_SCOPE_IP target=10.0.0.99\n\n[Cas 2 — Rejet technique prohibée par le mandat (Déni de service)]\nDENIED: reason=PROHIBITED_TECHNIQUE technique=DOS\n\n[Cas 3 — Rejet action exécutée en dehors de la fenêtre horaire convenue]\nDENIED: reason=OUTSIDE_TIME_WINDOW hour=15"
+    "solution": "[Question 1 — Sous-score d'exploitabilité]\n2,84\n\n[Question 2 — Valeur de l'ISS (quatre décimales)]\n0,6568\n\n[Question 3 — Sous-score d'impact]\n4,22\n\n[Question 4 — Score de base CVSS]\n7,1\n\n[Question 5 — Sévérité de la faille]\nélevée\n\n[Question 6 — Score minimum d'une vulnérabilité critique]\n9,0",
+    "takeaway": "1) Exploitabilité : 8,22 × 0,85 × 0,77 × 0,62 × 0,85 = 2,84.\n2) ISS : 1 − (1 − 0,56)(1 − 0,22)(1 − 0,00) = 1 − (0,44 × 0,78 × 1,00) = 1 − 0,3432 = 0,6568.\n3) Impact : 6,42 × 0,6568 = 4,22.\n4) Score de base : 4,22 + 2,84 = 7,06 environ, arrondi au dixième supérieur : 7,1.\n5) Un score de 7,1 situe la faille dans la tranche 7,0 à 8,9 : sévérité élevée.\n6) Une vulnérabilité est critique à partir de 9,0.\nContrôle : avec le détail non arrondi, Impact + Exploitabilité = 4,2167 + 2,8353 = 7,0519, dont l'arrondi au dixième supérieur redonne bien 7,1."
   },
   {
     "id": "hk3-c1-e3",
     "chapter": 1,
-    "title": "Moteur de Corrélation Cyber Kill Chain & Détection d'Attaque",
     "level": "n3",
     "language": "analyse",
-    "goal": "Analyser une séquence d'événements de sécurité, reconstituer les phases de la Cyber Kill Chain et évaluer la complétude de l'intrusion.",
-    "brief": "<p>Le modèle Cyber Kill Chain (Lockheed Martin) formalise les étapes successives d'une cyberattaque ciblée (APT) :<br>\n1. <code>RECON</code> (Reconnaissance)<br>\n2. <code>WEAPON</code> (Weaponization)<br>\n3. <code>DELIVERY</code> (Delivery)<br>\n4. <code>EXPLOIT</code> (Exploitation)<br>\n5. <code>INSTALL</code> (Installation / Persistance)<br>\n6. <code>C2</code> (Command & Control)<br>\n7. <code>ACTIONS</code> (Actions on Objectives / Exfiltration)<br><br>\nDonnées du cas : <code>KILLCHAIN_EVAL events=&lt;e1:p1,e2:p2,...&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>KILLCHAIN: total_events=&lt;N&gt; phases_identified=&lt;count&gt;/7 highest_phase=&lt;phase&gt; coverage_pct=&lt;pct&gt;% status=&lt;COMPLETE_KILL_CHAIN|PARTIAL_ATTACK&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c1-e3) — Moteur de Corrélation Cyber Kill Chain & Détection d'Attaque\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Attaque stoppée à la phase d'exploitation]\n# Données : KILLCHAIN_EVAL events=osint_scan:RECON,spear_phish:DELIVERY,buffer_overflow:EXPLOIT\nA_COMPLETER\n\n[Cas 2 — Événements répétés sur phases initiales de reconnaissance]\n# Données : KILLCHAIN_EVAL events=shodan_query:RECON,subdomain_fuzz:RECON,port_scan:RECON\nA_COMPLETER\n\n[Cas 3 — Attaque atteignant le canal de commande et contrôle C2]\n# Données : KILLCHAIN_EVAL events=nmap_scan:RECON,malicious_pdf:DELIVERY,cve_exploit:EXPLOIT,reverse_shell:C2\nA_COMPLETER\n",
+    "title": "La kill chain de l'intrusion chez Fabralux",
+    "exampleTitle": "Exemple résolu — le rançongiciel de Novatex",
+    "goal": "Reconstituer les phases de la Cyber Kill Chain à partir d'une chronologie d'incident et repérer les occasions de rupture.",
+    "brief": "<p><strong>Énoncé.</strong> Fabralux, fabricant de luminaires, mandate un cabinet de forensic pour reconstituer l'intrusion qui a touché son réseau. En croisant les journaux du pare-feu, du proxy et de la messagerie, les analystes établissent la chronologie suivante :</p><table><tr><th>Date</th><th>Heure</th><th>Événement observé</th><th>Phase de la kill chain</th></tr><tr><th>02/03</th><td>08:12</td><td>Requêtes WHOIS et balayage DNS sur fabralux.fr</td><td>Reconnaissance</td></tr><tr><th>05/03</th><td>14:30</td><td>Conception d'une fausse facture piégée avec macro</td><td>Préparation de l'arme</td></tr><tr><th>07/03</th><td>09:05</td><td>Envoi de l'e-mail d'hameçonnage à la comptabilité</td><td>Livraison</td></tr><tr><th>07/03</th><td>09:41</td><td>La macro s'exécute et ouvre un accès initial</td><td>Exploitation</td></tr><tr><th>07/03</th><td>10:02</td><td>Création d'une tâche planifiée pour relancer l'implant</td><td>Installation</td></tr><tr><th>07/03</th><td>11:15</td><td>Beacon HTTPS de l'implant vers 203.0.113.7</td><td>Command and Control</td></tr><tr><th>09/03</th><td>02:30</td><td>Exfiltration de 4,2 Go de données clients</td><td>Actions sur objectifs</td></tr></table><p>Rappel : la Cyber Kill Chain de Lockheed Martin découpe une attaque ciblée en sept phases ; la préparation de l'arme se déroule hors du réseau de la victime et reste invisible pour la défense. Le SOC de Fabralux n'a détecté l'intrusion qu'au moment du beacon HTTPS.</p><ol><li>Combien d'événements composent la chronologie reconstituée ?</li><li>Combien de phases distinctes de la kill chain sont couvertes ?</li><li>À quelle phase appartient l'exfiltration des 4,2 Go de données ?</li><li>Le SOC a détecté l'intrusion lors du beacon HTTPS : combien de phases s'étaient déjà déroulées avant la détection ?</li><li>Selon la doctrine « rompre la chaîne », quelle est la première phase où la défense peut agir, la préparation de l'arme étant indétectable ?</li></ol>",
+    "starter": "# Exercice — La kill chain de l'intrusion chez Fabralux\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 4 : un nombre. Questions 3 et 5 : quelques mots.\n\n[Question 1 — Nombre d'événements de la chronologie]\nA_COMPLETER\n\n[Question 2 — Nombre de phases distinctes couvertes]\nA_COMPLETER\n\n[Question 3 — Phase de l'exfiltration]\nA_COMPLETER\n\n[Question 4 — Phases déjà déroulées avant la détection]\nA_COMPLETER\n\n[Question 5 — Première phase où la défense peut agir]\nA_COMPLETER\n",
     "hints": [
-      "Le modèle Cyber Kill Chain de Lockheed Martin décompose une cyberattaque en 7 phases séquentielles strictes.",
-      "Analysez les preuves d’activité pour déterminer la phase la plus avancée atteinte par l’attaquant et évaluer la couverture de l’attaque."
+      "Comptez les lignes du tableau pour les événements, puis les intitulés de phase sans doublon pour les phases distinctes.",
+      "La détection a eu lieu pendant le beacon HTTPS : comptez toutes les phases antérieures, de la reconnaissance au canal de commande inclus.",
+      "La préparation de l'arme se passe chez l'attaquant, hors de portée des capteurs : la première occasion d'agir arrive quand l'arme entre en contact avec la victime."
     ],
     "examples": [
       {
-        "stdin": "KILLCHAIN_EVAL events=dns_whois:RECON,craft_doc:WEAPON,phish_mail:DELIVERY,macro_run:EXPLOIT,reg_persist:INSTALL,beacon_http:C2,db_dump:ACTIONS",
-        "expected": "KILLCHAIN: total_events=7 phases_identified=7/7 highest_phase=ACTIONS coverage_pct=100% status=COMPLETE_KILL_CHAIN",
-        "note": "Attaque complète ayant franchi les 7 étapes jusqu'à l'exfiltration."
+        "stdin": "Le groupe industriel Novatex est victime d'un rançongiciel. Chronologie reconstituée :\n12/01 : recherche d'informations sur les employés (Reconnaissance) ;\n15/01 : montage d'un document piège (Préparation de l'arme) ;\n18/01 : e-mail « relance de facture » au service achats (Livraison) ;\n18/01 : la pièce jointe s'exécute (Exploitation) ;\n18/01 : service malveillant créé (Installation) ;\n19/01 : beacon sortant détecté à 3 h 12 (Command and Control) ;\n21/01 : chiffrement des serveurs de fichiers (Actions sur objectifs).\nLe SOC n'a détecté l'intrusion qu'au beacon.\n\n1) 7 événements. 2) Les 7 phases sont couvertes. 3) Le chiffrement appartient aux actions sur objectifs.\n4) Détection au beacon : 6 phases étaient déjà passées. 5) Première action défensive possible : la livraison.",
+        "expected": "7 événements — 7 phases — actions sur objectifs — 6 phases avant détection — première interception : la livraison",
+        "note": "Détecter à la livraison (filtrage de l'e-mail) coûte bien moins cher que réagir après les actions sur objectifs : c'est tout l'enjeu du modèle."
       }
     ],
     "tests": [
       {
-        "label": "Attaque stoppée à la phase d'exploitation",
-        "stdin": "cas:1",
-        "expected": "KILLCHAIN: total_events=3 phases_identified=3/7 highest_phase=EXPLOIT coverage_pct=42% status=PARTIAL_ATTACK"
+        "label": "Question 1 — Nombre d'événements",
+        "stdin": "q:1",
+        "expected": "7||sept"
       },
       {
-        "label": "Événements répétés sur phases initiales de reconnaissance",
-        "stdin": "cas:2",
-        "expected": "KILLCHAIN: total_events=3 phases_identified=1/7 highest_phase=RECON coverage_pct=14% status=PARTIAL_ATTACK"
+        "label": "Question 2 — Nombre de phases distinctes",
+        "stdin": "q:2",
+        "expected": "7||sept"
       },
       {
-        "label": "Attaque atteignant le canal de commande et contrôle C2",
-        "stdin": "cas:3",
-        "expected": "KILLCHAIN: total_events=4 phases_identified=4/7 highest_phase=C2 coverage_pct=57% status=PARTIAL_ATTACK"
+        "label": "Question 3 — Phase de l'exfiltration",
+        "stdin": "q:3",
+        "expected": "actions sur objectifs||la phase actions sur objectifs||actions on objectives"
+      },
+      {
+        "label": "Question 4 — Phases déjà déroulées avant la détection",
+        "stdin": "q:4",
+        "expected": "6||six"
+      },
+      {
+        "label": "Question 5 — Première phase où la défense peut agir",
+        "stdin": "q:5",
+        "expected": "la livraison||livraison||delivery||la phase de livraison"
       }
     ],
-    "solution": "[Exemple]\nKILLCHAIN: total_events=7 phases_identified=7/7 highest_phase=ACTIONS coverage_pct=100% status=COMPLETE_KILL_CHAIN\n\n[Cas 1 — Attaque stoppée à la phase d'exploitation]\nKILLCHAIN: total_events=3 phases_identified=3/7 highest_phase=EXPLOIT coverage_pct=42% status=PARTIAL_ATTACK\n\n[Cas 2 — Événements répétés sur phases initiales de reconnaissance]\nKILLCHAIN: total_events=3 phases_identified=1/7 highest_phase=RECON coverage_pct=14% status=PARTIAL_ATTACK\n\n[Cas 3 — Attaque atteignant le canal de commande et contrôle C2]\nKILLCHAIN: total_events=4 phases_identified=4/7 highest_phase=C2 coverage_pct=57% status=PARTIAL_ATTACK"
+    "solution": "[Question 1 — Nombre d'événements de la chronologie]\n7\n\n[Question 2 — Nombre de phases distinctes couvertes]\n7\n\n[Question 3 — Phase de l'exfiltration]\nactions sur objectifs\n\n[Question 4 — Phases déjà déroulées avant la détection]\n6\n\n[Question 5 — Première phase où la défense peut agir]\nla livraison",
+    "takeaway": "1) La chronologie comporte 7 événements, du 02/03 au 09/03.\n2) Les sept phases de la kill chain sont toutes représentées : reconnaissance, préparation de l'arme, livraison, exploitation, installation, command and control, actions sur objectifs.\n3) L'exfiltration des 4,2 Go relève des actions sur objectifs, la septième et dernière phase.\n4) La détection est survenue pendant le beacon HTTPS (phase 6) : les 6 phases précédentes s'étaient déjà déroulées sans alerte.\n5) La préparation de l'arme est invisible ; la première occasion de rompre la chaîne est la livraison, en filtrant l'e-mail d'hameçonnage.\nContrôle : 7 phases couvertes moins la phase de détection (la sixième) = 6 phases passées inaperçues avant l'alerte, ce qui explique l'exfiltration réussie deux jours plus tard."
   },
   {
     "id": "hk3-c2-e1",
     "chapter": 2,
-    "title": "Analyseur d'En-têtes HTTP de Sécurité et Détection de Fuite d'Information",
     "level": "n1",
     "language": "analyse",
-    "goal": "Auditer les en-têtes HTTP de sécurité d'un serveur et détecter la divulgation de bannières technologiques.",
-    "brief": "<p>La reconnaissance passive d'une cible web commence par l'analyse des en-têtes HTTP renvoyés.<br><br>\nRègles d'évaluation (Score initial = 100) :<br>\n- <code>Strict-Transport-Security</code> (HSTS) : requis. Si absent : -30 points et problème <code>MISSING_HSTS</code>.<br>\n- <code>Content-Security-Policy</code> (CSP) : requis. Si absent : -35 points et problème <code>MISSING_CSP</code>.<br>\n- <code>X-Frame-Options</code> : requis (valeur <code>DENY</code> ou <code>SAMEORIGIN</code>). Si absent ou valeur incorrecte : -20 points et problème <code>MISSING_X_FRAME_OPTIONS</code>.<br>\n- <code>Server</code> ou <code>X-Powered-By</code> : divulguent la pile technologique. Si au moins l'un est présent : -15 points et problème <code>INFO_DISCLOSURE</code>.<br><br>\nAttribution du grade :<br>\n- Score 100 : Grade <code>A</code><br>\n- Score 70 à 99 : Grade <code>B</code><br>\n- Score 50 à 69 : Grade <code>C</code><br>\n- Score &lt; 50 : Grade <code>F</code><br><br>\nDonnées du cas : <code>AUDIT_HEADERS headers=&lt;H1:V1;H2:V2;...&gt;</code>.<br>\nRésultat d’analyse attendu : <code>HTTP_AUDIT: score=&lt;score&gt;/100 grade=&lt;grade&gt; issues=&lt;issue1,issue2,...|NONE&gt;</code> (problèmes séparés par des virgules dans l'ordre HSTS, CSP, XFO, INFO).</p>",
-    "starter": "# Grille d'analyse (hk3-c2-e1) — Analyseur d'En-têtes HTTP de Sécurité et Détection de Fuite d'Information\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Serveur exposant sa version Apache sans CSP ni HSTS]\n# Données : AUDIT_HEADERS headers=Server:Apache/2.4.41 (Ubuntu);X-Frame-Options:SAMEORIGIN\nA_COMPLETER\n\n[Cas 2 — Serveur moderne sécurisé avec fuite d'en-tête PHP X-Powered-By]\n# Données : AUDIT_HEADERS headers=Strict-Transport-Security:max-age=63072000;Content-Security-Policy:default-src self;X-Frame-Options:DENY;X-Powered-By:PHP/8.2.1\nA_COMPLETER\n\n[Cas 3 — En-têtes quasi vides révélant vulnérabilité au Clickjacking]\n# Données : AUDIT_HEADERS headers=Content-Type:text/html\nA_COMPLETER\n",
+    "title": "La collecte passive avant le bug bounty de Petibonum",
+    "exampleTitle": "Exemple résolu — la divulgation responsable de la ville de Périgny",
+    "goal": "Recenser les résultats d'une phase de reconnaissance passive sans jamais interroger la cible.",
+    "brief": "<p><strong>Énoncé.</strong> Petibonum, PME de 60 salariés qui vend des accessoires de randonnée en ligne, publie un programme de bug bounty sur son domaine petibonum.fr. Avant tout test actif, la chasseuse de primes rassemble ses constats de collecte passive, obtenus sans jamais interroger les serveurs de l'entreprise :</p><table><tr><th>Source</th><th>Requête ou outil</th><th>Résultat</th></tr><tr><th>Google</th><td><code>site:petibonum.fr filetype:pdf</code></td><td>8 fiches produits indexées</td></tr><tr><th>Google</th><td><code>intitle:\"index of\" site:petibonum.fr</code></td><td>1 page d'index de répertoire</td></tr><tr><th>Shodan</th><td><code>http.title:\"petibonum\"</code></td><td>3 serveurs exposés</td></tr><tr><th>theHarvester</th><td>domaine petibonum.fr</td><td>15 adresses e-mail, 22 sous-domaines</td></tr><tr><th>WHOIS</th><td>petibonum.fr</td><td>Domaine créé en 2014, registrar français</td></tr></table><ol><li>Combien d'adresses e-mail professionnelles la collecte a-t-elle exposées ?</li><li>Combien de sous-domaines theHarvester a-t-il découverts ?</li><li>Quel moteur de recherche spécialisé recense les équipements connectés exposés sur Internet ?</li><li>Quel opérateur de recherche Google limite les résultats à un type de fichier précis ?</li><li>Pourquoi cette phase est-elle dite « passive » : aucun paquet n'est envoyé vers quel système ?</li></ol>",
+    "starter": "# Exercice — La collecte passive avant le bug bounty de Petibonum\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : un nombre. Questions 3 à 5 : quelques mots.\n\n[Question 1 — Adresses e-mail exposées]\nA_COMPLETER\n\n[Question 2 — Sous-domaines découverts]\nA_COMPLETER\n\n[Question 3 — Moteur de recherche des équipements exposés]\nA_COMPLETER\n\n[Question 4 — Opérateur Google limitant à un type de fichier]\nA_COMPLETER\n\n[Question 5 — Système qui ne reçoit aucune requête pendant la phase passive]\nA_COMPLETER\n",
     "hints": [
-      "Normalisez les noms d'en-têtes en minuscules pour faciliter les comparaisons insensibles à la casse.",
-      "Vérifiez la présence de strict-transport-security, content-security-policy et x-frame-options.",
-      "Si server ou x-powered-by est dans les en-têtes, ajoutez INFO_DISCLOSURE."
+      "Lisez la ligne du tableau theHarvester : elle porte à la fois le nombre d'adresses e-mail et le nombre de sous-domaines.",
+      "Deux moteurs apparaissent dans le tableau : celui de l'entreprise et un moteur spécialisé dans les équipements connectés.",
+      "Une phase est passive quand toutes les informations viennent d'intermédiaires (caches, archives, registres) et qu'aucune requête ne part directement vers l'infrastructure testée."
     ],
     "examples": [
       {
-        "stdin": "AUDIT_HEADERS headers=Strict-Transport-Security:max-age=31536000;Content-Security-Policy:default-src https:;X-Frame-Options:DENY",
-        "expected": "HTTP_AUDIT: score=100/100 grade=A issues=NONE",
-        "note": "Tous les en-têtes de sécurité recommandés sont présents sans fuite de version."
+        "stdin": "La ville de Périgny accepte la divulgation responsable sur son portail. Collecte passive :\nGoogle site:perigny.fr filetype:pdf : 12 documents indexés ;\nGoogle intitle:\"index of\" site:perigny.fr : 0 page ;\nShodan http.title:\"perigny\" : 2 serveurs exposés ;\ntheHarvester : 9 adresses e-mail et 17 sous-domaines.\n\n1) 9 adresses e-mail exposées. 2) 17 sous-domaines découverts. 3) Shodan recense les équipements exposés.\n4) filetype: limite aux fichiers PDF. 5) Aucun paquet n'est envoyé vers la cible.",
+        "expected": "9 e-mails — 17 sous-domaines — Shodan — filetype: — aucun paquet vers la cible",
+        "note": "Toutes ces informations viennent d'index tiers : la mairie ne voit aucune requête suspecte dans ses journaux pendant toute la phase."
       }
     ],
     "tests": [
       {
-        "label": "Serveur exposant sa version Apache sans CSP ni HSTS",
-        "stdin": "cas:1",
-        "expected": "HTTP_AUDIT: score=20/100 grade=F issues=MISSING_HSTS,MISSING_CSP,INFO_DISCLOSURE"
+        "label": "Question 1 — Adresses e-mail exposées",
+        "stdin": "q:1",
+        "expected": "15"
       },
       {
-        "label": "Serveur moderne sécurisé avec fuite d'en-tête PHP X-Powered-By",
-        "stdin": "cas:2",
-        "expected": "HTTP_AUDIT: score=85/100 grade=B issues=INFO_DISCLOSURE"
+        "label": "Question 2 — Sous-domaines découverts",
+        "stdin": "q:2",
+        "expected": "22"
       },
       {
-        "label": "En-têtes quasi vides révélant vulnérabilité au Clickjacking",
-        "stdin": "cas:3",
-        "expected": "HTTP_AUDIT: score=15/100 grade=F issues=MISSING_HSTS,MISSING_CSP,MISSING_X_FRAME_OPTIONS"
+        "label": "Question 3 — Moteur des équipements exposés",
+        "stdin": "q:3",
+        "expected": "shodan||Shodan"
+      },
+      {
+        "label": "Question 4 — Opérateur Google pour un type de fichier",
+        "stdin": "q:4",
+        "expected": "filetype||filetype:||l'opérateur filetype"
+      },
+      {
+        "label": "Question 5 — Système non sollicité en phase passive",
+        "stdin": "q:5",
+        "expected": "la cible||cible||les serveurs de la cible||l'infrastructure de la cible"
       }
     ],
-    "solution": "[Exemple]\nHTTP_AUDIT: score=100/100 grade=A issues=NONE\n\n[Cas 1 — Serveur exposant sa version Apache sans CSP ni HSTS]\nHTTP_AUDIT: score=20/100 grade=F issues=MISSING_HSTS,MISSING_CSP,INFO_DISCLOSURE\n\n[Cas 2 — Serveur moderne sécurisé avec fuite d'en-tête PHP X-Powered-By]\nHTTP_AUDIT: score=85/100 grade=B issues=INFO_DISCLOSURE\n\n[Cas 3 — En-têtes quasi vides révélant vulnérabilité au Clickjacking]\nHTTP_AUDIT: score=15/100 grade=F issues=MISSING_HSTS,MISSING_CSP,MISSING_X_FRAME_OPTIONS"
+    "solution": "[Question 1 — Adresses e-mail exposées]\n15\n\n[Question 2 — Sous-domaines découverts]\n22\n\n[Question 3 — Moteur de recherche des équipements exposés]\nshodan\n\n[Question 4 — Opérateur Google limitant à un type de fichier]\nfiletype\n\n[Question 5 — Système qui ne reçoit aucune requête pendant la phase passive]\nla cible",
+    "takeaway": "1) theHarvester a exposé 15 adresses e-mail professionnelles, utilisables ensuite pour des simulations d'hameçonnage autorisées.\n2) Il a également découvert 22 sous-domaines, autant de portes d'entrée potentielles pour la suite du test.\n3) Shodan est le moteur qui recense les équipements connectés exposés sur Internet, ici 3 serveurs.\n4) L'opérateur filetype: limite les résultats de Google à un type de fichier, par exemple filetype:pdf.\n5) La phase est passive car aucun paquet n'est envoyé vers la cible : tout vient d'index et de registres tiers.\nContrôle : 15 e-mails + 22 sous-domaines + 3 serveurs Shodan = 40 éléments de renseignement collectés sans toucher l'infrastructure de Petibonum."
   },
   {
     "id": "hk3-c2-e2",
     "chapter": 2,
-    "title": "Extracteur et Filtre d'Empreintes DNS (SPF, DMARC & AXFR)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Analyser les enregistrements DNS d'un domaine pour détecter les risques d'usurpation d'email et de fuite par transfert de zone.",
-    "brief": "<p>L'énumération DNS révèle les mécanismes de protection contre l'usurpation (Spoofing) et les mauvaises configurations de serveurs de noms.<br><br>\nRègles d'audit :<br>\n1. <code>AXFR (Zone Transfer)</code> :<br>\n   - Si <code>axfr_status == ALLOWED</code> : <code>axfr=VULNERABLE_LEAK</code>, risque immédiat <code>CRITICAL</code>.<br>\n   - Si <code>axfr_status == REFUSED</code> : <code>axfr=SECURE</code>.<br>\n2. <code>SPF (Sender Policy Framework)</code> :<br>\n   - Chercher un enregistrement TXT débutant par <code>v=spf1</code>.<br>\n   - Si absent : <code>spf=MISSING</code>.<br>\n   - Si se termine par <code>+all</code> ou <code>?all</code> : <code>spf=PERMISSIVE</code>.<br>\n   - Si se termine par <code>~all</code> : <code>spf=SOFTFAIL</code>.<br>\n   - Si se termine par <code>-all</code> : <code>spf=HARDFAIL_SECURE</code>.<br>\n3. <code>DMARC</code> :<br>\n   - Chercher un enregistrement TXT débutant par <code>v=DMARC1</code>.<br>\n   - Si absent : <code>dmarc=MISSING</code>.<br>\n   - Si contient <code>p=none</code> : <code>dmarc=POLICY_NONE</code>.<br>\n   - Si contient <code>p=quarantine</code> ou <code>p=reject</code> : <code>dmarc=ENFORCED_SECURE</code>.<br><br>\nÉvaluation du niveau de risque global :<br>\n- <code>CRITICAL</code> : si <code>axfr == VULNERABLE_LEAK</code>.<br>\n- <code>HIGH</code> : sinon, si <code>spf in ('MISSING', 'PERMISSIVE')</code> et <code>dmarc in ('MISSING', 'POLICY_NONE')</code>.<br>\n- <code>MEDIUM</code> : sinon, si <code>spf == 'SOFTFAIL'</code> ou <code>dmarc in ('MISSING', 'POLICY_NONE')</code>.<br>\n- <code>LOW</code> : sinon (SPF HARDFAIL_SECURE et DMARC ENFORCED_SECURE avec AXFR SECURE).<br><br>\nDonnées du cas : <code>DNS_AUDIT domain=&lt;dom&gt; axfr=&lt;ALLOWED|REFUSED&gt; records=&lt;r1;r2;...&gt;</code>.<br>\nRésultat d’analyse attendu : <code>DNS_REPORT: domain=&lt;dom&gt; spf=&lt;s&gt; dmarc=&lt;d&gt; axfr=&lt;a&gt; risk=&lt;r&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c2-e2) — Extracteur et Filtre d'Empreintes DNS (SPF, DMARC & AXFR)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Fuite critique de l'ensemble de la zone DNS via AXFR autorisé]\n# Données : DNS_AUDIT domain=vuln-bank.com axfr=ALLOWED records=v=spf1 -all;v=DMARC1; p=reject\nA_COMPLETER\n\n[Cas 2 — Risque élevé d'usurpation avec absence totale de SPF et DMARC]\n# Données : DNS_AUDIT domain=legacy-shop.org axfr=REFUSED records=google-site-verification=xyz\nA_COMPLETER\n\n[Cas 3 — Risque moyen avec politique DMARC en simple surveillance (p=none)]\n# Données : DNS_AUDIT domain=startup.io axfr=REFUSED records=v=spf1 include:_spf.google.com ~all;v=DMARC1; p=none; rua=mailto:reports@startup.io\nA_COMPLETER\n",
+    "title": "L'audit DNS et anti-usurpation de la ville de Saint-Rémy",
+    "exampleTitle": "Exemple résolu — l'audit DNS de l'université de Marval",
+    "goal": "Interpréter un transfert de zone AXFR et des enregistrements SPF, DMARC et DKIM pour mesurer le risque d'usurpation.",
+    "brief": "<p><strong>Énoncé.</strong> La ville de Saint-Rémy confie un test d'intrusion de son domaine saint-remy.fr. Pendant la phase de reconnaissance, l'auditeur interroge l'infrastructure DNS et relève les constats suivants :</p><ul><li>Transfert de zone demandé au serveur <code>ns1.saint-remy.fr</code> : <strong>autorisé</strong> ; la zone complète compte 142 enregistrements, dont 34 sous-domaines internes (vpn, intranet, supervision, caméras).</li><li>Enregistrement SPF : <code>v=spf1 include:_spf.provider-mail.fr ip4:185.12.34.5 -all</code></li><li>Enregistrement DMARC : <code>v=DMARC1; p=none; rua=mailto:dmarc@saint-remy.fr</code></li><li>Enregistrement DKIM : deux sélecteurs actifs.</li></ul><ol><li>Le transfert de zone AXFR a-t-il été accepté ou refusé par le serveur ?</li><li>Combien de sous-domaines internes l'AXFR a-t-il révélés ?</li><li>La politique SPF se termine par « -all » : que subissent les messages envoyés depuis des serveurs non autorisés ?</li><li>Quelle est la valeur actuelle de la politique DMARC (le champ p=) ?</li><li>Quelle valeur faudrait-il donner à p= pour rejeter les messages usurpés ?</li><li>Quel enregistrement, complémentaire de SPF et DMARC, signe cryptographiquement les messages ?</li></ol>",
+    "starter": "# Exercice — L'audit DNS et anti-usurpation de la ville de Saint-Rémy\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 2 : un nombre. Questions 1, 3, 4 et 5 : un mot. Question 6 : un sigle.\n\n[Question 1 — Verdict du transfert de zone AXFR]\nA_COMPLETER\n\n[Question 2 — Sous-domaines internes révélés]\nA_COMPLETER\n\n[Question 3 — Sort des messages depuis des serveurs non autorisés]\nA_COMPLETER\n\n[Question 4 — Valeur actuelle de la politique DMARC]\nA_COMPLETER\n\n[Question 5 — Valeur de p= pour rejeter les messages usurpés]\nA_COMPLETER\n\n[Question 6 — Enregistrement qui signe les messages]\nA_COMPLETER\n",
     "hints": [
-      "Isolez les enregistrements contenant v=spf1 et v=DMARC1.",
-      "Vérifiez la terminaison du SPF (+all, ?all, ~all, -all).",
-      "Appliquez la hiérarchie de risque CRITICAL -> HIGH -> MEDIUM -> LOW."
+      "Un AXFR accepté livre la zone complète à n'importe qui qui la demande : relisez le premier constat pour le verdict et le nombre de sous-domaines.",
+      "En SPF, « -all » est un échec dur : les serveurs non listés ne doivent pas être crus ; « ~all » serait un simple soupçon.",
+      "Les valeurs possibles du champ p= de DMARC sont none (surveillance), quarantine (mise à l'écart) et reject (rejet) ; la signature cryptographique des messages relève d'un autre enregistrement."
     ],
     "examples": [
       {
-        "stdin": "DNS_AUDIT domain=target-corp.fr axfr=REFUSED records=v=spf1 mx ip4:192.168.1.1 -all;v=DMARC1; p=reject; rua=mailto:dmarc@target-corp.fr",
-        "expected": "DNS_REPORT: domain=target-corp.fr spf=HARDFAIL_SECURE dmarc=ENFORCED_SECURE axfr=SECURE risk=LOW",
-        "note": "Domaine parfaitement protégé contre l'usurpation et le transfert de zone."
+        "stdin": "L'université de Marval audite son domaine marval.fr. Constats :\nAXFR vers ns1.marval.fr : refusé, 0 sous-domaine révélé.\nSPF : v=spf1 include:_spf.google.com ip4:142.250.10.20 -all\nDMARC : v=DMARC1; p=quarantine; rua=mailto:dmarc@marval.fr\nDKIM : un sélecteur actif.\n\n1) L'AXFR a été refusé. 2) 0 sous-domaine révélé. 3) Les messages non autorisés sont rejetés (échec dur).\n4) La politique DMARC vaut quarantine. 5) Pour rejeter : p=reject. 6) DKIM signe les messages.",
+        "expected": "AXFR refusé — 0 sous-domaine — rejet — p=quarantine — p=reject pour rejeter — DKIM",
+        "note": "Marval protège sa zone (AXFR refusé) et applique déjà un DMARC actif : seul Saint-Rémy, avec p=none, laisse passer les usurpations."
       }
     ],
     "tests": [
       {
-        "label": "Fuite critique de l'ensemble de la zone DNS via AXFR autorisé",
-        "stdin": "cas:1",
-        "expected": "DNS_REPORT: domain=vuln-bank.com spf=HARDFAIL_SECURE dmarc=ENFORCED_SECURE axfr=VULNERABLE_LEAK risk=CRITICAL"
+        "label": "Question 1 — Verdict de l'AXFR",
+        "stdin": "q:1",
+        "expected": "accepté||accepte||autorisé||il a été accepté"
       },
       {
-        "label": "Risque élevé d'usurpation avec absence totale de SPF et DMARC",
-        "stdin": "cas:2",
-        "expected": "DNS_REPORT: domain=legacy-shop.org spf=MISSING dmarc=MISSING axfr=SECURE risk=HIGH"
+        "label": "Question 2 — Sous-domaines révélés",
+        "stdin": "q:2",
+        "expected": "34"
       },
       {
-        "label": "Risque moyen avec politique DMARC en simple surveillance (p=none)",
-        "stdin": "cas:3",
-        "expected": "DNS_REPORT: domain=startup.io spf=SOFTFAIL dmarc=POLICY_NONE axfr=SECURE risk=MEDIUM"
+        "label": "Question 3 — Sort des messages non autorisés",
+        "stdin": "q:3",
+        "expected": "un rejet||rejet||refus||ils sont rejetés||rejetés"
+      },
+      {
+        "label": "Question 4 — Valeur actuelle de la politique DMARC",
+        "stdin": "q:4",
+        "expected": "none||p=none||aucune||aucune politique"
+      },
+      {
+        "label": "Question 5 — Valeur de p= pour rejeter",
+        "stdin": "q:5",
+        "expected": "reject||p=reject"
+      },
+      {
+        "label": "Question 6 — Enregistrement qui signe les messages",
+        "stdin": "q:6",
+        "expected": "dkim||DKIM||l'enregistrement dkim"
       }
     ],
-    "solution": "[Exemple]\nDNS_REPORT: domain=target-corp.fr spf=HARDFAIL_SECURE dmarc=ENFORCED_SECURE axfr=SECURE risk=LOW\n\n[Cas 1 — Fuite critique de l'ensemble de la zone DNS via AXFR autorisé]\nDNS_REPORT: domain=vuln-bank.com spf=HARDFAIL_SECURE dmarc=ENFORCED_SECURE axfr=VULNERABLE_LEAK risk=CRITICAL\n\n[Cas 2 — Risque élevé d'usurpation avec absence totale de SPF et DMARC]\nDNS_REPORT: domain=legacy-shop.org spf=MISSING dmarc=MISSING axfr=SECURE risk=HIGH\n\n[Cas 3 — Risque moyen avec politique DMARC en simple surveillance (p=none)]\nDNS_REPORT: domain=startup.io spf=SOFTFAIL dmarc=POLICY_NONE axfr=SECURE risk=MEDIUM"
+    "solution": "[Question 1 — Verdict du transfert de zone AXFR]\naccepté\n\n[Question 2 — Sous-domaines internes révélés]\n34\n\n[Question 3 — Sort des messages depuis des serveurs non autorisés]\nun rejet\n\n[Question 4 — Valeur actuelle de la politique DMARC]\nnone\n\n[Question 5 — Valeur de p= pour rejeter les messages usurpés]\nreject\n\n[Question 6 — Enregistrement qui signe les messages]\ndkim",
+    "takeaway": "1) Le serveur ns1.saint-remy.fr a autorisé le transfert de zone : n'importe qui peut récupérer la zone complète.\n2) L'AXFR a révélé 34 sous-domaines internes, dont vpn, intranet et supervision.\n3) Le « -all » de SPF est un échec dur : les messages venus de serveurs non autorisés subissent un rejet.\n4) La politique DMARC actuelle vaut p=none : la ville collecte des rapports mais n'agit pas sur les messages usurpés.\n5) Pour rejeter les usurpations, il faudrait passer à p=reject (l'étape intermédiaire usuelle étant p=quarantine).\n6) L'enregistrement DKIM signe cryptographiquement les messages et complète SPF et DMARC.\nContrôle : 142 enregistrements dans la zone, dont 34 sous-domaines internes : plus du quart de la zone décrit une infrastructure interne qui n'aurait jamais dû être publiée."
   },
   {
     "id": "hk3-c2-e3",
@@ -211,7 +282,8 @@ module.exports = [
     "starter": "# Grille d'analyse (hk3-c2-e3) — Comparaison de réponses DNS avec une adresse témoin\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Aucune adresse témoin]\n# Données : SUBDOMAIN_FUZZ domain=corp.org wildcard_ip=NONE responses=vpn:10.0.0.1,api:10.0.0.2\nA_COMPLETER\n\n[Cas 2 — Trois réponses à la même adresse]\n# Données : SUBDOMAIN_FUZZ domain=wildcard-all.net wildcard_ip=172.16.0.50 responses=a:172.16.0.50,b:172.16.0.50,c:172.16.0.50\nA_COMPLETER\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\n# Données : SUBDOMAIN_FUZZ domain=cloud.dev wildcard_ip=1.1.1.1 responses=gitlab:10.1.1.5,bogus:1.1.1.1,auth:10.1.1.2,monitor:10.1.1.9\nA_COMPLETER\n",
     "hints": [
       "Comparer les adresses seulement ; ne pas décider si un nom est réel ou fictif.",
-      "Trier chaque liste alphabétiquement et écrire NONE pour une liste vide."
+      "Trier chaque liste alphabétiquement et écrire NONE pour une liste vide.",
+      "Comparez chaque IP résolue à l IP témoin du domaine ; un écart d IP ou un sous-domaine manquant indique un hôte distinct sans préjuger de sa légitimité."
     ],
     "examples": [
       {
@@ -237,97 +309,122 @@ module.exports = [
         "expected": "SUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev"
       }
     ],
-    "solution": "[Exemple]\nSUBDOMAIN_GROUP: domain=example.com total=4 meme_ip=2 noms_meme=fake99.example.com,testabc.example.com autre_ip=2 noms_autres=admin.example.com,mail.example.com\n\n[Cas 1 — Aucune adresse témoin]\nSUBDOMAIN_GROUP: domain=corp.org total=2 meme_ip=0 noms_meme=NONE autre_ip=2 noms_autres=api.corp.org,vpn.corp.org\n\n[Cas 2 — Trois réponses à la même adresse]\nSUBDOMAIN_GROUP: domain=wildcard-all.net total=3 meme_ip=3 noms_meme=a.wildcard-all.net,b.wildcard-all.net,c.wildcard-all.net autre_ip=0 noms_autres=NONE\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\nSUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev\n"
+    "solution": "[Exemple]\nSUBDOMAIN_GROUP: domain=example.com total=4 meme_ip=2 noms_meme=fake99.example.com,testabc.example.com autre_ip=2 noms_autres=admin.example.com,mail.example.com\n\n[Cas 1 — Aucune adresse témoin]\nSUBDOMAIN_GROUP: domain=corp.org total=2 meme_ip=0 noms_meme=NONE autre_ip=2 noms_autres=api.corp.org,vpn.corp.org\n\n[Cas 2 — Trois réponses à la même adresse]\nSUBDOMAIN_GROUP: domain=wildcard-all.net total=3 meme_ip=3 noms_meme=a.wildcard-all.net,b.wildcard-all.net,c.wildcard-all.net autre_ip=0 noms_autres=NONE\n\n[Cas 3 — Adresses mélangées et ordre alphabétique]\nSUBDOMAIN_GROUP: domain=cloud.dev total=4 meme_ip=1 noms_meme=bogus.cloud.dev autre_ip=3 noms_autres=auth.cloud.dev,gitlab.cloud.dev,monitor.cloud.dev\n",
+    "takeaway": "À retenir : Regrouper des réponses DNS sans conclure à la légitimité des noms.\nRepère : Les deux listes sont des regroupements, pas des verdicts sur les noms."
   },
   {
     "id": "hk3-c3-e1",
     "chapter": 3,
-    "title": "Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser les paquets de réponse TCP pour déterminer l'état d'un port selon la RFC 793 et le type de scan Nmap.",
-    "brief": "<p>Nmap utilise différents types de sondes TCP pour sonder l'état des ports et cartographier les pare-feux :<br><br>\nRègles de diagnostic selon le scan et la réponse reçue :<br>\n1. <code>SYN</code> (SYN Stealth scan <code>-sS</code>) :<br>\n   - Réponse <code>SYN+ACK</code> : <code>state=OPEN</code><br>\n   - Réponse <code>RST</code> ou <code>RST+ACK</code> : <code>state=CLOSED</code><br>\n   - Réponse <code>TIMEOUT</code> : <code>state=FILTERED</code><br>\n2. <code>FIN</code>, <code>NULL</code>, <code>XMAS</code> (scans furtifs inverses) :<br>\n   - Réponse <code>RST</code> : <code>state=CLOSED</code><br>\n   - Réponse <code>TIMEOUT</code> : <code>state=OPEN|FILTERED</code><br>\n3. <code>ACK</code> (Window/Firewall scan <code>-sA</code>) :<br>\n   - Réponse <code>RST</code> : <code>state=UNFILTERED</code><br>\n   - Réponse <code>TIMEOUT</code> : <code>state=FILTERED</code><br><br>\nDonnées du cas : <code>TCP_PROBE scan_type=&lt;SYN|FIN|NULL|XMAS|ACK&gt; port=&lt;p&gt; reply=&lt;SYN+ACK|RST|TIMEOUT|RST+ACK&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PORT_STATE: port=&lt;p&gt; scan_type=&lt;type&gt; reply=&lt;reply&gt; state=&lt;state&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c3-e1) — Interpréteur de Drapeaux TCP et Diagnostic de Sondes de Scan\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sonde SYN recevant un paquet de réinitialisation RST]\n# Données : TCP_PROBE scan_type=SYN port=21 reply=RST\nA_COMPLETER\n\n[Cas 2 — Sonde furtive XMAS sans réponse face à une pile TCP conforme RFC 793]\n# Données : TCP_PROBE scan_type=XMAS port=80 reply=TIMEOUT\nA_COMPLETER\n\n[Cas 3 — Sonde ACK cartographiant un pare-feu avec paquet RST de retour]\n# Données : TCP_PROBE scan_type=ACK port=8080 reply=RST\nA_COMPLETER\n\n[Cas 4 — Sonde SYN filtrée par pare-feu silencieux (Drop/Timeout)]\n# Données : TCP_PROBE scan_type=SYN port=3389 reply=TIMEOUT\nA_COMPLETER\n",
+    "title": "Le scan Nmap autorisé du serveur de la scierie Dumoulin",
+    "exampleTitle": "Exemple résolu — le scan du serveur de la boulangerie Lemieux",
+    "goal": "Lire un résultat Nmap : compter les ports ouverts, identifier les services et distinguer filtré et fermé.",
+    "brief": "<p><strong>Énoncé.</strong> La scierie Dumoulin confie à l'ESN Cortège le test d'intrusion de son serveur d'hébergement interne, <code>10.20.30.5</code>, depuis le réseau de test prévu au contrat. L'auditeur lance <code>nmap -sV 10.20.30.5</code> et obtient l'extrait suivant :</p><table><tr><th>Port</th><th>État</th><th>Service et version</th></tr><tr><th>22/tcp</th><td>open</td><td>ssh — OpenSSH 8.9p1</td></tr><tr><th>80/tcp</th><td>open</td><td>http — Apache httpd 2.4.54</td></tr><tr><th>443/tcp</th><td>open</td><td>https — Apache httpd 2.4.54</td></tr><tr><th>3306/tcp</th><td>filtered</td><td>mysql — filtré par le pare-feu</td></tr><tr><th>8080/tcp</th><td>closed</td><td>http-proxy — aucun service</td></tr></table><ol><li>Combien de ports sont à l'état « open » ?</li><li>Quel service écoute sur le port 22 ?</li><li>Quel est l'état du port 3306 ?</li><li>Combien de ports ne sont pas ouverts (fermés ou filtrés) ?</li><li>Quelle version d'Apache le scan révèle-t-il ?</li><li>Comment se nomme le type de scan Nmap qui établit une connexion TCP complète, utilisable sans privilèges root mais peu furtif ?</li></ol>",
+    "starter": "# Exercice — Le scan Nmap autorisé du serveur de la scierie Dumoulin\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 5 : un nombre, un mot ou une version. Question 6 : le nom d'un scan.\n\n[Question 1 — Ports à l'état open]\nA_COMPLETER\n\n[Question 2 — Service écoutant sur le port 22]\nA_COMPLETER\n\n[Question 3 — État du port 3306]\nA_COMPLETER\n\n[Question 4 — Ports non ouverts (fermés ou filtrés)]\nA_COMPLETER\n\n[Question 5 — Version d'Apache révélée]\nA_COMPLETER\n\n[Question 6 — Scan Nmap établissant une connexion TCP complète]\nA_COMPLETER\n",
     "hints": [
-      "Gérez les cas selon scan_type (SYN, FIN/NULL/XMAS, ACK).",
-      "Pour SYN, SYN+ACK signifie OPEN et RST signifie CLOSED.",
-      "Pour FIN/NULL/XMAS, TIMEOUT signifie OPEN|FILTERED et RST signifie CLOSED."
+      "Parcourez la colonne « État » : open, filtered et closed ne racontent pas la même histoire (service joignable, pare-feu silencieux, port vide).",
+      "Un port filtré ne répond pas franchement au scanner : c'est souvent un pare-feu qui laisse la requête sans réponse.",
+      "Le scan furtif de référence (-sS) n'achève pas la poignée de main TCP ; celui qui l'achève s'appelle tout simplement « connect »."
     ],
     "examples": [
       {
-        "stdin": "TCP_PROBE scan_type=SYN port=443 reply=SYN+ACK",
-        "expected": "PORT_STATE: port=443 scan_type=SYN reply=SYN+ACK state=OPEN",
-        "note": "Port HTTPS ouvert renvoyant un paquet SYN+ACK de synchronisation."
+        "stdin": "La boulangerie Lemieux fait auditer son serveur 10.0.5.21. Extrait de nmap -sV :\n21/tcp open ftp vsftpd 3.0.5 ; 22/tcp open ssh OpenSSH 9.2 ; 80/tcp open http nginx 1.25 ;\n443/tcp filtered https ; 3306/tcp closed mysql.\n\n1) 3 ports ouverts. 2) Le service du port 21 est ftp. 3) Le port 443 est filtré.\n4) 2 ports non ouverts. 5) nginx 1.25. 6) Le scan complet s'appelle le scan connect.",
+        "expected": "3 ports ouverts — ftp sur 21 — filtré — 2 non ouverts — nginx 1.25 — scan connect",
+        "note": "Le port 3306 fermé chez Dumoulin et filtré chez Lemieux traduisent deux réalités différentes : absence de service devant un refus franc, ou pare-feu muet."
       }
     ],
     "tests": [
       {
-        "label": "Sonde SYN recevant un paquet de réinitialisation RST",
-        "stdin": "cas:1",
-        "expected": "PORT_STATE: port=21 scan_type=SYN reply=RST state=CLOSED"
+        "label": "Question 1 — Ports à l'état open",
+        "stdin": "q:1",
+        "expected": "3||trois"
       },
       {
-        "label": "Sonde furtive XMAS sans réponse face à une pile TCP conforme RFC 793",
-        "stdin": "cas:2",
-        "expected": "PORT_STATE: port=80 scan_type=XMAS reply=TIMEOUT state=OPEN|FILTERED"
+        "label": "Question 2 — Service du port 22",
+        "stdin": "q:2",
+        "expected": "ssh||le ssh||SSH"
       },
       {
-        "label": "Sonde ACK cartographiant un pare-feu avec paquet RST de retour",
-        "stdin": "cas:3",
-        "expected": "PORT_STATE: port=8080 scan_type=ACK reply=RST state=UNFILTERED"
+        "label": "Question 3 — État du port 3306",
+        "stdin": "q:3",
+        "expected": "filtré||filtered||filtre"
       },
       {
-        "label": "Sonde SYN filtrée par pare-feu silencieux (Drop/Timeout)",
-        "stdin": "cas:4",
-        "expected": "PORT_STATE: port=3389 scan_type=SYN reply=TIMEOUT state=FILTERED"
+        "label": "Question 4 — Ports non ouverts",
+        "stdin": "q:4",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 5 — Version d'Apache",
+        "stdin": "q:5",
+        "expected": "2.4.54||2,4,54||apache 2.4.54"
+      },
+      {
+        "label": "Question 6 — Scan TCP complet",
+        "stdin": "q:6",
+        "expected": "connect||le scan connect||scan connect||sT||-sT"
       }
     ],
-    "solution": "[Exemple]\nPORT_STATE: port=443 scan_type=SYN reply=SYN+ACK state=OPEN\n\n[Cas 1 — Sonde SYN recevant un paquet de réinitialisation RST]\nPORT_STATE: port=21 scan_type=SYN reply=RST state=CLOSED\n\n[Cas 2 — Sonde furtive XMAS sans réponse face à une pile TCP conforme RFC 793]\nPORT_STATE: port=80 scan_type=XMAS reply=TIMEOUT state=OPEN|FILTERED\n\n[Cas 3 — Sonde ACK cartographiant un pare-feu avec paquet RST de retour]\nPORT_STATE: port=8080 scan_type=ACK reply=RST state=UNFILTERED\n\n[Cas 4 — Sonde SYN filtrée par pare-feu silencieux (Drop/Timeout)]\nPORT_STATE: port=3389 scan_type=SYN reply=TIMEOUT state=FILTERED"
+    "solution": "[Question 1 — Ports à l'état open]\n3\n\n[Question 2 — Service écoutant sur le port 22]\nssh\n\n[Question 3 — État du port 3306]\nfiltré\n\n[Question 4 — Ports non ouverts (fermés ou filtrés)]\n2\n\n[Question 5 — Version d'Apache révélée]\n2.4.54\n\n[Question 6 — Scan Nmap établissant une connexion TCP complète]\nconnect",
+    "takeaway": "1) Trois ports sont ouverts : 22, 80 et 443.\n2) Le port 22 fait écouter le service ssh (OpenSSH 8.9p1).\n3) Le port 3306 est filtré : un pare-feu laisse la requête sans réponse franche.\n4) Deux ports ne sont pas ouverts : 3306 (filtré) et 8080 (fermé).\n5) Le scan révèle Apache httpd 2.4.54, une version à confronter aux bases de vulnérabilités.\n6) Le scan connect (-sT) établit une connexion TCP complète ; il ne demande pas de privilèges root mais se voit facilement dans les journaux.\nContrôle : 3 ports ouverts + 2 ports non ouverts = 5 lignes du tableau, l'inventaire est complet."
   },
   {
     "id": "hk3-c3-e2",
     "chapter": 3,
-    "title": "Analyseur de Bannières de Services Réseau et Détection de Failles Connues",
     "level": "n2",
     "language": "analyse",
-    "goal": "Extraire les versions logicielles des bannières de services réseau et identifier les vulnérabilités critiques associées.",
-    "brief": "<p>Le banner grabbing permet de repérer des versions logicielles vulnérables avant toute phase d'exploitation.<br><br>\nBase de signatures connues :<br>\n- <code>vsFTPd 2.3.4</code> -> <code>cve=CVE-2011-2523</code>, <code>severity=CRITICAL</code>, <code>desc=Backdoor_Command_Execution</code><br>\n- <code>Apache/2.4.49</code> -> <code>cve=CVE-2021-41773</code>, <code>severity=CRITICAL</code>, <code>desc=Path_Traversal_RCE</code><br>\n- <code>OpenSSH_7.2p2</code> -> <code>cve=CVE-2016-6210</code>, <code>severity=MEDIUM</code>, <code>desc=User_Enumeration</code><br>\n- <code>ProFTPD 1.3.5</code> -> <code>cve=CVE-2015-3306</code>, <code>severity=HIGH</code>, <code>desc=mod_copy_Arbitrary_Copy</code><br>\n- Autre version -> <code>cve=NONE</code>, <code>severity=INFO</code>, <code>desc=UP_TO_DATE_OR_CUSTOM</code><br><br>\nDonnées du cas : <code>BANNER_SCAN port=&lt;p&gt; service=&lt;svc&gt; banner=&lt;texte_banniere&gt;</code>.<br>\nRésultat d’analyse attendu : <code>VULN_MATCH: port=&lt;p&gt; service=&lt;svc&gt; cve=&lt;cve&gt; severity=&lt;sev&gt; desc=&lt;desc&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c3-e2) — Analyseur de Bannières de Services Réseau et Détection de Failles Connues\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Serveur HTTP Apache vulnérable à la traversée de répertoire critique]\n# Données : BANNER_SCAN port=80 service=http banner=Server: Apache/2.4.49 (Unix)\nA_COMPLETER\n\n[Cas 2 — Démon SSH vulnérable à l'énumération de comptes utilisateurs]\n# Données : BANNER_SCAN port=22 service=ssh banner=SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8\nA_COMPLETER\n\n[Cas 3 — Service FTP ProFTPD avec module mod_copy vulnérable]\n# Données : BANNER_SCAN port=2121 service=ftp banner=220 ProFTPD 1.3.5 Server\nA_COMPLETER\n\n[Cas 4 — Version récente sans vulnérabilité connue répertoriée]\n# Données : BANNER_SCAN port=443 service=https banner=Server: nginx/1.24.0\nA_COMPLETER\n",
+    "title": "Les bannières obsolètes du serveur de recette de DevFan",
+    "exampleTitle": "Exemple résolu — les bannières du serveur de la mairie de Fressin",
+    "goal": "Comparer les bannières de services aux versions stables pour chiffrer l'exposition aux failles connues.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence DevFan fait auditer son serveur de recette, isolé de la production, dans le cadre d'un test d'intrusion contracté. L'auditeur collecte les bannières des services et les compare aux dernières versions stables :</p><table><tr><th>Service</th><th>Bannière relevée</th><th>Version stable</th><th>Faille connue sur la version</th></tr><tr><th>SSH</th><td>OpenSSH 7.4p1</td><td>9.6p1</td><td>Énumération d'utilisateurs</td></tr><tr><th>FTP</th><td>vsftpd 2.3.4</td><td>3.0.5</td><td>Porte dérobée menant à une exécution de code</td></tr><tr><th>SMB</th><td>Samba 3.0.20</td><td>4.19.0</td><td>Exécution de commande à distance</td></tr><tr><th>HTTP</th><td>nginx 1.25.3</td><td>1.25.3</td><td>Aucune connue</td></tr></table><ol><li>Combien de services tournent sur une version obsolète ?</li><li>Quel service est à jour ?</li><li>Combien de services obsolètes exposent une exécution de code à distance ?</li><li>Quelle version de Samba est en service ?</li><li>Quel protocole de partage de fichiers, historiquement lié à Windows, est concerné ?</li><li>Quelle option de Nmap exécute les scripts NSE de détection de vulnérabilités ?</li></ol>",
+    "starter": "# Exercice — Les bannières obsolètes du serveur de recette de DevFan\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 3 : un nombre. Question 2, 5 : un service. Question 4 : une version. Question 6 : une option.\n\n[Question 1 — Services en version obsolète]\nA_COMPLETER\n\n[Question 2 — Service à jour]\nA_COMPLETER\n\n[Question 3 — Services obsolètes avec exécution de code]\nA_COMPLETER\n\n[Question 4 — Version de Samba en service]\nA_COMPLETER\n\n[Question 5 — Protocole de partage de fichiers concerné]\nA_COMPLETER\n\n[Question 6 — Option Nmap des scripts de vulnérabilités]\nA_COMPLETER\n",
     "hints": [
-      "Utilisez l’extraction des champs pour préserver les espaces dans le texte de la bannière.",
-      "Vérifiez la présence des sous-chaînes de versions critiques dans la bannière.",
-      "Générez la sortie standardisée VULN_MATCH."
+      "Comparez colonne « Bannière relevée » et colonne « Version stable » : un service est à jour quand les deux coïncident.",
+      "Ne comptez que les failles qui mènent à une exécution de code : l'énumération d'utilisateurs est gênante mais n'exécute rien.",
+      "Le protocole de partage de fichiers de l'écosystème Windows porte un sigle de trois lettres ; les scripts NSE de vulnérabilités se lancent avec l'option --script vuln."
     ],
     "examples": [
       {
-        "stdin": "BANNER_SCAN port=21 service=ftp banner=220 (vsFTPd 2.3.4)",
-        "expected": "VULN_MATCH: port=21 service=ftp cve=CVE-2011-2523 severity=CRITICAL desc=Backdoor_Command_Execution",
-        "note": "Backdoor historique du serveur FTP vsFTPd 2.3.4 permettant l'exécution root."
+        "stdin": "La mairie de Fressin audite son serveur. Bannières relevées :\nSSH OpenSSH 8.2 (stable 9.6 — énumération d'utilisateurs) ;\nFTP vsftpd 3.0.5 (stable 3.0.5 — aucune) ;\nSMB Samba 4.17 (stable 4.19 — exécution de commande à distance) ;\nHTTP Apache 2.4.49 (stable 2.4.58 — traversée de chemin).\n\n1) 3 services obsolètes. 2) Le FTP est à jour. 3) 1 seul service expose une exécution de commande (Samba).\n4) Samba 4.17. 5) SMB. 6) --script vuln.",
+        "expected": "3 obsolètes — FTP à jour — 1 exécution de commande — Samba 4.17 — SMB — --script vuln",
+        "note": "La traversée de chemin d'Apache n'est pas une exécution de code : le compte des risques critiques doit rester strict."
       }
     ],
     "tests": [
       {
-        "label": "Serveur HTTP Apache vulnérable à la traversée de répertoire critique",
-        "stdin": "cas:1",
-        "expected": "VULN_MATCH: port=80 service=http cve=CVE-2021-41773 severity=CRITICAL desc=Path_Traversal_RCE"
+        "label": "Question 1 — Services obsolètes",
+        "stdin": "q:1",
+        "expected": "3||trois"
       },
       {
-        "label": "Démon SSH vulnérable à l'énumération de comptes utilisateurs",
-        "stdin": "cas:2",
-        "expected": "VULN_MATCH: port=22 service=ssh cve=CVE-2016-6210 severity=MEDIUM desc=User_Enumeration"
+        "label": "Question 2 — Service à jour",
+        "stdin": "q:2",
+        "expected": "nginx||http||le service http||le http"
       },
       {
-        "label": "Service FTP ProFTPD avec module mod_copy vulnérable",
-        "stdin": "cas:3",
-        "expected": "VULN_MATCH: port=2121 service=ftp cve=CVE-2015-3306 severity=HIGH desc=mod_copy_Arbitrary_Copy"
+        "label": "Question 3 — Services avec exécution de code à distance",
+        "stdin": "q:3",
+        "expected": "2||deux"
       },
       {
-        "label": "Version récente sans vulnérabilité connue répertoriée",
-        "stdin": "cas:4",
-        "expected": "VULN_MATCH: port=443 service=https cve=NONE severity=INFO desc=UP_TO_DATE_OR_CUSTOM"
+        "label": "Question 4 — Version de Samba",
+        "stdin": "q:4",
+        "expected": "3.0.20||3,0,20||samba 3.0.20"
+      },
+      {
+        "label": "Question 5 — Protocole de partage de fichiers",
+        "stdin": "q:5",
+        "expected": "smb||SMB||le smb"
+      },
+      {
+        "label": "Question 6 — Option Nmap des scripts de vulnérabilités",
+        "stdin": "q:6",
+        "expected": "--script vuln||script vuln||vuln||l'option vuln"
       }
     ],
-    "solution": "[Exemple]\nVULN_MATCH: port=21 service=ftp cve=CVE-2011-2523 severity=CRITICAL desc=Backdoor_Command_Execution\n\n[Cas 1 — Serveur HTTP Apache vulnérable à la traversée de répertoire critique]\nVULN_MATCH: port=80 service=http cve=CVE-2021-41773 severity=CRITICAL desc=Path_Traversal_RCE\n\n[Cas 2 — Démon SSH vulnérable à l'énumération de comptes utilisateurs]\nVULN_MATCH: port=22 service=ssh cve=CVE-2016-6210 severity=MEDIUM desc=User_Enumeration\n\n[Cas 3 — Service FTP ProFTPD avec module mod_copy vulnérable]\nVULN_MATCH: port=2121 service=ftp cve=CVE-2015-3306 severity=HIGH desc=mod_copy_Arbitrary_Copy\n\n[Cas 4 — Version récente sans vulnérabilité connue répertoriée]\nVULN_MATCH: port=443 service=https cve=NONE severity=INFO desc=UP_TO_DATE_OR_CUSTOM"
+    "solution": "[Question 1 — Services en version obsolète]\n3\n\n[Question 2 — Service à jour]\nnginx\n\n[Question 3 — Services obsolètes avec exécution de code]\n2\n\n[Question 4 — Version de Samba en service]\n3.0.20\n\n[Question 5 — Protocole de partage de fichiers concerné]\nsmb\n\n[Question 6 — Option Nmap des scripts de vulnérabilités]\n--script vuln",
+    "takeaway": "1) Trois services sont obsolètes : OpenSSH 7.4p1 (stable 9.6p1), vsftpd 2.3.4 (stable 3.0.5) et Samba 3.0.20 (stable 4.19.0).\n2) nginx 1.25.3 coïncide avec la version stable : c'est le seul service à jour.\n3) Deux services obsolètes exposent une exécution de code à distance : vsftpd 2.3.4 (porte dérobée) et Samba 3.0.20.\n4) La version de Samba en service est 3.0.20.\n5) Samba implémente SMB, le protocole de partage de fichiers historiquement lié à Windows.\n6) L'option --script vuln exécute les scripts NSE de détection de vulnérabilités.\nContrôle : 4 services audités − 1 à jour = 3 obsolètes, dont 2 avec exécution de code et 1 avec énumération d'utilisateurs : le compte est cohérent."
   },
   {
     "id": "hk3-c3-e3",
@@ -340,7 +437,8 @@ module.exports = [
     "starter": "# Grille d'analyse (hk3-c3-e3) — Recherche simulée dans une liste de communautés SNMP\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Correspondance au troisième essai]\n# Données : SNMP_TEST target=10.0.0.254 wordlist=public,cisco,private,switch target_community=private target_perm=RW sys_descr=Juniper_EX4300\nA_COMPLETER\n\n[Cas 2 — Aucune correspondance dans la liste]\n# Données : SNMP_TEST target=172.16.1.1 wordlist=public,private,secret target_community=complex_snmp_9821 target_perm=RO sys_descr=Linux_Router\nA_COMPLETER\n\n[Cas 3 — Correspondance au deuxième essai]\n# Données : SNMP_TEST target=192.168.100.10 wordlist=manager,monitor,operator target_community=monitor target_perm=RO sys_descr=HP_ProCurve\nA_COMPLETER\n",
     "hints": [
       "Compter les essais jusqu’à la première correspondance, ou toute la liste si aucune chaîne ne correspond.",
-      "Ne déduire aucun risque global du seul résultat."
+      "Ne déduire aucun risque global du seul résultat.",
+      "Balayez la liste fournie et signalez uniquement les chaînes de communauté présentes ; l absence ou présence dans cette liste fictive ne suffit pas à auditer un hôte."
     ],
     "examples": [
       {
@@ -366,257 +464,345 @@ module.exports = [
         "expected": "SNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve"
       }
     ],
-    "solution": "[Exemple]\nSNMP_AUDIT: target=192.168.1.1 status=TROUVEE matched_community=public perm=RO attempts=1 risk=NON_EVALUE sys_descr=Cisco_IOS_Software_C2960\n\n[Cas 1 — Correspondance au troisième essai]\nSNMP_AUDIT: target=10.0.0.254 status=TROUVEE matched_community=private perm=RW attempts=3 risk=NON_EVALUE sys_descr=Juniper_EX4300\n\n[Cas 2 — Aucune correspondance dans la liste]\nSNMP_AUDIT: target=172.16.1.1 status=NON_TROUVEE attempts=3 risk=NON_EVALUE\n\n[Cas 3 — Correspondance au deuxième essai]\nSNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve\n"
+    "solution": "[Exemple]\nSNMP_AUDIT: target=192.168.1.1 status=TROUVEE matched_community=public perm=RO attempts=1 risk=NON_EVALUE sys_descr=Cisco_IOS_Software_C2960\n\n[Cas 1 — Correspondance au troisième essai]\nSNMP_AUDIT: target=10.0.0.254 status=TROUVEE matched_community=private perm=RW attempts=3 risk=NON_EVALUE sys_descr=Juniper_EX4300\n\n[Cas 2 — Aucune correspondance dans la liste]\nSNMP_AUDIT: target=172.16.1.1 status=NON_TROUVEE attempts=3 risk=NON_EVALUE\n\n[Cas 3 — Correspondance au deuxième essai]\nSNMP_AUDIT: target=192.168.100.10 status=TROUVEE matched_community=monitor perm=RO attempts=2 risk=NON_EVALUE sys_descr=HP_ProCurve\n",
+    "takeaway": "À retenir : Comparer des chaînes fictives sans conclure au niveau de sécurité d’un service.\nRepère : La première chaîne correspond dans ce scénario fictif ; les droits réels ne sont pas évalués."
   },
   {
     "id": "hk3-c4-e1",
     "chapter": 4,
-    "title": "Détecteur de Vecteurs d'Injection SQL (SQLi Pattern Analyzer)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser une chaîne de paramètres HTTP pour détecter et classifier les signatures d'injection SQL.",
-    "brief": "<p>L'injection SQL (A03:2021-Injection dans l'OWASP Top 10) survient lorsqu'une entrée utilisateur non nettoyée est concaténée dans une commande SQL.<br><br>\nTypes de motifs surveillés (insensibles à la casse) :<br>\n1. <code>SQLI_UNION</code> : contient <code>UNION SELECT</code> ou <code>UNION ALL SELECT</code>.<br>\n2. <code>SQLI_TAUTOLOGY</code> : contient <code>OR 1=1</code>, <code>OR '1'='1'</code>, <code>OR \"1\"=\"1\"</code> ou <code>OR \"\"=\"\"</code>.<br>\n3. <code>SQLI_STACKED</code> : contient <code>; DROP</code>, <code>; INSERT</code>, <code>; UPDATE</code>, <code>; DELETE</code> ou <code>; WAITFOR</code>.<br>\n4. <code>SQLI_COMMENT</code> : contient <code>--</code>, <code>/*</code> ou <code>#</code> en fin ou milieu de chaîne suspecte.<br><br>\nPriorité d'attribution : <code>SQLI_UNION</code> &gt; <code>SQLI_TAUTOLOGY</code> &gt; <code>SQLI_STACKED</code> &gt; <code>SQLI_COMMENT</code>.<br><br>\nDonnées du cas : <code>SQLI_CHECK param=&lt;valeur&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n- Si injection : <code>SQLI_ALERT: pattern=&lt;TYPE&gt; severity=CRITICAL status=INJECTION_DETECTED</code><br>\n- Si sain : <code>SQLI_ALERT: pattern=NONE severity=NONE status=CLEAN_PARAM</code></p>",
-    "starter": "# Grille d'analyse (hk3-c4-e1) — Détecteur de Vecteurs d'Injection SQL (SQLi Pattern Analyzer)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Injection UNION pour extraction de données d'autres tables]\n# Données : SQLI_CHECK param=1 UNION SELECT null, username, password FROM users--\nA_COMPLETER\n\n[Cas 2 — Requêtes empilées (Stacked Queries) avec tentative de suppression de table]\n# Données : SQLI_CHECK param=10; DROP TABLE clients;\nA_COMPLETER\n\n[Cas 3 — Troncature de requête par commentaire seul]\n# Données : SQLI_CHECK param=admin/*comment*/\nA_COMPLETER\n\n[Cas 4 — Paramètre alphanumérique légitime]\n# Données : SQLI_CHECK param=alice_dupont_2026\nA_COMPLETER\n",
+    "title": "Le classement OWASP du site de l'association Vél'Eau",
+    "exampleTitle": "Exemple résolu — le bug bounty du club GrimpeMax",
+    "goal": "Classer quatre observations de bug bounty dans les catégories de l'OWASP Top 10.",
+    "brief": "<p><strong>Énoncé.</strong> L'association Vél'Eau, qui gère un atelier de réparation de vélos en ligne, ouvre son site vel-eau.org à un programme de bug bounty. Le chasseur de primes consigne quatre observations :</p><table><tr><th>Obs.</th><th>Comportement constaté</th></tr><tr><th>A</th><td>En changeant le numéro dans <code>facture.php?id=1042</code>, on affiche la facture d'un autre adhérent</td></tr><tr><th>B</th><td>Le champ de recherche affiche le terme saisi, exécuté comme du JavaScript par le navigateur du visiteur</td></tr><tr><th>C</th><td>Le formulaire de connexion accepte <code>' OR 1=1 --</code> et ouvre une session sans mot de passe</td></tr><tr><th>D</th><td>L'URL <code>?page=../../../../etc/passwd</code> affiche un fichier du serveur</td></tr></table><ol><li>Combien d'observations décrivent des vulnérabilités distinctes ?</li><li>Quelle catégorie OWASP couvre l'observation C ?</li><li>Quelle catégorie couvre l'observation B ?</li><li>Comment se nomme la faille de l'observation A, où l'on accède à la ressource d'un autre utilisateur ?</li><li>Quelle observation illustre une traversée de répertoire ?</li></ol>",
+    "starter": "# Exercice — Le classement OWASP du site de l'association Vél'Eau\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : un nombre. Questions 2 à 4 : le nom d'une catégorie. Question 5 : une lettre.\n\n[Question 1 — Vulnérabilités distinctes relevées]\nA_COMPLETER\n\n[Question 2 — Catégorie OWASP de l'observation C]\nA_COMPLETER\n\n[Question 3 — Catégorie OWASP de l'observation B]\nA_COMPLETER\n\n[Question 4 — Nom de la faille de l'observation A]\nA_COMPLETER\n\n[Question 5 — Observation illustrant la traversée de répertoire]\nA_COMPLETER\n",
     "hints": [
-      "Extrayez la valeur du paramètre avec l’extraction des champs[1] pour préserver les espaces.",
-      "Convertissez la valeur en majuscules pour tester les mots-clés UNION SELECT, OR 1=1, etc.",
-      "Vérifiez les motifs dans l'ordre de priorité spécifié."
+      "Chaque ligne du tableau décrit un mécanisme différent : accès à la facture d'autrui, code exécuté par le navigateur, requête SQL manipulée, fichier système lu.",
+      "Le guillemet suivi de OR 1=1 manipule une requête de base de données ; un champ qui exécute le texte saisi comme du JavaScript relève du cross-site scripting.",
+      "Accéder à l'objet d'un autre utilisateur en changeant un identifiant dans l'URL porte un sigle de quatre lettres ; la lecture de /etc/passwd par des « ../ » est une traversée de répertoire."
     ],
     "examples": [
       {
-        "stdin": "SQLI_CHECK param=admin' OR '1'='1' --",
-        "expected": "SQLI_ALERT: pattern=SQLI_TAUTOLOGY severity=CRITICAL status=INJECTION_DETECTED",
-        "note": "Tautologie booléenne classique permettant le contournement d'authentification."
+        "stdin": "Le club d'escalade GrimpeMax ouvre son site au bug bounty. Observations :\nA : le paramètre membre.php?id=308 affiche le profil d'un autre membre ;\nB : la recherche accepte une requête SQL et renvoie toute la table des adhérents ;\nC : le livre d'or exécute le message laissé comme du JavaScript ;\nD : le paramètre download?fiche=../../secret.txt livre un fichier du serveur.\n\n1) 4 vulnérabilités distinctes. 2) L'observation B est une injection SQL. 3) L'observation C est un XSS.\n4) L'observation A est un IDOR. 5) L'observation D est une traversée de répertoire.",
+        "expected": "4 vulnérabilités — B : injection SQL — C : XSS — A : IDOR — D : traversée de répertoire",
+        "note": "Le sigle IDOR (Insecure Direct Object Reference) désigne la déclinaison la plus courante des défaillances de contrôle d'accès."
       }
     ],
     "tests": [
       {
-        "label": "Injection UNION pour extraction de données d'autres tables",
-        "stdin": "cas:1",
-        "expected": "SQLI_ALERT: pattern=SQLI_UNION severity=CRITICAL status=INJECTION_DETECTED"
+        "label": "Question 1 — Vulnérabilités distinctes",
+        "stdin": "q:1",
+        "expected": "4||quatre"
       },
       {
-        "label": "Requêtes empilées (Stacked Queries) avec tentative de suppression de table",
-        "stdin": "cas:2",
-        "expected": "SQLI_ALERT: pattern=SQLI_STACKED severity=CRITICAL status=INJECTION_DETECTED"
+        "label": "Question 2 — Catégorie de l'observation C",
+        "stdin": "q:2",
+        "expected": "injection sql||l'injection sql||injection||sql injection"
       },
       {
-        "label": "Troncature de requête par commentaire seul",
-        "stdin": "cas:3",
-        "expected": "SQLI_ALERT: pattern=SQLI_COMMENT severity=CRITICAL status=INJECTION_DETECTED"
+        "label": "Question 3 — Catégorie de l'observation B",
+        "stdin": "q:3",
+        "expected": "xss||cross-site scripting||le xss"
       },
       {
-        "label": "Paramètre alphanumérique légitime",
-        "stdin": "cas:4",
-        "expected": "SQLI_ALERT: pattern=NONE severity=NONE status=CLEAN_PARAM"
+        "label": "Question 4 — Faille de l'observation A",
+        "stdin": "q:4",
+        "expected": "idor||l'idor||contrôle d'accès défaillant||broken access control||défaillance de contrôle d'accès"
+      },
+      {
+        "label": "Question 5 — Observation de la traversée de répertoire",
+        "stdin": "q:5",
+        "expected": "d||la d||l'observation d"
       }
     ],
-    "solution": "[Exemple]\nSQLI_ALERT: pattern=SQLI_TAUTOLOGY severity=CRITICAL status=INJECTION_DETECTED\n\n[Cas 1 — Injection UNION pour extraction de données d'autres tables]\nSQLI_ALERT: pattern=SQLI_UNION severity=CRITICAL status=INJECTION_DETECTED\n\n[Cas 2 — Requêtes empilées (Stacked Queries) avec tentative de suppression de table]\nSQLI_ALERT: pattern=SQLI_STACKED severity=CRITICAL status=INJECTION_DETECTED\n\n[Cas 3 — Troncature de requête par commentaire seul]\nSQLI_ALERT: pattern=SQLI_COMMENT severity=CRITICAL status=INJECTION_DETECTED\n\n[Cas 4 — Paramètre alphanumérique légitime]\nSQLI_ALERT: pattern=NONE severity=NONE status=CLEAN_PARAM"
+    "solution": "[Question 1 — Vulnérabilités distinctes relevées]\n4\n\n[Question 2 — Catégorie OWASP de l'observation C]\ninjection sql\n\n[Question 3 — Catégorie OWASP de l'observation B]\nxss\n\n[Question 4 — Nom de la faille de l'observation A]\nidor\n\n[Question 5 — Observation illustrant la traversée de répertoire]\nd",
+    "takeaway": "1) Les quatre observations décrivent quatre vulnérabilités distinctes.\n2) L'observation C est une injection SQL : la chaîne ' OR 1=1 -- ferme la requête légitime et rend la condition toujours vraie.\n3) L'observation B est un XSS (cross-site scripting) : le terme saisi est exécuté comme du JavaScript par le navigateur du visiteur.\n4) L'observation A est un IDOR : changer l'identifiant dans l'URL donne accès à la facture d'un autre adhérent, faute de contrôle d'accès côté serveur.\n5) L'observation D illustre la traversée de répertoire : la séquence ../../../../ remonte l'arborescence jusqu'à /etc/passwd.\nContrôle : injection SQL, XSS, IDOR et traversée de répertoire forment quatre familles distinctes de l'OWASP Top 10, aucune observation ne chevauche une autre."
   },
   {
     "id": "hk3-c4-e2",
     "chapter": 4,
-    "title": "Simulateur d'Attaque par Injection SQL Aveugle Basée sur le Temps",
     "level": "n2",
     "language": "analyse",
-    "goal": "Simuler l'inférence de données caractère par caractère via des sondes temporelles (Time-Based Blind SQLi).",
-    "brief": "<p>Quand une application web ne renvoie aucune erreur ni donnée dans ses pages, l'attaquant exploite une commande de temporisation (ex: <code>IF(SUBSTRING(secret,1,1)='A', SLEEP(5), 0)</code>).<br><br>\nRègles de simulation :<br>\n- Un secret est stocké sur la cible : <code>actual_secret</code>.<br>\n- Chaque sonde teste un couple <code>pos:char</code> (position 1-indexée).<br>\n- Si <code>1 &lt;= pos &lt;= len(actual_secret)</code> et <code>actual_secret[pos - 1] == char</code> :<br>\n  - La condition est <code>TRUE</code>, le délai simulé vaut <code>5.0s</code>, caractère confirmé.<br>\n- Sinon :<br>\n  - La condition est <code>FALSE</code>, le délai vaut <code>0.0s</code>, caractère réfuté.<br><br>\nDonnées du cas : <code>TIME_INFER actual_secret=&lt;secret&gt; probes=&lt;pos1:c1,pos2:c2,...&gt;</code>.<br>\nRésultats d’analyse attendus :<br>\n- Pour chaque sonde : <code>PROBE: pos=&lt;p&gt; char=&lt;c&gt; match=&lt;TRUE|FALSE&gt; delay=&lt;5.0|0.0&gt;s</code><br>\n- Ligne récapitulative finale : <code>EXTRACTED: confirmed_chars=&lt;caractères_trouvés_dans_l_ordre|NONE&gt;</code> (chaîne des caractères validés concaténés dans l'ordre croissant de leur position unique).</p>",
-    "starter": "# Grille d'analyse (hk3-c4-e2) — Simulateur d'Attaque par Injection SQL Aveugle Basée sur le Temps\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Recherche de mot de passe administrateur avec échecs et succès]\n# Données : TIME_INFER actual_secret=ROOT probes=1:A,1:R,2:O,3:O,4:T\nA_COMPLETER\n\n[Cas 2 — Aucune sonde ne devine le bon caractère]\n# Données : TIME_INFER actual_secret=SECRET probes=1:X,2:Y,3:Z\nA_COMPLETER\n\n[Cas 3 — Extraction partielle de jeton d'API]\n# Données : TIME_INFER actual_secret=TOK123 probes=1:T,2:O,5:2\nA_COMPLETER\n",
+    "title": "Le journal d'attaques du portail santé Mylifeline",
+    "exampleTitle": "Exemple résolu — le journal du portail Biblioweb",
+    "goal": "Lire un journal de requêtes d'injection SQL, compter les tentatives et confirmer la faille par le temps de réponse.",
+    "brief": "<p><strong>Énoncé.</strong> Lors d'un test d'intrusion autorisé du portail santé Mylifeline, l'auditeur envoie une série de requêtes sur le champ de recherche. Le journal du serveur en garde la trace :</p><table><tr><th>Heure</th><th>Requête</th><th>Code HTTP</th><th>Durée</th></tr><tr><th>10:02</th><td><code>/recherche?q=sac+de+voyage</code></td><td>200</td><td>0,1 s</td></tr><tr><th>10:05</th><td><code>/recherche?q=' OR 1=1--</code></td><td>200</td><td>0,1 s</td></tr><tr><th>10:07</th><td><code>/recherche?q=gourde</code></td><td>200</td><td>0,1 s</td></tr><tr><th>10:09</th><td><code>/recherche?q=' UNION SELECT login, mot_de_passe FROM utilisateurs--</code></td><td>200</td><td>0,2 s</td></tr><tr><th>10:11</th><td><code>/recherche?q=&lt;script&gt;alert(1)&lt;/script&gt;</code></td><td>200</td><td>0,1 s</td></tr><tr><th>10:13</th><td><code>/recherche?q=' AND SLEEP(5)--</code></td><td>200</td><td>5,2 s</td></tr></table><ol><li>Combien de requêtes figurent dans cet extrait ?</li><li>Combien de tentatives d'injection SQL distinctes contient-il ?</li><li>Quel type d'injection repose sur le temps de réponse du serveur pour déduire des informations ?</li><li>La requête de 10:13 a duré 5,2 s : quel diagnostic l'auditeur peut-il poser sur la faille ?</li><li>Quel autre type d'attaque apparaît à 10:11 ?</li><li>Quel mot-clé SQL de la requête de 10:09 permet de concaténer les résultats d'une autre table ?</li></ol>",
+    "starter": "# Exercice — Le journal d'attaques du portail santé Mylifeline\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : un nombre. Questions 3 à 6 : quelques mots.\n\n[Question 1 — Requêtes de l'extrait]\nA_COMPLETER\n\n[Question 2 — Tentatives d'injection SQL]\nA_COMPLETER\n\n[Question 3 — Type d'injection fondé sur le temps de réponse]\nA_COMPLETER\n\n[Question 4 — Diagnostic posé grâce à la durée de 5,2 s]\nA_COMPLETER\n\n[Question 5 — Autre type d'attaque à 10:11]\nA_COMPLETER\n\n[Question 6 — Mot-clé SQL concaténant une autre table]\nA_COMPLETER\n",
     "hints": [
-      "Parcourez probes en découpant pos:char.",
-      "Comparez char avec secret[pos - 1] si pos est dans les bornes.",
-      "Conservez un dictionnaire {pos: char} des caractères validés pour reconstituer la chaîne finale."
+      "Les injections SQL portent une apostrophe suivie d'un mot-clé SQL (OR, UNION, AND) : parcourez la colonne Requête ligne par ligne.",
+      "Quand le serveur répond « normalement » mais que SLEEP(5) allonge la réponse de 5 secondes, la base a bien exécuté la commande injectée.",
+      "Le mot-clé UNION SELECT ajoute les lignes d'une autre table aux résultats ; la balise script dans la requête de 10:11 relève, elle, du cross-site scripting."
     ],
     "examples": [
       {
-        "stdin": "TIME_INFER actual_secret=FLAG probes=1:F,1:B,2:L,3:A,4:G",
-        "expected": "PROBE: pos=1 char=F match=TRUE delay=5.0s\nPROBE: pos=1 char=B match=FALSE delay=0.0s\nPROBE: pos=2 char=L match=TRUE delay=5.0s\nPROBE: pos=3 char=A match=TRUE delay=5.0s\nPROBE: pos=4 char=G match=TRUE delay=5.0s\nEXTRACTED: confirmed_chars=FLAG",
-        "note": "Extraction complète des 4 caractères du secret grâce au délai de 5 secondes."
+        "stdin": "Test autorisé du portail Biblioweb ; journal du champ de recherche :\n14:02 q=roman policier (200, 0,2 s) ; 14:05 q=' OR '1'='1 (200, 0,2 s) ;\n14:08 q=bd (200, 0,2 s) ; 14:10 q=' UNION SELECT titre, isbn FROM livres-- (200, 0,3 s) ;\n14:12 q=<img src=x onerror=alert(1)> (200, 0,2 s) ; 14:15 q=' AND SLEEP(8)-- (200, 8,3 s).\n\n1) 6 requêtes. 2) 3 injections SQL. 3) La dernière est une injection aveugle basée sur le temps.\n4) La durée de 8,3 s confirme la faille. 5) L'attaque de 14:12 est un XSS. 6) Le mot-clé est UNION SELECT.",
+        "expected": "6 requêtes — 3 injections SQL — aveugle basée sur le temps — faille confirmée — XSS — UNION SELECT",
+        "note": "Un écart entre la durée demandée (SLEEP 8) et la durée observée (8,3 s) tient au traitement : l'essentiel est l'ordre de grandeur, pas la décimale."
       }
     ],
     "tests": [
       {
-        "label": "Recherche de mot de passe administrateur avec échecs et succès",
-        "stdin": "cas:1",
-        "expected": "PROBE: pos=1 char=A match=FALSE delay=0.0s\nPROBE: pos=1 char=R match=TRUE delay=5.0s\nPROBE: pos=2 char=O match=TRUE delay=5.0s\nPROBE: pos=3 char=O match=TRUE delay=5.0s\nPROBE: pos=4 char=T match=TRUE delay=5.0s\nEXTRACTED: confirmed_chars=ROOT"
+        "label": "Question 1 — Requêtes de l'extrait",
+        "stdin": "q:1",
+        "expected": "6||six"
       },
       {
-        "label": "Aucune sonde ne devine le bon caractère",
-        "stdin": "cas:2",
-        "expected": "PROBE: pos=1 char=X match=FALSE delay=0.0s\nPROBE: pos=2 char=Y match=FALSE delay=0.0s\nPROBE: pos=3 char=Z match=FALSE delay=0.0s\nEXTRACTED: confirmed_chars=NONE"
+        "label": "Question 2 — Tentatives d'injection SQL",
+        "stdin": "q:2",
+        "expected": "3||trois"
       },
       {
-        "label": "Extraction partielle de jeton d'API",
-        "stdin": "cas:3",
-        "expected": "PROBE: pos=1 char=T match=TRUE delay=5.0s\nPROBE: pos=2 char=O match=TRUE delay=5.0s\nPROBE: pos=5 char=2 match=TRUE delay=5.0s\nEXTRACTED: confirmed_chars=TO2"
+        "label": "Question 3 — Injection fondée sur le temps",
+        "stdin": "q:3",
+        "expected": "l'injection aveugle basée sur le temps||injection aveugle basée sur le temps||aveugle basée sur le temps||time-based blind||blind time-based||injection temporelle||l'injection temporelle"
+      },
+      {
+        "label": "Question 4 — Diagnostic après 5,2 s",
+        "stdin": "q:4",
+        "expected": "confirmée||la faille est confirmée||que la faille est confirmée||la vulnérabilité est confirmée||confirmee||la faille est exploitée"
+      },
+      {
+        "label": "Question 5 — Attaque à 10:11",
+        "stdin": "q:5",
+        "expected": "xss||cross-site scripting||le xss"
+      },
+      {
+        "label": "Question 6 — Mot-clé SQL de concaténation",
+        "stdin": "q:6",
+        "expected": "union||union select||l'union select"
       }
     ],
-    "solution": "[Exemple]\nPROBE: pos=1 char=F match=TRUE delay=5.0s\nPROBE: pos=1 char=B match=FALSE delay=0.0s\nPROBE: pos=2 char=L match=TRUE delay=5.0s\nPROBE: pos=3 char=A match=TRUE delay=5.0s\nPROBE: pos=4 char=G match=TRUE delay=5.0s\nEXTRACTED: confirmed_chars=FLAG\n\n[Cas 1 — Recherche de mot de passe administrateur avec échecs et succès]\nPROBE: pos=1 char=A match=FALSE delay=0.0s\nPROBE: pos=1 char=R match=TRUE delay=5.0s\nPROBE: pos=2 char=O match=TRUE delay=5.0s\nPROBE: pos=3 char=O match=TRUE delay=5.0s\nPROBE: pos=4 char=T match=TRUE delay=5.0s\nEXTRACTED: confirmed_chars=ROOT\n\n[Cas 2 — Aucune sonde ne devine le bon caractère]\nPROBE: pos=1 char=X match=FALSE delay=0.0s\nPROBE: pos=2 char=Y match=FALSE delay=0.0s\nPROBE: pos=3 char=Z match=FALSE delay=0.0s\nEXTRACTED: confirmed_chars=NONE\n\n[Cas 3 — Extraction partielle de jeton d'API]\nPROBE: pos=1 char=T match=TRUE delay=5.0s\nPROBE: pos=2 char=O match=TRUE delay=5.0s\nPROBE: pos=5 char=2 match=TRUE delay=5.0s\nEXTRACTED: confirmed_chars=TO2"
+    "solution": "[Question 1 — Requêtes de l'extrait]\n6\n\n[Question 2 — Tentatives d'injection SQL]\n3\n\n[Question 3 — Type d'injection fondé sur le temps de réponse]\nl'injection aveugle basée sur le temps\n\n[Question 4 — Diagnostic posé grâce à la durée de 5,2 s]\nconfirmée\n\n[Question 5 — Autre type d'attaque à 10:11]\nxss\n\n[Question 6 — Mot-clé SQL concaténant une autre table]\nunion",
+    "takeaway": "1) L'extrait compte 6 requêtes, de 10:02 à 10:13.\n2) Trois tentatives d'injection SQL distinctes : à 10:05 (OR 1=1), 10:09 (UNION SELECT) et 10:13 (SLEEP).\n3) C'est l'injection aveugle basée sur le temps : le serveur ne renvoie pas les données, mais leur durée de réponse trahit le résultat.\n4) La requête SLEEP(5) a duré 5,2 s : la base a exécuté la commande, la faille est confirmée.\n5) La requête de 10:11, avec sa balise script, est une tentative de XSS.\n6) Le mot-clé UNION (UNION SELECT) concatène les lignes d'une autre table aux résultats de la requête légitime.\nContrôle : 6 requêtes − 3 injections SQL − 1 XSS = 2 requêtes de recherche légitimes (10:02 et 10:07), le compte du journal est cohérent."
   },
   {
     "id": "hk3-c4-e3",
     "chapter": 4,
-    "title": "Analyseur de Traversée de Répertoire et Inclusion de Fichiers (Path Traversal / LFI)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Détecter les tentatives de traversée de répertoire (Directory Traversal) et normaliser les chemins d'accès URI.",
-    "brief": "<p>L'attaque par traversée de répertoire vise à accéder à des fichiers situés hors du dossier racine autorisé (ex: <code>/etc/passwd</code>, <code>win.ini</code>).<br><br>\nAlgorithme de normalisation et détection :<br>\n1. Décodage d'URL : remplacer <code>%2e%2e%2f</code> et <code>%2e%2e/</code> par <code>../</code>, <code>%2e%2e%5c</code> par <code>..\\</code>.<br>\n2. Remplacer les séparateurs Windows <code>\\</code> par <code>/</code>.<br>\n3. Tronquer la chaîne si un octet nul (<code>%00</code> ou <code>\\0</code>) est injecté.<br>\n4. Résolution de chemin virtuel :<br>\n   - Partir d'une liste vide de segments.<br>\n   - Pour chaque segment entre les slashes <code>/</code> :<br>\n     - Si <code>.</code> ou vide : ignorer.<br>\n     - Si <code>..</code> : dépiler le dernier segment s'il existe. Si la pile est déjà vide, marquer <code>ESCAPED_ROOT = True</code>.<br>\n     - Sinon : empiler le segment.<br>\n5. Décision de sécurité :<br>\n   - Si <code>ESCAPED_ROOT</code> est Vrai ou si le chemin résolu cible un fichier système sensible (<code>passwd</code>, <code>shadow</code>, <code>hosts</code>, <code>win.ini</code>) :<br>\n     <code>status=BLOCKED_TRAVERSAL</code>, <code>risk=CRITICAL</code>.<br>\n   - Sinon : <code>status=SAFE_ACCESS</code>, <code>risk=LOW</code>.<br><br>\nDonnées du cas : <code>LFI_CHECK path=&lt;chemin_brut&gt;</code>.<br>\nRésultat d’analyse attendu : <code>LFI_AUDIT: input=&lt;path&gt; resolved=&lt;/seg1/seg2|ROOT&gt; status=&lt;BLOCKED_TRAVERSAL|SAFE_ACCESS&gt; risk=&lt;CRITICAL|LOW&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c4-e3) — Analyseur de Traversée de Répertoire et Inclusion de Fichiers (Path Traversal / LFI)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Tentative d'évasion avec encodage URL pour contourner les filtres basiques]\n# Données : LFI_CHECK path=%2e%2e%2f%2e%2e%2fetc/shadow\nA_COMPLETER\n\n[Cas 2 — Chemin légitime restant confiné dans le sous-dossier autorisé]\n# Données : LFI_CHECK path=documents/2026/rapport.pdf\nA_COMPLETER\n\n[Cas 3 — Chemin avec retour relatif interne autorisé ne sortant pas de la racine]\n# Données : LFI_CHECK path=images/sub/../logo.png\nA_COMPLETER\n",
+    "title": "De la lecture de fichiers au web shell : la chaîne d'exploitation d'Alpaga",
+    "exampleTitle": "Exemple résolu — la chaîne d'exploitation de la recette Zéphyr",
+    "goal": "Dérouler une chaîne d'exploitation complète : path traversal, log poisoning, exécution de code et remédiation.",
+    "brief": "<p><strong>Énoncé.</strong> Alpaga, plateforme de vente de laine en ligne, commande un test d'intrusion à haute valeur. Partant d'une simple faille de lecture de fichiers, l'auditeur construit la chaîne d'exploitation suivante, chaque étape étant validée avec l'équipe sécurité d'Alpaga :</p><table><tr><th>Étape</th><th>Action</th><th>Résultat</th></tr><tr><th>1</th><td><code>index.php?page=../../../etc/passwd</code></td><td>Le fichier /etc/passwd s'affiche</td></tr><tr><th>2</th><td><code>index.php?page=../../../var/log/apache2/access.log</code></td><td>Les journaux du serveur sont lus</td></tr><tr><th>3</th><td>Requête dont l'en-tête User-Agent contient du code PHP</td><td>Le code est consigné dans le journal</td></tr><tr><th>4</th><td>Nouvelle inclusion du journal</td><td>Le code PHP du journal s'exécute</td></tr><tr><th>5</th><td>Dépôt d'un petit web shell dans l'arborescence web</td><td>Exécution de commandes persistante</td></tr></table><ol><li>Comment se nomme la vulnérabilité initiale qui permet d'afficher /etc/passwd ?</li><li>Quelle fonction PHP, alimentée par le paramètre page sans validation, est typiquement en cause ?</li><li>Quelle technique, qui fait exécuter le code injecté dans les journaux, transforme la lecture en exécution ?</li><li>Quel en-tête HTTP a servi de vecteur d'injection à l'étape 3 ?</li><li>Combien d'étapes séparent la découverte de la faille (étape 1) de la première exécution de code (étape 4) ?</li><li>Quelle remédiation consiste à ne charger que des pages figurant dans une liste de valeurs autorisées ?</li></ol>",
+    "starter": "# Exercice — De la lecture de fichiers au web shell : la chaîne d'exploitation d'Alpaga\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 5 : un nombre. Autres questions : un terme technique ou un nom de fonction.\n\n[Question 1 — Nom de la vulnérabilité initiale]\nA_COMPLETER\n\n[Question 2 — Fonction PHP typiquement en cause]\nA_COMPLETER\n\n[Question 3 — Technique transformant la lecture en exécution]\nA_COMPLETER\n\n[Question 4 — En-tête HTTP vecteur de l'injection]\nA_COMPLETER\n\n[Question 5 — Étapes entre la faille et la première exécution]\nA_COMPLETER\n\n[Question 6 — Remédiation par liste de valeurs autorisées]\nA_COMPLETER\n",
     "hints": [
-      "Normalisez les encodages URL (%2e%2e%2f -> ../).",
-      "Tronquez à %00 si présent.",
-      "Gérez la pile de segments et détectez si une tentative de sortie de racine survient."
+      "La faille initiale porte un nom anglais évoquant la traversée de l'arborescence ; en français on parle de traversée de répertoire, parfois d'inclusion de fichier local.",
+      "Le paramètre page est passé à une fonction PHP qui charge un fichier ; les deux candidats de la même famille s'appellent include et require.",
+      "Faire exécuter le code déposé dans un journal s'appelle l'empoisonnement des journaux (log poisoning) ; la remédiation par valeurs autorisées s'appelle une liste blanche."
     ],
     "examples": [
       {
-        "stdin": "LFI_CHECK path=../../../../etc/passwd",
-        "expected": "LFI_AUDIT: input=../../../../etc/passwd resolved=/etc/passwd status=BLOCKED_TRAVERSAL risk=CRITICAL",
-        "note": "Tentative d'évasion de racine pour lire le fichier système des comptes Linux."
+        "stdin": "Sur la plateforme de recette de Zéphyr, même scénario :\n1) le paramètre template lit /etc/passwd ; 2) lecture de /var/log/nginx/error.log ;\n3) code PHP injecté via l'en-tête Referer ; 4) le journal inclus exécute le code ;\n5) un web shell est déposé.\n\n1) Faille initiale : path traversal. 2) Fonction en cause : include. 3) Technique : log poisoning.\n4) Vecteur : l'en-tête Referer. 5) 3 étapes avant la première exécution. 6) Remédiation : liste blanche.",
+        "expected": "path traversal — include — log poisoning — Referer — 3 étapes — liste blanche",
+        "note": "Le vecteur change (Referer au lieu de User-Agent) mais la chaîne est identique : lecture, dépôt, exécution."
       }
     ],
     "tests": [
       {
-        "label": "Tentative d'évasion avec encodage URL pour contourner les filtres basiques",
-        "stdin": "cas:1",
-        "expected": "LFI_AUDIT: input=%2e%2e%2f%2e%2e%2fetc/shadow resolved=/etc/shadow status=BLOCKED_TRAVERSAL risk=CRITICAL"
+        "label": "Question 1 — Vulnérabilité initiale",
+        "stdin": "q:1",
+        "expected": "path traversal||la traversée de répertoire||traversée de répertoire||lfi||l'inclusion de fichier local||inclusion de fichier local||local file inclusion"
       },
       {
-        "label": "Chemin légitime restant confiné dans le sous-dossier autorisé",
-        "stdin": "cas:2",
-        "expected": "LFI_AUDIT: input=documents/2026/rapport.pdf resolved=/documents/2026/rapport.pdf status=SAFE_ACCESS risk=LOW"
+        "label": "Question 2 — Fonction PHP en cause",
+        "stdin": "q:2",
+        "expected": "include||include()||require||require()"
       },
       {
-        "label": "Chemin avec retour relatif interne autorisé ne sortant pas de la racine",
-        "stdin": "cas:3",
-        "expected": "LFI_AUDIT: input=images/sub/../logo.png resolved=/images/logo.png status=SAFE_ACCESS risk=LOW"
+        "label": "Question 3 — Technique d'exécution via les journaux",
+        "stdin": "q:3",
+        "expected": "log poisoning||le log poisoning||empoisonnement des journaux||l'empoisonnement des journaux"
+      },
+      {
+        "label": "Question 4 — En-tête HTTP vecteur",
+        "stdin": "q:4",
+        "expected": "user-agent||le user-agent||user agent||l'en-tête user-agent"
+      },
+      {
+        "label": "Question 5 — Étapes avant l'exécution",
+        "stdin": "q:5",
+        "expected": "3||trois"
+      },
+      {
+        "label": "Question 6 — Remédiation par valeurs autorisées",
+        "stdin": "q:6",
+        "expected": "liste blanche||la liste blanche||whitelist||allowlist||liste d'autorisation"
       }
     ],
-    "solution": "[Exemple]\nLFI_AUDIT: input=../../../../etc/passwd resolved=/etc/passwd status=BLOCKED_TRAVERSAL risk=CRITICAL\n\n[Cas 1 — Tentative d'évasion avec encodage URL pour contourner les filtres basiques]\nLFI_AUDIT: input=%2e%2e%2f%2e%2e%2fetc/shadow resolved=/etc/shadow status=BLOCKED_TRAVERSAL risk=CRITICAL\n\n[Cas 2 — Chemin légitime restant confiné dans le sous-dossier autorisé]\nLFI_AUDIT: input=documents/2026/rapport.pdf resolved=/documents/2026/rapport.pdf status=SAFE_ACCESS risk=LOW\n\n[Cas 3 — Chemin avec retour relatif interne autorisé ne sortant pas de la racine]\nLFI_AUDIT: input=images/sub/../logo.png resolved=/images/logo.png status=SAFE_ACCESS risk=LOW"
+    "solution": "[Question 1 — Nom de la vulnérabilité initiale]\npath traversal\n\n[Question 2 — Fonction PHP typiquement en cause]\ninclude\n\n[Question 3 — Technique transformant la lecture en exécution]\nlog poisoning\n\n[Question 4 — En-tête HTTP vecteur de l'injection]\nuser-agent\n\n[Question 5 — Étapes entre la faille et la première exécution]\n3\n\n[Question 6 — Remédiation par liste de valeurs autorisées]\nliste blanche",
+    "takeaway": "1) La vulnérabilité initiale est le path traversal (traversée de répertoire), qui permet de remonter l'arborescence jusqu'à /etc/passwd.\n2) La fonction PHP en cause est include (ou require), appelée avec le paramètre page sans validation.\n3) La technique s'appelle le log poisoning : du code PHP injecté dans un journal est ensuite exécuté par l'inclusion de ce journal.\n4) L'en-tête User-Agent a servi de vecteur : sa valeur est consignée dans le journal d'accès.\n5) Il faut 3 étapes pour passer de la faille (étape 1) à la première exécution de code (étape 4).\n6) La remédiation est la liste blanche : ne charger que des pages présentes dans un répertoire ou un tableau de valeurs autorisées.\nContrôle : lecture (2), dépôt (3), exécution (4) : trois étapes suffisent à transformer une simple divulgation en exécution de code, d'où la gravité CVSS élevée de ce type de faille."
   },
   {
     "id": "hk3-c5-e1",
     "chapter": 5,
-    "title": "Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux",
     "level": "n1",
     "language": "analyse",
-    "goal": "Analyser les permissions octales de fichiers système pour détecter les binaires SUID exploitables (GTFOBins).",
-    "brief": "<p>Le bit SUID (Set User ID) permet d'exécuter un binaire avec les privilèges de son propriétaire (généralement root).<br><br>\nBinaires connus du catalogue GTFOBins permettant une évasion directe vers un shell root :<br>\n<code>bash</code>, <code>find</code>, <code>vim</code>, <code>nano</code>, <code>cp</code>, <code>awk</code>, <code>python</code>, <code>nmap</code>, <code>pkexec</code>.<br><br>\nRègles d'évaluation :<br>\n1. Vérifier si le mode octal comporte le bit SUID (chiffre des milliers &gt;= 4, ex: <code>4755</code>, <code>4750</code>) :<br>\n   - Si le bit SUID est absent : <code>exploit=NO_SUID_BIT</code>, <code>risk=NONE</code>.<br>\n2. Si le bit SUID est présent et <code>owner == 'root'</code> :<br>\n   - Si le nom du binaire est dans GTFOBins : <code>exploit=GTFOBINS_PRIVILEGE_ESCALATION</code>, <code>risk=CRITICAL</code>.<br>\n   - Sinon (binaire standard comme <code>passwd</code>, <code>ping</code>) : <code>exploit=STANDARD_SYSTEM_BINARY</code>, <code>risk=LOW</code>.<br>\n3. Si le bit SUID est présent mais <code>owner != 'root'</code> :<br>\n   - <code>exploit=NON_ROOT_SUID</code>, <code>risk=MEDIUM</code>.<br><br>\nDonnées du cas : <code>SUID_CHECK path=&lt;chemin&gt; owner=&lt;user&gt; mode=&lt;octal&gt;</code>.<br>\nRésultat d’analyse attendu : <code>SUID_AUDIT: binary=&lt;nom&gt; owner=&lt;user&gt; mode=&lt;octal&gt; exploit=&lt;exploit&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c5-e1) — Auditeur de Permissions Linux et Détection de Binaires SUID Anormaux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Binaire système passwd avec SUID légitime et restreint]\n# Données : SUID_CHECK path=/usr/bin/passwd owner=root mode=4755\nA_COMPLETER\n\n[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]\n# Données : SUID_CHECK path=/bin/vim owner=root mode=4750\nA_COMPLETER\n\n[Cas 3 — Binaire normal sans aucun bit SUID]\n# Données : SUID_CHECK path=/usr/bin/ls owner=root mode=0755\nA_COMPLETER\n\n[Cas 4 — Binaire SUID appartenant à un utilisateur non root]\n# Données : SUID_CHECK path=/opt/app/worker owner=deploy mode=4755\nA_COMPLETER\n",
+    "title": "L'audit des binaires SUID du serveur de la coopérative Solvigne",
+    "exampleTitle": "Exemple résolu — les binaires SUID de l'école de musique Harmonia",
+    "goal": "Interpréter la sortie d'une recherche de binaires SUID et repérer ceux qui ouvrent un shell root.",
+    "brief": "<p><strong>Énoncé.</strong> La coopérative agricole Solvigne mandate un test d'intrusion de son serveur web. Après avoir obtenu un accès limité au compte <code>www-data</code>, l'auditeur recherche des chemins d'élévation de privilèges et lance <code>find / -perm -4000 -type f 2&gt;/dev/null</code>. Le serveur renvoie :</p><table><tr><th>Binaire</th><th>Permissions</th></tr><tr><th>/usr/bin/passwd</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/find</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/vim</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/less</th><td>-rwsr-xr-x root root</td></tr><tr><th>/bin/mount</th><td>-rwsr-xr-x root root</td></tr><tr><th>/usr/bin/chsh</th><td>-rwsr-xr-x root root</td></tr></table><p>Au passage, la base GTFOBins indique que <code>find</code>, <code>vim</code> et <code>less</code> permettent d'ouvrir un shell lorsque leur bit SUID est positionné.</p><ol><li>Combien de binaires SUID l'audit a-t-il listés ?</li><li>Quelle lettre minuscule, à la place du « x » du propriétaire dans la chaîne de permissions, signale le bit SUID ?</li><li>Combien de ces binaires GTFOBins considère-t-elle comme permettant un shell root ?</li><li>Quel binaire est légitimement SUID sur tout système Linux car il modifie les mots de passe ?</li><li>Quelle valeur octale, présente dans l'option -perm de la commande, correspond au bit SUID ?</li><li>Sous quelle identité ces binaires s'exécutent-ils grâce au bit SUID ?</li></ol>",
+    "starter": "# Exercice — L'audit des binaires SUID du serveur de la coopérative Solvigne\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 3 et 5 : un nombre. Question 2 : une lettre. Questions 4 et 6 : un nom.\n\n[Question 1 — Binaires SUID listés]\nA_COMPLETER\n\n[Question 2 — Lettre signalant le bit SUID]\nA_COMPLETER\n\n[Question 3 — Binaires ouvrant un shell selon GTFOBins]\nA_COMPLETER\n\n[Question 4 — Binaire SUID légitime]\nA_COMPLETER\n\n[Question 5 — Valeur octale du bit SUID]\nA_COMPLETER\n\n[Question 6 — Identité d'exécution des binaires SUID]\nA_COMPLETER\n",
     "hints": [
-      "Extrayez le nom de base du fichier (ex: /usr/bin/find -> find).",
-      "Vérifiez si le premier chiffre du mode octal (mode >= 4000) active le bit SUID.",
-      "Comparez avec la liste GTFOBins si owner == root."
+      "Comptez les lignes du tableau : chaque binaire listé porte le bit SUID dans ses permissions.",
+      "Dans -rwsr-xr-x, le « s » remplace le « x » du propriétaire : c'est lui qui indique le SUID ; la commande le cherche avec -perm -4000.",
+      "GTFOBins classe find, vim et less comme permettant un shell ; passwd est SUID par conception, pour que tout utilisateur change son mot de passe."
     ],
     "examples": [
       {
-        "stdin": "SUID_CHECK path=/usr/bin/find owner=root mode=4755",
-        "expected": "SUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL",
-        "note": "Binaire find SUID root exploitable directement via la commande find . -exec /bin/sh -p ;"
+        "stdin": "Le serveur de l'école de musique Harmonia renvoie quatre binaires SUID :\npasswd (légitime), nano, awk, env.\nGTFOBins classe nano, awk et env comme permettant d'ouvrir un shell.\n\n1) 4 binaires listés. 2) Le bit SUID se lit « s » à la place du x du propriétaire.\n3) 3 binaires exploitables. 4) passwd est le SUID légitime. 5) Valeur octale : 4000. 6) Les binaires s'exécutent en root.",
+        "expected": "4 binaires — s — 3 exploitables — passwd — 4000 — root",
+        "note": "Un SUID légitime comme passwd ne doit jamais être supprimé : l'audit ne retient que les SUID injustifiés."
       }
     ],
     "tests": [
       {
-        "label": "Binaire système passwd avec SUID légitime et restreint",
-        "stdin": "cas:1",
-        "expected": "SUID_AUDIT: binary=passwd owner=root mode=4755 exploit=STANDARD_SYSTEM_BINARY risk=LOW"
+        "label": "Question 1 — Binaires SUID listés",
+        "stdin": "q:1",
+        "expected": "6||six"
       },
       {
-        "label": "Éditeur vim mis en SUID par erreur d'administration",
-        "stdin": "cas:2",
-        "expected": "SUID_AUDIT: binary=vim owner=root mode=4750 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL"
+        "label": "Question 2 — Lettre du bit SUID",
+        "stdin": "q:2",
+        "expected": "s||la lettre s"
       },
       {
-        "label": "Binaire normal sans aucun bit SUID",
-        "stdin": "cas:3",
-        "expected": "SUID_AUDIT: binary=ls owner=root mode=0755 exploit=NO_SUID_BIT risk=NONE"
+        "label": "Question 3 — Binaires ouvrant un shell",
+        "stdin": "q:3",
+        "expected": "3||trois"
       },
       {
-        "label": "Binaire SUID appartenant à un utilisateur non root",
-        "stdin": "cas:4",
-        "expected": "SUID_AUDIT: binary=worker owner=deploy mode=4755 exploit=NON_ROOT_SUID risk=MEDIUM"
+        "label": "Question 4 — Binaire SUID légitime",
+        "stdin": "q:4",
+        "expected": "passwd||le passwd||/usr/bin/passwd"
+      },
+      {
+        "label": "Question 5 — Valeur octale du SUID",
+        "stdin": "q:5",
+        "expected": "4000"
+      },
+      {
+        "label": "Question 6 — Identité d'exécution",
+        "stdin": "q:6",
+        "expected": "root||le root||l'utilisateur root"
       }
     ],
-    "solution": "[Exemple]\nSUID_AUDIT: binary=find owner=root mode=4755 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL\n\n[Cas 1 — Binaire système passwd avec SUID légitime et restreint]\nSUID_AUDIT: binary=passwd owner=root mode=4755 exploit=STANDARD_SYSTEM_BINARY risk=LOW\n\n[Cas 2 — Éditeur vim mis en SUID par erreur d'administration]\nSUID_AUDIT: binary=vim owner=root mode=4750 exploit=GTFOBINS_PRIVILEGE_ESCALATION risk=CRITICAL\n\n[Cas 3 — Binaire normal sans aucun bit SUID]\nSUID_AUDIT: binary=ls owner=root mode=0755 exploit=NO_SUID_BIT risk=NONE\n\n[Cas 4 — Binaire SUID appartenant à un utilisateur non root]\nSUID_AUDIT: binary=worker owner=deploy mode=4755 exploit=NON_ROOT_SUID risk=MEDIUM"
+    "solution": "[Question 1 — Binaires SUID listés]\n6\n\n[Question 2 — Lettre signalant le bit SUID]\ns\n\n[Question 3 — Binaires ouvrant un shell selon GTFOBins]\n3\n\n[Question 4 — Binaire SUID légitime]\npasswd\n\n[Question 5 — Valeur octale du bit SUID]\n4000\n\n[Question 6 — Identité d'exécution des binaires SUID]\nroot",
+    "takeaway": "1) La commande a listé 6 binaires SUID : passwd, find, vim, less, mount et chsh.\n2) La lettre « s » remplace le « x » du propriétaire dans -rwsr-xr-x : c'est le signe du bit SUID.\n3) GTFOBins classe 3 de ces binaires comme permettant un shell root : find, vim et less.\n4) passwd est légitimement SUID sur tout système Linux : il doit modifier les mots de passe pour tous les utilisateurs.\n5) Le bit SUID correspond à la valeur octale 4000, d'où l'option -perm -4000 de la commande.\n6) Grâce au bit SUID, ces binaires s'exécutent sous l'identité de root, quel que soit l'utilisateur qui les lance.\nContrôle : 6 binaires listés − 3 exploitables (find, vim, less) − 2 légitimes (passwd, chsh) = 1 binaire à instruire (mount), le tri de l'auditeur est complet."
   },
   {
     "id": "hk3-c5-e2",
     "chapter": 5,
-    "title": "Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Analyser une directive sudoers pour détecter des privilèges excessifs permettant l'élévation directe vers root.",
-    "brief": "<p>Une mauvaise configuration dans <code>/etc/sudoers</code> constitue le vecteur d'élévation de privilèges le plus fréquent en environnement Linux.<br><br>\nCommandes dangereuses permettant l'échappement vers un shell (Shell Escape) :<br>\n<code>ALL</code>, <code>find</code>, <code>vim</code>, <code>vi</code>, <code>less</code>, <code>more</code>, <code>bash</code>, <code>sh</code>, <code>python</code>, <code>perl</code>, <code>awk</code>.<br><br>\nRègles d'analyse :<br>\n1. Déterminer si <code>NOPASSWD:</code> est présent dans la règle :<br>\n   - Si absent : <code>nopasswd=FALSE</code>, <code>vector=PASSWORD_PROTECTED</code>, <code>risk=LOW</code>.<br>\n2. Si <code>NOPASSWD:</code> est présent (<code>nopasswd=TRUE</code>) :<br>\n   - Extraire la commande autorisée située après <code>NOPASSWD:</code> (ex: <code>/usr/bin/find</code>).<br>\n   - Extraire le nom du binaire de base.<br>\n   - Si le binaire est <code>ALL</code> ou appartient à la liste de shell escape :<br>\n     <code>vector=INSTANT_ROOT_SHELL</code>, <code>risk=CRITICAL</code>.<br>\n   - Sinon (binaire d'administration restreint, ex: <code>systemctl restart nginx</code>) :<br>\n     <code>vector=RESTRICTED_SUDO_EXECUTION</code>, <code>risk=MEDIUM</code>.<br><br>\nDonnées du cas : <code>SUDO_PARSE rule=&lt;texte_complet_de_la_regle_sudoers&gt;</code>.<br>\nRésultat d’analyse attendu : <code>SUDO_AUDIT: user=&lt;user&gt; nopasswd=&lt;TRUE|FALSE&gt; command=&lt;cmd_name&gt; vector=&lt;vector&gt; risk=&lt;risk&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c5-e2) — Analyseur de Fichier Sudoers et Détection de Droits Dangereux (NOPASSWD)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]\n# Données : SUDO_PARSE rule=john ALL=(ALL:ALL) NOPASSWD: ALL\nA_COMPLETER\n\n[Cas 2 — Commande restreinte d'administration sans échappement de shell]\n# Données : SUDO_PARSE rule=backup_svc ALL=(root) NOPASSWD: /usr/bin/rsync\nA_COMPLETER\n\n[Cas 3 — Règle classique exigeant l'authentification par mot de passe]\n# Données : SUDO_PARSE rule=alice ALL=(ALL) /bin/bash\nA_COMPLETER\n",
+    "title": "Le fichier sudoers du serveur de l'agence Weblane",
+    "exampleTitle": "Exemple résolu — le sudoers de la clinique Bonne-Fontaine",
+    "goal": "Auditer un extrait de fichier sudoers et compter les règles qui mènent à un shell root.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence web Weblane fait tester son serveur de préproduction. Disposant du compte <code>dev</code>, l'auditeur lance <code>sudo -l</code> et obtient l'extrait de configuration suivant :</p><table><tr><th>Ligne du fichier sudoers</th><th>Portée</th></tr><tr><th>webmaster ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart apache2</th><td>Redémarrer le service web</td></tr><tr><th>dev ALL=(ALL:ALL) NOPASSWD: /usr/bin/vim /etc/apache2/apache2.conf</td><td>Éditer la configuration Apache</td></tr><tr><th>stagiaire ALL=(ALL) NOPASSWD: /usr/bin/less /var/log/syslog</td><td>Consulter le journal système</td></tr><tr><th>admin ALL=(ALL:ALL) ALL</th><td>Toutes les commandes, avec mot de passe</td></tr></table><p>La base GTFOBins rappelle que <code>vim</code> et <code>less</code> savent lancer un shell.</p><ol><li>Combien d'utilisateurs ces quatre lignes concernent-elles ?</li><li>Combien de lignes autorisent des commandes sans mot de passe (NOPASSWD) ?</li><li>Quel utilisateur peut sortir de vim avec un shell root ?</li><li>Quel pagineur du stagiaire exécute une commande via le séquenceur « !sh » ?</li><li>Combien de règles mènent à un shell root ?</li><li>Quel utilisateur garde le droit le plus large tout en restant protégé par la demande de mot de passe ?</li></ol>",
+    "starter": "# Exercice — Le fichier sudoers du serveur de l'agence Weblane\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1, 2 et 5 : un nombre. Questions 3, 4 et 6 : un nom d'utilisateur ou de binaire.\n\n[Question 1 — Utilisateurs concernés]\nA_COMPLETER\n\n[Question 2 — Lignes NOPASSWD]\nA_COMPLETER\n\n[Question 3 — Utilisateur pouvant sortir de vim en shell root]\nA_COMPLETER\n\n[Question 4 — Pagineur du stagiaire exécutant !sh]\nA_COMPLETER\n\n[Question 5 — Règles menant à un shell root]\nA_COMPLETER\n\n[Question 6 — Utilisateur au droit large protégé par mot de passe]\nA_COMPLETER\n",
     "hints": [
-      "Isolez le texte de la règle avec l’extraction des champs[1].",
-      "Le premier mot de la règle correspond à l'utilisateur ou au groupe.",
-      "Vérifiez la présence de NOPASSWD: et extrayez la commande qui suit."
+      "Listez les utilisateurs en tête de chaque ligne : chaque ligne du tableau en concerne un ; NOPASSWD se compte ensuite dans les trois premières.",
+      "GTFOBins signale vim et less : identifiez qui a le droit de lancer chacun d'eux via sudo.",
+      "La dernière ligne donne tous les droits mais exige le mot de passe : c'est le seul garde-fou qui reste."
     ],
     "examples": [
       {
-        "stdin": "SUDO_PARSE rule=developer ALL=(ALL) NOPASSWD: /usr/bin/find",
-        "expected": "SUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL",
-        "note": "find exécutable sans mot de passe permettant l'échappement shell immédiat."
+        "stdin": "Le serveur de la clinique Bonne-Fontaine expose via sudo -l :\ndeploy NOPASSWD: /usr/bin/systemctl restart app ;\nchef NOPASSWD: /usr/bin/awk /etc/app.conf ;\nop NOPASSWD: /usr/bin/man ;\nbackup ALL=(ALL:ALL) ALL.\nGTFOBins : awk et man savent lancer un shell.\n\n1) 4 utilisateurs. 2) 3 lignes NOPASSWD. 3) L'utilisateur chef obtient un shell via awk.\n4) Le pagineur man sert à op. 5) 2 règles mènent à un shell. 6) L'utilisateur backup garde le droit le plus large protégé par mot de passe.",
+        "expected": "4 utilisateurs — 3 NOPASSWD — chef via awk — man pour op — 2 règles — backup",
+        "note": "Même un outil d'administration anodin (man, less) devient une porte dérobée dès qu'il s'exécute via sudo."
       }
     ],
     "tests": [
       {
-        "label": "Règle accordant tous les privilèges sans mot de passe (ALL)",
-        "stdin": "cas:1",
-        "expected": "SUDO_AUDIT: user=john nopasswd=TRUE command=ALL vector=INSTANT_ROOT_SHELL risk=CRITICAL"
+        "label": "Question 1 — Utilisateurs concernés",
+        "stdin": "q:1",
+        "expected": "4||quatre"
       },
       {
-        "label": "Commande restreinte d'administration sans échappement de shell",
-        "stdin": "cas:2",
-        "expected": "SUDO_AUDIT: user=backup_svc nopasswd=TRUE command=rsync vector=RESTRICTED_SUDO_EXECUTION risk=MEDIUM"
+        "label": "Question 2 — Lignes NOPASSWD",
+        "stdin": "q:2",
+        "expected": "3||trois"
       },
       {
-        "label": "Règle classique exigeant l'authentification par mot de passe",
-        "stdin": "cas:3",
-        "expected": "SUDO_AUDIT: user=alice nopasswd=FALSE command=bash vector=PASSWORD_PROTECTED risk=LOW"
+        "label": "Question 3 — Utilisateur du vim",
+        "stdin": "q:3",
+        "expected": "dev||l'utilisateur dev||le compte dev"
+      },
+      {
+        "label": "Question 4 — Pagineur du stagiaire",
+        "stdin": "q:4",
+        "expected": "less||le less"
+      },
+      {
+        "label": "Question 5 — Règles menant à un shell root",
+        "stdin": "q:5",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 6 — Utilisateur protégé par mot de passe",
+        "stdin": "q:6",
+        "expected": "admin||l'utilisateur admin||le compte admin"
       }
     ],
-    "solution": "[Exemple]\nSUDO_AUDIT: user=developer nopasswd=TRUE command=find vector=INSTANT_ROOT_SHELL risk=CRITICAL\n\n[Cas 1 — Règle accordant tous les privilèges sans mot de passe (ALL)]\nSUDO_AUDIT: user=john nopasswd=TRUE command=ALL vector=INSTANT_ROOT_SHELL risk=CRITICAL\n\n[Cas 2 — Commande restreinte d'administration sans échappement de shell]\nSUDO_AUDIT: user=backup_svc nopasswd=TRUE command=rsync vector=RESTRICTED_SUDO_EXECUTION risk=MEDIUM\n\n[Cas 3 — Règle classique exigeant l'authentification par mot de passe]\nSUDO_AUDIT: user=alice nopasswd=FALSE command=bash vector=PASSWORD_PROTECTED risk=LOW"
+    "solution": "[Question 1 — Utilisateurs concernés]\n4\n\n[Question 2 — Lignes NOPASSWD]\n3\n\n[Question 3 — Utilisateur pouvant sortir de vim en shell root]\ndev\n\n[Question 4 — Pagineur du stagiaire exécutant !sh]\nless\n\n[Question 5 — Règles menant à un shell root]\n2\n\n[Question 6 — Utilisateur au droit large protégé par mot de passe]\nadmin",
+    "takeaway": "1) Les quatre lignes concernent 4 utilisateurs : webmaster, dev, stagiaire et admin.\n2) Trois lignes portent NOPASSWD : celles de webmaster, dev et stagiaire.\n3) L'utilisateur dev peut lancer vim via sudo, et vim sait ouvrir un shell root (:!sh).\n4) Le stagiaire a le droit de lancer less, qui exécute une commande via le séquenceur « !sh ».\n5) Deux règles mènent à un shell root : celle de dev (vim) et celle du stagiaire (less).\n6) L'utilisateur admin conserve toutes les commandes mais avec demande de mot de passe : c'est le seul droit large encore protégé.\nContrôle : 4 utilisateurs, 3 sans mot de passe, dont 2 via des outils shell-capables selon GTFOBins : la configuration cumule les facteurs de risque."
   },
   {
     "id": "hk3-c5-e3",
     "chapter": 5,
-    "title": "Calculateur d'Offset de Buffer Overflow et Agencement de Payload",
     "level": "n3",
     "language": "analyse",
-    "goal": "Calculer la structure et la taille globale d'un exploit de dépassement de tampon de pile (Stack Buffer Overflow).",
-    "brief": "<p>Dans l'exploitation de binaires compilés (x86/x64 sans canary), un dépassement de tampon permet de réécrire le pointeur d'instruction de retour (EIP/RIP).<br><br>\nStructure du payload dans la pile :<br>\n1. <code>PADDING</code> : <code>offset</code> octets (remplissage jusqu'au pointeur de retour).<br>\n2. <code>RET_ADDR</code> : taille de l'adresse de retour (4 octets en <code>x86</code>, 8 octets en <code>x64</code>).<br>\n3. <code>NOP_SLED</code> : <code>sled_len</code> octets de NOP (<code>\\x90</code>).<br>\n4. <code>SHELLCODE</code> : <code>shellcode_len</code> octets du code exécutable injecté.<br><br>\nCalcul de la taille totale du payload :<br>\n<code>total_size = offset + ret_bytes + sled_len + shellcode_len</code>.<br><br>\nDonnées du cas : <code>BOF_LAYOUT arch=&lt;x86|x64&gt; offset=&lt;N&gt; sled_len=&lt;S&gt; shellcode_len=&lt;L&gt;</code>.<br>\nRésultat d’analyse attendu : <code>PAYLOAD_LAYOUT: arch=&lt;arch&gt; offset=&lt;N&gt; ret_bytes=&lt;4|8&gt; sled=&lt;S&gt; shellcode=&lt;L&gt; total_size=&lt;total&gt; status=READY_FOR_INJECTION</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c5-e3) — Calculateur d'Offset de Buffer Overflow et Agencement de Payload\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]\n# Données : BOF_LAYOUT arch=x64 offset=264 sled_len=64 shellcode_len=85\nA_COMPLETER\n\n[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]\n# Données : BOF_LAYOUT arch=x86 offset=40 sled_len=0 shellcode_len=28\nA_COMPLETER\n\n[Cas 3 — Tampon volumineux sous architecture x64]\n# Données : BOF_LAYOUT arch=x64 offset=1024 sled_len=128 shellcode_len=120\nA_COMPLETER\n",
+    "title": "L'écrasement de l'adresse de retour du service borne de Navik",
+    "exampleTitle": "Exemple résolu — l'offset du service chat_v1",
+    "goal": "Calculer les offsets d'un dépassement de tampon sur pile : tampon, EBP, adresse de retour et place restante.",
+    "brief": "<p><strong>Énoncé.</strong> Au CTF inter-écoles de Navik, l'épreuve « borne » fournit le binaire d'un service qui lit une chaîne saisie au clavier. L'analyse du code désassemblé montre un tampon de <strong>250 octets</strong>, suivi de l'adresse de retour de la fonction : les 4 octets de l'EBP sauvegardé précèdent immédiatement cette adresse. L'équipe étudiante prépare son exploit :</p><ol><li>Quelle est la taille du tampon vulnérable, en octets ?</li><li>À quel offset, compté depuis le début du tampon, l'adresse de retour commence-t-elle à être écrasée ?</li><li>Combien d'octets séparent la fin du tampon du début de l'adresse de retour ?</li><li>L'équipe envoie une entrée de 400 octets : combien d'octets restent après l'adresse de retour ?</li><li>Quel registre 32 bits, contenant l'adresse de la prochaine instruction à exécuter, l'écrasement détourne-t-il ?</li><li>Quelle protection du compilateur insère une valeur secrète entre le tampon et l'adresse de retour pour détecter l'écrasement ?</li></ol>",
+    "starter": "# Exercice — L'écrasement de l'adresse de retour du service borne de Navik\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : un nombre d'octets ou un offset. Question 5 : un registre. Question 6 : une protection.\n\n[Question 1 — Taille du tampon vulnérable]\nA_COMPLETER\n\n[Question 2 — Offset d'écrasement de l'adresse de retour]\nA_COMPLETER\n\n[Question 3 — Octets entre le tampon et l'adresse de retour]\nA_COMPLETER\n\n[Question 4 — Octets restants après l'adresse de retour]\nA_COMPLETER\n\n[Question 5 — Registre 32 bits détourné]\nA_COMPLETER\n\n[Question 6 — Protection par valeur secrète]\nA_COMPLETER\n",
     "hints": [
-      "Identifiez ret_bytes : 4 octets pour x86 et 8 octets pour x64.",
-      "Sommez offset + ret_bytes + sled_len + shellcode_len.",
-      "Affichez la disposition du payload selon le format demandé."
+      "Sur la pile, l'ordre est : tampon, puis EBP sauvegardé (4 octets), puis l'adresse de retour ; l'offset de l'adresse de retour est donc la taille du tampon plus 4.",
+      "Pour la place restante, retirez de l'entrée totale l'offset de l'adresse de retour puis ses 4 octets.",
+      "Le registre qui porte l'adresse de la prochaine instruction s'appelle EIP en architecture 32 bits ; la protection qui insère une valeur secrète s'appelle le canari de pile (stack canary)."
     ],
     "examples": [
       {
-        "stdin": "BOF_LAYOUT arch=x86 offset=112 sled_len=32 shellcode_len=44",
-        "expected": "PAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION",
-        "note": "Payload x86 standard avec 112 octets de padding et 32 octets de NOP sled."
+        "stdin": "L'épreuve chat_v1 du même CTF expose un tampon de 120 octets,\nsuivi de l'EBP sauvegardé (4 octets) puis de l'adresse de retour.\n\n1) Tampon : 120 octets. 2) L'adresse de retour est écrasée à l'offset 120 + 4 = 124.\n3) 4 octets (l'EBP) séparent le tampon de l'adresse de retour.\n4) Sur une entrée de 200 octets, il reste 200 − 124 − 4 = 72 octets après l'adresse de retour.\n5) Le registre détourné est EIP. 6) La protection s'appelle le canari de pile (stack canary).",
+        "expected": "tampon 120 — offset 124 — 4 octets — 72 octets après EIP — EIP — le canari",
+        "note": "L'offset 124 = 120 + 4 : les 4 octets de l'EBP sauvegardé se placent toujours entre le tampon et l'adresse de retour."
       }
     ],
     "tests": [
       {
-        "label": "Payload 64-bit avec pointeur d'instruction RIP sur 8 octets",
-        "stdin": "cas:1",
-        "expected": "PAYLOAD_LAYOUT: arch=x64 offset=264 ret_bytes=8 sled=64 shellcode=85 total_size=421 status=READY_FOR_INJECTION"
+        "label": "Question 1 — Taille du tampon",
+        "stdin": "q:1",
+        "expected": "250"
       },
       {
-        "label": "Petit offset sans NOP sled (saut direct au début du shellcode)",
-        "stdin": "cas:2",
-        "expected": "PAYLOAD_LAYOUT: arch=x86 offset=40 ret_bytes=4 sled=0 shellcode=28 total_size=72 status=READY_FOR_INJECTION"
+        "label": "Question 2 — Offset de l'adresse de retour",
+        "stdin": "q:2",
+        "expected": "254"
       },
       {
-        "label": "Tampon volumineux sous architecture x64",
-        "stdin": "cas:3",
-        "expected": "PAYLOAD_LAYOUT: arch=x64 offset=1024 ret_bytes=8 sled=128 shellcode=120 total_size=1280 status=READY_FOR_INJECTION"
+        "label": "Question 3 — Octets entre tampon et adresse",
+        "stdin": "q:3",
+        "expected": "4||quatre"
+      },
+      {
+        "label": "Question 4 — Octets restants après l'adresse",
+        "stdin": "q:4",
+        "expected": "142"
+      },
+      {
+        "label": "Question 5 — Registre détourné",
+        "stdin": "q:5",
+        "expected": "eip||le registre eip||EIP"
+      },
+      {
+        "label": "Question 6 — Protection par valeur secrète",
+        "stdin": "q:6",
+        "expected": "le canari||canari||canary||stack canary||la protection canary||stack protector||ssp"
       }
     ],
-    "solution": "[Exemple]\nPAYLOAD_LAYOUT: arch=x86 offset=112 ret_bytes=4 sled=32 shellcode=44 total_size=192 status=READY_FOR_INJECTION\n\n[Cas 1 — Payload 64-bit avec pointeur d'instruction RIP sur 8 octets]\nPAYLOAD_LAYOUT: arch=x64 offset=264 ret_bytes=8 sled=64 shellcode=85 total_size=421 status=READY_FOR_INJECTION\n\n[Cas 2 — Petit offset sans NOP sled (saut direct au début du shellcode)]\nPAYLOAD_LAYOUT: arch=x86 offset=40 ret_bytes=4 sled=0 shellcode=28 total_size=72 status=READY_FOR_INJECTION\n\n[Cas 3 — Tampon volumineux sous architecture x64]\nPAYLOAD_LAYOUT: arch=x64 offset=1024 ret_bytes=8 sled=128 shellcode=120 total_size=1280 status=READY_FOR_INJECTION"
+    "solution": "[Question 1 — Taille du tampon vulnérable]\n250\n\n[Question 2 — Offset d'écrasement de l'adresse de retour]\n254\n\n[Question 3 — Octets entre le tampon et l'adresse de retour]\n4\n\n[Question 4 — Octets restants après l'adresse de retour]\n142\n\n[Question 5 — Registre 32 bits détourné]\neip\n\n[Question 6 — Protection par valeur secrète]\nle canari",
+    "takeaway": "1) Le tampon vulnérable fait 250 octets.\n2) L'adresse de retour commence à l'offset 250 + 4 = 254 depuis le début du tampon.\n3) Les 4 octets de l'EBP sauvegardé séparent la fin du tampon du début de l'adresse de retour.\n4) Sur une entrée de 400 octets : 400 − 254 − 4 = 142 octets restent après l'adresse de retour.\n5) L'écrasement détourne EIP, le registre qui pointe vers la prochaine instruction à exécuter.\n6) La protection s'appelle le canari de pile (stack canary) : une valeur secrète insérée entre le tampon et l'adresse de retour, vérifiée avant le retour de fonction.\nContrôle : 250 (tampon) + 4 (EBP) + 4 (adresse de retour) + 142 (reste) = 400 octets envoyés, la comptabilité de l'exploit est exacte."
   },
   {
     "id": "hk3-c6-e1",
@@ -629,7 +815,8 @@ module.exports = [
     "starter": "# Grille d'analyse (hk3-c6-e1) — Recherche illustrative de signatures textuelles\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois familles textuelles]\n# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST[\"payload\"])); ?>\nA_COMPLETER\n\n[Cas 2 — Une seule famille textuelle]\n# Données : SCAN_SCRIPT code=<?php $logo = base64_decode(\"iVBORw0KGgoAAAANSUhEUg==\"); ?>\nA_COMPLETER\n\n[Cas 3 — Aucune des chaînes recherchées]\n# Données : SCAN_SCRIPT code=<?php echo \"<h1>Bienvenue sur le portail</h1>\"; ?>\nA_COMPLETER\n",
     "hints": [
       "Compter chaque famille au maximum une fois.",
-      "Le résultat ne classe pas le script comme bénin ou malveillant."
+      "Le résultat ne classe pas le script comme bénin ou malveillant.",
+      "Additionnez les points des signatures de fonctions sensibles détectées sans jamais conclure automatiquement à la malveillance réelle du fichier."
     ],
     "examples": [
       {
@@ -655,7 +842,8 @@ module.exports = [
         "expected": "WEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 1 — Trois familles textuelles]\nWEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 2 — Une seule famille textuelle]\nWEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE\n\n[Cas 3 — Aucune des chaînes recherchées]\nWEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE\n"
+    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 1 — Trois familles textuelles]\nWEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 2 — Une seule famille textuelle]\nWEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE\n\n[Cas 3 — Aucune des chaînes recherchées]\nWEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE\n",
+    "takeaway": "À retenir : Relever des familles de chaînes sans certifier la nature ou le risque d’un script.\nRepère : Deux familles sont présentes dans le texte ; le score ne remplace pas l’analyse."
   },
   {
     "id": "hk3-c6-e2",
@@ -695,46 +883,64 @@ module.exports = [
         "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
+    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE",
+    "takeaway": "À retenir : Repérer des motifs textuels associés à des techniques de persistance, sans conclure sur leur intention ou leur risque.\nRepère : La commande contient les motifs textuels de la famille BASH_REVERSE_SHELL."
   },
   {
     "id": "hk3-c6-e3",
     "chapter": 6,
-    "title": "Générateur de Synthèse Managériale et Matrice de Risque de Pentest",
     "level": "n3",
     "language": "analyse",
-    "goal": "Agréger les vulnérabilités découvertes, calculer le score de risque global et qualifier la posture de sécurité.",
-    "brief": "<p>Le rapport d'intrusion conclut chaque mandat de pentest par une synthèse managériale (Executive Summary) et une matrice de sévérité.<br><br>\nPondération du score de risque :<br>\n- <code>CRITICAL</code> : 10 points chacun.<br>\n- <code>HIGH</code> : 5 points chacun.<br>\n- <code>MEDIUM</code> : 2 points chacun.<br>\n- <code>LOW</code> : 1 point chacun.<br>\n<code>risk_score = (C * 10) + (H * 5) + (M * 2) + (L * 1)</code>.<br><br>\nQualification de la posture globale de l'organisation :<br>\n1. Si <code>C &gt;= 1</code> ou <code>risk_score &gt;= 25</code> : <code>posture=COMPROMISED_CRITICAL</code>.<br>\n2. Sinon si <code>H &gt;= 2</code> ou <code>risk_score &gt;= 15</code> : <code>posture=HIGH_EXPOSURE</code>.<br>\n3. Sinon si <code>risk_score &gt;= 5</code> : <code>posture=MODERATE_EXPOSURE</code>.<br>\n4. Sinon : <code>posture=SECURE_RESILIENT</code>.<br><br>\nDonnées du cas : <code>PENTEST_SYNTHESIS findings=&lt;f1:sev1,f2:sev2,...&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>PENTEST_SUMMARY: total_findings=&lt;N&gt; critical=&lt;C&gt; high=&lt;H&gt; medium=&lt;M&gt; low=&lt;L&gt; risk_score=&lt;score&gt; posture=&lt;posture&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c6-e3) — Générateur de Synthèse Managériale et Matrice de Risque de Pentest\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Infrastructure avec failles élevées multiples sans faille critique]\n# Données : PENTEST_SYNTHESIS findings=xss_stored:HIGH,idor_api:HIGH,weak_password_policy:MEDIUM\nA_COMPLETER\n\n[Cas 2 — Environnement sain avec deux failles mineures d'en-tête]\n# Données : PENTEST_SYNTHESIS findings=missing_csp:LOW,server_banner:LOW\nA_COMPLETER\n\n[Cas 3 — Cumul de failles moyennes atteignant le seuil d'exposition modérée]\n# Données : PENTEST_SYNTHESIS findings=cors_wildcard:MEDIUM,rate_limit_bypass:MEDIUM,directory_listing:MEDIUM\nA_COMPLETER\n",
+    "title": "La matrice des risques du rapport de l'hôpital Ventalis",
+    "exampleTitle": "Exemple résolu — le rapport de la bibliothèque de Sanzel",
+    "goal": "Exploiter la table des vulnérabilités d'un rapport de pentest pour prioriser la remédiation et rédiger la synthèse.",
+    "brief": "<p><strong>Énoncé.</strong> Le test d'intrusion de l'hôpital privé Ventalis touche à sa fin : l'auditeur consigne dans son rapport les cinq vulnérabilités retenues et prépare la restitution :</p><table><tr><th>Vulnérabilité</th><th>Score CVSS</th><th>Sévérité</th></tr><tr><th>Injection SQL sur le portail patient</th><td>9,8</td><td>Critique</td></tr><tr><th>IDOR sur les factures</th><td>8,6</td><td>Élevée</td></tr><tr><th>XSS stocké dans la messagerie interne</th><td>6,1</td><td>Moyenne</td></tr><tr><th>Absence d'en-tête HSTS</th><td>5,9</td><td>Moyenne</td></tr><tr><th>Divulgation de la version du serveur</th><td>3,1</td><td>Faible</td></tr></table><ol><li>Combien de vulnérabilités le rapport recense-t-il ?</li><li>Combien sont de sévérité moyenne ?</li><li>Quel est le score CVSS de la vulnérabilité à traiter en priorité absolue ?</li><li>Quel est le score de la deuxième vulnérabilité la plus grave ?</li><li>Quelle section du rapport, destinée à la direction, résume les risques sans jargon technique ?</li><li>Quelle vulnérabilité occupe la deuxième ligne du plan de remédiation : l'IDOR, le XSS, l'absence de HSTS ou la divulgation de version ?</li></ol>",
+    "starter": "# Exercice — La matrice des risques du rapport de l'hôpital Ventalis\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : un nombre. Questions 3 et 4 : un score. Questions 5 et 6 : un terme.\n\n[Question 1 — Vulnérabilités recensées]\nA_COMPLETER\n\n[Question 2 — Vulnérabilités de sévérité moyenne]\nA_COMPLETER\n\n[Question 3 — Score de la priorité absolue]\nA_COMPLETER\n\n[Question 4 — Score de la deuxième vulnérabilité la plus grave]\nA_COMPLETER\n\n[Question 5 — Section du rapport destinée à la direction]\nA_COMPLETER\n\n[Question 6 — Deuxième vulnérabilité du plan de remédiation]\nA_COMPLETER\n",
     "hints": [
-      "Comptez les occurrences de CRITICAL, HIGH, MEDIUM, LOW dans findings.",
-      "Calculez le score pondéré (10, 5, 2, 1).",
-      "Appliquez les conditions de qualification de posture."
+      "Parcourez la colonne Sévérité : les moyennes se comptent ligne par ligne ; les scores se rangent par ordre décroissant pour la priorisation.",
+      "La priorité absolue va au score le plus élevé ; la deuxième ligne suit immédiatement ce score dans le classement.",
+      "Le rapport destiné à un public non technique porte un nom normalisé : la synthèse (ou résumé) exécutive, placée en tête du document."
     ],
     "examples": [
       {
-        "stdin": "PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW",
-        "expected": "PENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL",
-        "note": "Une vulnérabilité critique déclenche immédiatement la posture COMPROMISED_CRITICAL."
+        "stdin": "Le rapport du pentest de la bibliothèque de Sanzel retient :\nRCE sur le module d'import (9,1 — critique) ; injection SQL (8,8 — élevée) ;\nabsence de double authentification (7,5 — élevée) ; CSRF sur le formulaire d'inscription (4,3 — moyenne) ;\nlisting de répertoire (3,7 — faible).\n\n1) 5 vulnérabilités. 2) 1 seule de sévérité moyenne (le CSRF). 3) Priorité absolue : score 9,1.\n4) Deuxième score : 8,8. 5) Section pour la direction : la synthèse exécutive. 6) Deuxième du plan : l'injection SQL.",
+        "expected": "5 vulnérabilités — 1 moyenne — 9,1 — 8,8 — synthèse exécutive — l'injection SQL",
+        "note": "Le plan de remédiation suit l'ordre des scores décroissants : 9,1 puis 8,8 puis 7,5, les sévérités ne servent qu'à communiquer."
       }
     ],
     "tests": [
       {
-        "label": "Infrastructure avec failles élevées multiples sans faille critique",
-        "stdin": "cas:1",
-        "expected": "PENTEST_SUMMARY: total_findings=3 critical=0 high=2 medium=1 low=0 risk_score=12 posture=HIGH_EXPOSURE"
+        "label": "Question 1 — Vulnérabilités recensées",
+        "stdin": "q:1",
+        "expected": "5||cinq"
       },
       {
-        "label": "Environnement sain avec deux failles mineures d'en-tête",
-        "stdin": "cas:2",
-        "expected": "PENTEST_SUMMARY: total_findings=2 critical=0 high=0 medium=0 low=2 risk_score=2 posture=SECURE_RESILIENT"
+        "label": "Question 2 — Sévérité moyenne",
+        "stdin": "q:2",
+        "expected": "2||deux"
       },
       {
-        "label": "Cumul de failles moyennes atteignant le seuil d'exposition modérée",
-        "stdin": "cas:3",
-        "expected": "PENTEST_SUMMARY: total_findings=3 critical=0 high=0 medium=3 low=0 risk_score=6 posture=MODERATE_EXPOSURE"
+        "label": "Question 3 — Score de la priorité absolue",
+        "stdin": "q:3",
+        "expected": "9,8||9.8"
+      },
+      {
+        "label": "Question 4 — Deuxième score le plus grave",
+        "stdin": "q:4",
+        "expected": "8,6||8.6"
+      },
+      {
+        "label": "Question 5 — Section pour la direction",
+        "stdin": "q:5",
+        "expected": "la synthèse exécutive||synthèse exécutive||le résumé exécutif||résumé exécutif||executive summary"
+      },
+      {
+        "label": "Question 6 — Deuxième du plan de remédiation",
+        "stdin": "q:6",
+        "expected": "l'idor||idor||l'idor sur les factures"
       }
     ],
-    "solution": "[Exemple]\nPENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL\n\n[Cas 1 — Infrastructure avec failles élevées multiples sans faille critique]\nPENTEST_SUMMARY: total_findings=3 critical=0 high=2 medium=1 low=0 risk_score=12 posture=HIGH_EXPOSURE\n\n[Cas 2 — Environnement sain avec deux failles mineures d'en-tête]\nPENTEST_SUMMARY: total_findings=2 critical=0 high=0 medium=0 low=2 risk_score=2 posture=SECURE_RESILIENT\n\n[Cas 3 — Cumul de failles moyennes atteignant le seuil d'exposition modérée]\nPENTEST_SUMMARY: total_findings=3 critical=0 high=0 medium=3 low=0 risk_score=6 posture=MODERATE_EXPOSURE"
+    "solution": "[Question 1 — Vulnérabilités recensées]\n5\n\n[Question 2 — Vulnérabilités de sévérité moyenne]\n2\n\n[Question 3 — Score de la priorité absolue]\n9,8\n\n[Question 4 — Score de la deuxième vulnérabilité la plus grave]\n8,6\n\n[Question 5 — Section du rapport destinée à la direction]\nla synthèse exécutive\n\n[Question 6 — Deuxième vulnérabilité du plan de remédiation]\nl'idor",
+    "takeaway": "1) Le rapport recense 5 vulnérabilités.\n2) Deux sont de sévérité moyenne : le XSS stocké (6,1) et l'absence d'HSTS (5,9).\n3) La priorité absolue est l'injection SQL sur le portail patient, score 9,8.\n4) La deuxième vulnérabilité la plus grave est l'IDOR sur les factures, score 8,6.\n5) La section destinée à la direction est la synthèse exécutive : risques, impacts et priorités, sans jargon technique.\n6) La deuxième ligne du plan de remédiation revient à l'IDOR, immédiatement derrière l'injection SQL dans l'ordre des scores décroissants.\nContrôle : 1 critique (9,8) + 1 élevée (8,6) + 2 moyennes (6,1 et 5,9) + 1 faible (3,1) = 5 vulnérabilités, et le classement 9,8 &gt; 8,6 &gt; 6,1 &gt; 5,9 &gt; 3,1 fixe l'ordre exact du plan de remédiation."
   }
 ];

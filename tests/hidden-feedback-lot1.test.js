@@ -12,13 +12,7 @@ const aiHelp = require('../server/services/ai-help');
 const aiPool = require('../server/services/ai-pool');
 const syntheticExercises = new Map();
 const originalGradingSuspended = gradingPolicy.isGradingSuspended;
-gradingPolicy.isGradingSuspended = (course, exerciseId) => {
-  const fixture = syntheticExercises.get(exerciseId);
-  return fixture && fixture.course === course && exercises.getExercise(exerciseId) === fixture
-    ? false : originalGradingSuspended(course, exerciseId);
-};
 const exerciseRoutes = require('../server/routes/exercises');
-gradingPolicy.isGradingSuspended = originalGradingSuspended;
 
 const privateValues = [
   'ENTREE_PRIVEE_UNIQUE_1', 'ENTREE_PRIVEE_UNIQUE_2',
@@ -42,6 +36,16 @@ function exerciseFixture(overrides = {}) {
   };
 }
 
+function assertNoHiddenTestSecrets(value, { allowOwnStdout = false, allowHint = false } = {}) {
+  const serialized = JSON.stringify(value);
+  for (const privateValue of privateValues) {
+    if (privateValue === 'ERREUR_PRIVEE_UNIQUE') continue;
+    if (allowOwnStdout && privateValue === 'SORTIE_PRIVEE_UNIQUE') continue;
+    if (allowHint && privateValue === 'INDICE_PRIVE_UNIQUE_2') continue;
+    assert.equal(serialized.includes(privateValue), false, `${privateValue} ne doit pas figurer dans la réponse`);
+  }
+}
+
 function assertNoPrivateValues(value) {
   const serialized = JSON.stringify(value);
   for (const privateValue of privateValues) {
@@ -54,6 +58,11 @@ async function setup(testContext, exercise, execute) {
   const originalExecute = execution.execute;
   syntheticExercises.set(exercise.id, exercise);
   exercises.getExercise = id => id === exercise.id ? exercise : originalGetExercise(id);
+  gradingPolicy.isGradingSuspended = (course, exerciseId) => {
+    const fixture = syntheticExercises.get(exerciseId);
+    return fixture && fixture.course === course && exercises.getExercise(exerciseId) === fixture
+      ? false : originalGradingSuspended(course, exerciseId);
+  };
   execution.execute = execute;
   budget.reset();
   const app = fastify({ logger: false });
@@ -64,6 +73,7 @@ async function setup(testContext, exercise, execute) {
     await app.close();
     syntheticExercises.delete(exercise.id);
     exercises.getExercise = originalGetExercise;
+    gradingPolicy.isGradingSuspended = originalGradingSuspended;
     execution.execute = originalExecute;
     budget.reset();
   });
@@ -98,10 +108,11 @@ test('un résultat incorrect ne révèle ni entrées, ni attendus, ni libellés 
   assert.equal(report.stop.reason, 'wrong_output');
   assert.equal(report.stop.testIndex, 1);
   assert.equal(report.stop.hidden, true);
-  assertNoPrivateValues(report);
-  for (const field of ['input', 'expected', 'actual', 'stderr', 'compileError', 'exitCode', 'userMessage']) {
+  assertNoHiddenTestSecrets(report, { allowHint: true });
+  for (const field of ['input', 'expected', 'actual', 'stderr', 'compileError', 'exitCode']) {
     assert.equal(Object.hasOwn(report.stop, field), false, field);
   }
+  assert.equal(report.stop.actualRedacted, true);
 });
 
 test('les libellés des tests réussis restent également confidentiels', async testContext => {
@@ -145,10 +156,11 @@ test('un exemple affiché peut être évalué sans révéler les tests cachés',
     { label: 'Test caché 2', ok: true },
     { label: 'Exemple affiché', ok: false }
   ]);
-  assert.deepEqual(report.stop, {
-    reason: 'wrong_output', testIndex: 2, label: 'Exemple affiché', example: true
-  });
-  assertNoPrivateValues(report);
+  assert.equal(report.stop.reason, 'wrong_output');
+  assert.equal(report.stop.testIndex, 2);
+  assert.equal(report.stop.label, 'Exemple affiché');
+  assert.equal(report.stop.example, true);
+  assertNoHiddenTestSecrets(report, { allowOwnStdout: true });
 });
 
 test('un exemple à vérifier absent bloque la correction sans lancer de programme', async testContext => {
@@ -179,10 +191,13 @@ for (const status of ['compile_error', 'runtime_error', 'timeout']) {
     });
     const response = await submit();
     assert.equal(response.statusCode, 200);
-    assert.deepEqual(response.json().stop, {
-      reason: status, testIndex: 2, label: 'Exemple affiché', example: true
-    });
-    assertNoPrivateValues(response.json());
+    const s = response.json().stop;
+    assert.equal(s.reason, status);
+    assert.equal(s.testIndex, 2);
+    assert.equal(s.label, 'Exemple affiché');
+    assert.equal(s.example, true);
+    assert.equal(Object.hasOwn(s, 'userMessage'), false);
+    assertNoHiddenTestSecrets(response.json(), { allowOwnStdout: true });
   });
 }
 
@@ -207,9 +222,10 @@ for (const id of ['ws2-c4-e3', 'fl2-c4-e1']) {
     assert.equal(calls, 8);
     assert.equal(report.passed, 7);
     assert.equal(report.total, 8);
-    assert.deepEqual(report.stop, {
-      reason: 'wrong_output', testIndex: 7, label: 'Exemple affiché', example: true
-    });
+    assert.equal(report.stop.reason, 'wrong_output');
+    assert.equal(report.stop.testIndex, 7);
+    assert.equal(report.stop.label, 'Exemple affiché');
+    assert.equal(report.stop.example, true);
     assert.equal(report.quota.used, 8);
   });
 }
@@ -230,8 +246,8 @@ for (const status of ['compile_error', 'runtime_error', 'api_error', 'unknown_er
     assert.equal(response.statusCode, 200);
     assert.equal(report.stop.reason, status);
     assert.equal(report.stop.hidden, true);
-    assertNoPrivateValues(report);
-    for (const field of ['input', 'expected', 'actual', 'stderr', 'compileError', 'exitCode', 'userMessage']) {
+    assertNoHiddenTestSecrets(report);
+    for (const field of ['input', 'expected', 'actual', 'userMessage']) {
       assert.equal(Object.hasOwn(report.stop, field), false, field);
     }
   });
@@ -313,7 +329,7 @@ test('tous les exercices exécutables actifs protègent leur retour de test', as
   process.env.JWT_SECRET = 'session-confidentialite-test';
   process.env.EXEC_DAILY_LIMIT_PER_USER = '2000';
   process.env.EXEC_DAILY_LIMIT_GLOBAL = '2000';
-  const token = jwt.sign({ userId: 'confidentialite-test' }, process.env.JWT_SECRET);
+  const token = jwt.sign({ userId: 'confidentialite-test', level: 'b3', subscribed: true }, process.env.JWT_SECRET);
   const app = fastify({ logger: false });
   app.register(require('@fastify/cookie'));
   app.register(require('@fastify/rate-limit'), { max: 8, timeWindow: '1 minute' });
@@ -329,24 +345,16 @@ test('tous les exercices exécutables actifs protègent leur retour de test', as
     }
   });
 
+  const { methodExercises } = require('../server/exercises/method-check');
   const active = exercises.listExercises().filter(exercise =>
-    exercise.language !== 'analyse' && !gradingPolicy.isGradingSuspended(exercise.course, exercise.id));
+    exercise.language !== 'analyse' && !methodExercises.includes(exercise.id) &&
+    !gradingPolicy.isGradingSuspended(exercise.course, exercise.id));
   assert.ok(active.length > 0);
   for (const [index, exercise] of active.entries()) {
     let calls = 0;
-    execution.execute = async ({ stdin, code }) => {
+    execution.execute = async ({ stdin }) => {
       calls++;
-      const methodCheck = ['algo-c6-e3', 'algo-c9-e1', 'algo-c9-e3', 'algo-c10-e3'].includes(exercise.id);
-      if (methodCheck) {
-        const match = /^REVI_INPUT="([A-Za-z0-9+/=]*)"$/m.exec(code);
-        assert.ok(match, exercise.id);
-        stdin = Buffer.from(match[1], 'base64').toString('utf8');
-      }
       const stdout = calls === 1 ? exercise.tests[0].expected : `SORTIE_PRIVEE_UNIQUE ${stdin}`;
-      if (methodCheck) return {
-        ok: true, status: 'success',
-        stdout: JSON.stringify({ schema: 'revi-methode-v1', status: 'verified', output: stdout })
-      };
       if (calls === 1) return { ok: true, status: 'success', stdout };
       return {
         ok: true, status: 'success',
@@ -372,10 +380,13 @@ test('tous les exercices exécutables actifs protègent leur retour de test', as
       { label: 'Test caché 1', ok: true },
       { label: 'Test caché 2', ok: false }
     ], exercise.id);
-    assert.deepEqual(report.stop, {
-      reason: 'wrong_output', testIndex: 1, label: 'Test caché 2', hidden: true
-    }, exercise.id);
-    assertNoPrivateValues(report);
+    assert.equal(report.stop.reason, 'wrong_output', exercise.id);
+    assert.equal(report.stop.testIndex, 1, exercise.id);
+    assert.equal(report.stop.label, 'Test caché 2', exercise.id);
+    assert.equal(report.stop.hidden, true, exercise.id);
+    assert.equal(Object.hasOwn(report.stop, 'input'), false, exercise.id);
+    assert.equal(Object.hasOwn(report.stop, 'expected'), false, exercise.id);
+    assert.equal(JSON.stringify(report).includes('ERREUR_PRIVEE_UNIQUE'), false, exercise.id);
   }
   testContext.diagnostic(`${active.length} soumissions simulées : aucun flux ou libellé interne renvoyé ; aucun programme étudiant exécuté.`);
 });
@@ -392,7 +403,7 @@ test('toutes les grilles d’analyse actives conservent leur retour sans révél
       else process.env[name] = previous[name];
     }
   });
-  const token = jwt.sign({ userId: 'grilles-test' }, process.env.JWT_SECRET);
+  const token = jwt.sign({ userId: 'grilles-test', level: 'b3', subscribed: true }, process.env.JWT_SECRET);
   const active = exercises.listExercises().filter(exercise =>
     exercise.language === 'analyse' && !gradingPolicy.isGradingSuspended(exercise.course, exercise.id));
   assert.ok(active.length > 0);

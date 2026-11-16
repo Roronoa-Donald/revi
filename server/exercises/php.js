@@ -45,8 +45,9 @@ $y = (int) trim(fgets(STDIN));
 // À compléter : créer le point et afficher ses coordonnées.
 `,
     hints: [
-      'Le constructeur s’écrit `__construct(int $x, int $y)` et affecte `$this->x` et `$this->y`.',
-      'Deux valeurs se concatènent avec le point : `\'(\' . $this->x . \', \' . $this->y . \')\'`.'
+      "Le constructeur s’écrit `__construct(int $x, int $y)` et affecte `$this->x` et `$this->y`.",
+      "Deux valeurs se concatènent avec le point : `'(' . $this->x . ', ' . $this->y . ')'`.",
+      "Étapes : lire x puis y ; construire l’objet avec ces deux entiers ; sa méthode d’affichage rend une parenthèse ouvrante, x, une virgule, un espace, y, une parenthèse fermante."
     ],
     examples: [
       { stdin: '3\n4', expected: '(3, 4)', note: 'Deux entiers lus, un couple affiché.' }
@@ -75,7 +76,8 @@ $x = (int) trim(fgets(STDIN));
 $y = (int) trim(fgets(STDIN));
 $point = new Point($x, $y);
 echo $point->afficher() . "\\n";
-`
+`,
+    takeaway: "Le constructeur __construct() garantit qu aucun objet n est créé dans un état partiellement initialisé."
   },
   {
     id: 'php2-c1-e2',
@@ -100,8 +102,9 @@ $n = (int) trim(fgets(STDIN));
 // À compléter : lire n prix, les ajouter, afficher "total : X".
 `,
     hints: [
-      'Une méthode qui renvoie `$this` permet d’enchaîner : `$panier->ajouter(10)->ajouter(20)`.',
-      'Le type de retour d’une méthode renvoyant l’objet courant s’écrit : self.'
+      "Une méthode qui renvoie `$this` permet d’enchaîner : `$panier->ajouter(10)->ajouter(20)`.",
+      "Le type de retour d’une méthode renvoyant l’objet courant s’écrit : self.",
+      "Étapes : lire n ; créer un panier vide ; lui ajouter chaque prix lu, en enchaînant les appels ; afficher « total : » suivi de la somme cumulée."
     ],
     examples: [
       { stdin: '3\n10\n20\n30', expected: 'total : 60', note: 'Trois prix cumulés.' }
@@ -131,7 +134,8 @@ for ($i = 0; $i < $n; $i++) {
     $panier->ajouter((int) trim(fgets(STDIN)));
 }
 echo 'total : ' . $panier->total() . "\\n";
-`
+`,
+    takeaway: "Retourner $this depuis les méthodes mutatrices active l interface fluide ($obj->a()->b()) sans nouvel objet."
   },
   {
     id: 'php2-c1-e3',
@@ -155,8 +159,9 @@ $age = (int) trim(fgets(STDIN));
 // À compléter : créer l'objet et afficher "age : X".
 `,
     hints: [
-      'Une expression ternaire choisit la valeur : `$age < 0 ? 0 : $age`.',
-      'L’objet s’instancie directement dans l’affichage : (new Age($age))->valeur().'
+      "Une expression ternaire choisit la valeur : `$age < 0 ? 0 : $age`.",
+      "L’objet s’instancie directement dans l’affichage : (new Age($age))->valeur().",
+      "Étapes : lire l’âge ; à la construction, si l’âge est négatif retenir 0, sinon retenir l’âge tel quel ; afficher « age : » suivi de la valeur retenue."
     ],
     examples: [
       { stdin: '25', expected: 'age : 25', note: 'Valeur positive conservée.' }
@@ -181,7 +186,8 @@ class Age {
 
 $age = (int) trim(fgets(STDIN));
 echo 'age : ' . (new Age($age))->valeur() . "\\n";
-`
+`,
+    takeaway: "Assainir ou rejeter les arguments invalides dès __construct() maintient les invariants de l objet tout au long de sa vie."
   },
   {
     id: 'php2-c2-e1',
@@ -203,8 +209,9 @@ $n = (int) trim(fgets(STDIN));
 // À compléter : lire n montants, les déposer, afficher "solde : X".
 `,
     hints: [
-      'Le mot-clé private interdit l’accès direct : seule la méthode de la classe peut modifier $solde.',
-      'Un montant n’est déposé que si $montant > 0.'
+      "Le mot-clé private interdit l’accès direct : seule la méthode de la classe peut modifier $solde.",
+      "Un montant n’est déposé que si $montant > 0.",
+      "Étapes : lire n ; pour chaque montant lu, ne créditer le compte que s’il est strictement positif ; afficher « solde : » suivi du cumul final."
     ],
     examples: [
       { stdin: '3\n50\n-10\n20', expected: 'solde : 70', note: 'Le montant négatif est ignoré.' }
@@ -236,7 +243,8 @@ for ($i = 0; $i < $n; $i++) {
     $compte->deposer((int) trim(fgets(STDIN)));
 }
 echo 'solde : ' . $compte->solde() . "\\n";
-`
+`,
+    takeaway: "Rendre les propriétés private impose de passer par un setter contrôlant les bornes métier avant toute écriture."
   },
   {
     id: 'php2-c2-e2',
@@ -257,8 +265,9 @@ $ht = (int) trim(fgets(STDIN));
 // À compléter : afficher "ttc : X" via Config::ttc().
 `,
     hints: [
-      'Une constante de classe se lit self::TVA à l’intérieur de la classe.',
-      'intdiv($ht * self::TVA, 100) donne la part de TVA entière.'
+      "Une constante de classe se lit self::TVA à l’intérieur de la classe.",
+      "intdiv($ht * self::TVA, 100) donne la part de TVA entière.",
+      "Étapes : lire le montant hors taxes ; calculer la part de TVA, quotient entier de (montant × 18 / 100) ; afficher « ttc : » suivi de la somme des deux."
     ],
     examples: [
       { stdin: '100', expected: 'ttc : 118', note: '100 + 18 % = 118.' }
@@ -279,7 +288,8 @@ class Config {
 
 $ht = (int) trim(fgets(STDIN));
 echo 'ttc : ' . Config::ttc($ht) . "\\n";
-`
+`,
+    takeaway: "Une constante de classe const et self:: / static:: centralisent les valeurs fixes partagées entre toutes les instances."
   },
   {
     id: 'php2-c2-e3',
@@ -298,8 +308,9 @@ $n = (int) trim(fgets(STDIN));
 // À compléter : afficher "pair : oui" ou "pair : non".
 `,
     hints: [
-      'Une méthode statique s’appelle avec ClassName::méthode(), sans new.',
-      'Un nombre est pair si le reste de sa division par 2 vaut 0.'
+      "Une méthode statique s’appelle avec ClassName::méthode(), sans new.",
+      "Un nombre est pair si le reste de sa division par 2 vaut 0.",
+      "Étapes : lire n ; appeler la méthode statique avec n ; afficher « pair : oui » si elle répond vrai, « pair : non » sinon."
     ],
     examples: [
       { stdin: '4', expected: 'pair : oui', note: '4 est pair.' }
@@ -318,7 +329,8 @@ class Maths {
 
 $n = (int) trim(fgets(STDIN));
 echo 'pair : ' . (Maths::estPair($n) ? 'oui' : 'non') . "\\n";
-`
+`,
+    takeaway: "Une méthode static agit au niveau de la classe entière (fabrique ou utilitaire) sans accéder à $this."
   },
   {
     id: 'php2-c3-e1',
@@ -341,8 +353,9 @@ $c = (int) trim(fgets(STDIN));
 // À compléter : afficher "aire : X".
 `,
     hints: [
-      'Une méthode abstraite s’écrit abstract public function aire(): int; sans corps.',
-      'La classe fille doit définir aire() avec la même signature, sinon PHP refuse.'
+      "Une méthode abstraite s’écrit abstract public function aire(): int; sans corps.",
+      "La classe fille doit définir aire() avec la même signature, sinon PHP refuse.",
+      "Étapes : lire le côté ; créer le carré avec cette valeur ; sa méthode aire() rend le côté multiplié par lui-même ; afficher « aire : » suivi du résultat."
     ],
     examples: [
       { stdin: '4', expected: 'aire : 16', note: '4 × 4 = 16.' }
@@ -371,7 +384,8 @@ class Carre extends Forme {
 
 $c = (int) trim(fgets(STDIN));
 echo 'aire : ' . (new Carre($c))->aire() . "\\n";
-`
+`,
+    takeaway: "Une classe abstract impose un contrat de méthodes à ses classes filles tout en factorisant le code commun."
   },
   {
     id: 'php2-c3-e2',
@@ -388,8 +402,9 @@ $n = (int) trim(fgets(STDIN));
 // À compléter : lire chaque forme, additionner les aires, afficher "total : X".
 `,
     hints: [
-      'Découpez chaque ligne avec explode(\' \', trim(fgets(STDIN))).',
-      'Les deux classes exposent aire() : la somme s’écrit sans connaître leur type.'
+      "Découpez chaque ligne avec explode(' ', trim(fgets(STDIN))).",
+      "Les deux classes exposent aire() : la somme s’écrit sans connaître leur type.",
+      "Étapes : lire n ; pour chaque forme, un carré a pour aire côté × côté, un rectangle largeur × hauteur ; additionner toutes les aires ; afficher « total : » suivi de la somme."
     ],
     examples: [
       { stdin: '3\ncarre 3\nrectangle 2 5\ncarre 2', expected: 'total : 23', note: '9 + 10 + 4 = 23.' }
@@ -441,7 +456,8 @@ for ($i = 0; $i < $n; $i++) {
     }
 }
 echo 'total : ' . $total . "\\n";
-`
+`,
+    takeaway: "Le polymorphisme permet d invoquer la même méthode sur une collection hétérogène d objets via leur type de base commun."
   },
   {
     id: 'php2-c3-e3',
@@ -459,8 +475,9 @@ $prix = (int) trim(fgets(STDIN));
 // À compléter : afficher le produit.
 `,
     hints: [
-      'Une interface déclare des signatures ; une classe l’implémente avec implements.',
-      'La chaîne attendue se construit par concaténation : nom . \' (\' . prix . \' EUR)\'.'
+      "Une interface déclare des signatures ; une classe l’implémente avec implements.",
+      "La chaîne attendue se construit par concaténation : nom . ' (' . prix . ' EUR)'.",
+      "Étapes : lire le nom puis le prix ; construire le produit ; son affichage rend le nom, un espace, une parenthèse ouvrante, le prix, « EUR », une parenthèse fermante."
     ],
     examples: [
       { stdin: 'Clavier\n29', expected: 'Clavier (29 EUR)', note: 'Nom et prix mis en forme.' }
@@ -493,7 +510,8 @@ $nom = trim(fgets(STDIN));
 $prix = (int) trim(fgets(STDIN));
 $produit = new Produit($nom, $prix);
 echo $produit->afficher() . "\\n";
-`
+`,
+    takeaway: "Implémenter une interface sépare le contrat comportemental de l arbre d héritage et facilite le découplage."
   },
   {
     id: 'php2-c4-e1',
@@ -510,8 +528,9 @@ $nom = trim(fgets(STDIN));
 // À compléter : afficher le message de salutation.
 `,
     hints: [
-      'Un trait se déclare comme une classe (trait Salutation { … }) et s’importe avec use à l’intérieur de la classe.',
-      'Les méthodes du trait se comportent comme des méthodes de la classe.'
+      "Un trait se déclare comme une classe (trait Salutation { … }) et s’importe avec use à l’intérieur de la classe.",
+      "Les méthodes du trait se comportent comme des méthodes de la classe.",
+      "Étapes : lire le nom ; instancier la classe d’accueil ; appeler sa méthode saluer, qui rend « Bonjour » suivi du nom ; afficher la réponse."
     ],
     examples: [
       { stdin: 'Ada', expected: 'Bonjour Ada', note: 'Le prénom est inséré dans le message.' }
@@ -534,7 +553,8 @@ class Accueil {
 
 $nom = trim(fgets(STDIN));
 echo (new Accueil())->saluer($nom) . "\\n";
-`
+`,
+    takeaway: "Un trait injecte horizontalement des méthodes réutilisables dans des classes non apparentées par héritage."
   },
   {
     id: 'php2-c4-e2',
@@ -551,8 +571,9 @@ $nom = trim(fgets(STDIN));
 // À compléter : instancier et afficher "utilisateur : X".
 `,
     hints: [
-      'La déclaration namespace App; se place tout en haut, juste après <?php.',
-      'À l’intérieur du namespace, la classe s’instancie directement : new Utilisateur($nom).'
+      "La déclaration namespace App; se place tout en haut, juste après <?php.",
+      "À l’intérieur du namespace, la classe s’instancie directement : new Utilisateur($nom).",
+      "Étapes : lire le nom ; instancier l’utilisateur avec cette valeur ; afficher « utilisateur : » suivi du nom que la méthode nom() restitue."
     ],
     examples: [
       { stdin: 'sam', expected: 'utilisateur : sam', note: 'Login mis en forme.' }
@@ -580,7 +601,8 @@ class Utilisateur {
 $nom = trim(fgets(STDIN));
 $utilisateur = new Utilisateur($nom);
 echo 'utilisateur : ' . $utilisateur->nom() . "\\n";
-`
+`,
+    takeaway: "Les namespaces cloisonnent les symboles PHP par module et s alignent sur le chargement automatique PSR-4."
   },
   {
     id: 'php2-c4-e3',
@@ -605,8 +627,9 @@ namespace {
 }
 `,
     hints: [
-      'Un import use App\\Calcul as Calc; se place en haut du bloc namespace, avant le code.',
-      'On instancie ensuite via l’alias : (new Calc())->doubler($n).'
+      "Un import use App\\Calcul as Calc; se place en haut du bloc namespace, avant le code.",
+      "On instancie ensuite via l’alias : (new Calc())->doubler($n).",
+      "Étapes : lire n ; instancier la classe via son alias ; sa méthode doubler rend n multiplié par 2 ; afficher « double : » suivi du résultat."
     ],
     examples: [
       { stdin: '21', expected: 'double : 42', note: 'Classe importée sous un autre nom.' }
@@ -631,7 +654,8 @@ namespace {
     $n = (int) trim(fgets(STDIN));
     echo 'double : ' . (new Calc())->doubler($n) . "\\n";
 }
-`
+`,
+    takeaway: "L alias « use Espace\\Classe as Alias » résout proprement les collisions de noms courts entre bibliothèques."
   },
   {
     id: 'php2-c5-e1',
@@ -654,8 +678,9 @@ $b = (int) trim(fgets(STDIN));
 // À compléter : essayer puis afficher "resultat : X" ou "erreur : message".
 `,
     hints: [
-      'On lève une erreur avec throw new Exception(\'division par zéro\');.',
-      'Le résultat se calcule avec `intdiv($a, $b)` ; le bloc `catch (Exception $e)` récupère le message via `$e->getMessage()`.'
+      "On lève une erreur avec throw new Exception('division par zéro');.",
+      "Le résultat se calcule avec `intdiv($a, $b)` ; le bloc `catch (Exception $e)` récupère le message via `$e->getMessage()`.",
+      "Étapes : lire a puis b ; si b vaut 0, l’opération lève une exception et le catch affiche « erreur : » suivi du message ; sinon afficher « resultat : » suivi du quotient entier."
     ],
     examples: [
       { stdin: '10\n2', expected: 'resultat : 5', note: 'Cas nominal.' }
@@ -680,7 +705,8 @@ try {
 } catch (Exception $e) {
     echo 'erreur : ' . $e->getMessage() . "\\n";
 }
-`
+`,
+    takeaway: "Encapsuler les appels risqués dans try / catch prévient l arrêt brutal du script et permet un repli maîtrisé."
   },
   {
     id: 'php2-c5-e2',
@@ -704,8 +730,9 @@ $montant = (int) trim(fgets(STDIN));
 // À compléter : try/catch et affichage.
 `,
     hints: [
-      'Une exception personnalisée est une classe qui hérite : class SoldeInsuffisant extends Exception {}.',
-      'On peut lancer une instance avec throw new SoldeInsuffisant(\'solde insuffisant\');.'
+      "Une exception personnalisée est une classe qui hérite : class SoldeInsuffisant extends Exception {}.",
+      "On peut lancer une instance avec throw new SoldeInsuffisant('solde insuffisant');.",
+      "Étapes : lire solde puis montant ; si le montant dépasse le solde, lancer l’exception personnalisée et afficher « erreur : » suivi du message ; sinon afficher « reste : » suivi de la différence."
     ],
     examples: [
       { stdin: '100\n30', expected: 'reste : 70', note: 'Retrait autorisé.' }
@@ -732,7 +759,8 @@ try {
 } catch (SoldeInsuffisant $e) {
     echo 'erreur : ' . $e->getMessage() . "\\n";
 }
-`
+`,
+    takeaway: "Créer une sous-classe d Exception dédiée permet d intercepter sélectivement une erreur métier sans masquer les bugs système."
   },
   {
     id: 'php2-c5-e3',
@@ -757,8 +785,9 @@ try {
 }
 `,
     hints: [
-      'Plusieurs types se regroupent avec un tube : catch (InvalidArgumentException | RangeException $e).',
-      'Le bloc finally s’exécute dans tous les cas, après le try ou le catch.'
+      "Plusieurs types se regroupent avec un tube : catch (InvalidArgumentException | RangeException $e).",
+      "Le bloc finally s’exécute dans tous les cas, après le try ou le catch.",
+      "Étapes : lire la saisie ; non numérique ou négative → afficher « saisie invalide » ; sinon afficher « valeur : » suivie de la saisie ; terminer toujours par « controle termine »."
     ],
     examples: [
       { stdin: '7', expected: 'valeur : 7\ncontrole termine', note: 'Saisie valide suivie du finally.' }
@@ -783,7 +812,8 @@ try {
 } finally {
     echo "controle termine\\n";
 }
-`
+`,
+    takeaway: "Ordonner les catch du type le plus spécifique au plus général, avec finally pour libérer les ressources dans tous les cas."
   },
   {
     id: 'php2-c6-e1',
@@ -803,8 +833,9 @@ $nom = trim(fgets(STDIN));
 // À compléter : insérer puis relire avec une requête préparée et afficher "contact : X".
 `,
     hints: [
-      'On prépare le modèle une fois : `$stmt = $pdo->prepare(\'INSERT INTO contacts (nom) VALUES (:nom)\');` puis `$stmt->execute([\':nom\' => $nom]);`.',
-      'La lecture se fait simplement : $pdo->query(\'SELECT nom FROM contacts LIMIT 1\')->fetchColumn().'
+      "On prépare le modèle une fois : `$stmt = $pdo->prepare('INSERT INTO contacts (nom) VALUES (:nom)');` puis `$stmt->execute([':nom' => $nom]);`.",
+      "La lecture se fait simplement : $pdo->query('SELECT nom FROM contacts LIMIT 1')->fetchColumn().",
+      "Étapes : lire le nom ; l’insérer par requête préparée avec le marqueur :nom ; relire la première ligne de la table ; afficher « contact : » suivi de la valeur lue."
     ],
     examples: [
       { stdin: 'Ada', expected: 'contact : Ada', note: 'Nom stocké puis relu.' }
@@ -824,7 +855,8 @@ $stmt = $pdo->prepare('INSERT INTO contacts (nom) VALUES (:nom)');
 $stmt->execute([':nom' => $nom]);
 $enregistre = $pdo->query('SELECT nom FROM contacts LIMIT 1')->fetchColumn();
 echo 'contact : ' . $enregistre . "\\n";
-`
+`,
+    takeaway: "PDO::prepare() + execute() lient paramètres et types séparément du SQL, neutralisant toute injection SQL."
   },
   {
     id: 'php2-c6-e2',
@@ -853,8 +885,9 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : afficher "somme : X".
 `,
     hints: [
-      'ajouter() empile dans le tableau privé : `$this->valeurs[] = $valeur;`.',
-      'somme() peut utiliser array_sum($this->valeurs).'
+      "ajouter() empile dans le tableau privé : `$this->valeurs[] = $valeur;`.",
+      "somme() peut utiliser array_sum($this->valeurs).",
+      "Étapes : lire n ; empiler chaque valeur dans le dépôt ; afficher « somme : » suivi de la somme des valeurs empilées."
     ],
     examples: [
       { stdin: '3\n1\n2\n3', expected: 'somme : 6', note: 'Trois valeurs additionnées.' }
@@ -883,7 +916,8 @@ for ($i = 0; $i < $n; $i++) {
     $depot->ajouter((int) trim(fgets(STDIN)));
 }
 echo 'somme : ' . $depot->somme() . "\\n";
-`
+`,
+    takeaway: "Le patron Repository isole la persistance des entités métier afin de pouvoir échanger base SQL et stockage en mémoire."
   },
   {
     id: 'php2-c6-e3',
@@ -913,8 +947,9 @@ for ($i = 0; $i < $n; $i++) {
 // À compléter : numéroter et afficher chaque tâche.
 `,
     hints: [
-      'Pour numéroter, parcours le tableau avec `foreach ($todo->lister() as $i => $tache)` et affiche `($i + 1) . \'. \' . $tache`.',
-      'La concaténation se termine par un retour à la ligne pour éviter que tout s’affiche sur une seule ligne.'
+      "Pour numéroter, parcours le tableau avec `foreach ($todo->lister() as $i => $tache)` et affiche `($i + 1) . '. ' . $tache`.",
+      "La concaténation se termine par un retour à la ligne pour éviter que tout s’affiche sur une seule ligne.",
+      "Étapes : lire n ; ajouter chaque tâche à la liste ; parcourir la liste et afficher, une ligne par tâche, son rang (à partir de 1), un point, un espace, puis la tâche."
     ],
     examples: [
       { stdin: '1\nFaire les courses', expected: '1. Faire les courses', note: 'Une seule tâche.' }
@@ -945,6 +980,7 @@ for ($i = 0; $i < $n; $i++) {
 foreach ($todo->lister() as $i => $tache) {
     echo ($i + 1) . '. ' . $tache . "\\n";
 }
-`
+`,
+    takeaway: "Combiner service métier, validation et formatage dans une couche dédiée garde la logique applicative testable et modulaire."
   }
 ];

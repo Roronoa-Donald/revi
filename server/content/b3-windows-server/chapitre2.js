@@ -192,33 +192,33 @@ module.exports = {
       stem: 'Quel rôle FSMO est chargé de délivrer des blocs d’identifiants pour la création de nouveaux objets ?',
       opts: [
         'Le Schema Master',
-        'Le RID Master',
+        'L’Infrastructure Master',
         'Le Domain Naming Master',
-        'L’Infrastructure Master'
+        'Le RID Master'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le RID Master distribue des blocs de 500 RIDs à chaque DC pour composer les SIDs uniques des nouveaux utilisateurs, groupes et ordinateurs.'
     },
     {
       stem: 'Dans la méthodologie AGDLP, à quel type de groupe accorde-t-on directement les permissions (ACLs) sur les fichiers ?',
       opts: [
         'Aux groupes Globaux (GG)',
-        'Aux groupes Universels (UG)',
         'Aux groupes Locaux de Domaine (DL)',
+        'Aux groupes Universels (UG)',
         'Directement aux comptes d’utilisateurs'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'Les permissions sont toujours affectées exclusivement aux groupes Locaux de Domaine (DL), qui accueillent ensuite les groupes globaux métier.'
     },
     {
       stem: 'Quel rôle FSMO fait office d’horloge de référence NTP pour tous les ordinateurs et serveurs du domaine ?',
       opts: [
-        'L’Infrastructure Master',
-        'Le Schema Master',
         'Le PDC Emulator',
+        'Le Schema Master',
+        'L’Infrastructure Master',
         'Le Global Catalog'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le PDC Emulator est la source de temps faisant autorité dans le domaine pour respecter la tolérance de synchronisation Kerberos (5 min).'
     },
     {
@@ -226,21 +226,21 @@ module.exports = {
       opts: [
         'Event ID 4624',
         'Event ID 4720',
-        'Event ID 4728',
-        'Event ID 7036'
+        'Event ID 7036',
+        'Event ID 4728'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'L’Event ID 4728 enregistre spécifiquement l’ajout d’un compte dans un groupe de sécurité avec le nom de l’acteur ayant effectué l’action.'
     },
     {
       stem: 'Que doit-on impérativement faire d’un contrôleur dont le rôle FSMO a été saisi de force (seize) après un crash ?',
       opts: [
-        'Le redémarrer simplement en mode sans échec',
-        'Le formater et ne JAMAIS le reconnecter au réseau Active Directory',
-        'Le promouvoir contrôleur secondaire',
-        'Changer son adresse IP'
+        "Le redémarrer simplement en mode sans échec pour restaurer les rôles",
+        "Le promouvoir contrôleur secondaire dans une nouvelle branche",
+        "Le formater et ne JAMAIS le reconnecter au réseau Active Directory",
+        "Changer son adresse IP pour éviter tout conflit d’identification"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un contrôleur dont les rôles ont été saisis de force ne doit jamais réapparaître dans l’annuaire car il contiendrait des métadonnées obsolètes créant des conflits USN.'
     },
     {
@@ -257,12 +257,12 @@ module.exports = {
     {
       stem: 'Quel événement du journal de sécurité Windows trace la suppression d’un compte utilisateur dans l’annuaire ?',
       opts: [
-        'Event ID 4720',
         'Event ID 4726',
+        'Event ID 4720',
         'Event ID 4738',
         'Event ID 4768'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’Event ID 4726 consigne la suppression définitive d’un objet compte d’utilisateur dans Active Directory.'
     }
   ],

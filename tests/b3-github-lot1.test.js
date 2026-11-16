@@ -109,8 +109,10 @@ function runSolution(solution, stdin) {
   return result.stdout.replace(/\r\n/g, '\n').replace(/\n+$/, '');
 }
 
-test('la notation GitHub reste suspendue', () => {
-  assert.equal(gradingPolicy.isGradingSuspended('b3-github'), true);
+test('la notation GitHub est active (0 suspension) et reste fail-closed sur inconnu', () => {
+  assert.equal(gradingPolicy.isGradingSuspended('b3-github'), false);
+  assert.equal(gradingPolicy.isGradingSuspended('b3-github', 'gh3-c1-e1'), false);
+  assert.equal(gradingPolicy.isGradingSuspended('b3-github', 'exercice-inconnu'), true);
 });
 
 test('les 18 exercices sont présents et possèdent chacun une entrée indépendante', () => {
@@ -473,11 +475,12 @@ test('purge : 40 graphes et instantanés comparés à un oracle indépendant', (
   }
 });
 
-test('la route refuse les 18 soumissions suspendues sans quota ni exécution', async () => {
+test('la route refuse de noter toute fiche mutée (fail-closed) sans quota ni exécution', async () => {
   const authPath = require.resolve('../server/utils/auth');
   const routePath = require.resolve('../server/routes/exercises');
   const priorAuth = require.cache[authPath];
   const priorRoute = require.cache[routePath];
+  const catalogue = require('../server/exercises');
   const execution = require('../server/services/execution');
   const budget = require('../server/services/execution/budget');
   const priorExecute = execution.execute;
@@ -489,7 +492,7 @@ test('la route refuse les 18 soumissions suspendues sans quota ni exécution', a
     id: authPath,
     filename: authPath,
     loaded: true,
-    exports: { getUser: () => ({ userId: 'utilisateur-test' }), requireUser: () => null, quotaKey: () => 'test' }
+    exports: { getUser: () => ({ userId: 'utilisateur-test' }), requireUser: () => null, requireCourseAccess: () => ({ userId: 'utilisateur-test' }), quotaKey: () => 'test' }
   };
   delete require.cache[routePath];
   execution.execute = () => { forbiddenCalls += 1; throw new Error('exécution interdite'); };
@@ -501,13 +504,20 @@ test('la route refuse les 18 soumissions suspendues sans quota ni exécution', a
     const handler = handlers.get('/exercise/submit');
     assert.equal(typeof handler, 'function');
     for (const exercise of exercises) {
-      const reply = {
-        code(status) { this.statusCode = status; return this; },
-        send(payload) { this.payload = payload; return payload; }
-      };
-      await handler({ body: { exerciseId: exercise.id, code: 'echo test' }, ip: '127.0.0.1' }, reply);
-      assert.equal(reply.statusCode, 503, exercise.id);
-      assert.equal(reply.payload.status, 'grading_suspended', exercise.id);
+      const target = catalogue.getExercise(exercise.id);
+      const saved = target.solution;
+      target.solution = `${saved}\n# mutation`;
+      try {
+        const reply = {
+          code(status) { this.statusCode = status; return this; },
+          send(payload) { this.payload = payload; return payload; }
+        };
+        await handler({ body: { exerciseId: exercise.id, code: 'echo test' }, ip: '127.0.0.1' }, reply);
+        assert.equal(reply.statusCode, 503, exercise.id);
+        assert.equal(reply.payload.status, 'grading_suspended', exercise.id);
+      } finally {
+        target.solution = saved;
+      }
     }
     assert.equal(forbiddenCalls, 0);
   } finally {

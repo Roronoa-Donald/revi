@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -214,28 +212,31 @@
      data-exercise="aws3-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e1) — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La mairie de Valmont attache à son rôle de sauvegarde une politique d'une seule déclaration :&#10;{ &quot;Effect&quot;: &quot;Allow&quot;, &quot;Action&quot;: &quot;s3:PutObject&quot;, &quot;Resource&quot;: &quot;arn:aws:s3:::valmont-sauvegardes/*&quot; }&#10;&#10;1) Une seule déclaration (Statement).&#10;2) Effet : Allow (autorisation).&#10;3) Action accordée : s3:PutObject uniquement (dépôt, pas de lecture, pas de suppression).&#10;4) L'ARN se termine par /* : la politique porte sur les objets du bucket.&#10;5) Rattachée à un rôle : elle s'applique à toute identité qui endosse ce rôle.">
+  <script type="text/plain" data-lab-starter># Exercice — La politique IAM du service facturation de Meridiem
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 4 : oui ou non. Question 3 : le format s3:GetObject, s3:PutObject.
 
-[Cas 1 — Deny explicite prioritaire sur un Allow générique]
-# Données : ACTION=s3:DeleteBucket STATEMENTS=Allow:s3:*;Deny:s3:DeleteBucket
+[Question 1 — Nombre de déclarations (Statement)]
 A_COMPLETER
 
-[Cas 2 — Refus par défaut (aucune politique correspondante)]
-# Données : ACTION=ec2:RunInstances STATEMENTS=Allow:s3:GetObject;Allow:s3:ListBucket
+[Question 2 — Effet de la première déclaration]
 A_COMPLETER
 
-[Cas 3 — Allow complet avec joker universel (*)]
-# Données : ACTION=iam:CreateUser STATEMENTS=Allow:*
+[Question 3 — Actions accordées par la première déclaration]
 A_COMPLETER
 
-[Cas 4 — Deny avec joker sur les suppressions]
-# Données : ACTION=dynamodb:DeleteItem STATEMENTS=Allow:dynamodb:*;Deny:*:Delete*
+[Question 4 — Un membre peut-il supprimer un objet ?]
+A_COMPLETER
+
+[Question 5 — Portée de l'ARN terminé par /*]
+A_COMPLETER
+
+[Question 6 — Nombre d'utilisateurs couverts par le groupe]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Moteur d'Évaluation de Politiques IAM JSON (Deny / Allow / Default Deny)</h3>
+    <h3 class="lab__title">Exercice 1 — La politique IAM du service facturation de Meridiem</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -244,24 +245,40 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Implémenter l'algorithme d'évaluation officiel des politiques d'autorisation IAM d'AWS.</p>
-    <div class="lab__brief"><p>Dans AWS IAM, chaque requête API est évaluée selon un ordre strict :<br><br>
-1. <strong>Default Deny</strong> : Par défaut, toute requête est refusée.<br>
-2. <strong>Explicit Deny prioritaire</strong> : Si au moins une déclaration applicable comporte <code>Effect: Deny</code>, la décision finale est <code>DENY</code>, quoi qu'il arrive.<br>
-3. <strong>Explicit Allow</strong> : Si aucune déclaration ne refuse la requête et qu'au moins une déclaration comporte <code>Effect: Allow</code>, la décision est <code>ALLOW</code>.<br>
-4. <strong>Refus implicite</strong> : Si aucune déclaration ne s'applique, la décision finale reste <code>DENY</code>.<br><br>
-Les actions supportent le préfixe avec joker (ex: <code>s3:Get*</code> correspond à <code>s3:GetObject</code>, <code>s3:GetBucketLocation</code> ; <code>*</code> correspond à tout).<br><br>
-Format d'Données du cas :<br>
-<code>ACTION=&lt;action_demandée&gt; STATEMENTS=&lt;Effect:Action_pattern;Effect:Action_pattern;...&gt;</code><br><br>
-Résultat d’analyse attendu : <code>IAM_EVAL: action=&lt;act&gt; decision=&lt;ALLOW|DENY&gt; reason=&lt;EXPLICIT_DENY|EXPLICIT_ALLOW|DEFAULT_DENY&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une politique IAM en JSON (Effect, Action, Resource) et déduire ce que les utilisateurs peuvent faire.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Meridiem, éditeur de logiciels de gestion, stocke ses relevés de facturation dans le bucket S3 « meridiem-factures ». Le service comptabilité doit pouvoir déposer de nouveaux relevés et relire les anciens, mais jamais en supprimer. L'administrateur cloud rédige la politique suivante et l'attache au groupe IAM « Compta-Factures », dont les membres sont Djamel et Inès :</p><pre>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DepotEtLectureDesReleves",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": "arn:aws:s3:::meridiem-factures/*"
+    },
+    {
+      "Sid": "InterdictionDeSuppression",
+      "Effect": "Deny",
+      "Action": "s3:DeleteObject",
+      "Resource": "arn:aws:s3:::meridiem-factures/*"
+    }
+  ]
+}</pre><p>Rappel du cours : une politique JSON est une liste de déclarations (Statement) ; chacune porte un effet (Allow ou Deny), des actions et des ressources ; un Deny explicite l'emporte toujours sur tout Allow.</p><p>La question 4 attend « oui » ou « non ».</p><ol><li>Combien de déclarations (Statement) compte cette politique ?</li><li>Quel est l'effet (Effect) de la première déclaration ?</li><li>Quelles sont les deux actions accordées par la première déclaration ? Répondez au format s3:GetObject, s3:PutObject.</li><li>Un membre du groupe peut-il supprimer un objet du bucket ?</li><li>L'ARN de la ressource se termine par /* : la première déclaration porte-t-elle sur le bucket lui-même ou sur les objets qu'il contient ?</li><li>Combien d'utilisateurs reçoivent ces permissions par l'intermédiaire du groupe ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ACTION=s3:GetObject STATEMENTS=Allow:s3:Get*;Deny:s3:PutObject</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La mairie de Valmont attache à son rôle de sauvegarde une politique d'une seule déclaration :
+{ "Effect": "Allow", "Action": "s3:PutObject", "Resource": "arn:aws:s3:::valmont-sauvegardes/*" }
+
+1) Une seule déclaration (Statement).
+2) Effet : Allow (autorisation).
+3) Action accordée : s3:PutObject uniquement (dépôt, pas de lecture, pas de suppression).
+4) L'ARN se termine par /* : la politique porte sur les objets du bucket.
+5) Rattachée à un rôle : elle s'applique à toute identité qui endosse ce rôle.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Lisez la politique déclaration par déclaration : un Statement débute à chaque accolade ouvrante après "Statement": [.</li>
+        <li>Comparez le champ Resource avec le bucket : un ARN en /* désigne les objets, un ARN sans /* désignerait le bucket lui-même.</li>
+        <li>1. Comptez les accolades après "Statement": [. 2. Lisez le champ Effect. 3. Listez le tableau Action. 4. Cherchez s3:DeleteObject du côté Allow, puis du côté Deny. 5. Observez la fin de l'ARN. 6. Relisez les membres du groupe.</li>
       </ol>
     </details>
   </div>
@@ -271,28 +288,31 @@ Résultat d’analyse attendu : <code>IAM_EVAL: action=&lt;act&gt; decision=&lt;
      data-exercise="aws3-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e2) — Auditeur de Clés d'Accès IAM & Détecteur d'Inactivité / Rotation
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le studio Pixaglio audite ses clés d'accès au 10/03/2025 (règle : désactiver au-delà de 90 jours sans usage).&#10;Yanis : dernière utilisation le 05/01/2025, soit 26 + 28 + 10 = 64 jours écoulés, conforme.&#10;Nora : clé du 15/02/2025 utilisée la veille, conforme.&#10;Théo : parti de l'entreprise, clé du 12/09/2023 jamais utilisée, hors délai.&#10;&#10;1) Clés hors délai de 90 jours : 1 (celle de Théo, jamais utilisée).&#10;2) Jours écoulés pour Yanis : 64.&#10;3) Identité à supprimer : Théo.&#10;4) À la place des clés permanentes : des rôles IAM à identifiants temporaires.&#10;5) Sur le root : activer le MFA.">
+  <script type="text/plain" data-lab-starter># Exercice — L'audit des clés d'accès de Norvia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 6 : le nombre seul. Question 3 : le prénom.
 
-[Cas 1 — Clé active ayant dépassé 90 jours (120 jours)]
-# Données : KEY_AUDIT USER=admin-bob KEY_ID=AKIA1122334455667788 STATUS=Active AGE_DAYS=120
+[Question 1 — Clés inutilisées depuis plus de 90 jours]
 A_COMPLETER
 
-[Cas 2 — Clé inactive conservée (40 jours)]
-# Données : KEY_AUDIT USER=svc-app KEY_ID=AKIA9988776655443322 STATUS=Inactive AGE_DAYS=40
+[Question 2 — Jours écoulés depuis la dernière utilisation de la clé de Karim]
 A_COMPLETER
 
-[Cas 3 — Clé malformée (préfixe invalide)]
-# Données : KEY_AUDIT USER=hacker KEY_ID=ASIA1122334455667788 STATUS=Active AGE_DAYS=10
+[Question 3 — Identité à supprimer]
 A_COMPLETER
 
-[Cas 4 — Clé exactement au seuil limite de 90 jours]
-# Données : KEY_AUDIT USER=ops-charlie KEY_ID=AKIAABCDEF0123456789 STATUS=Active AGE_DAYS=90
+[Question 4 — Identité IAM à identifiants temporaires]
+A_COMPLETER
+
+[Question 5 — Dispositif à activer sur l'utilisateur root]
+A_COMPLETER
+
+[Question 6 — Nombre de jours d'existence de la clé de Léo]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Auditeur de Clés d'Accès IAM &amp; Détecteur d'Inactivité / Rotation</h3>
+    <h3 class="lab__title">Exercice 2 — L'audit des clés d'accès de Norvia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -301,25 +321,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer le rapport d'identifiants IAM (Credential Report) et identifier les clés compromises, inactives ou périmées.</p>
-    <div class="lab__brief"><p>Les bonnes pratiques de sécurité AWS exigent une rotation régulière des clés d'accès programmatiques (Access Keys) :<br><br>
-Règles d'audit d'une clé :<br>
-1. <strong>Format valide</strong> : Une clé d'accès IAM permanente commence obligatoirement par le préfixe <code>AKIA</code> et comporte exactement 20 caractères alphanumériques majuscules.<br>
-Si ce n'est pas le cas -&gt; <code>ALERT_MALFORMED_KEY</code>.<br>
-2. <strong>Statut inactif</strong> : Si <code>STATUS=Inactive</code> -&gt; <code>NOTICE_KEY_INACTIVE</code> (ne pose pas de risque immédiat mais doit être supprimée).<br>
-3. <strong>Périmètre d'âge (Rotation)</strong> :<br>
-- Si <code>STATUS=Active</code> et <code>AGE_DAYS &gt; 90</code> -&gt; <code>ALERT_ROTATION_REQUIRED</code> (dépassement du seuil de 90 jours préconisé par AWS).<br>
-- Si <code>STATUS=Active</code> et <code>AGE_DAYS &lt;= 90</code> -&gt; <code>KEY_COMPLIANT</code>.<br><br>
-Données du cas : <code>KEY_AUDIT USER=&lt;username&gt; KEY_ID=&lt;key&gt; STATUS=&lt;Active|Inactive&gt; AGE_DAYS=&lt;n&gt;</code>.<br>
-Résultat d’analyse attendu : <code>AUDIT: user=&lt;u&gt; key=&lt;k&gt; status=&lt;s&gt; age_days=&lt;n&gt; verdict=&lt;VERDICT&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Auditer des clés d'accès IAM (âge, dernière utilisation) et connaître les bonnes pratiques de sécurité des identifiants.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Norvia, industriel du matériel médical, mène l'audit de ses clés d'accès IAM le <strong>15/06/2025</strong>. Sa règle interne : une clé d'accès inutilisée depuis plus de <strong>90 jours</strong> doit être désactivée, et toute identité appartenant à un collaborateur parti de l'entreprise doit être supprimée. L'état des lieux des quatre utilisateurs dotés d'une clé est le suivant :</p><table><tr><th>Utilisateur</th><th>Rôle</th><th>Clé créée le</th><th>Dernière utilisation</th></tr><tr><th>Amélie</th><td>Développeuse</td><td>12/01/2025</td><td>14/06/2025 (veille de l'audit)</td></tr><tr><th>Karim</th><td>Data analyste</td><td>05/09/2024</td><td>10/12/2024</td></tr><tr><th>Léo</th><td>Stagiaire, parti en avril 2024</td><td>20/02/2024</td><td>jamais</td></tr><tr><th>Sofia</th><td>Responsable exploitation</td><td>15/03/2025</td><td>15/06/2025 (matin de l'audit)</td></tr></table><p>Les questions 1, 2, 3 et 6 attendent un nombre ; les questions 4 et 5 attendent une réponse courte.</p><ol><li>Combien de clés d'accès sont inutilisées depuis plus de 90 jours au 15/06/2025 ?</li><li>Combien de jours se sont écoulés depuis la dernière utilisation de la clé de Karim ?</li><li>Quelle identité doit être purement et simplement supprimée ?</li><li>Pour un accès programmatique sans clé permanente, quel type d'identité IAM fournit des identifiants temporaires ?</li><li>Quel dispositif de sécurité doit être activé en priorité sur l'utilisateur root du compte ?</li><li>La clé de Léo, créée le 20/02/2024, n'a jamais servi : depuis combien de jours existait-elle au 15/06/2025 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>KEY_AUDIT USER=dev-alice KEY_ID=AKIAIOSFODNN7EXAMPLE STATUS=Active AGE_DAYS=45</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le studio Pixaglio audite ses clés d'accès au 10/03/2025 (règle : désactiver au-delà de 90 jours sans usage).
+Yanis : dernière utilisation le 05/01/2025, soit 26 + 28 + 10 = 64 jours écoulés, conforme.
+Nora : clé du 15/02/2025 utilisée la veille, conforme.
+Théo : parti de l'entreprise, clé du 12/09/2023 jamais utilisée, hors délai.
+
+1) Clés hors délai de 90 jours : 1 (celle de Théo, jamais utilisée).
+2) Jours écoulés pour Yanis : 64.
+3) Identité à supprimer : Théo.
+4) À la place des clés permanentes : des rôles IAM à identifiants temporaires.
+5) Sur le root : activer le MFA.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Comptez les jours écoulés entre la date d'audit et la dernière utilisation : décembre 2024 à juin 2025, sans oublier les mois pleins.</li>
+        <li>Une clé jamais utilisée depuis plus de 90 jours est hors délai ; une identité de collaborateur parti relève de la suppression, pas de la simple désactivation.</li>
+        <li>1. Comparez chaque « dernière utilisation » au seuil de 90 jours. 2. De 10/12/2024 au 15/06/2025 : 21 + 31 + 28 + 31 + 30 + 31 + 15. 3. Cherchez le collaborateur parti. 4. Pensez aux identités endossables sans mot de passe. 5. Le root ne doit jamais servir sans second facteur. 6. L'année 2024 est bissextile.</li>
       </ol>
     </details>
   </div>
@@ -329,28 +350,31 @@ Résultat d’analyse attendu : <code>AUDIT: user=&lt;u&gt; key=&lt;k&gt; status
      data-exercise="aws3-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c2-e3) — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'agence de voyages Voyaj organise ses comptes : un compte de gestion, une OU Prod, une OU Lab.&#10;Une SCP sur Lab refuse toute action hors de la région eu-west-1 ; l'OU Prod ne porte que FullAWSAccess.&#10;&#10;1) Le compte qui porte la facture consolidée : le compte de gestion.&#10;2) Un data scientist de Lab (admin IAM) veut créer un bucket dans us-east-1 : refusé, le Deny explicite de la SCP l'emporte.&#10;3) Les SCP ne s'appliquent pas au compte de gestion.&#10;4) Si l'on détache FullAWSAccess de Prod sans autre SCP : plus aucune action n'est autorisée.">
+  <script type="text/plain" data-lab-starter># Exercice — La gouvernance multi-comptes du groupe Vantara
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 2 et 6 : oui ou non.
 
-[Cas 1 — Blocage par Deny explicite au niveau de l OU Core]
-# Données : SCP_CHECK ACTION=s3:DeleteBucket HIERARCHY=Root:Allow;CoreOU:Deny;Account:Allow
+[Question 1 — Compte au sommet de l'organisation]
 A_COMPLETER
 
-[Cas 2 — Blocage par absence d Allow au niveau Root]
-# Données : SCP_CHECK ACTION=dynamodb:PutItem HIERARCHY=Root:None;AppOU:Allow;Account:Allow
+[Question 2 — Les SCP s'appliquent-elles au compte de gestion ?]
 A_COMPLETER
 
-[Cas 3 — Blocage par Deny sur le compte final]
-# Données : SCP_CHECK ACTION=iam:CreateUser HIERARCHY=Root:Allow;DevOU:Allow;Account:Deny
+[Question 3 — Lancement d'une instance en us-east-1 depuis dev-test]
 A_COMPLETER
 
-[Cas 4 — Arborescence à 4 niveaux validée]
-# Données : SCP_CHECK ACTION=ec2:RunInstances HIERARCHY=Root:Allow;EuropeOU:Allow;ProdOU:Allow;Account:Allow
+[Question 4 — Règle qui l'emporte toujours]
+A_COMPLETER
+
+[Question 5 — Facturation des comptes membres]
+A_COMPLETER
+
+[Question 6 — Une OU sans SCP accordante : tout reste-t-il autorisé ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Évaluateur de Politiques de Contrôle des Services AWS Organizations (SCP)</h3>
+    <h3 class="lab__title">Exercice 3 — La gouvernance multi-comptes du groupe Vantara</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -359,26 +383,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une action est autorisée à travers l'arborescence hiérarchique d'unités organisationnelles (OUs) avec des SCPs.</p>
-    <div class="lab__brief"><p>Les <strong>Service Control Policies (SCPs)</strong> dans AWS Organizations définissent les garde-fous maximaux pour les comptes membres :<br><br>
-Règles d'évaluation des SCPs :<br>
-1. Les SCPs ne confèrent pas de droits, elles définissent une <strong>limite supérieure</strong> de permissions.<br>
-2. Pour qu'une action soit autorisée sur un compte cible :<br>
-- Aucun niveau de l'arborescence (du Root jusqu'au compte) ne doit comporter de <code>Deny</code> explicite sur l'action.<br>
-- CHAQUE niveau traversé (Root, OUs intermédiaires, Compte) doit explicitement comporter un <code>Allow</code> sur l'action (politique <code>FullAWSAccess</code> par défaut).<br>
-3. Si un seul niveau bloque l'action (absence d'Allow ou présence d'un Deny), l'action est interdite (<code>BLOCKED</code>).<br><br>
-Données du cas :<br>
-<code>SCP_CHECK ACTION=&lt;action&gt; HIERARCHY=&lt;Niveau1:Allow/Deny;Niveau2:Allow/Deny;...&gt;</code>.<br><br>
-Résultat d’analyse attendu : Si autorisée : <code>SCP_RESULT: action=&lt;act&gt; status=ALLOWED</code>.<br>
-Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt;Niveau&gt; reason=&lt;EXPLICIT_DENY|NO_ALLOW_FOUND&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Raisonner sur AWS Organizations : compte de gestion, OU, portée des SCP et règle du refus explicite.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le groupe industriel Vantara organise ses environnements AWS avec <strong>AWS Organizations</strong> : un <strong>compte de gestion</strong> qui porte la facturation, puis deux unités d'organisation (OU) : « Production » (comptes app-prod et data-prod) et « Sandbox » (comptes dev-test et proto). La SCP par défaut <code>FullAWSAccess</code> est attachée à la racine. Sur l'OU Sandbox, l'administrateur attache une SCP qui refuse explicitement toute action menée en dehors de la région <strong>eu-west-3</strong>, et une seconde SCP qui refuse <code>organizations:LeaveOrganization</code>.</p><p>Rappel du cours : dans une organisation, l'évaluation d'une demande suit la règle d'or : un refus explicite (Deny) l'emporte toujours ; les SCP définissent le plafond de permissions de chaque compte ; sans SCP accordante dans la chaîne, tout retombe sur un refus implicite.</p><p>Les questions 2 et 6 attendent « oui » ou « non » ; les autres une réponse courte.</p><ol><li>Comment s'appelle le compte au sommet de l'organisation, celui qui porte la facturation consolidée ?</li><li>Les SCP s'appliquent-elles au compte de gestion ?</li><li>Un développeur du compte dev-test, doté d'une politique IAM AdministratorAccess, tente de lancer une instance dans la région us-east-1 : sa demande aboutit-elle ?</li><li>Quelle règle l'emporte toujours, quelle que soit la politique IAM de l'utilisateur ?</li><li>Que fait AWS Organizations au niveau de la facturation des comptes membres ?</li><li>Si l'on détache la SCP FullAWSAccess d'une OU sans la remplacer par une autre autorisation, tout reste-t-il autorisé dans les comptes de cette OU ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCP_CHECK ACTION=ec2:StopInstances HIERARCHY=Root:Allow;CoreOU:Allow;Account:Allow</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'agence de voyages Voyaj organise ses comptes : un compte de gestion, une OU Prod, une OU Lab.
+Une SCP sur Lab refuse toute action hors de la région eu-west-1 ; l'OU Prod ne porte que FullAWSAccess.
+
+1) Le compte qui porte la facture consolidée : le compte de gestion.
+2) Un data scientist de Lab (admin IAM) veut créer un bucket dans us-east-1 : refusé, le Deny explicite de la SCP l'emporte.
+3) Les SCP ne s'appliquent pas au compte de gestion.
+4) Si l'on détache FullAWSAccess de Prod sans autre SCP : plus aucune action n'est autorisée.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Une organisation a toujours un compte racine appelé compte de gestion (management account) : c'est lui qui regroupe la facturation.</li>
+        <li>Les SCP ne s'appliquent ni au compte de gestion, ni aux identités des services AWS ; elles plafonnent les comptes membres.</li>
+        <li>1. Cherchez le nom du compte racine de l'organisation. 2. Pensez à qui échappe les SCP. 3. La région visée est-elle dans la zone autorisée ? 4. Rappelez la règle d'or. 5. Une seule facture pour tous les comptes. 6. Sans Allow dans la chaîne des SCP, que reste-t-il ?</li>
       </ol>
     </details>
   </div>
@@ -392,8 +413,8 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
       <p class="q__stem">Que se passe-t-il si un utilisateur IAM fait l'objet d'une politique avec « Effect: Allow » sur s3:* et d'une autre politique avec « Effect: Deny » sur s3:DeleteBucket ?</p>
       <div class="opts">
         <button class="opt">L'utilisateur peut supprimer les buckets car Allow est évalué en premier</button>
-        <button class="opt" data-correct="1">La suppression de bucket est strictement refusée, mais les autres opérations S3 sont autorisées</button>
         <button class="opt">Toutes les opérations S3 sont bloquées</button>
+        <button class="opt" data-correct="1">La suppression de bucket est strictement refusée, mais les autres opérations S3 sont autorisées</button>
         <button class="opt">Une erreur de conflit de politique est levée dans la console</button>
       </div>
       <div class="q__exp">L'Explicit Deny est prioritaire absolu sur tout Allow. L'utilisateur conserve le droit d'exécuter toutes les actions S3 (GetObject, PutObject...) SAUF DeleteBucket qui est refusée.</div>
@@ -402,9 +423,9 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
       <p class="q__stem">Quel mécanisme AWS permet à une application exécutée sur une instance EC2 d'accéder à S3 sans stocker de clés d'accès en dur sur le serveur ?</p>
       <div class="opts">
         <button class="opt">Un fichier texte ~/.aws/credentials contenant les clés root</button>
-        <button class="opt" data-correct="1">Un Instance Profile associant un rôle IAM à l'instance EC2</button>
-        <button class="opt">Une variable d'environnement globale dans /etc/profile</button>
         <button class="opt">Un tunnel VPN IPsec dédié</button>
+        <button class="opt">Une variable d'environnement globale dans /etc/profile</button>
+        <button class="opt" data-correct="1">Un Instance Profile associant un rôle IAM à l'instance EC2</button>
       </div>
       <div class="q__exp">L'Instance Profile transmet un rôle IAM à la VM EC2. Le SDK Boto3/AWS CLI interroge alors automatiquement le service de métadonnées (IMDS) pour obtenir des clés temporaires renouvelées en continu.</div>
     </div>
@@ -421,9 +442,9 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
     <div class="q">
       <p class="q__stem">Selon les recommandations officielles d'AWS et le benchmark CIS, quelle est la fréquence maximale de rotation des clés d'accès ?</p>
       <div class="opts">
-        <button class="opt">Tous les 7 jours</button>
-        <button class="opt">Tous les 30 jours</button>
         <button class="opt" data-correct="1">Tous les 90 jours</button>
+        <button class="opt">Tous les 30 jours</button>
+        <button class="opt">Tous les 7 jours</button>
         <button class="opt">Tous les 365 jours</button>
       </div>
       <div class="q__exp">Le benchmark CIS AWS Foundations exige une rotation d'au moins tous les 90 jours pour toute clé d'accès IAM permanente afin de minimiser le risque de compromission.</div>
@@ -431,10 +452,10 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
     <div class="q">
       <p class="q__stem">Quel est le rôle exact d'une Service Control Policy (SCP) dans AWS Organizations ?</p>
       <div class="opts">
-        <button class="opt">Accorder des droits administratifs aux utilisateurs d'un compte</button>
+        <button class="opt">Accorder directement des droits administratifs complets à tous les utilisateurs d'un compte membre</button>
+        <button class="opt">Chiffrer automatiquement tous les volumes EBS des instances déployées dans une région donnée</button>
+        <button class="opt">Générer automatiquement la facture consolidée mensuelle de tous les comptes de l'organisation</button>
         <button class="opt" data-correct="1">Définir une limite supérieure (garde-fou) des permissions autorisées sur les comptes membres d'une OU</button>
-        <button class="opt">Chiffrer automatiquement tous les disques EBS d'une région</button>
-        <button class="opt">Générer la facture consolidée mensuelle</button>
       </div>
       <div class="q__exp">Une SCP ne donne aucun droit direct. Elle agit comme un filtre supérieur interdisant formellement certaines actions ou limitant le périmètre d'action possible des administrateurs du compte.</div>
     </div>
@@ -442,8 +463,8 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
       <p class="q__stem">Quelle version de document de stratégie doit être impérativement déclarée dans le champ « Version » d'une politique JSON moderne ?</p>
       <div class="opts">
         <button class="opt">2008-10-17</button>
-        <button class="opt" data-correct="1">2012-10-17</button>
         <button class="opt">2024-01-01</button>
+        <button class="opt" data-correct="1">2012-10-17</button>
         <button class="opt">latest</button>
       </div>
       <div class="q__exp">La valeur officielle standard est strictement « 2012-10-17 ». L'ancienne version « 2008-10-17 » ne supporte pas les conditions avancées ni les variables de stratégie.</div>
@@ -451,18 +472,18 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre une Identity-based policy et une Resource-based policy ?</p>
       <div class="opts">
-        <button class="opt">Les Resource-based policies sont payantes</button>
+        <button class="opt">Les Resource-based policies sont facturées à l'usage alors que les Identity-based policies sont gratuites</button>
         <button class="opt" data-correct="1">Une Resource-based policy est attachée directement à la ressource (ex: bucket S3) et contient un élément « Principal » obligatoire</button>
-        <button class="opt">Les Identity-based policies ne peuvent pas comporter de Condition</button>
-        <button class="opt">Il n'y a aucune différence</button>
+        <button class="opt">Les Identity-based policies ne peuvent pas comporter de bloc Condition aussi riche que les policies de ressource</button>
+        <button class="opt">Il n'y a aucune différence : les deux types de politiques s'attachent indifféremment à une identité ou à une ressource</button>
       </div>
       <div class="q__exp">Une Resource-based policy (comme une Bucket Policy S3) est attachée à la ressource elle-même et doit impérativement spécifier « Principal » pour désigner QUI a le droit d'y accéder.</div>
     </div>
     <div class="q">
       <p class="q__stem">Si aucune politique applicable ne mentionne une action donnée, quelle décision est prise par le moteur IAM ?</p>
       <div class="opts">
-        <button class="opt">ALLOW (car rien n'interdit l'action)</button>
         <button class="opt" data-correct="1">DENY (en vertu du refus par défaut / Default Deny)</button>
+        <button class="opt">ALLOW (car rien n'interdit l'action)</button>
         <button class="opt">ASK_USER (une alerte est envoyée par e-mail)</button>
         <button class="opt">LOG_ONLY (l'action est permise mais consignée)</button>
       </div>
@@ -586,7 +607,7 @@ Si bloquée : <code>SCP_RESULT: action=&lt;act&gt; status=BLOCKED blocked_by=&lt
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

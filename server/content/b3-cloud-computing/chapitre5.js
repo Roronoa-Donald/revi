@@ -137,23 +137,23 @@ module.exports = {
     {
       stem: 'Quel mécanisme technique empêche l’écrasement ou la suppression définitive d’un fichier déposé dans un bucket de stockage Cloud lors d’une attaque par ransomware ?',
       opts: [
-        'L’indexation automatique',
-        'Le versioning d’objets combiné au verrouillage WORM (Object Lock)',
-        'L’affectation d’une adresse IP statique',
-        'Le partitionnement logique du réseau'
+        "L’indexation automatique des fichiers dans le moteur de recherche interne",
+        "L’affectation d’une adresse IP statique au point de montage du bucket",
+        "Le partitionnement logique du réseau en sous-réseaux privés étanches",
+        "Le versioning d’objets combiné au verrouillage WORM (Object Lock)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le versioning conserve chaque version successive d’un fichier, et le mode WORM (Object Lock) interdit techniquement toute modification ou suppression pendant une durée définie.'
     },
     {
       stem: 'Quelle loi américaine permet aux tribunaux des États-Unis d’ordonner à un fournisseur américain de fournir des données, y compris si les serveurs sont situés en France ou en Allemagne ?',
       opts: [
-        'Le RGPD européen',
-        'Le CLOUD Act (Clarifying Lawful Overseas Use of Data Act)',
-        'Le Patriot Act historique',
-        'La directive NIS 2'
+        "Le CLOUD Act (Clarifying Lawful Overseas Use of Data Act)",
+        "Le RGPD européen, qui encadre les transferts de données personnelles",
+        "Le Patriot Act historique, souvent cité à tort dans les audits",
+        "La directive NIS 2 sur la cybersécurité des réseaux européens"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le CLOUD Act américain (2018) dispose d’une portée extraterritoriale s’appliquant à toute entité commerciale de droit américain, indépendamment de la frontière physique du stockage.'
     },
     {
@@ -170,43 +170,43 @@ module.exports = {
     {
       stem: 'Quelle est la principale différence entre le chiffrement de données SSE-S3 et le chiffrement SSE-KMS avec clé CMK ?',
       opts: [
-        'SSE-S3 ne chiffre pas réellement les données',
-        'SSE-KMS avec CMK permet au client de contrôler l’accès à la clé de déchiffrement, d’exiger la rotation et d’auditer chaque utilisation',
-        'SSE-S3 requiert l’installation d’un logiciel lourd sur le poste client',
-        'SSE-KMS ne fonctionne qu’avec des machines virtuelles Linux'
+        "SSE-S3 ne chiffre pas réellement les données et se contente d’un simple obscurcissement par permutation",
+        "SSE-S3 requiert l’installation d’un logiciel lourd de chiffrement sur le poste de chaque utilisateur",
+        "SSE-KMS avec CMK permet au client de contrôler l’accès à la clé de déchiffrement, d’exiger la rotation et d’auditer chaque utilisation",
+        "SSE-KMS ne fonctionne qu’avec des machines virtuelles Linux certifiées par le fournisseur Cloud"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Avec SSE-KMS (Customer Managed Key), le client conserve la pleine gouvernance de la clé de chiffrement, peut révoquer son accès à tout moment et trace chaque déchiffrement dans les journaux d’audit.'
     },
     {
       stem: 'Comment qualifie-t-on la famille d’outils logiciels spécialisés dans l’audit continu et la détection des dérives de configuration sur l’ensemble d’un parc Cloud ?',
       opts: [
-        'CSPM (Cloud Security Posture Management)',
+        'IDE (Integrated Development Environment)',
         'ERP (Enterprise Resource Planning)',
         'CRM (Customer Relationship Management)',
-        'IDE (Integrated Development Environment)'
+        'CSPM (Cloud Security Posture Management)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Les outils CSPM (Cloud Security Posture Management) scannent en permanence les configurations des comptes Cloud pour alerter en cas de non-conformité ou de mauvaise configuration.'
     },
     {
       stem: 'Quel principe de sécurité fondamental stipule qu’un compte utilisateur ou une application ne doit posséder QUE les autorisations strictement requises pour sa mission ?',
       opts: [
-        'Le principe de haute disponibilité',
         'Le principe du moindre privilège (Least Privilege)',
+        'Le principe de haute disponibilité',
         'Le principe de tolérance aux pannes',
         'Le principe de latence minimale'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le principe du moindre privilège (Least Privilege) garantit qu’une entité ne dispose d’aucun droit superflu, réduisant drastiquement l’impact potentiel d’un piratage de compte.'
     },
     {
       stem: 'Une entreprise basée à Paris héberge des données de santé nominatives de patients français sur un serveur situé aux États-Unis sans garanties juridiques valables. Que risque-t-elle ?',
       opts: [
-        'Aucune sanction car les données sont sauvegardées',
-        'Une infraction majeure au RGPD pouvant être sanctionnée d’une amende allant jusqu’à 4% de son chiffre d’affaires annuel mondial',
-        'Uniquement un avertissement informel de son fournisseur d’accès Internet',
-        'L’arrêt obligatoire de sa connexion Internet sous 24 heures'
+        "Aucune sanction, car les données font l’objet d’une sauvegarde quotidienne certifiée par l’hébergeur",
+        "Une infraction majeure au RGPD pouvant être sanctionnée d’une amende allant jusqu’à 4% de son chiffre d’affaires annuel mondial",
+        "Uniquement un avertissement informel de son fournisseur d’accès Internet, sans aucune suite judiciaire",
+        "L’arrêt obligatoire de sa connexion Internet sous 24 heures ordonné par l’ARCEP"
       ],
       correct: 1,
       exp: 'Le transfert illégal de données sensibles de santé hors de l’UE en violation du RGPD constitue une faute lourde sanctionnée de lourdes amendes par les autorités de protection des données (CNIL).'

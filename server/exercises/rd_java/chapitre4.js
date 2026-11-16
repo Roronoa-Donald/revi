@@ -38,8 +38,9 @@ public class Main {
 }
 `,
     hints: [
-      'Le constructeur s’écrit Rectangle(int largeur, int hauteur) et affecte this.largeur et this.hauteur.',
-      'aire() renvoie largeur * hauteur ; crée l’objet avec new Rectangle(largeur, hauteur).'
+      "Le constructeur s’écrit Rectangle(int largeur, int hauteur) et affecte this.largeur et this.hauteur.",
+      "aire() renvoie largeur * hauteur ; crée l’objet avec new Rectangle(largeur, hauteur).",
+      "Étapes : lire largeur puis hauteur ; construire le rectangle ; aire = largeur × hauteur ; afficher « aire : » suivi du résultat."
     ],
     examples: [
       { stdin: '4\n5', expected: 'aire : 20', note: 'Un rectangle de 4 sur 5.' }
@@ -74,7 +75,8 @@ public class Main {
         System.out.println("aire : " + rectangle.aire());
     }
 }
-`
+`,
+    takeaway: "Un constructeur initialise les champs private final ou encapsulés avant toute invocation de méthode d aire ou périmètre."
   },
   {
     id: 'java2-c4-e2',
@@ -105,8 +107,9 @@ public class Main {
 }
 `,
     hints: [
-      'Ajoutez l’annotation @Override devant public String toString().',
-      'Concatène les valeurs entre parenthèses : "(" + x + ", " + y + ")".'
+      "Ajoutez l’annotation @Override devant public String toString().",
+      "Concatène les valeurs entre parenthèses : \"(\" + x + \", \" + y + \")\".",
+      "Étapes : lire x puis y ; construire le point ; son affichage rend « (x, y) » — parenthèse, x, virgule, espace, y, parenthèse."
     ],
     examples: [
       { stdin: '3\n4', expected: '(3, 4)', note: 'Le point (3, 4).' }
@@ -141,7 +144,8 @@ public class Main {
         System.out.println(new Point(x, y));
     }
 }
-`
+`,
+    takeaway: "Redéfinir @Override public String toString() fournit automatiquement une représentation lisible lors des System.out.println."
   },
   {
     id: 'java2-c4-e3',
@@ -186,8 +190,9 @@ public class Main {
 }
 `,
     hints: [
-      'sc.next() lit un mot (sans espace) ; sc.nextInt() lit l’entier suivant.',
-      'L’affichage se construit par concaténation : p.getNom() + " (" + p.getAge() + " ans)".'
+      "sc.next() lit un mot (sans espace) ; sc.nextInt() lit l’entier suivant.",
+      "L’affichage se construit par concaténation : p.getNom() + \" (\" + p.getAge() + \" ans)\".",
+      "Étapes : lire le nom puis l’âge ; construire la personne ; afficher nom, espace, parenthèse ouvrante, âge, « ans », parenthèse fermante."
     ],
     examples: [
       { stdin: 'Ada\n36', expected: 'Ada (36 ans)', note: 'Ada a 36 ans.' }
@@ -233,6 +238,7 @@ public class Main {
         System.out.println(personne.getNom() + " (" + personne.getAge() + " ans)");
     }
 }
-`
+`,
+    takeaway: "Un setter validant rejette les valeurs illégales (ex. âge négatif) via IllegalArgumentException pour protéger l état."
   }
 ];

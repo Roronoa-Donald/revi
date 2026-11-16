@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -223,11 +221,32 @@ syscall</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>6. Trace de la pile (PUSH / POP) &amp; Simulateur de branchements x86-16</h2>
+
+<p>Suivons l’évolution du pointeur de pile <code>SP</code> (initialisé à <code>0x00FE</code>) et du pointeur d’instruction <code>IP</code> lors d’une sauvegarde sur la pile avec <code>PUSH</code> / <code>POP</code> et d’un saut conditionnel <code>JE</code> :</p>
+<table class="table">
+  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>AX</th><th>BX</th><th>DX</th><th>SP</th><th>ZF</th><th>Comportement de la pile et du saut</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>MOV AX, 0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>0x00FE</code></td><td>0</td><td>Prépare l’argument <code>AX = 16</code>.</td></tr>
+    <tr><td>2</td><td><code>PUSH AX</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>0</td><td>Décrémente <code>SP</code> de 2 (<code>0x00FC</code>) et empile <code>0x0010</code>.</td></tr>
+    <tr><td>3</td><td><code>MOV BX, 0x0010</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>0</td><td>Charge la valeur de référence <code>0x0010</code> dans <code>BX</code>.</td></tr>
+    <tr><td>4</td><td><code>CMP AX, BX</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>1</td><td>Comparaison : <code>AX - BX = 0</code> $\implies$ <code>ZF = 1</code>.</td></tr>
+    <tr><td>5</td><td><code>JE depiler</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0000</code></td><td><code>0x00FC</code></td><td>1</td><td>Saut conditionnel pris vers <code>depiler:</code> (ignore l’instruction suivante).</td></tr>
+    <tr><td>6</td><td><code>POP DX</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x0010</code></td><td><code>0x00FE</code></td><td>1</td><td>Dépile <code>0x0010</code> dans <code>DX</code> et ré-incrémente <code>SP</code> à <code>0x00FE</code>.</td></tr>
+  </tbody>
+</table>
+<div class="asm-sim" data-asm-simulator data-asm-code="MOV AX, 0x0010\nPUSH AX\nMOV BX, 0x0010\nCMP AX, BX\nJE depiler\nMOV CX, 0xFFFF\ndepiler:\nPOP DX\nHLT"></div>
+<script src="/assets/js/engines/asm-simulator.js" defer></script>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>6. Études de cas &amp; applications pratiques</h2>
+  <h2>7. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -271,10 +290,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PUSH 10, PUSH 20, POP, PUSH 30</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La pile x86 grandit vers le bas : chaque PUSH décrémente ESP de 4 octets et écrit au sommet.</li>
         <li>Chaque POP lit la valeur au sommet et incrémente ESP de 4 octets.</li>
+        <li>Pour chaque cas : partir de ESP à 0x1000, décrémenter puis écrire à chaque PUSH, lire puis incrémenter à chaque POP, et décrire l état final de la pile.</li>
       </ol>
     </details>
   </div>
@@ -320,10 +340,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10;20;JL</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparez A et B avec l’opérateur correspondant : JE (==), JNE (!=), JG (&gt;), JL (&lt;), JGE (&gt;=), JLE (&lt;=).</li>
         <li>Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE.</li>
+        <li>Pour chaque cas : évaluer la comparaison de A et B selon le mnémonique ; une condition vraie donne PRIS, une fausse donne IGNORE, avec la condition reformulée.</li>
       </ol>
     </details>
   </div>
@@ -380,7 +401,7 @@ A_COMPLETER
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>7. QCM — niveau examen</h2>
+  <h2>8. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -396,18 +417,18 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Pourquoi l’instruction PUSH décrémente-t-elle le registre ESP au lieu de l’incrémenter ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Parce que sur l’architecture x86, la pile croît vers les adresses mémoire décroissantes (basses).</button>
+        <button class="opt">Pour éviter les conflits d’alignement avec le registre de base EBP.</button>
         <button class="opt">Parce que le registre ESP contient la taille totale allouée et non une adresse.</button>
         <button class="opt">Parce que les microprocesseurs CISC travaillent exclusivement en nombres négatifs.</button>
-        <button class="opt">Pour éviter les conflits d’alignement avec le registre de base EBP.</button>
+        <button class="opt" data-correct="1">Parce que sur l’architecture x86, la pile croît vers les adresses mémoire décroissantes (basses).</button>
       </div>
       <div class="q__exp">Sur x86, le sommet de la pile est placé en haut de la mémoire virtuelle et grandit en descendant vers les adresses basses. Chaque empilement (PUSH) décrémente donc le pointeur ESP.</div>
     </div>
     <div class="q">
       <p class="q__stem">En assembleur 64 bits sous Linux (System V ABI), dans quel registre est transmis le premier argument entier d’une fonction ?</p>
       <div class="opts">
-        <button class="opt">RAX</button>
         <button class="opt" data-correct="1">RDI</button>
+        <button class="opt">RAX</button>
         <button class="opt">RSI</button>
         <button class="opt">Sur le sommet de la pile [RSP]</button>
       </div>
@@ -416,12 +437,52 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre les instructions de saut JL et JB ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">JL traite des entiers signés (SF &ne; OF) tandis que JB traite des entiers non-signés (CF = 1).</button>
         <button class="opt">JL saute vers une adresse relative courte alors que JB permet un saut vers un segment distant.</button>
+        <button class="opt" data-correct="1">JL traite des entiers signés (SF &ne; OF) tandis que JB traite des entiers non-signés (CF = 1).</button>
         <button class="opt">JB fonctionne uniquement sur microcontrôleur AVR alors que JL est propre à l’Intel x86.</button>
         <button class="opt">Il n’y a aucune différence, ce sont deux alias stricts du même opcode binaire.</button>
       </div>
       <div class="q__exp">JL (Jump if Less) teste les drapeaux de dépassement signé (SF &ne; OF), tandis que JB (Jump if Below) teste le drapeau de retenue CF (dépassement non-signé).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction rétablit le sommet de pile (ESP) et l’ancien pointeur de base (EBP) en une seule opération avant le retour d’une fonction ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">LEAVE</button>
+        <button class="opt">ENTER</button>
+        <button class="opt">POPALL</button>
+        <button class="opt">RET</button>
+      </div>
+      <div class="q__exp">L’instruction LEAVE équivaut matériellement à MOV ESP, EBP suivi de POP EBP. Elle démonte le cadre de pile avant le RET.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Sur x86_64 sous Linux, quel registre contient le numéro de l’appel système à exécuter lors de l’instruction SYSCALL ?</p>
+      <div class="opts">
+        <button class="opt">RDI</button>
+        <button class="opt" data-correct="1">RAX</button>
+        <button class="opt">RDX</button>
+        <button class="opt">RSP</button>
+      </div>
+      <div class="q__exp">Le numéro de syscall est placé dans RAX (par exemple 0 pour sys_read, 1 pour sys_write, 60 pour sys_exit). RDI reçoit le premier argument.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle action matérielle est réalisée par l’instruction RET lors de la fin d’une fonction ?</p>
+      <div class="opts">
+        <button class="opt">Elle dépile l’ancien EBP et l’écrit dans le registre ESP.</button>
+        <button class="opt">Elle remet à zéro tous les drapeaux d’état du registre EFLAGS.</button>
+        <button class="opt" data-correct="1">Elle dépile l’adresse de retour du sommet de la pile et la charge dans le pointeur d’instruction (EIP/RIP).</button>
+        <button class="opt">Elle sauvegarde automatiquement les registres généraux dans le cache L1.</button>
+      </div>
+      <div class="q__exp">RET dépile l’adresse de l’instruction suivante (empilée précédemment par CALL) et l’affecte à EIP/RIP pour reprendre l’exécution appelante.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi une variable locale allouée sur la pile dans une fonction devient-elle invalide dès la sortie de cette fonction ?</p>
+      <div class="opts">
+        <button class="opt">Parce que le compilateur injecte du code qui écrase immédiatement la mémoire avec des zéros.</button>
+        <button class="opt">Parce que le processeur désactive la mémoire vive dès que le registre EBP change de valeur.</button>
+        <button class="opt">Parce que les variables locales sont stockées dans les registres volatils et non en RAM.</button>
+        <button class="opt" data-correct="1">Parce que le sommet de pile remonte (ESP augmente) et la zone mémoire peut être réécrite par tout appel ultérieur.</button>
+      </div>
+      <div class="q__exp">L’épilogue de fonction remonte ESP (via ADD ESP, N ou LEAVE). La zone allouée est alors libérée et sera écrasée lors du prochain PUSH ou CALL.</div>
     </div>
   </div>
 
@@ -429,7 +490,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Erreurs classiques — récapitulatif</h2>
+<h2>9. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -446,7 +507,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Méthodologie de résolution</h2>
+<h2>10. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour implémenter une fonction robuste en assembleur</div>
@@ -462,7 +523,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Révision active</h2>
+<h2>11. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -493,7 +554,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>11. Test de maîtrise</h2>
+<h2>12. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -542,7 +603,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

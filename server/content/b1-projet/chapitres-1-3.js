@@ -36,7 +36,7 @@ module.exports = [
 
     objectives: [
       'cadrer le besoin fonctionnel d’une application de gestion de stock ;',
-      'comprendre l’architecture en couches : Interface (Tkinter) ↔ Logique (Python) ↔ Base de données (PostgreSQL) ;',
+      'comprendre l’architecture en couches : Interface (Tkinter) &lt;-&gt; Logique (Python) &lt;-&gt; Base de données (PostgreSQL) ;',
       'relier chaque objectif pédagogique à son concept informatique (POO, CRUD, exceptions, persistance) ;',
       'vérifier les prérequis et configurer un environnement reproductible (requirements.txt, README.md).'
     ],
@@ -107,18 +107,34 @@ module.exports = [
             '      <li>La structure : main → interface, database → database, requirements → deps, readme → doc.</li>\n' +
             '    </ul>')
         ].join('\n')
+      },
+      {
+        title: 'Du cahier des charges au planning',
+        html: [
+          '<p>Avant le code, le <strong>cahier des charges</strong> fixe ce que l’application doit faire, et ce qu’elle ne fera pas. Pour la gestion de stock, il tient en quelques lignes :</p>',
+          '<ul>\n<li><strong>Périmètre :</strong> un seul utilisateur, une seule boutique, une base PostgreSQL locale ;</li>\n<li><strong>Fonctions :</strong> ajouter, lister, modifier, supprimer un produit (CRUD), enregistrer un mouvement de stock, signaler les produits sous le seuil, exporter en CSV ;</li>\n<li><strong>Contraintes :</strong> Python 3.7+, Tkinter, psycopg2, prix exacts à deux décimales ;</li>\n<li><strong>Critères d’acceptation :</strong> chaque fonction se démontre en moins de trente secondes, sans erreur non traitée.</li>\n</ul>',
+          '<p>On découpe ensuite en petites tâches ordonnées : base de données, module <code>database.py</code>, écran Tkinter, logique de stock, export, livraison. Chaque tâche se termine par une démonstration qui prouve qu’elle fonctionne.</p>'
+        ].join('\n')
+      },
+      {
+        title: 'Versionner le projet avec Git',
+        html: [
+          '<p>Un projet livrable est un projet versionné. Git garde l’historique, permet de revenir en arrière et rend le travail à plusieurs possible. Séquence minimale :</p>',
+          '<pre><code>git init\ngit add main.py database.py requirements.txt README.md\ngit commit -m "Structure initiale du projet"\ngit switch -c fonction-export-csv\n# ... travail, tests, puis :\ngit commit -am "Ajout de l\'export CSV"\ngit switch main\ngit merge fonction-export-csv</code></pre>',
+          '<p>Un fichier <code>.gitignore</code> exclut ce qui ne se versionne pas : <code>__pycache__/</code>, les environnements virtuels et surtout les mots de passe. Un message de commit décrit <em>pourquoi</em> le changement existe, à l’impératif ou au passé, mais de façon cohérente.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { q: 'La base de données utilisée par le projet :', opts: ['PostgreSQL', 'MySQL', 'SQLite'], correct: 0, exp: 'Le tutoriel installe postgresql et psycopg2.' },
+      { q: 'La base de données utilisée par le projet :', opts: ['SQLite', 'MySQL', 'PostgreSQL'], correct: 2, exp: 'Le tutoriel installe postgresql et psycopg2.' },
       { q: 'La bibliothèque graphique du projet :', opts: ['Tkinter', 'Flask', 'Pygame'], correct: 0, exp: 'Interface native Python, installée par python3-tk.' },
-      { q: 'La version minimale de Python :', opts: ['3.7', '2.7', '3.0'], correct: 0, exp: 'Python 3.7 ou supérieur.' },
+      { q: 'La version minimale de Python :', opts: ['2.7', '3.7', '3.0'], correct: 1, exp: "La version minimale exigée est 3.7 : Python 3.6 refuse de lancer le projet, 3.10 fonctionne ; la branche 2.7 est hors sujet." },
       { q: 'Le fichier qui liste les dépendances :', opts: ['requirements.txt', 'main.py', 'README.md'], correct: 0, exp: 'psycopg2-binary==2.9.9, installé par pip.' },
-      { q: 'Le fichier qui encapsule la gestion PostgreSQL :', opts: ['database.py', 'main.py', 'requirements.txt'], correct: 0, exp: 'La classe Database y vit.' },
-      { q: 'main.py contient…', opts: ['l\'interface principale', 'les requêtes SQL', 'la documentation'], correct: 0, exp: 'Fenêtre, formulaire, tableau : le monde de l\'écran.' },
-      { q: 'Le pont Python vers PostgreSQL :', opts: ['psycopg2', 'tkinter', 'pip'], correct: 0, exp: 'psycopg2-binary dans requirements.txt.' },
-      { q: 'Les quatre opérations CRUD :', opts: ['Create, Read, Update, Delete', 'Compile, Run, Upload, Debug', 'Copy, Rename, Undo, Drop'], correct: 0, exp: 'INSERT, SELECT, UPDATE, DELETE en SQL.' }
+      { q: 'Le fichier qui encapsule la gestion PostgreSQL :', opts: ['requirements.txt', 'main.py', 'database.py'], correct: 2, exp: "database.py encapsule tout le SQL dans la classe Database ; main.py se consacre à l'écran et ne touche pas aux requêtes." },
+      { q: 'main.py contient…', opts: ['les requêtes SQL', 'l\'interface principale', 'la documentation'], correct: 1, exp: 'Fenêtre, formulaire, tableau : le monde de l\'écran.' },
+      { q: 'Le pont Python vers PostgreSQL :', opts: ['tkinter', 'psycopg2', 'pip'], correct: 1, exp: "psycopg2 (paquet psycopg2-binary de requirements.txt) relie Python à PostgreSQL : connexion, requêtes, erreurs ; tkinter est l'interface graphique." },
+      { q: 'Les quatre opérations CRUD :', opts: ['Create, Read, Update, Delete', 'Compile, Run, Upload, Debug', 'Copy, Rename, Undo, Drop'], correct: 0, exp: "CRUD = Create, Read, Update, Delete, soit INSERT, SELECT, UPDATE et DELETE en SQL ; Compile, Run, Upload, Debug n'existe pas dans ce vocabulaire." }
     ],
 
     pitfalls: [
@@ -253,18 +269,26 @@ module.exports = [
             '      <li>Le cycle CRUD : create→insert, read→select, update→update, delete→delete.</li>\n' +
             '    </ul>')
         ].join('\n')
+      },
+      {
+        title: 'Du besoin au SQL : MCD, MLD, script',
+        html: [
+          '<p>La démarche de conception relie trois niveaux. Le <strong>MCD</strong> (modèle conceptuel) décrit le monde réel : l’entité <code>PRODUIT</code> a un identifiant, un nom, une catégorie, une quantité et un prix. Le <strong>MLD</strong> (modèle logique) la traduit en relation : <code>produits(<u>id</u>, nom, categorie, quantite, prix)</code>, la clé primaire étant soulignée. Le <strong>script SQL</strong> (modèle physique) donne les types :</p>',
+          '<pre><code>CREATE TABLE IF NOT EXISTS produits (\n    id        SERIAL PRIMARY KEY,\n    nom       VARCHAR(100) NOT NULL,\n    categorie VARCHAR(50),\n    quantite  INTEGER NOT NULL CHECK (quantite &gt;= 0),\n    prix      DECIMAL(10,2) NOT NULL\n);</code></pre>',
+          '<p>Piste d’évolution : si la catégorie devient une entité à part entière (<code>CATEGORIE</code>), le MLD gagne une clé étrangère <code>produits.categorie_id</code> vers <code>categories(id)</code>. Chaque association se traduit toujours de la même façon : la clé primaire du côté « un » devient clé étrangère du côté « plusieurs ».</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { q: 'Le type de id dans la table produits :', opts: ['SERIAL PRIMARY KEY', 'VARCHAR(100)', 'INTEGER simple'], correct: 0, exp: 'Auto-incrémenté et clé primaire.' },
-      { q: 'Le type du champ prix :', opts: ['DECIMAL(10,2)', 'FLOAT', 'INTEGER'], correct: 0, exp: 'Deux décimales exactes : la précision monétaire.' },
+      { q: 'Le type de id dans la table produits :', opts: ['INTEGER simple', 'VARCHAR(100)', 'SERIAL PRIMARY KEY'], correct: 2, exp: "id est déclaré SERIAL PRIMARY KEY : PostgreSQL l'auto-incrémente à chaque insertion et garantit son unicité ; un INTEGER simple ne ferait ni l'un ni l'autre." },
+      { q: 'Le type du champ prix :', opts: ['INTEGER', 'FLOAT', 'DECIMAL(10,2)'], correct: 2, exp: 'Deux décimales exactes : la précision monétaire.' },
       { q: 'La méthode qui renvoie toutes les lignes :', opts: ['fetchall()', 'commit()', 'execute()'], correct: 0, exp: 'Après SELECT, le cursor livre fetchall().' },
-      { q: 'La méthode qui valide une écriture :', opts: ['commit()', 'fetchall()', 'close()'], correct: 0, exp: 'Sans commit, PostgreSQL annule à la déconnexion.' },
+      { q: 'La méthode qui valide une écriture :', opts: ['fetchall()', 'commit()', 'close()'], correct: 1, exp: 'Sans commit, PostgreSQL annule à la déconnexion.' },
       { q: 'La requête de suppression :', opts: ['DELETE FROM produits WHERE id=%s', 'DROP produits', 'REMOVE id'], correct: 0, exp: 'Toujours avec WHERE : sinon tout disparaît.' },
-      { q: 'Les %s dans les requêtes servent à…', opts: ['paramétrer et échapper les valeurs', 'commenter le SQL', 'compter les lignes'], correct: 0, exp: 'Requêtes paramétrées : protection contre l\'injection SQL.' },
-      { q: 'CREATE TABLE IF NOT EXISTS garantit…', opts: ['la création seulement si la table manque', 'de vider la table', 'un index automatique'], correct: 0, exp: 'Le premier lancement crée, les suivants passent.' },
-      { q: 'Ordre de fermeture :', opts: ['cursor puis connection', 'connection puis cursor', 'peu importe'], correct: 0, exp: 'deconnecter() ferme le cursor, puis la connexion.' }
+      { q: 'Les %s dans les requêtes servent à…', opts: ['commenter le SQL', 'paramétrer et échapper les valeurs', 'compter les lignes'], correct: 1, exp: 'Requêtes paramétrées : protection contre l\'injection SQL.' },
+      { q: 'CREATE TABLE IF NOT EXISTS garantit…', opts: ["le vidage de la table à chaque lancement","la création d'un index automatique sur id","la création seulement si la table manque"], correct: 2, exp: "IF NOT EXISTS ne crée la table que si elle manque : le premier lancement crée, les suivants passent, sans vider ni indexer quoi que ce soit." },
+      { q: 'Ordre de fermeture :', opts: ['peu importe', 'connection puis cursor', 'cursor puis connection'], correct: 2, exp: 'deconnecter() ferme le cursor, puis la connexion.' }
     ],
 
     pitfalls: [
@@ -410,17 +434,25 @@ module.exports = [
             '      <li>Les dialogues : succès → showinfo, attention → showwarning, échec → showerror, suppression → askyesno.</li>\n' +
             '    </ul>')
         ].join('\n')
+      },
+      {
+        title: 'Séparer modèle, vue et contrôleur',
+        html: [
+          '<p>Le projet applique, sans le dire, le principe <strong>MVC</strong> : le <em>modèle</em> est <code>database.py</code> (accès aux données), la <em>vue</em> est l’interface Tkinter (widgets), le <em>contrôleur</em> est l’ensemble des fonctions appelées par les boutons, qui valident la saisie puis délèguent au modèle. Un écran ne contient jamais de SQL.</p>',
+          '<pre><code># Modèle (database.py)\ndef ajouter(self, nom, categorie, quantite, prix):\n    self.cursor.execute(\n        "INSERT INTO produits (nom, categorie, quantite, prix) VALUES (%s, %s, %s, %s)",\n        (nom, categorie, quantite, prix))\n    self.conn.commit()\n\n# Contrôleur (main.py), appelé par le bouton\ndef on_ajouter(self):\n    nom = self.champ_nom.get().strip()\n    if not nom:\n        messagebox.showwarning("Saisie", "Le nom est obligatoire")\n        return\n    self.db.ajouter(nom, self.champ_cat.get(), int(self.champ_qte.get()), self.champ_prix.get())\n    self.rafraichir_tableau()</code></pre>',
+          '<p>Les valeurs passent toujours par les paramètres <code>%s</code> de psycopg2, jamais par concaténation : c’est la protection contre l’injection SQL. En PHP, le même rôle est tenu par les requêtes préparées de PDO ; la règle est identique quel que soit le langage.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
       { q: 'Le premier écran de l\'application :', opts: ['la connexion PostgreSQL', 'le tableau des produits', 'les statistiques'], correct: 0, exp: 'Interface de connexion d\'abord, principale ensuite.' },
-      { q: 'Le widget de saisie d\'une ligne :', opts: ['Entry', 'Label', 'Frame'], correct: 0, exp: 'Entry pour les champs host, nom, quantite…' },
-      { q: 'Le widget tableau multi-colonnes :', opts: ['ttk.Treeview', 'Entry', 'Scrollbar'], correct: 0, exp: 'Colonnes, en-têtes, sélection au clic.' },
-      { q: 'Le clic sur une ligne du Treeview déclenche…', opts: ['le bind de sélection', 'la fermeture', 'un commit'], correct: 0, exp: '<ButtonRelease-1> remplit le formulaire.' },
+      { q: 'Le widget de saisie d\'une ligne :', opts: ['Label', 'Entry', 'Frame'], correct: 1, exp: 'Entry pour les champs host, nom, quantite…' },
+      { q: 'Le widget tableau multi-colonnes :', opts: ['Scrollbar', 'Entry', 'ttk.Treeview'], correct: 2, exp: "ttk.Treeview affiche les lignes en colonnes, avec en-têtes et sélection au clic ; Entry ne saisit qu'une seule ligne de texte." },
+      { q: 'Le clic sur une ligne du Treeview déclenche…', opts: ['la fermeture', 'le bind de sélection', 'un commit'], correct: 1, exp: '<ButtonRelease-1> remplit le formulaire.' },
       { q: 'Champs obligatoires non remplis :', opts: ['showwarning', 'showinfo', 'askyesno'], correct: 0, exp: 'Avertissement : on reste sur le formulaire.' },
-      { q: 'Confirmation avant suppression :', opts: ['askyesno', 'showerror', 'showinfo'], correct: 0, exp: 'La suppression n\'a lieu que si l\'utilisateur confirme.' },
-      { q: 'La conversion int(quantite) se fait…', opts: ['dans un try pour attraper ValueError', 'dans la base', 'jamais'], correct: 0, exp: 'ValueError → showerror : la base ne voit jamais de texte.' },
+      { q: 'Confirmation avant suppression :', opts: ['showinfo', 'showerror', 'askyesno'], correct: 2, exp: 'La suppression n\'a lieu que si l\'utilisateur confirme.' },
+      { q: 'La conversion int(quantite) se fait…', opts: ["directement dans la base PostgreSQL","dans un try pour attraper ValueError","jamais : la saisie reste du texte"], correct: 1, exp: "La conversion s'exécute dans un try : une saisie non numérique lève ValueError, interceptée par showerror ; la base ne voit jamais de texte." },
       { q: 'À la fermeture de la fenêtre :', opts: ['deconnecter() puis destroy()', 'destroy() direct', 'rien'], correct: 0, exp: 'root.protocol ferme la base avant l\'écran.' }
     ],
 

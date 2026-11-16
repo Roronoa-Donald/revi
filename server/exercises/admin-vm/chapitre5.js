@@ -20,8 +20,9 @@ module.exports = [
 # À compléter : avec un switch, afficher le rôle de la brique.
 `,
     hints: [
-      'Le bridge est un switch virtuel ; le NAT donne l’accès Internet.',
-      'Le VLAN segmente logiquement ; le pare-feu filtre le trafic.'
+      "Le bridge est un switch virtuel ; le NAT donne l’accès Internet.",
+      "Le VLAN segmente logiquement ; le pare-feu filtre le trafic.",
+      "Étapes : lire la brique ; bridge → switch virtuel ; nat → acces Internet ; vlan → segmentation logique ; firewall → filtrage ; sinon « role : inconnu »."
     ],
     examples: [
       { stdin: 'bridge', expected: 'role : switch virtuel', note: 'Le bridge relie VM et réseau physique.' }
@@ -40,7 +41,8 @@ switch ($brique) {
     "firewall" { Write-Output "role : filtrage du trafic" }
     default { Write-Output "role : inconnu" }
 }
-`
+`,
+    takeaway: "Un commutateur virtuel (vSwitch/bridge), une vNIC et un pare-feu virtuel structurent l isolation réseau entre VM."
   },
   {
     id: 'vm2-c5-e2',
@@ -58,8 +60,9 @@ switch ($brique) {
 # À compléter : avec un switch sur $vlan, afficher la zone.
 `,
     hints: [
-      'Les utilisateurs sont sur le VLAN 10, les serveurs sur le 20.',
-      'Les services exposés (web, mail) vont en DMZ, VLAN 30.'
+      "Les utilisateurs sont sur le VLAN 10, les serveurs sur le 20.",
+      "Les services exposés (web, mail) vont en DMZ, VLAN 30.",
+      "Étapes : lire le numéro de VLAN ; 10 → utilisateurs ; 20 → serveurs ; 30 → DMZ ; tout autre numéro → « vlan : inconnu »."
     ],
     examples: [
       { stdin: '20', expected: 'vlan 20 : serveurs', note: 'Le VLAN des serveurs internes.' }
@@ -77,7 +80,8 @@ switch ($vlan) {
     30 { Write-Output "vlan 30 : DMZ" }
     default { Write-Output "vlan : inconnu" }
 }
-`
+`,
+    takeaway: "Les identifiants VLAN 802.1Q segmentent logiquement DMZ, administration et LAN sur un même lien physique."
   },
   {
     id: 'vm2-c5-e3',
@@ -97,8 +101,9 @@ $port = [int][Console]::In.ReadLine()
 # À compléter : appliquer la règle et afficher "flux : autorise" ou "flux : filtre".
 `,
     hints: [
-      'Même zone : toujours autorisé.',
-      'Traversée LAN/DMZ : autorisée seulement sur le port 443.'
+      "Même zone : toujours autorisé.",
+      "Traversée LAN/DMZ : autorisée seulement sur le port 443.",
+      "Étapes : lire source, destination et port ; même zone → autorisé ; traversée LAN/DMZ uniquement sur 443 → autorisé ; tout le reste → filtré."
     ],
     examples: [
       { stdin: 'lan\ndmz\n443', expected: 'flux : autorise', note: 'Accès HTTPS du LAN vers la DMZ.' }
@@ -119,6 +124,7 @@ if ($memeZone -or ($traversee -and $port -eq 443)) {
 } else {
     Write-Output "flux : filtre"
 }
-`
+`,
+    takeaway: "N ouvrir que le port applicatif strictement requis (ex. HTTPS 443) entre LAN et DMZ applique le principe du moindre privilège."
   }
 ];

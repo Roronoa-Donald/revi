@@ -181,37 +181,37 @@ module.exports = {
       stem: 'Quelle phrase résume le mieux la distinction fondamentale entre l’UX et l’UI ?',
       opts: [
         'L’UX concerne le design graphique sur Mac, l’UI concerne le développement web sur Windows',
-        'L’UX définit la façon dont le produit fonctionne et résout le problème de l’utilisateur, l’UI définit son apparence et sa présentation visuelle',
         'L’UX est une discipline réservée aux consultants marketing, l’UI concerne uniquement les développeurs CSS',
+        'L’UX définit la façon dont le produit fonctionne et résout le problème de l’utilisateur, l’UI définit son apparence et sa présentation visuelle',
         'Il n’y a aucune différence, ce sont deux termes strictement synonymes'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’UX (Expérience Utilisateur) structure le parcours, la logique et la satisfaction du besoin, tandis que l’UI (Interface Utilisateur) gère la dimension visuelle, graphique et interactive.'
     },
     {
       stem: 'Quelle norme internationale définit formellement les exigences de la «Conception Centrée Utilisateur pour les systèmes interactifs» ?',
-      opts: ['ISO 9001', 'ISO 27001', 'ISO 9241-210', 'IEEE 802.11'],
-      correct: 2,
+      opts: ['ISO 9001', 'ISO 27001', 'IEEE 802.11', 'ISO 9241-210'],
+      correct: 3,
       exp: 'La norme ISO 9241-210 (anciennement ISO 13407) est la référence mondiale de l’ingénierie ergonomique pour la conception centrée utilisateur.'
     },
     {
       stem: 'Quelles sont les 4 phases officielles du modèle du Double Diamant (Design Council) dans l’ordre chronologique ?',
       opts: [
-        'Idéation, Dessin, Codage, Déploiement',
         'Découvrir, Définir, Développer, Livrer',
+        'Idéation, Dessin, Codage, Déploiement',
         'Sprint, Standup, Review, Rétrospective',
         'Spécification, Architecture, Recette, Maintenance'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le framework officiel du Double Diamant s’articule en 4 temps : 1. Découvrir (Discover), 2. Définir (Define), 3. Développer (Develop), 4. Livrer (Deliver).'
     },
     {
       stem: 'Dans le Double Diamant, quel est le mode de pensée de la phase 2 (Définir) ?',
       opts: [
-        'Pensée divergente (explorer un maximum de pistes sans filtre)',
-        'Pensée convergente (synthétiser, filtrer et cadrer le problème précis)',
-        'Pensée récursive sans fin',
-        'Pensée quantique'
+        "Pensée divergente (explorer un maximum de pistes sans filtre)",
+        "Pensée convergente (synthétiser, filtrer et cadrer le problème précis)",
+        "Pensée récursive (repartir en exploration dès qu’une piste est écartée)",
+        "Pensée réactive (corriger les retours clients au fil de l’eau sans cadrage)"
       ],
       correct: 1,
       exp: 'La phase 2 (Définir) est convergente : elle rassemble et analyse les données récoltées en phase 1 pour cibler le défi prioritaire à résoudre.'
@@ -219,12 +219,12 @@ module.exports = {
     {
       stem: 'Que stipule formellement la Loi de Jakob (Jakob’s Law) formulée par Jakob Nielsen ?',
       opts: [
-        'Plus un bouton est petit, plus il est cliquable',
-        'Les utilisateurs passent la majeure partie de leur temps sur d’autres sites que le vôtre et s’attendent à ce que le vôtre fonctionne de la même manière',
-        'Un formulaire ne doit jamais comporter plus de 3 questions',
-        'Le texte doit toujours être écrit en noir pur sur blanc pur'
+        "Plus un bouton est petit, plus il est cliquable, car la précision du pointeur croît lorsque la cible rétrécit",
+        "Un formulaire ne doit jamais dépasser trois questions, faute de quoi l’utilisateur abandonne systématiquement la saisie",
+        "Les utilisateurs passent la majeure partie de leur temps sur d’autres sites que le vôtre et s’attendent à ce que le vôtre fonctionne de la même manière",
+        "Le texte doit toujours être écrit en noir pur sur blanc pur, tout autre contraste fatiguant prétendument la rétine"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La loi de Jakob énonce que les utilisateurs transposent leurs habitudes acquises sur les leaders du web : adopter les conventions universelles réduit l’effort cognitif.'
     },
     {
@@ -232,21 +232,21 @@ module.exports = {
       opts: [
         'En bas à gauche dans le pied de page',
         'Au milieu de l’écran au survol',
-        'En haut à droite de l’en-tête (Header)',
-        'Dans un menu contextuel caché par un clic droit'
+        'Dans un menu contextuel caché par un clic droit',
+        'En haut à droite de l’en-tête (Header)'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Sur l’ensemble des plateformes marchandes mondiales, le panier et le profil sont conventionnellement positionnés dans le coin supérieur droit de l’en-tête.'
     },
     {
       stem: 'Qu’est-ce qu’une question de cadrage «How Might We» (HMW / Comment pourrions-nous...) dans la phase de Définition ?',
       opts: [
-        'Une clause de contrat de travail pour les développeurs',
-        'Une formulation optimiste qui transforme un problème ou une frustration utilisateur en une opportunité de conception stimulante',
-        'Un rapport d’erreur généré par la console JavaScript',
-        'Une question posée lors du devis commercial'
+        "Une formulation optimiste qui transforme un problème ou une frustration utilisateur en une opportunité de conception stimulante",
+        "Une clause contractuelle du cahier des charges qui fige la liste des fonctionnalités avant tout entretien utilisateur",
+        "Un journal d’anomalies techniques généré automatiquement par la console du navigateur pendant les sessions de test",
+        "Une question commerciale fermée posée au client pour valider le budget et le devis avant la conception"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le format «How Might We... ?» permet à l’équipe de reformuler un point de douleur identifié en une question orientée solution pour lancer l’idéation.'
     },
     {

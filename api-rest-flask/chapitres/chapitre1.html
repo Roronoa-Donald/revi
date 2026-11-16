@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -172,15 +170,55 @@ Content-Type: application/json
 
 </section>
 
+<section class="sec">
+
+<h2>5. Implémentation Flask complète : négociation JSON, statuts HTTP et test_client()</h2>
+
+<p>Voici une application Flask complète illustrant l’inspection des en-têtes HTTP, la lecture du corps JSON via <code>request.get_json()</code>, la sérialisation avec <code>jsonify()</code> (codes <code>200</code>, <code>201</code>, <code>400</code>, <code>404</code>, <code>422</code>) et la vérification automatisée avec <code>app.test_client()</code> :</p>
+<pre><code class="language-python">from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+ COMMANDES = {1: {"id": 1, "client": "Alice", "montant": 120.0}}
+
+@app.route("/api/v1/commandes/&lt;int:cmd_id&gt;", methods=["GET"])
+def lire_commande(cmd_id):
+    if cmd_id not in COMMANDES:
+        return jsonify({"error": "Not Found", "code": 404}), 404
+    return jsonify(COMMANDES[cmd_id]), 200
+
+@app.route("/api/v1/commandes", methods=["POST"])
+def creer_commande():
+    payload = request.get_json(silent=True)
+    if payload is None:
+        return jsonify({"error": "Corps JSON requis (Content-Type: application/json)"}), 400
+    if "client" not in payload or "montant" not in payload:
+        return jsonify({"error": "Champs client et montant obligatoires"}), 422
+    new_id = max(COMMANDES.keys(), default=0) + 1
+    COMMANDES[new_id] = {"id": new_id, "client": str(payload["client"]), "montant": float(payload["montant"])}
+    return jsonify(COMMANDES[new_id]), 201
+
+# Vérification avec le client de test intégré Flask
+if __name__ == "__main__":
+    client = app.test_client()
+    r_ok = client.post("/api/v1/commandes", json={"client": "Bob", "montant": 85.5})
+    assert r_ok.status_code == 201 and r_ok.get_json()["id"] == 2
+    r_404 = client.get("/api/v1/commandes/999")
+    assert r_404.status_code == 404</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="fl2-c1-e1" data-lab
      data-exercise="fl2-c1-e1"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="GET /api/v1/users HTTP/1.1">
@@ -192,13 +230,11 @@ Content-Type: application/json
     <h3 class="lab__title">Exercice 1 — Ligne de requête HTTP</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décomposer une ligne de requête HTTP brute en méthode, chemin et version.</p>
-    <p class="lab__note" id="fl2-c1-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une requête HTTP débute par une ligne contenant trois éléments séparés par des espaces : la <strong>méthode</strong> (ex: <code>GET</code>), la <strong>cible / chemin</strong> (ex: <code>/api/v1/users</code>) et la <strong>version du protocole</strong> (ex: <code>HTTP/1.1</code>).</p><p>Lit la ligne sur l’entrée standard et affiche les trois valeurs sous la forme suivante :<br><code>Methode: &lt;methode&gt;</code><br><code>Chemin: &lt;chemin&gt;</code><br><code>Version: &lt;version&gt;</code></p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>GET /api/v1/users HTTP/1.1</pre></div>
@@ -208,10 +244,11 @@ Version: HTTP/1.1</pre></div>
     </div>
     <p class="lab__note">Requête GET classique sur la collection users.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez la méthode ligne.split() pour séparer les éléments sur les espaces.</li>
         <li>Affichez chaque valeur sur une ligne dédiée avec le préfixe demandé.</li>
+        <li>Étapes : lire la ligne ; la découper sur les espaces en trois éléments ; afficher « Methode: », « Chemin: » et « Version: » suivis de chacun.</li>
       </ol>
     </details>
   </div>
@@ -219,7 +256,6 @@ Version: HTTP/1.1</pre></div>
 
 <div class="lab" id="fl2-c1-e2" data-lab
      data-exercise="fl2-c1-e2"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="https://api.site.fr/v1/articles?limit=10&amp;page=2&amp;sort=desc">
@@ -233,13 +269,11 @@ url = input().strip()
     <h3 class="lab__title">Exercice 2 — Extraction de la Query String</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser une URL et extraire ses paramètres d’URL ordonnés alphabétiquement.</p>
-    <p class="lab__note" id="fl2-c1-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Dans une API REST, la <em>Query String</em> permet de filtrer, paginer ou trier une collection. Elle débute après le caractère <code>?</code> et se compose de paires <code>clé=valeur</code> séparées par <code>&amp;</code>.</p><p>Lit une URL complète sur l’entrée standard. Extrayez les paramètres et affichez chaque paire sous la forme <code>cle=valeur</code>, <strong>triée par ordre alphabétique de la clé</strong>. Si l’URL ne contient aucun paramètre, affiche <code>Aucun parametre</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>https://api.site.fr/v1/articles?limit=10&amp;page=2&amp;sort=desc</pre></div>
@@ -261,7 +295,6 @@ sort=desc</pre></div>
 
 <div class="lab" id="fl2-c1-e3" data-lab
      data-exercise="fl2-c1-e3"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="Host: api.exemple.com&#10;Content-Type: application/json&#10;User-Agent: curl/8.4.0">
@@ -275,13 +308,11 @@ lignes = [l.strip() for l in sys.stdin if l.strip()]
     <h3 class="lab__title">Exercice 3 — Validation des en-têtes HTTP JSON</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Vérifier la compatibilité JSON des en-têtes Content-Type et Accept.</p>
-    <p class="lab__note" id="fl2-c1-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une API REST moderne dialogue couramment au format JSON. Dans les en-têtes HTTP reçus, le client indique le format envoyé via <code>Content-Type</code> et le format attendu via <code>Accept</code>.</p><p>Lit l’ensemble des lignes d’en-têtes HTTP sur l’entrée standard jusqu’à EOF. Chaque ligne est au format <code>Nom-Entete: Valeur</code>.</p><p>Vérifiez si <code>application/json</code> est présent soit dans <code>Content-Type</code> soit dans <code>Accept</code> (en ignorant la casse).<br>Si oui, affichez <code>JSON supporte</code>.<br>Sinon, affichez <code>Format non supporte</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>Host: api.exemple.com
@@ -291,33 +322,34 @@ User-Agent: curl/8.4.0</pre></div>
     </div>
     <p class="lab__note">Content-Type indique du JSON.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Sépare le nom de l’en-tête et sa valeur sur le premier caractère deux-points (header.split(":", 1)).</li>
         <li>Convertissez les noms et valeurs en minuscules (.lower()) pour une comparaison robuste.</li>
+        <li>Étapes : pour chaque en-tête, séparer nom et valeur au premier deux-points, en minuscules ; si content-type ou accept contient application/json, conclure « JSON supporte » ; à défaut, « Format non supporte ».</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Une API Web repose principalement sur quel protocole de communication ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">HTTP / HTTPS</button>
-        <button class="opt">FTP</button>
         <button class="opt">SMTP</button>
+        <button class="opt">FTP</button>
+        <button class="opt" data-correct="1">HTTP / HTTPS</button>
       </div>
       <div class="q__exp">HTTP (et sa variante chiffrée HTTPS) est le protocole de transport fondamental des API Web.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle partie d’une requête HTTP contient les données envoyées lors d’un POST ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le corps (Body)</button>
         <button class="opt">La chaîne de requête (Query string)</button>
+        <button class="opt" data-correct="1">Le corps (Body)</button>
         <button class="opt">La ligne de statut</button>
       </div>
       <div class="q__exp">Le corps de la requête transporte la charge utile (payload) envoyée au serveur.</div>
@@ -334,8 +366,8 @@ User-Agent: curl/8.4.0</pre></div>
     <div class="q">
       <p class="q__stem">En syntaxe JSON stricte, les clés d’un objet doivent obligatoirement être…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Entourées de guillemets doubles ""</button>
         <button class="opt">Entourées de guillemets simples ''</button>
+        <button class="opt" data-correct="1">Entourées de guillemets doubles ""</button>
         <button class="opt">Écrites sans aucun guillemet</button>
       </div>
       <div class="q__exp">La spécification RFC 8259 impose des guillemets doubles pour toutes les clés JSON.</div>
@@ -343,9 +375,9 @@ User-Agent: curl/8.4.0</pre></div>
     <div class="q">
       <p class="q__stem">Quel en-tête le client transmet-il pour indiquer le format attendu en réponse ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Accept</button>
-        <button class="opt">Content-Type</button>
         <button class="opt">User-Agent</button>
+        <button class="opt">Content-Type</button>
+        <button class="opt" data-correct="1">Accept</button>
       </div>
       <div class="q__exp">Accept permet la négociation de contenu pour spécifier le format de réponse désiré.</div>
     </div>
@@ -356,7 +388,7 @@ User-Agent: curl/8.4.0</pre></div>
         <button class="opt">Le code d’état et le message de statut</button>
         <button class="opt">Le token d’authentification Bearer</button>
       </div>
-      <div class="q__exp">Exemple : GET /api/v1/users HTTP/1.1.</div>
+      <div class="q__exp">La première ligne est la ligne de requête : méthode, chemin, version — GET /api/v1/users HTTP/1.1. Le code d’état n’apparaît que dans la réponse, jamais dans la requête.</div>
     </div>
     <div class="q">
       <p class="q__stem">Lequel de ces types de données est invalide en JSON standard ?</p>
@@ -370,8 +402,8 @@ User-Agent: curl/8.4.0</pre></div>
     <div class="q">
       <p class="q__stem">Dans une URL, où se situe la query string ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Après le point d’interrogation ?</button>
         <button class="opt">Avant le nom de domaine</button>
+        <button class="opt" data-correct="1">Après le point d’interrogation ?</button>
         <button class="opt">Dans les en-têtes HTTP</button>
       </div>
       <div class="q__exp">La query string commence immédiatement après le caractère ? dans l’URL.</div>
@@ -382,7 +414,7 @@ User-Agent: curl/8.4.0</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -399,7 +431,7 @@ User-Agent: curl/8.4.0</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Analyser une requête HTTP pour une API REST</div>
@@ -416,7 +448,7 @@ User-Agent: curl/8.4.0</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -447,7 +479,7 @@ User-Agent: curl/8.4.0</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -496,7 +528,7 @@ User-Agent: curl/8.4.0</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

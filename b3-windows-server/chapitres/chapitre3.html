@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -172,27 +170,31 @@
      data-exercise="ws3-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42&#10;GPO name=LocalSecurity level=LOCAL link_order=1 param=MaxPasswordAge value=90&#10;GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e1) — Calculateur de précédence de stratégies de groupe (Modèle LSDOU)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le poste PC-VENTE-07 (OU Ventes, site Nantes) reçoit :&#10;Local 60 min, GPO-Site-Nantes 45 min, Stratégie du domaine 25 min, GPO-Ventes 5 min.&#10;&#10;1) Acronyme : LSDOU.&#10;2) Dernier niveau traité : l'OU.&#10;3) Valeur effective : 5 min (GPO-Ventes).&#10;4) La valeur 45 min du site n'est pas retenue.&#10;5) Sans GPO-Ventes, la valeur du domaine (25 min) s'appliquerait.">
+  <script type="text/plain" data-lab-starter># Exercice — L'ordre d'application des stratégies sur PC-COMPTA-12
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 3 et 6 : le nombre seul. Question 5 : Oui ou Non.
 
-[Cas 1 — Deux GPOs sur le même niveau DOMAIN départagées par link_order]
-# Données : GPO name=GPO_Base level=DOMAIN link_order=2 param=ScreenSaverTimeout value=900
-# Données : GPO name=GPO_Override level=DOMAIN link_order=1 param=ScreenSaverTimeout value=300
+[Question 1 — Acronyme de l'ordre de traitement]
 A_COMPLETER
 
-[Cas 2 — Multiples paramètres distincts sur différents niveaux]
-# Données : GPO name=GPO_Site level=SITE link_order=1 param=ProxyServer value=proxy.site.lan
-# Données : GPO name=GPO_Domain level=DOMAIN link_order=1 param=Wallpaper value=corp.jpg
-# Données : GPO name=GPO_OU level=OU link_order=1 param=ProxyServer value=proxy.ou.lan
+[Question 2 — Niveau traité en dernier]
 A_COMPLETER
 
-[Cas 3 — Paramètre unique défini uniquement au niveau LOCAL]
-# Données : GPO name=LocalMachine level=LOCAL link_order=1 param=AuditLogon value=Success
+[Question 3 — Valeur effective du délai (min)]
+A_COMPLETER
+
+[Question 4 — GPO fournissant la valeur]
+A_COMPLETER
+
+[Question 5 — La valeur du site est-elle retenue ?]
+A_COMPLETER
+
+[Question 6 — Valeur sans GPO d'OU (min)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur de précédence de stratégies de groupe (Modèle LSDOU)</h3>
+    <h3 class="lab__title">Exercice 1 — L'ordre d'application des stratégies sur PC-COMPTA-12</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -201,36 +203,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la valeur effective d’un paramètre selon l’ordre strict de traitement LSDOU (Local -&gt; Site -&gt; Domaine -&gt; OU) et les liens de liaison.</p>
-    <div class="lab__brief">Le moteur Group Policy applique les stratégies selon la hiérarchie stricte LSDOU :
-- `LOCAL` (Priorité niveau 1)
-- `SITE` (Priorité niveau 2)
-- `DOMAIN` (Priorité niveau 3)
-- `OU` (Priorité niveau 4)
-
-Règles de précédence :
-1. Les niveaux s’appliquent dans l’ordre 1 -&gt; 2 -&gt; 3 -&gt; 4. Un niveau supérieur (ex: OU) écrase toujours les niveaux inférieurs (ex: DOMAIN).
-2. Au sein d’un même niveau, les GPOs ont un numéro de liaison `link_order=1, 2, ...` : le link_order 1 est le plus prioritaire (il est traité en dernier dans le niveau et gagne face au link_order 2).
-
-Entrée :
-`GPO name=&lt;NOM&gt; level=&lt;LOCAL|SITE|DOMAIN|OU&gt; link_order=&lt;N&gt; param=&lt;P&gt; value=&lt;V&gt;`
-
-Résultat d’analyse attendu :
-- Pour chaque paramètre unique (trié par nom alphabétique) :
-  `EFFECTIVE_SETTING param=&lt;P&gt; value=&lt;V&gt; source_gpo=&lt;NOM&gt; level=&lt;LEVEL&gt;`
-- Bilan :
-  `SUMMARY params_evalues=&lt;P&gt; gpos_total=&lt;G&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer l'ordre LSDOU pour déterminer la valeur effective d'un paramètre de stratégie.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Novaris, société d'assurance, gère le domaine <strong>novaris.local</strong>. Le poste <strong>PC-COMPTA-12</strong> (utilisatrice léa.martin) appartient au site Active Directory « Paris » et à l'OU <strong>Comptabilité</strong>. Le paramètre suivi est le délai de mise en veille de l'écran, en minutes :</p><table><tr><th>Niveau</th><th>GPO</th><th>Délai (min)</th></tr><tr><th>Stratégie locale</th><td>—</td><td>30</td></tr><tr><th>Site Paris</th><td>GPO-Site-Paris</td><td>20</td></tr><tr><th>Domaine</th><td>Stratégie du domaine</td><td>15</td></tr><tr><th>OU Comptabilité</th><td>GPO-Compta</td><td>10</td></tr></table><p>Rappel : les niveaux sont traités dans l'ordre LSDOU ; en cas de conflit sur un même paramètre, la dernière GPO traitée qui le définit gagne. Répondez par le nombre seul pour les questions 3 et 6.</p><ol><li>Quel acronyme décrit l'ordre de traitement des stratégies ?</li><li>Quel niveau est traité en dernier ?</li><li>Quelle valeur du délai s'applique effectivement au poste ?</li><li>Quelle GPO fournit cette valeur ?</li><li>La valeur 20 minutes du site est-elle celle retenue ?</li><li>Si GPO-Compta était détachée de l'OU, quelle valeur s'appliquerait ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GPO name=DefaultDomainPolicy level=DOMAIN link_order=1 param=MaxPasswordAge value=42
-GPO name=LocalSecurity level=LOCAL link_order=1 param=MaxPasswordAge value=90
-GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le poste PC-VENTE-07 (OU Ventes, site Nantes) reçoit :
+Local 60 min, GPO-Site-Nantes 45 min, Stratégie du domaine 25 min, GPO-Ventes 5 min.
+
+1) Acronyme : LSDOU.
+2) Dernier niveau traité : l'OU.
+3) Valeur effective : 5 min (GPO-Ventes).
+4) La valeur 45 min du site n'est pas retenue.
+5) Sans GPO-Ventes, la valeur du domaine (25 min) s'appliquerait.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Attribuer un poids numérique à chaque niveau (LOCAL:1, SITE:2, DOMAIN:3, OU:4).</li>
-        <li>Pour le link_order, un ordre plus petit (1) doit avoir une priorité plus élevée que 2 (ex: utiliser -link_order).</li>
-        <li>Trier par (poids_niveau, -link_order) pour déterminer la GPO gagnante.</li>
+        <li>LSDOU : Local, Site, Domaine, OU — chaque niveau est traité puis potentiellement écrasé par le suivant.</li>
+        <li>En cas de conflit, la dernière GPO traitée qui définit le paramètre gagne : ici, celle de l'OU.</li>
+        <li>Pour la question 6, retirez GPO-Compta : la dernière GPO traitée restante qui définit le délai devient celle du domaine.</li>
       </ol>
     </details>
   </div>
@@ -240,29 +230,31 @@ GPO name=OUPolicy level=OU link_order=1 param=MaxPasswordAge value=30</pre></div
      data-exercise="ws3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="OU_SETTING ou=OU_Finance block_inheritance=ENABLED&#10;GPO name=GPO_Securite level=DOMAIN enforced=ENABLED param=MinPasswordLength value=14&#10;GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=ScreenTimeout value=15&#10;GPO name=GPO_Finance level=OU enforced=DISABLED param=MinPasswordLength value=8&#10;GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e2) — Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La stratégie de fil-nord.local : complexité activée, longueur minimale 12,&#10;historique 24, durée maximale 30 jours. L'utilisatrice eve propose « direction2024 »&#10;(deux catégories : minuscules et chiffres), puis « Direction!2024 » (13 caractères,&#10;quatre catégories), déjà employé il y a trois mois.&#10;&#10;1) direction2024 : Non (complexité non respectée : deux catégories seulement).&#10;2) Motif : la complexité.&#10;3) Direction!2024 : Oui (quatre catégories, 13 caractères).&#10;4) Réutilisation : Non (mémorisé dans l'historique de 24).&#10;5) Historique : 24.&#10;6) Durée maximale : 30 jours.">
+  <script type="text/plain" data-lab-starter># Exercice — La stratégie de mot de passe du domaine novaris.local
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 3 et 4 : Oui ou Non. Questions 5 et 6 : le nombre seul.
 
-[Cas 1 — Blocage actif sans aucune GPO forcée]
-# Données : OU_SETTING ou=OU_Filiale block_inheritance=ENABLED
-# Données : GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=WallPaper value=corporate.png
-# Données : GPO name=GPO_Filiale level=OU enforced=DISABLED param=WallPaper value=local.png
+[Question 1 — novaris2024 conforme ?]
 A_COMPLETER
 
-[Cas 2 — Aucun blocage d’héritage (héritage normal écrasé par l’OU)]
-# Données : OU_SETTING ou=OU_Dev block_inheritance=DISABLED
-# Données : GPO name=GPO_Global level=DOMAIN enforced=DISABLED param=MaxLogSize value=2048
-# Données : GPO name=GPO_Local level=OU enforced=DISABLED param=MaxLogSize value=8192
+[Question 2 — Motif du refus]
 A_COMPLETER
 
-[Cas 3 — GPO Enforced sans aucune concurrence dans l’OU]
-# Données : OU_SETTING ou=OU_Standard block_inheritance=ENABLED
-# Données : GPO name=GPO_Audit level=DOMAIN enforced=ENABLED param=AuditPrivilege value=Enabled
+[Question 3 — Saison!2024 conforme ?]
+A_COMPLETER
+
+[Question 4 — Réutilisation possible ?]
+A_COMPLETER
+
+[Question 5 — Taille de l'historique]
+A_COMPLETER
+
+[Question 6 — Durée maximale avant changement (jours)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur d’arbitrage GPO : Enforced (No Override) vs Block Inheritance</h3>
+    <h3 class="lab__title">Exercice 2 — La stratégie de mot de passe du domaine novaris.local</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -271,34 +263,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Résoudre les conflits d’héritage entre une Unité Organisationnelle avec blocage et des GPOs parentes forcées (Enforced).</p>
-    <div class="lab__brief">Dans Active Directory, les règles avancées d’héritage de stratégies modifient le flux LSDOU :
-- `OU_SETTING ou=&lt;OU&gt; block_inheritance=&lt;ENABLED|DISABLED&gt;` : si ENABLED, toutes les GPOs des niveaux parents (Site, Domaine) sont bloquées.
-- `GPO name=&lt;NOM&gt; level=&lt;DOMAIN|OU&gt; enforced=&lt;ENABLED|DISABLED&gt; param=&lt;P&gt; value=&lt;V&gt;`
-
-Règle d’or Microsoft :
-1. Si une GPO parente (DOMAIN) a `enforced=ENABLED`, elle traverse TOUS les blocages d’héritage et NE PEUT PAS être écrasée par une GPO de l’OU enfant (sa valeur prévaut sur tout).
-2. Si `block_inheritance=ENABLED` sur l’OU, toutes les GPOs DOMAIN avec `enforced=DISABLED` sont purement et simplement IGNORÉES.
-3. Si `block_inheritance=DISABLED`, les GPOs DOMAIN (enforced=DISABLED) s’appliquent mais peuvent être écrasées par les GPOs de l’OU.
-
-Résultat d’analyse attendu :
-- Pour chaque paramètre (trié par nom alphabétique) :
-  `EFFECTIVE_SETTING param=&lt;P&gt; value=&lt;V&gt; source_gpo=&lt;NOM&gt;`
-- Bilan :
-  `SUMMARY block_applied=&lt;TRUE|FALSE&gt; enforced_count=&lt;E&gt; params_count=&lt;P&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité de mots de passe à une stratégie (complexité, historique, durée) avant changement obligatoire.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La stratégie de mot de passe effective du domaine <strong>novaris.local</strong>, issue de la stratégie du domaine, est la suivante :</p><ul><li>complexité <strong>activée</strong> : au moins trois des quatre catégories (majuscules, minuscules, chiffres, caractères spéciaux) ;</li><li>longueur minimale : <strong>10</strong> ;</li><li>historique : <strong>12</strong> derniers mots de passe mémorisés ;</li><li>durée maximale : <strong>60 jours</strong> ; durée minimale : 1 jour.</li></ul><p>Aujourd'hui, bruno.martin (service Ventes) doit changer son mot de passe. Il propose « novaris2024 », puis « Saison!2024 » — un mot de passe qu'il avait déjà employé il y a deux mois. Répondez par « Oui » ou « Non » aux questions 1, 3 et 4 ; les autres appellent des valeurs courtes.</p><ol><li>« novaris2024 » respecte-t-il la stratégie ?</li><li>Quel est le motif principal du refus ?</li><li>« Saison!2024 » respecte-t-il la stratégie ?</li><li>« Saison!2024 » peut-il être choisi à nouveau aujourd'hui ?</li><li>Combien de mots de passe l'historique mémorise-t-il ?</li><li>Au bout de combien de jours au maximum faudra-t-il encore changer le mot de passe ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>OU_SETTING ou=OU_Finance block_inheritance=ENABLED
-GPO name=GPO_Securite level=DOMAIN enforced=ENABLED param=MinPasswordLength value=14
-GPO name=GPO_Domaine level=DOMAIN enforced=DISABLED param=ScreenTimeout value=15
-GPO name=GPO_Finance level=OU enforced=DISABLED param=MinPasswordLength value=8
-GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La stratégie de fil-nord.local : complexité activée, longueur minimale 12,
+historique 24, durée maximale 30 jours. L'utilisatrice eve propose « direction2024 »
+(deux catégories : minuscules et chiffres), puis « Direction!2024 » (13 caractères,
+quatre catégories), déjà employé il y a trois mois.
+
+1) direction2024 : Non (complexité non respectée : deux catégories seulement).
+2) Motif : la complexité.
+3) Direction!2024 : Oui (quatre catégories, 13 caractères).
+4) Réutilisation : Non (mémorisé dans l'historique de 24).
+5) Historique : 24.
+6) Durée maximale : 30 jours.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Garder la valeur Enforced en priorité absolue (indétrônable).</li>
-        <li>Si block_inheritance=ENABLED, éliminer les GPOs DOMAIN non forcées.</li>
-        <li>Les GPOs de niveau OU s’appliquent ensuite si aucun Enforced ne verrouille le paramètre.</li>
+        <li>Comptez les catégories présentes : novaris2024 n'offre que des minuscules et des chiffres, soit deux catégories sur les quatre.</li>
+        <li>Saison!2024 cumule majuscule, minuscules, chiffre et caractère spécial : quatre catégories, et 11 caractères de long.</li>
+        <li>L'historique mémorise les 12 derniers mots de passe : une réutilisation récente est refusée, même si la forme est conforme.</li>
       </ol>
     </details>
   </div>
@@ -308,28 +293,31 @@ GPO name=GPO_Finance level=OU enforced=DISABLED param=ScreenTimeout value=60</pr
      data-exercise="ws3-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations&#10;GPO name=GPO_BitLocker security_groups=Domain_Computers min_os_build=19041 arch=ANY min_ram_gb=4&#10;GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT min_ram_gb=32">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c3-e3) — Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'OU Agence-Nord bloque l'héritage. GPO du domaine : Audit-Secu (Enforced) taille maximale&#10;du journal 8192 Ko ; Standard (non forcée) 2048 Ko et papier peint siege.png.&#10;GPO de l'OU : Agence — journal 4096 Ko et papier peint nord.png.&#10;&#10;1) GPO parentes non forcées appliquées ? Non.&#10;2) La valeur 8192 de Audit-Secu s'applique ? Oui.&#10;3) Taille effective du journal : 8192 Ko.&#10;4) Fournie par Audit-Secu.&#10;5) Papier peint : nord.png.&#10;6) Sans Enforced : 4096 Ko (GPO Agence, les GPO du domaine étant bloquées).">
+  <script type="text/plain" data-lab-starter># Exercice — Le blocage d'héritage de la filiale Sud chez Novaris
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : Oui ou Non. Les autres : valeurs courtes.
 
-[Cas 1 — Refus WMI sur la quantité de RAM disponible]
-# Données : CLIENT name=PC-LITE os_build=22000 arch=64BIT ram_gb=8 groups=Domain_Computers
-# Données : GPO name=GPO_HyperV security_groups=Domain_Computers min_os_build=20000 arch=64BIT min_ram_gb=16
+[Question 1 — GPO parentes non forcées appliquées ?]
 A_COMPLETER
 
-[Cas 2 — Refus WMI sur l’architecture 32-bit]
-# Données : CLIENT name=PC-OLD os_build=17763 arch=32BIT ram_gb=4 groups=Domain_Computers
-# Données : GPO name=GPO_x64Only security_groups=Domain_Computers min_os_build=10000 arch=64BIT min_ram_gb=2
+[Question 2 — La valeur 12 passe malgré le blocage ?]
 A_COMPLETER
 
-[Cas 3 — Toutes les GPOs appliquées avec succès]
-# Données : CLIENT name=SRV-APP os_build=20348 arch=64BIT ram_gb=64 groups=Domain_Controllers,Servers
-# Données : GPO name=GPO_Hardening security_groups=Servers min_os_build=19000 arch=64BIT min_ram_gb=16
-# Données : GPO name=GPO_NTP security_groups=Servers min_os_build=10000 arch=ANY min_ram_gb=1
+[Question 3 — Longueur minimale effective]
+A_COMPLETER
+
+[Question 4 — GPO fournissant la valeur]
+A_COMPLETER
+
+[Question 5 — Fond d'écran appliqué]
+A_COMPLETER
+
+[Question 6 — Longueur minimale sans Enforced]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Évaluateur de filtres WMI et filtrage de sécurité (Security Filtering)</h3>
+    <h3 class="lab__title">Exercice 3 — Le blocage d'héritage de la filiale Sud chez Novaris</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -338,35 +326,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier si une GPO est applicable à un poste client en évaluant l’appartenance aux groupes de sécurité et les critères matériels/OS du filtre WMI.</p>
-    <div class="lab__brief">Une stratégie de groupe n’est traitée par un ordinateur client que si elle satisfait deux filtres simultanés :
-1. Filtrage de sécurité : l’ordinateur doit appartenir à au moins un des groupes listés dans `security_groups`.
-2. Filtre WMI : les spécifications de l’ordinateur doivent vérifier tous les critères techniques :
-   - `min_os_build` : `client.os_build &gt;= gpo.min_os_build`
-   - `arch` : `gpo.arch == ANY` ou `client.arch == gpo.arch`
-   - `min_ram_gb` : `client.ram_gb &gt;= gpo.min_ram_gb`
-
-Entrée :
-`CLIENT name=&lt;NOM&gt; os_build=&lt;N&gt; arch=&lt;64BIT|32BIT&gt; ram_gb=&lt;N&gt; groups=&lt;G1,G2,...&gt;`
-`GPO name=&lt;NOM&gt; security_groups=&lt;G1,G2,...&gt; min_os_build=&lt;N&gt; arch=&lt;64BIT|32BIT|ANY&gt; min_ram_gb=&lt;N&gt;` (1 ou plusieurs)
-
-Résultat d’analyse attendu :
-- Pour chaque GPO (triée par nom alphabétique) :
-  `GPO_EVAL gpo=&lt;NOM&gt; statut=&lt;APPLIQUE|IGNORE&gt; motif=&lt;OK|REFUS_SECURITE|REFUS_WMI&gt;`
-  (Priorité de motif : si la sécurité échoue -&gt; `REFUS_SECURITE` ; si la sécurité passe mais WMI échoue -&gt; `REFUS_WMI` ; si tout passe -&gt; `OK`).
-- Bilan :
-  `SUMMARY total_gpos=&lt;N&gt; appliquees=&lt;A&gt; ignorees=&lt;I&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Arbitrer un conflit d'héritage entre « Bloquer l'héritage » et une GPO « Enforced ».</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Dans le domaine <strong>novaris.local</strong>, l'OU <strong>Filiale-Sud</strong> (agences régionales) a activé « Bloquer l'héritage ». Les GPO en présence sont les suivantes :</p><table><tr><th>Lien</th><th>GPO</th><th>Option</th><th>Longueur minimale du mot de passe</th><th>Fond d'écran</th></tr><tr><th>Domaine</th><td>Conformité-Audit</td><td>Enforced (Appliquer)</td><td>12</td><td>—</td></tr><tr><th>Domaine</th><td>Sécurité-Siège</td><td>—</td><td>10</td><td>siege.png</td></tr><tr><th>OU Filiale-Sud</th><td>Paramètres-Filiale</td><td>—</td><td>8</td><td>filiale.png</td></tr></table><p>Rappel du cours : une GPO « Enforced » traverse les blocages et ne peut pas être écrasée ; « Bloquer l'héritage » ignore toutes les GPO parentes non forcées. Répondez par « Oui » ou « Non » aux questions 1 et 2 ; les autres appellent des valeurs courtes.</p><ol><li>Les GPO du domaine non forcées s'appliquent-elles à l'OU Filiale-Sud ?</li><li>La valeur 12 de Conformité-Audit s'applique-t-elle malgré le blocage ?</li><li>Quelle longueur minimale du mot de passe s'applique dans la filiale ?</li><li>Quelle GPO fournit cette valeur ?</li><li>Quel fond d'écran s'applique dans la filiale ?</li><li>Si « Enforced » était retiré sur Conformité-Audit, quelle longueur minimale s'appliquerait ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CLIENT name=PC-DEV-01 os_build=19045 arch=64BIT ram_gb=16 groups=Domain_Computers,DevWorkstations
-GPO name=GPO_BitLocker security_groups=Domain_Computers min_os_build=19041 arch=ANY min_ram_gb=4
-GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT min_ram_gb=32</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'OU Agence-Nord bloque l'héritage. GPO du domaine : Audit-Secu (Enforced) taille maximale
+du journal 8192 Ko ; Standard (non forcée) 2048 Ko et papier peint siege.png.
+GPO de l'OU : Agence — journal 4096 Ko et papier peint nord.png.
+
+1) GPO parentes non forcées appliquées ? Non.
+2) La valeur 8192 de Audit-Secu s'applique ? Oui.
+3) Taille effective du journal : 8192 Ko.
+4) Fournie par Audit-Secu.
+5) Papier peint : nord.png.
+6) Sans Enforced : 4096 Ko (GPO Agence, les GPO du domaine étant bloquées).</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Comparer les ensembles de groupes avec set.intersection().</li>
-        <li>Vérifier os_build, arch et ram_gb si la sécurité est validée.</li>
-        <li>Classer le motif en REFUS_SECURITE, REFUS_WMI ou OK.</li>
+        <li>« Bloquer l'héritage » coupe tout ce qui vient des parents, sauf les GPO marquées « Enforced ».</li>
+        <li>Sur le paramètre longueur minimale : Conformité-Audit (12) est Enforced, elle s'impose ; Sécurité-Siège (10) est bloquée.</li>
+        <li>Pour le fond d'écran, aucune GPO n'est Enforced : le blocage élimine Sécurité-Siège et il reste Paramètres-Filiale (filiale.png).</li>
       </ol>
     </details>
   </div>
@@ -380,9 +359,9 @@ GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT
       <p class="q__stem">Dans quel ordre séquentiel les stratégies de groupe sont-elles évaluées par le client Windows ?</p>
       <div class="opts">
         <button class="opt">OU -&gt; Domaine -&gt; Site -&gt; Local</button>
-        <button class="opt" data-correct="1">Local -&gt; Site -&gt; Domaine -&gt; Unité Organisationnelle (LSDOU)</button>
-        <button class="opt">Domaine -&gt; Local -&gt; OU -&gt; Site</button>
         <button class="opt">Par ordre alphabétique du nom des stratégies</button>
+        <button class="opt">Domaine -&gt; Local -&gt; OU -&gt; Site</button>
+        <button class="opt" data-correct="1">Local -&gt; Site -&gt; Domaine -&gt; Unité Organisationnelle (LSDOU)</button>
       </div>
       <div class="q__exp">L’ordre officiel est LSDOU : Local, puis Site, puis Domaine, et enfin Unité Organisationnelle (le dernier niveau appliqué l’emporte).</div>
     </div>
@@ -419,20 +398,20 @@ GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT
     <div class="q">
       <p class="q__stem">Quel droit d’accès d’ACL est obligatoire pour qu’une GPO soit exécutée sur un groupe de machines ciblées ?</p>
       <div class="opts">
-        <button class="opt">Contrôle total (Full Control)</button>
         <button class="opt" data-correct="1">Appliquer la stratégie de groupe (Apply Group Policy) en plus du droit Lire (Read)</button>
-        <button class="opt">Écriture seule</button>
-        <button class="opt">Supprimer l’objet</button>
+        <button class="opt">Contrôle total (Full Control) sur l’ensemble de l’objet de stratégie</button>
+        <button class="opt">Écriture seule sur le contenu du dossier SYSVOL de la stratégie</button>
+        <button class="opt">Le droit de supprimer l’objet de l’annuaire Active Directory</button>
       </div>
       <div class="q__exp">Pour que le moteur GPO applique la stratégie, la cible doit détenir à la fois les droits Read et Apply Group Policy.</div>
     </div>
     <div class="q">
       <p class="q__stem">À quoi sert un filtre WMI sur une stratégie de groupe ?</p>
       <div class="opts">
-        <button class="opt">À chiffrer le mot de passe de l’administrateur</button>
+        <button class="opt">À chiffrer automatiquement le mot de passe de l’administrateur du domaine à chaque application</button>
         <button class="opt" data-correct="1">À conditionner l’application de la GPO à des critères matériels ou de version d’OS évalués dynamiquement</button>
-        <button class="opt">À supprimer les fichiers temporaires du poste client</button>
-        <button class="opt">À bloquer les ports USB du serveur</button>
+        <button class="opt">À supprimer les fichiers temporaires du poste client à chaque ouverture de session utilisateur</button>
+        <button class="opt">À bloquer physiquement les ports USB du serveur lors de l’application de la stratégie</button>
       </div>
       <div class="q__exp">Un filtre WMI (requête WQL) vérifie des propriétés du poste (RAM, processeur, version de build d’OS) avant d’autoriser l’application de la GPO.</div>
     </div>
@@ -440,8 +419,8 @@ GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT
       <p class="q__stem">Où est déployé le Central Store permettant de centraliser les modèles de stratégies ADMX ?</p>
       <div class="opts">
         <button class="opt">Dans C:\Program Files\Microsoft GPO</button>
-        <button class="opt" data-correct="1">Dans \\domaine\SYSVOL\domaine\Policies\PolicyDefinitions</button>
         <button class="opt">Sur une clé USB connectée au contrôleur principal</button>
+        <button class="opt" data-correct="1">Dans \\domaine\SYSVOL\domaine\Policies\PolicyDefinitions</button>
         <button class="opt">Dans la base de registre HKEY_LOCAL_MACHINE</button>
       </div>
       <div class="q__exp">Le Central Store se place dans \\domaine\SYSVOL\domaine\Policies\PolicyDefinitions pour être partagé par tous les contrôleurs.</div>
@@ -451,8 +430,8 @@ GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT
       <div class="opts">
         <button class="opt">ping /all</button>
         <button class="opt">gpupdate /clean</button>
-        <button class="opt" data-correct="1">gpresult /h rapport.html</button>
         <button class="opt">ipconfig /release</button>
+        <button class="opt" data-correct="1">gpresult /h rapport.html</button>
       </div>
       <div class="q__exp">La commande gpresult /h rapport.html génère un rapport visuel exhaustif détaillant toutes les GPOs appliquées et rejetées.</div>
     </div>
@@ -578,7 +557,7 @@ GPO name=GPO_CADSoftware security_groups=Engineers min_os_build=19041 arch=64BIT
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

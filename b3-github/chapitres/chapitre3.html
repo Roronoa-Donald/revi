@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -180,10 +178,13 @@ git bisect run npm test</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="gh3-c3-e1" data-lab
      data-exercise="gh3-c3-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="ACTIVE_BRANCH name=main tip=C1 ancestors=NONE&#10;REFLOG_ENTRY id=HEAD@{0} commit=C1 action=reset desc=moving to C1&#10;REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue">
@@ -191,19 +192,17 @@ git bisect run npm test</code></pre>
 # Atelier Bash (gh3-c3-e1) — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Explorateur de Reflog et récupération de commits orphelins (Dangling Commits)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Identifier dans un reflog les candidats à récupérer qui ne sont accessibles par aucune des branches fournies.</p>
-    <p class="lab__note" id="gh3-c3-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Le reflog enregistre localement des déplacements de références et peut aider à retrouver un ancien commit après un reset. Il possède ses propres règles d'expiration ; la collecte des objets n'est pas immédiate ni garantie pour une date précise.<br><br>Déclarez d'abord les branches <code>ACTIVE_BRANCH name=&lt;nom&gt; tip=&lt;id&gt; ancestors=&lt;id1,id2,...|NONE&gt;</code>, puis les entrées de reflog, de la plus récente à la plus ancienne : <code>REFLOG_ENTRY id=&lt;entrée&gt; commit=&lt;id&gt; action=&lt;action&gt; desc=&lt;message&gt;</code>. Les identifiants et actions ne contiennent pas d'espaces ; le message peut contenir des espaces mais pas de guillemet double.<br><br>Pour chaque entrée dont le commit ne figure ni parmi les têtes ni parmi les ancêtres des branches déclarées, affichez <code>RESCUE_CANDIDATE reflog={id} commit={hash} action="{action}" desc="{desc}" status=DANGLING</code>. Traitez chaque entrée, même si un commit est répété. Si aucune ne correspond, affichez <code>RESCUE_SUMMARY: ALL_COMMITS_REFERENCED</code>.<br><br>Attention : <code>DANGLING</code> est ici une étiquette du modèle, pas une preuve que <code>git fsck</code> qualifierait cet objet de dangling. D'autres références et le reflog lui-même peuvent le rendre accessible ; le script ne restaure aucun objet.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>ACTIVE_BRANCH name=main tip=C1 ancestors=NONE
@@ -213,10 +212,11 @@ REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
     </div>
     <p class="lab__note">C3 a été abandonné par le reset to C1 et n’est plus dans main.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Rassemblez les têtes et les ancêtres des branches dans un ensemble.</li>
         <li>Parcourez ensuite chaque entrée du reflog dans son ordre initial.</li>
+        <li>1. Marquer accessibles toutes les têtes et ancêtres des branches actives. 2. Chaque entrée de reflog dont le commit n’est pas marqué : candidat DANGLING. 3. Aucun candidat : ALL_COMMITS_REFERENCED.</li>
       </ol>
     </details>
   </div>
@@ -224,7 +224,6 @@ REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
 
 <div class="lab" id="gh3-c3-e2" data-lab
      data-exercise="gh3-c3-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="HISTORY commits=C1,C2,C3,C4,C5&#10;STATUSES C1=GOOD C2=GOOD C3=BAD C4=BAD C5=BAD">
@@ -232,19 +231,17 @@ REFLOG_ENTRY id=HEAD@{1} commit=C3 action=commit desc=Feature perdue</pre></div>
 # Atelier Bash (gh3-c3-e2) — Détecteur de régression dichotomique automatique (git bisect)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Détecteur de régression dichotomique automatique (git bisect)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler la recherche dichotomique de Git Bisect pour identifier le premier commit ayant introduit un bogue.</p>
-    <p class="lab__note" id="gh3-c3-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Simulez une recherche dichotomique sur un historique <strong>linéaire</strong>. L'entrée contient <code>HISTORY commits=&lt;c0,c1,...&gt;</code> puis <code>STATUSES &lt;c0&gt;=GOOD &lt;c1&gt;=BAD ...</code>. Les identifiants sont distincts, sans espaces, virgule ni signe égal. Il faut au moins deux commits, le premier <code>GOOD</code>, le dernier <code>BAD</code> et une seule transition de GOOD vers BAD.<br><br>Initialisez <code>low=0</code> et <code>high=N-1</code>. Tant que <code>low &lt; high</code>, calculez <code>mid=(low+high)//2</code> ; si le commit médian est BAD, posez <code>high=mid</code>, sinon <code>low=mid+1</code>. Après chaque étape, affichez <code>BISECT_STEP step={k} testing={id} verdict={GOOD|BAD} remaining={high-low+1}</code>. Enfin, affichez <code>FIRST_BAD_COMMIT id={id}</code>.<br><br>Une liste de moins de deux commits produit <code>BISECT_ERROR reason=INVALID_HISTORY</code>. Un statut manquant, une borne incohérente ou une transition non monotone produit <code>BISECT_ERROR reason=INVALID_STATUSES</code>. Cette simulation n'est pas l'algorithme complet de <code>git bisect</code> sur un graphe de fusions.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>HISTORY commits=C1,C2,C3,C4,C5
@@ -255,10 +252,11 @@ FIRST_BAD_COMMIT id=C3</pre></div>
     </div>
     <p class="lab__note">C3 est identifié comme le premier commit ayant introduit le bogue en 2 étapes.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez d’abord les bornes et la monotonie des statuts.</li>
         <li>Conservez l’intervalle inclusif low–high, puis réduisez-le après chaque verdict.</li>
+        <li>1. Valider : au moins 2 commits, bornes GOOD/BAD, statuts monotones. 2. Intervalle inclusif low-high ; tester le milieu. 3. BAD : high = milieu ; GOOD : low = milieu + 1. 4. Afficher chaque étape puis FIRST_BAD_COMMIT.</li>
       </ol>
     </details>
   </div>
@@ -266,7 +264,6 @@ FIRST_BAD_COMMIT id=C3</pre></div>
 
 <div class="lab" id="gh3-c3-e3" data-lab
      data-exercise="gh3-c3-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="STASH_CMD action=push arg=WIP sur formulaire&#10;STASH_CMD action=pop">
@@ -274,19 +271,17 @@ FIRST_BAD_COMMIT id=C3</pre></div>
 # Atelier Bash (gh3-c3-e3) — Gestionnaire de pile de remisage (git stash LIFO stack)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Gestionnaire de pile de remisage (git stash LIFO stack)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement en pile LIFO (Last-In, First-Out) des commandes git stash.</p>
-    <p class="lab__note" id="gh3-c3-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p><code>git stash</code> met de côté des modifications dans des objets de commit accessibles par une liste de remises. Simulez cette liste, dont l'entrée la plus récente porte l'indice 0.<br><br>Chaque ligne est <code>STASH_CMD action=&lt;push|pop|apply|drop&gt;</code>. Pour <code>push</code>, ajoutez <code> arg=&lt;message&gt;</code> ; le message peut être vide ou contenir des espaces mais pas de guillemet double. Pour <code>apply</code> et <code>drop</code>, ajoutez <code> arg=&lt;indice décimal non négatif&gt;</code>. <code>push</code> insère au sommet, <code>pop</code> retire le sommet, <code>apply</code> laisse la liste inchangée et <code>drop</code> retire l'entrée indiquée et renumérote les suivantes.<br><br>Pour chaque action, affichez <code>STASH_OP action={action} result={OK|STACK_EMPTY|INDEX_OUT_OF_BOUNDS} current_size={taille} top="{message|EMPTY}"</code>. Sur une liste vide, pop, apply et drop renvoient <code>STACK_EMPTY</code>. Sur une liste non vide, un indice invalide ou hors limites renvoie <code>INDEX_OUT_OF_BOUNDS</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>STASH_CMD action=push arg=WIP sur formulaire
@@ -296,10 +291,11 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     </div>
     <p class="lab__note">Empilement puis dépilement immédiat de la réserve.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez un tableau Bash dont l’indice 0 représente l’entrée la plus récente.</li>
         <li>Après une suppression, reconstituez un tableau sans trous et ne modifiez pas la pile lors d’un apply.</li>
+        <li>1. push : insérer au sommet. 2. pop : dépiler ou STACK_EMPTY. 3. apply/drop : valider l’indice numérique (&lt; taille), purger les zéros de tête. 4. drop retire l’élément, apply le conserve. 5. Afficher taille et sommet.</li>
       </ol>
     </details>
   </div>
@@ -312,19 +308,19 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     <div class="q">
       <p class="q__stem">Quelle information capitale le journal « git reflog » enregistre-t-il que « git log » n’affiche pas ?</p>
       <div class="opts">
-        <button class="opt">Les mots de passe saisis lors du push distant</button>
+        <button class="opt">Les identifiants et les jetons d’authentification saisis lors des opérations de push vers le serveur distant</button>
+        <button class="opt">Les adresses IP et les journaux de connexion des serveurs distants contactés par les commandes fetch et push</button>
+        <button class="opt">Les signatures cryptographiques GPG des tags annotés vérifiées lors des opérations de transfert</button>
         <button class="opt" data-correct="1">L’historique chronologique local de tous les mouvements du pointeur HEAD, y compris les commits orphelins</button>
-        <button class="opt">Les adresses IP des serveurs distants connectés</button>
-        <button class="opt">Les signatures cryptographiques GPG des tags annotés</button>
       </div>
       <div class="q__exp">git log ne parcourt que les commits connectés à la branche courante. git reflog enregistre chronologiquement chaque déplacement de HEAD sur la machine locale, permettant de retrouver les commits détachés.</div>
     </div>
     <div class="q">
       <p class="q__stem">Où les entrées du reflog pour le pointeur HEAD sont-elles physiquement stockées sur le disque ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Dans le fichier .git/logs/HEAD</button>
-        <button class="opt">Dans .git/objects/reflog.db</button>
         <button class="opt">Sur le serveur distant GitHub dans l’API GraphQL</button>
+        <button class="opt">Dans .git/objects/reflog.db</button>
+        <button class="opt" data-correct="1">Dans le fichier .git/logs/HEAD</button>
         <button class="opt">Dans le fichier binaire .git/index</button>
       </div>
       <div class="q__exp">Git écrit chaque transition dans des fichiers texte situés dans le sous-dossier masqué .git/logs/ (notamment .git/logs/HEAD et .git/logs/refs/heads/).</div>
@@ -333,8 +329,8 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
       <p class="q__stem">Combien d’étapes de test au maximum sont nécessaires avec « git bisect » pour localiser une régression parmi 500 commits ?</p>
       <div class="opts">
         <button class="opt">500 étapes</button>
-        <button class="opt">250 étapes</button>
         <button class="opt" data-correct="1">9 étapes</button>
+        <button class="opt">250 étapes</button>
         <button class="opt">50 étapes</button>
       </div>
       <div class="q__exp">La recherche dichotomique a une complexité logarithmique en ceil(log2(500)) = ceil(8.96) = 9 étapes.</div>
@@ -352,8 +348,8 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     <div class="q">
       <p class="q__stem">Par défaut, pendant combien de temps Git conserve-t-il les objets inaccessibles (unreachable/dangling) avant que « git gc » ne les purge définitivement ?</p>
       <div class="opts">
-        <button class="opt">24 heures</button>
         <button class="opt" data-correct="1">30 jours</button>
+        <button class="opt">24 heures</button>
         <button class="opt">1 an</button>
         <button class="opt">Ils ne sont jamais purgés</button>
       </div>
@@ -373,8 +369,8 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
       <p class="q__stem">À quoi sert la commande de plomberie « git fsck --lost-found » ?</p>
       <div class="opts">
         <button class="opt">À supprimer tous les fichiers non suivis de la copie de travail</button>
-        <button class="opt" data-correct="1">À vérifier l’intégrité de la base d’objets et copier les commits orphelins dans .git/lost-found/</button>
         <button class="opt">À réparer les dépendances corrompues dans package.json</button>
+        <button class="opt" data-correct="1">À vérifier l’intégrité de la base d’objets et copier les commits orphelins dans .git/lost-found/</button>
         <button class="opt">À synchroniser les commits orphelins avec le miroir GitHub</button>
       </div>
       <div class="q__exp">git fsck (File System Check) contrôle la cohérence du magasin d’objets et l’option --lost-found extrait tous les objets orphelins inaccessibles pour permettre leur analyse.</div>
@@ -382,10 +378,10 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
     <div class="q">
       <p class="q__stem">Si vous avez exécuté par erreur « git reset --hard HEAD~2 », quelle commande permet de revenir immédiatement à l’état antérieur ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">git reset --hard HEAD@{1}</button>
+        <button class="opt">git clean -fd</button>
         <button class="opt">git revert HEAD</button>
         <button class="opt">git checkout --undo</button>
-        <button class="opt">git clean -fd</button>
+        <button class="opt" data-correct="1">git reset --hard HEAD@{1}</button>
       </div>
       <div class="q__exp">HEAD@{1} correspond à la position de HEAD juste avant l’exécution du reset. Faire un git reset --hard HEAD@{1} réaligne instantanément la branche sur son état précédent.</div>
     </div>
@@ -512,7 +508,7 @@ STASH_OP action=pop result=OK current_size=0 top="EMPTY"</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

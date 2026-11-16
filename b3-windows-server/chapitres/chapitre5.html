@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -179,34 +177,31 @@
      data-exercise="ws3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE&#10;ATTACH vm=VM1 vswitch=vSwitch-LAN&#10;ATTACH vm=VM2 vswitch=vSwitch-LAN&#10;PING from=VM1 to=VM2&#10;PING from=VM1 to=EXTERNAL_NET">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c5-e1) — Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'hôte HYP-02 porte deux commutateurs :&#10;vSwitch-LAN (Externe, gestion de l'hôte autorisée) : VM PORTAIL et VM BACKUP ;&#10;vSwitch-Banc (Privé) : VM TEST1 et VM TEST2.&#10;&#10;1) Raccordées au réseau physique : PORTAIL et BACKUP.&#10;2) BACKUP joint l'hôte ? Oui (Externe avec gestion autorisée).&#10;3) TEST1 joint le réseau physique ? Non (Privé).&#10;4) TEST1 joint l'hôte ? Non (Privé).&#10;5) TEST1 joint TEST2 ? Oui (même commutateur Privé).&#10;6) PORTAIL joint TEST1 ? Non (commutateurs différents).">
+  <script type="text/plain" data-lab-starter># Exercice — Les commutateurs virtuels de l'hôte HYP-01
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 2 à 6 : Oui ou Non. Question 1 : les noms des VM.
 
-[Cas 1 — Commutateur Privé bloquant l’accès vers l’hôte et l’extérieur]
-# Données : VSWITCH name=vSwitch-Isole type=PRIVATE allow_host=FALSE
-# Données : ATTACH vm=VM-DB vswitch=vSwitch-Isole
-# Données : PING from=VM-DB to=HOST
-# Données : PING from=VM-DB to=EXTERNAL_NET
+[Question 1 — VM raccordées au réseau physique]
 A_COMPLETER
 
-[Cas 2 — Deux VMs rattachées à des vSwitchs différents]
-# Données : VSWITCH name=SW1 type=INTERNAL allow_host=TRUE
-# Données : VSWITCH name=SW2 type=INTERNAL allow_host=TRUE
-# Données : ATTACH vm=VM-A vswitch=SW1
-# Données : ATTACH vm=VM-B vswitch=SW2
-# Données : PING from=VM-A to=VM-B
+[Question 2 — SRV-Test joint l'hôte ?]
 A_COMPLETER
 
-[Cas 3 — Commutateur Externe avec allow_host désactivé]
-# Données : VSWITCH name=SW-Ext type=EXTERNAL allow_host=FALSE
-# Données : ATTACH vm=VM-Web vswitch=SW-Ext
-# Données : PING from=VM-Web to=HOST
-# Données : PING from=VM-Web to=EXTERNAL_NET
+[Question 3 — SRV-Test joint le réseau physique ?]
+A_COMPLETER
+
+[Question 4 — SRV-Lab joint l'hôte ?]
+A_COMPLETER
+
+[Question 5 — SRV-Lab joint SRV-Lab2 ?]
+A_COMPLETER
+
+[Question 6 — SRV-Web joint SRV-Test ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de commutation réseau Hyper-V (External, Internal, Private vSwitch)</h3>
+    <h3 class="lab__title">Exercice 1 — Les commutateurs virtuels de l'hôte HYP-01</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -215,36 +210,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Déterminer l’accessibilité réseau entre VMs, hôte physique et réseau externe selon le type de commutateur virtuel (vSwitch).</p>
-    <div class="lab__brief">Dans Microsoft Hyper-V, les règles de connectivité pour chaque type de commutateur virtuel sont les suivantes :
-- `EXTERNAL` : permet la communication entre les VMs rattachées, vers le réseau physique extérieur (`EXTERNAL_NET`), et vers l’hôte (`HOST`) si et seulement si `allow_host=TRUE`.
-- `INTERNAL` : permet la communication entre les VMs rattachées et avec l’hôte (`HOST`). Bloqué vers `EXTERNAL_NET`.
-- `PRIVATE` : permet la communication STRICTEMENT entre les VMs rattachées au même vSwitch. Bloqué vers `HOST` et vers `EXTERNAL_NET`.
-- Deux VMs sur deux vSwitchs distincts ne peuvent jamais communiquer directement.
-
-Entrée :
-`VSWITCH name=&lt;NOM&gt; type=&lt;EXTERNAL|INTERNAL|PRIVATE&gt; allow_host=&lt;TRUE|FALSE&gt;`
-`ATTACH vm=&lt;VM&gt; vswitch=&lt;NOM&gt;`
-`PING from=&lt;SRC&gt; to=&lt;DST&gt;` (SRC et DST peuvent être un nom de VM, `HOST` ou `EXTERNAL_NET`)
-
-Résultat d’analyse attendu :
-- Pour chaque test PING :
-  `PING_RESULT from=&lt;SRC&gt; to=&lt;DST&gt; status=&lt;REUSSI|BLOQUE&gt; motif=&lt;OK|COMMUTATEURS_DIFFERENTS|TYPE_INTERNAL|TYPE_PRIVATE|HOST_ISOLE&gt;`
-- Bilan :
-  `SUMMARY total_pings=&lt;N&gt; reussis=&lt;R&gt; bloques=&lt;B&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Déduire l'accessibilité réseau des VM selon le type de commutateur virtuel Hyper-V.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Amina exploite l'hôte Hyper-V <strong>HYP-01</strong> avec trois commutateurs virtuels :</p><ul><li><strong>vSwitch-Ext</strong> (Externe, relié au réseau physique, gestion de l'hôte autorisée) : VM SRV-Web et SRV-Messagerie ;</li><li><strong>vSwitch-Int</strong> (Interne) : VM SRV-Test, serveur de recette ;</li><li><strong>vSwitch-Priv</strong> (Privé) : VM SRV-Lab et SRV-Lab2, banc d'essai isolé.</li></ul><p>Rappel du cours : un commutateur Externe relie les VM au réseau physique et à l'hôte ; un commutateur Interne relie les VM entre elles et à l'hôte, jamais au réseau physique ; un commutateur Privé relie les VM entre elles uniquement. Deux VM sur deux commutateurs différents ne communiquent pas directement. Répondez par « Oui » ou « Non » aux questions 2 à 6 ; la question 1 appelle des noms de VM.</p><ol><li>Quelles VM sont raccordées au réseau physique ?</li><li>SRV-Test peut-elle joindre l'hôte HYP-01 ?</li><li>SRV-Test peut-elle joindre le réseau physique ?</li><li>SRV-Lab peut-elle joindre l'hôte HYP-01 ?</li><li>SRV-Lab peut-elle joindre SRV-Lab2 ?</li><li>SRV-Web peut-elle joindre SRV-Test ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VSWITCH name=vSwitch-LAN type=EXTERNAL allow_host=TRUE
-ATTACH vm=VM1 vswitch=vSwitch-LAN
-ATTACH vm=VM2 vswitch=vSwitch-LAN
-PING from=VM1 to=VM2
-PING from=VM1 to=EXTERNAL_NET</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'hôte HYP-02 porte deux commutateurs :
+vSwitch-LAN (Externe, gestion de l'hôte autorisée) : VM PORTAIL et VM BACKUP ;
+vSwitch-Banc (Privé) : VM TEST1 et VM TEST2.
+
+1) Raccordées au réseau physique : PORTAIL et BACKUP.
+2) BACKUP joint l'hôte ? Oui (Externe avec gestion autorisée).
+3) TEST1 joint le réseau physique ? Non (Privé).
+4) TEST1 joint l'hôte ? Non (Privé).
+5) TEST1 joint TEST2 ? Oui (même commutateur Privé).
+6) PORTAIL joint TEST1 ? Non (commutateurs différents).</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Associer chaque VM à son commutateur virtuel et stocker les propriétés du vSwitch.</li>
-        <li>Identifier si la source et la destination sont sur le même vSwitch.</li>
-        <li>Vérifier les règles spécifiques pour HOST et EXTERNAL_NET.</li>
+        <li>Classez chaque commutateur : Externe va jusqu'au réseau physique, Interne s'arrête à l'hôte, Privé s'arrête aux VM.</li>
+        <li>SRV-Test est sur le commutateur Interne : elle atteint l'hôte et les VM du même commutateur, rien de plus.</li>
+        <li>SRV-Web et SRV-Test sont sur deux commutateurs distincts : aucune communication directe entre elles.</li>
       </ol>
     </details>
   </div>
@@ -254,28 +239,31 @@ PING from=VM1 to=EXTERNAL_NET</pre></div>
      data-exercise="ws3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="HOST ram_mb=16384&#10;VM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000&#10;VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c5-e2) — Calculateur d’allocation de Mémoire Dynamique Hyper-V
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'hôte HYP-02 dispose de 16 384 Mo. Trois VM :&#10;VM-Web : min 2048, max 8192, tampon 20 %, demande 3000 ;&#10;VM-SQL : min 4096, max 12288, tampon 20 %, demande 2000 ;&#10;VM-DC : min 1024, max 2048, tampon 0 %, demande 1500.&#10;&#10;1) VM-Web : cible 3000 × 1,2 = 3600 Mo, allouée 3600 (optimale).&#10;2) VM-SQL : cible 2400 Mo &lt; 4096, allouée 4096 (seuil minimal).&#10;3) VM-DC : cible 1500 Mo, allouée 1500 (optimale).&#10;Total : 3600 + 4096 + 1500 = 9196 Mo, sous contrôle.">
+  <script type="text/plain" data-lab-starter># Exercice — La mémoire dynamique des VM de l'hôte HYP-01
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 4 : le nombre seul en Mo. Questions 3 et 5 : le statut.
 
-[Cas 1 — VM atteignant le plafond maximal configuré]
-# Données : HOST ram_mb=32768
-# Données : VM name=VM-App min_ram_mb=2048 max_ram_mb=4096 buffer_pct=25 demand_mb=5000
+[Question 1 — Cible de VM-ERP (Mo)]
 A_COMPLETER
 
-[Cas 2 — Surallocation mémoire totale au-delà de la capacité physique hôte]
-# Données : HOST ram_mb=8192
-# Données : VM name=VM1 min_ram_mb=2048 max_ram_mb=8192 buffer_pct=10 demand_mb=5000
-# Données : VM name=VM2 min_ram_mb=2048 max_ram_mb=8192 buffer_pct=10 demand_mb=5000
+[Question 2 — Allocation de VM-BI (Mo)]
 A_COMPLETER
 
-[Cas 3 — Plusieurs VMs avec buffers à 0%]
-# Données : HOST ram_mb=16384
-# Données : VM name=VM-DC min_ram_mb=1024 max_ram_mb=2048 buffer_pct=0 demand_mb=1500
+[Question 3 — Statut de VM-BI]
+A_COMPLETER
+
+[Question 4 — Allocation de VM-DHCP (Mo)]
+A_COMPLETER
+
+[Question 5 — Statut de VM-DHCP]
+A_COMPLETER
+
+[Question 6 — Dépassement de la RAM de l'hôte ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Calculateur d’allocation de Mémoire Dynamique Hyper-V</h3>
+    <h3 class="lab__title">Exercice 2 — La mémoire dynamique des VM de l'hôte HYP-01</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -284,37 +272,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer l’allocation de RAM par machine virtuelle en intégrant la demande courante, le tampon mémoire et la capacité physique de l’hôte.</p>
-    <div class="lab__brief">Dans Hyper-V, la mémoire dynamique ajuste la RAM de chaque VM selon la formule officielle Microsoft :
-- `target_ram = round(demand_mb * (1 + buffer_pct / 100))`
-- Bornage contractuel : `allocated_mb = max(min_ram_mb, min(max_ram_mb, target_ram))`
-
-Statuts de bornage de la VM :
-- Si `target_ram &gt; max_ram_mb` : `statut=PLAFOND_MAX`
-- Si `target_ram &lt; min_ram_mb` : `statut=SEUIL_MIN`
-- Sinon : `statut=OPTIMAL`
-
-Entrée :
-`HOST ram_mb=&lt;H&gt;`
-`VM name=&lt;NOM&gt; min_ram_mb=&lt;MIN&gt; max_ram_mb=&lt;MAX&gt; buffer_pct=&lt;B&gt; demand_mb=&lt;D&gt;` (1 ou plusieurs)
-
-Résultat d’analyse attendu :
-- Pour chaque VM (triée par nom alphabétique) :
-  `VM_ALLOC name=&lt;NOM&gt; target_mb=&lt;TARGET&gt; allocated_mb=&lt;ALLOC&gt; status=&lt;STATUT&gt;`
-- Bilan de l’hôte :
-  `SUMMARY host_ram_mb=&lt;H&gt; total_allocated_mb=&lt;TOT&gt; pression_pct=&lt;PCT&gt;% statut=&lt;SOUS_CONTROLE|SURALLOCATION&gt;`
-  (où pression_pct = round((total_allocated_mb / host_ram_mb) * 100, 1) ; statut=SOUS_CONTROLE si total &lt;= host_ram_mb sinon SURALLOCATION).</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la cible mémoire, borner entre minimum et maximum, puis contrôler la pression sur l'hôte.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'hôte HYP-01 dispose de <strong>32 768 Mo</strong> de RAM physique. Amina active la mémoire dynamique sur trois VM :</p><table><tr><th>VM</th><th>Minimum (Mo)</th><th>Maximum (Mo)</th><th>Tampon</th><th>Demande (Mo)</th></tr><tr><th>VM-ERP</th><td>4096</td><td>16384</td><td>25 %</td><td>8192</td></tr><tr><th>VM-BI</th><td>8192</td><td>16384</td><td>25 %</td><td>14000</td></tr><tr><th>VM-DHCP</th><td>2048</td><td>4096</td><td>20 %</td><td>1200</td></tr></table><p>Rappel du cours : cible = demande × (1 + tampon) ; l'allocation est bornée entre le minimum et le maximum de la VM. Si la cible dépasse le maximum, la VM est « au plafond maximal » ; si elle descend sous le minimum, la VM est « au seuil minimal ». Répondez par le nombre seul en Mo pour les questions 1, 2 et 4 ; les questions 3 et 5 appellent le statut, la question 6 « Oui » ou « Non ».</p><ol><li>Quelle est la cible calculée pour VM-ERP ?</li><li>Quelle est la mémoire allouée à VM-BI ?</li><li>Quel est le statut de VM-BI ?</li><li>Quelle est la mémoire allouée à VM-DHCP ?</li><li>Quel est le statut de VM-DHCP ?</li><li>La somme des allocations dépasse-t-elle la RAM physique de l'hôte ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>HOST ram_mb=16384
-VM name=VM-Web min_ram_mb=2048 max_ram_mb=8192 buffer_pct=20 demand_mb=3000
-VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'hôte HYP-02 dispose de 16 384 Mo. Trois VM :
+VM-Web : min 2048, max 8192, tampon 20 %, demande 3000 ;
+VM-SQL : min 4096, max 12288, tampon 20 %, demande 2000 ;
+VM-DC : min 1024, max 2048, tampon 0 %, demande 1500.
+
+1) VM-Web : cible 3000 × 1,2 = 3600 Mo, allouée 3600 (optimale).
+2) VM-SQL : cible 2400 Mo &lt; 4096, allouée 4096 (seuil minimal).
+3) VM-DC : cible 1500 Mo, allouée 1500 (optimale).
+Total : 3600 + 4096 + 1500 = 9196 Mo, sous contrôle.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Calculer target = round(demand * (1 + buffer / 100)).</li>
-        <li>Appliquer max(min, min(max, target)).</li>
-        <li>Cumuler la mémoire allouée et comparer à la RAM hôte.</li>
+        <li>Calculez d'abord la cible : demande × (1 + tampon/100), puis bornez-la entre minimum et maximum.</li>
+        <li>VM-BI : 14000 × 1,25 = 17 500 Mo, au-delà du maximum 16 384 : l'allocation est coupée au plafond.</li>
+        <li>Additionnez enfin les trois allocations et comparez à 32 768 Mo : la pression se lit en un seul total.</li>
       </ol>
     </details>
   </div>
@@ -324,32 +300,31 @@ VM name=VM-SQL min_ram_mb=4096 max_ram_mb=12288 buffer_pct=20 demand_mb=2000</pr
      data-exercise="ws3-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000&#10;VHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000&#10;VHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000&#10;MERGE child=Snap1.avhdx">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c5-e3) — Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La VM de test possède : Base.vhdx (20 000 Mo), Snap1.avhdx (5000 Mo, parent Base.vhdx),&#10;Snap2.avhdx (2000 Mo, parent Snap1.avhdx). L'administrateur fusionne Snap1 dans Base.vhdx.&#10;&#10;1) Avant fusion : 20 000 + 5000 + 2000 = 27 000 Mo.&#10;2) Base.vhdx passe à 25 000 Mo.&#10;3) Snap2.avhdx a pour parent Base.vhdx.&#10;4) Il reste 2 disques.&#10;5) Après fusion : 25 000 + 2000 = 27 000 Mo.&#10;6) La taille cumulée est inchangée.">
+  <script type="text/plain" data-lab-starter># Exercice — La chaîne de disques de la VM de formation
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 5 : le nombre seul en Mo.
 
-[Cas 1 — Fusion du dernier checkpoint de la chaîne]
-# Données : VHDX id=OS.vhdx type=BASE parent=NONE size_mb=15000
-# Données : VHDX id=Patch.avhdx type=DIFF parent=OS.vhdx size_mb=3000
-# Données : MERGE child=Patch.avhdx
+[Question 1 — Taille cumulée avant fusion (Mo)]
 A_COMPLETER
 
-[Cas 2 — Aucune opération de fusion (chaîne intacte)]
-# Données : VHDX id=Disk0.vhdx type=BASE parent=NONE size_mb=10000
-# Données : VHDX id=DiffA.avhdx type=DIFF parent=Disk0.vhdx size_mb=1200
-# Données : VHDX id=DiffB.avhdx type=DIFF parent=Disk0.vhdx size_mb=1800
+[Question 2 — Taille de Base.vhdx après fusion (Mo)]
 A_COMPLETER
 
-[Cas 3 — Deux fusions successives sur une même arborescence]
-# Données : VHDX id=Base.vhdx type=BASE parent=NONE size_mb=10000
-# Données : VHDX id=C1.avhdx type=DIFF parent=Base.vhdx size_mb=2000
-# Données : VHDX id=C2.avhdx type=DIFF parent=C1.avhdx size_mb=1000
-# Données : MERGE child=C2.avhdx
-# Données : MERGE child=C1.avhdx
+[Question 3 — Parent de Snap2.avhdx après fusion]
+A_COMPLETER
+
+[Question 4 — Nombre de disques restants]
+A_COMPLETER
+
+[Question 5 — Taille cumulée après fusion (Mo)]
+A_COMPLETER
+
+[Question 6 — Constat sur la taille cumulée]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Gestionnaire d’arborescence de disques virtuels différentiels VHDX et Checkpoints</h3>
+    <h3 class="lab__title">Exercice 3 — La chaîne de disques de la VM de formation</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -358,39 +333,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la taille cumulée d’une chaîne de disques virtuels différentiels (.avhdx) et simuler la fusion (Merge) d’un checkpoint.</p>
-    <div class="lab__brief">Dans Hyper-V, les points de contrôle créent des disques différentiels dépendants du disque parent :
-- `VHDX id=&lt;ID&gt; type=&lt;BASE|DIFF&gt; parent=&lt;PARENT_ID|NONE&gt; size_mb=&lt;S&gt;`
-- `MERGE child=&lt;CHILD_ID&gt;` : opération de fusion d’un checkpoint différentiel dans son parent immédiat.
-
-Règles lors d’une opération de fusion (`MERGE child=C`) :
-1. Les données du disque différentiel `C` sont écrites dans son parent `P` : `parent.size_mb += child.size_mb`.
-2. Le disque différentiel `C` est supprimé de la chaîne.
-3. Tout éventuel disque sous-jacent qui avait `C` comme parent est rebranché pour pointer directement vers `P`.
-
-Entrée :
-`VHDX id=&lt;ID&gt; type=&lt;BASE|DIFF&gt; parent=&lt;P|NONE&gt; size_mb=&lt;S&gt;` (1 ou plusieurs)
-`MERGE child=&lt;ID&gt;` (0 ou plusieurs)
-
-Résultat d’analyse attendu :
-- Pour chaque commande MERGE exécutée :
-  `MERGE_EVENT child=&lt;C&gt; merged_into=&lt;P&gt; new_parent_size_mb=&lt;S&gt;`
-- État final de tous les disques restants (ordonnés par ID croissant) :
-  `DISK_STATE id=&lt;ID&gt; type=&lt;BASE|DIFF&gt; parent=&lt;P|NONE&gt; size_mb=&lt;S&gt;`
-- Bilan :
-  `SUMMARY total_disks=&lt;N&gt; total_chain_size_mb=&lt;TOTAL&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre une chaîne de disques VHDX et points de contrôle, fusionner un checkpoint et vérifier la taille cumulée.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La VM de formation FORM-VM s'appuie sur une chaîne de disques gérée par points de contrôle Hyper-V :</p><ul><li><strong>Base.vhdx</strong> (disque de base) : 40 000 Mo ;</li><li><strong>Snap1.avhdx</strong> (différentiel, parent Base.vhdx) : 6000 Mo ;</li><li><strong>Snap2.avhdx</strong> (différentiel, parent Snap1.avhdx) : 2500 Mo.</li></ul><p>Rappel du cours : fusionner un point de contrôle revient à écrire son disque différentiel dans son parent immédiat — la taille du parent augmente d'autant, le disque différentiel disparaît, et tout petit-fils est rattaché directement au parent. Amina fusionne Snap1 dans Base.vhdx. Répondez par le nombre seul en Mo pour les questions 1, 2 et 5.</p><ol><li>Quelle est la taille cumulée de la chaîne avant la fusion ?</li><li>Après la fusion, quelle est la taille de Base.vhdx ?</li><li>Après la fusion, quel est le parent de Snap2.avhdx ?</li><li>Combien de disques reste-t-il dans la chaîne après la fusion ?</li><li>Quelle est la taille cumulée de la chaîne après la fusion ?</li><li>Que constate-t-on en comparant les réponses 1 et 5 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VHDX id=Base.vhdx type=BASE parent=NONE size_mb=20000
-VHDX id=Snap1.avhdx type=DIFF parent=Base.vhdx size_mb=5000
-VHDX id=Snap2.avhdx type=DIFF parent=Snap1.avhdx size_mb=2000
-MERGE child=Snap1.avhdx</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La VM de test possède : Base.vhdx (20 000 Mo), Snap1.avhdx (5000 Mo, parent Base.vhdx),
+Snap2.avhdx (2000 Mo, parent Snap1.avhdx). L'administrateur fusionne Snap1 dans Base.vhdx.
+
+1) Avant fusion : 20 000 + 5000 + 2000 = 27 000 Mo.
+2) Base.vhdx passe à 25 000 Mo.
+3) Snap2.avhdx a pour parent Base.vhdx.
+4) Il reste 2 disques.
+5) Après fusion : 25 000 + 2000 = 27 000 Mo.
+6) La taille cumulée est inchangée.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Modéliser chaque disque avec un dictionnaire {type, parent, size_mb}.</li>
-        <li>Lors de MERGE, trouver le parent, ajouter la taille de l’enfant, supprimer l’enfant.</li>
-        <li>Rebrancher les enfants du disque supprimé sur le parent.</li>
+        <li>Avant fusion, la chaîne vaut la somme des trois disques : 40 000 + 6000 + 2500.</li>
+        <li>La fusion de Snap1 écrit 6000 Mo dans Base.vhdx ; Snap2 perd son parent et se rattache à Base.vhdx.</li>
+        <li>Recalculez la somme après fusion : 46 000 + 2500 ; comparez à la somme d'avant.</li>
       </ol>
     </details>
   </div>
@@ -413,10 +374,10 @@ MERGE child=Snap1.avhdx</pre></div>
     <div class="q">
       <p class="q__stem">Quelle caractéristique distingue fondamentalement une VM de Génération 2 d’une VM de Génération 1 ?</p>
       <div class="opts">
-        <button class="opt">L’obligation d’utiliser des disques durs au format FAT16</button>
         <button class="opt" data-correct="1">Le microprogramme UEFI x64 avec support du démarrage sécurisé Secure Boot et disques SCSI</button>
-        <button class="opt">L’absence de toute carte réseau</button>
-        <button class="opt">La limitation de la mémoire vive à 512 Mo</button>
+        <button class="opt">L’obligation d’utiliser exclusivement des disques durs au format FAT16 pour l’amorçage</button>
+        <button class="opt">L’absence totale de carte réseau dans la configuration matérielle de la machine virtuelle</button>
+        <button class="opt">La limitation stricte de la mémoire vive allouée à 512 Mo au maximum</button>
       </div>
       <div class="q__exp">La Génération 2 abandonne les composants émulés (BIOS hérité, disques IDE) au profit de l’UEFI, du Secure Boot et de bus SCSI synthétiques rapides.</div>
     </div>
@@ -425,8 +386,8 @@ MERGE child=Snap1.avhdx</pre></div>
       <div class="opts">
         <button class="opt">External vSwitch</button>
         <button class="opt">Internal vSwitch</button>
-        <button class="opt" data-correct="1">Private vSwitch</button>
         <button class="opt">Loopback vSwitch</button>
+        <button class="opt" data-correct="1">Private vSwitch</button>
       </div>
       <div class="q__exp">Le vSwitch Privé (Private) confine strictement la communication aux seules machines virtuelles qui y sont rattachées sur l’hôte physique.</div>
     </div>
@@ -434,8 +395,8 @@ MERGE child=Snap1.avhdx</pre></div>
       <p class="q__stem">Dans la formule de calcul de la mémoire dynamique, à quoi correspond le Memory Buffer ?</p>
       <div class="opts">
         <button class="opt">À la mémoire réservée pour la carte graphique de la VM</button>
-        <button class="opt" data-correct="1">À un pourcentage de marge de sécurité conservé au-dessus de la demande courante de la VM</button>
         <button class="opt">Au fichier d’échange swap sur le disque dur physique</button>
+        <button class="opt" data-correct="1">À un pourcentage de marge de sécurité conservé au-dessus de la demande courante de la VM</button>
         <button class="opt">À la taille maximale du disque virtuel VHDX</button>
       </div>
       <div class="q__exp">Le Memory Buffer (20 % par défaut) ajoute une marge de RAM au-dessus de la demande instantanée pour absorber les pics de charge subits.</div>
@@ -453,20 +414,20 @@ MERGE child=Snap1.avhdx</pre></div>
     <div class="q">
       <p class="q__stem">Que se produit-il lors de la suppression d’un point de contrôle (checkpoint) dans Hyper-V ?</p>
       <div class="opts">
-        <button class="opt">Le disque virtuel d’origine est immédiatement formaté</button>
         <button class="opt" data-correct="1">Les données du disque différentiel .avhdx sont fusionnées (Merge) dans le disque VHDX parent</button>
-        <button class="opt">La machine virtuelle est déconnectée du réseau local</button>
-        <button class="opt">L’hyperviseur doit être réinstallé</button>
+        <button class="opt">Le disque virtuel d’origine est immédiatement formaté et l’ensemble des données perdu</button>
+        <button class="opt">La machine virtuelle est définitivement déconnectée du réseau local de l’entreprise</button>
+        <button class="opt">L’hyperviseur Hyper-V doit être complètement réinstallé sur le serveur hôte</button>
       </div>
       <div class="q__exp">La suppression d’un checkpoint déclenche une opération de fusion (Merge) qui réintègre les blocs modifiés du fichier .avhdx dans le parent.</div>
     </div>
     <div class="q">
       <p class="q__stem">À quoi sert le composant VMBus dans l’architecture Hyper-V ?</p>
       <div class="opts">
-        <button class="opt">À alimenter électriquement le processeur de la carte mère</button>
+        <button class="opt">À alimenter électriquement le processeur et la carte mère du serveur physique</button>
+        <button class="opt">À synchroniser automatiquement l’heure du BIOS avec les serveurs de temps Internet</button>
+        <button class="opt">À imprimer des documents depuis la machine virtuelle vers l’imprimante physique</button>
         <button class="opt" data-correct="1">À fournir un canal de communication haute performance en mémoire partagée entre les VSC et les VSP</button>
-        <button class="opt">À synchroniser l’heure du BIOS avec Internet</button>
-        <button class="opt">À imprimer des documents depuis la machine virtuelle</button>
       </div>
       <div class="q__exp">Le VMBus est le bus logiciel haute vitesse reliant les pilotes synthétiques des VMs aux pilotes physiques de la partition racine.</div>
     </div>
@@ -474,8 +435,8 @@ MERGE child=Snap1.avhdx</pre></div>
       <p class="q__stem">Quel format de disque virtuel permet de stocker des fichiers jusqu’à une taille maximale de 64 To avec protection contre les corruptions ?</p>
       <div class="opts">
         <button class="opt">VHD</button>
-        <button class="opt" data-correct="1">VHDX</button>
         <button class="opt">VMDK</button>
+        <button class="opt" data-correct="1">VHDX</button>
         <button class="opt">ISO</button>
       </div>
       <div class="q__exp">Le format VHDX introduit avec Windows Server 2012 supporte jusqu’à 64 To, des secteurs de 4 Ko et une journalisation protégée contre les coupures.</div>
@@ -602,7 +563,7 @@ MERGE child=Snap1.avhdx</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -202,7 +202,7 @@ describe('3. Routeur d’exécution et provenance (execution-router.js)', () => 
     const pyBadge = router.getProvenanceInfo('python');
     assert.equal(pyBadge.mode, 'browser');
     assert.equal(pyBadge.label, 'Navigateur');
-    assert.equal(pyBadge.icon, 'lightning');
+    assert.equal(pyBadge.icon, 'bolt');
 
     const cBadge = router.getProvenanceInfo('c');
     assert.equal(cBadge.mode, 'server');

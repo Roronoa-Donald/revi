@@ -141,64 +141,64 @@ module.exports = {
       stem: 'Quel est le tout premier processus exécuté dans l’espace utilisateur (User Space) sous un système Linux moderne ?',
       opts: [
         'bash (PID 100)',
-        'systemd (PID 1)',
+        'sshd (PID 2)',
         'grub2 (PID 0)',
-        'sshd (PID 2)'
+        'systemd (PID 1)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Systemd est lancé par le noyau à l’issue de la phase d’initialisation initramfs via switch_root et reçoit obligatoirement l’identifiant de processus PID 1.'
     },
     {
       stem: 'Pourquoi la directive « ExecStart= » d’un service Systemd refuse-t-elle strictement les chemins relatifs ?',
       opts: [
-        'Parce que le système de fichiers ext4 interdit les chemins relatifs',
-        'Parce que Systemd s’exécute dans un environnement sans variable $PATH prédéfinie pour garantir un déterminisme et une sécurité absolus',
-        'Parce que les chemins relatifs consomment trop de mémoire dans le cache du processeur',
-        'Parce que Python refuse de s’exécuter avec des chemins relatifs'
+        "Parce que le système de fichiers ext4 interdit formellement les chemins relatifs dans ses métadonnées",
+        "Parce que les chemins relatifs consomment trop de mémoire dans le cache du processeur à chaque démarrage",
+        "Parce que Systemd s’exécute dans un environnement sans variable $PATH prédéfinie pour garantir un déterminisme et une sécurité absolus",
+        "Parce que Python refuse catégoriquement de s’exécuter avec des chemins relatifs dans ses scripts"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Pour éviter qu’un binaire malveillant placé dans un répertoire temporaire ne soit exécuté à la place du démon officiel, Systemd n’utilise pas de $PATH utilisateur et exige des chemins absolus commençant par /.'
     },
     {
       stem: 'Quelle directive Systemd permet de spécifier que le service A doit attendre que le service B soit prêt avant de démarrer ?',
       opts: [
-        'Requires=B.service',
         'After=B.service',
+        'Requires=B.service',
         'Wants=B.service',
         'WantedBy=B.service'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La directive After= gère exclusivement l’ordre chronologique : elle ordonne à Systemd d’attendre la fin de l’initialisation de B.service avant de lancer A.service.'
     },
     {
       stem: 'Dans quelle section d’un fichier d’unité Systemd la directive « WantedBy=multi-user.target » doit-elle être placée ?',
       opts: [
         '[Unit]',
-        '[Service]',
         '[Install]',
+        '[Service]',
         '[Target]'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'WantedBy fait partie de la section [Install] et indique à quelle cible le service doit être rattaché lorsqu’on exécute la commande systemctl enable.'
     },
     {
       stem: 'Quel est le principe de l’activation par socket (Socket Activation) dans Systemd ?',
       opts: [
-        'Forcer tous les services à communiquer obligatoirement par des connexions Wi-Fi',
-        'Systemd écoute sur le socket dès le boot et ne démarre le démon en mémoire que lorsqu’un client envoie une première requête',
-        'Chiffrer toutes les communications réseau avec une clé asymétrique RSA',
-        'Désactiver le pare-feu pendant l’exécution du service'
+        "Systemd écoute sur le socket dès le boot et ne démarre le démon en mémoire que lorsqu’un client envoie une première requête",
+        "Forcer tous les services du système à communiquer obligatoirement par des connexions Wi-Fi chiffrées",
+        "Chiffrer systématiquement toutes les communications réseau avec une clé asymétrique RSA de 4096 bits",
+        "Désactiver le pare-feu du système pendant toute la durée d’exécution du service concerné"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La Socket Activation permet à Systemd de créer le socket à l’avance. Le démon n’est instancié que lorsqu’une requête arrive, réduisant la consommation de RAM à froid et parallélisant le boot.'
     },
     {
       stem: 'Quelle commande permet de suivre en temps réel les logs d’un service géré par Journald ?',
       opts: [
-        'cat /var/log/messages',
-        'journalctl -u mon-service.service -f',
-        'tail -f /proc/kmsg',
-        'dmesg --follow-all'
+        "cat /var/log/messages | grep mon-service",
+        "journalctl -u mon-service.service -f",
+        "tail -f /var/log/daemon.log",
+        "dmesg --follow-all"
       ],
       correct: 1,
       exp: 'L’option -u cible l’unité Systemd et -f (follow) permet de suivre en direct l’ajout de nouvelles lignes de journaux dans la console.'
@@ -207,22 +207,22 @@ module.exports = {
       stem: 'Quelle commande est impérative après avoir modifié un fichier d’unité dans /etc/systemd/system/ pour que Systemd prenne en compte les changements ?',
       opts: [
         'systemctl restart all',
-        'systemctl daemon-reload',
         'reboot',
+        'systemctl daemon-reload',
         'update-initramfs -u'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'systemctl daemon-reload force Systemd à relire et recompiler en mémoire tous les fichiers de configuration d’unités du système.'
     },
     {
       stem: 'Dans un fichier d’unité, quelle directive garantit que le service redémarrera automatiquement si son processus plante avec une erreur ?',
       opts: [
-        'Restart=on-failure',
+        'Retry=forever',
         'AutoReboot=yes',
         'KeepAlive=true',
-        'Retry=forever'
+        'Restart=on-failure'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Restart=on-failure ordonne à Systemd de redémarrer le service uniquement si le processus se termine par un signal ou un code de sortie non-zéro.'
     }
   ],

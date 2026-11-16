@@ -81,18 +81,28 @@ module.exports = {
           'l’effet moyen et l’effet aléatoire cumulé, qui se répartit en cloche. D’où l’omniprésence de la loi ' +
           'normale, indépendamment de la loi d’origine des <code>Xᵢ</code>.</p>')
       ].join('\n')
+    },
+    {
+      title: 'Labo Python appliqué',
+      html: [
+        '<p>La méthode de Monte-Carlo estime une probabilité par une fréquence observée sur de nombreux tirages. Fixer la graine (<code>random.seed</code>) rend l’expérience reproductible.</p>',
+        '<pre><code class="language-python">import random\n\nrandom.seed(42)          # graine fixee : resultat reproductible\nn = 100000\ndedans = sum(1 for _ in range(n)\n             if random.random() ** 2 + random.random() ** 2 &lt;= 1)\nprint("pi ~", 4 * dedans / n)\n\n# Loi des grands nombres : moyenne de n lancers de de\nfor n in (10, 1000, 100000):\n    print(n, sum(random.randint(1, 6) for _ in range(n)) / n)</code></pre>',
+        '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+        '<pre><code>pi ~ 3.13728\n10 3.8\n1000 3.54\n100000 3.50663</code></pre>',
+        '<p>La loi des grands nombres explique la convergence : l’erreur typique décroît en <code>1/√n</code>. Le résultat exact dépend de la graine ; seule la tendance vers π et vers 3,5 est à retenir.</p>'
+      ].join('\n')
     }
   ],
 
   questions: [
     { stem: 'L’inégalité de Markov suppose X…', opts: ['positive', 'normale', 'discrète'], correct: 0, exp: 'Markov vaut pour une variable positive d’espérance finie.' },
-    { stem: 'Que majore Markov à partir de E(X) ?', opts: ['P(X ≥ a)', 'P(X = a)', 'P(X ≤ a)'], correct: 0, exp: 'P(X ≥ a) ≤ E(X)/a.' },
-    { stem: 'La borne de Tchebychev vaut…', opts: ['V(X)/ε²', 'V(X)/ε', 'E(X)/ε²'], correct: 0, exp: 'P(|X−E(X)| ≥ ε) ≤ V(X)/ε².' },
+    { stem: 'Que majore Markov à partir de E(X) ?', opts: ['P(X ≤ a)', 'P(X = a)', 'P(X ≥ a)'], correct: 2, exp: "Pour X positive, l’inégalité de Markov borne la queue de distribution : P(X ≥ a) ≤ E(X)/a. Elle majore un dépassement de seuil, pas P(X = a), souvent nulle en loi continue." },
+    { stem: 'La borne de Tchebychev vaut…', opts: ['E(X)/ε²', 'V(X)/ε', 'V(X)/ε²'], correct: 2, exp: "P(|X − E(X)| ≥ ε) ≤ V(X)/ε² : la variance au numérateur, le carré de l’écart au dénominateur. Le distracteur V(X)/ε oublie le carré et majore trop faiblement." },
     { stem: 'La moyenne de n variables i.i.d. a pour variance…', opts: ['σ²/n', 'σ²', 'nσ²'], correct: 0, exp: 'En moyennant, la variance se divise par n.' },
-    { stem: 'Que dit la loi des grands nombres ?', opts: ['La moyenne converge vers l’espérance', 'La somme devient nulle', 'La variance augmente'], correct: 0, exp: 'M̄ₙ se rapproche de μ quand n grandit.' },
+    { stem: 'Que dit la loi des grands nombres ?', opts: ['La somme devient nulle', 'La moyenne converge vers l’espérance', 'La variance augmente'], correct: 1, exp: "La moyenne empirique converge vers l’espérance μ quand n grandit. Ni la somme ne s’annule, ni la variance n’augmente : les distracteurs décrivent l’effet inverse." },
     { stem: 'Écart-type d’une somme Sₙ = X₁+…+Xₙ ?', opts: ['σ√n', 'σn', 'σ'], correct: 0, exp: 'Les variances s’additionnent : nσ², donc l’écart-type vaut σ√n.' },
-    { stem: 'Que donne le TCL après standardisation ?', opts: ['Une loi normale N(0,1)', 'Une exponentielle', 'Une Poisson'], correct: 0, exp: 'La somme standardisée tend vers N(0,1).' },
-    { stem: 'Markov et Tchebychev donnent…', opts: ['des majorants', 'des valeurs exactes', 'des minorants'], correct: 0, exp: 'Ce sont des inégalités : des bornes supérieures.' }
+    { stem: 'Que donne le TCL après standardisation ?', opts: ['Une Poisson', 'Une exponentielle', 'Une loi normale N(0,1)'], correct: 2, exp: "Le théorème central limite affirme que la somme standardisée tend vers N(0,1), quelle que soit la loi de départ. Une exponentielle ou une Poisson ne seraient ni centrées ni réduites." },
+    { stem: 'Markov et Tchebychev donnent…', opts: ['des valeurs exactes', 'des majorants', 'des minorants'], correct: 1, exp: 'Ce sont des inégalités : des bornes supérieures.' }
   ],
 
   pitfalls: [

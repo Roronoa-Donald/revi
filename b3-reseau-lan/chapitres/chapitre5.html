@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -234,10 +232,11 @@ FRAME id=F2 src_mac=00:aa:bb:cc:dd:02
 FRAME id=F3 src_mac=00:11:22:33:44:01</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le mécanisme de sécurité Port Security surveille le nombre d’adresses MAC distinctes autorisées sur un port de commutateur.</li>
         <li>Si une adresse inconnue dépasse le quota, seul le mode shutdown du scénario place le port en err-disable.</li>
+        <li>Vérifiez si le nombre d adresses MAC apprises dépasse max_mac : protect ignore sans log, restrict ignore avec compteur, shutdown désactive le port.</li>
       </ol>
     </details>
   </div>
@@ -247,28 +246,29 @@ FRAME id=F3 src_mac=00:11:22:33:44:01</pre></div>
      data-exercise="lan3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="PORT_TRUST name=Gi0/1 trust=UNTRUSTED&#10;PORT_TRUST name=Gi0/24 trust=TRUSTED&#10;DHCP_MSG id=M1 port=Gi0/1 type=DISCOVER client_mac=00:11:22:33:44:01 assigned_ip=0.0.0.0 vlan=10&#10;DHCP_MSG id=M2 port=Gi0/1 type=OFFER client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10&#10;DHCP_MSG id=M3 port=Gi0/24 type=ACK client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (lan3-c5-e2) — Validateur de base de données de liaison DHCP Snooping
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le siège de Fontenay protège son VLAN 15 par DHCP Snooping.&#10;Seuls le port vers le serveur DHCP (Gi1/0/1) et le port vers le routeur (Gi1/0/2) sont de confiance.&#10;La base contient : 00:2b:3c:4d:5e:01 → 10.15.0.21 (Gi0/1) et 00:2b:3c:4d:5e:02 → 10.15.0.22 (Gi0/2).&#10;&#10;1) Les OFFER d'un serveur pirate branché en Gi0/10 sont rejetées : port non approuvé.&#10;2) La base compte 2 entrées.&#10;3) À l'expiration d'un bail, l'entrée est retirée de la base.&#10;4) Les DISCOVER des clients passent sur les ports non approuvés (avec limitation de débit).">
+  <script type="text/plain" data-lab-starter># Exercice — La base de liaisons DHCP Snooping de la résidence Néolis
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 4 : un court libellé. Question 3 : le nombre seul.
+# Question 5 : oui ou non.
 
-[Cas 1 — Tentative d'émission de DHCP ACK frauduleux sur port utilisateur]
-# Données : PORT_TRUST name=Fa0/12 trust=UNTRUSTED
-# Données : DHCP_MSG id=ROGUE_ACK port=Fa0/12 type=ACK client_mac=00:aa:bb:cc:dd:ee assigned_ip=10.0.0.99 vlan=1
+[Question 1 — Type de port acceptant les messages serveur]
 A_COMPLETER
 
-[Cas 2 — Requête REQUEST valide émise sur port untrusted]
-# Données : PORT_TRUST name=Gi0/2 trust=UNTRUSTED
-# Données : DHCP_MSG id=REQ1 port=Gi0/2 type=REQUEST client_mac=00:50:56:11:22:33 assigned_ip=172.16.1.100 vlan=20
+[Question 2 — Sort réservé aux DHCPOFFER du routeur pirate]
 A_COMPLETER
 
-[Cas 3 — Uplink de distribution de confiance acheminant Discover et Offer]
-# Données : PORT_TRUST name=Trunk1 trust=TRUSTED
-# Données : DHCP_MSG id=UPL1 port=Trunk1 type=DISCOVER client_mac=00:00:00:00:00:01 assigned_ip=0.0.0.0 vlan=100
-# Données : DHCP_MSG id=UPL2 port=Trunk1 type=OFFER client_mac=00:00:00:00:00:01 assigned_ip=10.100.0.5 vlan=100
+[Question 3 — Nombre d'entrées de la base]
+A_COMPLETER
+
+[Question 4 — Devenir de l'entrée à l'expiration du bail]
+A_COMPLETER
+
+[Question 5 — Les DHCPDISCOVER sont-ils bloqués ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validateur de base de données de liaison DHCP Snooping</h3>
+    <h3 class="lab__title">Exercice 2 — La base de liaisons DHCP Snooping de la résidence Néolis</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -277,31 +277,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="lan3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Filtrer les messages DHCP selon le statut de confiance des ports et alimenter la base de liaison (Binding DB).</p>
-    <div class="lab__brief"><p>L'attaque par serveur DHCP pirate (Rogue DHCP Server) permet à un attaquant de distribuer de fausses passerelles et de faux serveurs DNS aux postes du réseau. La parade <strong>DHCP Snooping</strong> classe les ports du commutateur en deux catégories :<br>
-- <strong>Ports de confiance (TRUSTED) :</strong> Reliés aux serveurs DHCP légitimes ou aux uplinks de distribution. Tous les messages DHCP y sont autorisés.<br>
-- <strong>Ports non fiables (UNTRUSTED) :</strong> Reliés aux utilisateurs finals. Seules les requêtes clients (<code>DISCOVER</code>, <code>REQUEST</code>) y sont autorisées. Si une réponse serveur (<code>OFFER</code> ou <code>ACK</code>) y est détectée, elle est immédiatement détruite et signalée comme attaque Rogue DHCP.<br><br>
-Analysez les paramètres du problème pour chaque cas. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['OFFER', 'ACK']</code> :<br>
-   <code>status=SECURITY_VIOLATION action=DROP reason=ROGUE_DHCP_SERVER</code>.<br>
-2. Si <code>port.trust == 'UNTRUSTED'</code> et <code>type in ['DISCOVER', 'REQUEST']</code> :<br>
-   <code>status=PERMIT action=FORWARD reason=LEGIT_CLIENT_REQUEST</code>.<br>
-3. Si <code>port.trust == 'TRUSTED'</code> :<br>
-   <code>status=PERMIT action=FORWARD reason=TRUSTED_PORT_TRAFFIC</code>.<br>
-   (Si de plus <code>type == 'ACK'</code> et <code>assigned_ip != '0.0.0.0'</code>, la liaison est insérée dans la base de données Snooping).<br><br>
-Pour chaque message, afficher :<br>
-<code>DHCP_SNOOP_REPORT id={id} port={port} type={type} status={status} action={action} reason={reason}</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exploiter la base de liaisons DHCP Snooping (ports de confiance, entrées, expiration) pour protéger l'attribution des adresses.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Néolis opère une résidence de 240 logements étudiants : chaque chambre dispose d'une prise RJ45 raccordée à un commutateur d'étage. Le VLAN 60 (logements) est protégé par DHCP Snooping : seules la liaison montante vers le serveur DHCP institutionnel (port Gi1/0/24) et la liaison vers le routeur sont déclarées de confiance ; toutes les prises chambres sont non approuvées. La base de liaisons contient :</p><table><tr><th>Adresse MAC</th><th>Adresse IP attribuée</th><th>VLAN</th><th>Port</th><th>Bail</th></tr><tr><th>00:1a:2b:3c:4d:01</th><td>10.60.0.11</td><td>60</td><td>Gi0/3</td><td>12 h</td></tr><tr><th>00:1a:2b:3c:4d:02</th><td>10.60.0.12</td><td>60</td><td>Gi0/4</td><td>12 h</td></tr><tr><th>00:1a:2b:3c:4d:03</th><td>10.60.0.13</td><td>60</td><td>Gi0/5</td><td>12 h</td></tr></table><p>Rappel du cours : DHCP Snooping distingue les messages clients (DISCOVER, REQUEST), acceptés sur les ports non approuvés avec une limitation de débit, des messages serveur (OFFER, ACK, NAK), rejetés sur tout port non approuvé. La base de liaisons enregistre le couple adresse MAC / adresse IP de chaque bail, avec le port et le VLAN ; l'entrée est retirée à l'expiration du bail.</p><p>Répondez par un court libellé, le nombre seul, ou « oui » / « non » (question 5).</p><ol><li>Sur quel type de port les messages émis par un serveur DHCP (OFFER, ACK) sont-ils acceptés ?</li><li>Un étudiant branche un routeur grand public (serveur DHCP pirate) sur sa prise : que fait le commutateur de ses DHCPOFFER ?</li><li>Combien d'entrées la base de liaisons contient-elle ?</li><li>Le bail de la machine 10.60.0.13 expire sans renouvellement : que devient l'entrée correspondante ?</li><li>Les messages DHCPDISCOVER d'un poste, envoyés sur sa prise non approuvée, sont-ils bloqués ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PORT_TRUST name=Gi0/1 trust=UNTRUSTED
-PORT_TRUST name=Gi0/24 trust=TRUSTED
-DHCP_MSG id=M1 port=Gi0/1 type=DISCOVER client_mac=00:11:22:33:44:01 assigned_ip=0.0.0.0 vlan=10
-DHCP_MSG id=M2 port=Gi0/1 type=OFFER client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10
-DHCP_MSG id=M3 port=Gi0/24 type=ACK client_mac=00:11:22:33:44:01 assigned_ip=192.168.10.50 vlan=10</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le siège de Fontenay protège son VLAN 15 par DHCP Snooping.
+Seuls le port vers le serveur DHCP (Gi1/0/1) et le port vers le routeur (Gi1/0/2) sont de confiance.
+La base contient : 00:2b:3c:4d:5e:01 → 10.15.0.21 (Gi0/1) et 00:2b:3c:4d:5e:02 → 10.15.0.22 (Gi0/2).
+
+1) Les OFFER d'un serveur pirate branché en Gi0/10 sont rejetées : port non approuvé.
+2) La base compte 2 entrées.
+3) À l'expiration d'un bail, l'entrée est retirée de la base.
+4) Les DISCOVER des clients passent sur les ports non approuvés (avec limitation de débit).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Mémoriser le statut de chaque port (TRUSTED ou UNTRUSTED).</li>
-        <li>Identifier les réponses serveur OFFER et ACK arrivant sur port UNTRUSTED.</li>
+        <li>Le filtrage ne vise que les messages de type serveur : OFFER, ACK et NAK ne peuvent venir que d'un port de confiance.</li>
+        <li>La base de liaisons suit les baux : une ligne par adresse attribuée, retirée quand le bail meurt.</li>
+        <li>1. Seuls les ports déclarés de confiance acceptent les messages serveur. 2. La prise de l'étudiant est non approuvée. 3. Comptez les lignes du tableau. 4. Le bail de 12 h expire sans renouvellement. 5. Les messages clients passent, avec limitation de débit.</li>
       </ol>
     </details>
   </div>
@@ -357,10 +350,11 @@ ARP_FRAME id=ARP2 vlan=10 sender_mac=00:aa:bb:cc:dd:ee sender_ip=192.168.1.10 ta
 ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 target_ip=192.168.1.1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Normalisez les adresses MAC en minuscules.</li>
         <li>Comparez chaque couple (vlan, sender_ip) à la MAC enregistrée dans les liaisons fournies.</li>
+        <li>Comparez exactement le triplet (MAC, IP, port) de la trame ARP avec la table de liaison DHCP Snooping fournie ; toute discordance reste un indice à corréler.</li>
       </ol>
     </details>
   </div>
@@ -373,10 +367,10 @@ ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 ta
     <div class="q">
       <p class="q__stem">Quel est l’objectif d’une attaque par saturation de table CAM (MAC Flooding) menée contre un commutateur ?</p>
       <div class="opts">
-        <button class="opt">Détruire physiquement les composants électroniques du commutateur</button>
+        <button class="opt">Détruire physiquement les composants électroniques du commutateur en provoquant une surtension générale des circuits internes</button>
+        <button class="opt">Empêcher le commutateur de se synchroniser sur le serveur NTP de l’entreprise afin de fausser l’horodatage des journaux</button>
+        <button class="opt">Forcer la renégociation automatique de tous les ports d’accès en mode 10 Mbps half-duplex</button>
         <button class="opt" data-correct="1">Remplir la table CAM pour tenter de provoquer la diffusion de certaines trames unicast vers des destinations inconnues et éventuellement les intercepter dans le même VLAN</button>
-        <button class="opt">Empêcher le commutateur de se synchroniser sur le serveur NTP</button>
-        <button class="opt">Forcer la négociation du port en mode 10 Mbps half-duplex</button>
       </div>
       <div class="q__exp">La saturation peut empêcher l’apprentissage de nouvelles adresses ; de nouvelles destinations restent alors inconnues, comme celles dont les entrées expirent sans être réapprises. Selon le commutateur et ses protections, leurs trames unicast peuvent être diffusées sur les ports autorisés du même VLAN. Les destinations encore connues restent généralement acheminées vers leur port et un chiffrement adapté protège le contenu d’une simple capture.</div>
     </div>
@@ -393,18 +387,18 @@ ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 ta
     <div class="q">
       <p class="q__stem">Quel est le rôle de l’option « sticky » dans la commande « switchport port-security mac-address sticky » ?</p>
       <div class="opts">
-        <button class="opt">Elle colle physiquement le connecteur RJ45 dans la prise</button>
+        <button class="opt">Elle colle physiquement le connecteur RJ45 dans la prise murale pour empêcher tout arrachage</button>
         <button class="opt" data-correct="1">Elle apprend dynamiquement la première adresse MAC reçue et l’enregistre dans la configuration courante running-config</button>
-        <button class="opt">Elle réinitialise l’adresse MAC toutes les heures</button>
-        <button class="opt">Elle chiffre les trames émises par cette adresse MAC</button>
+        <button class="opt">Elle réinitialise l’adresse MAC apprise toutes les heures afin de forcer un réapprentissage</button>
+        <button class="opt">Elle chiffre automatiquement les trames émises par cette adresse MAC sur le port</button>
       </div>
       <div class="q__exp">L’apprentissage sticky convertit dynamiquement la première adresse MAC active apprise en entrée statique inscrite dans la configuration courante.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une architecture protégée par DHCP Snooping, sur quel type de port les réponses DHCPOFFER d’un serveur DHCP légitime doivent-elles transiter ?</p>
       <div class="opts">
-        <button class="opt">Un port Untrusted</button>
         <button class="opt" data-correct="1">Un port Trusted (de confiance)</button>
+        <button class="opt">Un port Untrusted</button>
         <button class="opt">Un port configuré en mode monitor</button>
         <button class="opt">Un port bloqué par le Spanning Tree</button>
       </div>
@@ -413,20 +407,20 @@ ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 ta
     <div class="q">
       <p class="q__stem">Quelles informations sont consignées dans la base de données dynamique DHCP Snooping Binding Table ?</p>
       <div class="opts">
-        <button class="opt">Les mots de passe administrateurs des commutateurs</button>
+        <button class="opt">Les mots de passe administrateurs de l’ensemble des commutateurs du réseau local</button>
+        <button class="opt">L’historique détaillé des sites web visités par l’utilisateur du poste client</button>
+        <button class="opt">Les tables de routage OSPF complètes de tous les routeurs de l’entreprise</button>
         <button class="opt" data-correct="1">L’adresse MAC du client, son adresse IP attribuée, le bail, le VLAN et le port physique d’attachement</button>
-        <button class="opt">L’historique des sites web visités par l’utilisateur</button>
-        <button class="opt">Les tables de routage OSPF complètes</button>
       </div>
       <div class="q__exp">La table de liaison associe pour chaque poste : adresse MAC, adresse IP reçue par DHCP, durée du bail, VLAN d’appartenance et numéro de port physique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment la technologie Dynamic ARP Inspection (DAI) contribue-t-elle à réduire les risques d’usurpation ARP ?</p>
       <div class="opts">
-        <button class="opt">En convertissant toutes les requêtes ARP en paquets DNS</button>
+        <button class="opt">En convertissant automatiquement toutes les requêtes ARP en paquets DNS récursifs</button>
+        <button class="opt">En forçant le redémarrage immédiat du poste identifié comme attaquant</button>
         <button class="opt" data-correct="1">En validant les messages ARP des ports untrusted selon les liaisons DHCP ou une ACL ARP applicable</button>
-        <button class="opt">En forçant le redémarrage du poste attaquant</button>
-        <button class="opt">En désactivant le protocole IP sur le réseau</button>
+        <button class="opt">En désactivant complètement le protocole IP sur l’ensemble du réseau local</button>
       </div>
       <div class="q__exp">DAI vérifie les messages ARP reçus sur les ports untrusted selon les liaisons DHCP et les ACL ARP configurées. Les messages non autorisés sont rejetés, mais cela ne supprime pas tous les risques.</div>
     </div>
@@ -443,10 +437,10 @@ ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 ta
     <div class="q">
       <p class="q__stem">Que se passe-t-il par défaut sous Cisco IOS lorsqu’un commutateur reçoit un paquet DHCP sur un port untrusted contenant l’option 82 alors qu’il n’est pas configuré comme relais de confiance ?</p>
       <div class="opts">
-        <button class="opt">Le paquet est relayé sans modification</button>
         <button class="opt" data-correct="1">Le paquet est détruit (droppé) par mesure de sécurité</button>
-        <button class="opt">Le serveur DHCP est éteint</button>
-        <button class="opt">Le commutateur reboote</button>
+        <button class="opt">Le paquet est relayé sans modification vers le serveur DHCP</button>
+        <button class="opt">Le serveur DHCP est éteint à distance par le commutateur</button>
+        <button class="opt">Le commutateur reboote pour réinitialiser sa table</button>
       </div>
       <div class="q__exp">Par défaut, un commutateur avec DHCP Snooping actif rejette les paquets DHCP contenant l’option 82 (relay agent information) arrivant sur un port untrusted.</div>
     </div>
@@ -572,7 +566,7 @@ ARP_FRAME id=ARP3 vlan=10 sender_mac=00:11:22:33:44:99 sender_ip=192.168.1.99 ta
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

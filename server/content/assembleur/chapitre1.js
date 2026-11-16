@@ -124,6 +124,24 @@ module.exports = {
         'SAR AL, 1    ; Divise par 2 pour ENTIERS SIGNÉS. Le bit de signe (bit 7) est répliqué !\n' +
         '            ; Exemple : 1000 0000b (-128) &rarr; 1100 0000b (-64). Le signe est conservé !</code></pre>'
       ].join('\n')
+    },
+    {
+      title: 'Trace d’exécution x86-16 &amp; Simulateur de registres et drapeaux',
+      html: [
+        '<p>Observons pas à pas l’effet des instructions logiques et de décalage sur le registre 16 bits <code>AX</code> ' +
+        '(composé de <code>AH</code> et <code>AL</code>) et sur les drapeaux <code>ZF</code>, <code>SF</code>, <code>CF</code>, <code>OF</code> :</p>',
+        '<table class="table">',
+        '  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>AX (Hex)</th><th>AH / AL</th><th>ZF</th><th>SF</th><th>CF</th><th>OF</th><th>Explication matérielle</th></tr></thead>',
+        '  <tbody>',
+        '    <tr><td>1</td><td><code>MOV AL, 0xD6</code></td><td><code>0x00D6</code></td><td><code>0x00 / 0xD6</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Charge <code>11010110b</code> dans l’octet bas <code>AL</code> (MOV ne modifie pas les drapeaux).</td></tr>',
+        '    <tr><td>2</td><td><code>AND AL, 0x0F</code></td><td><code>0x0006</code></td><td><code>0x00 / 0x06</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Masque le quartet bas : conserve <code>0x06</code>, force <code>CF=0</code> et <code>OF=0</code>.</td></tr>',
+        '    <tr><td>3</td><td><code>SHL AL, 1</code></td><td><code>0x000C</code></td><td><code>0x00 / 0x0C</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>Décalage gauche d’un bit : multiplie par 2 ($6 \\times 2 = 12 = 0\\text{x0C}$).</td></tr>',
+        '    <tr><td>4</td><td><code>XOR AX, AX</code></td><td><code>0x0000</code></td><td><code>0x00 / 0x00</code></td><td>1</td><td>0</td><td>0</td><td>0</td><td>Remise à zéro canonique : résultat nul $\\implies$ <code>ZF=1</code>.</td></tr>',
+        '  </tbody>',
+        '</table>',
+        '<div class="asm-sim" data-asm-simulator data-asm-code="MOV AL, 0xD6\\nAND AL, 0x0F\\nSHL AL, 1\\nOR AL, 0x80\\nXOR AX, AX\\nHLT"></div>',
+        '<script src="/assets/js/engines/asm-simulator.js" defer></script>'
+      ].join('\n')
     }
   ],
 
@@ -131,23 +149,23 @@ module.exports = {
     {
       stem: 'Quel est l’équivalent hexadécimal de l’octet binaire 11010110b ?',
       opts: [
-        '0xD6',
-        '0xC6',
         '0xD3',
+        '0xC6',
+        '0xD6',
         '0xE6'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'En regroupant par 4 bits : 1101 = 13 = D, et 0110 = 6. L’octet vaut donc 0xD6.'
     },
     {
       stem: 'Quelle est la plage de valeurs d’un entier signé codé en complément à 2 sur 8 bits ?',
       opts: [
-        '-128 à +127',
+        '-256 à +255',
         '0 à 255',
         '-127 à +128',
-        '-256 à +255'
+        '-128 à +127'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Sur 8 bits signés : de -2^7 (-128) à +2^7 - 1 (+127).'
     },
     {
@@ -164,34 +182,34 @@ module.exports = {
     {
       stem: 'Quelle opération logique permet de forcer un bit particulier à 1 sans modifier les autres bits du registre ?',
       opts: [
-        'OR avec un masque ayant 1 sur le bit ciblé',
         'AND avec un masque ayant 1 sur le bit ciblé',
+        'OR avec un masque ayant 1 sur le bit ciblé',
         'XOR avec un masque de 0',
         'NOT appliqué au registre'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Dans la table de vérité de l’opérateur OR : 0 OR 1 = 1, et 1 OR 1 = 1. Le bit est forcé à 1.'
     },
     {
       stem: 'Quel avantage XOR EAX, EAX peut-il avoir sur MOV EAX, 0 ?',
       opts: [
-        'Elle est plus compacte (2 octets contre 5) et peut supprimer une dépendance sur certains processeurs',
-        'Elle active automatiquement l’unité arithmétique flottante FPU',
-        'Elle permet d’écrire dans la mémoire cache L1',
-        'Elle désactive les interruptions matérielles'
+        "Elle active automatiquement l’unité arithmétique flottante FPU du processeur",
+        "Elle permet d’écrire directement dans la mémoire cache L1 du processeur",
+        "Elle est plus compacte (2 octets contre 5) et peut supprimer une dépendance sur certains processeurs",
+        "Elle désactive temporairement les interruptions matérielles du processeur"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'XOR EAX, EAX occupe 2 octets, contre 5 pour MOV EAX, 0 dans cet encodage. Le résultat dépend du registre et du processeur ; XOR modifie les drapeaux, contrairement à MOV.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre SHR (Shift Right) et SAR (Shift Arithmetic Right) ?',
       opts: [
-        'SAR réplique le bit de signe (bit 7) à gauche pour préserver la valeur signée, tandis que SHR insère des 0',
-        'SHR fonctionne uniquement sur 16 bits',
-        'SAR inverse l’ordre des octets en mémoire',
-        'Il n’y a aucune différence, ce sont deux synonymes'
+        "SHR fonctionne uniquement sur les registres 16 bits, jamais sur les autres largeurs",
+        "SAR inverse purement et simplement l’ordre des octets stockés en mémoire vive",
+        "Il n’y a aucune différence réelle, ce sont deux mnémoniques strictement synonymes",
+        "SAR réplique le bit de signe (bit 7) à gauche pour préserver la valeur signée, tandis que SHR insère des 0"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'SAR (Shift Arithmetic Right) préserve le signe des entiers négatifs en dupliquant le bit de poids fort.'
     },
     {
@@ -208,12 +226,12 @@ module.exports = {
     {
       stem: 'Combien d’octets contient un mot double (Double Word / DWORD) en architecture Intel x86 ?',
       opts: [
-        '4 octets (32 bits)',
         '2 octets (16 bits)',
+        '4 octets (32 bits)',
         '8 octets (64 bits)',
         '1 octet (8 bits)'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Historiquement chez Intel, un WORD fait 16 bits (2 octets). Un DWORD fait donc 32 bits (4 octets) et un QWORD fait 64 bits (8 octets).'
     }
   ],

@@ -176,32 +176,32 @@ module.exports = {
   questions: [
     {
       stem: 'Quel est le SLA de disponibilité mensuel garanti par Google pour des instances Compute Engine réparties sur plusieurs zones de disponibilité (MIG Régional) ?',
-      opts: ['99.0%', '99.5%', '99.99%', '99.999%'],
-      correct: 2,
+      opts: ['99.0%', '99.99%', '99.5%', '99.999%'],
+      correct: 1,
       exp: 'Google garantit un SLA de 99.99% pour les déploiements multi-zones d\'instances Compute Engine (contre 99.5% pour une VM isolée dans une seule zone).'
     },
     {
       stem: 'Dans un groupe d\'instances géré (MIG), quel mécanisme recrée automatiquement une VM dont l\'application ne répond plus aux requêtes de la sonde de santé ?',
-      opts: ['L\'Auto-scaling', 'L\'Auto-healing (Auto-guérison)', 'Le Rolling Update', 'Le Load Balancing'],
-      correct: 1,
+      opts: ['L\'Auto-healing (Auto-guérison)', 'L\'Auto-scaling', 'Le Rolling Update', 'Le Load Balancing'],
+      correct: 0,
       exp: 'L\'Auto-healing supervise la santé applicative de chaque VM via un Health Check et déclenche automatiquement la recréation de l\'instance si la sonde échoue.'
     },
     {
       stem: 'Quelle est la principale différence de facturation entre GKE Standard et GKE Autopilot ?',
-      opts: ['GKE Autopilot facture au nombre de requêtes HTTP', 'GKE Autopilot facture uniquement les ressources de vCPU/RAM allouées aux Pods et non les VMs sous-jacentes', 'GKE Standard est gratuit', 'GKE Autopilot ne supporte pas Linux'],
-      correct: 1,
+      opts: ["GKE Autopilot facture chaque requête HTTP traitée par les services exposés du cluster","GKE Standard est entièrement gratuit sans frais de gestion ni de nœuds sous-jacents","GKE Autopilot ne supporte pas les charges de travail conteneurisées sous Linux","GKE Autopilot facture uniquement les ressources de vCPU/RAM allouées aux Pods et non les VMs sous-jacentes"],
+      correct: 3,
       exp: 'En mode Autopilot, l\'utilisateur ne paie pas pour la capacité inutilisée des nœuds workers, mais uniquement pour les ressources CPU et mémoire déclarées par ses Pods.'
     },
     {
       stem: 'Quel service Google Cloud permet d\'exécuter n\'importe quel conteneur Docker répondant sur un port HTTP avec passage à l\'échelle à zéro (Scale-to-Zero) sans gérer d\'infrastructure ?',
-      opts: ['Google Compute Engine', 'Cloud Run', 'Cloud SQL', 'Cloud Storage'],
-      correct: 1,
+      opts: ['Google Compute Engine', 'Cloud SQL', 'Cloud Run', 'Cloud Storage'],
+      correct: 2,
       exp: 'Cloud Run est la plateforme Serverless conteneurisée de référence de Google, capable de démarrer en quelques millisecondes et de passer à zéro instance en l\'absence de requêtes.'
     },
     {
       stem: 'Quel pourcentage maximal d\'économie les instances Spot de Compute Engine peuvent-elles offrir par rapport au tarif à la demande standard ?',
-      opts: ['10%', '30%', 'jusqu\'à 60% à 91%', '5%'],
-      correct: 2,
+      opts: ['10%', 'jusqu\'à 60% à 91%', '30%', '5%'],
+      correct: 1,
       exp: 'Les instances Spot (qui remplacent les anciennes VMs préemptibles) permettent d\'obtenir jusqu\'à 60% à 91% d\'économie sur les tarifs de calcul Compute Engine.'
     }
   ],

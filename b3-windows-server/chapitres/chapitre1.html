@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -178,30 +176,31 @@
      data-exercise="ws3-c1-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="SCOPE net=192.168.1. start=10 end=20&#10;EXCLUDE start=12 end=14&#10;RESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15&#10;RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e1) — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La filiale de Nantes ouvre son réseau sur 172.24.5.0/24. Étendue : 172.24.5.100 à 172.24.5.200.&#10;Exclusion : 172.24.5.100 à 172.24.5.119 (visioconférence et afficheurs). Réservation : 172.24.5.150 (régisseur des salles). Bail : 4 jours.&#10;&#10;1) Étendue : 200 − 100 + 1 = 101 adresses.&#10;2) Exclusion : 119 − 100 + 1 = 20 adresses.&#10;3) Réservations : 1 adresse.&#10;4) Pool dynamique : 101 − 20 − 1 = 80 adresses.&#10;5) Première adresse attribuable : 172.24.5.120 (l'exclusion s'arrête à .119, la réservation porte sur .150).&#10;6) Bail : 4 jours.">
+  <script type="text/plain" data-lab-starter># Exercice — L'étendue DHCP du nouveau siège de Verdier SA
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 et 6 : le nombre seul. Question 5 : l'adresse IP complète.
 
-[Cas 1 — Conflit de réservation sur même adresse IP]
-# Données : SCOPE net=10.0.0. start=100 end=110
-# Données : RESERVATION mac=AA:BB:CC:01 ip=10.0.0.105
-# Données : RESERVATION mac=AA:BB:CC:02 ip=10.0.0.105
+[Question 1 — Taille de l'étendue avant exclusion]
 A_COMPLETER
 
-[Cas 2 — Réservation hors de la plage du scope]
-# Données : SCOPE net=172.16.0. start=50 end=60
-# Données : EXCLUDE start=55 end=60
-# Données : RESERVATION mac=11:22:33:44 ip=172.16.0.99
+[Question 2 — Adresses retirées par l'exclusion]
 A_COMPLETER
 
-[Cas 3 — Toutes les adresses exclues ou réservées]
-# Données : SCOPE net=192.168.10. start=1 end=3
-# Données : EXCLUDE start=1 end=2
-# Données : RESERVATION mac=AA:11 ip=192.168.10.3
+[Question 3 — Adresses retirées par les réservations]
+A_COMPLETER
+
+[Question 4 — Adresses attribuables dynamiquement]
+A_COMPLETER
+
+[Question 5 — Première adresse attribuable]
+A_COMPLETER
+
+[Question 6 — Durée du bail en jours]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Validateur d’étendue DHCP, exclusions et conflits de réservation MAC</h3>
+    <h3 class="lab__title">Exercice 1 — L'étendue DHCP du nouveau siège de Verdier SA</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -210,40 +209,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c1-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la liste des adresses IP distribuables d’une étendue DHCP après déduction des exclusions et détecter les conflits de réservation.</p>
-    <div class="lab__brief">Dans l’administration d’un serveur DHCP Windows Server, une étendue (Scope) distribue dynamiquement des adresses IP IPv4 :
-- `SCOPE net=&lt;PREFIX&gt; start=&lt;N_START&gt; end=&lt;N_END&gt;` : définit la plage complète d’adresses `PREFIX.N` (ex: net=192.168.1. start=10 end=30).
-- `EXCLUDE start=&lt;N1&gt; end=&lt;N2&gt;` : plage d’hôtes exclus de la distribution dynamique (inclusifs).
-- `RESERVATION mac=&lt;MAC&gt; ip=&lt;PREFIX.N&gt;` : association statique MAC / IP.
-
-Règles de validation :
-- Une réservation est en conflit (`CONFLIT`) si l’IP est hors de la plage `[start, end]`, ou si deux réservations ont la même IP avec des MAC différentes, ou si la même MAC a plusieurs IP différentes. Sinon elle est `VALIDE`.
-- Une adresse IP est distribuable dynamiquement si son numéro d’hôte est dans `[start, end]`, n’est couvert par aucune plage d’exclusion `EXCLUDE`, et n’est assigné à aucune réservation valide.
-
-Entrée :
-`SCOPE net=&lt;PREFIX&gt; start=&lt;N1&gt; end=&lt;N2&gt;`
-`EXCLUDE start=&lt;N1&gt; end=&lt;N2&gt;` (0 ou plusieurs)
-`RESERVATION mac=&lt;MAC&gt; ip=&lt;IP&gt;` (0 ou plusieurs)
-
-Résultat d’analyse attendu :
-- Ligne de statut des réservations :
-  `RESERVATIONS valides=&lt;V&gt; conflits=&lt;C&gt;`
-- Ligne du pool d’adresses dynamiques :
-  `POOL_DYNAMIC total_disponibles=&lt;D&gt; first_ip=&lt;IP_MIN&gt; last_ip=&lt;IP_MAX&gt;` (si total &gt; 0, sinon `POOL_DYNAMIC total_disponibles=0 first_ip=NONE last_ip=NONE`)
-- Bilan :
-  `SUMMARY statut=&lt;OK|AVERTISSEMENT&gt; pool_pct=&lt;PCT&gt;%` (où pool_pct = round((total_disponibles / total_scope) * 100, 1) ; statut=OK si conflits=0, sinon AVERTISSEMENT)</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dimensionner une étendue DHCP : plage d'attribution, exclusions, réservations et bail.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Verdier SA, distributeur de pièces détachées installé à Lyon, ouvre un nouveau siège de 120 salariés. La responsable informatique, Amina, déploie un serveur DHCP Windows Server sur le réseau des postes de travail <strong>10.10.70.0/24</strong> (domaine verdier.local). Elle configure l'étendue suivante :</p><ul><li>plage d'attribution : de <strong>10.10.70.60</strong> à <strong>10.10.70.180</strong>, bornes incluses ;</li><li>exclusion : <strong>10.10.70.60</strong> à <strong>10.10.70.79</strong>, vingt adresses réservées aux imprimantes réseau et au pare-feu ;</li><li>réservations DHCP : la borne Wi-Fi du rez-de-chaussée à <strong>10.10.70.90</strong> et le multifonction du deuxième étage à <strong>10.10.70.91</strong> ;</li><li>bail : <strong>8 jours</strong>.</li></ul><p>Rappel : les adresses couvertes par l'exclusion et les réservations ne sont jamais attribuées dynamiquement. Répondez par le nombre seul, sans unité, sauf pour la question 5 qui appelle une adresse IP.</p><ol><li>Combien d'adresses l'étendue couvre-t-elle avant toute exclusion ?</li><li>Combien d'adresses l'exclusion retire-t-elle du pool dynamique ?</li><li>Combien d'adresses les réservations retirent-elles en plus du pool dynamique ?</li><li>Combien d'adresses le serveur peut-il attribuer dynamiquement aux postes ?</li><li>Quelle est la première adresse qu'un poste peut réellement obtenir ?</li><li>Combien de jours au maximum un poste conserve-t-il son adresse sans renouveler son bail ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCOPE net=192.168.1. start=10 end=20
-EXCLUDE start=12 end=14
-RESERVATION mac=00:11:22:33:44:01 ip=192.168.1.15
-RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La filiale de Nantes ouvre son réseau sur 172.24.5.0/24. Étendue : 172.24.5.100 à 172.24.5.200.
+Exclusion : 172.24.5.100 à 172.24.5.119 (visioconférence et afficheurs). Réservation : 172.24.5.150 (régisseur des salles). Bail : 4 jours.
+
+1) Étendue : 200 − 100 + 1 = 101 adresses.
+2) Exclusion : 119 − 100 + 1 = 20 adresses.
+3) Réservations : 1 adresse.
+4) Pool dynamique : 101 − 20 − 1 = 80 adresses.
+5) Première adresse attribuable : 172.24.5.120 (l'exclusion s'arrête à .119, la réservation porte sur .150).
+6) Bail : 4 jours.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Stocker les entiers d’hôtes exclus dans un ensemble (set).</li>
-        <li>Vérifier les doublons de MAC et d’IP pour les réservations avec des dictionnaires.</li>
-        <li>Calculer les adresses disponibles en soustrayant exclusions et réservations valides.</li>
+        <li>La plage d'attribution est inclusive aux deux bornes : le nombre d'adresses vaut (dernière − première) + 1.</li>
+        <li>Retirez de l'étendue les adresses de l'exclusion, puis celles des réservations : ce qui reste forme le pool dynamique.</li>
+        <li>Pour la question 5, parcourez la plage à partir de 10.10.70.60 : la première adresse hors exclusion et hors réservation est 10.10.70.80 ; le bail se lit dans la configuration de l'étendue.</li>
       </ol>
     </details>
   </div>
@@ -253,32 +237,31 @@ RESERVATION mac=00:11:22:33:44:02 ip=192.168.1.18</pre></div>
      data-exercise="ws3-c1-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10&#10;RECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan&#10;RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e2) — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La zone de fil-nord.fr contient :&#10;web01.fil-nord.fr A 172.24.5.10 ; boutique.fil-nord.fr CNAME web01.fil-nord.fr ;&#10;mail01.fil-nord.fr A 172.24.5.15 ; fil-nord.fr MX (préférence 20) mail01.fil-nord.fr ;&#10;vpn.fil-nord.fr CNAME routeur-retire.fil-nord.fr (l'enregistrement A de la cible a été supprimé).&#10;&#10;1) boutique.fil-nord.fr se résout en 172.24.5.10 (CNAME vers web01).&#10;2) Type : CNAME.&#10;3) Serveur de messagerie : mail01.fil-nord.fr.&#10;4) Préférence MX : 20.&#10;5) vpn.fil-nord.fr ne se résout pas (cible sans enregistrement A).&#10;6) Action : supprimer l'enregistrement vpn.">
+  <script type="text/plain" data-lab-starter># Exercice — La zone DNS du domaine verdier.local
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 1 : l'adresse IP. Questions 2 à 6 : réponses courtes.
 
-[Cas 1 — Enregistrement PTR manquant et cible SRV inconnue]
-# Données : RECORD_A fqdn=srv01.corp.lan ip=10.0.0.5
-# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc02.corp.lan
+[Question 1 — Adresse IP de www.verdier.local]
 A_COMPLETER
 
-[Cas 2 — Désynchronisation entre A et PTR sur l’IP]
-# Données : RECORD_A fqdn=mail.corp.lan ip=192.168.1.25
-# Données : RECORD_PTR ip=192.168.1.25 fqdn=ancien-mail.corp.lan
-# Données : RECORD_A fqdn=dc.corp.lan ip=192.168.1.1
-# Données : RECORD_PTR ip=192.168.1.1 fqdn=dc.corp.lan
+[Question 2 — Type d'enregistrement www vers srv-web]
 A_COMPLETER
 
-[Cas 3 — Multiples SRV sur le même DC valide]
-# Données : RECORD_A fqdn=dc.dom.local ip=172.16.1.1
-# Données : RECORD_PTR ip=172.16.1.1 fqdn=dc.dom.local
-# Données : RECORD_SRV service=_ldap proto=_tcp port=389 target=dc.dom.local
-# Données : RECORD_SRV service=_kerberos proto=_tcp port=88 target=dc.dom.local
-# Données : RECORD_SRV service=_kpasswd proto=_tcp port=464 target=dc.dom.local
+[Question 3 — Serveur de messagerie du domaine]
+A_COMPLETER
+
+[Question 4 — Préférence de l'enregistrement MX]
+A_COMPLETER
+
+[Question 5 — ftp.verdier.local se résout-il ?]
+A_COMPLETER
+
+[Question 6 — Action d'assainissement]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validateur de cohérence de zone DNS d’infrastructure (A, PTR, SRV)</h3>
+    <h3 class="lab__title">Exercice 2 — La zone DNS du domaine verdier.local</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -287,32 +270,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c1-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la réciprocité des enregistrements A et PTR et la présence des enregistrements de service SRV indispensables à Active Directory.</p>
-    <div class="lab__brief">Dans une infrastructure Windows Server avec Active Directory, le DNS assure la résolution de noms et la découverte des contrôleurs de domaine (DC) :
-- `RECORD_A fqdn=&lt;NOM&gt; ip=&lt;IP&gt;` : résolution directe.
-- `RECORD_PTR ip=&lt;IP&gt; fqdn=&lt;NOM&gt;` : résolution inverse (Reverse Lookup).
-- `RECORD_SRV service=&lt;SVC&gt; proto=&lt;PROTO&gt; port=&lt;PORT&gt; target=&lt;DC_FQDN&gt;` : localisation de services AD (ex: _ldap, _kerberos).
-
-Règles d’audit de zone :
-1. Réciprocité A / PTR : chaque `RECORD_A` doit avoir son `RECORD_PTR` exact (même IP et même FQDN). Si le PTR manque ou pointe vers un autre nom, émettre `ANOMALIE_PTR fqdn=&lt;NOM&gt; ip=&lt;IP&gt;`.
-2. Résolution de cible SRV : la cible `target` d’un `RECORD_SRV` doit impérativement posséder un enregistrement direct `RECORD_A`. Si absent, émettre `ANOMALIE_SRV target=&lt;DC_FQDN&gt; service=&lt;SVC&gt;`.
-
-Résultat d’analyse attendu :
-- Anomalies triées par FQDN / target alphabétique croissant :
-  `ANOMALIE_PTR fqdn=&lt;NOM&gt; ip=&lt;IP&gt;` ou `ANOMALIE_SRV target=&lt;DC_FQDN&gt; service=&lt;SVC&gt;`
-- Bilan :
-  `SUMMARY total_records=&lt;N&gt; anomalies=&lt;C&gt; statut=&lt;CONFORME|NON_CONFORME&gt;`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une zone DNS : enregistrements A, CNAME et MX, et repérer un alias orphelin.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le domaine <strong>verdier.local</strong> est hébergé sur le DNS intégré à Active Directory. Amina exporte la zone et obtient les enregistrements suivants :</p><table><tr><th>Nom</th><th>Type</th><th>Cible / donnée</th></tr><tr><th>srv-web.verdier.local</th><td>A</td><td>10.10.70.20</td></tr><tr><th>www.verdier.local</th><td>CNAME</td><td>srv-web.verdier.local</td></tr><tr><th>intranet.verdier.local</th><td>CNAME</td><td>srv-web.verdier.local</td></tr><tr><th>mx.verdier.local</th><td>A</td><td>10.10.70.25</td></tr><tr><th>verdier.local</th><td>MX (préférence 10)</td><td>mx.verdier.local</td></tr><tr><th>ftp.verdier.local</th><td>CNAME</td><td>ancien-srv.verdier.local</td></tr></table><p>L'enregistrement A de ancien-srv.verdier.local a été supprimé le mois dernier : le serveur de fichiers historique a été retiré du service. Répondez de façon courte ; la question 1 appelle une adresse IP.</p><ol><li>À quelle adresse IP www.verdier.local se résout-il ?</li><li>Quel type d'enregistrement associe www.verdier.local à srv-web.verdier.local ?</li><li>Quel est le serveur de messagerie du domaine verdier.local ?</li><li>Quelle est la valeur de préférence de l'enregistrement MX ?</li><li>La résolution du nom ftp.verdier.local aboutit-elle ?</li><li>Que doit faire Amina pour assainir la zone ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RECORD_A fqdn=dc01.corp.lan ip=192.168.1.10
-RECORD_PTR ip=192.168.1.10 fqdn=dc01.corp.lan
-RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La zone de fil-nord.fr contient :
+web01.fil-nord.fr A 172.24.5.10 ; boutique.fil-nord.fr CNAME web01.fil-nord.fr ;
+mail01.fil-nord.fr A 172.24.5.15 ; fil-nord.fr MX (préférence 20) mail01.fil-nord.fr ;
+vpn.fil-nord.fr CNAME routeur-retire.fil-nord.fr (l'enregistrement A de la cible a été supprimé).
+
+1) boutique.fil-nord.fr se résout en 172.24.5.10 (CNAME vers web01).
+2) Type : CNAME.
+3) Serveur de messagerie : mail01.fil-nord.fr.
+4) Préférence MX : 20.
+5) vpn.fil-nord.fr ne se résout pas (cible sans enregistrement A).
+6) Action : supprimer l'enregistrement vpn.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Indexer les enregistrements A sous forme {fqdn: ip} et l’inverse {ip: fqdn}.</li>
-        <li>Comparer les enregistrements PTR à l’index des A.</li>
-        <li>Vérifier que chaque target de SRV existe dans les clés de l’index A.</li>
+        <li>Un CNAME est un alias : la résolution suit la chaîne CNAME puis l'enregistrement A de la cible.</li>
+        <li>L'enregistrement MX désigne le serveur qui reçoit le courrier du domaine, avec une valeur de préférence (plus elle est faible, plus le serveur est prioritaire).</li>
+        <li>Pour la question 5, cherchez l'enregistrement A de ancien-srv.verdier.local : un CNAME dont la cible n'existe plus ne se résout pas ; il faut alors nettoyer la zone.</li>
       </ol>
     </details>
   </div>
@@ -322,24 +300,31 @@ RECORD_SRV service=_ldap proto=_tcp port=389 target=dc01.corp.lan</pre></div>
      data-exercise="ws3-c1-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (ws3-c1-e3) — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le serveur EDGE-02 comporte 1 socket de 6 cœurs et hébergera 4 VM.&#10;&#10;1) Par socket : max(8, 6) = 8 cœurs ; au total 8 &lt; 16, donc 16 cœurs à licencier.&#10;2) Packs : 16 / 2 = 8 packs.&#10;3) Datacenter : 8 × 750 = 6000 €.&#10;4) Standard pour 4 VM : 2 passages, soit 8 × 2 × 120 = 1920 €.&#10;5) Pour 4 VM : Standard (1920 &lt; 6000).&#10;6) Pour 16 VM : 8 passages, 8 × 8 × 120 = 7680 € &gt; 6000 €, donc Datacenter.">
+  <script type="text/plain" data-lab-starter># Exercice — Le dimensionnement des licences de l'hôte HYP-01
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : le nombre seul. Questions 5 et 6 : Standard ou Datacenter.
 
-[Cas 1 — Forte densité de virtualisation justifiant l’édition Datacenter]
-# Données : SERVER nom=CLUSTER-NODE-A sockets=2 cores_per_socket=16 vms=18
+[Question 1 — Cœurs à licencier]
 A_COMPLETER
 
-[Cas 2 — Mono-socket avec minimums 8 et 16 cœurs appliqués]
-# Données : SERVER nom=EDGE-SERVER sockets=1 cores_per_socket=4 vms=2
+[Question 2 — Packs de 2 cœurs]
 A_COMPLETER
 
-[Cas 3 — Aucune machine virtuelle (serveur physique bare-metal)]
-# Données : SERVER nom=BARE-METAL sockets=2 cores_per_socket=10 vms=0
+[Question 3 — Coût Datacenter (en €)]
+A_COMPLETER
+
+[Question 4 — Coût Standard pour 8 VM (en €)]
+A_COMPLETER
+
+[Question 5 — Édition recommandée pour 8 VM]
+A_COMPLETER
+
+[Question 6 — Édition recommandée pour 16 VM]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de dimensionnement de licences Windows Server (Cœurs physiques vs VMs)</h3>
+    <h3 class="lab__title">Exercice 3 — Le dimensionnement des licences de l'hôte HYP-01</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -348,36 +333,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="ws3-c1-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre de packs de licences cœurs requis et déterminer l’édition financièrement optimale (Standard vs Datacenter).</p>
-    <div class="lab__brief">Les règles officielles de licences par cœur Microsoft Windows Server imposent :
-- Règle 1 : minimum 8 cœurs physiques par socket CPU (si &lt; 8, compter 8).
-- Règle 2 : minimum 16 cœurs physiques par serveur physique au total.
-- Licences vendues par packs de 2 cœurs : `packs_base = ceil(total_coeurs / 2)`.
-
-Règles de virtualisation Windows Server :
-- `Édition Standard` (120 € / pack 2 cœurs) : chaque licence complète de l’hôte accorde 2 VMs. Pour $V$ machines virtuelles, multiplier les packs de base par `max(1, ceil(V / 2))`.
-- `Édition Datacenter` (750 € / pack 2 cœurs) : une seule licence complète de l’hôte accorde un nombre illimité de VMs (`packs_base` invariants).
-
-Entrée :
-`SERVER nom=&lt;NOM&gt; sockets=&lt;S&gt; cores_per_socket=&lt;C&gt; vms=&lt;V&gt;`
-
-Résultat d’analyse attendu :
-- Profil hôte :
-  `SERVER_PROFILE nom=&lt;NOM&gt; base_cores=&lt;COEURS&gt; packs_base=&lt;PACKS&gt;`
-- Coûts par édition :
-  `EDITION_STANDARD packs=&lt;PACKS_STD&gt; cout=&lt;COUT_STD&gt;EUR`
-  `EDITION_DATACENTER packs=&lt;PACKS_DC&gt; cout=&lt;COUT_DC&gt;EUR`
-- Recommandation finale (Standard si cout_std &lt;= cout_dc, sinon Datacenter) :
-  `RECOMMENDATION nom=&lt;NOM&gt; edition_recommandee=&lt;STANDARD|DATACENTER&gt; economie=&lt;DIFF&gt;EUR`</div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer le modèle de licences par cœur de Windows Server et arbitrer entre éditions Standard et Datacenter.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Verdier SA consolide ses serveurs sur un hôte Hyper-V, <strong>HYP-01</strong>, équipé de <strong>2 sockets de 10 cœurs</strong> chacun. Amina doit choisir l'édition de Windows Server pour l'hôte, selon les règles du cours :</p><ul><li>minimum <strong>8 cœurs par socket</strong> et <strong>16 cœurs par serveur</strong> à licencier ;</li><li>licences vendues par <strong>packs de 2 cœurs</strong> : <strong>Standard</strong> à 120 € le pack, chaque passage complet de licence de l'hôte couvre <strong>2 VM</strong> ;</li><li><strong>Datacenter</strong> à 750 € le pack : un seul passage complet de l'hôte couvre un nombre <strong>illimité</strong> de VM.</li></ul><p>Rappel : pour V machines virtuelles en édition Standard, le nombre de passages vaut ceil(V / 2). Répondez par le nombre seul en euros (par exemple 4800), sauf les questions 5 et 6 qui appellent une édition.</p><ol><li>Combien de cœurs physiques doivent être licenciés sur HYP-01 ?</li><li>Combien de packs de 2 cœurs faut-il pour couvrir l'hôte ?</li><li>Quel est le coût de la licence Datacenter de l'hôte ?</li><li>Quel est le coût de la licence Standard si l'hôte doit héberger 8 VM ?</li><li>Quelle édition retenir pour 8 VM ?</li><li>Quelle édition retenir pour 16 VM ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SERVER nom=HOTE-PROD-01 sockets=2 cores_per_socket=8 vms=4</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le serveur EDGE-02 comporte 1 socket de 6 cœurs et hébergera 4 VM.
+
+1) Par socket : max(8, 6) = 8 cœurs ; au total 8 &lt; 16, donc 16 cœurs à licencier.
+2) Packs : 16 / 2 = 8 packs.
+3) Datacenter : 8 × 750 = 6000 €.
+4) Standard pour 4 VM : 2 passages, soit 8 × 2 × 120 = 1920 €.
+5) Pour 4 VM : Standard (1920 &lt; 6000).
+6) Pour 16 VM : 8 passages, 8 × 8 × 120 = 7680 € &gt; 6000 €, donc Datacenter.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Appliquer max(8, cores) par socket, puis max(16, total).</li>
-        <li>Calculer les packs Standard en multipliant packs_base par math.ceil(vms / 2) si vms &gt; 0.</li>
-        <li>Comparer les coûts totaux (120€ vs 750€ par pack).</li>
+        <li>Vérifiez d'abord les deux minimums : 10 cœurs par socket dépasse 8, et 20 cœurs au total dépasse 16 ; les cœurs réels suffisent donc.</li>
+        <li>Un passage de licence Standard couvre 2 VM : pour 8 VM, il faut ceil(8/2) = 4 passages ; pour 16 VM, 8 passages.</li>
+        <li>Comparez toujours le coût Standard total (packs de base × passages × 120 €) au coût Datacenter (packs de base × 750 €, unique).</li>
       </ol>
     </details>
   </div>
@@ -391,8 +364,8 @@ Résultat d’analyse attendu :
       <p class="q__stem">Dans quelle couche d’exécution le micro-noyau NT et les pilotes matériels opèrent-ils ?</p>
       <div class="opts">
         <button class="opt">En mode utilisateur Ring 3</button>
-        <button class="opt" data-correct="1">En mode noyau Ring 0</button>
         <button class="opt">Dans le sous-système Win32</button>
+        <button class="opt" data-correct="1">En mode noyau Ring 0</button>
         <button class="opt">Directement dans le navigateur Edge</button>
       </div>
       <div class="q__exp">Le noyau NT, la HAL et les pilotes .sys s’exécutent en mode noyau (Ring 0) avec accès matériel direct et mémoire protégée.</div>
@@ -400,19 +373,19 @@ Résultat d’analyse attendu :
     <div class="q">
       <p class="q__stem">Quel est l’avantage premier du déploiement en Server Core pour un contrôleur de domaine ?</p>
       <div class="opts">
-        <button class="opt">Permettre d’exécuter des jeux vidéo en 3D</button>
+        <button class="opt">Permettre d’exécuter des jeux vidéo en 3D sur le serveur de production</button>
+        <button class="opt">Rendre impossible tout accès distant via PowerShell au serveur</button>
+        <button class="opt">Désactiver totalement la mise en réseau du serveur pour l’isoler</button>
         <button class="opt" data-correct="1">Réduire la surface d’attaque logicielle et minimiser les vulnérabilités de sécurité</button>
-        <button class="opt">Rendre impossible l’accès via PowerShell</button>
-        <button class="opt">Désactiver totalement la mise en réseau</button>
       </div>
       <div class="q__exp">L’absence de sous-système graphique réduit massivement le code exécuté, diminuant les failles exploitables et les besoins en redémarrages de patchs.</div>
     </div>
     <div class="q">
       <p class="q__stem">Selon les règles officielles Microsoft, quel est le minimum de cœurs à licencier par serveur physique ?</p>
       <div class="opts">
-        <button class="opt">4 cœurs</button>
-        <button class="opt">8 cœurs</button>
         <button class="opt" data-correct="1">16 cœurs</button>
+        <button class="opt">8 cœurs</button>
+        <button class="opt">4 cœurs</button>
         <button class="opt">32 cœurs</button>
       </div>
       <div class="q__exp">Chaque serveur physique doit être licencié pour un minimum absolu de 16 cœurs, même s’il n’en contient que 4 ou 8.</div>
@@ -430,10 +403,10 @@ Résultat d’analyse attendu :
     <div class="q">
       <p class="q__stem">À quoi sert une plage d’exclusion dans une étendue DHCP ?</p>
       <div class="opts">
-        <button class="opt">À bloquer l’accès à Internet des téléphones portables</button>
+        <button class="opt">À bloquer entièrement l’accès à Internet des téléphones portables des salariés</button>
+        <button class="opt">À forcer le chiffrement AES de tous les paquets réseau émis par le serveur DHCP</button>
         <button class="opt" data-correct="1">À réserver des adresses de la plage pour des serveurs ou équipements statiques sans attribution dynamique</button>
-        <button class="opt">À forcer le chiffrement AES des paquets réseau</button>
-        <button class="opt">À désactiver le serveur DNS de l’entreprise</button>
+        <button class="opt">À désactiver temporairement le serveur DNS de l’entreprise pendant les maintenances</button>
       </div>
       <div class="q__exp">L’exclusion protège les adresses IP assignées en fixe aux serveurs et routeurs pour que le DHCP ne les distribue jamais à des postes clients.</div>
     </div>
@@ -442,28 +415,28 @@ Résultat d’analyse attendu :
       <div class="opts">
         <button class="opt">Enregistrement MX</button>
         <button class="opt">Enregistrement TXT</button>
-        <button class="opt" data-correct="1">Enregistrement SRV</button>
         <button class="opt">Enregistrement CNAME</button>
+        <button class="opt" data-correct="1">Enregistrement SRV</button>
       </div>
       <div class="q__exp">Les enregistrements SRV (Service Records) indiquent le protocole, le port et le FQDN des services vitaux comme LDAP (389) et Kerberos (88).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est le résultat d’une requête DNS inverse (Reverse Lookup) ?</p>
       <div class="opts">
-        <button class="opt">Résoudre un nom de domaine en adresse IPv4</button>
         <button class="opt" data-correct="1">Résoudre une adresse IP en nom d’hôte complet (FQDN) via un enregistrement PTR</button>
-        <button class="opt">Changer le mot de passe de l’administrateur</button>
-        <button class="opt">Vider la corbeille de Windows</button>
+        <button class="opt">Résoudre un nom de domaine en adresse IPv4 via les enregistrements de type A</button>
+        <button class="opt">Changer le mot de passe administrateur du domaine Active Directory</button>
+        <button class="opt">Vider la corbeille de Windows du serveur DNS concerné</button>
       </div>
       <div class="q__exp">La résolution inverse interroge la zone in-addr.arpa pour convertir une adresse IP en nom FQDN grâce à l’enregistrement PTR.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il lorsqu’un serveur physique doté de 2 CPU à 4 cœurs chacun est licencié ?</p>
       <div class="opts">
-        <button class="opt">On achète 8 cœurs de licence</button>
+        <button class="opt">On achète uniquement 8 cœurs de licence, soit un seul pack par processeur physique</button>
         <button class="opt" data-correct="1">On applique la règle de 8 cœurs par socket, soit 16 cœurs au total (8 packs de 2 cœurs)</button>
-        <button class="opt">Microsoft offre gratuitement la licence</button>
-        <button class="opt">Le serveur refuse de démarrer</button>
+        <button class="opt">Microsoft offre gratuitement la licence lors de l’achat du matériel serveur</button>
+        <button class="opt">Le serveur refuse de démarrer tant que la licence n’a pas été activée</button>
       </div>
       <div class="q__exp">Chaque processeur physique requiert un plancher de 8 cœurs : 2 sockets x 8 cœurs = 16 cœurs de base (soit 8 packs de 2 cœurs).</div>
     </div>
@@ -589,7 +562,7 @@ Résultat d’analyse attendu :
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

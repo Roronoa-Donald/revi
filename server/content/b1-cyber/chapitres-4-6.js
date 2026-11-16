@@ -121,14 +121,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'SELinux applique…', opts: ['du DAC', 'du MAC', 'du RBAC'], correct: 1, exp: 'SELinux et AppArmor imposent une politique centrale obligatoire : MAC.' },
-      { stem: 'NTFS gère les accès par…', opts: ['ACL', 'rôles', 'attributs'], correct: 0, exp: 'NTFS utilise des listes explicites d\'entrées par ressource : ACL.' },
-      { stem: 'Un accès accordé « aux heures de bureau seulement » relève de…', opts: ['RBAC', 'ABAC', 'DAC'], correct: 1, exp: 'Critères dynamiques (heure, lieu, appareil) : ABAC.' },
-      { stem: 'EternalBlue est une faille…', opts: ['de OpenSSL', 'de Bash', 'de SMB Windows'], correct: 2, exp: 'EternalBlue ciblait SMB ; Heartbleed OpenSSL ; Shellshock Bash.' },
-      { stem: 'La saisie Robert\');-- cherche…', opts: ['une XSS', 'une injection SQL', 'un MITM'], correct: 1, exp: 'Fermer la chaîne et commenter la fin de requête : signature d\'injection SQL.' },
-      { stem: 'La parade à la XSS est…', opts: ['les requêtes paramétrées', 'échapper les chevrons en sortie', 'un VPN'], correct: 1, exp: 'Le script injecté ne s\'exécute pas si les chevrons sont échappés à l\'affichage.' },
-      { stem: 'Un produit sans correctif depuis 120 jours est…', opts: ['dans les temps', 'hors délai', 'critique'], correct: 2, exp: 'Au-delà de 90 jours, la situation est critique selon la grille du cours.' },
-      { stem: 'Le pentesting sert à…', opts: ['corriger les failles automatiquement', 'chercher les failles avant l\'attaquant', 'chiffrer la base'], correct: 1, exp: 'Tester en conditions réelles pour découvrir ce que l\'attaquant découvrirait.' }
+      { stem: 'SELinux applique…', opts: ['du DAC', 'du RBAC', 'du MAC'], correct: 2, exp: 'SELinux et AppArmor imposent une politique centrale obligatoire : MAC.' },
+      { stem: 'NTFS gère les accès par…', opts: ['rôles', 'ACL', 'attributs'], correct: 1, exp: 'NTFS utilise des listes explicites d\'entrées par ressource : ACL.' },
+      { stem: 'Un accès accordé « aux heures de bureau seulement » relève de…', opts: ['ABAC', 'RBAC', 'DAC'], correct: 0, exp: 'Critères dynamiques (heure, lieu, appareil) : ABAC.' },
+      { stem: 'EternalBlue est une faille…', opts: ['de OpenSSL', 'de SMB Windows', 'de Bash'], correct: 1, exp: 'EternalBlue ciblait SMB ; Heartbleed OpenSSL ; Shellshock Bash.' },
+      { stem: 'La saisie Robert\');-- cherche…', opts: ['une XSS', 'un MITM', 'une injection SQL'], correct: 2, exp: 'Fermer la chaîne et commenter la fin de requête : signature d\'injection SQL.' },
+      { stem: 'La parade à la XSS est…', opts: ['échapper les chevrons en sortie', 'les requêtes paramétrées', 'un VPN'], correct: 0, exp: 'Le script injecté ne s\'exécute pas si les chevrons sont échappés à l\'affichage.' },
+      { stem: 'Un produit sans correctif depuis 120 jours est…', opts: ['dans les temps', 'critique', 'hors délai'], correct: 1, exp: 'Au-delà de 90 jours, la situation est critique selon la grille du cours.' },
+      { stem: 'Le pentesting sert à…', opts: ['chercher les failles avant l\'attaquant', 'corriger les failles automatiquement', 'chiffrer la base'], correct: 0, exp: 'Tester en conditions réelles pour découvrir ce que l\'attaquant découvrirait.' }
     ],
 
     pitfalls: [
@@ -286,14 +286,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Un SIEM apporte surtout…', opts: ['du stockage de fichiers', 'de la corrélation d\'événements', 'du chiffrement'], correct: 1, exp: 'Il agrège et corrèle les sources pour détecter les scénarios d\'attaque.' },
-      { stem: '3 échecs puis 1 succès depuis la même IP : c\'est…', opts: ['un faux positif à ignorer', 'une force brute probablement réussie', 'une panne réseau'], correct: 1, exp: 'Rafale d\'échecs suivie d\'un succès : signature de force brute aboutie, à traiter.' },
-      { stem: 'Première étape de la réponse ?', opts: ['éradiquer', 'contenir', 'identifier'], correct: 2, exp: 'On confirme d\'abord l\'incident et son étendue avant d\'agir.' },
-      { stem: 'Contenir, c\'est…', opts: ['éteindre la machine', 'isoler la machine du réseau', 'formater le disque'], correct: 1, exp: 'Isoler stoppe la propagation en préservant la mémoire vive et les preuves.' },
-      { stem: 'La forensique exige…', opts: ['d\'éteindre immédiatement', 'de préserver les preuves', 'de réinstaller vite'], correct: 1, exp: 'Images disque, journaux horodatés, chaîne de conservation : la preuve disparaît si l\'on bricole.' },
-      { stem: 'Le RPO mesure…', opts: ['la durée d\'arrêt maximale', 'la perte de données maximale', 'le coût de reprise'], correct: 1, exp: 'RPO = combien de données on peut perdre ; RTO = combien de temps on peut s\'arrêter.' },
-      { stem: 'Le PCA décrit…', opts: ['la continuité de l\'activité pendant la crise', 'la restauration des systèmes', 'le budget sécurité'], correct: 0, exp: 'Le PCA fait tourner l\'essentiel pendant la crise ; le PRA rétablit ensuite.' },
-      { stem: 'Un PRA utile est…', opts: ['rangé dans un classeur', 'documenté et testé', 'connu du seul administrateur'], correct: 1, exp: 'En crise, la procédure doit être actionnable par un tiers : documentée et testée.' }
+      { stem: 'Un SIEM apporte surtout…', opts: ['du stockage de fichiers', 'du chiffrement', 'de la corrélation d\'événements'], correct: 2, exp: 'Il agrège et corrèle les sources pour détecter les scénarios d\'attaque.' },
+      { stem: '3 échecs puis 1 succès depuis la même IP : c\'est…', opts: ['un faux positif à ignorer', 'une panne réseau', 'une force brute probablement réussie'], correct: 2, exp: 'Rafale d\'échecs suivie d\'un succès : signature de force brute aboutie, à traiter.' },
+      { stem: 'Première étape de la réponse ?', opts: ['éradiquer', 'identifier', 'contenir'], correct: 1, exp: 'On confirme d\'abord l\'incident et son étendue avant d\'agir.' },
+      { stem: 'Contenir, c\'est…', opts: ['isoler la machine du réseau', 'éteindre la machine', 'formater le disque'], correct: 0, exp: 'Isoler stoppe la propagation en préservant la mémoire vive et les preuves.' },
+      { stem: 'La forensique exige…', opts: ['d\'éteindre immédiatement', 'de réinstaller vite', 'de préserver les preuves'], correct: 2, exp: 'Images disque, journaux horodatés, chaîne de conservation : la preuve disparaît si l\'on bricole.' },
+      { stem: 'Le RPO mesure…', opts: ['la perte de données maximale', 'la durée d\'arrêt maximale', 'le coût de reprise'], correct: 0, exp: 'RPO = combien de données on peut perdre ; RTO = combien de temps on peut s\'arrêter.' },
+      { stem: 'Le PCA décrit…', opts: ["la restauration des systèmes après la crise","la continuité de l'activité pendant la crise","le budget annuel de la sécurité"], correct: 1, exp: 'Le PCA fait tourner l\'essentiel pendant la crise ; le PRA rétablit ensuite.' },
+      { stem: 'Un PRA utile est…', opts: ['documenté et testé', 'rangé dans un classeur', 'connu du seul administrateur'], correct: 0, exp: 'En crise, la procédure doit être actionnable par un tiers : documentée et testée.' }
     ],
 
     pitfalls: [
@@ -447,14 +447,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Le plafond RGPD est…', opts: ['20 M€ ou 4 % du CA mondial', '10 M€ ou 2 % du CA', '50 M€ fixe'], correct: 0, exp: 'Le plus élevé des deux : 20 millions d\'euros ou 4 % du chiffre d\'affaires annuel mondial.' },
-      { stem: 'Le RGPD est en vigueur depuis…', opts: ['le 25 mai 2018', 'le 1er janvier 2016', 'le 25 décembre 2022'], correct: 0, exp: 'Adopté en 2016, applicable depuis le 25 mai 2018.' },
-      { stem: 'NIS2 a élargi…', opts: ['les secteurs concernés et la responsabilité des dirigeants', 'les amendes du seul secteur bancaire', 'la durée de conservation des logs'], correct: 0, exp: 'Nouveau secteurs, gouvernance renforcée, sanctions harmonisées.' },
+      { stem: 'Le plafond RGPD est…', opts: ['10 M€ ou 2 % du CA', '20 M€ ou 4 % du CA mondial', '50 M€ fixe'], correct: 1, exp: 'Le plus élevé des deux : 20 millions d\'euros ou 4 % du chiffre d\'affaires annuel mondial.' },
+      { stem: 'Le RGPD est en vigueur depuis…', opts: ['le 25 décembre 2022', 'le 1er janvier 2016', 'le 25 mai 2018'], correct: 2, exp: 'Adopté en 2016, applicable depuis le 25 mai 2018.' },
+      { stem: 'NIS2 a élargi…', opts: ['la durée de conservation des logs', 'les amendes du seul secteur bancaire', 'les secteurs concernés et la responsabilité des dirigeants'], correct: 2, exp: 'Nouveau secteurs, gouvernance renforcée, sanctions harmonisées.' },
       { stem: 'PCI DSS protège…', opts: ['les données de santé', 'les données de cartes bancaires', 'les données publiques'], correct: 1, exp: 'Norme de l\'industrie des paiements : 12 exigences pour les données de cartes.' },
-      { stem: 'ISO 27001 certifie…', opts: ['un produit', 'un SMSI', 'un prestataire'], correct: 1, exp: 'Le système de management de la sécurité de l\'information de l\'organisation.' },
+      { stem: 'ISO 27001 certifie…', opts: ['un SMSI', 'un produit', 'un prestataire'], correct: 0, exp: 'Le système de management de la sécurité de l\'information de l\'organisation.' },
       { stem: 'La simulation de phishing doit être…', opts: ['punitive', 'régulière et non punitive', 'annuelle et surprise'], correct: 1, exp: 'Apprendre sans humilier : l\'objectif est le capteur de menaces, pas le bouc émissaire.' },
-      { stem: 'Le remplissage automatique du gestionnaire protège du phishing car…', opts: ['il chiffre le courriel', 'il refuse de remplir sur une URL frauduleuse', 'il bloque le réseau'], correct: 1, exp: 'Le gestionnaire ne remplit pas les identifiants si l\'URL ne correspond pas.' },
-      { stem: 'La copie immuable de la règle 3-2-1-1-0 sert contre…', opts: ['les pannes de disque', 'les ransomwares', 'les erreurs de saisie'], correct: 1, exp: 'Hors ligne ou air-gap : le ransomware ne peut ni l\'atteindre ni la chiffrer.' }
+      { stem: 'Le remplissage automatique du gestionnaire protège du phishing car…', opts: ["il chiffre le courriel avant envoi","il bloque le réseau en cas de doute","il refuse de remplir sur une URL frauduleuse"], correct: 2, exp: 'Le gestionnaire ne remplit pas les identifiants si l\'URL ne correspond pas.' },
+      { stem: 'La copie immuable de la règle 3-2-1-1-0 sert contre…', opts: ['les ransomwares', 'les pannes de disque', 'les erreurs de saisie'], correct: 0, exp: 'Hors ligne ou air-gap : le ransomware ne peut ni l\'atteindre ni la chiffrer.' }
     ],
 
     pitfalls: [

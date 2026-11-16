@@ -142,22 +142,22 @@ module.exports = {
       stem: 'Que signifie l’acronyme standard RSS ?',
       opts: [
         'Real Security Socket',
-        'Really Simple Syndication',
+        'Remote Server Script',
         'Routing System Standard',
-        'Remote Server Script'
+        'Really Simple Syndication'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Really Simple Syndication désigne le format de données standardisé XML utilisé pour la diffusion de contenus web.'
     },
     {
       stem: 'Dans un élément <item> d’un flux RSS 2.0, quelle balise garantit l’identifiant unique de la ressource ?',
       opts: [
         '<title>',
-        '<guid>',
         '<link>',
+        '<guid>',
         '<description>'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La balise <guid> (Globally Unique Identifier) fournit un identifiant permanent et unique pour chaque dépêche.'
     },
     {
@@ -174,12 +174,12 @@ module.exports = {
     {
       stem: 'Si le titre A contient 5 mots et le titre B contient 5 mots dont 4 sont communs, quel est l’indice de Jaccard J(A, B) ?',
       opts: [
-        '4 / 10 = 0.40',
         '4 / 6 ≈ 0.67',
+        '4 / 10 = 0.40',
         '5 / 5 = 1.00',
         '1 / 4 = 0.25'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Intersection = 4 mots communs. Union = 5 + 5 - 4 = 6 mots uniques au total. Jaccard = 4/6 ≈ 0.67.'
     },
     {
@@ -196,34 +196,34 @@ module.exports = {
     {
       stem: 'Quelle technologie de collecte Push permet à un serveur de notifier instantanément notre API lors d’un commit sur GitHub ?',
       opts: [
-        'Un Webhook HTTP',
         'Un fichier robots.txt',
+        'Un Webhook HTTP',
         'Un cookie de session',
         'Une requête DNS inversée'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Un Webhook est un rappel HTTP POST émis par le serveur distant vers notre endpoint dès qu’un événement survient.'
     },
     {
       stem: 'Quel fichier situé à la racine d’un site web indique aux robots d’indexation les répertoires interdits au crawling ?',
       opts: [
         '.htaccess',
-        'robots.txt',
+        'index.html',
         'sitemap.xml',
-        'index.html'
+        'robots.txt'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le fichier standard robots.txt spécifie les règles de courtoisie et les restrictions d’accès imposées aux robots et crawlers.'
     },
     {
       stem: 'Pourquoi privilégier un flux RSS plutôt que le scraping HTML pour la collecte d’articles d’ingénierie ?',
       opts: [
-        'Parce que le RSS est payant',
-        'Parce que le RSS offre une structure de données stable et légère qui ne casse pas lors des refontes graphiques du site',
-        'Parce que le scraping HTML est interdit par les lois physiques',
-        'Parce que le RSS contient des vidéos en haute définition'
+        "Parce que le RSS offre une structure de données stable et légère qui ne casse pas lors des refontes graphiques du site",
+        "Parce que le RSS est un service payant facturé selon le nombre de requêtes effectuées",
+        "Parce que le scraping HTML est juridiquement interdit sur la totalité des sites publics",
+        "Parce que le RSS embarque nativement des vidéos en haute définition fortement compressées"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le format RSS fournit une structure XML standardisée indépendante de la couche de présentation HTML, garantissant la robustesse du collecteur.'
     }
   ],

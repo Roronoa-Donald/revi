@@ -165,34 +165,34 @@ module.exports = {
     {
       stem: 'Pourquoi le stockage direct de gros fichiers binaires dans Git classique pose-t-il un problème majeur de performance ?',
       opts: [
-        'Parce que Git refuse les fichiers dont l’extension n’est pas en UTF-8',
-        'Parce que Git conserve l’intégralité des versions successives dans le packfile, rendant les opérations de clone extrêmement lourdes',
-        'Parce que les fichiers binaires empêchent l’utilisation de git branch',
-        'Parce que le hachage SHA-1 ne fonctionne que sur du texte ASCII'
+        "Parce que Git refuse de suivre les fichiers binaires dont l’extension n’est pas encodée en UTF-8 valide",
+        "Parce que les fichiers binaires empêchent totalement l’utilisation des commandes git branch et git merge",
+        "Parce que Git conserve l’intégralité des versions successives dans le packfile, rendant les opérations de clone extrêmement lourdes",
+        "Parce que le hachage SHA-1 du magasin d’objets ne sait calculer que sur des contenus texte ASCII"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Git télécharge l’historique complet lors du clone. Pour des fichiers binaires non compressibles par deltas, la taille du dossier .git enfle de plusieurs gigaoctets, saturant le réseau et les disques.'
     },
     {
       stem: 'Que contient physiquement dans l’arbre Git un fichier suivi par Git LFS (Large File Storage) ?',
       opts: [
         'Le fichier binaire complet compressé avec gzip',
-        'Un court pointeur textuel contenant la version LFS, le hash SHA-256 et la taille en octets',
+        'Un lien symbolique Unix vers le système de fichiers hôte',
         'Une clé API pointant vers un bucket Google Cloud Storage',
-        'Un lien symbolique Unix vers le système de fichiers hôte'
+        'Un court pointeur textuel contenant la version LFS, le hash SHA-256 et la taille en octets'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Git LFS remplace le binaire par un micro-pointeur textuel contenant l’identifiant SHA-256 (oid) et la taille du fichier. Le binaire réel est déporté sur un serveur de stockage dédié.'
     },
     {
       stem: 'Dans quel fichier de configuration les règles associant des extensions de fichiers au filtre LFS sont-elles déclarées et tracées ?',
       opts: [
-        '.git/config',
         '.gitattributes',
+        '.git/config',
         '.lfsconfig',
         '.gitignore'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le fichier .gitattributes versionné à la racine du dépôt définit les filtres appliqués aux fichiers lors des checkouts et commits (ex: *.psd filter=lfs diff=lfs merge=lfs -text).'
     },
     {
@@ -209,34 +209,34 @@ module.exports = {
     {
       stem: 'Où le hook d’entreprise « pre-receive » s’exécute-t-il et quel est son avantage stratégique pour la sécurité ?',
       opts: [
-        'Sur le poste du développeur pour chiffrer ses fichiers en local',
-        'Sur le serveur distant à la réception d’un push, permettant de rejeter tout commit non conforme avant écriture',
-        'Dans le navigateur web lors de la création d’une Pull Request',
-        'Dans l’agent de signature GPG'
+        "Sur le poste du développeur, juste avant le push, pour chiffrer ses fichiers en local",
+        "Dans le navigateur web du relecteur, au moment de la création et de la validation d’une Pull Request",
+        "Sur le serveur distant à la réception d’un push, permettant de rejeter tout commit non conforme avant écriture",
+        "Dans l’agent de signature GPG, lors de la vérification cryptographique des commits"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'pre-receive s’exécute sur le serveur Git distant. Il examine l’ensemble des commits reçus et peut bloquer définitivement le push s’il contient des secrets, du code mal formaté ou des violations de politiques.'
     },
     {
       stem: 'Quelle commande permet de réécrire des références locales en retirant un chemin précis de leur historique ?',
       opts: [
-        'git reset --hard HEAD',
-        'git-filter-repo --path secret.txt --invert-paths',
-        'git rm --cached secret.txt',
-        'git revert HEAD~1'
+        "git reset --hard origin/main",
+        "git rm --cached --ignore-unmatch secret.txt",
+        "git revert --no-commit HEAD~1..HEAD",
+        "git-filter-repo --path secret.txt --invert-paths"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'git-filter-repo peut réécrire les références traitées en excluant ce chemin ; les autres noms, références et copies externes nécessitent des vérifications distinctes.'
     },
     {
       stem: 'Quelle est la première action vitale à accomplir immédiatement dès qu’une clé d’API sensible est découverte sur un dépôt Git public ?',
       opts: [
-        'Supprimer le dépôt de GitHub',
-        'Révoquer et invalider immédiatement la clé auprès du fournisseur du service tiers concerné',
-        'Faire un git commit pour supprimer le fichier .env',
-        'Envoyer un email à l’équipe support de Git'
+        "Révoquer et invalider immédiatement la clé auprès du fournisseur du service tiers concerné",
+        "Supprimer immédiatement le dépôt public de GitHub pour effacer toute trace du secret exposé",
+        "Faire un nouveau commit qui supprime le fichier .env du répertoire de travail du projet",
+        "Envoyer un email urgent à l’équipe support de Git pour qu’elle purge le secret des caches"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Même si le dépôt est nettoyé quelques minutes plus tard, des robots scrappeurs automatisés surveillent en permanence GitHub pour voler les secrets publiés. La seule parade absolue est la révocation immédiate du secret.'
     },
     {

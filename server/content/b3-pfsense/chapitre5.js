@@ -151,12 +151,12 @@ module.exports = {
     {
       stem: 'Où sont centralisées la création d’Autorités de Certification et l’émission de certificats sous pfSense ?',
       opts: [
-        'Firewall > Rules',
-        'System > Certificates (Cert. Manager selon la version)',
-        'VPN > OpenVPN > Clients',
-        'Status > Services'
+        "System > Certificates (Cert. Manager selon la version)",
+        "Firewall > Rules, onglet des règles de filtrage par interface",
+        "VPN > OpenVPN > Clients, page des configurations distantes",
+        "Status > Services, liste des démons système démarrés"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le menu System > Certificates (Cert. Manager selon la version) gère les CAs, les certificats serveurs/clients et les listes de révocation (CRL).'
     },
     {
@@ -174,44 +174,44 @@ module.exports = {
       stem: 'Quel port et protocole de transport sont utilisés par défaut pour les tunnels OpenVPN ?',
       opts: [
         'TCP port 80',
-        'UDP port 1194',
         'TCP port 443 obligatoire',
+        'UDP port 1194',
         'UDP port 53'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'OpenVPN utilise par défaut le port UDP 1194 pour minimiser la latence et éviter l’effet d’avalanche TCP-over-TCP.'
     },
     {
       stem: 'Quelle est la caractéristique principale d’une politique de Split Tunneling pour un client VPN ?',
       opts: [
         'Tout le trafic Internet personnel passe obligatoirement par le pare-feu de l’entreprise',
-        'Seuls les flux destinés aux sous-réseaux d’entreprise déclarés transitent par le tunnel VPN',
+        'Le tunnel chiffre uniquement les requêtes DNS',
         'Le client est déconnecté toutes les 15 minutes',
-        'Le tunnel chiffre uniquement les requêtes DNS'
+        'Seuls les flux destinés aux sous-réseaux d’entreprise déclarés transitent par le tunnel VPN'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'En Split Tunneling, seuls les réseaux internes de l’entreprise sont acheminés dans le VPN ; la navigation Web grand public sort localement.'
     },
     {
       stem: 'Dans un tunnel IPsec, quelle phase est responsable de négocier le chiffrement effectif des données (ESP) ?',
       opts: [
-        'Phase 1 (IKE SA)',
         'Phase 2 (Child SA / ESP)',
+        'Phase 1 (IKE SA)',
         'Phase 3 (NTP Sync)',
         'Phase 0 (DHCP Discovery)'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La Phase 1 établit le canal sécurisé de gestion administrative ; la Phase 2 négocie le chiffrement ESP des paquets de données métiers.'
     },
     {
       stem: 'Selon les recommandations de durcissement de l’ANSSI, quel algorithme de hachage doit être formellement rejeté ?',
       opts: [
         'SHA-256',
-        'SHA-384',
         'MD5',
+        'SHA-384',
         'SHA-512'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'MD5 (tout comme SHA-1) présente des collisions cryptographiques prouvées et doit impérativement être banni des propositions IPsec et certificats.'
     },
     {
@@ -228,12 +228,12 @@ module.exports = {
     {
       stem: 'Quel est l’avantage majeur du chiffrement AES-GCM par rapport à AES-CBC dans IPsec ?',
       opts: [
-        'Il fonctionne sans processeur',
-        'Il intègre nativement l’authentification et l’intégrité du message (AEAD) tout en étant très rapide',
-        'Il ne nécessite pas de clés secrètes',
-        'Il ne fonctionne que sur le port 80'
+        "Il fonctionne sans processeur ni accélération cryptographique matérielle dédiée",
+        "Il ne nécessite pas de clés secrètes partagées entre les deux extrémités du tunnel",
+        "Il ne fonctionne que sur le port 80 des passerelles distantes du tunnel IPsec",
+        "Il intègre nativement l’authentification et l’intégrité du message (AEAD) tout en étant très rapide"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'AES-GCM est un mode AEAD (Authenticated Encryption with Associated Data) combinant confidentialité et intégrité avec une excellente efficacité matérielle.'
     }
   ],

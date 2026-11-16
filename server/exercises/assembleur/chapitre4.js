@@ -44,7 +44,8 @@ module.exports = [
         "expected": "TAILLE=6 OCTETS=FF 00 00 01 01 00"
       }
     ],
-    "solution": "[Exemple]\nTAILLE=4 OCTETS=0A 00 14 00\n\n[Cas 1 — Directive db pour octets consécutifs]\nTAILLE=4 OCTETS=41 42 43 00\n\n[Cas 2 — Directive dd pour entier 32 bits (1000 = 0x3E8)]\nTAILLE=4 OCTETS=E8 03 00 00\n\n[Cas 3 — Directive dq pour entier 64 bits (1)]\nTAILLE=8 OCTETS=01 00 00 00 00 00 00 00\n\n[Cas 4 — Directive dw avec trois entiers]\nTAILLE=6 OCTETS=FF 00 00 01 01 00"
+    "solution": "[Exemple]\nTAILLE=4 OCTETS=0A 00 14 00\n\n[Cas 1 — Directive db pour octets consécutifs]\nTAILLE=4 OCTETS=41 42 43 00\n\n[Cas 2 — Directive dd pour entier 32 bits (1000 = 0x3E8)]\nTAILLE=4 OCTETS=E8 03 00 00\n\n[Cas 3 — Directive dq pour entier 64 bits (1)]\nTAILLE=8 OCTETS=01 00 00 00 00 00 00 00\n\n[Cas 4 — Directive dw avec trois entiers]\nTAILLE=6 OCTETS=FF 00 00 01 01 00",
+    "takeaway": "db alloue 1 octet, dw 2 octets, dd 4 octets et dq 8 octets en mémoire en tenant compte du boutisme cible."
   },
   {
     "id": "asm2-c4-e2",
@@ -57,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c4-e2) — Résolution d’adresses virtuelles de sections ELF\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Section de données initialisées .data]\n# Données : .data;0x00403000;0x00000100\nA_COMPLETER\n\n[Cas 2 — Section en lecture seule .rodata]\n# Données : .rodata;0x00402000;0x00000018\nA_COMPLETER\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\n# Données : .text;0x00400000;0x00000000\nA_COMPLETER\n\n[Cas 4 — Section .bss des variables globales non initialisées]\n# Données : .bss;0x00404000;0x000002A0\nA_COMPLETER\n",
     "hints": [
       "L’adresse virtuelle (VA) d’un symbole correspond à l’addition de l’adresse de base de la section et de son déplacement relatif.",
-      "Vérifiez la concordance entre la valeur décimale et la notation hexadécimale sur 32 bits."
+      "Vérifiez la concordance entre la valeur décimale et la notation hexadécimale sur 32 bits.",
+      "Pour chaque cas : additionner la base de la section et le déplacement du symbole, puis restituer la VA en hexadécimal 32 bits et sa valeur décimale."
     ],
     "examples": [
       {
@@ -88,7 +90,8 @@ module.exports = [
         "expected": "SECTION=.bss VA=0x004042A0 DEC=4211360"
       }
     ],
-    "solution": "[Exemple]\nSECTION=.text VA=0x00401050 DEC=4198480\n\n[Cas 1 — Section de données initialisées .data]\nSECTION=.data VA=0x00403100 DEC=4206848\n\n[Cas 2 — Section en lecture seule .rodata]\nSECTION=.rodata VA=0x00402018 DEC=4202520\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\nSECTION=.text VA=0x00400000 DEC=4194304\n\n[Cas 4 — Section .bss des variables globales non initialisées]\nSECTION=.bss VA=0x004042A0 DEC=4211360"
+    "solution": "[Exemple]\nSECTION=.text VA=0x00401050 DEC=4198480\n\n[Cas 1 — Section de données initialisées .data]\nSECTION=.data VA=0x00403100 DEC=4206848\n\n[Cas 2 — Section en lecture seule .rodata]\nSECTION=.rodata VA=0x00402018 DEC=4202520\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\nSECTION=.text VA=0x00400000 DEC=4194304\n\n[Cas 4 — Section .bss des variables globales non initialisées]\nSECTION=.bss VA=0x004042A0 DEC=4211360",
+    "takeaway": "L adresse virtuelle finale d un symbole vaut l adresse de chargement de sa section ELF augmentée de son offset relatif."
   },
   {
     "id": "asm2-c4-e3",
@@ -101,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c4-e3) — Alignement mémoire & calcul de Padding (Directive ALIGN)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\n# Données : 0x2000;16\nA_COMPLETER\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\n# Données : 0x7FFF1008;16\nA_COMPLETER\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\n# Données : 0x00401001;4\nA_COMPLETER\n\n[Cas 4 — Alignement 8 octets sur petit offset]\n# Données : 0x1005;8\nA_COMPLETER\n",
     "hints": [
       "Pour aligner une adresse A sur une frontière de N octets, calculez le padding requis : (N - (A mod N)) mod N.",
-      "La nouvelle adresse alignée est égale à A + padding et doit être strictement divisible par N."
+      "La nouvelle adresse alignée est égale à A + padding et doit être strictement divisible par N.",
+      "Pour chaque cas : calculer le reste de l adresse modulo N ; s il est nul le padding vaut zéro, sinon N moins ce reste ; l adresse alignée est la somme des deux."
     ],
     "examples": [
       {
@@ -132,6 +136,7 @@ module.exports = [
         "expected": "PADDING=3 ALIGNEE=0x1008"
       }
     ],
-    "solution": "[Exemple]\nPADDING=1 ALIGNEE=0x1004\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\nPADDING=0 ALIGNEE=0x2000\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\nPADDING=8 ALIGNEE=0x7FFF1010\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\nPADDING=3 ALIGNEE=0x00401004\n\n[Cas 4 — Alignement 8 octets sur petit offset]\nPADDING=3 ALIGNEE=0x1008"
+    "solution": "[Exemple]\nPADDING=1 ALIGNEE=0x1004\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\nPADDING=0 ALIGNEE=0x2000\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\nPADDING=8 ALIGNEE=0x7FFF1010\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\nPADDING=3 ALIGNEE=0x00401004\n\n[Cas 4 — Alignement 8 octets sur petit offset]\nPADDING=3 ALIGNEE=0x1008",
+    "takeaway": "Aligner à la puissance de 2 A ajoute ((A - (pos % A)) % A) octets de bourrage pour éviter des lectures mémoire coûteuses."
   }
 ];

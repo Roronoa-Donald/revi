@@ -11,6 +11,13 @@ function timingSafeCompare(a, b) {
   return crypto.timingSafeEqual(digestA, digestB);
 }
 
+function sanitizeUser(row) {
+  if (!row || typeof row !== 'object') return row;
+  const clean = { ...row };
+  delete clean.password_hash;
+  return clean;
+}
+
 /**
  * Vérifie le token admin. Retourne true si valide, false sinon.
  */
@@ -167,14 +174,16 @@ module.exports = async function adminRoutes(fastify) {
       }
 
       let sql = `
-        SELECT u.*,
+        SELECT u.id, u.email, u.display_name, u.level, u.is_active,
+          u.subscription_status, u.subscription_expires_at, u.subscription_source,
+          u.last_login_at, u.created_at, u.updated_at,
           (SELECT COUNT(*)::int FROM sessions s WHERE s.user_id = u.id AND s.is_valid = TRUE) AS active_sessions
         FROM users u`;
       if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
       sql += ' ORDER BY u.created_at DESC';
 
       const result = await db.query(sql, params);
-      return reply.send(result.rows);
+      return reply.send((result.rows || []).map(sanitizeUser));
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ message: 'Erreur serveur' });
@@ -211,7 +220,7 @@ module.exports = async function adminRoutes(fastify) {
         details: `Compte créé par l'admin${months ? ` — abonnement ${months} mois` : ' (gratuit)'}`
       });
 
-      return reply.send({ success: true, message: 'Compte créé', user });
+      return reply.send({ success: true, message: 'Compte créé', user: sanitizeUser(user) });
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur' });
@@ -234,7 +243,7 @@ module.exports = async function adminRoutes(fastify) {
         ip: request.ip,
         details: `Abonnement +${months} mois (jusqu'au ${user.subscription_expires_at})`
       });
-      return reply.send({ success: true, message: `Abonnement prolongé de ${months} mois`, user });
+      return reply.send({ success: true, message: `Abonnement prolongé de ${months} mois`, user: sanitizeUser(user) });
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur' });
@@ -257,7 +266,7 @@ module.exports = async function adminRoutes(fastify) {
         ip: request.ip,
         details: 'Abonnement retiré, sessions invalidées'
       });
-      return reply.send({ success: true, message: 'Abonnement retiré', user });
+      return reply.send({ success: true, message: 'Abonnement retiré', user: sanitizeUser(user) });
     } catch (err) {
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur' });

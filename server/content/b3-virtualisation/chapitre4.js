@@ -187,34 +187,34 @@ module.exports = {
     {
       q: 'Quel est l\'avantage architectural majeur d\'un vSphere Distributed Switch (VDS) par rapport à un vSwitch Standard (VSS) ?',
       opts: [
-        'La configuration réseau est centralisée dans vCenter et conserve l\'état des ports virtuels lors des migrations vMotion.',
+        'Le VDS ne fonctionne qu\'avec des disques durs mécaniques de type SAS.',
         'Le VDS supprime complètement le besoin d\'avoir des câbles réseau physiques et des cartes Ethernet.',
         'Le VDS permet de transformer automatiquement les adresses IPv4 en adresses IPv6 sans routeur.',
-        'Le VDS ne fonctionne qu\'avec des disques durs mécaniques de type SAS.'
+        'La configuration réseau est centralisée dans vCenter et conserve l\'état des ports virtuels lors des migrations vMotion.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le commutateur distribué (VDS) sépare le plan de contrôle (centralisé sur vCenter) du plan de données (sur les VMkernels), maintenant la persistance des ports, des statistiques et des règles lors des vMotions.'
     },
     {
       q: 'Dans le mode de tagging VST (Virtual Switch Tagging), qui est chargé d\'insérer et de retirer les étiquettes VLAN 802.1Q ?',
       opts: [
-        'Le commutateur virtuel (vSwitch) au niveau du Port Group.',
-        'Le système d\'exploitation invité de chaque machine virtuelle.',
         'La carte graphique virtuelle émulée par l\'hyperviseur.',
+        'Le système d\'exploitation invité de chaque machine virtuelle.',
+        'Le commutateur virtuel (vSwitch) au niveau du Port Group.',
         'Le serveur DNS de l\'Active Directory d\'entreprise.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'En mode VST (le plus répandu en Datacenter), le vSwitch tague les trames sortantes vers le commutateur physique et débalise les trames entrantes destinées aux VM de façon transparente pour l\'OS invité.'
     },
     {
       q: 'Quel identifiant de VLAN particulier doit être configuré sur un Port Group pour activer le mode VGT (Virtual Guest Tagging) ?',
       opts: [
-        'VLAN ID 4095.',
         'VLAN ID 0.',
+        'VLAN ID 4095.',
         'VLAN ID 1.',
         'VLAN ID 1024.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le VLAN ID 4095 indique au vSwitch de fonctionner en mode Trunk transparent vers la machine virtuelle, laissant l\'OS invité (ex: routeur pfSense) gérer lui-même le balisage de ses sous-interfaces 802.1Q.'
     },
     {
@@ -231,23 +231,23 @@ module.exports = {
     {
       q: 'Quelle interface VMkernel assure par défaut la communication entre l\'hyperviseur ESXi et la console de gestion vCenter Server ?',
       opts: [
-        'L\'interface de management (généralement vmk0).',
+        'L\'interface de boucle locale 127.0.0.1.',
         'L\'interface de vMotion (vmk1).',
         'Le contrôleur SCSI paravirtualisé PVSCSI.',
-        'L\'interface de boucle locale 127.0.0.1.'
+        'L\'interface de management (généralement vmk0).'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'L\'interface VMkernel Management Network (vmk0 par défaut) porte l\'adresse IP de l\'hôte utilisée par vCenter Server pour piloter l\'agent vpxa et par les administrateurs pour joindre le client web ESXi Host Client.'
     },
     {
       q: 'Quels sont les trois paramètres d\'un profil de régulation de débit (Traffic Shaping) sur un vSwitch ?',
       opts: [
-        'Average Bandwidth (débit moyen), Peak Bandwidth (débit crête) et Burst Size (taille de rafale).',
-        'Adresse IP, masque de sous-réseau et passerelle par défaut.',
         'Latence minimale, gigue maximale et pourcentage de paquets perdus.',
+        'Adresse IP, masque de sous-réseau et passerelle par défaut.',
+        'Average Bandwidth (débit moyen), Peak Bandwidth (débit crête) et Burst Size (taille de rafale).',
         'Taille du cache L2, fréquence CPU et nombre de sockets virtuels.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le Traffic Shaping sous vSphere régule les flux selon l\'algorithme Token Bucket configuré par le débit moyen alloué (kbps), le débit maximal en pic (kbps) et la réserve de données émise à vitesse crête (Ko).'
     },
     {
@@ -264,12 +264,12 @@ module.exports = {
     {
       q: 'Quelle méthode de répartition de charge (Load Balancing) de Port Group ne nécessite AUCUNE configuration sur le commutateur physique ?',
       opts: [
-        'Route based on originating virtual port ID.',
         'Route based on IP hash avec agrégat LACP statique.',
+        'Route based on originating virtual port ID.',
         'LACP dynamique IEEE 802.3ad.',
         'BGP multipath routing.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La méthode par défaut « Route based on originating virtual port ID » affecte statiquement une carte réseau physique (uplink) à chaque port virtuel de VM sans exiger de configuration de port-channel sur le switch physique.'
     }
   ],

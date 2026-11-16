@@ -32,6 +32,7 @@ try {
 
 // Mémoire de secours pour l'idempotence quand la base de données est indisponible
 const memoryWebhookEvents = new Set();
+const memoryCreditedTransactions = new Set();
 
 module.exports = async function fedapayRoutes(fastify) {
   const service = FedaPayService ? new FedaPayService() : {
@@ -46,21 +47,35 @@ module.exports = async function fedapayRoutes(fastify) {
     getTransaction: async () => { throw new Error('Service FedaPay non chargé'); }
   };
 
-  // Helper pour authentifier l'utilisateur via JWT cookie
+  // Helper pour authentifier l'utilisateur via JWT cookie + session active en base
   const resolveUser = async (request) => {
     const token = request.cookies && request.cookies.auth_token;
-    if (!token || !db) return null;
+    if (!token || !db || !process.env.JWT_SECRET) return null;
     try {
       const jwt = require('jsonwebtoken');
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      if (!decoded || !decoded.userId) return null;
+      if (!decoded || decoded.userId == null || !decoded.jti) return null;
       const session = await db.getSessionByJti(decoded.jti);
       if (!session || !session.is_valid) return null;
+      if (session.user_id != null && String(session.user_id) !== String(decoded.userId)) return null;
       const user = await db.getUserById(decoded.userId);
       return user && user.is_active ? user : null;
     } catch {
       return null;
     }
+  };
+
+  const claimTxAtomic = async (txId, { paymentId = null, userId = null, source = 'callback' } = {}) => {
+    const key = String(txId || '').trim();
+    if (!key) return false;
+    if (memoryCreditedTransactions.has(key)) return false;
+
+    if (db && typeof db.claimFedapayTransaction === 'function' && typeof db.isConnected === 'function' && db.isConnected()) {
+      const row = await db.claimFedapayTransaction(key, { paymentId, userId, source });
+      if (!row) return false;
+    }
+    memoryCreditedTransactions.add(key);
+    return true;
   };
 
   const requireAuth = async (request, reply) => {
@@ -86,6 +101,18 @@ module.exports = async function fedapayRoutes(fastify) {
       amounts: {
         monthly: monthly.amount,
         annual: annual.amount
+      },
+      plans: {
+        monthly: {
+          amount: monthly.amount,
+          months: monthly.months,
+          description: monthly.description
+        },
+        annual: {
+          amount: annual.amount,
+          months: annual.months,
+          description: annual.description
+        }
       }
     };
   };
@@ -172,7 +199,11 @@ module.exports = async function fedapayRoutes(fastify) {
   // ============================================================================
   const handleCallback = async (request, reply) => {
     try {
-      const user = await resolveUser(request);
+      const user = request.user || (await resolveUser(request));
+      if (!user) {
+        return reply.code(401).send({ success: false, message: 'Connexion requise pour valider un paiement.' });
+      }
+
       const { transaction_id, payment_id, merchant_reference } = request.body || {};
 
       if (!transaction_id) {
@@ -182,7 +213,7 @@ module.exports = async function fedapayRoutes(fastify) {
         });
       }
 
-      // 1. Récupération de la tentative en base
+      // 1. Récupération OBLIGATOIRE de la tentative en base
       let payment = null;
       if (db) {
         try {
@@ -200,29 +231,42 @@ module.exports = async function fedapayRoutes(fastify) {
         }
       }
 
-      // 2. Interrogation directe de l'API FedaPay (le serveur ne croit pas le client)
-      const tx = await service.getTransaction(transaction_id);
+      if (!payment) {
+        return reply.code(404).send({
+          success: false,
+          message: 'Tentative de paiement introuvable.'
+        });
+      }
 
-      // Si le paiement est déjà approuvé en base, idempotence immédiate
-      if (payment && payment.status === 'approved') {
-        const freshUser = user && db ? await db.getUserById(user.id).catch(() => null) : null;
+      if (payment.user_id == null || String(payment.user_id) !== String(user.id)) {
+        return reply.code(403).send({
+          success: false,
+          message: 'Cette tentative de paiement appartient à un autre compte.'
+        });
+      }
+
+      // Si le paiement est déjà approuvé en base, idempotence immédiate sans double-crédit
+      if (payment.status === 'approved') {
+        const freshUser = db ? await db.getUserById(user.id).catch(() => null) : null;
         return reply.send({
           success: true,
           status: 'approved',
           subscribed: true,
+          alreadyProcessed: true,
           expiresAt: freshUser ? freshUser.subscription_expires_at : (payment.period_end || null),
           message: 'Paiement déjà validé.'
         });
       }
 
-      // 3. Validation stricte Fail-Closed
-      const expected = payment || {
-        amount: Number(tx.amount),
-        currency: 'XOF',
-        merchant_reference: merchant_reference
-      };
+      // 2. Interrogation directe de l'API FedaPay (le serveur ne croit pas le client)
+      const tx = await service.getTransaction(transaction_id);
 
-      const check = service.validateApprovedTransaction(tx, expected);
+      // 3. Validation stricte Fail-Closed contre l'enregistrement DB uniquement
+      const check = service.validateApprovedTransaction(tx, {
+        amount: payment.amount,
+        currency: payment.currency || 'XOF',
+        merchant_reference: payment.merchant_reference
+      });
       if (!check.valid) {
         fastify.log.warn(`[FedaPay Callback] Validation rejetée : ${check.reason}`);
         return reply.code(400).send({
@@ -232,45 +276,56 @@ module.exports = async function fedapayRoutes(fastify) {
         });
       }
 
-      // 4. Activation du compte et mise à jour en base
-      const targetUserId = (payment && payment.user_id) || (user && user.id);
+      // 4. Réservation atomique anti-rejeu puis activation
+      const claimed = await claimTxAtomic(transaction_id, {
+        paymentId: payment.id,
+        userId: user.id,
+        source: 'callback'
+      });
+      if (!claimed) {
+        const freshUser = db ? await db.getUserById(user.id).catch(() => null) : null;
+        return reply.send({
+          success: true,
+          status: 'approved',
+          subscribed: true,
+          alreadyProcessed: true,
+          expiresAt: freshUser ? freshUser.subscription_expires_at : (payment.period_end || null),
+          message: 'Paiement déjà validé.'
+        });
+      }
+
+      const targetUserId = payment.user_id;
       let updatedUser = null;
 
       if (db && targetUserId) {
-        try {
-          const months = (payment && payment.months_granted) || (expected.plan === 'annual' ? 12 : 1);
-          updatedUser = await db.extendSubscription(targetUserId, months, 'fedapay');
+        const months = payment.months_granted || 1;
+        updatedUser = await db.extendSubscription(targetUserId, months, 'fedapay');
 
-          if (payment) {
-            await db.updatePaymentStatus(payment.id, 'approved', {
-              fedapayTransactionId: String(transaction_id),
-              periodStart: new Date().toISOString(),
-              periodEnd: updatedUser.subscription_expires_at,
-              merchantReference: expected.merchant_reference
+        await db.updatePaymentStatus(payment.id, 'approved', {
+          fedapayTransactionId: String(transaction_id),
+          periodStart: new Date().toISOString(),
+          periodEnd: updatedUser ? updatedUser.subscription_expires_at : null,
+          merchantReference: payment.merchant_reference
+        });
+
+        if (typeof db.logActivity === 'function') {
+          await db.logActivity('payment_approved_callback', {
+            userId: targetUserId,
+            details: `Paiement approuvé via Canal A (tx: ${transaction_id}, +${months} mois)`
+          }).catch(() => {});
+        }
+
+        if (mailer && typeof mailer.sendPaymentReceiptEmail === 'function' && updatedUser && updatedUser.email) {
+          try {
+            await mailer.sendPaymentReceiptEmail(updatedUser.email, {
+              amount: tx.amount,
+              currency: 'XOF',
+              months: months,
+              expiresAt: updatedUser.subscription_expires_at
             });
+          } catch (mailErr) {
+            fastify.log.warn(`[FedaPay Mailer] Échec envoi reçu : ${mailErr.message}`);
           }
-
-          if (typeof db.logActivity === 'function') {
-            await db.logActivity('payment_approved_callback', {
-              userId: targetUserId,
-              details: `Paiement approuvé via Canal A (tx: ${transaction_id}, +${months} mois)`
-            });
-          }
-
-          if (mailer && typeof mailer.sendPaymentReceiptEmail === 'function' && updatedUser.email) {
-            try {
-              await mailer.sendPaymentReceiptEmail(updatedUser.email, {
-                amount: tx.amount,
-                currency: 'XOF',
-                months: months,
-                expiresAt: updatedUser.subscription_expires_at
-              });
-            } catch (mailErr) {
-              fastify.log.warn(`[FedaPay Mailer] Échec envoi reçu : ${mailErr.message}`);
-            }
-          }
-        } catch (dbErr) {
-          fastify.log.warn(`[FedaPay DB] Échec extension abonnement callback : ${dbErr.message}`);
         }
       }
 
@@ -300,21 +355,21 @@ module.exports = async function fedapayRoutes(fastify) {
 
     const sigHeader = request.headers['x-fedapay-signature'] || request.headers['X-FEDAPAY-SIGNATURE'];
 
-    // 1. Vérification cryptographique obligatoire de la signature HMAC-SHA256
-    if (service.webhookSecret) {
-      if (!sigHeader || !service.verifyWebhookSignature(raw, sigHeader)) {
-        fastify.log.warn('[FedaPay Webhook] Rejet 401 : Signature HMAC invalide ou timestamp expiré.');
-        return reply.code(401).send({ received: false, error: 'invalid_signature' });
-      }
-    } else if (process.env.NODE_ENV === 'production') {
-      fastify.log.warn('[FedaPay Webhook] ATTENTION : FEDAPAY_WEBHOOK_SECRET non défini en production.');
+    // 1. Vérification cryptographique obligatoire Fail-Closed de la signature HMAC-SHA256
+    if (!service.webhookSecret) {
+      fastify.log.error('[FedaPay Webhook] Rejet 503 : FEDAPAY_WEBHOOK_SECRET non configuré (fail-closed).');
+      return reply.code(503).send({ received: false, error: 'webhook_not_configured' });
+    }
+    if (!sigHeader || !service.verifyWebhookSignature(raw, sigHeader)) {
+      fastify.log.warn('[FedaPay Webhook] Rejet 401 : Signature HMAC invalide ou timestamp expiré.');
+      return reply.code(401).send({ received: false, error: 'invalid_signature' });
     }
 
     const payload = typeof request.body === 'string' ? JSON.parse(request.body) : (request.body || {});
     const eventName = payload.name || payload.type || payload.event || '';
     const eventId = String(payload.id || request.headers['x-fedapay-event-id'] || `${eventName}_${Date.now()}`);
 
-    const tx = (payload.entity && (payload.entity['v1/transaction'] || payload.entity.transaction)) ||
+    const tx = (payload.entity && (payload.entity['v1/transaction'] || payload.entity.transaction || payload.entity)) ||
       payload.transaction || payload.data || {};
 
     const txId = tx && tx.id != null ? String(tx.id) : (payload.transaction_id != null ? String(payload.transaction_id) : null);
@@ -357,17 +412,19 @@ module.exports = async function fedapayRoutes(fastify) {
           return reply.code(200).send({ received: true, warning: 'no_transaction_id' });
         }
 
-        // 3. Double vérification serveur auprès de l'API FedaPay avant mise à jour
-        let confirmedTx = tx;
+        // 3. Double vérification serveur obligatoire auprès de l'API FedaPay (sans fallback JSON brut)
+        let confirmedTx;
         try {
           confirmedTx = await service.getTransaction(txId);
         } catch (fetchErr) {
-          fastify.log.warn(`[FedaPay Webhook] Consultation API échouée, fallback sur payload webhook : ${fetchErr.message}`);
+          memoryWebhookEvents.delete(eventId);
+          fastify.log.error(`[FedaPay Webhook] Échec vérification API FedaPay (fail-closed) : ${fetchErr.message}`);
+          return reply.code(502).send({ received: false, error: 'transaction_verification_failed' });
         }
 
-        if (String(confirmedTx.status || '').toLowerCase() !== 'approved') {
-          fastify.log.warn(`[FedaPay Webhook] Statut non approuvé après consultation API : ${confirmedTx.status}`);
-          return reply.code(200).send({ received: true, status: confirmedTx.status });
+        if (!confirmedTx || String(confirmedTx.status || '').toLowerCase() !== 'approved') {
+          fastify.log.warn(`[FedaPay Webhook] Statut non approuvé après consultation API : ${confirmedTx && confirmedTx.status}`);
+          return reply.code(200).send({ received: true, status: confirmedTx ? confirmedTx.status : 'unknown' });
         }
 
         // Recherche du paiement correspondant en base
@@ -385,6 +442,28 @@ module.exports = async function fedapayRoutes(fastify) {
 
         if (payment) {
           if (payment.status === 'approved') {
+            if (db && typeof db.markWebhookEventProcessed === 'function') {
+              await db.markWebhookEventProcessed(eventId).catch(() => {});
+            }
+            return reply.code(200).send({ received: true, duplicate: true });
+          }
+
+          const check = service.validateApprovedTransaction(confirmedTx, {
+            amount: payment.amount,
+            currency: payment.currency || 'XOF',
+            merchant_reference: payment.merchant_reference
+          });
+          if (!check.valid) {
+            fastify.log.warn(`[FedaPay Webhook] Validation transaction rejetée : ${check.reason}`);
+            return reply.code(200).send({ received: true, rejected: check.reason });
+          }
+
+          const claimed = await claimTxAtomic(txId, {
+            paymentId: payment.id,
+            userId: payment.user_id,
+            source: 'webhook'
+          });
+          if (!claimed) {
             if (db && typeof db.markWebhookEventProcessed === 'function') {
               await db.markWebhookEventProcessed(eventId).catch(() => {});
             }
@@ -484,7 +563,7 @@ module.exports = async function fedapayRoutes(fastify) {
   // ============================================================================
   const handleRecover = async (request, reply) => {
     try {
-      const user = await resolveUser(request);
+      const user = request.user || (await resolveUser(request));
       if (!user) {
         return reply.code(401).send({ success: false, message: 'Connexion requise pour récupérer un paiement.' });
       }
@@ -517,28 +596,70 @@ module.exports = async function fedapayRoutes(fastify) {
         }
       }
 
+      if (payment) {
+        if (payment.user_id != null && String(payment.user_id) !== String(user.id)) {
+          return reply.code(403).send({
+            success: false,
+            message: 'Cette transaction est associée à un autre compte.'
+          });
+        }
+        if (payment.status === 'approved') {
+          return reply.code(409).send({
+            success: false,
+            message: 'Cette transaction a déjà été validée et créditée.'
+          });
+        }
+        const check = service.validateApprovedTransaction(tx, {
+          amount: payment.amount,
+          currency: payment.currency || 'XOF',
+          merchant_reference: payment.merchant_reference
+        });
+        if (!check.valid) {
+          return reply.code(400).send({
+            success: false,
+            message: `Paiement non certifié : ${check.reason}`
+          });
+        }
+      } else {
+        const metaUserId = tx.metadata && (tx.metadata.user_id != null ? tx.metadata.user_id : tx.metadata.userId);
+        if (metaUserId == null || String(metaUserId) !== String(user.id)) {
+          return reply.code(404).send({
+            success: false,
+            message: 'Aucune tentative de paiement correspondante pour votre compte.'
+          });
+        }
+      }
+
+      const claimed = await claimTxAtomic(transaction_id, {
+        paymentId: payment ? payment.id : null,
+        userId: user.id,
+        source: 'recover'
+      });
+      if (!claimed) {
+        return reply.code(409).send({
+          success: false,
+          message: 'Cette transaction a déjà été utilisée pour activer un abonnement.'
+        });
+      }
+
       const months = (payment && payment.months_granted) || 1;
       let updatedUser = null;
       if (db) {
-        try {
-          updatedUser = await db.extendSubscription(user.id, months, 'fedapay');
+        updatedUser = await db.extendSubscription(user.id, months, 'fedapay');
 
-          if (payment) {
-            await db.updatePaymentStatus(payment.id, 'approved', {
-              fedapayTransactionId: String(transaction_id),
-              periodStart: new Date().toISOString(),
-              periodEnd: updatedUser ? updatedUser.subscription_expires_at : null
-            });
-          }
+        if (payment) {
+          await db.updatePaymentStatus(payment.id, 'approved', {
+            fedapayTransactionId: String(transaction_id),
+            periodStart: new Date().toISOString(),
+            periodEnd: updatedUser ? updatedUser.subscription_expires_at : null
+          });
+        }
 
-          if (typeof db.logActivity === 'function') {
-            await db.logActivity('payment_recovered_manually', {
-              userId: user.id,
-              details: `Paiement récupéré manuellement via Canal C (tx: ${transaction_id}, +${months} mois)`
-            });
-          }
-        } catch (dbErr) {
-          fastify.log.warn(`[FedaPay DB] Échec extension recover : ${dbErr.message}`);
+        if (typeof db.logActivity === 'function') {
+          await db.logActivity('payment_recovered_manually', {
+            userId: user.id,
+            details: `Paiement récupéré manuellement via Canal C (tx: ${transaction_id}, +${months} mois)`
+          }).catch(() => {});
         }
       }
 
@@ -638,17 +759,17 @@ module.exports = async function fedapayRoutes(fastify) {
   // ============================================================================
   // Routes sous /api/fedapay/*
   fastify.get('/api/fedapay/config', handleConfig);
-  fastify.post('/api/fedapay/attempt', handleAttempt);
-  fastify.post('/api/fedapay/callback', handleCallback);
+  fastify.post('/api/fedapay/attempt', { preHandler: [requireAuth] }, handleAttempt);
+  fastify.post('/api/fedapay/callback', { preHandler: [requireAuth] }, handleCallback);
   fastify.post('/api/fedapay/webhook', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, handleWebhook);
-  fastify.post('/api/fedapay/recover', handleRecover);
+  fastify.post('/api/fedapay/recover', { preHandler: [requireAuth] }, handleRecover);
   fastify.get('/api/fedapay/check-status', { preHandler: [requireAuth] }, handleCheckStatus);
 
   // Routes sous /dashboard/abonnement/* (Cahier des charges strict)
   fastify.get('/dashboard/abonnement/config', handleConfig);
-  fastify.post('/dashboard/abonnement/attempt', handleAttempt);
-  fastify.post('/dashboard/abonnement/callback', handleCallback);
-  fastify.post('/dashboard/abonnement/recover', handleRecover);
+  fastify.post('/dashboard/abonnement/attempt', { preHandler: [requireAuth] }, handleAttempt);
+  fastify.post('/dashboard/abonnement/callback', { preHandler: [requireAuth] }, handleCallback);
+  fastify.post('/dashboard/abonnement/recover', { preHandler: [requireAuth] }, handleRecover);
 
   // Routes Webhook alternatives (Cahier des charges strict)
   fastify.post('/webhooks/fedapay', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, handleWebhook);
@@ -656,9 +777,9 @@ module.exports = async function fedapayRoutes(fastify) {
 
   // Support si le plugin est enregistré avec préfixe relatif (ex: fastify.register(plugin, { prefix: '/api/fedapay' }))
   fastify.get('/config', handleConfig);
-  fastify.post('/attempt', handleAttempt);
-  fastify.post('/callback', handleCallback);
+  fastify.post('/attempt', { preHandler: [requireAuth] }, handleAttempt);
+  fastify.post('/callback', { preHandler: [requireAuth] }, handleCallback);
   fastify.post('/webhook', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, handleWebhook);
-  fastify.post('/recover', handleRecover);
+  fastify.post('/recover', { preHandler: [requireAuth] }, handleRecover);
   fastify.get('/check-status', { preHandler: [requireAuth] }, handleCheckStatus);
 };

@@ -202,42 +202,42 @@ module.exports = {
       stem: 'Que se passe-t-il au niveau du stockage lorsque deux images distinctes s’appuient toutes les deux sur la même image de base « alpine:3.18 » (7 Mo) ?',
       opts: [
         'Le serveur hôte télécharge et stocke deux fois les 7 Mo sur le disque',
-        'La couche commune de 7 Mo n’est stockée qu’une seule fois sur l’hôte grâce au partage de couches Overlay2',
+        'Les deux conteneurs s’exécutent obligatoirement dans la même mémoire vive',
         'Le démon Docker refuse de télécharger la seconde image',
-        'Les deux conteneurs s’exécutent obligatoirement dans la même mémoire vive'
+        'La couche commune de 7 Mo n’est stockée qu’une seule fois sur l’hôte grâce au partage de couches Overlay2'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Chaque couche possède un identifiant de contenu SHA256 unique : si une couche existe déjà dans le cache du démon, elle est réutilisée sans duplication disque.'
     },
     {
       stem: 'Dans l’architecture du pilote de stockage Overlay2, à quoi correspond le répertoire « upperdir » ?',
       opts: [
-        'Au noyau Linux de la machine hôte',
-        'À la couche en lecture-écriture propre au conteneur (Container Writable Layer)',
-        'À l’espace de swap du processeur',
-        'Au cache DNS du réseau bridge'
+        "Au noyau Linux de la machine hôte, partagé par tous les conteneurs",
+        "À l’espace de swap du processeur, utilisé lors des pics de charge",
+        "À la couche en lecture-écriture propre au conteneur (Container Writable Layer)",
+        "Au cache DNS du réseau bridge utilisé par les conteneurs"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'upperdir est la couche supérieure inscriptible du conteneur où sont enregistrées toutes les écritures et modifications de fichiers.'
     },
     {
       stem: 'Comment le système de fichiers OverlayFS gère-t-il la suppression par un conteneur d’un fichier appartenant à une couche d’image inférieure en lecture seule ?',
       opts: [
-        'Il efface physiquement le fichier sur le disque dur de l’hôte',
-        'Il crée un fichier spécial « whiteout » dans l’upperdir pour masquer le fichier lors de la fusion du point de montage merged',
-        'Le conteneur plante instantanément avec une erreur Kernel Panic',
-        'Le fichier est déplacé dans la corbeille de Windows'
+        "Il crée un fichier spécial « whiteout » dans l’upperdir pour masquer le fichier lors de la fusion du point de montage merged",
+        "Il efface physiquement le fichier sur le disque dur de l’hôte et dans toutes les couches inférieures",
+        "Le conteneur plante instantanément avec une erreur fatale du noyau de type Kernel Panic",
+        "Le fichier est déplacé dans une corbeille de récupération interne au système hôte"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les couches inférieures sont immuables : OverlayFS crée un fichier spécial (whiteout) dans la couche supérieure pour cacher le fichier d’image sans l’effacer physiquement.'
     },
     {
       stem: 'Pourquoi est-il fortement déconseillé d’utiliser le tag « :latest » pour les images de conteneurs déployées en production ?',
       opts: [
-        'Parce que le tag latest est payant sur Docker Hub',
-        'Parce que c’est un tag flottant qui peut changer à tout moment sans préavis, brisant la reproductibilité et augmentant les risques de sécurité',
-        'Parce que le moteur Docker refuse d’exécuter les images taguées latest en arrière-plan',
-        'Parce que ce tag désactive automatiquement la connexion réseau'
+        "Parce que le tag latest est payant sur Docker Hub au-delà de cinq téléchargements quotidiens par machine",
+        "Parce que c’est un tag flottant qui peut changer à tout moment sans préavis, brisant la reproductibilité et augmentant les risques de sécurité",
+        "Parce que le moteur Docker refuse catégoriquement d’exécuter les images taguées latest en arrière-plan",
+        "Parce que ce tag désactive automatiquement toute la connexion réseau du conteneur lors de son démarrage"
       ],
       correct: 1,
       exp: 'latest est un simple pointeur mutable : il ne garantit aucune version précise et peut introduire des régressions ou des failles de sécurité lors d’un redémarrage de conteneur.'
@@ -245,21 +245,21 @@ module.exports = {
     {
       stem: 'Quel est le moyen le plus sûr et le plus immuable pour référencer une image Docker de manière infalsifiable ?',
       opts: [
-        'Par son nom simple sans tag (ex: nginx)',
-        'Par son digest cryptographique SHA256 (ex: nginx@sha256:7f9a12...)',
-        'Par le numéro de port TCP exposé',
-        'Par la date de création de l’image'
+        "Par son digest cryptographique SHA256 (ex: nginx@sha256:7f9a12...)",
+        "Par son nom simple sans tag ni domaine (ex: nginx)",
+        "Par le numéro de port TCP exposé par l’image",
+        "Par la date de création de l’image sur le registre"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le digest SHA256 est calculé sur le manifeste exact de l’image : il garantit à 100 % que l’image exécutée correspond au binaire exact audité, sans risque de falsification.'
     },
     {
       stem: 'Si une instruction RUN dans un Dockerfile crée un fichier de 500 Mo puis que l’instruction RUN suivante le supprime avec « rm », quel est l’impact sur la taille finale de l’image ?',
       opts: [
-        'La taille de l’image finale est réduite de 500 Mo',
-        'Le fichier de 500 Mo reste stocké dans la première couche de l’image et continue d’alourdir la taille totale de l’image téléchargée',
-        'Le Dockerfile est considéré comme invalide par le démon',
-        'La mémoire RAM de la machine hôte est vidée'
+        "La taille de l’image finale est réduite d’autant, le fichier étant réellement retiré du disque dur",
+        "Le fichier de 500 Mo reste stocké dans la première couche de l’image et continue d’alourdir la taille totale de l’image téléchargée",
+        "Le Dockerfile est ensuite considéré comme invalide par le démon, ce qui fait échouer le build",
+        "La mémoire RAM de la machine hôte est immédiatement vidée pour libérer l’espace occupé par le fichier"
       ],
       correct: 1,
       exp: 'Chaque ligne RUN crée une couche immuable scellée : supprimer un fichier dans une couche postérieure ne retire pas la donnée de la couche précédente dans l’historique.'
@@ -268,22 +268,22 @@ module.exports = {
       stem: 'Quelle commande Docker permet d’inspecter les couches successives d’une image et la taille ajoutée par chaque instruction ?',
       opts: [
         'docker inspect-layers',
-        'docker history',
         'docker trace',
+        'docker history',
         'docker audit'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'docker history liste l’empilement complet des layers de l’image avec la taille de chaque couche et l’instruction correspondante.'
     },
     {
       stem: 'Où se situe le registre par défaut lorsque l’on télécharge une image officielle simple comme « redis » sans préfixe de domaine ?',
       opts: [
         'Sur gitlab.com',
-        'Sur Docker Hub (docker.io/library/redis)',
+        'Directement sur le disque dur local',
         'Sur Google Container Registry',
-        'Directement sur le disque dur local'
+        'Sur Docker Hub (docker.io/library/redis)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les images sans préfixe de registre sont automatiquement résolues vers le registre officiel Docker Hub sous l’espace officiel docker.io/library/.'
     }
   ],

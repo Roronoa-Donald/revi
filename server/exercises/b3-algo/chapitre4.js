@@ -20,8 +20,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : analyser le graphe, calculer les degrés et afficher la structure
 `,
     hints: [
-      'Pour un graphe non orienté, l’arête u-v:p ajoute v à la liste de u et u à la liste de v.',
-      'Pour un graphe orienté, u-v:p signifie un arc partant de u vers v.'
+      "Pour un graphe non orienté, l’arête u-v:p ajoute v à la liste de u et u à la liste de v.",
+      "Pour un graphe orienté, u-v:p signifie un arc partant de u vers v.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (convertir une liste d’arêtes en liste d’adjacence ordonnée et calculer les degrés de chaque sommet selon l’orientation), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -114,7 +115,8 @@ for lig in lignes:
         vois_str = ", ".join(f"{v}({w})" for v, w in voisins)
         adj_parts.append(f"{s} -> [{vois_str}]")
     print(f"ADJ: {' | '.join(adj_parts)}")
-`
+`,
+    takeaway: "Dans un graphe non orienté, la somme des degrés vaut toujours 2|E| et permet de vérifier la cohérence d’une liste d’adjacence."
   },
   {
     id: 'al3-c4-e2',
@@ -131,8 +133,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter le parcours BFS avec file FIFO et reconstruction de chemin
 `,
     hints: [
-      'Utiliser collections.deque pour la file FIFO.',
-      'Trier les voisins dans l’ordre alphabétique avant de les enfiler.'
+      "Utiliser collections.deque pour la file FIFO.",
+      "Trier les voisins dans l’ordre alphabétique avant de les enfiler.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (implémenter un parcours BFS pour trouver le chemin le plus court en nombre d’arêtes dans un graphe non pondéré), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -218,7 +221,8 @@ for lig in lignes:
         print(f"BFS: nom={nom} | DISTANCE: {dist[dst]} | CHEMIN: {chemin_str} | VISITES: {vis_str}")
     else:
         print(f"BFS: nom={nom} | INACCESSIBLE | VISITES: {vis_str}")
-`
+`,
+    takeaway: "Le parcours en largeur (BFS) explore les sommets par couches croissantes à l’aide d’une file FIFO, trouvant le plus court chemin non pondéré."
   },
   {
     id: 'al3-c4-e3',
@@ -235,8 +239,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter l'algorithme de Kruskal avec structure Union-Find
 `,
     hints: [
-      'Normaliser les arêtes pour que le premier sommet soit toujours le plus petit alphabétiquement.',
-      'Union-Find utilise find(x) pour trouver le représentant et union(x, y) pour fusionner.'
+      "Normaliser les arêtes pour que le premier sommet soit toujours le plus petit alphabétiquement.",
+      "Union-Find utilise find(x) pour trouver le représentant et union(x, y) pour fusionner.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (calculer le poids total et les arêtes d’un Arbre Couvrant Minimal (MST) avec l’algorithme glouton de Kruskal et une structure Union-Find), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -327,6 +332,7 @@ for lig in lignes:
 
     mst_str = ", ".join(mst)
     print(f"KRUSKAL: nom={nom} | POIDS_MST: {total_weight} | ARETES: {mst_str} | REJETS: {rejets}")
-`
+`,
+    takeaway: "L’algorithme de Kruskal trie les arêtes par poids croissant et n’ajoute un arc que si Union-Find confirme que ses extrémités sont disjointes."
   }
 ];

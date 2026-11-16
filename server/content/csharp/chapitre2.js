@@ -135,42 +135,42 @@ module.exports = {
       stem: 'Quel est l’effet de l’accesseur "init" sur une propriété C# ?',
       opts: [
         'La propriété ne peut être modifiée qu’au sein d’une méthode asynchrone.',
-        'La propriété ne peut être assignée que lors de la construction ou dans un initialiseur d’objet ; elle devient ensuite immuable.',
         'La propriété est réinitialisée automatiquement à sa valeur par défaut à chaque accès.',
+        'La propriété ne peut être assignée que lors de la construction ou dans un initialiseur d’objet ; elle devient ensuite immuable.',
         'La propriété ne peut être lue que par les classes dérivées.'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’accesseur init (C# 9) permet la mutation lors de la phase d’initialisation (constructeur ou syntaxes d’initialiseur new T { Prop = val }), puis verrouille la propriété en lecture seule.'
     },
     {
       stem: 'Comment appelle-t-on un constructeur frère au sein de la même classe en C# ?',
       opts: [
         'En utilisant super(...) au début du constructeur.',
-        'En utilisant : this(...) immédiatement après la signature du constructeur.',
+        'En utilisant le mot-clé base(...) avec le préfixe self.',
         'En appelant explicitement this.Constructeur(...) dans le corps de la méthode.',
-        'En utilisant le mot-clé base(...) avec le préfixe self.'
+        'En utilisant : this(...) immédiatement après la signature du constructeur.'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'En C#, le chaînage vers un autre constructeur de la même classe s’effectue via la clause d’initialisation : this(arguments) placée entre la signature et le corps du constructeur.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre deux instances de class et deux instances de record ayant des propriétés identiques ?',
       opts: [
-        'Les classes ne supportent pas le Garbage Collector.',
-        'Les instances de record sont égales via == (égalité structurelle par valeur), tandis que les classes comparent leurs références mémoire par défaut.',
-        'Les records sont stockés exclusivement sur la pile d’exécution.',
-        'Les classes ne peuvent pas contenir de méthodes d’instance.'
+        "Les instances de record sont égales via == (égalité structurelle par valeur), tandis que les classes comparent leurs références mémoire par défaut.",
+        "Les classes ordinaires ne peuvent tout simplement pas être prises en charge par le Garbage Collector du runtime.",
+        "Les records sont toujours stockés exclusivement sur la pile d’exécution, et jamais sur le tas managé.",
+        "Les classes ne peuvent absolument pas contenir de méthodes d’instance au sein même de leurs définitions."
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les records C# implémentent automatiquement l’égalité structurelle basée sur la valeur de leurs propriétés, tandis que les classes ordinaires appliquent l’égalité de référence (identité mémoire).'
     },
     {
       stem: 'À quoi sert l’expression "with" appliquée sur un record C# ?',
       opts: [
-        'À détruire le record pour libérer sa mémoire immédiatement.',
-        'À créer une nouvelle copie du record en modifiant uniquement les propriétés spécifiées (mutabilité non destructive).',
-        'À convertir le record en un dictionnaire JSON dynamique.',
-        'À vérifier la présence d’une clé dans le record.'
+        "À détruire immédiatement le record pour libérer l’intégralité de sa mémoire instantanément.",
+        "À créer une nouvelle copie du record en modifiant uniquement les propriétés spécifiées (mutabilité non destructive).",
+        "À convertir automatiquement le record en un dictionnaire JSON dynamique et modifiable.",
+        "À vérifier la présence d’une clé donnée parmi l’ensemble des propriétés du record."
       ],
       correct: 1,
       exp: 'L’expression with réalise un clonage non destructif : elle produit une nouvelle instance du record avec les mêmes valeurs que l’original, sauf pour les propriétés expressément réassignées dans le bloc with.'

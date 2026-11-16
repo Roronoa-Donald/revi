@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -200,10 +198,13 @@ git config user.email "torvalds@linux-foundation.org"</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="gh3-c4-e1" data-lab
      data-exercise="gh3-c4-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=develop direct_push=NON&#10;BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=main direct_push=NON">
@@ -211,19 +212,17 @@ git config user.email "torvalds@linux-foundation.org"</code></pre>
 # Atelier Bash (gh3-c4-e1) — Validateur de conformité de workflow de branches (Git Flow vs GitHub Flow)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de conformité de workflow de branches (Git Flow vs GitHub Flow)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Auditer la création d’une branche et ses opérations selon les règles de gouvernance de Git Flow ou GitHub Flow.</p>
-    <p class="lab__note" id="gh3-c4-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Auditez les règles <strong>choisies pour cette simulation</strong> ; elles ne décrivent pas toutes les variantes possibles de Git Flow ou GitHub Flow.<br><br>Pour <code>GIT_FLOW</code>, les branches <code>feature/*</code> et <code>release/*</code> partent de <code>develop</code>, les branches <code>hotfix/*</code> partent de <code>main</code> et un push direct sur <code>main</code> ou <code>develop</code> est interdit. Pour <code>GITHUB_FLOW</code>, les branches de travail partent de <code>main</code> et le push direct sur <code>main</code> est interdit. Le contrôle du push protégé est prioritaire ; les branches principales elles-mêmes ne sont pas soumises au contrôle de base.<br><br>Chaque ligne est <code>BRANCH_EVENT wf=&lt;GIT_FLOW|GITHUB_FLOW&gt; branch=&lt;nom&gt; base=&lt;nom&gt; direct_push=&lt;OUI|NON&gt;</code>. Les noms sont valides et sans espaces. Affichez <code>AUDIT branch={branch} status={CONFORME|VIOLATION_DIRECT_PUSH_PROTECTED_BRANCH|BRANCHE_BASE_INVALIDE_ATTENDU_MAIN|BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP|REGLE_NON_DEFINIE}</code>. Pour une branche Git Flow qui ne correspond à aucun des cas énumérés, la règle est non définie.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>BRANCH_EVENT wf=GIT_FLOW branch=feature/auth base=develop direct_push=NON
@@ -233,10 +232,11 @@ AUDIT branch=feature/auth status=BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP</pre></di
     </div>
     <p class="lab__note">Dans Git Flow, une feature doit partir de develop, pas de main.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez d’abord le push direct vers une branche protégée.</li>
         <li>Pour une branche de travail connue, comparez sa base à celle imposée par le modèle choisi.</li>
+        <li>1. Refuser tout push direct sur main ou develop. 2. GITHUB_FLOW : branche de travail basée sur main. 3. GIT_FLOW : feature et release sur develop, hotfix sur main. 4. Branche inconnue : REGLE_NON_DEFINIE.</li>
       </ol>
     </details>
   </div>
@@ -244,7 +244,6 @@ AUDIT branch=feature/auth status=BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP</pre></di
 
 <div class="lab" id="gh3-c4-e2" data-lab
      data-exercise="gh3-c4-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="CONFIG min_approvals=2 require_signed=OUI linear_history=OUI&#10;MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH">
@@ -252,19 +251,17 @@ AUDIT branch=feature/auth status=BRANCHE_BASE_INVALIDE_ATTENDU_DEVELOP</pre></di
 # Atelier Bash (gh3-c4-e2) — Contrôleur de règles de protection de branches (Branch Protection Rules)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Contrôleur de règles de protection de branches (Branch Protection Rules)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Appliquer les critères de fusion de Pull Request (approbations requises, statuts CI, signature GPG).</p>
-    <p class="lab__note" id="gh3-c4-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Simulez une politique de protection de branche choisie pour cet exercice. Les règles GitHub sont configurables ; les signatures vérifiées ne se limitent pas nécessairement à GPG.<br><br>Une ligne <code>CONFIG min_approvals=&lt;n&gt; require_signed=&lt;OUI|NON&gt; linear_history=&lt;OUI|NON&gt;</code> précède les requêtes <code>MERGE_REQ pr=&lt;id&gt; approvals=&lt;n&gt; ci_status=&lt;PASS|FAIL|PENDING&gt; gpg_signed=&lt;OUI|NON&gt; merge_type=&lt;MERGE_COMMIT|SQUASH|REBASE&gt;</code>. Les nombres sont des entiers décimaux de 0 à 2 147 483 647.<br><br>Vérifiez dans l'ordre : le nombre d'approbations est au moins le minimum, la CI vaut PASS, une signature GPG est présente si elle est demandée et un merge commit est interdit si l'historique linéaire est demandé. Affichez le premier motif d'échec : <code>PR_MERGE pr={id} status={AUTHORIZED|BLOCKED} reason={OK|APPROVALS_INSUFFISANTS|CI_CHECKS_FAILED|SIGNATURE_GPG_REQUISE|HISTORIQUE_LINEAIRE_EXIGE}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>CONFIG min_approvals=2 require_signed=OUI linear_history=OUI
@@ -273,10 +270,11 @@ MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH</pre
     </div>
     <p class="lab__note">Tous les critères de protection sont satisfaits.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquez les quatre contrôles dans l’ordre indiqué.</li>
         <li>La borne d’approbations est inclusive : une égalité satisfait la règle.</li>
+        <li>1. Approbations &lt; minimum : refus. 2. CI différent de PASS : refus. 3. Signature exigée mais absente : refus. 4. Linéaire et MERGE_COMMIT : refus. 5. Sinon : AUTHORIZED.</li>
       </ol>
     </details>
   </div>
@@ -284,7 +282,6 @@ MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH</pre
 
 <div class="lab" id="gh3-c4-e3" data-lab
      data-exercise="gh3-c4-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="COMMIT_MSG id=1 msg=feat(auth): ajout authentification JWT&#10;COMMIT_MSG id=2 msg=fix!: correction faille critique">
@@ -292,19 +289,17 @@ MERGE_REQ pr=42 approvals=2 ci_status=PASS gpg_signed=OUI merge_type=SQUASH</pre
 # Atelier Bash (gh3-c4-e3) — Analyseur sémantique de commits selon Conventional Commits
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Analyseur sémantique de commits selon Conventional Commits</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Analyser des messages de commit selon un sous-ensemble explicite de Conventional Commits.</p>
-    <p class="lab__note" id="gh3-c4-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Les Conventional Commits structurent les messages ; cet exercice applique un <strong>sous-ensemble</strong> et des règles supplémentaires, pas une validation complète de la spécification.<br><br>Chaque ligne est <code>COMMIT_MSG id=&lt;id&gt; msg=&lt;message&gt;</code>. Le message tient sur une ligne et suit le format <code>&lt;type&gt;[(&lt;scope&gt;)][!]: &lt;description&gt;</code>. Le type doit être en minuscules et appartenir à <code>feat, fix, docs, refactor, test, chore, perf, ci</code> ; la spécification générale accepte aussi d'autres types. Le scope optionnel est non vide et composé de lettres ASCII, chiffres, tirets ou soulignés. Un espace suit obligatoirement les deux-points et la description contient au moins un caractère non blanc.<br><br>Pour ce modèle, un <code>!</code> ou la chaîne <code>BREAKING CHANGE</code> dans le message donne <code>breaking=OUI</code>. La spécification complète prévoit notamment un pied de message <code>BREAKING CHANGE: ...</code> ; une simple mention dans la description ne suffit pas nécessairement dans un vrai commit.<br><br>Affichez <code>CONVENTIONAL_AUDIT id={id} valid=OUI type={type} scope={scope|NONE} breaking={OUI|NON}</code> ou <code>CONVENTIONAL_AUDIT id={id} valid=NON error={FORMAT_INVALIDE|TYPE_INCONNU|DESCRIPTION_VIDE}</code>. Vérifiez d'abord le format, puis le type, puis la description.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMMIT_MSG id=1 msg=feat(auth): ajout authentification JWT
@@ -314,10 +309,11 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
     </div>
     <p class="lab__note">Validation du format avec et sans scope, détection de breaking change.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Repérez le type, le scope optionnel, le marqueur ! et la description avant de vérifier la liste des types.</li>
         <li>Distinguez un séparateur mal formé d’une description vide, puis recherchez le marqueur de rupture demandé par le modèle.</li>
+        <li>1. Décomposer type, scope optionnel, ! et description. 2. Type hors liste : TYPE_INCONNU. 3. Séparateur incorrect : FORMAT_INVALIDE. 4. Description vide : refus. 5. ! ou BREAKING CHANGE : breaking=OUI.</li>
       </ol>
     </details>
   </div>
@@ -330,10 +326,10 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi les équipes adoptant la livraison continue (CI/CD) privilégient-elles Trunk-Based Development par rapport à Git Flow ?</p>
       <div class="opts">
-        <button class="opt">Parce que Git Flow ne supporte pas le langage Python</button>
         <button class="opt" data-correct="1">Parce que Trunk-Based évite les branches à longue durée de vie et favorise l’intégration continue fréquente sur la branche principale</button>
-        <button class="opt">Parce que Trunk-Based supprime le besoin d’exécuter des tests automatisés</button>
-        <button class="opt">Parce que Git Flow exige obligatoirement des serveurs GitLab dédiés</button>
+        <button class="opt">Parce que Git Flow ne permet de fusionner du code qu’une fois par trimestre sur la branche de production main</button>
+        <button class="opt">Parce que Trunk-Based supprime le besoin d’exécuter des tests automatisés, la revue humaine suffisant à garantir la qualité</button>
+        <button class="opt">Parce que Git Flow exige obligatoirement des serveurs GitLab dédiés et une licence entreprise payante</button>
       </div>
       <div class="q__exp">Trunk-Based Development évite la divergence de code en incitant les développeurs à fusionner de petites modifications quotidiennement sur le tronc, supprimant les crises de fusions douloureuses de Git Flow.</div>
     </div>
@@ -351,8 +347,8 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
       <p class="q__stem">Que se passe-t-il si un développeur tente de pusher un commit sans signature GPG sur une branche protégée par « Require signed commits » ?</p>
       <div class="opts">
         <button class="opt">GitHub signe automatiquement le commit avec la clé du serveur</button>
-        <button class="opt" data-correct="1">Le push est immédiatement rejeté par GitHub avec un message d’erreur</button>
         <button class="opt">Le commit est accepté mais placé dans un dossier d’attente</button>
+        <button class="opt" data-correct="1">Le push est immédiatement rejeté par GitHub avec un message d’erreur</button>
         <button class="opt">Le dépôt bascule automatiquement en mode privé</button>
       </div>
       <div class="q__exp">La règle de protection vérifie les métadonnées cryptographiques : tout commit dépourvu d’une signature valide issue d’une clé publique enregistrée sur le profil de l’utilisateur est bloqué.</div>
@@ -361,18 +357,18 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
       <p class="q__stem">Dans la norme Conventional Commits 1.0.0, quel type de commit correspond à une nouvelle fonctionnalité ajoutée à l’application ?</p>
       <div class="opts">
         <button class="opt">fix</button>
-        <button class="opt" data-correct="1">feat</button>
-        <button class="opt">chore</button>
         <button class="opt">refactor</button>
+        <button class="opt">chore</button>
+        <button class="opt" data-correct="1">feat</button>
       </div>
       <div class="q__exp">Le type « feat » est réservé aux nouvelles fonctionnalités et entraîne automatiquement l’incrémentation du composant MINOR de la version sémantique SemVer.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel incrément SemVer (X.Y.Z) est déclenché par un commit rédigé « feat(api)!: suppression du support XML » ?</p>
       <div class="opts">
-        <button class="opt">Incrément de PATCH (Z)</button>
-        <button class="opt">Incrément de MINOR (Y)</button>
         <button class="opt" data-correct="1">Incrément de MAJOR (X)</button>
+        <button class="opt">Incrément de MINOR (Y)</button>
+        <button class="opt">Incrément de PATCH (Z)</button>
         <button class="opt">Aucun incrément de version</button>
       </div>
       <div class="q__exp">Le point d’exclamation « ! » signale une rupture de compatibilité ascendante (Breaking Change), ce qui déclenche obligatoirement l’incrémentation du chiffre majeur (MAJOR).</div>
@@ -380,20 +376,20 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
     <div class="q">
       <p class="q__stem">Quel est l’intérêt d’imposer la règle « Require linear history » sur la branche principale GitHub ?</p>
       <div class="opts">
-        <button class="opt">Empêcher l’utilisation de git checkout</button>
+        <button class="opt">Empêcher l’utilisation de la commande git checkout pour basculer entre les branches du dépôt</button>
         <button class="opt" data-correct="1">Éliminer les commits de fusion parasites à deux parents pour maintenir un historique séquentiel lisible</button>
-        <button class="opt">Forcer tous les développeurs à travailler sur la même machine</button>
-        <button class="opt">Interdire l’utilisation de GitHub Actions</button>
+        <button class="opt">Forcer tous les développeurs à travailler sur la même machine pour éviter toute divergence de code</button>
+        <button class="opt">Interdire l’utilisation de GitHub Actions sur les runners partagés de l’organisation</button>
       </div>
       <div class="q__exp">Un historique linéaire ne contient aucun embranchement ni commit de fusion à plusieurs parents, ce qui facilite grandement la lecture chronologique, les audits de sécurité et le traçage bisect.</div>
     </div>
     <div class="q">
       <p class="q__stem">Où doit être placé le fichier déclarant formellement les propriétaires de répertoires de code pour les revues de Pull Requests sur GitHub ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Dans .github/CODEOWNERS</button>
+        <button class="opt">Dans le README.md du projet</button>
         <button class="opt">Dans .git/config/owners.json</button>
         <button class="opt">Dans package.json sous la clé "reviewers"</button>
-        <button class="opt">Dans le README.md du projet</button>
+        <button class="opt" data-correct="1">Dans .github/CODEOWNERS</button>
       </div>
       <div class="q__exp">GitHub lit nativement le fichier .github/CODEOWNERS (ou CODEOWNERS à la racine) pour assigner automatiquement les relecteurs requis dès qu’une Pull Request touche les fichiers sous leur responsabilité.</div>
     </div>
@@ -401,8 +397,8 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
       <p class="q__stem">Quelle information dans les en-têtes d’un commit Git peut être librement falsifiée sans clé de signature cryptographique ?</p>
       <div class="opts">
         <button class="opt">L’empreinte SHA-1 finale</button>
-        <button class="opt" data-correct="1">Les champs Author Name et Author Email</button>
         <button class="opt">Le hash de l’objet tree racine</button>
+        <button class="opt" data-correct="1">Les champs Author Name et Author Email</button>
         <button class="opt">Le nombre d’octets de la charge utile</button>
       </div>
       <div class="q__exp">Git se fie aux variables d’environnement user.name et user.email configurées localement : sans signature GPG ou SSH, n’importe quel utilisateur peut prétendre être l’auteur d’un commit.</div>
@@ -529,7 +525,7 @@ CONVENTIONAL_AUDIT id=2 valid=OUI type=fix scope=NONE breaking=OUI</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

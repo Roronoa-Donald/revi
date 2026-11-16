@@ -6,124 +6,169 @@
 
 module.exports = [
   {
-    id: "vt3-c4-e1",
-    chapter: 4,
-    level: "n1",
-    language: 'analyse',
-    title: "Tokeniseur et filtre de mots vides (Stopwords & Normalisation)",
-    goal: "Nettoyer un corpus textuel de veille, supprimer la ponctuation, éliminer les mots vides (stopwords) et extraire le vocabulaire technique saillant.",
-    brief: "Dans la chaîne de traitement NLP d’un système de veille, le texte brut doit être normalisé avant indexation :\n1. Convertir l’ensemble des caractères en minuscules.\n2. Remplacer la ponctuation et caractères spéciaux par des espaces : `.,;:!?'\"()[]{}<>-/\\\\_`\n3. Extraire tous les tokens (mots) composés de caractères alphanumériques.\n4. Filtrer les mots de longueur $\\le 2$ lettres ainsi que les mots vides (stopwords) de la liste de référence :\n   `le, la, les, de, du, des, un, une, et, en, pour, sur, par, dans, avec, ce, qui, que, the, a, an, and, of, in, to, for, on, with, is, at, as`\n5. Trier les tokens uniques conservés par ordre alphabétique.\n6. Calculer le taux de réduction de taille : $\\text{reduction} = (1 - \\frac{\\text{tokens retenus}}{\\text{total tokens initiaux}}) \\times 100$ (en %, arrondi à 1 décimale).\n\nEntrée :\n`DOC id=<ID> text=<TEXTE>`\n\nRésultat d’analyse attendu :\n- Pour chaque document :\n  `TOKENS id=<ID> count=<N> words=<w1,w2,...> reduction=<R>%`\n- Bilan :\n  `SUMMARY total_docs=<N> total_tokens=<T>` (somme des tokens retenus)",
-    starter: "# Grille d'analyse (vt3-c4-e1) — Tokeniseur et filtre de mots vides (Stopwords & Normalisation)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Deux documents bilingues avec ponctuation diverse]\n# Données : DOC id=A text=Architecture of zero-trust networks with modern cryptography.\n# Données : DOC id=B text=Déploiement d un cluster Kubernetes sur des serveurs Linux.\nA_COMPLETER\n\n[Cas 2 — Document très bruité avec presque uniquement des stopwords]\n# Données : DOC id=Z text=Dans ce que le pour et avec un...\nA_COMPLETER\n\n[Cas 3 — Termes techniques et acronymes]\n# Données : DOC id=T1 text=API REST GraphQL gRPC pour les échanges de données.\nA_COMPLETER\n",
-    hints: [
-          "Utiliser re.sub pour nettoyer la ponctuation avant de faire l’extraction des champs.",
-          "Créer un ensemble (set) de stopwords pour une vérification en O(1).",
-          "Attention : le taux de réduction se calcule sur le nombre de tokens retenus divisé par le total des tokens initiaux."
+    "id": "vt3-c4-e1",
+    "chapter": 4,
+    "level": "n1",
+    "language": "analyse",
+    "title": "L'index de recherche du service communication de la mairie",
+    "exampleTitle": "Exemple résolu — l'index de recherche du musée régional",
+    "goal": "Tokeniser une phrase, retirer les mots vides et produire la liste normalisée d'un index de recherche.",
+    "brief": "<p><strong>Énoncé.</strong> Le service communication de la mairie de Saint-Rémy veut indexer l'actualité suivante, publiée sur le site de la ville :</p><p><code>« La Mairie lance une nouvelle enquête sur les déplacements des habitants du quartier. »</code></p><p>La liste de mots vides de l'index est :</p><table><tr><th colspan=\"5\">Mots vides retenus par l'index</th></tr><tr><td>le</td><td>la</td><td>les</td><td>un</td><td>une</td></tr><tr><td>du</td><td>de</td><td>des</td><td>et</td><td>ou</td></tr><tr><td>en</td><td>sur</td><td>par</td><td>pour</td><td>avec</td></tr><tr><td>au</td><td colspan=\"4\"></td></tr></table><p>Règles : les tokens sont découpés sur les espaces, la ponctuation est retirée ; les mots vides sont ensuite éliminés ; tout est mis en minuscules pour l'index.</p><p>Consignes : la question 4 s'écrit sur une seule ligne, mots séparés par des espaces, dans l'ordre d'apparition ; la question 5 attend un seul mot.</p><ol><li>Combien de tokens bruts compte la phrase ?</li><li>Combien de ces tokens sont des mots vides ?</li><li>Combien de tokens restent après filtrage ?</li><li>Écrivez la liste finale normalisée, en minuscules, dans l'ordre d'apparition.</li><li>Quel token viendra en tête de l'index alphabétique ?</li></ol>",
+    "starter": "# Exercice — L'index de recherche du service communication de la mairie\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Nombre de tokens bruts]\nA_COMPLETER\n\n[Question 2 — Nombre de mots vides dans la phrase]\nA_COMPLETER\n\n[Question 3 — Nombre de tokens après filtrage]\nA_COMPLETER\n\n[Question 4 — Liste normalisée en minuscules]\nA_COMPLETER\n\n[Question 5 — Token en tête de l'index alphabétique]\nA_COMPLETER\n",
+    "hints": [
+      "Découpez d'abord la phrase sur les espaces : La, Mairie, lance, une, nouvelle… en retirant le point final.",
+      "Barrez ensuite les tokens présents dans la liste de mots vides : La, une, sur, les, des, du.",
+      "La liste normalisée conserve l'ordre d'apparition ; l'index alphabétique, lui, trie : déplacements précède enquête, habitants, lance, mairie, nouvelle et quartier."
     ],
-    examples: [
-          {
-                "stdin": "DOC id=1 text=Le cloud et les micro-services dans le datacenter avec Docker.",
-                "expected": "TOKENS id=1 count=5 words=cloud,datacenter,docker,micro,services reduction=54.5%\nSUMMARY total_docs=1 total_tokens=5",
-                "note": "Tokens initiaux: 11 mots. Retenus: cloud, micro, services, datacenter, docker (5 mots). Réduction de 54.5%."
-          }
+    "examples": [
+      {
+        "stdin": "Le musée régional indexe la phrase : « Le musée régional ouvre une nouvelle aile au public. »\n\nRésolution :\n1) Tokens bruts : Le, musée, régional, ouvre, une, nouvelle, aile, au, public → 9 tokens.\n2) Mots vides présents : Le, une, au → 3 tokens.\n3) Après filtrage : musée, régional, ouvre, nouvelle, aile, public → 6 tokens.\n4) Liste normalisée : « musée régional ouvre nouvelle aile public ».\n5) En tête de l'index alphabétique : « aile ».",
+        "expected": "9 tokens — 3 mots vides — 6 restants — liste : musée régional ouvre nouvelle aile public — tête alphabétique : aile",
+        "note": "La ponctuation disparaît au découpage, la casse à la normalisation : « Le » et « le » comptent pour un seul mot vide."
+      }
     ],
-    tests: [
-          {
-                "label": "Deux documents bilingues avec ponctuation diverse",
-                "stdin": "cas:1",
-                "expected": "TOKENS id=A count=6 words=architecture,cryptography,modern,networks,trust,zero reduction=25.0%\nTOKENS id=B count=5 words=cluster,déploiement,kubernetes,linux,serveurs reduction=44.4%\nSUMMARY total_docs=2 total_tokens=11"
-          },
-          {
-                "label": "Document très bruité avec presque uniquement des stopwords",
-                "stdin": "cas:2",
-                "expected": "TOKENS id=Z count=0 words= reduction=100.0%\nSUMMARY total_docs=1 total_tokens=0"
-          },
-          {
-                "label": "Termes techniques et acronymes",
-                "stdin": "cas:3",
-                "expected": "TOKENS id=T1 count=6 words=api,données,graphql,grpc,rest,échanges reduction=33.3%\nSUMMARY total_docs=1 total_tokens=6"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Nombre de tokens bruts",
+        "stdin": "q:1",
+        "expected": "13||treize"
+      },
+      {
+        "label": "Question 2 — Nombre de mots vides dans la phrase",
+        "stdin": "q:2",
+        "expected": "6||six"
+      },
+      {
+        "label": "Question 3 — Nombre de tokens après filtrage",
+        "stdin": "q:3",
+        "expected": "7||sept"
+      },
+      {
+        "label": "Question 4 — Liste normalisée en minuscules",
+        "stdin": "q:4",
+        "expected": "mairie lance nouvelle enquête déplacements habitants quartier||mairie lance nouvelle enquete deplacements habitants quartier"
+      },
+      {
+        "label": "Question 5 — Token en tête de l'index alphabétique",
+        "stdin": "q:5",
+        "expected": "déplacements||deplacements"
+      }
     ],
-    solution: "[Exemple]\nTOKENS id=1 count=5 words=cloud,datacenter,docker,micro,services reduction=54.5%\nSUMMARY total_docs=1 total_tokens=5\n\n[Cas 1 — Deux documents bilingues avec ponctuation diverse]\nTOKENS id=A count=6 words=architecture,cryptography,modern,networks,trust,zero reduction=25.0%\nTOKENS id=B count=5 words=cluster,déploiement,kubernetes,linux,serveurs reduction=44.4%\nSUMMARY total_docs=2 total_tokens=11\n\n[Cas 2 — Document très bruité avec presque uniquement des stopwords]\nTOKENS id=Z count=0 words= reduction=100.0%\nSUMMARY total_docs=1 total_tokens=0\n\n[Cas 3 — Termes techniques et acronymes]\nTOKENS id=T1 count=6 words=api,données,graphql,grpc,rest,échanges reduction=33.3%\nSUMMARY total_docs=1 total_tokens=6\n"
+    "solution": "[Question 1 — Nombre de tokens bruts]\n13\n\n[Question 2 — Nombre de mots vides dans la phrase]\n6\n\n[Question 3 — Nombre de tokens après filtrage]\n7\n\n[Question 4 — Liste normalisée en minuscules]\nmairie lance nouvelle enquête déplacements habitants quartier\n\n[Question 5 — Token en tête de l'index alphabétique]\ndéplacements",
+    "takeaway": "1) Tokens bruts : La, Mairie, lance, une, nouvelle, enquête, sur, les, déplacements, des, habitants, du, quartier → 13 tokens.\n2) Mots vides présents : La, une, sur, les, des, du → 6 tokens.\n3) Après filtrage : Mairie, lance, nouvelle, enquête, déplacements, habitants, quartier → 7 tokens.\n4) Liste normalisée : mairie lance nouvelle enquête déplacements habitants quartier.\n5) Par ordre alphabétique : déplacements, enquête, habitants, lance, mairie, nouvelle, quartier ; la tête est « déplacements ».\nContrôle : 13 − 6 = 7 ; la somme des effectifs retrouvés redonne bien le nombre de tokens restants."
   },
   {
-    id: "vt3-c4-e2",
-    chapter: 4,
-    level: "n2",
-    language: 'analyse',
-    title: "Calculateur de score de pertinence TF-IDF sur un corpus de veille",
-    goal: "Classer un corpus de documents selon leur score de pertinence TF-IDF pour une requête de veille ciblée.",
-    brief: "L’algorithme TF-IDF (Term Frequency - Inverse Document Frequency) quantifie l’importance relative d’un mot par rapport à un corpus documentaire :\n- Pour un document $d$ et un mot-clé $q$ :\n  $$\\text{TF}(q, d) = \\frac{\\text{occurrences de } q \\text{ dans } d}{\\text{nombre total de mots dans } d}$$\n- Fréquence inverse de document sur le corpus de $N$ documents :\n  $$\\text{IDF}(q) = \\ln\\left(\\frac{N + 1}{\\text{DF}(q) + 1}\\right) + 1$$\n  où $\\text{DF}(q)$ est le nombre de documents du corpus contenant au moins une fois le terme $q$.\n- Score total d’un document $d$ pour la requête :\n  $$\\text{Score}(d) = \\sum_{q \\in \\text{requête}} \\text{TF}(q, d) \\times \\text{IDF}(q)$$\n(le score est arrondi à 4 décimales)\n\nEntrée :\n`QUERY words=<q1,q2,...>`\n`CORPUS_DOC id=<ID> text=<mots séparés par des espaces>`\n\nRésultat d’analyse attendu :\n- Documents triés par score décroissant (en cas d’égalité de score, trier par id alphabétique croissant) :\n  `RANK id=<ID> score=<SCORE>`\n- Bilan :\n  `SUMMARY top_doc=<ID> top_score=<SCORE>`",
-    starter: "# Grille d'analyse (vt3-c4-e2) — Calculateur de score de pertinence TF-IDF sur un corpus de veille\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Deux documents avec termes exclusifs]\n# Données : QUERY words=blockchain,smart\n# Données : CORPUS_DOC id=A text=blockchain et smart contracts pour la finance\n# Données : CORPUS_DOC id=B text=developpement web et design moderne\nA_COMPLETER\n\n[Cas 2 — Égalité de score avec tri alphabétique par identifiant]\n# Données : QUERY words=rust\n# Données : CORPUS_DOC id=DOC_B text=langage rust performance\n# Données : CORPUS_DOC id=DOC_A text=langage rust securite\nA_COMPLETER\n\n[Cas 3 — Aucun document ne contenant les termes de requête]\n# Données : QUERY words=inexistant\n# Données : CORPUS_DOC id=D1 text=article un\n# Données : CORPUS_DOC id=D2 text=article deux\nA_COMPLETER\n",
-    hints: [
-          "Extraire d’abord les termes de la requête en minuscules.",
-          "Parcourir le corpus pour compter le nombre total de documents N et le DF de chaque terme de requête.",
-          "Calculer pour chaque document la somme des TF * IDF pour les termes de la requête.",
-          "Utiliser math.log() pour le logarithme népérien."
+    "id": "vt3-c4-e2",
+    "chapter": 4,
+    "level": "n2",
+    "language": "analyse",
+    "title": "Le classement des notices de brevets par TF-IDF",
+    "exampleTitle": "Exemple résolu — le classement des résumés d'articles par TF-IDF",
+    "goal": "Calculer IDF et TF, composer un score TF-IDF par document et classer les documents d'un corpus.",
+    "brief": "<p><strong>Énoncé.</strong> La documentaliste de l'équipementier optique LumenOptic cherche, dans un corpus de trois notices de brevets, celles qui répondent à la requête « verre autonome ». Relevés :</p><table><tr><th>Notice</th><th>Occurrences « verre »</th><th>Occurrences « autonome »</th><th>Total de mots</th></tr><tr><td>N1</td><td>6</td><td>3</td><td>30</td></tr><tr><td>N2</td><td>5</td><td>2</td><td>20</td></tr><tr><td>N3</td><td>0</td><td>10</td><td>25</td></tr></table><p>Formules du cours : TF(t, d) = count(t dans d) / total_mots(d) ; IDF(t) = ln((N + 1) / (DF + 1)) + 1, avec N = 3 documents ; Score(d) = somme des TF(q, d) × IDF(q) pour chaque terme q de la requête.</p><p>Valeurs utiles : ln(4/3) ≈ 0,29 ; ln(2) ≈ 0,69.</p><p>Consignes : TF et IDF s'écrivent avec une virgule, arrondis à deux décimales (par exemple 0,25) ; le score s'arrondit à deux décimales.</p><ol><li>Quel est l'IDF du terme « verre » ?</li><li>Quel est l'IDF du terme « autonome » ?</li><li>Quel est le TF du terme « verre » dans la notice N2 ?</li><li>Quel est le score de la notice N1 ?</li><li>Quel est le score de la notice N2 ?</li><li>Quelle notice arrive en tête du classement ?</li></ol>",
+    "starter": "# Exercice — Le classement des notices de brevets par TF-IDF\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — IDF du terme « verre »]\nA_COMPLETER\n\n[Question 2 — IDF du terme « autonome »]\nA_COMPLETER\n\n[Question 3 — TF du terme « verre » dans N2]\nA_COMPLETER\n\n[Question 4 — Score de la notice N1]\nA_COMPLETER\n\n[Question 5 — Score de la notice N2]\nA_COMPLETER\n\n[Question 6 — Notice en tête du classement]\nA_COMPLETER\n",
+    "hints": [
+      "« verre » apparaît dans N1 et N2 (DF = 2) ; « autonome » apparaît dans les trois notices (DF = 3).",
+      "IDF(verre) = ln(4/3) + 1 ; IDF(autonome) = ln(4/4) + 1 = 1. Puis TF(verre, N2) = 5/20.",
+      "Score(N1) = 0,20 × 1,29 + 0,10 × 1,00 ; Score(N2) = 0,25 × 1,29 + 0,10 × 1,00 ; arrondissez chaque score final à deux décimales avant de classer."
     ],
-    examples: [
-          {
-                "stdin": "QUERY words=quantique,securite\nCORPUS_DOC id=D1 text=ordinateur quantique et cryptographie quantique securite absolue\nCORPUS_DOC id=D2 text=securite des serveurs cloud linux et pare-feu\nCORPUS_DOC id=D3 text=intelligence artificielle et vision par ordinateur",
-                "expected": "RANK id=D1 score=0.6677\nRANK id=D2 score=0.1840\nRANK id=D3 score=0.0000\nSUMMARY top_doc=D1 top_score=0.6677",
-                "note": "D1 contient 2 fois \"quantique\" et 1 fois \"securite\", obtenant le score maximal."
-          }
+    "examples": [
+      {
+        "stdin": "Un centre de documentation interroge son corpus (N = 3) avec la requête « drone parcelle » :\n— R1 : drone 4, parcelle 2, total 20 mots.\n— R2 : drone 2, parcelle 0, total 20 mots.\n— R3 : drone 0, parcelle 4, total 40 mots.\nDF(drone) = 2 et DF(parcelle) = 2, donc IDF = 1,29 pour les deux termes.\n\nRésolution :\n1) R1 : TF(drone) = 4/20 = 0,20 ; TF(parcelle) = 2/20 = 0,10 ; score = (0,20 + 0,10) × 1,29 = 0,39.\n2) R2 : score = 0,10 × 1,29 = 0,13.\n3) R3 : score = 0,10 × 1,29 = 0,13.\n4) Classement : R1 (0,39) devant R2 et R3 (0,13).",
+        "expected": "R1 : 0,39 — R2 : 0,13 — R3 : 0,13 — R1 en tête",
+        "note": "Un terme présent dans tous les documents (DF = N) reçoit IDF = 1 : il ne départage plus les documents, seul son TF les différencie."
+      }
     ],
-    tests: [
-          {
-                "label": "Deux documents avec termes exclusifs",
-                "stdin": "cas:1",
-                "expected": "RANK id=A score=0.4016\nRANK id=B score=0.0000\nSUMMARY top_doc=A top_score=0.4016"
-          },
-          {
-                "label": "Égalité de score avec tri alphabétique par identifiant",
-                "stdin": "cas:2",
-                "expected": "RANK id=DOC_A score=0.3333\nRANK id=DOC_B score=0.3333\nSUMMARY top_doc=DOC_A top_score=0.3333"
-          },
-          {
-                "label": "Aucun document ne contenant les termes de requête",
-                "stdin": "cas:3",
-                "expected": "RANK id=D1 score=0.0000\nRANK id=D2 score=0.0000\nSUMMARY top_doc=D1 top_score=0.0000"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — IDF du terme « verre »",
+        "stdin": "q:1",
+        "expected": "1,29||1.29"
+      },
+      {
+        "label": "Question 2 — IDF du terme « autonome »",
+        "stdin": "q:2",
+        "expected": "1,00||1||1,0||1.0||1.00"
+      },
+      {
+        "label": "Question 3 — TF du terme « verre » dans N2",
+        "stdin": "q:3",
+        "expected": "0,25||0.25||25 %||25%"
+      },
+      {
+        "label": "Question 4 — Score de la notice N1",
+        "stdin": "q:4",
+        "expected": "0,36||0.36"
+      },
+      {
+        "label": "Question 5 — Score de la notice N2",
+        "stdin": "q:5",
+        "expected": "0,42||0.42"
+      },
+      {
+        "label": "Question 6 — Notice en tête du classement",
+        "stdin": "q:6",
+        "expected": "N2||la notice N2||n2"
+      }
     ],
-    solution: "[Exemple]\nRANK id=D1 score=0.6677\nRANK id=D2 score=0.1840\nRANK id=D3 score=0.0000\nSUMMARY top_doc=D1 top_score=0.6677\n\n[Cas 1 — Deux documents avec termes exclusifs]\nRANK id=A score=0.4016\nRANK id=B score=0.0000\nSUMMARY top_doc=A top_score=0.4016\n\n[Cas 2 — Égalité de score avec tri alphabétique par identifiant]\nRANK id=DOC_A score=0.3333\nRANK id=DOC_B score=0.3333\nSUMMARY top_doc=DOC_A top_score=0.3333\n\n[Cas 3 — Aucun document ne contenant les termes de requête]\nRANK id=D1 score=0.0000\nRANK id=D2 score=0.0000\nSUMMARY top_doc=D1 top_score=0.0000\n"
+    "solution": "[Question 1 — IDF du terme « verre »]\n1,29\n\n[Question 2 — IDF du terme « autonome »]\n1,00\n\n[Question 3 — TF du terme « verre » dans N2]\n0,25\n\n[Question 4 — Score de la notice N1]\n0,36\n\n[Question 5 — Score de la notice N2]\n0,42\n\n[Question 6 — Notice en tête du classement]\nN2",
+    "takeaway": "1) IDF(verre) = ln(4/3) + 1 = 0,29 + 1 = 1,29.\n2) IDF(autonome) = ln(4/4) + 1 = 1,00.\n3) TF(verre, N2) = 5 / 20 = 0,25.\n4) N1 : TF(verre) = 6/30 = 0,20 ; TF(autonome) = 3/30 = 0,10 ; score = 0,20 × 1,29 + 0,10 × 1,00 = 0,258 + 0,100 = 0,36.\n5) N2 : 0,25 × 1,29 + 0,10 × 1,00 = 0,3225 + 0,100 = 0,42.\n6) Classement : N2 (0,42) > N3 (0,40) > N1 (0,36) ; N2 arrive en tête.\nContrôle : les trois scores pondèrent la rareté : « verre », plus rare (IDF 1,29), pèse plus lourd que « autonome » (IDF 1,00)."
   },
   {
-    id: "vt3-c4-e3",
-    chapter: 4,
-    level: "n3",
-    language: 'analyse',
-    title: "Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)",
-    goal: "Appliquer le modèle probabiliste de Naive Bayes pour filtrer automatiquement les alertes entrantes en éliminant le bruit informationnel.",
-    brief: "Dans la surveillance temps réel, les flux génèrent une surcharge cognitive de notifications parasites. Un filtre probabiliste Naive Bayes calcule la log-vraisemblance d’appartenance aux classes `PERTINENT` et `BRUIT` :\n\nPour une alerte composée des mots $w_1, w_2, \\dots, w_k$ :\n$$\\ln P(\\text{Pertinent}|d) = \\ln P_0(\\text{pertinent}) + \\sum_{i=1}^k \\ln P(w_i | \\text{pertinent})$$\n$$\\ln P(\\text{Bruit}|d) = \\ln P_0(\\text{bruit}) + \\sum_{i=1}^k \\ln P(w_i | \\text{bruit})$$\n(les mots inconnus non présents dans la table de probabilités sont ignorés)\n\nRègle de décision :\n- Si $\\ln P(\\text{Pertinent}|d) \\ge \\ln P(\\text{Bruit}|d)$ : `decision = PERTINENT`\n- Sinon : `decision = BRUIT`\n- Différence logarithmique : $\\text{diff} = \\ln P(\\text{Pertinent}|d) - \\ln P(\\text{Bruit}|d)$ (arrondie à 2 décimales)\n\nEntrée :\n`PRIOR pertinent=<P1> bruit=<P2>`\n`PROB word=<W> p_pert=<PP> p_bruit=<PB>`\n`ALERT id=<ID> text=<mots séparés par des espaces>`\n\nRésultat d’analyse attendu :\n- Pour chaque alerte :\n  `CLASSIFICATION id=<ID> decision=<DECISION> diff=<DIFF>`\n- Bilan :\n  `SUMMARY total_alertes=<N> retenues=<R> rejetees=<J>`",
-    starter: "# Grille d'analyse (vt3-c4-e3) — Classificateur bayésien naïf d’alertes de veille (Pertinent vs Bruit)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Alerte avec mots mixtes départagée par le ratio de cotes]\n# Données : PRIOR pertinent=0.6 bruit=0.4\n# Données : PROB word=securite p_pert=0.10 p_bruit=0.05\n# Données : PROB word=sponsorise p_pert=0.01 p_bruit=0.20\n# Données : ALERT id=X1 text=article securite sponsorise par notre partenaire\nA_COMPLETER\n\n[Cas 2 — Toutes les alertes hautement pertinentes]\n# Données : PRIOR pertinent=0.5 bruit=0.5\n# Données : PROB word=vulnerabilite p_pert=0.25 p_bruit=0.01\n# Données : ALERT id=K1 text=vulnerabilite linux\n# Données : ALERT id=K2 text=nouvelle vulnerabilite windows\nA_COMPLETER\n\n[Cas 3 — Alerte sans aucun mot connu dans le dictionnaire]\n# Données : PRIOR pertinent=0.7 bruit=0.3\n# Données : PROB word=ia p_pert=0.10 p_bruit=0.02\n# Données : ALERT id=EMPTY text=bonjour tout le monde\nA_COMPLETER\n",
-    hints: [
-          "Convertir les probabilités P_pert et P_bruit avec math.log().",
-          "Additionner les logs pour chaque mot de l’alerte présent dans la table.",
-          "Comparer les sommes cumulées pour statuer sur la décision."
+    "id": "vt3-c4-e3",
+    "chapter": 4,
+    "level": "n3",
+    "language": "analyse",
+    "title": "Le filtre anti-bruit de la cellule de veille du laboratoire Galiena",
+    "exampleTitle": "Exemple résolu — le filtre anti-bruit du service documentation d'un constructeur",
+    "goal": "Appliquer un classificateur bayésien naïf sur des effectifs d'apprentissage et trancher entre pertinent et bruit.",
+    "brief": "<p><strong>Énoncé.</strong> Le laboratoire pharmaceutique Galiena reçoit des alertes par courriel. Son historique d'apprentissage compte 40 alertes étiquetées à la main : 24 pertinentes, 16 bruits. Décompte des deux mots surveillés :</p><table><tr><th>Mot</th><th>Alertes pertinentes concernées (sur 24)</th><th>Alertes bruits concernées (sur 16)</th></tr><tr><td>« essai »</td><td>12</td><td>4</td></tr><tr><td>« promo »</td><td>3</td><td>12</td></tr></table><p>Règle de décision (bayésienne, à facteurs constants près) : le score d'une classe pour une alerte est le produit de l'effectif de la classe par l'effectif du mot dans cette classe, pour chaque mot présent dans l'alerte (un mot absent de l'alerte compte pour 1). La classe au score le plus élevé l'emporte ; les dénominateurs constants se compensent dans la comparaison.</p><p>Trois alertes sont arrivées ce matin : l'alerte A contient « essai » et « promo » ; l'alerte B contient « essai » ; l'alerte C contient « promo ».</p><p>Consignes : les scores s'écrivent en nombres seuls ; les verdicts s'écrivent en majuscules.</p><ol><li>Quel est le score PERTINENT de l'alerte A ?</li><li>Quel est le score BRUIT de l'alerte A ?</li><li>Quel est le verdict pour l'alerte A ?</li><li>Quel est le verdict pour l'alerte B ?</li><li>Quel est le verdict pour l'alerte C ?</li><li>Quel est le score BRUIT de l'alerte C ?</li></ol>",
+    "starter": "# Exercice — Le filtre anti-bruit de la cellule de veille du laboratoire Galiena\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Score PERTINENT de l'alerte A]\nA_COMPLETER\n\n[Question 2 — Score BRUIT de l'alerte A]\nA_COMPLETER\n\n[Question 3 — Verdict pour l'alerte A]\nA_COMPLETER\n\n[Question 4 — Verdict pour l'alerte B]\nA_COMPLETER\n\n[Question 5 — Verdict pour l'alerte C]\nA_COMPLETER\n\n[Question 6 — Score BRUIT de l'alerte C]\nA_COMPLETER\n",
+    "hints": [
+      "Pour l'alerte A, les deux mots comptent : score PERTINENT = 24 × 12 × 3 ; score BRUIT = 16 × 4 × 12.",
+      "Pour l'alerte B, un seul mot compte : 24 × 12 côté pertinent, 16 × 4 côté bruit.",
+      "Pour l'alerte C : 24 × 3 côté pertinent contre 16 × 12 côté bruit ; comparez toujours les deux scores de la même alerte avant de conclure."
     ],
-    examples: [
-          {
-                "stdin": "PRIOR pertinent=0.5 bruit=0.5\nPROB word=faille p_pert=0.20 p_bruit=0.01\nPROB word=zero-day p_pert=0.15 p_bruit=0.001\nPROB word=promo p_pert=0.005 p_bruit=0.30\nPROB word=gratuit p_pert=0.01 p_bruit=0.25\nALERT id=A1 text=decouverte d une faille critique zero-day\nALERT id=A2 text=super promo webinaire gratuit pour tous",
-                "expected": "CLASSIFICATION id=A1 decision=PERTINENT diff=8.01\nCLASSIFICATION id=A2 decision=BRUIT diff=-7.31\nSUMMARY total_alertes=2 retenues=1 rejetees=1",
-                "note": "L’alerte A1 a une log-différence largement positive (+8.01) et est retenue."
-          }
+    "examples": [
+      {
+        "stdin": "Le service documentation d'un constructeur a étiqueté 30 alertes : 18 utiles, 12 bruits.\n« urgent » concerne 9 alertes utiles et 9 bruits ; « budget » concerne 6 utiles et 1 bruit.\nAlerte X : contient « urgent » et « budget ».\n\nRésolution :\n1) Score utile : 18 × 9 × 6 = 972.\n2) Score bruit : 12 × 9 × 1 = 108.\n3) 972 > 108 : l'alerte X est UTILE.",
+        "expected": "utile 972 — bruit 108 → UTILE",
+        "note": "Un mot très discriminant (« budget ») renverse le verdict malgré un mot neutre, présent autant dans les deux classes (« urgent »)."
+      }
     ],
-    tests: [
-          {
-                "label": "Alerte avec mots mixtes départagée par le ratio de cotes",
-                "stdin": "cas:1",
-                "expected": "CLASSIFICATION id=X1 decision=BRUIT diff=-1.90\nSUMMARY total_alertes=1 retenues=0 rejetees=1"
-          },
-          {
-                "label": "Toutes les alertes hautement pertinentes",
-                "stdin": "cas:2",
-                "expected": "CLASSIFICATION id=K1 decision=PERTINENT diff=3.22\nCLASSIFICATION id=K2 decision=PERTINENT diff=3.22\nSUMMARY total_alertes=2 retenues=2 rejetees=0"
-          },
-          {
-                "label": "Alerte sans aucun mot connu dans le dictionnaire",
-                "stdin": "cas:3",
-                "expected": "CLASSIFICATION id=EMPTY decision=PERTINENT diff=0.85\nSUMMARY total_alertes=1 retenues=1 rejetees=0"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Score PERTINENT de l'alerte A",
+        "stdin": "q:1",
+        "expected": "864"
+      },
+      {
+        "label": "Question 2 — Score BRUIT de l'alerte A",
+        "stdin": "q:2",
+        "expected": "768"
+      },
+      {
+        "label": "Question 3 — Verdict pour l'alerte A",
+        "stdin": "q:3",
+        "expected": "PERTINENT||pertinent"
+      },
+      {
+        "label": "Question 4 — Verdict pour l'alerte B",
+        "stdin": "q:4",
+        "expected": "PERTINENT||pertinent"
+      },
+      {
+        "label": "Question 5 — Verdict pour l'alerte C",
+        "stdin": "q:5",
+        "expected": "BRUIT||bruit"
+      },
+      {
+        "label": "Question 6 — Score BRUIT de l'alerte C",
+        "stdin": "q:6",
+        "expected": "192"
+      }
     ],
-    solution: "[Exemple]\nCLASSIFICATION id=A1 decision=PERTINENT diff=8.01\nCLASSIFICATION id=A2 decision=BRUIT diff=-7.31\nSUMMARY total_alertes=2 retenues=1 rejetees=1\n\n[Cas 1 — Alerte avec mots mixtes départagée par le ratio de cotes]\nCLASSIFICATION id=X1 decision=BRUIT diff=-1.90\nSUMMARY total_alertes=1 retenues=0 rejetees=1\n\n[Cas 2 — Toutes les alertes hautement pertinentes]\nCLASSIFICATION id=K1 decision=PERTINENT diff=3.22\nCLASSIFICATION id=K2 decision=PERTINENT diff=3.22\nSUMMARY total_alertes=2 retenues=2 rejetees=0\n\n[Cas 3 — Alerte sans aucun mot connu dans le dictionnaire]\nCLASSIFICATION id=EMPTY decision=PERTINENT diff=0.85\nSUMMARY total_alertes=1 retenues=1 rejetees=0\n"
+    "solution": "[Question 1 — Score PERTINENT de l'alerte A]\n864\n\n[Question 2 — Score BRUIT de l'alerte A]\n768\n\n[Question 3 — Verdict pour l'alerte A]\nPERTINENT\n\n[Question 4 — Verdict pour l'alerte B]\nPERTINENT\n\n[Question 5 — Verdict pour l'alerte C]\nBRUIT\n\n[Question 6 — Score BRUIT de l'alerte C]\n192",
+    "takeaway": "1) Alerte A : score PERTINENT = 24 × 12 × 3 = 864.\n2) Alerte A : score BRUIT = 16 × 4 × 12 = 768.\n3) 864 > 768 : l'alerte A est classée PERTINENT, avec une marge faible.\n4) Alerte B (« essai » seul) : 24 × 12 = 288 contre 16 × 4 = 64 : PERTINENTE.\n5) Alerte C (« promo » seul) : 24 × 3 = 72 contre 16 × 12 = 192 : BRUIT.\n6) Score BRUIT de l'alerte C = 16 × 12 = 192.\nContrôle : le mot « promo » est présent dans 12 des 16 bruits contre 3 des 24 pertinentes ; il entraîne seul le classement de l'alerte C, alors que « essai » l'emporte dans les alertes A et B."
   }
 ];

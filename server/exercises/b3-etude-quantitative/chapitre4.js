@@ -6,82 +6,118 @@
 
 module.exports = [
   {
-    id: "eq3-c4-e1",
-    chapter: 4,
-    level: "n1",
-    language: 'analyse',
-    title: "Validateur méthodologique de guide d’entretien semi-directif",
-    goal: "Vérifier la structure canonique d’un guide d’entretien qualitatif (phases, équilibre ouvert/fermé, relances).",
-    brief: "<p>Pour chaque cas d’application :<br>\n<code>GUIDE id=&lt;id&gt; phases=&lt;P1&gt;,&lt;P2&gt;,... questions=OUVERTE:&lt;No&gt;,FERMEE:&lt;Nf&gt; relances=&lt;Nr&gt;</code>.<br><br>\nRègles de validation méthodologique :<br>\n1. <code>Phases</code> : Doit comporter au moins une phase d'accueil (<code>ACCUEIL</code> ou <code>INTRODUCTION</code>), au moins une phase thématique (contenant <code>THEME</code> ou <code>CORPS</code>), et une phase de conclusion (<code>CONCLUSION</code> ou <code>CLOTURE</code>). Si absent : défaut <code>PHASES_MANQUANTES</code>.<br>\n2. <code>Questions</code> : Le taux de questions ouvertes $TO = No / (No + Nf)$ doit être $\\ge 70.0\\%$. Si inférieur : défaut <code>TROP_DE_QUESTIONS_FERMEES</code>.<br>\n3. <code>Relances</code> : Le nombre de relances neutres prévues $Nr$ doit être $\\ge 2$. Si inférieur : défaut <code>MANQUE_DE_RELANCES</code>.<br><br>\nVerdict (ordre des défauts ci-dessus) :<br>\n- Si aucun défaut : <code>STATUT=GUIDE_SEMI_DIRECTIF_CONFORME</code><br>\n- Sinon : <code>STATUT=GUIDE_A_REVISER (DEFAUTS=[...])</code><br><br>\nAfficher :<br>\n<code>AUDIT_GUIDE: {id} -> {STATUT}</code></p>",
-    starter: "# Grille d'analyse (eq3-c4-e1) — Validateur méthodologique de guide d’entretien semi-directif\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Guide avec trop de questions fermées de type questionnaire]\n# Données : GUIDE id=EntretienDev phases=INTRODUCTION,THEME_OUTILS,CLOTURE questions=OUVERTE:4,FERMEE:6 relances=3\nA_COMPLETER\n\n[Cas 2 — Guide manquant de relances et de conclusion]\n# Données : GUIDE id=EntretienBrouillon phases=ACCUEIL,THEME_UNIQUE questions=OUVERTE:9,FERMEE:1 relances=1\nA_COMPLETER\n\n[Cas 3 — Guide combinant tous les défauts]\n# Données : GUIDE id=MauvaisGuide phases=CORPS questions=OUVERTE:2,FERMEE:8 relances=0\nA_COMPLETER\n",
-    hints: [
-          "Vérifier la présence des 3 types de phases requises.",
-          "Calculer le ratio de questions ouvertes par rapport au total."
+    "id": "eq3-c4-e1",
+    "chapter": 4,
+    "level": "n1",
+    "language": "analyse",
+    "title": "Le guide d'entretien de Yasmine sur la migration Kubernetes",
+    "exampleTitle": "Exemple résolu — les entretiens de Marc sur l'externalisation du support",
+    "goal": "Identifier la structure d'un entretien semi-directif, les relances neutres et les règles déontologiques de la collecte qualitative.",
+    "brief": "<p><strong>Énoncé.</strong> Pour son mémoire de Bachelor 3, Yasmine étudie le vécu de la migration vers Kubernetes chez MeridiInvest, une banque d'investissement. Elle rédige un guide comportant quatre thèmes obligatoires (trajectoire, difficultés techniques, relations d'équipe, outils), mais laisse l'ordre des sous-questions souple pour suivre le fil de la pensée de l'enquêté. En ouverture de chaque séance, elle présente les objectifs, garantit l'anonymat strict et demande l'autorisation d'enregistrer. Quand un développeur dit « la migration était complexe », elle se contente de répéter « complexe ? » sur un ton interrogatif. Elle prévoit <strong>8 entretiens de 45 minutes</strong>, tous retranscrits intégralement, mot à mot.</p><ol><li>Quel type d'entretien Yasmine conduit-elle ? (un mot, avec tiret)</li><li>Comment s'appelle la relance qui répète le dernier mot prononcé sur un ton interrogatif ? (un mot)</li><li>En phase d'accueil, quelle autorisation Yasmine doit-elle recueillir pour l'enregistrement ? (un mot)</li><li>Un focus group réunit entre 6 et combien de participants ?</li><li>Comment s'appelle la retranscription intégrale, mot à mot, des enregistrements ? (un mot)</li><li>Quelle sera la durée totale des 8 entretiens, en minutes ?</li></ol>",
+    "starter": "# Exercice — Le guide d'entretien de Yasmine sur la migration Kubernetes\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par des termes du cours ; les questions 4 et 6 attendent des nombres.\n\n[Question 1 — Type d'entretien (un mot, avec tiret)]\nA_COMPLETER\n\n[Question 2 — Relance qui répète le dernier mot (un mot)]\nA_COMPLETER\n\n[Question 3 — Autorisation d'enregistrement (un mot)]\nA_COMPLETER\n\n[Question 4 — Nombre maximal de participants d'un focus group]\nA_COMPLETER\n\n[Question 5 — Retranscription intégrale mot à mot (un mot)]\nA_COMPLETER\n\n[Question 6 — Durée totale des entretiens (en minutes)]\nA_COMPLETER\n",
+    "hints": [
+      "L'entretien semi-directif impose les thèmes (le guide) mais laisse libre le cheminement : il se distingue du directif (questions fixes) et du non directif (récit libre).",
+      "Les relances neutres n'introduisent aucun vocabulaire nouveau : écho, demande d'illustration, clarification, silence attentif.",
+      "La retranscription intégrale des enregistrements s'appelle le verbatim ; multipliez le nombre d'entretiens par leur durée pour la dernière question."
     ],
-    examples: [
-          {
-                "stdin": "GUIDE id=EntretienDSI phases=ACCUEIL,THEME1,THEME2,CONCLUSION questions=OUVERTE:8,FERMEE:2 relances=4",
-                "expected": "AUDIT_GUIDE: EntretienDSI -> STATUT=GUIDE_SEMI_DIRECTIF_CONFORME",
-                "note": "3 phases présentes, 80% de questions ouvertes et 4 relances : parfait."
-          }
+    "examples": [
+      {
+        "stdin": "Marc étudie l'externalisation du support IT de son entreprise : guide de 3 thèmes, ordre souple, 6 entretiens de 40 minutes, anonymat et autorisation d'enregistrement en ouverture ; il retranscrit tout mot à mot.\n\n1) Type d'entretien : semi-directif.\n2) Répéter le dernier mot sur un ton interrogatif : la relance en écho.\n3) Autorisation d'enregistrement : le consentement (éclairé).\n4) Un focus group réunit 6 à 10 participants.\n5) La transcription mot à mot : le verbatim.\n6) Durée totale : 6 × 40 = 240 minutes.",
+        "expected": "semi-directif — écho — consentement — 10 — verbatim — 240 minutes",
+        "note": "Le semi-directif combine la rigueur du guide et la liberté du récit ; la déontologie (anonymat, consentement) conditionne la sincérité du discours."
+      }
     ],
-    tests: [
-          {
-                "label": "Guide avec trop de questions fermées de type questionnaire",
-                "stdin": "cas:1",
-                "expected": "AUDIT_GUIDE: EntretienDev -> STATUT=GUIDE_A_REVISER (DEFAUTS=[TROP_DE_QUESTIONS_FERMEES])"
-          },
-          {
-                "label": "Guide manquant de relances et de conclusion",
-                "stdin": "cas:2",
-                "expected": "AUDIT_GUIDE: EntretienBrouillon -> STATUT=GUIDE_A_REVISER (DEFAUTS=[PHASES_MANQUANTES, MANQUE_DE_RELANCES])"
-          },
-          {
-                "label": "Guide combinant tous les défauts",
-                "stdin": "cas:3",
-                "expected": "AUDIT_GUIDE: MauvaisGuide -> STATUT=GUIDE_A_REVISER (DEFAUTS=[PHASES_MANQUANTES, TROP_DE_QUESTIONS_FERMEES, MANQUE_DE_RELANCES])"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Type d'entretien",
+        "stdin": "q:1",
+        "expected": "semi-directif||semi directif||entretien semi-directif||entretien semi directif||semidirectif"
+      },
+      {
+        "label": "Question 2 — Relance qui répète le dernier mot",
+        "stdin": "q:2",
+        "expected": "écho||relance en écho||miroir"
+      },
+      {
+        "label": "Question 3 — Autorisation d'enregistrement",
+        "stdin": "q:3",
+        "expected": "consentement||le consentement||consentement éclairé||le consentement éclairé"
+      },
+      {
+        "label": "Question 4 — Nombre maximal de participants d'un focus group",
+        "stdin": "q:4",
+        "expected": "10||10 participants"
+      },
+      {
+        "label": "Question 5 — Retranscription intégrale mot à mot",
+        "stdin": "q:5",
+        "expected": "verbatim||le verbatim"
+      },
+      {
+        "label": "Question 6 — Durée totale des entretiens",
+        "stdin": "q:6",
+        "expected": "360||360 minutes"
+      }
     ],
-    solution: "[Exemple]\nAUDIT_GUIDE: EntretienDSI -> STATUT=GUIDE_SEMI_DIRECTIF_CONFORME\n\n[Cas 1 — Guide avec trop de questions fermées de type questionnaire]\nAUDIT_GUIDE: EntretienDev -> STATUT=GUIDE_A_REVISER (DEFAUTS=[TROP_DE_QUESTIONS_FERMEES])\n\n[Cas 2 — Guide manquant de relances et de conclusion]\nAUDIT_GUIDE: EntretienBrouillon -> STATUT=GUIDE_A_REVISER (DEFAUTS=[PHASES_MANQUANTES, MANQUE_DE_RELANCES])\n\n[Cas 3 — Guide combinant tous les défauts]\nAUDIT_GUIDE: MauvaisGuide -> STATUT=GUIDE_A_REVISER (DEFAUTS=[PHASES_MANQUANTES, TROP_DE_QUESTIONS_FERMEES, MANQUE_DE_RELANCES])\n"
+    "solution": "[Question 1 — Type d'entretien (un mot, avec tiret)]\nsemi-directif\n\n[Question 2 — Relance qui répète le dernier mot (un mot)]\nécho\n\n[Question 3 — Autorisation d'enregistrement (un mot)]\nconsentement\n\n[Question 4 — Nombre maximal de participants d'un focus group]\n10\n\n[Question 5 — Retranscription intégrale mot à mot (un mot)]\nverbatim\n\n[Question 6 — Durée totale des entretiens (en minutes)]\n360",
+    "takeaway": "1) Guide de thèmes obligatoires mais ordre souple : entretien semi-directif, le format de référence du mémoire professionnel.\n2) Répéter « complexe ? » sans rien ajouter : c'est la relance en écho (ou miroir), qui approfondit sans jamais orienter.\n3) L'autorisation d'enregistrement s'inscrit dans le consentement éclairé, garanti en ouverture avec l'anonymat strict et le cadre non évaluatif.\n4) Un focus group réunit 6 à 10 participants : assez pour la dynamique collective, assez peu pour que chacun s'exprime en profondeur.\n5) La retranscription intégrale mot à mot est le verbatim, matière première de l'analyse de contenu.\n6) Durée totale : 8 × 45 = 360 minutes de collecte, hors temps de retranscription."
   },
   {
-    id: "eq3-c4-e2",
-    chapter: 4,
-    level: "n2",
-    language: 'analyse',
-    title: "Analyseur d’interactions de Focus Group et équilibre du temps de parole",
-    goal: "Mesurer la répartition des prises de parole lors d’une table ronde qualitative et détecter un éventuel biais de leader dominant.",
-    brief: "<p>Pour chaque cas d’application :<br>\n<code>FOCUS_GROUP id=&lt;id&gt; duree_totale=&lt;D_min&gt; participants=&lt;Nom1&gt;:&lt;T1&gt;,&lt;Nom2&gt;:&lt;T2&gt;,...</code>.<br>\nOù chaque $T_i$ est la durée totale cumulée en minutes par chaque participant.<br><br>\nCalculs :<br>\n- Nombre de participants $P$.<br>\n- Temps total parlé : $T_{parle} = \\sum T_i$.<br>\n- Pour chaque participant : part relative du temps parlé $pct_i = (T_i / T_{parle}) \\times 100$ (1 décimale).<br>\n- Détection de monopole : si un participant a $pct_i &gt; 35.0\\%$, il est qualifié de leader dominant (le premier qui dépasse).<br><br>\nDiagnostic :<br>\n- Si un leader dominant est détecté :<br>\n  <code>DYNAMIQUE=BIAIS_DOMINANCE (LEADER={Nom} {pct:.1f}%)</code><br>\n- Sinon si $P \\ge 4$ :<br>\n  <code>DYNAMIQUE=EQUILIBREE_CONCERTATION_FLUIDE</code><br>\n- Sinon :<br>\n  <code>DYNAMIQUE=GROUPE_RESTREINT</code><br><br>\nAfficher :<br>\n<code>FOCUS_ANALYSE: {id} -> PARTICIPANTS={P} TEMPS_PARLE={T_parle}m/{duree_totale}m | {DYNAMIQUE}</code></p>",
-    starter: "# Grille d'analyse (eq3-c4-e2) — Analyseur d’interactions de Focus Group et équilibre du temps de parole\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Focus group avec leader dominant écrasant]\n# Données : FOCUS_GROUP id=FG_Direction duree_totale=100 participants=Manager:45,Ingenieur1:15,Ingenieur2:10,Technicien:10\nA_COMPLETER\n\n[Cas 2 — Groupe restreint de 3 participants équilibrés]\n# Données : FOCUS_GROUP id=FG_Trio duree_totale=60 participants=Marc:15,Julie:15,Sophie:15\nA_COMPLETER\n\n[Cas 3 — Grand groupe équilibré de 5 participants]\n# Données : FOCUS_GROUP id=FG_Usagers duree_totale=120 participants=P1:20,P2:20,P3:20,P4:20,P5:20\nA_COMPLETER\n",
-    hints: [
-          "Calculer la part relative par rapport au temps parlé effectif.",
-          "Vérifier le seuil de 35% pour détecter la captation de la parole."
+    "id": "eq3-c4-e2",
+    "chapter": 4,
+    "level": "n2",
+    "language": "analyse",
+    "title": "Le focus group sur l'outil collaboratif TeamSphere",
+    "exampleTitle": "Exemple résolu — l'atelier cantine de l'entreprise Vorhees",
+    "goal": "Analyser la répartition du temps de parole d'un focus group et le biais de dominance associé.",
+    "brief": "<p><strong>Énoncé.</strong> L'assurance Malteo réunit un focus group de <strong>8 participants</strong> pendant <strong>90 minutes</strong> pour tester son nouvel outil collaboratif TeamSphere. Le modérateur relève le temps de parole de chacun :</p><table><tr><th>Participant</th><th>Karim (chef de projet)</th><th>Léa</th><th>Marc</th><th>Nina</th><th>4 participants discrets</th></tr><tr><th>Temps de parole (min)</th><td>36</td><td>15</td><td>12</td><td>9</td><td>18 au total</td></tr></table><p>Rappel du cours : au-delà de 35 % du temps total accaparé par une personne, on parle de leader dominant, avec un risque de conformisme pour le reste du groupe (effet Asch). Par ailleurs, une ergonome de Malteo passe trois semaines intégrée dans une équipe de développeurs, comme développeuse, pour observer les usages réels de l'outil.</p><ol><li>Quelle part du temps de parole total Karim accapare-t-il, en pourcentage ?</li><li>Au-delà de quel pourcentage du temps total une personne devient-elle un leader dominant ?</li><li>Karim est-il un leader dominant au sens du cours ? (oui/non)</li><li>Quel risque de biais son comportement fait-il courir aux autres participants ? (un mot)</li><li>Quelle est la durée moyenne de parole de chacun des 4 participants discrets, en minutes ?</li><li>La posture de l'ergonome, intégrée à l'équipe comme développeuse, s'appelle l'observation ... (un mot)</li></ol>",
+    "starter": "# Exercice — Le focus group sur l'outil collaboratif TeamSphere\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Les questions 1, 2 et 5 attendent des nombres (la 5 à une décimale).\n\n[Question 1 — Part du temps de parole de Karim (en %)]\nA_COMPLETER\n\n[Question 2 — Seuil de leader dominant (en %)]\nA_COMPLETER\n\n[Question 3 — Karim est-il un leader dominant (oui/non)]\nA_COMPLETER\n\n[Question 4 — Risque de biais pour les autres (un mot)]\nA_COMPLETER\n\n[Question 5 — Durée moyenne de parole des 4 discrets (en minutes)]\nA_COMPLETER\n\n[Question 6 — Observation ... (un mot)]\nA_COMPLETER\n",
+    "hints": [
+      "La part de parole d'un participant vaut son temps divisé par le temps total du groupe, multiplié par 100.",
+      "Le cours fixe le seuil de domination à 35 % du temps total ; au-delà, les autres participants s'autocensurent par conformisme.",
+      "Pour la moyenne, partagez les 18 minutes restantes entre les 4 participants discrets ; l'ergonome intégrée à l'équipe comme développeuse pratique l'observation participante."
     ],
-    examples: [
-          {
-                "stdin": "FOCUS_GROUP id=FG_DevOps duree_totale=90 participants=Alice:20,Bob:18,Chloe:22,David:20",
-                "expected": "FOCUS_ANALYSE: FG_DevOps -> PARTICIPANTS=4 TEMPS_PARLE=80m/90m | DYNAMIQUE=EQUILIBREE_CONCERTATION_FLUIDE",
-                "note": "4 participants avec des temps répartis entre 18 et 22m : concertation parfaitement fluide."
-          }
+    "examples": [
+      {
+        "stdin": "Chez Vorhees, un atelier de 6 personnes dure 60 minutes : Nadia (manager) parle 27 minutes, les 5 autres se partagent les 33 minutes restantes. Une assistante observe les pauses en restant assise au fond de la salle, sans participer.\n\n1) Part de Nadia : 27/60 = 45 %.\n2) Seuil de leader dominant : 35 %.\n3) 45 % > 35 % : oui, leader dominant.\n4) Risque : le conformisme (effet Asch).\n5) Moyenne des 5 autres : 33/5 = 6,6 minutes.\n6) L'assistante extérieure silencieuse : observation non participante.",
+        "expected": "45 % — 35 % — oui — conformisme — 6,6 min — non participante",
+        "note": "Le modérateur doit redistribuer la parole : solliciter nommément les discrets, sinon le groupe s'aligne sur le dominant et masque les dissensus."
+      }
     ],
-    tests: [
-          {
-                "label": "Focus group avec leader dominant écrasant",
-                "stdin": "cas:1",
-                "expected": "FOCUS_ANALYSE: FG_Direction -> PARTICIPANTS=4 TEMPS_PARLE=80m/100m | DYNAMIQUE=BIAIS_DOMINANCE (LEADER=Manager 56.2%)"
-          },
-          {
-                "label": "Groupe restreint de 3 participants équilibrés",
-                "stdin": "cas:2",
-                "expected": "FOCUS_ANALYSE: FG_Trio -> PARTICIPANTS=3 TEMPS_PARLE=45m/60m | DYNAMIQUE=GROUPE_RESTREINT"
-          },
-          {
-                "label": "Grand groupe équilibré de 5 participants",
-                "stdin": "cas:3",
-                "expected": "FOCUS_ANALYSE: FG_Usagers -> PARTICIPANTS=5 TEMPS_PARLE=100m/120m | DYNAMIQUE=EQUILIBREE_CONCERTATION_FLUIDE"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Part du temps de parole de Karim",
+        "stdin": "q:1",
+        "expected": "40||40 %"
+      },
+      {
+        "label": "Question 2 — Seuil de leader dominant",
+        "stdin": "q:2",
+        "expected": "35||35 %"
+      },
+      {
+        "label": "Question 3 — Karim est-il un leader dominant",
+        "stdin": "q:3",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 4 — Risque de biais pour les autres",
+        "stdin": "q:4",
+        "expected": "conformisme||effet Asch||Asch||de conformisme"
+      },
+      {
+        "label": "Question 5 — Durée moyenne de parole des 4 discrets",
+        "stdin": "q:5",
+        "expected": "4,5||4,5 minutes"
+      },
+      {
+        "label": "Question 6 — Observation ...",
+        "stdin": "q:6",
+        "expected": "participante||observation participante||l'observation participante||l’observation participante"
+      }
     ],
-    solution: "[Exemple]\nFOCUS_ANALYSE: FG_DevOps -> PARTICIPANTS=4 TEMPS_PARLE=80m/90m | DYNAMIQUE=EQUILIBREE_CONCERTATION_FLUIDE\n\n[Cas 1 — Focus group avec leader dominant écrasant]\nFOCUS_ANALYSE: FG_Direction -> PARTICIPANTS=4 TEMPS_PARLE=80m/100m | DYNAMIQUE=BIAIS_DOMINANCE (LEADER=Manager 56.2%)\n\n[Cas 2 — Groupe restreint de 3 participants équilibrés]\nFOCUS_ANALYSE: FG_Trio -> PARTICIPANTS=3 TEMPS_PARLE=45m/60m | DYNAMIQUE=GROUPE_RESTREINT\n\n[Cas 3 — Grand groupe équilibré de 5 participants]\nFOCUS_ANALYSE: FG_Usagers -> PARTICIPANTS=5 TEMPS_PARLE=100m/120m | DYNAMIQUE=EQUILIBREE_CONCERTATION_FLUIDE\n"
+    "solution": "[Question 1 — Part du temps de parole de Karim (en %)]\n40\n\n[Question 2 — Seuil de leader dominant (en %)]\n35\n\n[Question 3 — Karim est-il un leader dominant (oui/non)]\noui\n\n[Question 4 — Risque de biais pour les autres (un mot)]\nconformisme\n\n[Question 5 — Durée moyenne de parole des 4 discrets (en minutes)]\n4,5\n\n[Question 6 — Observation ... (un mot)]\nparticipante",
+    "takeaway": "Contrôle : 36 + 15 + 12 + 9 + 18 = 90 minutes.\n1) Part de Karim : 36/90 × 100 = 40 % du temps de parole.\n2) Le seuil du cours est 35 % du temps total.\n3) 40 % > 35 % : oui, Karim est un leader dominant.\n4) Les autres participants risquent de s'aligner sur lui par conformisme (effet Asch) : le modérateur doit redistribuer la parole vers les silencieux.\n5) Les 4 participants discrets se partagent 18 minutes : 18/4 = 4,5 minutes chacun en moyenne.\n6) Intégrée à l'équipe comme développeuse pour observer de l'intérieur : observation participante (par opposition à l'observation non participante du témoin extérieur muni d'une grille)."
   },
   {
     id: "eq3-c4-e3",
@@ -93,8 +129,9 @@ module.exports = [
     brief: "<p>Deux observateurs indépendants codent les mêmes unités selon deux catégories : O (présence) et N (absence). Pour chaque cas :<br>\n<code>OBSERVATION session=&lt;id&gt; OO=&lt;nombre&gt; ON=&lt;nombre&gt; NO=&lt;nombre&gt; NN=&lt;nombre&gt;</code>.<br>\nLa première lettre désigne le codage de l’observateur 1 (ligne), la seconde celui de l’observateur 2 (colonne). Les quatre effectifs sont entiers, positifs ou nuls, et leur somme $U$ est strictement positive.<br><br>\nCalculs :<br>\n- Accords $A = OO + NN$ et accord brut $P_0 = A / U$.<br>\n- Accord attendu à partir des marges : $P_e = [(OO+ON)(OO+NO) + (NO+NN)(ON+NN)] / U^2$.<br>\n- Si $P_e &lt; 1$, kappa non pondéré $\\kappa = (P_0 - P_e)/(1 - P_e)$ ; si $P_e = 1$, il est <code>INDEFINI</code>.<br>\n- Afficher $P_0$ et $P_e$ en pourcentage à une décimale, et le kappa à trois décimales.<br><br>\nUn accord brut élevé ne garantit ni objectivité ni absence d’ambiguïté. Le kappa dépend des marges et ne remplace pas l’examen des désaccords.<br><br>\nAfficher :<br>\n<code>ACCORD_OBSERVATEURS: {session} -> ACCORDS={A}/{U} ({P_0:.1f}%) | PE={P_e:.1f}% | KAPPA={kappa}</code></p>",
     starter: "# Grille d'analyse (eq3-c4-e3) — Grille d’observation comportementale et accord inter-observateurs\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Accord brut de 80%]\n# Données : OBSERVATION session=S2 OO=6 ON=1 NO=1 NN=2\nA_COMPLETER\n\n[Cas 2 — Accord brut de 90% et catégories rares]\n# Données : OBSERVATION session=S3 OO=90 ON=5 NO=5 NN=0\nA_COMPLETER\n\n[Cas 3 — Accord attendu égal à 100%]\n# Données : OBSERVATION session=S4 OO=10 ON=0 NO=0 NN=0\nA_COMPLETER\n",
     hints: [
-          "Construire les marges du tableau et additionner les deux produits des proportions marginales correspondantes.",
-          "Comparer l’accord brut à l’accord attendu ; si ce dernier vaut 1, le dénominateur du kappa est nul."
+      "Construire les marges du tableau et additionner les deux produits des proportions marginales correspondantes.",
+      "Comparer l’accord brut à l’accord attendu ; si ce dernier vaut 1, le dénominateur du kappa est nul.",
+      "Calculez Po (proportion d accords observés), puis Pe à partir des produits de fréquences marginales des deux observateurs, enfin kappa = (Po - Pe) / (1 - Pe)."
     ],
     examples: [
           {
@@ -120,6 +157,7 @@ module.exports = [
                 "expected": "ACCORD_OBSERVATEURS: S4 -> ACCORDS=10/10 (100.0%) | PE=100.0% | KAPPA=INDEFINI"
           }
     ],
-    solution: "[Exemple]\nACCORD_OBSERVATEURS: S1 -> ACCORDS=8/10 (80.0%) | PE=50.0% | KAPPA=0.600\n\n[Cas 1 — Accord brut de 80%]\nACCORD_OBSERVATEURS: S2 -> ACCORDS=8/10 (80.0%) | PE=58.0% | KAPPA=0.524\n\n[Cas 2 — Accord brut de 90% et catégories rares]\nACCORD_OBSERVATEURS: S3 -> ACCORDS=90/100 (90.0%) | PE=90.5% | KAPPA=-0.053\n\n[Cas 3 — Accord attendu égal à 100%]\nACCORD_OBSERVATEURS: S4 -> ACCORDS=10/10 (100.0%) | PE=100.0% | KAPPA=INDEFINI\n"
+    solution: "[Exemple]\nACCORD_OBSERVATEURS: S1 -> ACCORDS=8/10 (80.0%) | PE=50.0% | KAPPA=0.600\n\n[Cas 1 — Accord brut de 80%]\nACCORD_OBSERVATEURS: S2 -> ACCORDS=8/10 (80.0%) | PE=58.0% | KAPPA=0.524\n\n[Cas 2 — Accord brut de 90% et catégories rares]\nACCORD_OBSERVATEURS: S3 -> ACCORDS=90/100 (90.0%) | PE=90.5% | KAPPA=-0.053\n\n[Cas 3 — Accord attendu égal à 100%]\nACCORD_OBSERVATEURS: S4 -> ACCORDS=10/10 (100.0%) | PE=100.0% | KAPPA=INDEFINI\n",
+    takeaway: "À retenir : Calculer l’accord brut et le kappa de Cohen non pondéré, puis en identifier les limites.\nRepère : L’accord brut est de 80% ; les deux marges équilibrées donnent un accord attendu de 50%."
   }
 ];

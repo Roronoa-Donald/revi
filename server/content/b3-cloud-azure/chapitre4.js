@@ -142,50 +142,50 @@ module.exports = {
       stem: 'À quoi servent les adresses réservées aux décalages +2 et +3 dans un sous-réseau Azure ?',
       opts: [
         'Deux résolveurs DNS primaire et secondaire du sous-réseau',
-        'La correspondance des adresses Azure DNS dans l\'espace du VNet',
+        'Les deux premières machines virtuelles créées',
         'La passerelle par défaut et l\'adresse de diffusion',
-        'Les deux premières machines virtuelles créées'
+        'La correspondance des adresses Azure DNS dans l\'espace du VNet'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Ces deux adresses servent à la correspondance Azure DNS ; elles ne désignent pas deux résolveurs. Le DNS fourni par Azure utilise 168.63.129.16, sauf configuration DNS personnalisée.'
     },
     {
       stem: 'Comment s\'effectue l\'évaluation de deux règles contradictoires au sein d\'un même Network Security Group (NSG) ?',
       opts: [
-        'La règle Deny l\'emporte toujours sur la règle Allow',
-        'La règle ayant le numéro de priorité le plus faible est évaluée en premier et s\'applique immédiatement',
-        'La règle la plus récemment modifiée s\'applique',
-        'Les deux règles fusionnent'
+        "La règle ayant le numéro de priorité le plus faible est évaluée en premier et s'applique immédiatement",
+        "La règle Deny l'emporte toujours sur la règle Allow quel que soit leur numéro de priorité respectif",
+        "La règle la plus récemment modifiée s'applique prioritairement aux connexions entrantes",
+        "Les deux règles fusionnent automatiquement en une seule règle composite"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les règles NSG sont traitées par ordre strictement croissant de priorité (100 à 4096). La première règle qui correspond aux critères du paquet s\'applique et arrête le processus d\'évaluation.'
     },
     {
       stem: 'Quelle est la priorité de la règle par défaut Inbound d\'un NSG qui bloque tout le trafic entrant non explicitement autorisé (DenyAllInBound) ?',
-      opts: ['100', '1000', '65000', '65500'],
-      correct: 3,
+      opts: ['100', '65500', '65000', '1000'],
+      correct: 1,
       exp: 'La règle par défaut DenyAllInBound possède la priorité 65500, garantissant qu\'elle s\'applique en toute fin de chaîne si aucune règle personnalisée précédente n\'a matché.'
     },
     {
       stem: 'Pourquoi Azure Bastion est-il considéré comme une pratique d\'excellence pour l\'administration de machines virtuelles ?',
       opts: [
-        'Il augmente la mémoire RAM des serveurs de 50%',
-        'Il permet la connexion RDP et SSH depuis un navigateur web via HTTPS sans attribuer d\'adresse IP publique à la VM',
-        'Il supprime le besoin de mots de passe administrateur',
-        'Il remplace le système d\'exploitation par Linux'
+        "Il augmente la mémoire RAM des serveurs de 50% via une extension matérielle automatique",
+        "Il supprime totalement le besoin de mots de passe administrateur sur les machines virtuelles",
+        "Il permet la connexion RDP et SSH depuis un navigateur web via HTTPS sans attribuer d'adresse IP publique à la VM",
+        "Il remplace automatiquement le système d'exploitation de la VM par une distribution Linux"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Azure Bastion établit une session RDP/SSH sécurisée au travers d\'une connexion web chiffrée (port 443), éliminant l\'exposition des ports 22 et 3389 sur Internet et évitant d\'assigner des IPs publiques aux serveurs.'
     },
     {
       stem: 'Quelle condition technique stricte est obligatoire pour pouvoir établir un VNet Peering entre deux réseaux virtuels Azure ?',
       opts: [
         'Les deux VNets doivent être situés dans le même pays',
-        'Les espaces d\'adressage IP (CIDR) des deux VNets ne doivent comporter aucun chevauchement',
+        'Les machines doivent utiliser le même système d\'exploitation',
         'Les deux VNets doivent être gérés par le même abonnement',
-        'Les machines doivent utiliser le même système d\'exploitation'
+        'Les espaces d\'adressage IP (CIDR) des deux VNets ne doivent comporter aucun chevauchement'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le peering entre deux réseaux virtuels est strictement impossible si leurs plages d\'adresses IP (espaces d\'adressage CIDR) se chevauchent, afin d\'éviter toute collision de routage.'
     },
     {
@@ -197,12 +197,12 @@ module.exports = {
     {
       stem: 'Quelle est la portée géographique du service Global VNet Peering sous Azure ?',
       opts: [
-        'Uniquement entre deux datacenters de la même ville',
-        'Entre n\'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft',
-        'Uniquement au sein de l\'Union Européenne',
-        'Uniquement entre régions jumelées'
+        "Entre n'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft",
+        "Uniquement entre deux datacenters situés dans la même ville ou la même zone métropolitaine",
+        "Uniquement au sein des régions Azure implantées sur le territoire de l'Union Européenne",
+        "Uniquement entre deux régions jumelées (paired regions) d'une même zone géographique"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Global VNet Peering permet d\'interconnecter des VNets situés dans des régions Azure différentes (ex: France Central et East US) avec un chiffrement matériel natif sur le réseau privé Microsoft.'
     }
   ],

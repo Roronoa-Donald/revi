@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c2-e1) — Cartographe d’équivalences de services CSP (AWS, Azure, GCP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Fonctions Serverless AWS vers Azure]\n# Données : MAPPING csp_src=AWS csp_dst=Azure service=Lambda\nA_COMPLETER\n\n[Cas 2 — Kubernetes managé GCP vers AWS]\n# Données : MAPPING csp_src=GCP csp_dst=AWS service=GKE\nA_COMPLETER\n\n[Cas 3 — Base de données managée Azure vers GCP]\n# Données : MAPPING csp_src=Azure csp_dst=GCP service=Azure_SQL\nA_COMPLETER\n",
     "hints": [
       "Stocker le tableau sous forme d’un dictionnaire indexé par catégorie.",
-      "Comparer les noms de manière exacte (sensible à la casse)."
+      "Comparer les noms de manière exacte (sensible à la casse).",
+      "1. Identifier la catégorie du service source dans le catalogue. 2. Prendre le service équivalent du fournisseur cible dans cette catégorie. 3. Service hors catalogue : répondre INCONNU."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "EQUIVALENCE: Azure:Azure_SQL -> GCP:Cloud_SQL (CATEGORIE=RELATIONAL_DB)"
       }
     ],
-    "solution": "[Exemple]\nEQUIVALENCE: AWS:S3 -> GCP:Cloud_Storage (CATEGORIE=STORAGE)\nEQUIVALENCE: Azure:Virtual_Machines -> AWS:EC2 (CATEGORIE=COMPUTE)\nEQUIVALENCE: AWS:OpenSearch -> INCONNU\n\n[Cas 1 — Fonctions Serverless AWS vers Azure]\nEQUIVALENCE: AWS:Lambda -> Azure:Azure_Functions (CATEGORIE=SERVERLESS)\n\n[Cas 2 — Kubernetes managé GCP vers AWS]\nEQUIVALENCE: GCP:GKE -> AWS:EKS (CATEGORIE=CONTAINER_ORCH)\n\n[Cas 3 — Base de données managée Azure vers GCP]\nEQUIVALENCE: Azure:Azure_SQL -> GCP:Cloud_SQL (CATEGORIE=RELATIONAL_DB)"
+    "solution": "[Exemple]\nEQUIVALENCE: AWS:S3 -> GCP:Cloud_Storage (CATEGORIE=STORAGE)\nEQUIVALENCE: Azure:Virtual_Machines -> AWS:EC2 (CATEGORIE=COMPUTE)\nEQUIVALENCE: AWS:OpenSearch -> INCONNU\n\n[Cas 1 — Fonctions Serverless AWS vers Azure]\nEQUIVALENCE: AWS:Lambda -> Azure:Azure_Functions (CATEGORIE=SERVERLESS)\n\n[Cas 2 — Kubernetes managé GCP vers AWS]\nEQUIVALENCE: GCP:GKE -> AWS:EKS (CATEGORIE=CONTAINER_ORCH)\n\n[Cas 3 — Base de données managée Azure vers GCP]\nEQUIVALENCE: Azure:Azure_SQL -> GCP:Cloud_SQL (CATEGORIE=RELATIONAL_DB)",
+    "takeaway": "Identifier les équivalences Compute, Stockage objet et IAM entre AWS, Azure et GCP évite le verrouillage conceptuel mono-fournisseur."
   },
   {
     "id": "cc3-c2-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c2-e2) — Calculateur de SLA composé et budget d’erreur annuel\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chaîne trois tiers Web-App-BDD en série]\n# Données : CALCUL_SLA MODE=SERIE SLAS=99.95,99.9,99.99\nA_COMPLETER\n\n[Cas 2 — Deux passerelles API redondées en parallèle]\n# Données : CALCUL_SLA MODE=PARALLELE SLAS=99.95,99.95\nA_COMPLETER\n\n[Cas 3 — Composant unique]\n# Données : CALCUL_SLA MODE=SERIE SLAS=99.99\nA_COMPLETER\n",
     "hints": [
       "En série, le SLA global est toujours STRICTEMENT INFÉRIEUR au plus faible SLA unitaire.",
-      "En parallèle, la redondance réduit drastiquement la probabilité de panne simultanée."
+      "En parallèle, la redondance réduit drastiquement la probabilité de panne simultanée.",
+      "1. Convertir chaque SLA en décimal. 2. Série : produit des probabilités ; parallèle : 1 moins le produit des compléments. 3. Indisponibilité = 525600 × (1 − P). 4. Afficher à 4 puis 2 décimales."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "SLA: MODE=SERIE -> DISPONIBILITE=99.9900% | INDISPONIBILITE=52.56 min/an"
       }
     ],
-    "solution": "[Exemple]\nSLA: MODE=SERIE -> DISPONIBILITE=99.8501% | INDISPONIBILITE=788.14 min/an\nSLA: MODE=PARALLELE -> DISPONIBILITE=99.9999% | INDISPONIBILITE=0.53 min/an\n\n[Cas 1 — Chaîne trois tiers Web-App-BDD en série]\nSLA: MODE=SERIE -> DISPONIBILITE=99.8401% | INDISPONIBILITE=840.62 min/an\n\n[Cas 2 — Deux passerelles API redondées en parallèle]\nSLA: MODE=PARALLELE -> DISPONIBILITE=100.0000% | INDISPONIBILITE=0.13 min/an\n\n[Cas 3 — Composant unique]\nSLA: MODE=SERIE -> DISPONIBILITE=99.9900% | INDISPONIBILITE=52.56 min/an"
+    "solution": "[Exemple]\nSLA: MODE=SERIE -> DISPONIBILITE=99.8501% | INDISPONIBILITE=788.14 min/an\nSLA: MODE=PARALLELE -> DISPONIBILITE=99.9999% | INDISPONIBILITE=0.53 min/an\n\n[Cas 1 — Chaîne trois tiers Web-App-BDD en série]\nSLA: MODE=SERIE -> DISPONIBILITE=99.8401% | INDISPONIBILITE=840.62 min/an\n\n[Cas 2 — Deux passerelles API redondées en parallèle]\nSLA: MODE=PARALLELE -> DISPONIBILITE=100.0000% | INDISPONIBILITE=0.13 min/an\n\n[Cas 3 — Composant unique]\nSLA: MODE=SERIE -> DISPONIBILITE=99.9900% | INDISPONIBILITE=52.56 min/an",
+    "takeaway": "La disponibilité composée de services en série multiplie leurs SLA individuels : chaque dépendance supplémentaire augmente le budget d’indisponibilité."
   },
   {
     "id": "cc3-c2-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cc3-c2-e3) — Simulateur de passerelle multi-cloud et routage dynamique\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Basculement après panne du nœud primaire]\n# Données : ENDPOINT csp=AWS_primary latence=10 sante=DOWN cout=0.0020\n# Données : ENDPOINT csp=Azure_backup latence=25 sante=UP cout=0.0025\n# Données : ROUTE strategie=FAILOVER\nA_COMPLETER\n\n[Cas 2 — Tous les nœuds hors service]\n# Données : ENDPOINT csp=AWS_dc1 latence=12 sante=DOWN cout=0.0020\n# Données : ENDPOINT csp=GCP_dc2 latence=18 sante=DOWN cout=0.0030\n# Données : ROUTE strategie=MIN_LATENCY\nA_COMPLETER\n\n[Cas 3 — Égalité de latence résolue par le coût]\n# Données : ENDPOINT csp=CSP_A latence=20 sante=UP cout=0.0050\n# Données : ENDPOINT csp=CSP_B latence=20 sante=UP cout=0.0030\n# Données : ROUTE strategie=MIN_LATENCY\nA_COMPLETER\n",
     "hints": [
       "Garder la liste ordonnée des déclarations d’endpoints.",
-      "Filtrer impérativement les hôtes DOWN avant d'appliquer la stratégie."
+      "Filtrer impérativement les hôtes DOWN avant d'appliquer la stratégie.",
+      "1. Ne garder que les endpoints sains. 2. MIN_LATENCY : latence minimale, départage au coût puis à l’ordre ; MIN_COST : coût minimal. 3. FAILOVER : premier sain. 4. Sinon : AUCUN_ENDPOINT_DISPONIBLE."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "ROUTAGE: STRATEGIE=MIN_LATENCY -> CSP_CHOISI=CSP_B (latence=20ms, cout=$0.0030)"
       }
     ],
-    "solution": "[Exemple]\nROUTAGE: STRATEGIE=MIN_LATENCY -> CSP_CHOISI=GCP_europe (latence=19ms, cout=$0.0065)\nROUTAGE: STRATEGIE=MIN_COST -> CSP_CHOISI=AWS_eu_west (latence=28ms, cout=$0.0040)\nROUTAGE: STRATEGIE=FAILOVER -> CSP_CHOISI=AWS_eu_west (latence=28ms, cout=$0.0040)\n\n[Cas 1 — Basculement après panne du nœud primaire]\nROUTAGE: STRATEGIE=FAILOVER -> CSP_CHOISI=Azure_backup (latence=25ms, cout=$0.0025)\n\n[Cas 2 — Tous les nœuds hors service]\nROUTAGE: STRATEGIE=MIN_LATENCY -> AUCUN_ENDPOINT_DISPONIBLE\n\n[Cas 3 — Égalité de latence résolue par le coût]\nROUTAGE: STRATEGIE=MIN_LATENCY -> CSP_CHOISI=CSP_B (latence=20ms, cout=$0.0030)"
+    "solution": "[Exemple]\nROUTAGE: STRATEGIE=MIN_LATENCY -> CSP_CHOISI=GCP_europe (latence=19ms, cout=$0.0065)\nROUTAGE: STRATEGIE=MIN_COST -> CSP_CHOISI=AWS_eu_west (latence=28ms, cout=$0.0040)\nROUTAGE: STRATEGIE=FAILOVER -> CSP_CHOISI=AWS_eu_west (latence=28ms, cout=$0.0040)\n\n[Cas 1 — Basculement après panne du nœud primaire]\nROUTAGE: STRATEGIE=FAILOVER -> CSP_CHOISI=Azure_backup (latence=25ms, cout=$0.0025)\n\n[Cas 2 — Tous les nœuds hors service]\nROUTAGE: STRATEGIE=MIN_LATENCY -> AUCUN_ENDPOINT_DISPONIBLE\n\n[Cas 3 — Égalité de latence résolue par le coût]\nROUTAGE: STRATEGIE=MIN_LATENCY -> CSP_CHOISI=CSP_B (latence=20ms, cout=$0.0030)",
+    "takeaway": "Le routage multi-cloud évalue latence, coût de sortie (egress) et conformité géographique avant de sélectionner la passerelle cible."
   }
 ];

@@ -93,43 +93,43 @@ module.exports = {
     {
       "stem": "Dans une attaque par dépassement de tampon sur la pile (Stack Buffer Overflow x86), quel registre de processeur l'attaquant cherche-t-il à écraser pour contrôler le flux d'exécution ?",
       "opts": [
-        "Le registre EIP (Extended Instruction Pointer)",
+        "Le registre ESP (Stack Pointer)",
         "Le registre EAX (Accumulateur)",
         "Le registre ECX (Compteur)",
-        "Le registre ESP (Stack Pointer)"
+        "Le registre EIP (Extended Instruction Pointer)"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "EIP contient l'adresse de la prochaine instruction processeur à exécuter. En écrasant l'adresse de retour sauvegardée sur la pile, EIP est forcé de pointer vers le shellcode de l'attaquant."
     },
     {
       "stem": "Quel est le rôle d'un \"NOP Sled\" (suite d'instructions 0x90) placé avant le shellcode dans un exploit Buffer Overflow ?",
       "opts": [
+        "Obfusquer et chiffrer le shellcode pour qu'il devienne indétectable par les antivirus et les EDR déployés sur la cible",
+        "Élever les privilèges de l'utilisateur courant jusqu'au niveau root du système avant l'exécution du code injecté",
         "Créer une zone d'atterrissage tolérante : si le saut processeur tombe n'importe où dans les NOP, l'exécution glisse sans erreur jusqu'au shellcode",
-        "Chiffrer le shellcode pour le rendre indétectable par l'antivirus",
-        "Augmenter les privilèges de l'utilisateur au niveau root avant l'exécution",
-        "Supprimer les journaux d'événements du système d'exploitation"
+        "Supprimer l'intégralité des journaux d'événements du système d'exploitation afin d'effacer les traces de l'attaque"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Le NOP sled (No Operation) permet de compenser les légères imprécisions d'adressage mémoire : le processeur exécute les NOP séquentiellement jusqu'à atteindre le début du shellcode."
     },
     {
       "stem": "Quel mécanisme de sécurité de l'OS empêche l'exécution de code injecté directement dans la mémoire de la pile (Stack) ?",
       "opts": [
-        "DEP / NX (Data Execution Prevention / No-Execute)",
         "ASLR (Address Space Layout Randomization)",
-        "DHCP Snooping",
-        "RAID 5"
+        "DEP / NX (Data Execution Prevention / No-Execute)",
+        "DHCP Snooping (filtrage des ports des commutateurs)",
+        "RAID 5 (tolérance de panne des disques durs)"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "DEP/NX marque les pages de pile et de tas comme non exécutables : toute tentative du processeur d'exécuter des instructions situées sur la pile déclenche une exception matérielle immédiate."
     },
     {
       "stem": "Dans Metasploit, quelle est la particularité d'un payload de type \"Stagé\" (ex: windows/x64/meterpreter/reverse_tcp) ?",
       "opts": [
         "Il est scindé en deux parties : un petit chargeur initial (Stager) qui se connecte pour télécharger ensuite le corps complet de la charge utile en mémoire",
-        "Il s'exécute exclusivement depuis une clé USB physique",
-        "Il ne fonctionne que si la cible dispose de privilèges root préalables",
-        "Il est entièrement compilé en assembleur 16-bit"
+        "Il s'exécute exclusivement depuis une clé USB physique branchée sur la machine cible avant le démarrage du système",
+        "Il ne fonctionne que si la machine cible dispose déjà de privilèges root ou SYSTEM préalables à son exécution complète",
+        "Il est entièrement compilé en assembleur 16-bit, ce qui le rend incompatible avec les processeurs modernes"
       ],
       "correct": 0,
       "exp": "Les payloads stagés résolvent le problème des petits tampons mémoire : le stager est minuscule, établit la connexion réseau, puis télécharge en RAM le reste du binaire Meterpreter volumineux."
@@ -137,34 +137,34 @@ module.exports = {
     {
       "stem": "Sur un système Linux, pourquoi le binaire /usr/bin/find avec le bit SUID root (mode 4755) représente-t-il une élévation de privilèges immédiate (GTFOBins) ?",
       "opts": [
-        "Parce qu'il permet d'exécuter un shell arbitraire via la commande : find . -exec /bin/sh -p \\; en conservant les privilèges du propriétaire root",
-        "Parce qu'il efface automatiquement le mot de passe root dans le fichier /etc/shadow",
-        "Parce qu'il désactive le pare-feu iptables lors de chaque recherche",
-        "Parce qu'il redémarre la machine en mode secours mono-utilisateur"
+        "Parce qu'il efface automatiquement le mot de passe root enregistré dans le fichier /etc/shadow à chaque exécution",
+        "Parce qu'il désactive automatiquement le pare-feu iptables de la machine lors de chaque recherche effectuée",
+        "Parce qu'il redémarre automatiquement la machine en mode secours mono-utilisateur à la fin de chaque recherche",
+        "Parce qu'il permet d'exécuter un shell arbitraire via la commande : find . -exec /bin/sh -p \\; en conservant les privilèges du propriétaire root"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "L'option -exec de find lance une commande sous l'identité effective du propriétaire du binaire (root grâce au bit SUID), ce qui permet d'obtenir un shell root avec le drapeau -p."
     },
     {
       "stem": "Quelle mauvaise configuration dans Windows permet l'attaque par \"Unquoted Service Path\" ?",
       "opts": [
+        "Le pare-feu Windows est entièrement désactivé sur le profil domaine de la machine ciblée",
+        "Le mot de passe du compte administrateur local comporte moins de 8 caractères complexes",
         "Le chemin vers l'exécutable du service comporte des espaces et n'est pas entouré de guillemets doubles dans le registre",
-        "Le pare-feu Windows est désactivé sur le profil domaine",
-        "Le mot de passe administrateur comporte moins de 8 caractères",
-        "Le service utilise le protocole UDP au lieu de TCP"
+        "Le service Windows utilise le protocole UDP à la place de TCP pour ses communications réseau"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Sous Windows, un chemin avec espaces sans guillemets force le gestionnaire de services à tenter d'exécuter chaque mot précédant un espace (ex: C:\\Program.exe avant C:\\Program Files\\...)."
     },
     {
       "stem": "Quel privilège Windows, souvent détenu par les comptes de services applicatifs (IIS/SQL), permet d'usurper l'identité de jetons locaux et d'obtenir les droits SYSTEM via l'exploit PrintSpoofer ?",
       "opts": [
-        "SeImpersonatePrivilege",
         "SeShutdownPrivilege",
+        "SeImpersonatePrivilege",
         "SeTimeZonePrivilege",
         "SeUndockPrivilege"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "SeImpersonatePrivilege autorise un compte de service à usurper le jeton de sécurité de n'importe quel client local se connectant à lui, permettant des attaques comme RottenPotato ou PrintSpoofer."
     },
     {

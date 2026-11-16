@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -162,11 +160,29 @@ cat fichiercible          → contenu
 
 </section>
 
+<section class="sec">
+
+<h2>5. Motifs Bash, unités binaires et /etc/passwd pour l’atelier</h2>
+
+<p>Les exercices de fin de chapitre simulent ces opérations en Bash sans toucher au disque réel. Quatre réflexes permettent de les aborder sans bloquer sur la syntaxe :</p>
+<ul>
+    <li><strong>Découper un chemin ou un champ sans boucle</strong> : en Bash, <code>${chemin##*/}</code> retire tout jusqu’au dernier <code>/</code> (comme <code>basename</code>), <code>${motif%%:*}</code> extrait ce qui précède <code>:</code> et <code>${motif#*:}</code> ce qui suit.</li>
+    <li><strong>Lire plusieurs champs séparés par <code>:</code></strong> : un fichier comme <code>/etc/passwd</code> range les comptes sur le modèle <code>login:UID:GID:shell</code>. L’idiome <code>IFS=":" read -r login uid gid shell &lt;&lt;&lt; "$ligne"</code> sépare directement les quatre variables.</li>
+    <li><strong>Convention des comptes sous Debian</strong> : les comptes système ont un <code>UID &lt; 1000</code> (ex. <code>root</code> à 0) et les comptes utilisateurs humains commencent à <code>UID ≥ 1000</code>.</li>
+    <li><strong>Unités binaires et zéros initiaux</strong> : dans les calculs de taille de l’atelier, <code>1 K = 1024</code> octets (1 Kio) et <code>1 M = 1048576</code> octets (1 Mio, à ne pas confondre avec le kilo décimal à 1000). Si un entier peut commencer par <code>0</code> (ex. <code>08</code>), écrire <code>$((10#$n))</code> force la base 10 et évite l’erreur octale.</li>
+  </ul>
+<pre><code># Extraire nom de base et décoder une ligne passwd :
+chemin="/var/log/syslog"
+base="${chemin##*/}"     # → syslog
+IFS=":" read -r login uid gid shell &lt;&lt;&lt; "alice:1000:1000:/bin/bash"</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
+  <h2>6. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
   réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
@@ -210,10 +226,11 @@ trouves : 2</pre></div>
     </div>
     <p class="lab__note">Le /home/testfichier1 a « test » devant : pas de correspondance de préfixe.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le nom de base s'obtient avec ${chemin##*/} : tout supprimer jusqu'au dernier /.</li>
         <li>Trois formes de motif : <code>${base#"$X"} != "$base"</code> (commence), <code>${base%"$X"} != "$base"</code> (finit), ou un test de sous-chaîne.</li>
+        <li>Lisez d'abord les n chemins, puis le motif ; testez le nom de base selon le motif (commence, finit, contient), affichez les chemins retenus puis « trouves : K ».</li>
       </ol>
     </details>
   </div>
@@ -306,24 +323,25 @@ bob</pre></div>
     </div>
     <p class="lab__note">UID 0 et 99 sont système ; 1000 et 1001 sont humains.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Découper par deux-points : IFS=":" read -r login uid gid shell &lt;&lt;&lt; "$ligne".</li>
         <li>Un test arithmétique [ "$uid" -lt 1000 ] sépare comptes système et comptes humains.</li>
+        <li>Pour chaque ligne, découpez les quatre champs au deux-points ; comptez tous les utilisateurs, répartissez selon UID inférieur à 1000 ; listez enfin les logins humains dans l'ordre.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Dans ls -a /home, quelle forme fréquente de commande est illustrée ?</p>
       <div class="opts">
-        <button class="opt">OPTIONS ARGUMENTS COMMANDE</button>
         <button class="opt" data-correct="1">COMMANDE OPTIONS ARGUMENTS</button>
+        <button class="opt">OPTIONS ARGUMENTS COMMANDE</button>
         <button class="opt">ARGUMENTS COMMANDE OPTIONS</button>
       </div>
       <div class="q__exp">Ici, ls est la commande, -a une option et /home un argument ; l’ordre et les éléments requis varient selon la commande.</div>
@@ -341,16 +359,16 @@ bob</pre></div>
       <p class="q__stem">Quelle commande crée un fichier vide ?</p>
       <div class="opts">
         <button class="opt">mkdir</button>
-        <button class="opt" data-correct="1">touch</button>
         <button class="opt">cat</button>
+        <button class="opt" data-correct="1">touch</button>
       </div>
       <div class="q__exp">touch change la date de modification d’un fichier — et le crée vide s’il n’existe pas.</div>
     </div>
     <div class="q">
       <p class="q__stem">echo "x" &gt; f et echo "x" &gt;&gt; f : quelle différence ?</p>
       <div class="opts">
-        <button class="opt">Aucune</button>
         <button class="opt" data-correct="1">&gt; écrase, &gt;&gt; ajoute à la fin</button>
+        <button class="opt">Aucune</button>
         <button class="opt">&gt; ajoute, &gt;&gt; écrase</button>
       </div>
       <div class="q__exp">Un chevron écrase le contenu, deux chevrons suffisent au fichier.</div>
@@ -358,18 +376,18 @@ bob</pre></div>
     <div class="q">
       <p class="q__stem">Que fait mv fichier3 /home/fichier4 ?</p>
       <div class="opts">
-        <button class="opt">Copie fichier3</button>
+        <button class="opt">Copie fichier3 vers /home en laissant l’original en place</button>
+        <button class="opt">Supprime fichier3 du répertoire courant</button>
         <button class="opt" data-correct="1">Renomme et déplace fichier3 en /home/fichier4 en une seule fois</button>
-        <button class="opt">Supprime fichier3</button>
       </div>
       <div class="q__exp">mv renomme ou déplace : renommer est un déplacement dans le même répertoire.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi rm -rf est-elle dangereuse ?</p>
       <div class="opts">
-        <button class="opt">Elle est lente</button>
+        <button class="opt">Elle est lente et consomme beaucoup de ressources</button>
         <button class="opt" data-correct="1">Elle peut supprimer tout le système de fichiers, irréversiblement</button>
-        <button class="opt">Elle chiffre les fichiers</button>
+        <button class="opt">Elle chiffre définitivement les fichiers supprimés</button>
       </div>
       <div class="q__exp">Le cours l’avertit : avec -f ou -rf, rm peut endommager voire détruire le système de fichiers sans retour.</div>
     </div>
@@ -385,8 +403,8 @@ bob</pre></div>
     <div class="q">
       <p class="q__stem">Après modification de la source, que voit-on via le lien symbolique ?</p>
       <div class="opts">
-        <button class="opt">L’ancien contenu</button>
         <button class="opt" data-correct="1">Le contenu mis à jour de la source</button>
+        <button class="opt">L’ancien contenu</button>
         <button class="opt">Une erreur</button>
       </div>
       <div class="q__exp">La cible n’est pas un fichier stocké : elle pointe vers la source et reflète son contenu courant.</div>
@@ -395,8 +413,8 @@ bob</pre></div>
       <p class="q__stem">Que fait find /tmp -type f ?</p>
       <div class="opts">
         <button class="opt">Liste les répertoires de /tmp</button>
-        <button class="opt" data-correct="1">Trouve tous les fichiers de /tmp</button>
         <button class="opt">Vide /tmp</button>
+        <button class="opt" data-correct="1">Trouve tous les fichiers de /tmp</button>
       </div>
       <div class="q__exp">-type f filtre sur les fichiers ordinaires ; sans critère, find listerait tout.</div>
     </div>
@@ -404,8 +422,8 @@ bob</pre></div>
       <p class="q__stem">Quel critère de find filtre par propriétaire ?</p>
       <div class="opts">
         <button class="opt">-name</button>
-        <button class="opt" data-correct="1">-user</button>
         <button class="opt">-perm</button>
+        <button class="opt" data-correct="1">-user</button>
       </div>
       <div class="q__exp">-user filtre par propriétaire (-group par groupe, -perm par permissions).</div>
     </div>
@@ -415,7 +433,7 @@ bob</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -432,7 +450,7 @@ bob</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Construire une ligne de commande fiable</div>
@@ -449,7 +467,7 @@ bob</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -479,7 +497,7 @@ bob</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -528,7 +546,7 @@ bob</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

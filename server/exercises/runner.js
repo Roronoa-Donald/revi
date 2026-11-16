@@ -115,9 +115,119 @@ function matchesStructuredJson(actual, expected) {
   }
 }
 
+function stripAccents(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+const ANALYSE_UNIT_SUFFIX = /(\d)\s*(min|minutes?|mn|secondes?|ms|cm|mm|km|kg|mg|ml|euros?|eur|keuros?|degres?|jours?|points?|appels?|clients?|eleves?|salaries?)$/;
+
+function freeFormAnalyse(value) {
+  return stripAccents(value)
+    .toLowerCase()
+    .replace(/\(/g, ' ')
+    .replace(/\)/g, ' ')
+    .replace(/\[|\]/g, ' ')
+    .replace(/,\s+/g, ' ')
+    .replace(/;\s*/g, ' ')
+    .replace(/\s+\/\s+/g, ' ')
+    .replace(/\s*%\s*/g, '%')
+    .replace(/[!?]+(?=\s|$)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function cleanAnalyse(value) {
+  return stripAccents(value)
+    .toLowerCase()
+    .replace(/,/g, '.')
+    .replace(/·/g, '*')
+    .replace(/\b(valide|non_valide|realisable|irrealisable|meilleur)\s*:\s*/g, '$1 ')
+    .replace(/\s*([=:<>;])\s*/g, '$1')
+    .replace(/\s*\*\s*/g, '*')
+    .replace(/\b(\d+)\.0+\b/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function matchAnalyseVariant(actual, expectedVariant, opts) {
+  const normA = normalizeOutput(actual);
+  const normE = normalizeOutput(expectedVariant);
+  if (normA === normE) return true;
+
+  const trimA = normA.trim();
+  const trimE = normE.trim();
+  if (trimA === trimE) return true;
+
+  const structuredJson = matchesStructuredJson(trimA, trimE);
+  if (structuredJson !== null) return structuredJson;
+
+  // Tolérance à la casse pour les notions et termes disciplinaires
+  if (trimA.toLowerCase() === trimE.toLowerCase()) return true;
+
+  // Tolérance virgule / point décimal (ex: 0,25 vs 0.25)
+  if (trimA.replace(',', '.') === trimE.replace(',', '.')) return true;
+
+  // Tolérance fraction vs décimal stricte (ex: 1/4 vs 0.25 ou 0,25, sans retrait d'unité)
+  const isFracA = /^-?\d+\s*\/\s*\d+$/.test(trimA);
+  const isFracE = /^-?\d+\s*\/\s*\d+$/.test(trimE);
+  if (isFracA || isFracE) {
+    const evalFrac = (str) => {
+      const parts = str.split('/');
+      return parts.length === 2 && Number(parts[1]) !== 0 ? Number(parts[0]) / Number(parts[1]) : NaN;
+    };
+    const valA = isFracA ? evalFrac(trimA) : parseDecimal(trimA);
+    const valE = isFracE ? evalFrac(trimE) : parseDecimal(trimE);
+    if (Number.isFinite(valA) && Number.isFinite(valE) && Math.abs(valA - valE) < 1e-6) {
+      return true;
+    }
+    return false;
+  }
+
+  // Normalisation sémantique et tolérance mathématique existante
+  const cleanA = cleanAnalyse(trimA);
+  const cleanE = cleanAnalyse(trimE);
+  if (cleanA === cleanE) return true;
+
+  // Normalisation des multiplications implicites : ex: 4x1 -> 4*x1
+  const expandMul = (s) => s.replace(/(\d)([a-z])/g, '$1*$2');
+  if (expandMul(cleanA) === expandMul(cleanE)) return true;
+
+  // Normalisation tolérante « forme libre » (accents NFD, espaces, ponctuation mineure, %, décimales, unités)
+  const freeA = freeFormAnalyse(trimA);
+  const freeE = freeFormAnalyse(trimE);
+  if (freeA === freeE) return true;
+
+  const decA = freeA.replace(/(\d),(\d)/g, '$1.$2');
+  const decE = freeE.replace(/(\d),(\d)/g, '$1.$2');
+  if (decA === decE) return true;
+
+  if ((/%/.test(freeA) || /%/.test(freeE)) && decA.replace(/%/g, '') === decE.replace(/%/g, '')) {
+    return true;
+  }
+
+  const stripUnit = (value) => value.replace(ANALYSE_UNIT_SUFFIX, '$1').trim();
+  const unitlessA = stripUnit(freeA);
+  const unitlessE = stripUnit(freeE);
+  if (unitlessA !== freeA || unitlessE !== freeE) {
+    if (unitlessA === unitlessE || unitlessA.replace(/(\d),(\d)/g, '$1.$2') === unitlessE.replace(/(\d),(\d)/g, '$1.$2')) {
+      return true;
+    }
+  }
+
+  if (opts && typeof opts.tolerance === 'number' && !isNaN(opts.tolerance)) {
+    const actNum = parseDecimal(unitlessA);
+    const expNum = parseDecimal(unitlessE);
+    if (Number.isFinite(actNum) && Number.isFinite(expNum)) {
+      return Math.abs(actNum - expNum) <= opts.tolerance;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Compare la sortie obtenue avec la sortie attendue selon le mode de test.
- * Supporte : normalisation standard (par défaut), comparaison exacte, et tolérance numérique.
+ * Supporte : normalisation standard (par défaut), comparaison exacte, variantes || (analyse), et tolérance numérique.
  */
 function matchOutputs(actualRaw, expectedRaw, test, exercise) {
   const opts = test || {};
@@ -143,53 +253,14 @@ function matchOutputs(actualRaw, expectedRaw, test, exercise) {
   if (normA === normE) return true;
 
   if (isAnalyse) {
-    const trimA = normA.trim();
-    const trimE = normE.trim();
-    if (trimA === trimE) return true;
-    const structuredJson = matchesStructuredJson(trimA, trimE);
-    if (structuredJson !== null) return structuredJson;
-
-    // Tolérance à la casse pour les notions et termes disciplinaires
-    if (trimA.toLowerCase() === trimE.toLowerCase()) return true;
-
-    // Tolérance virgule / point décimal (ex: 0,25 vs 0.25)
-    if (trimA.replace(',', '.') === trimE.replace(',', '.')) return true;
-
-    // Tolérance fraction vs décimal (ex: 1/4 vs 0.25 ou 0,25)
-    if (/^-?\d+\s*\/\s*\d+$/.test(trimA) || /^-?\d+\s*\/\s*\d+$/.test(trimE)) {
-      const evalFrac = (str) => {
-        const parts = str.split('/');
-        return parts.length === 2 && Number(parts[1]) !== 0 ? Number(parts[0]) / Number(parts[1]) : NaN;
-      };
-      const valA = /^-?\d+\s*\/\s*\d+$/.test(trimA) ? evalFrac(trimA) : parseDecimal(trimA);
-      const valE = /^-?\d+\s*\/\s*\d+$/.test(trimE) ? evalFrac(trimE) : parseDecimal(trimE);
-      if (Number.isFinite(valA) && Number.isFinite(valE) && Math.abs(valA - valE) < 1e-6) {
-        return true;
+    if (expected.includes('||')) {
+      const variants = expected.split('||').map(v => v.trim()).filter(Boolean);
+      if (variants.length > 0) {
+        return variants.some(v => matchAnalyseVariant(actual, v, opts));
       }
+      return actual.trim() === '';
     }
-
-    // Normalisation sémantique et tolérance mathématique robuste
-    const stripAccents = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const cleanAnalyse = (s) => {
-      return stripAccents(s)
-        .toLowerCase()
-        .replace(/,/g, '.')
-        .replace(/·/g, '*')
-        .replace(/\b(valide|non_valide|realisable|irrealisable|meilleur)\s*:\s*/g, '$1 ')
-        .replace(/\s*([=:<>;])\s*/g, '$1')
-        .replace(/\s*\*\s*/g, '*')
-        .replace(/\b(\d+)\.0+\b/g, '$1')
-        .replace(/\s+/g, ' ')
-        .trim();
-    };
-
-    const cleanA = cleanAnalyse(trimA);
-    const cleanE = cleanAnalyse(trimE);
-    if (cleanA === cleanE) return true;
-
-    // Normalisation des multiplications implicites : ex: 4x1 -> 4*x1
-    const expandMul = (s) => s.replace(/(\d)([a-z])/g, '$1*$2');
-    if (expandMul(cleanA) === expandMul(cleanE)) return true;
+    if (matchAnalyseVariant(actual, expected, opts)) return true;
   }
 
   if (typeof opts.tolerance === 'number' && !isNaN(opts.tolerance)) {
@@ -200,7 +271,7 @@ function matchOutputs(actualRaw, expectedRaw, test, exercise) {
     }
   }
 
-  return normalizeOutput(actual) === normalizeOutput(expected);
+  return normA === normE;
 }
 
 /**
@@ -317,4 +388,4 @@ async function runTests(exercise, code, deps) {
   return report(null);
 }
 
-module.exports = { runTests, MAX_TESTS };
+module.exports = { runTests, matchOutputs, MAX_TESTS };

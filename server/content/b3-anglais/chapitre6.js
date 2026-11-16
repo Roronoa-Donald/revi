@@ -131,21 +131,21 @@ module.exports = {
     {
       stem: 'Dans une présentation technique en anglais, quelle est la fonction primordiale du « Hook » (Accroche) dans les 10 premières secondes ?',
       opts: [
-        'Épeler son nom de famille pour vérifier le microphone.',
-        'Capter immédiatement l’attention et la curiosité de l’auditoire avec un fait saillant, un chiffre marquant ou un paradoxe technique.',
-        'Lire l’intégralité des clauses de non-responsabilité juridique.',
-        'Expliquer le fonctionnement du projecteur HDMI.'
+        "Capter immédiatement l’attention et la curiosité de l’auditoire avec un fait saillant, un chiffre marquant ou un paradoxe technique.",
+        "Épeler son nom de famille et son titre afin de vérifier le bon fonctionnement du microphone de la salle.",
+        "Lire l’intégralité des clauses de non-responsabilité juridique protégeant l’entreprise organisatrice de l’événement.",
+        "Expliquer le fonctionnement technique du projecteur HDMI et de la télécommande de la salle de conférence."
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Hook capte immédiatement l’attention du jury ou des auditeurs avant d’entrer dans le corps technique de la présentation.'
     },
     {
       stem: 'Que désignent les termes de « Signposting » en communication orale internationale ?',
       opts: [
-        'Des panneaux de signalisation routière installés autour du centre de conférence.',
-        'Des expressions et connecteurs verbaux (« Moving on to », « In conclusion ») indiquant à l’auditoire où l’on se trouve dans le plan de l’exposé.',
-        'Des signatures électroniques chiffrées apposées sur les diapositives.',
-        'Des logiciels de suivi des clics de souris pendant la démonstration.'
+        "Des panneaux de signalisation routière temporaires installés autour du centre de conférence pour guider les participants.",
+        "Des expressions et connecteurs verbaux (« Moving on to », « In conclusion ») indiquant à l’auditoire où l’on se trouve dans le plan de l’exposé.",
+        "Des signatures électroniques chiffrées apposées sur chaque diapositive afin d’en certifier l’authenticité technique.",
+        "Des logiciels de suivi et d’enregistrement des clics de souris de l’orateur pendant la démonstration live."
       ],
       correct: 1,
       exp: 'Le signposting représente le balisage discursif permettant aux auditeurs de suivre aisément la progression de la pensée de l’orateur.'
@@ -153,43 +153,43 @@ module.exports = {
     {
       stem: 'Dans la méthode STAR d’entretien d’embauche technique, que signifie la lettre « R » ?',
       opts: [
-        'Reputation',
-        'Result (Résultat mesurable et quantifié)',
-        'Requirement',
-        'Review'
+        "Reputation (Réputation en ligne du candidat)",
+        "Requirement (Exigence technique du poste)",
+        "Result (Résultat mesurable et quantifié)",
+        "Review (Revue de code du projet)"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La lettre R désigne le Résultat (Result), qui doit impérativement comporter une métrique d’impact chiffrée (ex: -30% de latence, +99.99% d’uptime).'
     },
     {
       stem: 'Pourquoi l’emploi exclusif du pronom « We » est-il déconseillé dans la section Action de la méthode STAR ?',
       opts: [
-        'Parce que le mot « We » est interdit par la grammaire anglaise formelle.',
-        'Parce que le recruteur a besoin d’évaluer votre contribution personnelle précise (« I designed », « I implemented ») plutôt que celle de l’équipe entière.',
-        'Parce que cela donne l’impression que vous travaillez seul.',
-        'Parce que les robots ATS suppriment les phrases contenant le mot « We ».'
+        "Parce que le pronom « We » est formellement interdit par les règles de la grammaire anglaise la plus soutenue.",
+        "Parce que son emploi exclusif donne au recruteur l’impression que vous avez travaillé entièrement seul sur le projet décrit.",
+        "Parce que les robots ATS suppriment automatiquement toute candidature contenant le pronom « We » dans le CV.",
+        "Parce que le recruteur a besoin d’évaluer votre contribution personnelle précise (« I designed », « I implemented ») plutôt que celle de l’équipe entière."
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le recruteur évalue votre valeur ajoutée individuelle ; l’emploi du « I » avec des verbes forts met en valeur votre leadership et vos réalisations.'
     },
     {
       stem: 'Parmi les verbes suivants, lequel est considéré comme un « Power Action Verb » valorisé par les systèmes ATS sur un CV technique ?',
       opts: [
-        'Helped with',
         'Architected',
+        'Helped with',
         'Worked on',
         'Was responsible for'
       ],
-      correct: 1,
+      correct: 0,
       exp: '« Architected » (comme « Engineered », « Spearheaded », « Optimized ») est un verbe d’action à fort impact démontrant une expertise de conception de haut niveau.'
     },
     {
       stem: 'Quelle expression anglophone est la plus adaptée pour introduire une phase de questions-réponses à l’issue d’une soutenance ?',
       opts: [
-        'I am finished, go away.',
-        'Thank you for your attention, I would now be glad to take any questions.',
-        'Please do not ask me difficult things.',
-        'That is the end of my talking.'
+        "I am finished, you can all leave the room now.",
+        "Thank you for your attention, I would now be glad to take any questions.",
+        "Please do not ask me any difficult technical questions today.",
+        "That is the end of my talking, thank you and goodbye."
       ],
       correct: 1,
       exp: '« Thank you for your attention, I would now be glad to take any questions » est la formule de clôture élégante et professionnelle par excellence.'
@@ -197,10 +197,10 @@ module.exports = {
     {
       stem: 'Face à une question agressive ou complexe posée par un membre du jury, comment un ingénieur doit-il débuter sa réponse ?',
       opts: [
-        'En répliquant que la question n’a aucun sens.',
-        'En accusant le jury de ne pas avoir écouté.',
-        'En reformulant calmement la question : « That’s a great question. If I understand correctly, you are asking about... »',
-        'En quittant la pièce sans répondre.'
+        "En répliquant sèchement que la question posée n’a aucun intérêt technique pour le sujet présenté.",
+        "En accusant directement le jury de ne pas avoir écouté attentivement votre démonstration précédente.",
+        "En reformulant calmement la question : « That’s a great question. If I understand correctly, you are asking about... »",
+        "En quittant la salle de soutenance sans répondre afin de marquer votre désaccord avec le jury."
       ],
       correct: 2,
       exp: 'Valider la pertinence de la question et la reformuler permet de s’assurer de sa bonne compréhension et de structurer calmement sa réponse.'
@@ -209,11 +209,11 @@ module.exports = {
       stem: 'Dans un pitch technique en 1 minute, quel élément garantit que la présentation ne soit pas qu’un discours abstrait ?',
       opts: [
         'Afficher un texte de mille mots en petite police sur une seule diapositive.',
-        'Citer un résultat d’expérimentation ou une métrique concrète de preuve de concept (Proof of Concept).',
+        'Réciter l’alphabet phonétique de l’OTAN.',
         'Parler deux fois plus vite pour faire tenir plus de contenu.',
-        'Réciter l’alphabet phonétique de l’OTAN.'
+        'Citer un résultat d’expérimentation ou une métrique concrète de preuve de concept (Proof of Concept).'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une métrique chiffrée ou un résultat concret ancre le pitch dans la réalité technique et confère une crédibilité immédiate à la solution.'
     }
   ],

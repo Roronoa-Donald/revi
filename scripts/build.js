@@ -28,14 +28,14 @@ const ROOT_FILES = ['index.html', 'robots.txt', 'sitemap.xml', '404.html', 'rd-a
 const ROOT_DIRS = ['assets'];
 
 // Dossiers à ne jamais copier
-const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows', 'ref', 'cours', 'exos', '.taskstate', 'audit', 'tests', 'tools'];
+const SKIP_DIRS = ['node_modules', '.git', 'server', 'api', 'scripts', 'dist', 'public', 'cours windows', 'ref', 'cours', 'exos', '.taskstate', 'audit', 'AUDIT_COMPLET_2026-11', 'tests', 'tools', 'docs', 'revi-mu-plateforme', 'stitch_brilliant_website_design_system', 'COURS_B3', 'cours B1 IT', 'administration machine virtuel'];
 
 // Extensions à ne pas traiter
 const BINARY_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.webp', '.woff', '.woff2', '.ttf', '.otf', '.eot', '.pdf', '.mp4', '.webm', '.mp3', '.wasm'];
 
 // Injection HTML
 const AUTH_INJECT_HEAD = '<link rel="stylesheet" href="/_auth/css/auth-styles.css">';
-const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<script src="/_auth/js/auth-check.js"></script>\n<script src="/rd-ai-chat.js"></script>\n<script src="/assets/js/delight.js" defer></script>';
+const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<script src="/_auth/js/auth-check.js"></script>\n<script src="/assets/js/progress-sync.js" defer></script>\n<script src="/rd-ai-chat.js"></script>\n<script src="/assets/js/delight.js" defer></script>';
 
 // ========================
 // Fonctions utilitaires

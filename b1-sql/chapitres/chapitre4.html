@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -194,10 +192,13 @@ WHERE V.immat LIKE '%AK';</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>6. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="sq-c4-e1" data-lab
      data-exercise="sq-c4-e1"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -206,13 +207,11 @@ WHERE V.immat LIKE '%AK';</code></pre>
     <h3 class="lab__title">Exercice 1 — Jointure interne (INNER JOIN) entre deux tables</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Associer chaque ligne d’une table enfant à sa table parente via INNER JOIN ... ON.</p>
-    <p class="lab__note" id="sq-c4-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Reliez <code>Marque</code> à <code>Voiture</code> par leur <code>codemarque</code>. Affichez <code>nommarque</code> et <code>immat</code> pour chaque voiture ayant une marque correspondante. Triez par nom de marque croissant, puis par immatriculation croissante. Les marques sans voiture ne figurent pas dans le résultat.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -276,10 +275,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">MAZDA n’apparaît pas dans ce jeu : aucune voiture ne lui correspond.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez INNER JOIN et reliez les deux colonnes codemarque dans la condition ON.</li>
         <li>Qualifiez les colonnes avec les alias des tables, puis triez sur les deux colonnes demandées.</li>
+        <li>Étapes : apparier chaque voiture à sa marque sur le code commun, écarter les marques sans voiture, projeter nom de marque et immat, trier par nom puis immat.</li>
       </ol>
     </details>
   </div>
@@ -287,7 +287,6 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
 
 <div class="lab" id="sq-c4-e2" data-lab
      data-exercise="sq-c4-e2"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -296,13 +295,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <h3 class="lab__title">Exercice 2 — Jointure externe gauche (LEFT JOIN)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Conserver toutes les lignes de la table de gauche même sans correspondance à droite.</p>
-    <p class="lab__note" id="sq-c4-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Reliez <code>Marque</code> à <code>Voiture</code> par <code>codemarque</code>. Affichez <code>nommarque</code> et <code>immat</code> pour toutes les marques, même sans voiture : dans ce cas, <code>immat</code> vaut <code>NULL</code>. Triez par nom de marque croissant, puis par immatriculation croissante.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -367,10 +364,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">MAZDA est conservée même sans voiture dans ce jeu.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Placez Marque à gauche d’une jointure LEFT JOIN vers Voiture.</li>
         <li>Reliez les codes de marque, puis triez par nom et par immatriculation.</li>
+        <li>Étapes : garder toutes les marques, compléter par les voitures correspondantes ou l’absence de valeur, projeter nom et immat, trier par nom puis immat.</li>
       </ol>
     </details>
   </div>
@@ -378,7 +376,6 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
 
 <div class="lab" id="sq-c4-e3" data-lab
      data-exercise="sq-c4-e3"
-     data-grading-suspended="1"
      data-language="sql"
      data-height="300"
      data-stdin="PRAGMA foreign_keys = ON;&#10;CREATE TABLE Marque (&#10;  codemarque TEXT NOT NULL PRIMARY KEY,&#10;  nommarque TEXT NOT NULL UNIQUE,&#10;  paysmarque TEXT NOT NULL,&#10;  UNIQUE (codemarque, nommarque)&#10;);&#10;CREATE TABLE Voiture (&#10;  immat TEXT NOT NULL PRIMARY KEY,&#10;  marque TEXT NOT NULL,&#10;  codemarque TEXT NOT NULL,&#10;  moteur TEXT NOT NULL,&#10;  datecirc TEXT,&#10;  km INTEGER NOT NULL,&#10;  pxachat INTEGER NOT NULL,&#10;  nbreplace INTEGER NOT NULL,&#10;  FOREIGN KEY (codemarque, marque) REFERENCES Marque (codemarque, nommarque)&#10;);&#10;CREATE TABLE Equipement (&#10;  codeequipement TEXT NOT NULL PRIMARY KEY,&#10;  nomequipement TEXT NOT NULL UNIQUE,&#10;  prix INTEGER DEFAULT 0&#10;);&#10;CREATE TABLE VoitureEquipement (&#10;  immat TEXT NOT NULL,&#10;  codeequipement TEXT NOT NULL,&#10;  PRIMARY KEY (immat, codeequipement),&#10;  FOREIGN KEY (immat) REFERENCES Voiture (immat) ON DELETE CASCADE,&#10;  FOREIGN KEY (codeequipement) REFERENCES Equipement (codeequipement) ON DELETE CASCADE&#10;);&#10;INSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES&#10;  ('TOY', 'TOYOTA', 'JAPON'), ('MIT', 'MITSUBISHI', 'JAPON'),&#10;  ('MAZ', 'MAZDA', 'JAPON'), ('BNZ', 'MERCEDES BENZ', 'ALLEMAGNE'),&#10;  ('BMW', 'BMW', 'ALLEMAGNE'), ('HYU', 'HYUNDAI', 'COREE DU SUD');&#10;INSERT INTO Voiture (immat, marque, codemarque, moteur, datecirc, km, pxachat, nbreplace) VALUES&#10;  ('TG-7854-Z', 'MERCEDES BENZ', 'BNZ', 'DIESEL', '2000-01-21', 500, 6000000, 5),&#10;  ('TG-3733-AC', 'TOYOTA', 'TOY', 'HYBRIDE', '2010-01-21', 0, 20000000, 7),&#10;  ('TG-9420-AF', 'TOYOTA', 'TOY', 'ESSENCE', '2013-09-21', 0, 50000000, 7),&#10;  ('TG-0020-AV', 'MITSUBISHI', 'MIT', 'ESSENCE', '2018-10-21', 30, 50000000, 7),&#10;  ('TG-0480-AV', 'BMW', 'BMW', 'ELECTRIQUE', '2015-12-21', 0, 50000000, 5),&#10;  ('TG-4444-AL', 'HYUNDAI', 'HYU', 'ESSENCE', '2015-09-21', 5, 10000000, 5);&#10;INSERT INTO Equipement (codeequipement, nomequipement, prix) VALUES&#10;  ('AIR', 'Climatisation', 0), ('GPS', 'Navigation GPS', 450000),&#10;  ('CAM', 'Camera de recul', 200000), ('RAD', 'Autoradio', NULL);&#10;INSERT INTO VoitureEquipement (immat, codeequipement) VALUES&#10;  ('TG-7854-Z', 'AIR'), ('TG-3733-AC', 'AIR'), ('TG-3733-AC', 'GPS'),&#10;  ('TG-9420-AF', 'GPS'), ('TG-0020-AV', 'CAM'), ('TG-0480-AV', 'RAD');">
@@ -387,13 +384,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <h3 class="lab__title">Exercice 3 — Jointure sur table d’association (N–N)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> SQL</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Relier trois tables via une double jointure sur une table d’association.</p>
-    <p class="lab__note" id="sq-c4-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Une voiture peut avoir plusieurs équipements et un équipement peut équiper plusieurs voitures. La table <code>VoitureEquipement(immat, codeequipement)</code> enregistre ces associations. Reliez-la à <code>Voiture</code> et à <code>Equipement</code>, puis affichez <code>immat</code> et <code>nomequipement</code> pour chaque association, triés par immatriculation croissante puis par nom d’équipement croissant.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>PRAGMA foreign_keys = ON;
@@ -457,10 +452,11 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     </div>
     <p class="lab__note">La Toyota TG-3733-AC a deux équipements ; le GPS équipe deux voitures.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La première jointure relie l’immatriculation de Voiture à celle de VoitureEquipement.</li>
         <li>La seconde relie le code d’équipement de VoitureEquipement à celui d’Equipement.</li>
+        <li>Étapes : partir de la table d’association, joindre Voiture sur l’immatriculation, joindre Equipement sur le code, projeter immat et nom d’équipement, puis trier.</li>
       </ol>
     </details>
   </div>
@@ -474,8 +470,8 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
       <p class="q__stem">Que produit une jointure interne avec condition ?</p>
       <div class="opts">
         <button class="opt">Une copie permanente des tables</button>
-        <button class="opt" data-correct="1">Un résultat associant les lignes correspondantes</button>
         <button class="opt">Une suppression des lignes sans correspondance</button>
+        <button class="opt" data-correct="1">Un résultat associant les lignes correspondantes</button>
       </div>
       <div class="q__exp">La requête produit un résultat sans modifier les tables ; le moteur ne crée pas nécessairement une table temporaire.</div>
     </div>
@@ -491,8 +487,8 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <div class="q">
       <p class="q__stem">Quelle jointure garde les marques sans voiture ?</p>
       <div class="opts">
-        <button class="opt">INNER JOIN</button>
         <button class="opt" data-correct="1">LEFT JOIN (Marque à gauche)</button>
+        <button class="opt">INNER JOIN</button>
         <button class="opt">Aucune</button>
       </div>
       <div class="q__exp">LEFT JOIN garde toute la table de gauche, complétée de NULL.</div>
@@ -500,27 +496,27 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
     <div class="q">
       <p class="q__stem">Dans une LEFT JOIN, pourquoi COUNT(V.immat) plutôt que COUNT(*) ?</p>
       <div class="opts">
-        <button class="opt">C’est plus rapide</button>
+        <button class="opt">C’est simplement plus rapide à exécuter pour le moteur SQL</button>
+        <button class="opt">COUNT(*) est interdit dans toute requête comportant une jointure</button>
         <button class="opt" data-correct="1">COUNT(V.immat) ignore les NULL : les marques sans voiture comptent 0</button>
-        <button class="opt">COUNT(*) est interdit en jointure</button>
       </div>
       <div class="q__exp">COUNT(colonne) ne compte que les non-NULL ; COUNT(*) compterait la ligne conjuguée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que vaut l’erreur « ambiguous column » ?</p>
       <div class="opts">
-        <button class="opt">Une colonne mal typée</button>
+        <button class="opt">Une colonne dont le type ne correspond pas à la valeur insérée</button>
         <button class="opt" data-correct="1">Une colonne nommée sans préfixe alors que deux tables jointes la portent</button>
-        <button class="opt">Une colonne NULL</button>
+        <button class="opt">Une colonne qui contient au moins une valeur NULL en base</button>
       </div>
       <div class="q__exp">Il faut préfixer par l’alias : M.codemarque ou V.codemarque.</div>
     </div>
     <div class="q">
       <p class="q__stem">Une table aliasée en M peut encore s’écrire Marque dans la même requête ?</p>
       <div class="opts">
-        <button class="opt">Oui</button>
         <button class="opt" data-correct="1">Non, l’alias remplace le nom partout</button>
-        <button class="opt">Seulement dans le SELECT</button>
+        <button class="opt">Oui, l’alias n’est qu’une simple abréviation</button>
+        <button class="opt">Seulement dans la clause SELECT</button>
       </div>
       <div class="q__exp">Une fois déclarée, seule la forme aliasée est valide.</div>
     </div>
@@ -643,7 +639,7 @@ INSERT INTO VoitureEquipement (immat, codeequipement) VALUES
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

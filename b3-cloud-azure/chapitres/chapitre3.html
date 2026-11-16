@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -227,10 +225,11 @@ Pour chaque tier :<br>
 TIER name=db vcpu=4 ram_gb=32 burst=false disk=SSD_PREM redundancy=ASET</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculer ratio = ram_gb / vcpu si burst n'est pas actif.</li>
         <li>Pour ces tiers nécessaires et indépendants sur une même période, multiplier les probabilités : prod(SLA_i / 100) * 100.</li>
+        <li>Appliquez la formule de disponibilité composée en série (prod SLA_i) ou en parallèle (1 - prod(1 - SLA_i)) selon le scénario web/DB et la série de VM.</li>
       </ol>
     </details>
   </div>
@@ -240,31 +239,28 @@ TIER name=db vcpu=4 ram_gb=32 burst=false disk=SSD_PREM redundancy=ASET</pre></d
      data-exercise="az3-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2&#10;METRIC step=1 cpu=80&#10;METRIC step=2 cpu=85&#10;METRIC step=3 cpu=80&#10;METRIC step=4 cpu=40">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c3-e2) — Simulateur d'Auto-scaling VMSS
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La billetterie Weego règle son VMSS : minimum 3, maximum 10 ; montée +1 si le processeur&#10;dépasse 75 % pendant 10 minutes ; descente −1 sous 25 %.&#10;Samedi 20 h : 3 instances, CPU 60 % (aucune action).&#10;Samedi 20 h 10 : CPU 80 % → montée : 4 instances.&#10;Samedi 20 h 20 : CPU 80 % → montée : 5 instances.&#10;Samedi 23 h : CPU 20 % → descente : 4 instances.&#10;&#10;1) Au départ : 3 instances.&#10;2) Après la première montée : 4.&#10;3) Après la seconde montée : 5.&#10;4) À 60 %, aucune action : la valeur est sous le seuil de montée (75 %).&#10;5) Après la descente : 4.">
+  <script type="text/plain" data-lab-starter># Exercice — La règle d'autoscaling du VMSS de Rideline
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 et 5 : le nombre seul. Question 4 : répondez de façon courte.
 
-[Cas 1 — Scale-out puis période de refroidissement et maintien]
-# Données : CONFIG min=1 max=5 scale_out_cpu=70 scale_in_cpu=30 step=1 cooldown=1
-# Données : METRIC step=1 cpu=75
-# Données : METRIC step=2 cpu=75
-# Données : METRIC step=3 cpu=20
+[Question 1 — Instances à 18 h 00]
 A_COMPLETER
 
-[Cas 2 — Scale-in vers minimum avec blocage de capacité]
-# Données : CONFIG min=2 max=4 scale_out_cpu=80 scale_in_cpu=20 step=1 cooldown=1
-# Données : METRIC step=1 cpu=10
-# Données : METRIC step=2 cpu=15
+[Question 2 — Instances après la montée de 18 h 10]
 A_COMPLETER
 
-[Cas 3 — Atteinte du palier max capacity]
-# Données : CONFIG min=2 max=3 scale_out_cpu=70 scale_in_cpu=30 step=1 cooldown=0
-# Données : METRIC step=1 cpu=80
-# Données : METRIC step=2 cpu=85
+[Question 3 — Instances après la montée de 18 h 20]
+A_COMPLETER
+
+[Question 4 — Pourquoi aucune action à 18 h 30]
+A_COMPLETER
+
+[Question 5 — Instances après la descente de 22 h 00]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Simulateur d'Auto-scaling VMSS</h3>
+    <h3 class="lab__title">Exercice 2 — La règle d'autoscaling du VMSS de Rideline</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -273,39 +269,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le comportement d’un Virtual Machine Scale Set (VMSS) sous charge variable avec règles de mise à l’échelle et période de refroidissement.</p>
-    <div class="lab__brief"><p>Un groupe de machines virtuelles identiques (Azure VMSS) adapte dynamiquement son effectif aux variations de charge CPU selon des règles de scale-out et scale-in, avec un délai de refroidissement (cooldown) pour éviter les oscillations rapides.<br><br>
-Format d'entrée :<br>
-Ligne 1 : Définition des paramètres d'auto-scaling :<br>
-<code>CONFIG min=&lt;int&gt; max=&lt;int&gt; scale_out_cpu=&lt;int&gt; scale_in_cpu=&lt;int&gt; step=&lt;int&gt; cooldown=&lt;int&gt;</code><br>
-Lignes suivantes : Mesures de charge collectées par pas de temps :<br>
-<code>METRIC step=&lt;int&gt; cpu=&lt;int&gt;</code><br><br>
-Règles du moteur VMSS :<br>
-- Au démarrage, l'effectif initial est égal à <code>min</code>, et le compteur de cooldown est à 0.<br>
-- Pour chaque métrique :<br>
-  - Si le compteur de cooldown est strictement supérieur à 0 : l'action est <code>COOLDOWN_ACTIVE</code>, et le compteur est décrémenté de 1.<br>
-  - Sinon :<br>
-    - Si <code>cpu &gt;= scale_out_cpu</code> : tenter d'ajouter <code>step</code> instances sans dépasser <code>max</code>.<br>
-      Si l'effectif augmente : action <code>SCALE_OUT</code> et le compteur de cooldown est réinitialisé à <code>cooldown</code>.<br>
-      Si l'effectif était déjà à <code>max</code> : action <code>MAX_CAPACITY_REACHED</code>.<br>
-    - Sinon si <code>cpu &lt;= scale_in_cpu</code> : tenter de retirer <code>step</code> instances sans descendre sous <code>min</code>.<br>
-      Si l'effectif diminue : action <code>SCALE_IN</code> et le compteur de cooldown est réinitialisé à <code>cooldown</code>.<br>
-      Si l'effectif était déjà à <code>min</code> : action <code>MIN_CAPACITY_REACHED</code>.<br>
-    - Sinon : action <code>NONE</code>.<br><br>
-Format de sortie pour chaque métrique :<br>
-<code>STEP &lt;t&gt;: CPU=&lt;cpu&gt;% INSTANCES=&lt;count&gt; ACTION=&lt;ACTION&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer pas à pas les règles d'autoscale (montée et descente en charge) d'un groupe de machines virtuelles identiques.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Rideline, plateforme de réservation de trajets, héberge son site sur un groupe de machines virtuelles identiques (VMSS) régi par un profil d'autoscale :</p><ul><li>nombre d'instances : minimum <strong>2</strong>, maximum <strong>8</strong> ;</li><li>règle de montée en charge : si le processeur moyen dépasse 70 % pendant 10 minutes, ajouter 2 instances ;</li><li>règle de descente : si le processeur moyen passe sous 30 % pendant 10 minutes, retirer 1 instance ;</li><li>entre 30 % et 70 %, aucune règle ne se déclenche.</li></ul><p>Le vendredi soir, l'autoscale évalue la métrique toutes les 10 minutes et exécute au plus une action par évaluation :</p><table><tr><th>Heure</th><th>Instances</th><th>Processeur moyen</th><th>Action</th></tr><tr><th>18 h 00</th><td>2</td><td>45 %</td><td>aucune</td></tr><tr><th>18 h 10</th><td>2</td><td>82 %</td><td>montée : + 2</td></tr><tr><th>18 h 20</th><td>4</td><td>78 %</td><td>montée : + 2</td></tr><tr><th>18 h 30</th><td>6</td><td>55 %</td><td>aucune</td></tr><tr><th>22 h 00</th><td>6</td><td>22 %</td><td>descente : − 1</td></tr></table><ol><li>Combien d'instances tournent à 18 h 00 ?</li><li>Combien d'instances après la montée de 18 h 10 ?</li><li>Combien d'instances après la montée de 18 h 20 ?</li><li>Pourquoi aucune règle ne se déclenche-t-elle à 18 h 30 ?</li><li>Combien d'instances après la descente de 22 h 00 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CONFIG min=2 max=6 scale_out_cpu=75 scale_in_cpu=25 step=2 cooldown=2
-METRIC step=1 cpu=80
-METRIC step=2 cpu=85
-METRIC step=3 cpu=80
-METRIC step=4 cpu=40</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La billetterie Weego règle son VMSS : minimum 3, maximum 10 ; montée +1 si le processeur
+dépasse 75 % pendant 10 minutes ; descente −1 sous 25 %.
+Samedi 20 h : 3 instances, CPU 60 % (aucune action).
+Samedi 20 h 10 : CPU 80 % → montée : 4 instances.
+Samedi 20 h 20 : CPU 80 % → montée : 5 instances.
+Samedi 23 h : CPU 20 % → descente : 4 instances.
+
+1) Au départ : 3 instances.
+2) Après la première montée : 4.
+3) Après la seconde montée : 5.
+4) À 60 %, aucune action : la valeur est sous le seuil de montée (75 %).
+5) Après la descente : 4.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Gérer un compteur cooldown_timer qui bloque toute nouvelle mise à l'échelle tant qu'il est supérieur à 0.</li>
-        <li>S'assurer de borner le nombre d'instances entre min et max.</li>
+        <li>Suivez le tableau ligne par ligne : le nombre d'instances d'une ligne part du nombre d'instances de la ligne précédente, modifié par l'action.</li>
+        <li>Une montée ajoute 2 instances, une descente en retire 1 ; une ligne « aucune action » conserve le même nombre.</li>
+        <li>1. Lisez la première ligne. 2. Ajoutez 2 à 2. 3. Ajoutez 2 au résultat précédent. 4. Comparez 55 % aux seuils 30 % et 70 %. 5. Retirez 1 au nombre d'instances de 18 h 30.</li>
       </ol>
     </details>
   </div>
@@ -374,10 +359,11 @@ SWAP_SLOTS auto_rollback=true
 STATUS</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Gérer deux variables d'état prod_ver (initialement "v1.0.0") et stage_ver (initialement "none"), ainsi que stage_probe.</li>
         <li>Lors du swap réussi, échanger les valeurs de prod_ver et stage_ver.</li>
+        <li>Contrôlez le statut HTTP du préchauffage sur le slot de staging avant d autoriser la permutation avec production dans le format attendu.</li>
       </ol>
     </details>
   </div>
@@ -400,8 +386,8 @@ STATUS</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le nombre maximal habituel de Fault Domains (domaines de panne) configurables dans un Availability Set Azure ?</p>
       <div class="opts">
-        <button class="opt">1</button>
         <button class="opt" data-correct="1">2 ou 3</button>
+        <button class="opt">1</button>
         <button class="opt">10</button>
         <button class="opt">20</button>
       </div>
@@ -410,10 +396,10 @@ STATUS</pre></div>
     <div class="q">
       <p class="q__stem">Dans un modèle fictif, une VM est disponible à 99.9% sur une année de 8 760 heures. Quelle est son indisponibilité théorique ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">8.76 heures</button>
+        <button class="opt">876 heures</button>
         <button class="opt">43.8 heures</button>
         <button class="opt">52.6 heures</button>
-        <button class="opt">876 heures</button>
+        <button class="opt" data-correct="1">8.76 heures</button>
       </div>
       <div class="q__exp">(1 - 0.999) * 8 760 = 8.76 heures. Cette valeur est un résultat du modèle, pas une garantie contractuelle.</div>
     </div>
@@ -421,8 +407,8 @@ STATUS</pre></div>
       <p class="q__stem">Dans un modèle fictif en série, le Web et la base ont chacun une disponibilité de 99.9% sur la même période et des défaillances indépendantes. Quelle est la disponibilité composée ?</p>
       <div class="opts">
         <button class="opt">99.9%</button>
-        <button class="opt" data-correct="1">99.8001%</button>
         <button class="opt">100%</button>
+        <button class="opt" data-correct="1">99.8001%</button>
         <button class="opt">99.0%</button>
       </div>
       <div class="q__exp">0.999 * 0.999 = 0.998001, soit 99.8001% et environ 17.5 heures théoriques par année de 8 760 heures. Ce calcul ne crée pas de SLA contractuel.</div>
@@ -430,40 +416,40 @@ STATUS</pre></div>
     <div class="q">
       <p class="q__stem">Dans une règle d'auto-scaling pour Azure VMSS, à quoi sert le paramètre de Cooldown (refroidissement) ?</p>
       <div class="opts">
-        <button class="opt">À faire chuter la température matérielle des processeurs du datacenter</button>
+        <button class="opt">À faire baisser la température matérielle des processeurs en réduisant la fréquence des serveurs du datacenter</button>
+        <button class="opt">À diviser automatiquement par deux la facture des ressources de calcul pendant les heures creuses de la nuit</button>
         <button class="opt" data-correct="1">À empêcher de nouvelles opérations de mise à l'échelle pendant un délai défini afin de laisser le temps aux nouvelles instances de traiter la charge</button>
-        <button class="opt">À diviser la facture par deux pendant les heures creuses</button>
-        <button class="opt">À forcer l'arrêt automatique des VMs la nuit</button>
+        <button class="opt">À forcer l'arrêt automatique et définitif de toutes les machines virtuelles du groupe de mise à l'échelle chaque nuit</button>
       </div>
       <div class="q__exp">Le Cooldown bloque temporairement toute nouvelle évaluation de seuil d'échelle après un scale-out ou scale-in pour laisser le temps aux serveurs nouvellement déployés d'absorber le trafic sans battement.</div>
     </div>
     <div class="q">
       <p class="q__stem">Par défaut, que se passe-t-il si le préchauffage HTTP d'un swap App Service reçoit un code 500 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le code 500 est accepté pour le préchauffage et peut ne pas empêcher le swap</button>
+        <button class="opt">Le code 500 impose un changement de forfait</button>
         <button class="opt">Le swap est toujours annulé et un rollback des données est automatique</button>
         <button class="opt">Le code 500 supprime le slot de staging</button>
-        <button class="opt">Le code 500 impose un changement de forfait</button>
+        <button class="opt" data-correct="1">Le code 500 est accepté pour le préchauffage et peut ne pas empêcher le swap</button>
       </div>
       <div class="q__exp">Par défaut tous les codes HTTP sont valides. Configurez WEBSITE_SWAP_WARMUP_PING_STATUSES, par exemple à 200,202 : un code hors liste ne valide pas le préchauffage et le swap échoue si celui-ci n'aboutit pas.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle famille de disques managés offre une latence inférieure à la milliseconde et jusqu'à 160 000 IOPS pour les charges de travail transactionnelles extrêmes ?</p>
       <div class="opts">
-        <button class="opt">Standard HDD</button>
+        <button class="opt" data-correct="1">Ultra Disk</button>
         <button class="opt">Standard SSD</button>
         <button class="opt">Premium SSD</button>
-        <button class="opt" data-correct="1">Ultra Disk</button>
+        <button class="opt">Standard HDD</button>
       </div>
       <div class="q__exp">Azure Ultra Disk offre les performances de stockage les plus élevées de la plateforme Azure, avec une latence sub-milliseconde paramétrable et jusqu'à 160 000 IOPS.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle affirmation est exacte concernant les Update Domains dans un Availability Set ?</p>
       <div class="opts">
-        <button class="opt">Tous les Update Domains sont redémarrés simultanément lors des mises à jour Azure</button>
+        <button class="opt">Tous les Update Domains sont redémarrés simultanément lors des opérations de maintenance planifiée</button>
         <button class="opt" data-correct="1">Un seul Update Domain est mis à jour et redémarré à la fois, garantissant qu'au moins 80% des serveurs restent actifs</button>
-        <button class="opt">Les Update Domains ne s'appliquent qu'aux disques durs</button>
-        <button class="opt">Les Update Domains nécessitent une connexion VPN permanente</button>
+        <button class="opt">Les Update Domains ne concernent que la réplication des disques managés des machines virtuelles</button>
+        <button class="opt">Les Update Domains exigent une connexion VPN permanente entre les régions Azure appairées</button>
       </div>
       <div class="q__exp">Microsoft redémarre les Update Domains de manière strictement séquentielle (un seul à la fois) lors des opérations de mise à jour de la couche physique, assurant la disponibilité continue des autres serveurs du groupe.</div>
     </div>
@@ -585,7 +571,7 @@ STATUS</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

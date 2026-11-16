@@ -104,45 +104,45 @@ module.exports = {
     {
       "stem": "Quel opérateur Google Dorking permet de cibler spécifiquement les fichiers de configuration de type \".env\" exposés sur un domaine ?",
       "opts": [
-        "filetype:env ou ext:env",
         "inurl:database_password",
+        "filetype:env ou ext:env",
         "intitle:configuration_secret",
         "site:apache_directory"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Les opérateurs filetype:env ou ext:env restreignent la recherche aux fichiers portant cette extension, fréquemment riche en secrets d'API et identifiants de bases de données."
     },
     {
       "stem": "Sur quel port et protocole de transport s'effectue traditionnellement une requête de transfert de zone DNS complet (AXFR) ?",
       "opts": [
-        "Port TCP 53",
+        "Port UDP 161",
         "Port UDP 53",
         "Port TCP 443",
-        "Port UDP 161"
+        "Port TCP 53"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Alors que les résolutions DNS classiques transitent sur UDP 53, les transferts de zone (AXFR) utilisent TCP 53 pour garantir la fiabilité du transfert volumineux de la base."
     },
     {
       "stem": "Quelle est la conséquence immédiate d'un enregistrement SPF se terminant par la directive \"+all\" ?",
       "opts": [
-        "Tout hôte correspond au mécanisme SPF all : cet enregistrement ne limite plus les expéditeurs selon leur adresse IP",
-        "Tous les emails émis sont automatiquement rejetés par les serveurs destinataires",
         "Les emails sont systématiquement chiffrés avec la clé publique du domaine",
+        "Tous les emails émis sont automatiquement rejetés par les serveurs destinataires",
+        "Tout hôte correspond au mécanisme SPF all : cet enregistrement ne limite plus les expéditeurs selon leur adresse IP",
         "Seuls les serveurs MX déclarés ont le droit d'expédier des courriels"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "La directive \"+all\" fait correspondre tout hôte dans l'évaluation SPF. Les autres contrôles et la décision du récepteur restent à examiner."
     },
     {
       "stem": "Quelle politique DMARC demande au récepteur de rejeter un message lorsque l'évaluation DMARC échoue ?",
       "opts": [
-        "p=reject",
         "p=none",
+        "p=reject",
         "p=quarantine",
         "p=monitor"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "DMARC réussit si SPF ou DKIM réussit avec l'alignement requis ; l'échec d'un seul mécanisme ne suffit pas. En cas d'échec DMARC, p=reject demande le rejet, mais le récepteur décide du traitement."
     },
     {
@@ -159,23 +159,23 @@ module.exports = {
     {
       "stem": "Lors d'un brute-force de sous-domaines, que provoque la présence d'un enregistrement DNS \"wildcard\" (*.target.com) ?",
       "opts": [
-        "Certains noms inexistants peuvent recevoir une réponse synthétisée, sans que tous les noms soient nécessairement concernés",
+        "La zone DNS entière est effacée du serveur de noms",
         "Le serveur DNS refuse immédiatement toute nouvelle requête en bloquant l'IP de l'auditeur",
         "Les requêtes sont automatiquement redirigées vers le serveur DNS racine mondial",
-        "La zone DNS entière est effacée du serveur de noms"
+        "Certains noms inexistants peuvent recevoir une réponse synthétisée, sans que tous les noms soient nécessairement concernés"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Un wildcard peut synthétiser certaines réponses pour des noms inexistants. Un nom légitime peut partager la même adresse IP : cet indice seul ne suffit pas pour l'exclure."
     },
     {
       "stem": "Quel en-tête HTTP de sécurité empêche qu'un site web soit encapsulé dans un iframe et protège contre les attaques de Clickjacking ?",
       "opts": [
-        "X-Frame-Options (avec DENY ou SAMEORIGIN)",
-        "Strict-Transport-Security (HSTS)",
         "X-Content-Type-Options: nosniff",
+        "Strict-Transport-Security (HSTS)",
+        "X-Frame-Options (avec DENY ou SAMEORIGIN)",
         "Access-Control-Allow-Origin: *"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "L'en-tête X-Frame-Options (ou la directive frame-ancestors de CSP) interdit l'affichage du site dans une balise iframe, neutralisant les attaques par détournement de clic (Clickjacking)."
     }
   ],

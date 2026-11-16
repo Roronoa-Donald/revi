@@ -4,153 +4,167 @@ module.exports = [
   {
     "id": "aws3-c1-e1",
     "chapter": 1,
-    "title": "Validateur d'ARN (Amazon Resource Name) & Parseur de Composants",
     "level": "n1",
     "language": "analyse",
-    "goal": "Valider et décomposer un identifiant de ressource AWS (ARN) selon la spécification officielle.",
-    "brief": "<p>Un <strong>ARN (Amazon Resource Name)</strong> identifie de manière unique toute ressource dans AWS.<br><br>\nFormat standard d'un ARN :<br>\n<code>arn:partition:service:region:account-id:resource-id</code><br>\nou<br>\n<code>arn:partition:service:region:account-id:resourcetype/resource-id</code><br>\nou<br>\n<code>arn:partition:service:region:account-id:resourcetype:resource-id</code><br><br>\nRègles de validation :<br>\n1. Doit commencer par <code>arn:</code>.<br>\n2. <code>partition</code> : doit être <code>aws</code>, <code>aws-cn</code> ou <code>aws-us-gov</code>.<br>\n3. <code>service</code> : chaîne en minuscules, non vide (ex: <code>s3</code>, <code>ec2</code>, <code>iam</code>).<br>\n4. <code>region</code> : code région AWS valide (ex: <code>eu-west-3</code>, <code>us-east-1</code>) ou vide pour les services globaux (ex: S3, IAM, CloudFront).<br>\n5. <code>account-id</code> : exactement 12 chiffres décimaux, ou vide pour les services globaux/ressources sans compte explicite (ex: buckets S3).<br>\n6. <code>resource</code> : non vide (tout ce qui suit le 5e séparateur deux-points <code>:</code>).<br><br>\nDonnées du cas : <code>ARN_PARSE &lt;arn_string&gt;</code>.<br>\nRésultat d’analyse attendu : Si valide : <code>ARN: partition=&lt;part&gt; service=&lt;svc&gt; region=&lt;reg&gt; account=&lt;acc&gt; resource=&lt;res&gt;</code>.<br>\nSi invalide : <code>INVALID_ARN: reason=&lt;raison&gt;</code> (ex: <code>BAD_PREFIX</code>, <code>INVALID_PARTITION</code>, <code>EMPTY_SERVICE</code>, <code>BAD_ACCOUNT</code>, <code>EMPTY_RESOURCE</code>, <code>BAD_SEGMENTS</code>).</p>",
-    "starter": "# Grille d'analyse (aws3-c1-e1) — Validateur d'ARN (Amazon Resource Name) & Parseur de Composants\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Bucket S3 global sans région ni compte]\n# Données : ARN_PARSE arn:aws:s3:::mon-bucket-production-2026\nA_COMPLETER\n\n[Cas 2 — Rôle IAM global sans région avec compte 12 chiffres]\n# Données : ARN_PARSE arn:aws:iam::112233445566:role/AdminRole\nA_COMPLETER\n\n[Cas 3 — Partition AWS Chine avec fonction Lambda]\n# Données : ARN_PARSE arn:aws-cn:lambda:cn-north-1:987654321098:function:ProcessOrders\nA_COMPLETER\n\n[Cas 4 — Erreur préfixe ARN invalide]\n# Données : ARN_PARSE uri:aws:s3:::mon-bucket\nA_COMPLETER\n\n[Cas 5 — Erreur partition invalide]\n# Données : ARN_PARSE arn:google:compute:europe-west1:123456789012:instance/vm1\nA_COMPLETER\n\n[Cas 6 — Erreur compte invalide (pas 12 chiffres)]\n# Données : ARN_PARSE arn:aws:ec2:us-east-1:12345:instance/i-123\nA_COMPLETER\n",
+    "title": "Le lancement européen de la plateforme Verdolivr",
+    "exampleTitle": "Exemple résolu — l'ouverture québécoise de l'épicerie Boréal",
+    "goal": "Situer régions, zones de disponibilité et edge locations dans le choix d'une première infrastructure AWS.",
+    "brief": "<p><strong>Énoncé.</strong> Verdolivr est une jeune entreprise lyonnaise qui prépare le lancement de sa plateforme de commande de paniers bio. Ses clients se trouvent à Lyon et à Paris. Avant l'ouverture du service, la cheffe technique prépare l'infrastructure AWS : choix de la région, répartition sur plusieurs zones de disponibilité et diffusion des photos des produits.</p><p>Rappels du cours : une région est un ensemble de zones de disponibilité ; chaque zone de disponibilité est composée d'un ou plusieurs centres de données physiques à l'alimentation, au réseau et à la connectivité redondants ; les edge locations sont des points de présence répartis dans le monde, utilisés par le réseau de diffusion de contenu (CDN) d'AWS.</p><p>La question 1 attend un code de région (par exemple us-east-1) ; la question 5 attend « oui » ou « non ».</p><ol><li>Quelle région AWS l'équipe doit-elle choisir pour héberger la plateforme au plus près de ses clients parisiens et lyonnais ?</li><li>Combien de zones de disponibilité le déploiement doit-il couvrir au minimum pour survivre à la panne d'une zone entière ?</li><li>Quel service AWS de diffusion de contenu sert les photos des produits depuis des edge locations au plus près des clients ?</li><li>De quoi chaque zone de disponibilité est-elle matériellement constituée ?</li><li>Le trafic réseau entre deux zones de disponibilité d'une même région traverse-t-il l'Internet public ?</li></ol>",
+    "starter": "# Exercice — Le lancement européen de la plateforme Verdolivr\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Question 1 : le code de la région. Question 5 : oui ou non.\n\n[Question 1 — Région la plus proche des clients]\nA_COMPLETER\n\n[Question 2 — Nombre minimal de zones de disponibilité]\nA_COMPLETER\n\n[Question 3 — Service de diffusion depuis les edge locations]\nA_COMPLETER\n\n[Question 4 — Constitution matérielle d'une zone de disponibilité]\nA_COMPLETER\n\n[Question 5 — Le trafic inter-zones traverse-t-il l'Internet public ?]\nA_COMPLETER\n",
     "hints": [
-      "Analysez scrupuleusement le format d'entrée les données d’entrée.",
-      "Respectez la casse et les séparateurs attendus en sortie."
+      "Une région porte un code comme eu-west-3 ou ca-central-1 : retenez celle qui héberge un cluster au plus près des utilisateurs finaux.",
+      "La haute disponibilité commence à deux zones de disponibilité : tant qu'une zone survit, le service reste accessible.",
+      "1. Cherchez la région dont le code désigne Paris. 2. Une panne de zone ne doit pas arrêter le service. 3. Le CDN d'AWS s'appelle CloudFront. 4. Une zone = un ou plusieurs centres de données redondants. 5. Les liens entre zones d'une même région sont privés."
     ],
     "examples": [
       {
-        "stdin": "ARN_PARSE arn:aws:ec2:eu-west-3:123456789012:instance/i-0123456789abcdef0",
-        "expected": "ARN: partition=aws service=ec2 region=eu-west-3 account=123456789012 resource=instance/i-0123456789abcdef0",
-        "note": "Cas d'usage nominal."
+        "stdin": "L'épicerie en ligne Boréal ouvre son service à Montréal et prépare son infrastructure AWS.\n\n1) Région la plus proche des clients : ca-central-1 (Canada).\n2) Deux zones de disponibilité au minimum pour survivre à la panne d'une zone.\n3) Les photos des produits sont servies par CloudFront depuis des edge locations.\n4) Une zone de disponibilité = un ou plusieurs centres de données redondants.\n5) Le trafic entre deux zones d'une même région ne traverse pas l'Internet public.",
+        "expected": "ca-central-1 — 2 zones — CloudFront — un ou plusieurs centres de données — pas d'Internet public",
+        "note": "Les zones d'une même région sont interconnectées par des liens réseau privés : le trafic inter-zones ne sort jamais sur Internet."
       }
     ],
     "tests": [
       {
-        "label": "Bucket S3 global sans région ni compte",
-        "stdin": "cas:1",
-        "expected": "ARN: partition=aws service=s3 region= account= resource=mon-bucket-production-2026\n"
+        "label": "Question 1 — Région la plus proche des clients",
+        "stdin": "q:1",
+        "expected": "eu-west-3||europe (paris)||europe paris||la région eu-west-3 (paris)||eu-west-3 paris"
       },
       {
-        "label": "Rôle IAM global sans région avec compte 12 chiffres",
-        "stdin": "cas:2",
-        "expected": "ARN: partition=aws service=iam region= account=112233445566 resource=role/AdminRole\n"
+        "label": "Question 2 — Nombre minimal de zones de disponibilité",
+        "stdin": "q:2",
+        "expected": "2||deux||2 zones||deux zones||2 zones de disponibilité"
       },
       {
-        "label": "Partition AWS Chine avec fonction Lambda",
-        "stdin": "cas:3",
-        "expected": "ARN: partition=aws-cn service=lambda region=cn-north-1 account=987654321098 resource=function:ProcessOrders\n"
+        "label": "Question 3 — Service de diffusion depuis les edge locations",
+        "stdin": "q:3",
+        "expected": "cloudfront||amazon cloudfront||aws cloudfront||le cloudfront||cloudfront (le cdn d'aws)"
       },
       {
-        "label": "Erreur préfixe ARN invalide",
-        "stdin": "cas:4",
-        "expected": "INVALID_ARN: reason=BAD_PREFIX\n"
+        "label": "Question 4 — Constitution matérielle d'une zone de disponibilité",
+        "stdin": "q:4",
+        "expected": "un ou plusieurs centres de données||un ou plusieurs centres de données redondants||un ou plusieurs data centers||plusieurs centres de données||des centres de données redondants"
       },
       {
-        "label": "Erreur partition invalide",
-        "stdin": "cas:5",
-        "expected": "INVALID_ARN: reason=INVALID_PARTITION\n"
-      },
-      {
-        "label": "Erreur compte invalide (pas 12 chiffres)",
-        "stdin": "cas:6",
-        "expected": "INVALID_ARN: reason=BAD_ACCOUNT\n"
+        "label": "Question 5 — Le trafic inter-zones traverse-t-il l'Internet public ?",
+        "stdin": "q:5",
+        "expected": "non"
       }
     ],
-    "solution": "[Exemple]\nARN: partition=aws service=ec2 region=eu-west-3 account=123456789012 resource=instance/i-0123456789abcdef0\n\n[Cas 1 — Bucket S3 global sans région ni compte]\nARN: partition=aws service=s3 region= account= resource=mon-bucket-production-2026\n\n\n[Cas 2 — Rôle IAM global sans région avec compte 12 chiffres]\nARN: partition=aws service=iam region= account=112233445566 resource=role/AdminRole\n\n\n[Cas 3 — Partition AWS Chine avec fonction Lambda]\nARN: partition=aws-cn service=lambda region=cn-north-1 account=987654321098 resource=function:ProcessOrders\n\n\n[Cas 4 — Erreur préfixe ARN invalide]\nINVALID_ARN: reason=BAD_PREFIX\n\n\n[Cas 5 — Erreur partition invalide]\nINVALID_ARN: reason=INVALID_PARTITION\n\n\n[Cas 6 — Erreur compte invalide (pas 12 chiffres)]\nINVALID_ARN: reason=BAD_ACCOUNT"
+    "solution": "[Question 1 — Région la plus proche des clients]\neu-west-3\n\n[Question 2 — Nombre minimal de zones de disponibilité]\n2\n\n[Question 3 — Service de diffusion depuis les edge locations]\ncloudfront\n\n[Question 4 — Constitution matérielle d'une zone de disponibilité]\nun ou plusieurs centres de données\n\n[Question 5 — Le trafic inter-zones traverse-t-il l'Internet public ?]\nnon",
+    "takeaway": "1) Les clients sont à Paris et Lyon : la région Europe (Paris), de code eu-west-3, héberge l'infrastructure au plus proche d'eux.\n2) Pour survivre à la panne d'une zone entière, il faut couvrir au minimum 2 zones de disponibilité (déploiement multi-AZ).\n3) CloudFront, le réseau de diffusion de contenu d'AWS, sert les photos depuis des edge locations proches des clients.\n4) Une zone de disponibilité regroupe un ou plusieurs centres de données physiques dotés d'une alimentation, d'un réseau et d'une connectivité redondants.\n5) Non : les zones d'une même région sont reliées par des liens réseau privés ; le trafic inter-zones ne traverse pas l'Internet public.\nContrôle : région (eu-west-3), deux zones, CDN (CloudFront) : c'est le triptyque région / zone de disponibilité / edge location du chapitre 1."
   },
   {
     "id": "aws3-c1-e2",
     "chapter": 1,
-    "title": "Calculateur de Disponibilité & Temps d'Arrêt Annuel (SLA Multi-AZ)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Calculer la disponibilité globale d'une architecture en série ou en parallèle et estimer le temps d'arrêt maximal autorisé par an.",
-    "brief": "<p>La haute disponibilité dans AWS repose sur la composition de services résilients :<br><br>\n1. <strong>Composants en série (dépendance stricte)</strong> :<br>\nLa défaillance d'un seul composant entraîne la panne globale.<br>\n<code>A_total = A_1 * A_2 * ... * A_n</code> (où <code>A_i</code> est la disponibilité en fraction [0..1]).<br><br>\n2. <strong>Composants en parallèle (redondance active Multi-AZ)</strong> :<br>\nLe système fonctionne tant qu'au moins un composant est actif.<br>\n<code>A_total = 1.0 - ((1.0 - A_1) * (1.0 - A_2) * ... * (1.0 - A_n))</code>.<br><br>\n3. <strong>Temps d'arrêt annuel maximal (Downtime)</strong> :<br>\nSur une base de 365 jours (soit 8 760 heures = 525 600 minutes) :<br>\n<code>Downtime_heures = (1.0 - A_total) * 8760</code>.<br><br>\nDonnées du cas : <code>AVAIL_CALC MODE=&lt;SERIE|PARALLELE&gt; SLA=&lt;pct1,pct2,...&gt;</code>.<br>\nRésultat d’analyse attendu : <code>AVAILABILITY: mode=&lt;MODE&gt; sla=&lt;pct_final:.4f&gt;% downtime_hours=&lt;h:.2f&gt; downtime_minutes=&lt;m:.1f&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (aws3-c1-e2) — Calculateur de Disponibilité & Temps d'Arrêt Annuel (SLA Multi-AZ)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Deux zones redondantes en parallèle (99.9% chacune)]\n# Données : AVAIL_CALC MODE=PARALLELE SLA=99.9,99.9\nA_COMPLETER\n\n[Cas 2 — Trois composants critiques en série (99.99%, 99.95%, 99.9%)]\n# Données : AVAIL_CALC MODE=SERIE SLA=99.99,99.95,99.9\nA_COMPLETER\n\n[Cas 3 — Trois zones Multi-AZ en parallèle (99.5% chacune)]\n# Données : AVAIL_CALC MODE=PARALLELE SLA=99.5,99.5,99.5\nA_COMPLETER\n\n[Cas 4 — Composant unique 99.99% (SLA 4 neuf)]\n# Données : AVAIL_CALC MODE=SERIE SLA=99.99\nA_COMPLETER\n",
+    "title": "L'audit de responsabilité partagée du site marchand Vitrio",
+    "exampleTitle": "Exemple résolu — l'audit du média en ligne RégionSud",
+    "goal": "Appliquer le modèle de responsabilité partagée pour attribuer chaque tâche de sécurité à AWS ou au client.",
+    "brief": "<p><strong>Énoncé.</strong> Vitrio est un site marchand de décoration. Son architecture tourne sur des instances EC2 sous Amazon Linux, une base de données RDS MySQL, un bucket S3 qui stocke les photos des produits et des fonctions Lambda qui génèrent les vignettes. La nouvelle responsable sécurité passe l'infrastructure en revue et doit dire, pour chaque tâche, si elle incombe à <strong>AWS</strong> (sécurité DU cloud) ou à <strong>Vitrio</strong>, le client (sécurité DANS le cloud).</p><p>Rappel du cours : AWS répond du matériel physique, des hyperviseurs, des bâtiments et du réseau sous-jacent, ainsi que des services managés (OS et runtimes des services comme RDS ou Lambda) ; le client répond de ses données, de ses identités IAM, de la configuration de ses ressources et des patchs des OS invités de ses instances EC2.</p><p>Pour chaque tâche, répondez « AWS » ou « Vitrio ».</p><ol><li>Appliquer les correctifs de sécurité du système d'exploitation Amazon Linux des instances EC2.</li><li>Mettre à jour le système d'exploitation sous-jacent du serveur de la base RDS MySQL.</li><li>Sécuriser physiquement les centres de données (alimentation, gardiennage, réseau physique).</li><li>Maintenir à jour le runtime d'exécution des fonctions Lambda.</li><li>Configurer la politique d'accès du bucket S3 et son blocage d'accès public.</li><li>Gérer les utilisateurs, groupes et rôles IAM du compte de Vitrio.</li></ol>",
+    "starter": "# Exercice — L'audit de responsabilité partagée du site marchand Vitrio\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Pour chaque tâche, répondez AWS ou Vitrio.\n\n[Question 1 — Correctifs de l'OS Amazon Linux des instances EC2]\nA_COMPLETER\n\n[Question 2 — Mise à jour de l'OS du serveur RDS MySQL]\nA_COMPLETER\n\n[Question 3 — Sécurité physique des centres de données]\nA_COMPLETER\n\n[Question 4 — Runtime d'exécution des fonctions Lambda]\nA_COMPLETER\n\n[Question 5 — Politique d'accès du bucket S3 et blocage public]\nA_COMPLETER\n\n[Question 6 — Utilisateurs, groupes et rôles IAM du compte]\nA_COMPLETER\n",
     "hints": [
-      "Analysez scrupuleusement le format d'entrée les données d’entrée.",
-      "Respectez la casse et les séparateurs attendus en sortie."
+      "Classez chaque tâche selon la couche : tout ce qui est sous la couche managée (matériel, hyperviseur, OS des services managés) relève d'AWS.",
+      "Tout ce que le client configure lui-même (données, IAM, OS invité de ses EC2, politiques de ses buckets) relève de sa responsabilité.",
+      "1. L'OS invité d'une instance EC2 appartient au client. 2. RDS est managé : AWS patche. 3. La sécurité physique est toujours AWS. 4. Le runtime Lambda est managé. 5. La configuration S3 est au client. 6. L'IAM est au client."
     ],
     "examples": [
       {
-        "stdin": "AVAIL_CALC MODE=SERIE SLA=99.9,99.95",
-        "expected": "AVAILABILITY: mode=SERIE sla=99.8501% downtime_hours=13.14 downtime_minutes=788.1",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le média en ligne RégionSud exploite EC2, RDS PostgreSQL, S3 et Lambda.\n\n1) Patch de l'OS invité des instances EC2 : le média (le client).\n2) Sécurité des hyperviseurs : AWS.\n3) Chiffrement applicatif des données stockées dans S3 : le média (le client).\n4) Disponibilité du matériel sous le service managé RDS : AWS.\n5) Gestion des identités IAM : le média (le client).",
+        "expected": "OS invité : client — hyperviseurs : AWS — chiffrement des données : client — matériel managé : AWS — IAM : client",
+        "note": "AWS répond de tout ce qui se situe sous la couche managée ; le client répond de ses données, de son IAM et de la configuration de ses ressources."
       }
     ],
     "tests": [
       {
-        "label": "Deux zones redondantes en parallèle (99.9% chacune)",
-        "stdin": "cas:1",
-        "expected": "AVAILABILITY: mode=PARALLELE sla=99.9999% downtime_hours=0.01 downtime_minutes=0.5\n"
+        "label": "Question 1 — Correctifs de l'OS Amazon Linux des instances EC2",
+        "stdin": "q:1",
+        "expected": "vitrio||le client||client||l'entreprise||vitrio (le client)"
       },
       {
-        "label": "Trois composants critiques en série (99.99%, 99.95%, 99.9%)",
-        "stdin": "cas:2",
-        "expected": "AVAILABILITY: mode=SERIE sla=99.8401% downtime_hours=14.01 downtime_minutes=840.6\n"
+        "label": "Question 2 — Mise à jour de l'OS du serveur RDS MySQL",
+        "stdin": "q:2",
+        "expected": "aws||amazon"
       },
       {
-        "label": "Trois zones Multi-AZ en parallèle (99.5% chacune)",
-        "stdin": "cas:3",
-        "expected": "AVAILABILITY: mode=PARALLELE sla=100.0000% downtime_hours=0.00 downtime_minutes=0.1\n"
+        "label": "Question 3 — Sécurité physique des centres de données",
+        "stdin": "q:3",
+        "expected": "aws||amazon"
       },
       {
-        "label": "Composant unique 99.99% (SLA 4 neuf)",
-        "stdin": "cas:4",
-        "expected": "AVAILABILITY: mode=SERIE sla=99.9900% downtime_hours=0.88 downtime_minutes=52.6\n"
+        "label": "Question 4 — Runtime d'exécution des fonctions Lambda",
+        "stdin": "q:4",
+        "expected": "aws||amazon"
+      },
+      {
+        "label": "Question 5 — Politique d'accès du bucket S3 et blocage public",
+        "stdin": "q:5",
+        "expected": "vitrio||le client||client||l'entreprise"
+      },
+      {
+        "label": "Question 6 — Utilisateurs, groupes et rôles IAM du compte",
+        "stdin": "q:6",
+        "expected": "vitrio||le client||client||l'entreprise"
       }
     ],
-    "solution": "[Exemple]\nAVAILABILITY: mode=SERIE sla=99.8501% downtime_hours=13.14 downtime_minutes=788.1\n\n[Cas 1 — Deux zones redondantes en parallèle (99.9% chacune)]\nAVAILABILITY: mode=PARALLELE sla=99.9999% downtime_hours=0.01 downtime_minutes=0.5\n\n\n[Cas 2 — Trois composants critiques en série (99.99%, 99.95%, 99.9%)]\nAVAILABILITY: mode=SERIE sla=99.8401% downtime_hours=14.01 downtime_minutes=840.6\n\n\n[Cas 3 — Trois zones Multi-AZ en parallèle (99.5% chacune)]\nAVAILABILITY: mode=PARALLELE sla=100.0000% downtime_hours=0.00 downtime_minutes=0.1\n\n\n[Cas 4 — Composant unique 99.99% (SLA 4 neuf)]\nAVAILABILITY: mode=SERIE sla=99.9900% downtime_hours=0.88 downtime_minutes=52.6"
+    "solution": "[Question 1 — Correctifs de l'OS Amazon Linux des instances EC2]\nvitrio\n\n[Question 2 — Mise à jour de l'OS du serveur RDS MySQL]\naws\n\n[Question 3 — Sécurité physique des centres de données]\naws\n\n[Question 4 — Runtime d'exécution des fonctions Lambda]\naws\n\n[Question 5 — Politique d'accès du bucket S3 et blocage public]\nvitrio\n\n[Question 6 — Utilisateurs, groupes et rôles IAM du compte]\nvitrio",
+    "takeaway": "1) L'OS invité d'une instance EC2 relève de la sécurité DANS le cloud : Vitrio applique elle-même les correctifs.\n2) RDS est un service managé : l'OS du serveur de base de données est patché par AWS.\n3) La sécurité physique des centres de données (bâtiments, alimentation, réseau) est de la responsabilité d'AWS.\n4) Le runtime des fonctions Lambda est maintenu par AWS : le client ne gère aucun serveur.\n5) La configuration du bucket S3 (politiques, blocage d'accès public) appartient au client.\n6) La gestion des identités IAM est toujours de la responsabilité du client.\nContrôle : AWS = infrastructure et services managés (questions 2, 3, 4) ; Vitrio = OS invité, configuration et IAM (questions 1, 5, 6)."
   },
   {
     "id": "aws3-c1-e3",
     "chapter": 1,
-    "title": "Auditeur de Responsabilité Partagée AWS (Shared Responsibility Model)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Déterminer qui d'AWS ou du Client est responsable d'une tâche de sécurité selon le modèle de service.",
-    "brief": "<p>Le <strong>modèle de responsabilité partagée</strong> d'AWS distingue :<br>\n- <strong>Sécurité DU Cloud (AWS)</strong> : matériel physique, hyperviseurs, installations des centres de données, réseau sous-jacent, patchs des services managés/serverless.<br>\n- <strong>Sécurité DANS le Cloud (Client)</strong> : configuration réseau (VPC, Security Groups), gestion des identités IAM, mises à jour des OS d'instances EC2, chiffrement des données au repos/en transit.<br><br>\nRègles selon le modèle de service :<br>\n1. <strong>IaaS (ex: EC2, EBS, VPC)</strong> :<br>\n- Matériel physique, hyperviseur, réseau physique -> <code>AWS</code>.<br>\n- Patch OS invité, firewall instance (Security Group), logiciels applicatifs, données -> <code>CUSTOMER</code>.<br>\n2. <strong>PaaS (ex: RDS, Elastic Beanstalk)</strong> :<br>\n- Patch OS serveur de base de données, infrastructure RDS -> <code>AWS</code>.<br>\n- Optimisation des index SQL, gestion des utilisateurs DB, paramètres de chiffrement -> <code>CUSTOMER</code>.<br>\n3. <strong>Serverless (ex: Lambda, S3, DynamoDB)</strong> :<br>\n- Système d'exploitation, runtime d'exécution (Python/Node.js), haute disponibilité du service -> <code>AWS</code>.<br>\n- Code applicatif, permissions IAM de fonction, bucket policies S3, chiffrement applicatif -> <code>CUSTOMER</code>.<br><br>\nDonnées du cas : <code>RESP_AUDIT SERVICE=&lt;IAAS|PAAS|SERVERLESS&gt; ITEM=&lt;tâche_de_sécurité&gt;</code>.<br>\nRésultat d’analyse attendu : <code>SHARED_RESP: service=&lt;svc&gt; item=&lt;item&gt; responsible=&lt;AWS|CUSTOMER&gt; scope=&lt;OF_THE_CLOUD|IN_THE_CLOUD&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (aws3-c1-e3) — Auditeur de Responsabilité Partagée AWS (Shared Responsibility Model)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Patch de l hyperviseur physique en IaaS]\n# Données : RESP_AUDIT SERVICE=IAAS ITEM=HYPERVISOR_PATCHING\nA_COMPLETER\n\n[Cas 2 — Configuration des Security Groups en IaaS]\n# Données : RESP_AUDIT SERVICE=IAAS ITEM=SECURITY_GROUP_CONFIG\nA_COMPLETER\n\n[Cas 3 — Patch de l OS de base de données RDS en PaaS]\n# Données : RESP_AUDIT SERVICE=PAAS ITEM=DATABASE_OS_PATCHING\nA_COMPLETER\n\n[Cas 4 — Maintien et patch du runtime Lambda en Serverless]\n# Données : RESP_AUDIT SERVICE=SERVERLESS ITEM=RUNTIME_MAINTENANCE\nA_COMPLETER\n\n[Cas 5 — Code source et logique applicative Lambda en Serverless]\n# Données : RESP_AUDIT SERVICE=SERVERLESS ITEM=FUNCTION_CODE\nA_COMPLETER\n\n[Cas 6 — Chiffrement des données stockées dans un bucket S3]\n# Données : RESP_AUDIT SERVICE=SERVERLESS ITEM=DATA_ENCRYPTION_CONFIG\nA_COMPLETER\n",
+    "title": "La disponibilité multi-AZ de la billetterie Skena",
+    "exampleTitle": "Exemple résolu — la disponibilité de la visioconférence AlloSee",
+    "goal": "Calculer la disponibilité d'une architecture en série et en parallèle (multi-AZ) et convertir un SLA en temps d'arrêt annuel.",
+    "brief": "<p><strong>Énoncé.</strong> Skena vend des billets de concerts en ligne sur AWS. Son contrat avec les organisateurs promet un service hautement disponible. L'équipe technique décrit l'architecture : la couche application est déployée sur des instances EC2 en <strong>multi-AZ</strong> sur deux zones de disponibilité redondantes derrière un répartiteur de charge <strong>Application Load Balancer (ALB)</strong>, chaque zone offrant <strong>99,9 %</strong> de disponibilité ; la base de données <strong>Amazon RDS</strong>, elle, reste en <strong>zone unique</strong> à 99,9 %.</p><p>Rappels du cours : une année compte 8 760 heures, soit 525 600 minutes ; en série, les disponibilités se multiplient (A = A<sub>1</sub> × A<sub>2</sub>) ; en parallèle (redondance multi-AZ), les indisponibilités se multiplient (A = 1 − (1 − A<sub>1</sub>) × (1 − A<sub>2</sub>)).</p><p>Les questions 1 à 4 attendent un nombre ; les questions 5 et 6 attendent une réponse courte.</p><ol><li>Quel temps d'arrêt annuel maximal un SLA de 99,9 % autorise-t-il, en minutes (une décimale) ?</li><li>Quelle est la disponibilité de la couche application multi-AZ (deux zones à 99,9 % chacune), en pourcentage à quatre décimales ?</li><li>Quel temps d'arrêt annuel cette disponibilité autorise-t-elle, en minutes (deux décimales) ?</li><li>La chaîne bout en bout met la couche application multi-AZ en série avec la base en zone unique : quelle est la disponibilité de bout en bout, en pourcentage arrondi à deux décimales ?</li><li>Quel maillon limite désormais la disponibilité de bout en bout ?</li><li>Quel déploiement appliquer à la base de données pour la rendre tolérante à la panne d'une zone ?</li></ol>",
+    "starter": "# Exercice — La disponibilité multi-AZ de la billetterie Skena\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : le nombre seul. Questions 5 et 6 : réponse courte.\n\n[Question 1 — Temps d'arrêt annuel d'un SLA de 99,9 % (minutes)]\nA_COMPLETER\n\n[Question 2 — Disponibilité multi-AZ à deux zones (%)]\nA_COMPLETER\n\n[Question 3 — Temps d'arrêt annuel multi-AZ (minutes)]\nA_COMPLETER\n\n[Question 4 — Disponibilité de bout en bout (%)]\nA_COMPLETER\n\n[Question 5 — Maillon qui limite la disponibilité]\nA_COMPLETER\n\n[Question 6 — Déploiement à appliquer à la base de données]\nA_COMPLETER\n",
     "hints": [
-      "Analysez scrupuleusement le format d'entrée les données d’entrée.",
-      "Respectez la casse et les séparateurs attendus en sortie."
+      "Le temps d'arrêt annuel se calcule sur 525 600 minutes : arrêt = (1 − disponibilité) × 525 600.",
+      "En parallèle, multipliez les indisponibilités : 0,001 × 0,001 ; en série, multipliez directement les disponibilités.",
+      "1. Arrêt = 0,001 × 525 600. 2. Multi-AZ : 1 − (0,001)². 3. Arrêt multi-AZ = 0,000001 × 525 600. 4. Série : disponibilité application × disponibilité base. 5. et 6. Cherchez le composant resté sans redondance."
     ],
     "examples": [
       {
-        "stdin": "RESP_AUDIT SERVICE=IAAS ITEM=GUEST_OS_PATCHING",
-        "expected": "SHARED_RESP: service=IAAS item=GUEST_OS_PATCHING responsible=CUSTOMER scope=IN_THE_CLOUD",
-        "note": "Cas d'usage nominal."
+        "stdin": "La plateforme de visioconférence AlloSee déploie son application sur 2 zones à 99,5 % chacune,\nsa base de données restant en zone unique à 99,5 %.\n\n1) Arrêt annuel d'un SLA de 99,5 % : 525 600 × 0,005 = 2 628 minutes.\n2) Application multi-AZ : 1 − 0,005² = 99,9975 %.\n3) Chaîne série avec la base : 0,999975 × 0,995 = 99,50 %.\n4) Maillon faible : la base de données en zone unique.",
+        "expected": "2 628 min — application multi-AZ 99,9975 % — chaîne 99,50 % — maillon faible : la base de données",
+        "note": "La redondance de la couche application ne rattrape pas la zone unique de la base : le maillon le plus faible fixe la disponibilité de la chaîne."
       }
     ],
     "tests": [
       {
-        "label": "Patch de l hyperviseur physique en IaaS",
-        "stdin": "cas:1",
-        "expected": "SHARED_RESP: service=IAAS item=HYPERVISOR_PATCHING responsible=AWS scope=OF_THE_CLOUD\n"
+        "label": "Question 1 — Temps d'arrêt annuel d'un SLA de 99,9 % (minutes)",
+        "stdin": "q:1",
+        "expected": "525,6||525.6||525,6 minutes"
       },
       {
-        "label": "Configuration des Security Groups en IaaS",
-        "stdin": "cas:2",
-        "expected": "SHARED_RESP: service=IAAS item=SECURITY_GROUP_CONFIG responsible=CUSTOMER scope=IN_THE_CLOUD\n"
+        "label": "Question 2 — Disponibilité multi-AZ à deux zones (%)",
+        "stdin": "q:2",
+        "expected": "99,9999||99.9999||99,9999 %||99,9999%"
       },
       {
-        "label": "Patch de l OS de base de données RDS en PaaS",
-        "stdin": "cas:3",
-        "expected": "SHARED_RESP: service=PAAS item=DATABASE_OS_PATCHING responsible=AWS scope=OF_THE_CLOUD\n"
+        "label": "Question 3 — Temps d'arrêt annuel multi-AZ (minutes)",
+        "stdin": "q:3",
+        "expected": "0,53||0.53||0,5256||0.5256||0,53 minutes"
       },
       {
-        "label": "Maintien et patch du runtime Lambda en Serverless",
-        "stdin": "cas:4",
-        "expected": "SHARED_RESP: service=SERVERLESS item=RUNTIME_MAINTENANCE responsible=AWS scope=OF_THE_CLOUD\n"
+        "label": "Question 4 — Disponibilité de bout en bout (%)",
+        "stdin": "q:4",
+        "expected": "99,9||99.9||99,90||99.90||99,8999||99.8999||99,9 %||99,90 %"
       },
       {
-        "label": "Code source et logique applicative Lambda en Serverless",
-        "stdin": "cas:5",
-        "expected": "SHARED_RESP: service=SERVERLESS item=FUNCTION_CODE responsible=CUSTOMER scope=IN_THE_CLOUD\n"
+        "label": "Question 5 — Maillon qui limite la disponibilité",
+        "stdin": "q:5",
+        "expected": "la base de données||la base||la base de données en zone unique||la base de données rds"
       },
       {
-        "label": "Chiffrement des données stockées dans un bucket S3",
-        "stdin": "cas:6",
-        "expected": "SHARED_RESP: service=SERVERLESS item=DATA_ENCRYPTION_CONFIG responsible=CUSTOMER scope=IN_THE_CLOUD\n"
+        "label": "Question 6 — Déploiement à appliquer à la base de données",
+        "stdin": "q:6",
+        "expected": "multi-az||multi az||multiaz||le multi-az||le déploiement multi-az||multi-az (rds)"
       }
     ],
-    "solution": "[Exemple]\nSHARED_RESP: service=IAAS item=GUEST_OS_PATCHING responsible=CUSTOMER scope=IN_THE_CLOUD\n\n[Cas 1 — Patch de l hyperviseur physique en IaaS]\nSHARED_RESP: service=IAAS item=HYPERVISOR_PATCHING responsible=AWS scope=OF_THE_CLOUD\n\n\n[Cas 2 — Configuration des Security Groups en IaaS]\nSHARED_RESP: service=IAAS item=SECURITY_GROUP_CONFIG responsible=CUSTOMER scope=IN_THE_CLOUD\n\n\n[Cas 3 — Patch de l OS de base de données RDS en PaaS]\nSHARED_RESP: service=PAAS item=DATABASE_OS_PATCHING responsible=AWS scope=OF_THE_CLOUD\n\n\n[Cas 4 — Maintien et patch du runtime Lambda en Serverless]\nSHARED_RESP: service=SERVERLESS item=RUNTIME_MAINTENANCE responsible=AWS scope=OF_THE_CLOUD\n\n\n[Cas 5 — Code source et logique applicative Lambda en Serverless]\nSHARED_RESP: service=SERVERLESS item=FUNCTION_CODE responsible=CUSTOMER scope=IN_THE_CLOUD\n\n\n[Cas 6 — Chiffrement des données stockées dans un bucket S3]\nSHARED_RESP: service=SERVERLESS item=DATA_ENCRYPTION_CONFIG responsible=CUSTOMER scope=IN_THE_CLOUD"
+    "solution": "[Question 1 — Temps d'arrêt annuel d'un SLA de 99,9 % (minutes)]\n525,6\n\n[Question 2 — Disponibilité multi-AZ à deux zones (%)]\n99,9999\n\n[Question 3 — Temps d'arrêt annuel multi-AZ (minutes)]\n0,53\n\n[Question 4 — Disponibilité de bout en bout (%)]\n99,9\n\n[Question 5 — Maillon qui limite la disponibilité]\nla base de données\n\n[Question 6 — Déploiement à appliquer à la base de données]\nmulti-az",
+    "takeaway": "1) SLA de 99,9 % : arrêt = 0,001 × 525 600 = 525,6 minutes par an.\n2) Application multi-AZ : A = 1 − (1 − 0,999)² = 1 − 0,000001 = 0,999999, soit 99,9999 %.\n3) Arrêt correspondant : 0,000001 × 525 600 = 0,5256, soit 0,53 minute par an (environ 32 secondes).\n4) Chaîne série : 0,999999 × 0,999 = 0,998999001, soit 99,90 % arrondi à deux décimales.\n5) Le maillon faible est la base de données restée en zone unique : à 99,9 %, elle plafonne la chaîne.\n6) Il faut passer la base en déploiement multi-AZ : une instance de secours synchronisée dans une autre zone assure la bascule.\nContrôle : 525,6 min + le gain multi-AZ = 0,53 min ; la chaîne (99,90 %) ne dépasse pas le plus faible de ses maillons série."
   }
 ];

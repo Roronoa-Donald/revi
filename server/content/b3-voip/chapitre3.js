@@ -161,14 +161,14 @@ module.exports = {
     },
     {
       stem: 'Quelle commande CLI permet de se connecter à la console interactive d\'un serveur Asterisk en cours d\'exécution avec un niveau de verbosité élevé ?',
-      opts: ['asterisk -start', 'asterisk -rvvv', 'service asterisk debug', 'asterisk --console-only'],
-      correct: 1,
+      opts: ['asterisk -start', 'asterisk --console-only', 'service asterisk debug', 'asterisk -rvvv'],
+      correct: 3,
       exp: 'La commande asterisk -r (reconnect) associée à -vvv (très verbeux) connecte l\'administrateur au démon Asterisk avec affichage temps réel des événements.'
     },
     {
       stem: 'Que signifie la directive host=dynamic dans la déclaration d\'un compte utilisateur SIP dans Asterisk ?',
-      opts: ['L\'adresse IP du poste change toutes les minutes', 'Le poste utilise DHCP sur le LAN', 'L\'adresse IP du poste n\'est pas pré-configurée : Asterisk enregistre l\'adresse IP transmise par le client lors de sa requête REGISTER', 'Le poste est connecté en fibre optique'],
-      correct: 2,
+      opts: ["L'adresse IP du poste n'est pas pré-configurée : Asterisk enregistre l'adresse IP transmise par le client lors de sa requête REGISTER","L'adresse IP du poste est renouvelée et change automatiquement toutes les minutes par rotation arbitraire","Le poste obtient son adresse IP depuis le serveur DHCP du réseau local de l'entreprise cliente","Le poste est raccordé au serveur Asterisk par une liaison fibre optique dédiée et permanente"],
+      correct: 0,
       exp: 'host=dynamic indique qu\'Asterisk doit mémoriser l\'adresse IP et le port transmis lors de l\'enregistrement périodique SIP REGISTER du softphone.'
     },
     {
@@ -179,20 +179,20 @@ module.exports = {
     },
     {
       stem: 'Pourquoi est-il impératif de configurer la directive dtmfmode=rfc2833 sur les comptes SIP Asterisk ?',
-      opts: ['Pour chiffrer les communications en AES-256', 'Pour transmettre les touches DTMF dans des trames RTP distinctes afin qu\'elles ne soient pas altérées par les algorithmes de compression vocale', 'Pour interdire les appels vers les numéros surtaxés', 'Pour activer la vidéo HD'],
+      opts: ["Pour chiffrer l'ensemble des communications vocales de l'entreprise avec l'algorithme symétrique AES-256","Pour transmettre les touches DTMF dans des trames RTP distinctes afin qu'elles ne soient pas altérées par les algorithmes de compression vocale","Pour interdire automatiquement les appels sortants vers les numéros surtaxés depuis les postes internes","Pour activer la transmission de la vidéo haute définition sur les terminaux SIP compatibles du réseau"],
       correct: 1,
       exp: 'Les codecs vocaux compressent la voix mais déforment les tonalités acoustiques DTMF. La norme RFC 2833 transmet les touches dans des paquets d\'événements RTP dédiés.'
     },
     {
       stem: 'Dans le fichier voicemail.conf, quelle information précède immédiatement la virgule et le nom de l\'utilisateur sur la ligne de déclaration d\'une boîte vocale ?',
-      opts: ['L\'adresse email', 'Le code PIN secret d\'accès', 'Le numéro de fax', 'Le type de combiné'],
-      correct: 1,
+      opts: ['Le code PIN secret d\'accès', 'L\'adresse email', 'Le numéro de fax', 'Le type de combiné'],
+      correct: 0,
       exp: 'La syntaxe est : mailbox => pin,nom,email (ex: 706438029 => 8190,Pape Moussa SONKO,assoum1024@gmail.com).'
     },
     {
       stem: 'Quelle commande CLI Asterisk permet d\'afficher en temps réel la liste de tous les postes SIP configurés ainsi que leur état d\'enregistrement et leur adresse IP ?',
-      opts: ['sip show peers', 'sip show users', 'asterisk list all', 'show channels'],
-      correct: 0,
+      opts: ['show channels', 'sip show users', 'asterisk list all', 'sip show peers'],
+      correct: 3,
       exp: 'sip show peers liste l\'ensemble des pairs déclarés, leur adresse IP de contact actuelle, leur statut (OK, UNREACHABLE, LAGGED) et leur latence.'
     },
     {

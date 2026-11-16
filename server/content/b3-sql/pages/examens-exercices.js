@@ -174,7 +174,7 @@ function exercices(course) {
   const body = [
     crumbs,
     '  <h1>Catalogue des 18 Ateliers Pratiques de Code Lab — SQL Avancé B3</h1>',
-    '  <p class="lead">18 exercices SQL intégrés dans les modules de cours. Leur correction automatique est temporairement suspendue.</p>',
+    '  <p class="lead">18 exercices SQL intégrés dans les modules de cours, avec correction automatique et tests cachés.</p>',
     '',
     '  <div class="grid grid--2">' + cardsHtml + '</div>',
     '',
@@ -186,7 +186,7 @@ function exercices(course) {
   return {
     'chapitres/exercices.html': {
       title: 'Catalogue des exercices — ' + course.brand,
-      description: 'Répertoire des 18 exercices SQL du cours SQL Avancé B3, à correction automatique suspendue.',
+      description: 'Répertoire des 18 exercices SQL du cours SQL Avancé B3, avec correction automatique active.',
       active: 'exercices',
       body
     }

@@ -145,23 +145,23 @@ module.exports = {
     {
       stem: 'Quelle stratégie des 6 R consiste à abandonner une application interne pour souscrire à un service SaaS clé en main du marché (ex: remplacer un webmail maison par Microsoft 365) ?',
       opts: [
-        'Replatform',
-        'Retain',
         'Repurchase',
+        'Retain',
+        'Replatform',
         'Refactor'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le Repurchase (aussi appelé « Drop and Shop ») substitue l’application existante par un logiciel en tant que service (SaaS) géré par un tiers.'
     },
     {
       stem: 'Quel terme financier désigne les dépenses d’investissement initiales en capital physique (achat de serveurs, locaux, switches) par opposition aux dépenses d’exploitation courantes ?',
       opts: [
         'OPEX',
-        'CAPEX',
+        'ROI',
         'EBITDA',
-        'ROI'
+        'CAPEX'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le CAPEX (Capital Expenditure) représente les dépenses d’investissement immobilisées, amorties comptablement sur plusieurs années.'
     },
     {
@@ -178,10 +178,10 @@ module.exports = {
     {
       stem: 'Pour un serveur de base de données de production critique qui doit fonctionner en continu 24h/24 pendant les trois prochaines années, quelle option tarifaire offre le meilleur rapport coût/bénéfice ?',
       opts: [
-        'Instances Spot',
-        'Instances Réservées (RI) ou Savings Plans avec engagement 3 ans',
-        'Instances À la Demande On-Demand',
-        'Paiement à la transaction'
+        "Instances Spot, réclamables par le fournisseur avec un préavis de 2 minutes",
+        "Instances Réservées (RI) ou Savings Plans avec engagement 3 ans",
+        "Instances À la Demande, facturées à la seconde sans engagement",
+        "Paiement à la transaction, proportionnel aux requêtes traitées"
       ],
       correct: 1,
       exp: 'Les Instances Réservées avec engagement 3 ans réduisent la facture de plus de 50% à 70% pour des charges de base stables et prévisibles.'
@@ -189,34 +189,34 @@ module.exports = {
     {
       stem: 'Quelle pratique d’organisation FinOps consiste à associer des métadonnées (clés/valeurs) sur chaque ressource Cloud pour imputer les dépenses à un projet ou département précis ?',
       opts: [
-        'Le Partitionnement réseau',
-        'Le Balisage des coûts (Cost Allocation Tagging)',
-        'La Virtualisation imbriquée',
-        'L’Auto-scaling horizontal'
+        "Le Balisage des coûts (Cost Allocation Tagging)",
+        "Le Partitionnement réseau du datacenter virtuel",
+        "La Virtualisation imbriquée d’hyperviseurs",
+        "L’Auto-scaling horizontal des groupes d’instances"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le balisage (tagging) permet d’attribuer chaque dollar dépensé à une équipe, un environnement ou un projet, rendant possible le refacturation interne (Chargeback).'
     },
     {
       stem: 'Parmi les ressources suivantes, laquelle continue souvent d’engendrer des coûts silencieux dans un compte Cloud même après l’extinction de la machine virtuelle associée ?',
       opts: [
-        'Le temps CPU de l’instance',
-        'Le volume de stockage bloc persistant (ex: disque AWS EBS) attaché et non supprimé',
-        'La mémoire vive RAM',
-        'La bande passante réseau sortante inactive'
+        "Le temps CPU consommé par l’instance au-delà de son quota gratuit mensuel",
+        "La mémoire vive RAM réservée sur l’hôte après l’extinction de la machine",
+        "La bande passante réseau sortante inactive vers les autres régions du fournisseur",
+        "Le volume de stockage bloc persistant (ex: disque AWS EBS) attaché et non supprimé"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les volumes de stockage disque persistant (EBS/Managed Disks) continuent d’être facturés pour la capacité allouée en Go/mois même si la VM associée est éteinte.'
     },
     {
       stem: 'Quelle action FinOps de « Rightsizing » consiste à adapter les ressources d’une instance à sa consommation réelle ?',
       opts: [
-        'Remplacer une instance surdimensionnée tournant à 5% de CPU par un type d’instance plus petit et deux fois moins cher',
-        'Changer la couleur de l’interface de gestion',
-        'Migrer le code vers un autre langage de programmation',
-        'Augmenter arbitrairement la RAM pour éviter les erreurs'
+        "Changer la couleur de l’interface de gestion de la console pour améliorer le confort des équipes",
+        "Migrer le code de l’application vers un autre langage de programmation plus moderne",
+        "Remplacer une instance surdimensionnée tournant à 5% de CPU par un type d’instance plus petit et deux fois moins cher",
+        "Augmenter arbitrairement la taille de la RAM de l’instance pour éviter les erreurs mémoire"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le « Rightsizing » analyse la télémétrie réelle pour redimensionner au plus juste les instances surdimensionnées et supprimer le gaspillage financier.'
     }
   ],

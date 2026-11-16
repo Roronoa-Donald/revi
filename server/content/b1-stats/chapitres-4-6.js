@@ -122,16 +122,26 @@ module.exports = [
             'commentez plutôt l’écart-type ou l’écart interquartile selon le contexte.</p>'),
           '<p>Référence : <a href="https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/coefvari.htm">NIST — coefficient de variation (en anglais)</a>.</p>'
         ].join('\n')
+      },
+      {
+        title: 'Labo Python appliqué',
+        html: [
+          '<p>Le module <code>statistics</code> de la bibliothèque standard calcule moyenne, variance et quantiles sur la série du chapitre 3. <code>pvariance</code> divise par N, comme dans ce cours (<code>variance</code> divise par N − 1 et sert à l’estimation).</p>',
+          '<pre><code class="language-python">from statistics import mean, pvariance, pstdev, quantiles\n\nserie = [2, 4, 4, 5, 7, 8, 9, 11, 12, 15]\nq1, q2, q3 = quantiles(serie, n=4, method="inclusive")\nprint("moyenne =", mean(serie))\nprint("variance (division par N) =", pvariance(serie))\nprint("ecart-type =", round(pstdev(serie), 3))\nprint("Q1, mediane, Q3 =", q1, q2, q3, "| EI =", q3 - q1)</code></pre>',
+          '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+          '<pre><code>moyenne = 7.7\nvariance (division par N) = 15.21\necart-type = 3.9\nQ1, mediane, Q3 = 4.25 7.5 10.5 | EI = 6.25</code></pre>',
+          '<p>Attention : <code>quantiles</code> applique une convention d’interpolation (ici <code>inclusive</code> : Q1 = 4,25 et Q3 = 10,5) qui diffère de la méthode de rang du cours (Q1 = 4 et Q3 = 11,25). Les conventions de quartiles varient d’un logiciel à l’autre : indiquez toujours laquelle vous utilisez.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
       { stem: 'Comment calcule-t-on l’étendue ?', opts: ['x<sub>max</sub> + x<sub>min</sub>', 'x<sub>max</sub> − x<sub>min</sub>', 'Q3 − Q1'], correct: 1, exp: 'C’est la différence entre la plus grande et la plus petite valeur.' },
       { stem: 'Que vaut l’écart interquartile ?', opts: ['Q3 − Q1', 'Q3 + Q1', 'la médiane'], correct: 0, exp: 'EI = Q3 − Q1 : largeur des 50 % centraux.' },
-      { stem: 'La variance est la moyenne…', opts: ['des écarts à la moyenne', 'des carrés des écarts à la moyenne', 'des valeurs au carré'], correct: 1, exp: 'Chaque écart est mis au carré avant d’être moyenné.' },
-      { stem: 'Formule de König ?', opts: ['V = Σ n<sub>i</sub>x<sub>i</sub>²/N − x̄²', 'V = x̄² − Σ n<sub>i</sub>x<sub>i</sub>²/N', 'V = (x̄)²'], correct: 0, exp: 'Moyenne des carrés moins carré de la moyenne.' },
-      { stem: 'Comment obtient-on l’écart-type ?', opts: ['V²', '√V', 'V/N'], correct: 1, exp: 'σ = √V : la racine rétablit l’unité des données.' },
-      { stem: 'À quoi sert le coefficient de variation lorsque ses conditions sont réunies ?', opts: ['À comparer des dispersions relatives pertinentes', 'À calculer la moyenne', 'À trouver le mode'], correct: 0, exp: 'La moyenne doit être positive, assez éloignée de zéro et porter sur une grandeur à zéro naturel ; comparez selon le contexte.' }
+      { stem: 'La variance est la moyenne…', opts: ['des écarts à la moyenne', 'des valeurs au carré', 'des carrés des écarts à la moyenne'], correct: 2, exp: 'Chaque écart est mis au carré avant d’être moyenné.' },
+      { stem: 'Formule de König ?', opts: ['V = x̄² − Σ n<sub>i</sub>x<sub>i</sub>²/N', 'V = Σ n<sub>i</sub>x<sub>i</sub>²/N − x̄²', 'V = (x̄)²'], correct: 1, exp: 'Moyenne des carrés moins carré de la moyenne.' },
+      { stem: 'Comment obtient-on l’écart-type ?', opts: ['V²', 'V/N', '√V'], correct: 2, exp: 'σ = √V : la racine rétablit l’unité des données.' },
+      { stem: 'À quoi sert le coefficient de variation lorsque ses conditions sont réunies ?', opts: ["À comparer des dispersions relatives pertinentes","À recalculer une moyenne corrigée des valeurs extrêmes","À repérer la modalité la plus fréquente de la série"], correct: 0, exp: "Le coefficient de variation rapporte l’écart-type à la moyenne : il compare des dispersions relatives, à condition d’une moyenne positive et éloignée de zéro sur une grandeur à zéro naturel ; il ne calcule ni moyenne ni mode." }
     ],
 
     pitfalls: [
@@ -288,14 +298,24 @@ module.exports = [
             '    <div class="box--formula"><div class="formula-label">Résumé à 5 nombres &amp; Barrières de Tukey</div><div class="math-block">$$\\text{Min} = x_{(1)}, \\quad Q_1 = x_{\\left(\\frac{n+1}{4}\\right)}, \\quad \\text{Med} = x_{\\left(\\frac{n+1}{2}\\right)}, \\quad Q_3 = x_{\\left(\\frac{3(n+1)}{4}\\right)}, \\quad \\text{Max} = x_{(n)}$$</div></div>\n' +
             '    <p>L’écart interquartile vaut $EI = Q_3 - Q_1$. Toute valeur située en dehors des barrières $[Q_1 - 1{,}5 \\cdot EI \\;;\\; Q_3 + 1{,}5 \\cdot EI]$ est qualifiée de valeur atypique (outlier).</p>')
         ].join('\n')
+      },
+      {
+        title: 'Labo Python appliqué',
+        html: [
+          '<p>Un histogramme se prépare en comptant les valeurs par classe. Chaque classe est de la forme <code>[a ; b[</code>, et seule la dernière classe inclut sa borne supérieure.</p>',
+          '<pre><code class="language-python"># Histogramme textuel : classes [a ; b[ et effectifs\nvaleurs = [152, 158, 161, 163, 165, 167, 170, 171, 174, 178, 181, 185]\nbornes = [150, 160, 170, 180, 190]\nfor a, b in zip(bornes, bornes[1:]):\n    n = sum(1 for x in valeurs if a &lt;= x &lt; b or (b == bornes[-1] and x == b))\n    print("[%d ; %d[ %-6s %d" % (a, b, "#" * n, n))</code></pre>',
+          '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+          '<pre><code>[150 ; 160[ ##     2\n[160 ; 170[ ####   4\n[170 ; 180[ ####   4\n[180 ; 190[ ##     2</code></pre>',
+          '<p>Le comptage reproduit la règle du chapitre 1 : chaque valeur appartient à une seule classe.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Quel graphique pour un caractère qualitatif ?', opts: ['Un histogramme', 'Un diagramme en barres ou circulaire', 'Une boîte à moustaches'], correct: 1, exp: 'Un caractère qualitatif se représente par des barres ou des secteurs.' },
+      { stem: 'Quel graphique pour un caractère qualitatif ?', opts: ["Un diagramme en barres ou circulaire","Un histogramme à classes contiguës","Une boîte à moustaches avec médiane"], correct: 0, exp: "Un caractère qualitatif n’a ni ordre ni valeurs numériques : on le représente en barres ou en secteurs ; l’histogramme exige des classes quantitatives contiguës." },
       { stem: 'Sur un diagramme en barres, l’axe de la grandeur mesurée…', opts: ['peut être tronqué', 'commence toujours à zéro', 'est toujours logarithmique'], correct: 1, exp: 'Tronquer l’axe exagère visuellement les écarts.' },
-      { stem: 'Quelle est la règle d’un diagramme circulaire ?', opts: ['angle = fréquence × 360', 'angle = effectif', 'angle = 90 × fréquence'], correct: 0, exp: 'Un tour complet est 360°, réparti selon les fréquences.' },
-      { stem: 'Dans un histogramme à classes inégales, la hauteur représente…', opts: ['l’effectif', 'la densité n<sub>i</sub>/amplitude', 'la fréquence cumulée'], correct: 1, exp: 'Ce sont les aires qui sont proportionnelles aux effectifs.' },
+      { stem: 'Quelle est la règle d’un diagramme circulaire ?', opts: ['angle = 90 × fréquence', 'angle = effectif', 'angle = fréquence × 360'], correct: 2, exp: 'Un tour complet est 360°, réparti selon les fréquences.' },
+      { stem: 'Dans un histogramme à classes inégales, la hauteur représente…', opts: ['l’effectif', 'la fréquence cumulée', 'la densité n<sub>i</sub>/amplitude'], correct: 2, exp: 'Ce sont les aires qui sont proportionnelles aux effectifs.' },
       { stem: 'Quelles sont les cinq valeurs d’une boîte à moustaches ?', opts: ['min, Q1, médiane, Q3, max', 'min, moyenne, max, σ, V', 'Q1, Q2, Q3, EI, CV'], correct: 0, exp: 'Deux moustaches et une boîte délimitée par les quartiles.' },
       { stem: 'Une médiane située près de Q1 dans la boîte indique…', opts: ['une distribution symétrique', 'un étalement vers les valeurs hautes', 'une erreur de calcul'], correct: 1, exp: 'La masse des valeurs est basse, la queue s’étend vers le haut.' }
     ],
@@ -464,16 +484,26 @@ module.exports = [
             '    <p>On calcule <em>toujours</em> la pente en premier : <code>a = cov(x,y)/V(x)</code>. Puis ' +
             'l’ordonnée à l’origine <code>b = ȳ − a·x̄</code>. L’inverse est impossible — b dépend de a.</p>')
         ].join('\n')
+      },
+      {
+        title: 'Labo Python appliqué',
+        html: [
+          '<p>Le calcul de la droite de régression linéaire et la vérification du passage par le point moyen s’implémentent directement en Python :</p>',
+          '<pre><code class="language-python"># Régression linéaire et droite des moindres carrés\nx = [1, 2, 3, 4, 5]\ny = [2, 4, 5, 4, 5]\nn = len(x)\nx_bar = sum(x) / n\ny_bar = sum(y) / n\ncov_xy = sum((xi - x_bar) * (yi - y_bar) for xi, yi in zip(x, y)) / n\nvar_x = sum((xi - x_bar)**2 for xi in x) / n\na = cov_xy / var_x\nb = y_bar - a * x_bar\nprint("droite de regression : y = %.1f*x + %.1f" % (a, b))\nprint("verification point moyen : G(%.1f, %.1f) -> %.1f" % (x_bar, y_bar, a * x_bar + b))</code></pre>',
+          '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+          '<pre><code>droite de regression : y = 0.6*x + 2.2\nverification point moyen : G(3.0, 4.0) -> 4.0</code></pre>',
+          '<p>La droite passe exactement par le point moyen G(3.0, 4.0), ce qui valide le calcul.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Quel est le point moyen d’une série double ?', opts: ['(0 ; 0)', '(x̄ ; ȳ)', '(x<sub>max</sub> ; y<sub>max</sub>)'], correct: 1, exp: 'C’est le centre de gravité du nuage : les deux moyennes.' },
+      { stem: 'Quel est le point moyen d’une série double ?', opts: ['(0 ; 0)', '(x<sub>max</sub> ; y<sub>max</sub>)', '(x̄ ; ȳ)'], correct: 2, exp: 'C’est le centre de gravité du nuage : les deux moyennes.' },
       { stem: 'Une covariance positive signifie…', opts: ['que x et y varient dans le même sens', 'que x et y varient en sens inverse', 'qu’il n’y a pas de liaison'], correct: 0, exp: 'Les contributions positives dominent : les deux caractères augmentent ensemble.' },
       { stem: 'Entre quelles valeurs le coefficient de corrélation r varie-t-il ?', opts: ['0 et 1', '−1 et 1', '−∞ et +∞'], correct: 1, exp: 'C’est un nombre sans unité borné par −1 et 1.' },
-      { stem: 'r = 0,05 pour une série où y = x². Conclusion ?', opts: ['Aucune liaison', 'Pas de liaison linéaire, mais une liaison existe', 'Erreur de calcul'], correct: 1, exp: 'r ne mesure que la liaison linéaire : il faut regarder le nuage.' },
-      { stem: 'Comment calcule-t-on la pente a de la droite des moindres carrés ?', opts: ['a = cov(x, y)/V(x)', 'a = ȳ/x̄', 'a = V(x)/cov(x, y)'], correct: 0, exp: 'a = cov(x,y)/V(x), puis b = ȳ − a·x̄.' },
-      { stem: 'La droite des moindres carrés passe par…', opts: ['l’origine', 'le point moyen (x̄ ; ȳ)', 'le premier point du nuage'], correct: 1, exp: 'Propriété de contrôle : ȳ = a·x̄ + b.' }
+      { stem: 'r = 0,05 pour une série où y = x². Conclusion ?', opts: ["Pas de liaison linéaire, mais une liaison existe","Aucune liaison entre les deux variables étudiées","Une erreur de calcul dans le coefficient obtenu"], correct: 0, exp: "Le coefficient r ne mesure que la linéarité : pour y = x², la liaison est parfaite mais non linéaire, d’où un r proche de 0 ; le nuage de points révèle la courbe." },
+      { stem: 'Comment calcule-t-on la pente a de la droite des moindres carrés ?', opts: ['a = V(x)/cov(x, y)', 'a = ȳ/x̄', 'a = cov(x, y)/V(x)'], correct: 2, exp: "La pente est le quotient de la covariance par la variance des x : a = cov(x,y)/V(x) ; l’option inversée V(x)/cov(x,y) renverserait le rôle des variables." },
+      { stem: 'La droite des moindres carrés passe par…', opts: ['l’origine', 'le point moyen (x̄ ; ȳ)', 'le premier point du nuage'], correct: 1, exp: "Propriété de contrôle : le point moyen vérifie l’équation, ȳ = a·x̄ + b ; la droite ne passe en général ni par l’origine ni par le premier point du nuage." }
     ],
 
     pitfalls: [

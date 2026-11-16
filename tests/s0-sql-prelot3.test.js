@@ -33,7 +33,7 @@ test('F170 : deux erreurs de bornes sont rejetées dans le modèle local', async
   }
 });
 
-test('F170–F173 : les fiches SQL B3 restent sans note et sans appel fournisseur', async () => {
+test('F170–F173 : les fiches SQL B3 sont notées localement en SQL WASM (0 appel externe) et restent fail-closed sur mutation', async () => {
   const previousSecret = process.env.JWT_SECRET;
   const original = execution.execute;
   process.env.JWT_SECRET = 'session-synthetique-prelot3-sql';
@@ -41,15 +41,33 @@ test('F170–F173 : les fiches SQL B3 restent sans note et sans appel fournisseu
   execution.execute = async () => { calls++; throw new Error('Appel inattendu'); };
   budget.reset();
   const app = buildApp({ logger: false });
-  const token = jwt.sign({ userId: 'controle-sql-prelot3' }, process.env.JWT_SECRET);
+  const token = jwt.sign({ userId: 'controle-sql-prelot3', level: 'b3', subscribed: true }, process.env.JWT_SECRET);
   try {
+    // 1) En production : 0 suspension, la soumission exécute le SQL localement sans appeler le fournisseur distant.
+    execution.execute = original;
     for (const id of ['sql3-c1-e1', 'sql3-c1-e2', 'sql3-c3-e3']) {
       const response = await app.inject({ method: 'POST', url: '/api/exercise/submit',
-        cookies: { auth_token: token }, payload: { exerciseId: id, code: 'SELECT 1' } });
-      assert.equal(response.statusCode, 503, id);
-      assert.equal(response.json().status, 'grading_suspended', id);
-      assert.equal(response.json().passed, undefined, id);
-      assert.equal(response.json().total, undefined, id);
+        cookies: { auth_token: token }, payload: { exerciseId: id, code: 'SELECT 1;' } });
+      assert.equal(response.statusCode, 200, id);
+      assert.equal(response.json().stop?.reason, 'wrong_output', id);
+    }
+
+    // 2) Fail-closed sur mutation d'une fiche : 503 grading_suspended et aucun appel moteur.
+    execution.execute = async () => { calls++; throw new Error('Appel inattendu'); };
+    for (const id of ['sql3-c1-e1', 'sql3-c1-e2', 'sql3-c3-e3']) {
+      const ex = catalogue.getExercise(id);
+      const saved = ex.solution;
+      ex.solution = `${saved}\n-- mutation`;
+      try {
+        const response = await app.inject({ method: 'POST', url: '/api/exercise/submit',
+          cookies: { auth_token: token }, payload: { exerciseId: id, code: 'SELECT 1' } });
+        assert.equal(response.statusCode, 503, id);
+        assert.equal(response.json().status, 'grading_suspended', id);
+        assert.equal(response.json().passed, undefined, id);
+        assert.equal(response.json().total, undefined, id);
+      } finally {
+        ex.solution = saved;
+      }
     }
     assert.equal(calls, 0);
   } finally {

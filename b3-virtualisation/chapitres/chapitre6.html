@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -194,6 +192,11 @@ A_COMPLETER
 [Cas 2 — Incohérence architecturale DomU avec mode NATIVE]
 # Données : UUID=cafebabe-1111-2222-3333-444455556666 NAME=Bad-DomU DOMAIN_TYPE=DOMU VIRT_MODE=NATIVE MEMORY_MB=4096 VCPUS=4
 A_COMPLETER
+
+[Cas 3 — Topologies cohérentes Dom0 natif et DomU paravirtualisé]
+# Données : UUID=1234abcd-9999-8888-7777-666655554444 NAME=xen-dom0 DOMAIN_TYPE=DOM0 VIRT_MODE=NATIVE MEMORY_MB=8192 VCPUS=8
+# Données : UUID=abcdef01-2222-3333-4444-555566667777 NAME=debian-pv DOMAIN_TYPE=DOMU VIRT_MODE=PV MEMORY_MB=2048 VCPUS=2
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Parseur de Métadonnées XenServer / Citrix Hypervisor &amp; Rôles Dom0 / DomU</h3>
@@ -224,10 +227,11 @@ UUID=b95e41a2-918c-42ba-c18f-993849182931 NAME=Linux-Web01 DOMAIN_TYPE=DOMU VIRT
 UUID=c12a93e3-718a-41aa-d09a-449182930192 NAME=Win-Desktop DOMAIN_TYPE=DOMU VIRT_MODE=HVM MEMORY_MB=16384 VCPUS=8</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Dom0 a obligatoirement le rôle CONTROL_DOMAIN et le mode NATIVE.</li>
         <li>DomU a obligatoirement le rôle GUEST_VM et le mode PV ou HVM.</li>
+        <li>1. DOM0 : rôle CONTROL_DOMAIN, mode NATIVE attendu. 2. DOMU : rôle GUEST_VM, mode PV ou HVM. 3. Toute autre combinaison : ERROR:INVALID_XEN_TOPOLOGY. 4. Afficher l’UUID tronqué à 8 caractères.</li>
       </ol>
     </details>
   </div>
@@ -247,6 +251,11 @@ A_COMPLETER
 
 [Cas 2 — Profil inconnu retournant une erreur]
 # Données : CATALOG=Custom PROFILE=UNKNOWN USERS=10 CONCURRENT_PCT=100.0
+A_COMPLETER
+
+[Cas 3 — Power users et task workers à simultanéité mixte]
+# Données : CATALOG=RD-Dept PROFILE=POWER_USER USERS=50 CONCURRENT_PCT=40.0
+# Données : CATALOG=Support PROFILE=TASK_WORKER USERS=200 CONCURRENT_PCT=75.0
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -283,10 +292,11 @@ CATALOG=Engineering PROFILE=POWER_USER USERS=20 CONCURRENT_PCT=100.0
 CATALOG=Sales PROFILE=KNOWLEDGE_WORKER USERS=50 CONCURRENT_PCT=60.0</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Associez à chaque profil ses caractéristiques (vcpus, ram, iops, disk).</li>
         <li>Le CPU, la RAM et les IOPS sont basés sur active_users, tandis que le stockage est calculé sur USERS total.</li>
+        <li>1. Associer le profil à ses vcpus, ram, iops et disque. 2. active = int(USERS * CONCURRENT_PCT / 100). 3. vcpus, ram et iops : active * profil ; stockage : USERS * disque.</li>
       </ol>
     </details>
   </div>
@@ -306,6 +316,11 @@ A_COMPLETER
 
 [Cas 2 — Rétention d'un seul jour (Full seul)]
 # Données : VM=vm-single SIZE_GB=200 DAILY_CHANGE_PCT=10.0 RETENTION_DAYS=1 DEDUP_RATIO=2.0 RESTORE_MBPS=200
+A_COMPLETER
+
+[Cas 3 — Rétention d’une semaine et déduplication variable]
+# Données : VM=vm-erp SIZE_GB=500 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=8 DEDUP_RATIO=2.5 RESTORE_MBPS=500
+# Données : VM=vm-ad SIZE_GB=100 DAILY_CHANGE_PCT=5.0 RETENTION_DAYS=5 DEDUP_RATIO=1.0 RESTORE_MBPS=1024
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -341,10 +356,11 @@ Format de sortie :<br>
 VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=2.5 RESTORE_MBPS=100</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquez le ratio de déduplication au Full et à chaque incrément CBT.</li>
         <li>Calculez le RTO en minutes à partir du volume brut en Mo et de la vitesse RESTORE_MBPS.</li>
+        <li>1. full = SIZE_GB / DEDUP_RATIO ; inc = SIZE_GB * DAILY_CHANGE_PCT / 100 / DEDUP_RATIO. 2. total = full + (RETENTION_DAYS - 1) * inc. 3. rto = SIZE_GB * 1024 / RESTORE_MBPS / 60.</li>
       </ol>
     </details>
   </div>
@@ -357,8 +373,8 @@ VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=
     <div class="q">
       <p class="q__stem">Quel fichier stocké sur le datastore contient la carte bitmap des blocs modifiés exploitée par le Changed Block Tracking (CBT) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le fichier se terminant par -ctk.vmdk.</button>
         <button class="opt">Le fichier se terminant par -flat.vmdk.</button>
+        <button class="opt" data-correct="1">Le fichier se terminant par -ctk.vmdk.</button>
         <button class="opt">Le fichier se terminant par .nvram.</button>
         <button class="opt">Le fichier se terminant par .vswp.</button>
       </div>
@@ -377,19 +393,19 @@ VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=
     <div class="q">
       <p class="q__stem">Que bloque le mode de sécurité vSphere Lockdown Mode en configuration "Normal" ?</p>
       <div class="opts">
+        <button class="opt">Tous les accès aux disques durs de l'hyperviseur pendant 24 heures après la dernière connexion administrateur enregistrée.</button>
+        <button class="opt">L'accès à Internet pour l'ensemble des machines virtuelles du cluster afin d'isoler totalement l'hôte du réseau public.</button>
+        <button class="opt">Le démarrage des processeurs Intel si la température du châssis dépasse 30 degrés Celsius pendant le POST.</button>
         <button class="opt" data-correct="1">Toute connexion administrative directe à l'hôte ESXi (web client, API), n'autorisant la gestion que via vCenter et la console physique DCUI.</button>
-        <button class="opt">Tous les accès aux disques durs de l'hyperviseur pendant 24 heures.</button>
-        <button class="opt">L'accès à Internet pour l'ensemble des machines virtuelles du cluster.</button>
-        <button class="opt">Le démarrage des processeurs Intel si la température dépasse 30 degrés.</button>
       </div>
       <div class="q__exp">Le mode Lockdown Normal empêche toute connexion directe par navigateur ou API à l'adresse IP de l'hôte ESXi pour centraliser toutes les actions dans les journaux d'audit de vCenter, tout en conservant l'accès d'urgence DCUI physique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel composant matériel permet de valider l'intégrité cryptographique du chargeur et des binaires du noyau VMkernel lors du démarrage (Host Attestation) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">La puce de sécurité TPM 2.0 (Trusted Platform Module) associée à Secure Boot.</button>
-        <button class="opt">Le contrôleur RAID matériel de la baie de disques.</button>
         <button class="opt">La carte réseau Gigabit Ethernet intégrée à la carte mère.</button>
+        <button class="opt">Le contrôleur RAID matériel de la baie de disques.</button>
+        <button class="opt" data-correct="1">La puce de sécurité TPM 2.0 (Trusted Platform Module) associée à Secure Boot.</button>
         <button class="opt">La batterie de secours du contrôleur de cache de stockage.</button>
       </div>
       <div class="q__exp">La puce TPM 2.0 enregistre et valide cryptographiquement les empreintes de hachage de chaque composant du chargeur de démarrage UEFI et du noyau VMkernel, attestant qu'aucun code malveillant n'a altéré l'hyperviseur.</div>
@@ -397,8 +413,8 @@ VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=
     <div class="q">
       <p class="q__stem">Quelle est la particularité d'un pool de postes virtuels VDI non-persistants (Floating / Instant Clones) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Les VM sont détruites à la déconnexion et recréées à l'identique depuis une image de référence pour garantir un OS toujours propre.</button>
         <button class="opt">Chaque utilisateur a un disque dur fixe qui ne peut jamais être effacé ni mis à jour.</button>
+        <button class="opt" data-correct="1">Les VM sont détruites à la déconnexion et recréées à l'identique depuis une image de référence pour garantir un OS toujours propre.</button>
         <button class="opt">Les postes virtuels ne peuvent fonctionner que pendant 15 minutes par jour.</button>
         <button class="opt">Le système d'exploitation doit impérativement être installé sur une clé USB.</button>
       </div>
@@ -417,19 +433,19 @@ VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=
     <div class="q">
       <p class="q__stem">Qu'appelle-t-on le phénomène de "Boot Storm" dans une infrastructure de postes de travail virtuels VDI ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">L'avalanche d'E/S disques simultanées lors du démarrage matinal massif de centaines de postes virtuels.</button>
+        <button class="opt">L'inondation des ventilateurs de serveurs par de la poussière.</button>
         <button class="opt">Un orage électrique provoquant une coupure de courant dans le centre de données.</button>
         <button class="opt">La propagation fulgurante d'un ver informatique entre machines virtuelles.</button>
-        <button class="opt">L'inondation des ventilateurs de serveurs par de la poussière.</button>
+        <button class="opt" data-correct="1">L'avalanche d'E/S disques simultanées lors du démarrage matinal massif de centaines de postes virtuels.</button>
       </div>
       <div class="q__exp">Le Boot Storm désigne le pic massif d'entrées/sorties de lecture disque produit lorsque des centaines d'utilisateurs allument et initialisent leurs sessions Windows simultanément à leur arrivée au travail le matin.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pour un parc de 200 postes VDI générant 20 IOPS moyens par utilisateur et une marge de sécurité de 50% pour absorber le Boot Storm, combien d'IOPS globaux la baie doit-elle délivrer ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">6 000 IOPS.</button>
-        <button class="opt">4 000 IOPS.</button>
         <button class="opt">2 000 IOPS.</button>
+        <button class="opt">4 000 IOPS.</button>
+        <button class="opt" data-correct="1">6 000 IOPS.</button>
         <button class="opt">8 000 IOPS.</button>
       </div>
       <div class="q__exp">IOPS nominaux = 200 * 20 = 4 000 IOPS. Avec la surcapacité de 50% pour le Boot Storm : 4 000 * 1.50 = 6 000 IOPS requis au minimum en heure de pointe.</div>
@@ -552,7 +568,7 @@ VM=vm-app-server SIZE_GB=100 DAILY_CHANGE_PCT=2.0 RETENTION_DAYS=14 DEDUP_RATIO=
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

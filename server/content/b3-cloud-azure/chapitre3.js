@@ -137,57 +137,57 @@ module.exports = {
     },
     {
       stem: 'Quel est le nombre maximal habituel de Fault Domains (domaines de panne) configurables dans un Availability Set Azure ?',
-      opts: ['1', '2 ou 3', '10', '20'],
-      correct: 1,
+      opts: ['2 ou 3', '1', '10', '20'],
+      correct: 0,
       exp: 'Un Availability Set Azure supporte jusqu\'à 2 ou 3 Fault Domains (selon la région), répartissant les serveurs sur des racks physiques dotés d\'alimentations et de commutateurs séparés.'
     },
     {
       stem: 'Dans un modèle fictif, une VM est disponible à 99.9% sur une année de 8 760 heures. Quelle est son indisponibilité théorique ?',
-      opts: ['8.76 heures', '43.8 heures', '52.6 heures', '876 heures'],
-      correct: 0,
+      opts: ['876 heures', '43.8 heures', '52.6 heures', '8.76 heures'],
+      correct: 3,
       exp: '(1 - 0.999) * 8 760 = 8.76 heures. Cette valeur est un résultat du modèle, pas une garantie contractuelle.'
     },
     {
       stem: 'Dans un modèle fictif en série, le Web et la base ont chacun une disponibilité de 99.9% sur la même période et des défaillances indépendantes. Quelle est la disponibilité composée ?',
-      opts: ['99.9%', '99.8001%', '100%', '99.0%'],
-      correct: 1,
+      opts: ['99.9%', '100%', '99.8001%', '99.0%'],
+      correct: 2,
       exp: '0.999 * 0.999 = 0.998001, soit 99.8001% et environ 17.5 heures théoriques par année de 8 760 heures. Ce calcul ne crée pas de SLA contractuel.'
     },
     {
       stem: 'Dans une règle d\'auto-scaling pour Azure VMSS, à quoi sert le paramètre de Cooldown (refroidissement) ?',
       opts: [
-        'À faire chuter la température matérielle des processeurs du datacenter',
-        'À empêcher de nouvelles opérations de mise à l\'échelle pendant un délai défini afin de laisser le temps aux nouvelles instances de traiter la charge',
-        'À diviser la facture par deux pendant les heures creuses',
-        'À forcer l\'arrêt automatique des VMs la nuit'
+        "À faire baisser la température matérielle des processeurs en réduisant la fréquence des serveurs du datacenter",
+        "À diviser automatiquement par deux la facture des ressources de calcul pendant les heures creuses de la nuit",
+        "À empêcher de nouvelles opérations de mise à l'échelle pendant un délai défini afin de laisser le temps aux nouvelles instances de traiter la charge",
+        "À forcer l'arrêt automatique et définitif de toutes les machines virtuelles du groupe de mise à l'échelle chaque nuit"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Cooldown bloque temporairement toute nouvelle évaluation de seuil d\'échelle après un scale-out ou scale-in pour laisser le temps aux serveurs nouvellement déployés d\'absorber le trafic sans battement.'
     },
     {
       stem: 'Par défaut, que se passe-t-il si le préchauffage HTTP d\'un swap App Service reçoit un code 500 ?',
       opts: [
-        'Le code 500 est accepté pour le préchauffage et peut ne pas empêcher le swap',
+        'Le code 500 impose un changement de forfait',
         'Le swap est toujours annulé et un rollback des données est automatique',
         'Le code 500 supprime le slot de staging',
-        'Le code 500 impose un changement de forfait'
+        'Le code 500 est accepté pour le préchauffage et peut ne pas empêcher le swap'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Par défaut tous les codes HTTP sont valides. Configurez WEBSITE_SWAP_WARMUP_PING_STATUSES, par exemple à 200,202 : un code hors liste ne valide pas le préchauffage et le swap échoue si celui-ci n\'aboutit pas.'
     },
     {
       stem: 'Quelle famille de disques managés offre une latence inférieure à la milliseconde et jusqu\'à 160 000 IOPS pour les charges de travail transactionnelles extrêmes ?',
-      opts: ['Standard HDD', 'Standard SSD', 'Premium SSD', 'Ultra Disk'],
-      correct: 3,
+      opts: ['Ultra Disk', 'Standard SSD', 'Premium SSD', 'Standard HDD'],
+      correct: 0,
       exp: 'Azure Ultra Disk offre les performances de stockage les plus élevées de la plateforme Azure, avec une latence sub-milliseconde paramétrable et jusqu\'à 160 000 IOPS.'
     },
     {
       stem: 'Quelle affirmation est exacte concernant les Update Domains dans un Availability Set ?',
       opts: [
-        'Tous les Update Domains sont redémarrés simultanément lors des mises à jour Azure',
-        'Un seul Update Domain est mis à jour et redémarré à la fois, garantissant qu\'au moins 80% des serveurs restent actifs',
-        'Les Update Domains ne s\'appliquent qu\'aux disques durs',
-        'Les Update Domains nécessitent une connexion VPN permanente'
+        "Tous les Update Domains sont redémarrés simultanément lors des opérations de maintenance planifiée",
+        "Un seul Update Domain est mis à jour et redémarré à la fois, garantissant qu'au moins 80% des serveurs restent actifs",
+        "Les Update Domains ne concernent que la réplication des disques managés des machines virtuelles",
+        "Les Update Domains exigent une connexion VPN permanente entre les régions Azure appairées"
       ],
       correct: 1,
       exp: 'Microsoft redémarre les Update Domains de manière strictement séquentielle (un seul à la fois) lors des opérations de mise à jour de la couche physique, assurant la disponibilité continue des autres serveurs du groupe.'

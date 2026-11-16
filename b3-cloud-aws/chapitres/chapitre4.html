@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -233,10 +231,11 @@ Résultat d’analyse attendu : <code>SUBNET_CALC: total_ips=&lt;t&gt; usable_ip
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VPC_SUBNET CIDR=10.0.1.0/24</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
         <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Sur un sous-réseau VPC AWS IPv4 hors BYOIP, déduisez exactement 5 adresses réservées (réseau, routeur VPC .1, DNS .2, usage futur .3 et broadcast) de 2^(32-prefixe).</li>
       </ol>
     </details>
   </div>
@@ -246,24 +245,31 @@ Résultat d’analyse attendu : <code>SUBNET_CALC: total_ips=&lt;t&gt; usable_ip
      data-exercise="aws3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="ROUTE_AUDIT SUBNET=subnet-0a1b2c3d ROUTES=10.0.0.0/16-&gt;local;0.0.0.0/0-&gt;igw-11223344">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c4-e2) — Auditeur de Tables de Routage VPC (Public vs Privé vs Isolé)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le média VilleInfo construit son VPC : sous-réseaux publics (route 0.0.0.0/0 vers l'Internet Gateway),&#10;sous-réseaux privés (route 0.0.0.0/0 vers la passerelle NAT, 0,045 €/Go traité), base en sous-réseaux privés.&#10;&#10;1) Route par défaut publique : 0.0.0.0/0 → Internet Gateway.&#10;2) Sortie Internet des instances privées : la passerelle NAT.&#10;3) Coût NAT du mois pour 200 Go traités : 200 × 0,045 = 9,00 €.&#10;4) La base relationnelle est placée dans les sous-réseaux privés.">
+  <script type="text/plain" data-lab-starter># Exercice — Les tables de routage du VPC de l'agence Pixeline
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 3 : oui ou non. Question 5 : le nombre seul.
 
-[Cas 1 — Sous-réseau privé avec NAT Gateway]
-# Données : ROUTE_AUDIT SUBNET=subnet-priv-01 ROUTES=10.0.0.0/16->local;0.0.0.0/0->nat-99887766
+[Question 1 — Cible de la route par défaut d'un sous-réseau public]
 A_COMPLETER
 
-[Cas 2 — Sous-réseau base de données isolé (aucune route 0.0.0.0/0)]
-# Données : ROUTE_AUDIT SUBNET=subnet-db-01 ROUTES=10.0.0.0/16->local;10.20.0.0/16->pcx-12345
+[Question 2 — Passerelle de sortie d'un sous-réseau privé]
 A_COMPLETER
 
-[Cas 3 — Sous-réseau isolé avec Endpoint S3 Gateway]
-# Données : ROUTE_AUDIT SUBNET=subnet-s3-only ROUTES=10.0.0.0/16->local;pl-63a5400a->vpce-55667788
+[Question 3 — Adresse IPv4 publique par défaut en sous-réseau privé]
+A_COMPLETER
+
+[Question 4 — Placement du subnet group de la base]
+A_COMPLETER
+
+[Question 5 — Coût de traitement de la NAT pour 100 Go (en €)]
+A_COMPLETER
+
+[Question 6 — Type de VPC endpoint pour S3]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Auditeur de Tables de Routage VPC (Public vs Privé vs Isolé)</h3>
+    <h3 class="lab__title">Exercice 2 — Les tables de routage du VPC de l'agence Pixeline</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -272,27 +278,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Qualifier un sous-réseau VPC selon la destination de sa route par défaut 0.0.0.0/0.</p>
-    <div class="lab__brief"><p>Dans Amazon VPC, la typologie d'un sous-réseau dépend de sa <strong>Route Table</strong> :<br><br>
-1. <strong>PUBLIC</strong> :<br>
-Comporte une route par défaut <code>0.0.0.0/0</code> pointant directement vers une passerelle Internet <code>igw-&lt;id&gt;</code>.<br>
-Les instances avec IP publique peuvent communiquer directement avec Internet.<br><br>
-2. <strong>PRIVATE</strong> :<br>
-Comporte une route par défaut <code>0.0.0.0/0</code> pointant vers une passerelle NAT managée <code>nat-&lt;id&gt;</code> ou une instance NAT.<br>
-Les instances peuvent initier des connexions sortantes (ex: téléchargement de patchs) mais sont inaccessibles depuis l'extérieur.<br><br>
-3. <strong>ISOLATED</strong> :<br>
-Aucune route vers <code>0.0.0.0/0</code>. Le trafic est strictement confiné au VPC local ou à des passerelles d'extrémités privées (VPC Endpoints <code>vpce-&lt;id&gt;</code> ou Peering <code>pcx-&lt;id&gt;</code>).<br><br>
-Données du cas :<br>
-<code>ROUTE_AUDIT SUBNET=&lt;id&gt; ROUTES=&lt;dest1-&gt;target1;dest2-&gt;target2;...&gt;</code>.<br><br>
-Résultat d’analyse attendu : <code>ROUTE_VERDICT: subnet=&lt;id&gt; type=&lt;PUBLIC|PRIVATE|ISOLATED&gt; default_target=&lt;target|NONE&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire les tables de routage d'un VPC (IGW, NAT) et raisonner sur sous-réseaux publics, privés et endpoints.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pixeline, agence événementielle, construit son VPC 10.20.0.0/16 : une <strong>Internet Gateway</strong> est attachée au VPC ; les sous-réseaux publics (qui hébergent le répartiteur de charge) ont pour table de routage : <code>10.20.0.0/16 → local</code> et <code>0.0.0.0/0 → igw-0f3a</code> ; les sous-réseaux privés (qui hébergent les instances EC2) ont pour table : <code>10.20.0.0/16 → local</code> et <code>0.0.0.0/0 → nat-0c7b</code> (passerelle NAT). La base de données relationnelle est installée dans les sous-réseaux privés.</p><p>Rappels du cours : une instance d'un sous-réseau public reçoit une adresse IPv4 publique et sort par l'Internet Gateway ; une instance d'un sous-réseau privé n'a pas d'adresse IPv4 publique et sort via la passerelle NAT ; la passerelle NAT facture les données traitées, ici <strong>0,045 € par Go</strong>.</p><p>Les questions 3 attend « oui » ou « non » ; la question 5 attend un nombre.</p><ol><li>Quelle est la cible de la route par défaut (0.0.0.0/0) de la table de routage d'un sous-réseau public ?</li><li>Quelle passerelle permet à une instance d'un sous-réseau privé de télécharger des correctifs vers Internet sans être exposée en entrée ?</li><li>Une instance EC2 d'un sous-réseau privé reçoit-elle par défaut une adresse IPv4 publique ?</li><li>Dans quels sous-réseaux le groupe de sous-réseaux (subnet group) de la base de données doit-il être placé : publics ou privés ?</li><li>La passerelle NAT facture 0,045 € par Go traité : quel est le coût de traitement pour 100 Go sortis vers Internet ce mois-ci, en euros ?</li><li>Pour joindre un bucket S3 depuis un sous-réseau privé sans traverser Internet, quel type de VPC endpoint S3 faut-il créer ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROUTE_AUDIT SUBNET=subnet-0a1b2c3d ROUTES=10.0.0.0/16-&gt;local;0.0.0.0/0-&gt;igw-11223344</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le média VilleInfo construit son VPC : sous-réseaux publics (route 0.0.0.0/0 vers l'Internet Gateway),
+sous-réseaux privés (route 0.0.0.0/0 vers la passerelle NAT, 0,045 €/Go traité), base en sous-réseaux privés.
+
+1) Route par défaut publique : 0.0.0.0/0 → Internet Gateway.
+2) Sortie Internet des instances privées : la passerelle NAT.
+3) Coût NAT du mois pour 200 Go traités : 200 × 0,045 = 9,00 €.
+4) La base relationnelle est placée dans les sous-réseaux privés.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>La route 0.0.0.0/0 dit où part tout le trafic destiné à Internet : igw pour le public, nat pour le privé.</li>
+        <li>Une base de données ne doit jamais être exposée : son subnet group vit dans les sous-réseaux privés.</li>
+        <li>1. Lisez la table publique. 2. Cherchez la passerelle qui sort sans exposer. 3. Qui reçoit une IPv4 publique ? 4. Public ou privé pour une base ? 5. 100 × 0,045. 6. Deux types d'endpoint existent : interface et gateway ; S3 utilise le second.</li>
       </ol>
     </details>
   </div>
@@ -302,28 +304,31 @@ Résultat d’analyse attendu : <code>ROUTE_VERDICT: subnet=&lt;id&gt; type=&lt;
      data-exercise="aws3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="FLOW_CHECK DIRECTION=INBOUND PORT=443 SG_IN=80,443 NACL_RULES=100:Allow:443;200:Deny:All;*:Deny:All">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c4-e3) — Simulateur de Pare-feu : Security Group (Stateful) vs Network ACL (Stateless)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le jeu en ligne Kaléido filtre son VPC : SG du frontal (entrée 8080 depuis tout Internet),&#10;SG des serveurs (entrée 8080 depuis le SG du frontal uniquement), NACL sans état.&#10;&#10;1) Le SG est avec état : la réponse au client 8080 repart sans règle sortante, non.&#10;2) La NACL doit ouvrir en sortie les ports éphémères 1024-65535 pour les retours clients.&#10;3) Le SG s'applique à l'instance (interface réseau).&#10;4) La NACL s'applique au sous-réseau.&#10;5) Un SG ne peut pas écrire de règle Deny : Allow uniquement.">
+  <script type="text/plain" data-lab-starter># Exercice — Le pare-feu du VPC de la fintech Palladium
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 5 et 6 : oui ou non. Question 2 : la plage de ports.
 
-[Cas 1 — Retour sortant stateful bloqué par NACL stateless (ports éphémères)]
-# Données : FLOW_CHECK DIRECTION=RETURN_OUTBOUND PORT=54321 SG_IN=443 NACL_RULES=100:Deny:54321;*:Deny:All
+[Question 1 — La réponse sortante exige-t-elle une règle sortante du SG ?]
 A_COMPLETER
 
-[Cas 2 — Retour sortant autorisé à la fois par SG stateful et NACL ports éphémères]
-# Données : FLOW_CHECK DIRECTION=RETURN_OUTBOUND PORT=49152 SG_IN=80 NACL_RULES=100:Allow:1024-65535;*:Deny:All
+[Question 2 — Plage de ports ouverte en sortie par la NACL]
 A_COMPLETER
 
-[Cas 3 — Flux entrant bloqué par le Security Group (port non listé)]
-# Données : FLOW_CHECK DIRECTION=INBOUND PORT=22 SG_IN=80,443 NACL_RULES=100:Allow:All;*:Deny:All
+[Question 3 — Niveau d'application d'un Security Group]
 A_COMPLETER
 
-[Cas 4 — Flux entrant avec règle NACL prioritaire Deny]
-# Données : FLOW_CHECK DIRECTION=INBOUND PORT=80 SG_IN=80 NACL_RULES=50:Deny:80;100:Allow:80;*:Deny:All
+[Question 4 — Niveau d'application d'une NACL]
+A_COMPLETER
+
+[Question 5 — Un SG peut-il contenir un Deny explicite ?]
+A_COMPLETER
+
+[Question 6 — Évaluation des règles de NACL par numéro]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de Pare-feu : Security Group (Stateful) vs Network ACL (Stateless)</h3>
+    <h3 class="lab__title">Exercice 3 — Le pare-feu du VPC de la fintech Palladium</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -332,28 +337,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer le filtrage d'un flux entrant ou d'un retour sortant en combinant Security Groups et Network ACLs.</p>
-    <div class="lab__brief"><p>La sécurité réseau AWS repose sur deux couches complémentaires :<br><br>
-1. <strong>Security Group (Avec état / Stateful)</strong> :<br>
-- S'applique au niveau de l'interface réseau élastique (ENI) de l'instance.<br>
-- Tout trafic retour d'un flux entrant autorisé est <strong>automatiquement accepté</strong>, quelles que soient les règles sortantes.<br>
-- Par défaut en entrée : <code>DENY</code>.<br><br>
-2. <strong>Network ACL (Sans état / Stateless)</strong> :<br>
-- S'applique au niveau du sous-réseau.<br>
-- Règles numérotées (1..32766) évaluées par ordre croissant : la première règle correspondante s'applique (ALLOW ou DENY).<br>
-- Règle par défaut <code>*</code> (fin de liste) : <code>DENY</code>.<br>
-- <strong>Sans état</strong> : Pour qu'un paquet retour d'une connexion TCP puisse sortir, la NACL doit comporter une règle sortante autorisant les ports éphémères (ex: <code>1024-65535</code>).<br><br>
-Données du cas :<br>
-<code>FLOW_CHECK DIRECTION=&lt;INBOUND|RETURN_OUTBOUND&gt; PORT=&lt;n&gt; SG_IN=&lt;ports_allow&gt; NACL_RULES=&lt;num:Effect:port_or_range;...&gt;</code>.<br><br>
-Résultat d’analyse attendu : <code>FLOW_VERDICT: dir=&lt;d&gt; port=&lt;p&gt; sg=&lt;ALLOW|DENY&gt; nacl=&lt;ALLOW|DENY&gt; final=&lt;ALLOW|DENY&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer Security Groups (avec état) et Network ACLs (sans état) sur une architecture web réelle.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Palladium, fintech réglementée, durcit le réseau de son VPC. Architecture : un répartiteur de charge dans les sous-réseaux publics, des instances applicatives dans les sous-réseaux privés. Le Security Group « sg-alb » du répartiteur autorise en entrée le port 443 depuis 0.0.0.0/0 ; le Security Group « sg-app » des instances autorise en entrée le port 443 depuis sg-alb uniquement. La Network ACL des sous-réseaux autorise en entrée le port 443 et en sortie la plage 1024-65535.</p><p>Rappels du cours : un Security Group est <strong>avec état</strong> (stateful) — les réponses au trafic autorisé repartent automatiquement — et ne contient que des règles d'autorisation ; une Network ACL est <strong>sans état</strong> (stateless) — chaque paquet, aller comme retour, est évalué par les règles d'entrée et de sortie, par ordre de numéro de règle.</p><p>Les questions 1, 5 et 6 attendent « oui » ou « non ».</p><ol><li>Un client envoie une requête HTTPS au port 443 du répartiteur : la réponse sortante doit-elle être explicitement autorisée par une règle sortante du Security Group ?</li><li>Quelle plage de ports la règle sortante de la NACL ouvre-t-elle pour laisser revenir les réponses vers les clients ?</li><li>Un Security Group s'applique-t-il au sous-réseau ou à l'instance (interface réseau) ?</li><li>Une NACL s'applique-t-elle au sous-réseau ou à l'instance ?</li><li>Un Security Group peut-il contenir une règle de refus explicite (Deny) ?</li><li>Les règles d'une NACL sont-elles évaluées par ordre de numéro, la première correspondance l'emportant ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FLOW_CHECK DIRECTION=INBOUND PORT=443 SG_IN=80,443 NACL_RULES=100:Allow:443;200:Deny:All;*:Deny:All</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le jeu en ligne Kaléido filtre son VPC : SG du frontal (entrée 8080 depuis tout Internet),
+SG des serveurs (entrée 8080 depuis le SG du frontal uniquement), NACL sans état.
+
+1) Le SG est avec état : la réponse au client 8080 repart sans règle sortante, non.
+2) La NACL doit ouvrir en sortie les ports éphémères 1024-65535 pour les retours clients.
+3) Le SG s'applique à l'instance (interface réseau).
+4) La NACL s'applique au sous-réseau.
+5) Un SG ne peut pas écrire de règle Deny : Allow uniquement.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Avec état : le pare-feu se souvient de la connexion autorisée et laisse repartir la réponse ; sans état : il évalue chaque paquet indépendamment.</li>
+        <li>Les clients répondent depuis des ports éphémères : la NACL doit donc les ouvrir en sortie.</li>
+        <li>1. Rappelez ce que « avec état » impose côté règles sortantes. 2. Relisez la règle sortante de la NACL. 3. et 4. SG = niveau instance, NACL = niveau sous-réseau. 5. Un SG n'écrit que des Allow. 6. Le plus petit numéro de règle est évalué en premier.</li>
       </ol>
     </details>
   </div>
@@ -366,9 +367,9 @@ Résultat d’analyse attendu : <code>FLOW_VERDICT: dir=&lt;d&gt; port=&lt;p&gt;
     <div class="q">
       <p class="q__stem">Hors BYOIP, combien d'adresses IPv4 utilisables pour des instances sont disponibles dans un sous-réseau AWS /24 (256 adresses au total) ?</p>
       <div class="opts">
-        <button class="opt">256 adresses</button>
-        <button class="opt">254 adresses</button>
         <button class="opt" data-correct="1">251 adresses</button>
+        <button class="opt">254 adresses</button>
+        <button class="opt">256 adresses</button>
         <button class="opt">250 adresses</button>
       </div>
       <div class="q__exp">Hors BYOIP, AWS réserve les quatre premières et la dernière adresse du CIDR : il reste 256 - 5 = 251 adresses assignables. Les valeurs dépendent de la base du sous-réseau.</div>
@@ -376,40 +377,40 @@ Résultat d’analyse attendu : <code>FLOW_VERDICT: dir=&lt;d&gt; port=&lt;p&gt;
     <div class="q">
       <p class="q__stem">Dans quel type de sous-réseau une NAT Gateway doit-elle obligatoirement être déployée pour permettre aux serveurs privés de joindre Internet ?</p>
       <div class="opts">
+        <button class="opt">Dans un sous-réseau privé isolé, sans aucune route vers l'extérieur du VPC</button>
         <button class="opt" data-correct="1">Dans un sous-réseau public possédant une route vers une Internet Gateway</button>
-        <button class="opt">Dans un sous-réseau privé isolé</button>
-        <button class="opt">Sur un serveur physique sur site</button>
-        <button class="opt">Dans une Edge Location CloudFront</button>
+        <button class="opt">Sur un serveur physique sur site de l'entreprise, dans la zone démilitarisée</button>
+        <button class="opt">Dans une Edge Location CloudFront la plus proche des utilisateurs finaux</button>
       </div>
       <div class="q__exp">Une NAT Gateway doit obligatoirement résider dans un sous-réseau public associé à une Elastic IP pour pouvoir relayer les flux vers l'Internet Gateway du VPC.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi n'est-il PAS nécessaire d'autoriser explicitement les ports clients en sortie dans un Security Group lorsqu'un flux entrant HTTP (port 80) est accepté ?</p>
       <div class="opts">
-        <button class="opt">Car le port 80 est gratuit</button>
+        <button class="opt">Car le trafic sur le port 80 est exempté de toute facturation de transfert réseau sortant vers Internet</button>
+        <button class="opt">Car AWS désactive les pare-feux en sortie pour toutes les instances d'un sous-réseau public</button>
         <button class="opt" data-correct="1">Car les Security Groups sont avec état (Stateful) : le trafic retour d'une connexion acceptée est automatiquement autorisé</button>
-        <button class="opt">Car AWS désactive les pare-feux en sortie</button>
-        <button class="opt">Car l'Internet Gateway gère le filtrage sortant</button>
+        <button class="opt">Car l'Internet Gateway gère lui-même le filtrage sortant à la place des Security Groups</button>
       </div>
       <div class="q__exp">Les Security Groups sont Stateful : ils mémorisent l'état des flux établis. Si le flux entrant est autorisé, le paquet retour vers le client est automatiquement permis.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment les règles d'une Network ACL (NACL) sont-elles évaluées par AWS lorsqu'un paquet arrive à la frontière d'un sous-réseau ?</p>
       <div class="opts">
-        <button class="opt">Toutes les règles sont évaluées ensemble de façon aléatoire</button>
+        <button class="opt">Toutes les règles sont évaluées simultanément et la plus permissive l'emporte en cas de conflit</button>
+        <button class="opt">Les règles Deny sont toujours prioritaires quel que soit leur numéro dans la liste évaluée</button>
+        <button class="opt">Par ordre alphabétique du nom de protocole déclaré, d'ICMP à UDP, à numéro de règle égal</button>
         <button class="opt" data-correct="1">Par ordre croissant de numéro de règle (1, 100, 200...) : la première règle correspondante s'applique immédiatement</button>
-        <button class="opt">Les règles Deny sont toujours prioritaires quel que soit leur numéro</button>
-        <button class="opt">Par ordre alphabétique de protocole</button>
       </div>
       <div class="q__exp">Les NACLs évaluent les règles dans l'ordre strictement croissant de leur numéro. Dès qu'une règle correspond au trafic (Allow ou Deny), la décision est prise et l'évaluation s'arrête.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi le VPC Peering classique entre VPC A, VPC B et VPC C ne permet-il pas à A de communiquer avec C si seuls les peerings A-B et B-C sont configurés ?</p>
       <div class="opts">
-        <button class="opt">Car le VPC Peering n'est pas compatible avec IPv4</button>
         <button class="opt" data-correct="1">Car le routage par VPC Peering est strictement non-transitif : il n'y a pas de routage par rebond via un VPC intermédiaire</button>
-        <button class="opt">Car B bloque le trafic par défaut</button>
-        <button class="opt">Car il faut redémarrer les VPCs</button>
+        <button class="opt">Car le VPC Peering n'est compatible qu'avec IPv6, le trafic IPv4 devant passer par un tunnel VPN</button>
+        <button class="opt">Car le VPC B bloque par défaut tout trafic provenant d'un VPC non appairé directement avec lui</button>
+        <button class="opt">Car il faut redémarrer les trois VPC pour que les tables de routage se propagent entre les pairs</button>
       </div>
       <div class="q__exp">Le peering VPC ne supporte pas le routage transitif. Pour que A et C communiquent, il faut soit créer un peering direct A-C, soit utiliser une AWS Transit Gateway.</div>
     </div>
@@ -426,10 +427,10 @@ Résultat d’analyse attendu : <code>FLOW_VERDICT: dir=&lt;d&gt; port=&lt;p&gt;
     <div class="q">
       <p class="q__stem">Quel service d'interconnexion physique dédiée permet de relier un centre de données sur site à un VPC AWS avec une bande passante garantie de 1 à 100 Gbps ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">AWS Direct Connect</button>
+        <button class="opt">Internet Gateway</button>
         <button class="opt">VPC Peering</button>
         <button class="opt">AWS Storage Gateway</button>
-        <button class="opt">Internet Gateway</button>
+        <button class="opt" data-correct="1">AWS Direct Connect</button>
       </div>
       <div class="q__exp">AWS Direct Connect établit une liaison réseau en fibre dédiée privée entre les locaux d'une entreprise et AWS, contournant entièrement l'Internet public pour garantir performance et sécurité.</div>
     </div>
@@ -561,7 +562,7 @@ Résultat d’analyse attendu : <code>FLOW_VERDICT: dir=&lt;d&gt; port=&lt;p&gt;
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

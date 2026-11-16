@@ -151,34 +151,34 @@ module.exports = {
     {
       stem: 'Dans le modèle AAA, quelle composante détermine si un utilisateur authentifié a le droit de modifier un fichier spécifique ?',
       opts: [
-        'L’Autorisation',
         'L’Authentification',
+        'L’Autorisation',
         'La Traçabilité (Accounting)',
         'L’Imputabilité'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’autorisation détermine les droits sur le fichier. L’authentification vérifie l’identité ; la traçabilité consigne les actions et l’imputabilité permet de les attribuer, sans décider à elle seule des permissions.'
     },
     {
       stem: 'Avec le modèle pédagogique du cours (M &times; V &times; I ; élevé de 50 à 79), quel est le niveau pour M=4, V=3, I=5 ?',
       opts: [
-        'ÉLEVÉ (Score = 60)',
-        'FAIBLE (Score = 12)',
         'MOYEN (Score = 35)',
+        'FAIBLE (Score = 12)',
+        'ÉLEVÉ (Score = 60)',
         'CRITIQUE (Score = 95)'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le produit vaut 60, dans la plage élevée du modèle. Les scores 12, 35 et 95 ne correspondent pas aux trois valeurs données ; les seuils présentés sont propres à cet exercice.'
     },
     {
       stem: 'Pour 14 caractères tirés indépendamment et uniformément, pourquoi un alphabet de 94 caractères donne-t-il plus d’entropie théorique qu’un alphabet de 10 chiffres ?',
       opts: [
-        'Parce que la taille de l’alphabet N n’est que de 10 contre 94, réduisant drastiquement le nombre total de combinaisons N^L',
+        'Parce que le protocole TCP interdit l’envoi de chiffres isolés',
         'Parce que les chiffres sont stockés sur moins d’octets en mémoire vive',
         'Parce que les algorithmes de hachage comme SHA-256 refusent les mots de passe numériques',
-        'Parce que le protocole TCP interdit l’envoi de chiffres isolés'
+        'Parce que la taille de l’alphabet N n’est que de 10 contre 94, réduisant drastiquement le nombre total de combinaisons N^L'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Pour ces tirages indépendants et uniformes, E = L * log2(N) : environ 46,5 bits pour N=10 et 91,7 pour N=94. Le stockage en mémoire ne détermine pas cet espace ; SHA-256 accepte des données numériques et TCP transporte aussi des chiffres. Cette formule ne prouve pas la robustesse d’un choix humain prévisible.'
     },
     {

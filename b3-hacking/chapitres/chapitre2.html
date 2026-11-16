@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -209,24 +207,28 @@
      data-exercise="hk3-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="AUDIT_HEADERS headers=Strict-Transport-Security:max-age=31536000;Content-Security-Policy:default-src https:;X-Frame-Options:DENY">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c2-e1) — Analyseur d'En-têtes HTTP de Sécurité et Détection de Fuite d'Information
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La ville de Périgny accepte la divulgation responsable sur son portail. Collecte passive :&#10;Google site:perigny.fr filetype:pdf : 12 documents indexés ;&#10;Google intitle:&quot;index of&quot; site:perigny.fr : 0 page ;&#10;Shodan http.title:&quot;perigny&quot; : 2 serveurs exposés ;&#10;theHarvester : 9 adresses e-mail et 17 sous-domaines.&#10;&#10;1) 9 adresses e-mail exposées. 2) 17 sous-domaines découverts. 3) Shodan recense les équipements exposés.&#10;4) filetype: limite aux fichiers PDF. 5) Aucun paquet n'est envoyé vers la cible.">
+  <script type="text/plain" data-lab-starter># Exercice — La collecte passive avant le bug bounty de Petibonum
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : un nombre. Questions 3 à 5 : quelques mots.
 
-[Cas 1 — Serveur exposant sa version Apache sans CSP ni HSTS]
-# Données : AUDIT_HEADERS headers=Server:Apache/2.4.41 (Ubuntu);X-Frame-Options:SAMEORIGIN
+[Question 1 — Adresses e-mail exposées]
 A_COMPLETER
 
-[Cas 2 — Serveur moderne sécurisé avec fuite d'en-tête PHP X-Powered-By]
-# Données : AUDIT_HEADERS headers=Strict-Transport-Security:max-age=63072000;Content-Security-Policy:default-src self;X-Frame-Options:DENY;X-Powered-By:PHP/8.2.1
+[Question 2 — Sous-domaines découverts]
 A_COMPLETER
 
-[Cas 3 — En-têtes quasi vides révélant vulnérabilité au Clickjacking]
-# Données : AUDIT_HEADERS headers=Content-Type:text/html
+[Question 3 — Moteur de recherche des équipements exposés]
+A_COMPLETER
+
+[Question 4 — Opérateur Google limitant à un type de fichier]
+A_COMPLETER
+
+[Question 5 — Système qui ne reçoit aucune requête pendant la phase passive]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Analyseur d'En-têtes HTTP de Sécurité et Détection de Fuite d'Information</h3>
+    <h3 class="lab__title">Exercice 1 — La collecte passive avant le bug bounty de Petibonum</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -235,29 +237,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer les en-têtes HTTP de sécurité d'un serveur et détecter la divulgation de bannières technologiques.</p>
-    <div class="lab__brief"><p>La reconnaissance passive d'une cible web commence par l'analyse des en-têtes HTTP renvoyés.<br><br>
-Règles d'évaluation (Score initial = 100) :<br>
-- <code>Strict-Transport-Security</code> (HSTS) : requis. Si absent : -30 points et problème <code>MISSING_HSTS</code>.<br>
-- <code>Content-Security-Policy</code> (CSP) : requis. Si absent : -35 points et problème <code>MISSING_CSP</code>.<br>
-- <code>X-Frame-Options</code> : requis (valeur <code>DENY</code> ou <code>SAMEORIGIN</code>). Si absent ou valeur incorrecte : -20 points et problème <code>MISSING_X_FRAME_OPTIONS</code>.<br>
-- <code>Server</code> ou <code>X-Powered-By</code> : divulguent la pile technologique. Si au moins l'un est présent : -15 points et problème <code>INFO_DISCLOSURE</code>.<br><br>
-Attribution du grade :<br>
-- Score 100 : Grade <code>A</code><br>
-- Score 70 à 99 : Grade <code>B</code><br>
-- Score 50 à 69 : Grade <code>C</code><br>
-- Score &lt; 50 : Grade <code>F</code><br><br>
-Données du cas : <code>AUDIT_HEADERS headers=&lt;H1:V1;H2:V2;...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>HTTP_AUDIT: score=&lt;score&gt;/100 grade=&lt;grade&gt; issues=&lt;issue1,issue2,...|NONE&gt;</code> (problèmes séparés par des virgules dans l'ordre HSTS, CSP, XFO, INFO).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Recenser les résultats d'une phase de reconnaissance passive sans jamais interroger la cible.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Petibonum, PME de 60 salariés qui vend des accessoires de randonnée en ligne, publie un programme de bug bounty sur son domaine petibonum.fr. Avant tout test actif, la chasseuse de primes rassemble ses constats de collecte passive, obtenus sans jamais interroger les serveurs de l'entreprise :</p><table><tr><th>Source</th><th>Requête ou outil</th><th>Résultat</th></tr><tr><th>Google</th><td><code>site:petibonum.fr filetype:pdf</code></td><td>8 fiches produits indexées</td></tr><tr><th>Google</th><td><code>intitle:"index of" site:petibonum.fr</code></td><td>1 page d'index de répertoire</td></tr><tr><th>Shodan</th><td><code>http.title:"petibonum"</code></td><td>3 serveurs exposés</td></tr><tr><th>theHarvester</th><td>domaine petibonum.fr</td><td>15 adresses e-mail, 22 sous-domaines</td></tr><tr><th>WHOIS</th><td>petibonum.fr</td><td>Domaine créé en 2014, registrar français</td></tr></table><ol><li>Combien d'adresses e-mail professionnelles la collecte a-t-elle exposées ?</li><li>Combien de sous-domaines theHarvester a-t-il découverts ?</li><li>Quel moteur de recherche spécialisé recense les équipements connectés exposés sur Internet ?</li><li>Quel opérateur de recherche Google limite les résultats à un type de fichier précis ?</li><li>Pourquoi cette phase est-elle dite « passive » : aucun paquet n'est envoyé vers quel système ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>AUDIT_HEADERS headers=Strict-Transport-Security:max-age=31536000;Content-Security-Policy:default-src https:;X-Frame-Options:DENY</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La ville de Périgny accepte la divulgation responsable sur son portail. Collecte passive :
+Google site:perigny.fr filetype:pdf : 12 documents indexés ;
+Google intitle:"index of" site:perigny.fr : 0 page ;
+Shodan http.title:"perigny" : 2 serveurs exposés ;
+theHarvester : 9 adresses e-mail et 17 sous-domaines.
+
+1) 9 adresses e-mail exposées. 2) 17 sous-domaines découverts. 3) Shodan recense les équipements exposés.
+4) filetype: limite aux fichiers PDF. 5) Aucun paquet n'est envoyé vers la cible.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Normalisez les noms d'en-têtes en minuscules pour faciliter les comparaisons insensibles à la casse.</li>
-        <li>Vérifiez la présence de strict-transport-security, content-security-policy et x-frame-options.</li>
-        <li>Si server ou x-powered-by est dans les en-têtes, ajoutez INFO_DISCLOSURE.</li>
+        <li>Lisez la ligne du tableau theHarvester : elle porte à la fois le nombre d'adresses e-mail et le nombre de sous-domaines.</li>
+        <li>Deux moteurs apparaissent dans le tableau : celui de l'entreprise et un moteur spécialisé dans les équipements connectés.</li>
+        <li>Une phase est passive quand toutes les informations viennent d'intermédiaires (caches, archives, registres) et qu'aucune requête ne part directement vers l'infrastructure testée.</li>
       </ol>
     </details>
   </div>
@@ -267,24 +264,31 @@ Résultat d’analyse attendu : <code>HTTP_AUDIT: score=&lt;score&gt;/100 grade=
      data-exercise="hk3-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="DNS_AUDIT domain=target-corp.fr axfr=REFUSED records=v=spf1 mx ip4:192.168.1.1 -all;v=DMARC1; p=reject; rua=mailto:dmarc@target-corp.fr">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (hk3-c2-e2) — Extracteur et Filtre d'Empreintes DNS (SPF, DMARC & AXFR)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'université de Marval audite son domaine marval.fr. Constats :&#10;AXFR vers ns1.marval.fr : refusé, 0 sous-domaine révélé.&#10;SPF : v=spf1 include:_spf.google.com ip4:142.250.10.20 -all&#10;DMARC : v=DMARC1; p=quarantine; rua=mailto:dmarc@marval.fr&#10;DKIM : un sélecteur actif.&#10;&#10;1) L'AXFR a été refusé. 2) 0 sous-domaine révélé. 3) Les messages non autorisés sont rejetés (échec dur).&#10;4) La politique DMARC vaut quarantine. 5) Pour rejeter : p=reject. 6) DKIM signe les messages.">
+  <script type="text/plain" data-lab-starter># Exercice — L'audit DNS et anti-usurpation de la ville de Saint-Rémy
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 2 : un nombre. Questions 1, 3, 4 et 5 : un mot. Question 6 : un sigle.
 
-[Cas 1 — Fuite critique de l'ensemble de la zone DNS via AXFR autorisé]
-# Données : DNS_AUDIT domain=vuln-bank.com axfr=ALLOWED records=v=spf1 -all;v=DMARC1; p=reject
+[Question 1 — Verdict du transfert de zone AXFR]
 A_COMPLETER
 
-[Cas 2 — Risque élevé d'usurpation avec absence totale de SPF et DMARC]
-# Données : DNS_AUDIT domain=legacy-shop.org axfr=REFUSED records=google-site-verification=xyz
+[Question 2 — Sous-domaines internes révélés]
 A_COMPLETER
 
-[Cas 3 — Risque moyen avec politique DMARC en simple surveillance (p=none)]
-# Données : DNS_AUDIT domain=startup.io axfr=REFUSED records=v=spf1 include:_spf.google.com ~all;v=DMARC1; p=none; rua=mailto:reports@startup.io
+[Question 3 — Sort des messages depuis des serveurs non autorisés]
+A_COMPLETER
+
+[Question 4 — Valeur actuelle de la politique DMARC]
+A_COMPLETER
+
+[Question 5 — Valeur de p= pour rejeter les messages usurpés]
+A_COMPLETER
+
+[Question 6 — Enregistrement qui signe les messages]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Extracteur et Filtre d'Empreintes DNS (SPF, DMARC &amp; AXFR)</h3>
+    <h3 class="lab__title">Exercice 2 — L'audit DNS et anti-usurpation de la ville de Saint-Rémy</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -293,39 +297,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="hk3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les enregistrements DNS d'un domaine pour détecter les risques d'usurpation d'email et de fuite par transfert de zone.</p>
-    <div class="lab__brief"><p>L'énumération DNS révèle les mécanismes de protection contre l'usurpation (Spoofing) et les mauvaises configurations de serveurs de noms.<br><br>
-Règles d'audit :<br>
-1. <code>AXFR (Zone Transfer)</code> :<br>
-   - Si <code>axfr_status == ALLOWED</code> : <code>axfr=VULNERABLE_LEAK</code>, risque immédiat <code>CRITICAL</code>.<br>
-   - Si <code>axfr_status == REFUSED</code> : <code>axfr=SECURE</code>.<br>
-2. <code>SPF (Sender Policy Framework)</code> :<br>
-   - Chercher un enregistrement TXT débutant par <code>v=spf1</code>.<br>
-   - Si absent : <code>spf=MISSING</code>.<br>
-   - Si se termine par <code>+all</code> ou <code>?all</code> : <code>spf=PERMISSIVE</code>.<br>
-   - Si se termine par <code>~all</code> : <code>spf=SOFTFAIL</code>.<br>
-   - Si se termine par <code>-all</code> : <code>spf=HARDFAIL_SECURE</code>.<br>
-3. <code>DMARC</code> :<br>
-   - Chercher un enregistrement TXT débutant par <code>v=DMARC1</code>.<br>
-   - Si absent : <code>dmarc=MISSING</code>.<br>
-   - Si contient <code>p=none</code> : <code>dmarc=POLICY_NONE</code>.<br>
-   - Si contient <code>p=quarantine</code> ou <code>p=reject</code> : <code>dmarc=ENFORCED_SECURE</code>.<br><br>
-Évaluation du niveau de risque global :<br>
-- <code>CRITICAL</code> : si <code>axfr == VULNERABLE_LEAK</code>.<br>
-- <code>HIGH</code> : sinon, si <code>spf in ('MISSING', 'PERMISSIVE')</code> et <code>dmarc in ('MISSING', 'POLICY_NONE')</code>.<br>
-- <code>MEDIUM</code> : sinon, si <code>spf == 'SOFTFAIL'</code> ou <code>dmarc in ('MISSING', 'POLICY_NONE')</code>.<br>
-- <code>LOW</code> : sinon (SPF HARDFAIL_SECURE et DMARC ENFORCED_SECURE avec AXFR SECURE).<br><br>
-Données du cas : <code>DNS_AUDIT domain=&lt;dom&gt; axfr=&lt;ALLOWED|REFUSED&gt; records=&lt;r1;r2;...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>DNS_REPORT: domain=&lt;dom&gt; spf=&lt;s&gt; dmarc=&lt;d&gt; axfr=&lt;a&gt; risk=&lt;r&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Interpréter un transfert de zone AXFR et des enregistrements SPF, DMARC et DKIM pour mesurer le risque d'usurpation.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La ville de Saint-Rémy confie un test d'intrusion de son domaine saint-remy.fr. Pendant la phase de reconnaissance, l'auditeur interroge l'infrastructure DNS et relève les constats suivants :</p><ul><li>Transfert de zone demandé au serveur <code>ns1.saint-remy.fr</code> : <strong>autorisé</strong> ; la zone complète compte 142 enregistrements, dont 34 sous-domaines internes (vpn, intranet, supervision, caméras).</li><li>Enregistrement SPF : <code>v=spf1 include:_spf.provider-mail.fr ip4:185.12.34.5 -all</code></li><li>Enregistrement DMARC : <code>v=DMARC1; p=none; rua=mailto:dmarc@saint-remy.fr</code></li><li>Enregistrement DKIM : deux sélecteurs actifs.</li></ul><ol><li>Le transfert de zone AXFR a-t-il été accepté ou refusé par le serveur ?</li><li>Combien de sous-domaines internes l'AXFR a-t-il révélés ?</li><li>La politique SPF se termine par « -all » : que subissent les messages envoyés depuis des serveurs non autorisés ?</li><li>Quelle est la valeur actuelle de la politique DMARC (le champ p=) ?</li><li>Quelle valeur faudrait-il donner à p= pour rejeter les messages usurpés ?</li><li>Quel enregistrement, complémentaire de SPF et DMARC, signe cryptographiquement les messages ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DNS_AUDIT domain=target-corp.fr axfr=REFUSED records=v=spf1 mx ip4:192.168.1.1 -all;v=DMARC1; p=reject; rua=mailto:dmarc@target-corp.fr</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'université de Marval audite son domaine marval.fr. Constats :
+AXFR vers ns1.marval.fr : refusé, 0 sous-domaine révélé.
+SPF : v=spf1 include:_spf.google.com ip4:142.250.10.20 -all
+DMARC : v=DMARC1; p=quarantine; rua=mailto:dmarc@marval.fr
+DKIM : un sélecteur actif.
+
+1) L'AXFR a été refusé. 2) 0 sous-domaine révélé. 3) Les messages non autorisés sont rejetés (échec dur).
+4) La politique DMARC vaut quarantine. 5) Pour rejeter : p=reject. 6) DKIM signe les messages.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez les enregistrements contenant v=spf1 et v=DMARC1.</li>
-        <li>Vérifiez la terminaison du SPF (+all, ?all, ~all, -all).</li>
-        <li>Appliquez la hiérarchie de risque CRITICAL -&gt; HIGH -&gt; MEDIUM -&gt; LOW.</li>
+        <li>Un AXFR accepté livre la zone complète à n'importe qui qui la demande : relisez le premier constat pour le verdict et le nombre de sous-domaines.</li>
+        <li>En SPF, « -all » est un échec dur : les serveurs non listés ne doivent pas être crus ; « ~all » serait un simple soupçon.</li>
+        <li>Les valeurs possibles du champ p= de DMARC sont none (surveillance), quarantine (mise à l'écart) et reject (rejet) ; la signature cryptographique des messages relève d'un autre enregistrement.</li>
       </ol>
     </details>
   </div>
@@ -367,10 +356,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBDOMAIN_FUZZ domain=example.com wildcard_ip=192.168.1.100 responses=admin:192.168.1.5,fake99:192.168.1.100,mail:192.168.1.6,testabc:192.168.1.100</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparer les adresses seulement ; ne pas décider si un nom est réel ou fictif.</li>
         <li>Trier chaque liste alphabétiquement et écrire NONE pour une liste vide.</li>
+        <li>Comparez chaque IP résolue à l IP témoin du domaine ; un écart d IP ou un sous-domaine manquant indique un hôte distinct sans préjuger de sa légitimité.</li>
       </ol>
     </details>
   </div>
@@ -393,8 +383,8 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quel opérateur Google Dorking permet de cibler spécifiquement les fichiers de configuration de type ".env" exposés sur un domaine ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">filetype:env ou ext:env</button>
         <button class="opt">inurl:database_password</button>
+        <button class="opt" data-correct="1">filetype:env ou ext:env</button>
         <button class="opt">intitle:configuration_secret</button>
         <button class="opt">site:apache_directory</button>
       </div>
@@ -403,19 +393,19 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Sur quel port et protocole de transport s'effectue traditionnellement une requête de transfert de zone DNS complet (AXFR) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Port TCP 53</button>
+        <button class="opt">Port UDP 161</button>
         <button class="opt">Port UDP 53</button>
         <button class="opt">Port TCP 443</button>
-        <button class="opt">Port UDP 161</button>
+        <button class="opt" data-correct="1">Port TCP 53</button>
       </div>
       <div class="q__exp">Alors que les résolutions DNS classiques transitent sur UDP 53, les transferts de zone (AXFR) utilisent TCP 53 pour garantir la fiabilité du transfert volumineux de la base.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la conséquence immédiate d'un enregistrement SPF se terminant par la directive "+all" ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Tout hôte correspond au mécanisme SPF all : cet enregistrement ne limite plus les expéditeurs selon leur adresse IP</button>
-        <button class="opt">Tous les emails émis sont automatiquement rejetés par les serveurs destinataires</button>
         <button class="opt">Les emails sont systématiquement chiffrés avec la clé publique du domaine</button>
+        <button class="opt">Tous les emails émis sont automatiquement rejetés par les serveurs destinataires</button>
+        <button class="opt" data-correct="1">Tout hôte correspond au mécanisme SPF all : cet enregistrement ne limite plus les expéditeurs selon leur adresse IP</button>
         <button class="opt">Seuls les serveurs MX déclarés ont le droit d'expédier des courriels</button>
       </div>
       <div class="q__exp">La directive "+all" fait correspondre tout hôte dans l'évaluation SPF. Les autres contrôles et la décision du récepteur restent à examiner.</div>
@@ -423,8 +413,8 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle politique DMARC demande au récepteur de rejeter un message lorsque l'évaluation DMARC échoue ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">p=reject</button>
         <button class="opt">p=none</button>
+        <button class="opt" data-correct="1">p=reject</button>
         <button class="opt">p=quarantine</button>
         <button class="opt">p=monitor</button>
       </div>
@@ -443,19 +433,19 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Lors d'un brute-force de sous-domaines, que provoque la présence d'un enregistrement DNS "wildcard" (*.target.com) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Certains noms inexistants peuvent recevoir une réponse synthétisée, sans que tous les noms soient nécessairement concernés</button>
+        <button class="opt">La zone DNS entière est effacée du serveur de noms</button>
         <button class="opt">Le serveur DNS refuse immédiatement toute nouvelle requête en bloquant l'IP de l'auditeur</button>
         <button class="opt">Les requêtes sont automatiquement redirigées vers le serveur DNS racine mondial</button>
-        <button class="opt">La zone DNS entière est effacée du serveur de noms</button>
+        <button class="opt" data-correct="1">Certains noms inexistants peuvent recevoir une réponse synthétisée, sans que tous les noms soient nécessairement concernés</button>
       </div>
       <div class="q__exp">Un wildcard peut synthétiser certaines réponses pour des noms inexistants. Un nom légitime peut partager la même adresse IP : cet indice seul ne suffit pas pour l'exclure.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel en-tête HTTP de sécurité empêche qu'un site web soit encapsulé dans un iframe et protège contre les attaques de Clickjacking ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">X-Frame-Options (avec DENY ou SAMEORIGIN)</button>
-        <button class="opt">Strict-Transport-Security (HSTS)</button>
         <button class="opt">X-Content-Type-Options: nosniff</button>
+        <button class="opt">Strict-Transport-Security (HSTS)</button>
+        <button class="opt" data-correct="1">X-Frame-Options (avec DENY ou SAMEORIGIN)</button>
         <button class="opt">Access-Control-Allow-Origin: *</button>
       </div>
       <div class="q__exp">L'en-tête X-Frame-Options (ou la directive frame-ancestors de CSP) interdit l'affichage du site dans une balise iframe, neutralisant les attaques par détournement de clic (Clickjacking).</div>
@@ -578,7 +568,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

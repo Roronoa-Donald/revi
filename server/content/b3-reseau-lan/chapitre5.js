@@ -150,12 +150,12 @@ module.exports = {
     {
       stem: 'Quel est l’objectif d’une attaque par saturation de table CAM (MAC Flooding) menée contre un commutateur ?',
       opts: [
-        'Détruire physiquement les composants électroniques du commutateur',
-        'Remplir la table CAM pour tenter de provoquer la diffusion de certaines trames unicast vers des destinations inconnues et éventuellement les intercepter dans le même VLAN',
-        'Empêcher le commutateur de se synchroniser sur le serveur NTP',
-        'Forcer la négociation du port en mode 10 Mbps half-duplex'
+        "Détruire physiquement les composants électroniques du commutateur en provoquant une surtension générale des circuits internes",
+        "Empêcher le commutateur de se synchroniser sur le serveur NTP de l’entreprise afin de fausser l’horodatage des journaux",
+        "Forcer la renégociation automatique de tous les ports d’accès en mode 10 Mbps half-duplex",
+        "Remplir la table CAM pour tenter de provoquer la diffusion de certaines trames unicast vers des destinations inconnues et éventuellement les intercepter dans le même VLAN"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La saturation peut empêcher l’apprentissage de nouvelles adresses ; de nouvelles destinations restent alors inconnues, comme celles dont les entrées expirent sans être réapprises. Selon le commutateur et ses protections, leurs trames unicast peuvent être diffusées sur les ports autorisés du même VLAN. Les destinations encore connues restent généralement acheminées vers leur port et un chiffrement adapté protège le contenu d’une simple capture.'
     },
     {
@@ -172,10 +172,10 @@ module.exports = {
     {
       stem: 'Quel est le rôle de l’option « sticky » dans la commande « switchport port-security mac-address sticky » ?',
       opts: [
-        'Elle colle physiquement le connecteur RJ45 dans la prise',
-        'Elle apprend dynamiquement la première adresse MAC reçue et l’enregistre dans la configuration courante running-config',
-        'Elle réinitialise l’adresse MAC toutes les heures',
-        'Elle chiffre les trames émises par cette adresse MAC'
+        "Elle colle physiquement le connecteur RJ45 dans la prise murale pour empêcher tout arrachage",
+        "Elle apprend dynamiquement la première adresse MAC reçue et l’enregistre dans la configuration courante running-config",
+        "Elle réinitialise l’adresse MAC apprise toutes les heures afin de forcer un réapprentissage",
+        "Elle chiffre automatiquement les trames émises par cette adresse MAC sur le port"
       ],
       correct: 1,
       exp: 'L’apprentissage sticky convertit dynamiquement la première adresse MAC active apprise en entrée statique inscrite dans la configuration courante.'
@@ -183,34 +183,34 @@ module.exports = {
     {
       stem: 'Dans une architecture protégée par DHCP Snooping, sur quel type de port les réponses DHCPOFFER d’un serveur DHCP légitime doivent-elles transiter ?',
       opts: [
-        'Un port Untrusted',
         'Un port Trusted (de confiance)',
+        'Un port Untrusted',
         'Un port configuré en mode monitor',
         'Un port bloqué par le Spanning Tree'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Seuls les ports marqués comme Trusted sont autorisés à recevoir et relayer des messages DHCP émis par un serveur (DHCPOFFER, DHCPACK).'
     },
     {
       stem: 'Quelles informations sont consignées dans la base de données dynamique DHCP Snooping Binding Table ?',
       opts: [
-        'Les mots de passe administrateurs des commutateurs',
-        'L’adresse MAC du client, son adresse IP attribuée, le bail, le VLAN et le port physique d’attachement',
-        'L’historique des sites web visités par l’utilisateur',
-        'Les tables de routage OSPF complètes'
+        "Les mots de passe administrateurs de l’ensemble des commutateurs du réseau local",
+        "L’historique détaillé des sites web visités par l’utilisateur du poste client",
+        "Les tables de routage OSPF complètes de tous les routeurs de l’entreprise",
+        "L’adresse MAC du client, son adresse IP attribuée, le bail, le VLAN et le port physique d’attachement"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La table de liaison associe pour chaque poste : adresse MAC, adresse IP reçue par DHCP, durée du bail, VLAN d’appartenance et numéro de port physique.'
     },
     {
       stem: 'Comment la technologie Dynamic ARP Inspection (DAI) contribue-t-elle à réduire les risques d’usurpation ARP ?',
       opts: [
-        'En convertissant toutes les requêtes ARP en paquets DNS',
-        'En validant les messages ARP des ports untrusted selon les liaisons DHCP ou une ACL ARP applicable',
-        'En forçant le redémarrage du poste attaquant',
-        'En désactivant le protocole IP sur le réseau'
+        "En convertissant automatiquement toutes les requêtes ARP en paquets DNS récursifs",
+        "En forçant le redémarrage immédiat du poste identifié comme attaquant",
+        "En validant les messages ARP des ports untrusted selon les liaisons DHCP ou une ACL ARP applicable",
+        "En désactivant complètement le protocole IP sur l’ensemble du réseau local"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'DAI vérifie les messages ARP reçus sur les ports untrusted selon les liaisons DHCP et les ACL ARP configurées. Les messages non autorisés sont rejetés, mais cela ne supprime pas tous les risques.'
     },
     {
@@ -227,12 +227,12 @@ module.exports = {
     {
       stem: 'Que se passe-t-il par défaut sous Cisco IOS lorsqu’un commutateur reçoit un paquet DHCP sur un port untrusted contenant l’option 82 alors qu’il n’est pas configuré comme relais de confiance ?',
       opts: [
-        'Le paquet est relayé sans modification',
-        'Le paquet est détruit (droppé) par mesure de sécurité',
-        'Le serveur DHCP est éteint',
-        'Le commutateur reboote'
+        "Le paquet est détruit (droppé) par mesure de sécurité",
+        "Le paquet est relayé sans modification vers le serveur DHCP",
+        "Le serveur DHCP est éteint à distance par le commutateur",
+        "Le commutateur reboote pour réinitialiser sa table"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Par défaut, un commutateur avec DHCP Snooping actif rejette les paquets DHCP contenant l’option 82 (relay agent information) arrivant sur un port untrusted.'
     }
   ],

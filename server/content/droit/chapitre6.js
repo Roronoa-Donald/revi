@@ -103,14 +103,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'L’IPDCP est…', opts: ['Une autorité administrative indépendante', 'Un tribunal pénal', 'Une entreprise privée'], correct: 0, exp: 'Créée par l’article 55 pour protéger les données personnelles.' },
-    { stem: 'Quel article crée l’IPDCP ?', opts: ['L’article 55', 'L’article 68', 'L’article 93'], correct: 0, exp: 'Article 55 : création de l’Instance.' },
-    { stem: 'L’article 68 traite…', opts: ['Des pouvoirs de contrôle de l’Instance', 'Des sanctions du RGPD européen', 'Du droit d’auteur'], correct: 0, exp: 'Accès aux documents, programmes et données.' },
+    { stem: 'L’IPDCP est…', opts: ["Une autorité administrative indépendante","Un tribunal pénal spécialisé en informatique","Une entreprise privée de conseil juridique"], correct: 0, exp: "L’IPDCP est une autorité administrative indépendante, créée pour protéger les données personnelles. Ce n’est ni un tribunal ni une entreprise privée." },
+    { stem: 'Quel article crée l’IPDCP ?', opts: ['L’article 93', 'L’article 68', 'L’article 55'], correct: 2, exp: "L’article 55 crée l’Instance de Protection des Données à Caractère Personnel. Ni l’article 68 ni le 93 : c’est bien le 55." },
+    { stem: 'L’article 68 traite…', opts: ['Du droit d’auteur', 'Des sanctions du RGPD européen', 'Des pouvoirs de contrôle de l’Instance'], correct: 2, exp: 'Accès aux documents, programmes et données.' },
     { stem: 'Peine de l’article 79 pour une infraction intentionnelle :', opts: ['1 à 5 ans et 1 à 10 millions de F CFA', '6 mois à 2 ans', '1 à 3 ans et 500 000 à 5 millions'], correct: 0, exp: 'La négligence abaisse la peine à 1 à 3 ans et 500 000 à 5 millions.' },
-    { stem: 'Peine de l’article 79 pour négligence :', opts: ['1 à 3 ans et 500 000 à 5 millions de F CFA', '1 à 5 ans et 1 à 10 millions', '6 mois à 2 ans'], correct: 0, exp: 'Défaut d’adresse ou de précaution : peine réduite.' },
-    { stem: 'L’article 86 réprime…', opts: ['Les données sensibles conservées sans consentement', 'L’entrave au contrôle', 'Les contrats de licence'], correct: 0, exp: 'Origine, opinions, santé, vie sexuelle sans consentement exprès.' },
-    { stem: 'L’article 93 réprime…', opts: ['L’entrave à l’action de l’Instance', 'Les données de santé', 'La diffamation'], correct: 0, exp: 'Six mois à deux ans et 1 à 10 millions de F CFA.' },
-    { stem: 'Combien de diapositives au maximum pour le TPE ?', opts: ['Dix', 'Vingt', 'Cinq'], correct: 0, exp: 'Dix diapositives au maximum.' }
+    { stem: 'Peine de l’article 79 pour négligence :', opts: ["1 à 5 ans et 1 à 10 millions de F CFA","1 à 3 ans et 500 000 à 5 millions de F CFA","Six mois à deux ans et une amende légère"], correct: 1, exp: "Pour la négligence, l’article 79 prévoit une peine réduite : 1 à 3 ans et 500 000 à 5 millions de F CFA. Les autres fourchettes ne correspondent à aucun texte." },
+    { stem: 'L’article 86 réprime…', opts: ["Les données sensibles conservées sans consentement","L’entrave au contrôle exercé par l’Instance","Les contrats de licence de logiciels"], correct: 0, exp: "L’article 86 réprime la conservation des données sensibles sans consentement exprès : origine, opinions, santé, vie sexuelle. L’entrave au contrôle relève d’un autre article." },
+    { stem: 'L’article 93 réprime…', opts: ['La diffamation', 'Les données de santé', 'L’entrave à l’action de l’Instance'], correct: 2, exp: 'Six mois à deux ans et 1 à 10 millions de F CFA.' },
+    { stem: 'Combien de diapositives au maximum pour le TPE ?', opts: ['Vingt', 'Dix', 'Cinq'], correct: 1, exp: "Le TPE plafonne la présentation à dix diapositives : un cadre contraignant. Vingt dépasserait la limite ; la règle retient dix." }
   ],
 
   pitfalls: [

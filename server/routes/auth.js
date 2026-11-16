@@ -234,6 +234,7 @@ module.exports = async function authRoutes(fastify) {
 
       return reply.send({
         authenticated: true,
+        userId: resolved.user.id,
         account: { email: resolved.user.email, displayName: resolved.user.display_name, level: resolved.user.level || 'b2' },
         level: resolved.user.level || 'b2',
         scope: subscribed ? 'all' : '',

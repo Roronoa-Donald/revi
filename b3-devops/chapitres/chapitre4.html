@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -180,27 +178,27 @@
      data-exercise="do3-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="ROUTER active=BLUE version=1.2.0&#10;DEPLOY target=GREEN version=1.3.0 health_check=PASS">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c4-e1) — Simulateur de bascule Blue-Green sans interruption de service
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="BilletterieLive (vente de billets) : BLUE actif en 1.8.0, déploiement de la 1.9.0 sur GREEN, tests de santé réussis, routeur basculé sur GREEN.&#10;&#10;1) Version en ligne : 1.9.0.&#10;2) BLUE devient inactif.&#10;3) Interruption : 0 minute.&#10;4) En cas d'anomalie : rebascule sur BLUE.&#10;5) L'opération est un rollback.">
+  <script type="text/plain" data-lab-starter># Exercice — La bascule blue-green du portail AssuranceDirecte
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Échec du test de santé déclenchant le rollback]
-# Données : ROUTER active=GREEN version=2.0.1
-# Données : DEPLOY target=BLUE version=2.1.0 health_check=FAIL
+[Question 1 — Version en ligne après la bascule]
 A_COMPLETER
 
-[Cas 2 — Tentative illégale de déploiement sur l’environnement déjà actif]
-# Données : ROUTER active=BLUE version=1.0.0
-# Données : DEPLOY target=BLUE version=1.1.0 health_check=PASS
+[Question 2 — Environnement devenu inactif]
 A_COMPLETER
 
-[Cas 3 — Bascule réussie de GREEN vers BLUE]
-# Données : ROUTER active=GREEN version=3.4.0
-# Données : DEPLOY target=BLUE version=3.5.0 health_check=PASS
+[Question 3 — Interruption des utilisateurs en minutes]
+A_COMPLETER
+
+[Question 4 — Environnement de la rebascule]
+A_COMPLETER
+
+[Question 5 — Nom de l'opération de retour arrière]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de bascule Blue-Green sans interruption de service</h3>
+    <h3 class="lab__title">Exercice 1 — La bascule blue-green du portail AssuranceDirecte</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -209,25 +207,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le routage du trafic réseau entre deux environnements jumeaux et automatiser la bascule ou le rollback en cas de défaillance du test de santé.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
-Règles :<br>
-- Si <code>target == active</code> : le déploiement sur l’environnement actif est prohibé.<br>
-  <code>BLUE_GREEN: ERREUR=DEPLOIEMENT_SUR_ENV_ACTIF_INTERDIT</code><br>
-- Si <code>target != active</code> :<br>
-  - Si <code>health_check == PASS</code> : le routeur commute instantanément sur <code>target</code>.<br>
-    <code>BLUE_GREEN: STATUT=BASCULE_REUSSIE | ROUTER_ACTIF=&lt;target&gt; | VERSION_EN_LIGNE=&lt;new_ver&gt; | ANCIEN_ENV=&lt;ancien&gt; (IDLE)</code><br>
-  - Si <code>health_check == FAIL</code> : bascule avortée, rollback de sécurité.<br>
-    <code>BLUE_GREEN: STATUT=ROLLBACK_ANOMALIE | ROUTER_ACTIF=&lt;active&gt; | VERSION_EN_LIGNE=&lt;ver_active&gt; | TARGET_ABANDONNEE=&lt;target&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre un déploiement blue-green : validation sur l'environnement inactif, bascule du routeur et retour arrière.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> AssuranceDirecte exploite un portail de gestion de contrats visité par 200 000 assurés par jour. L'équipe pratique le déploiement blue-green : deux environnements jumeaux, <strong>BLUE</strong> et <strong>GREEN</strong>. Actuellement, le routeur envoie tout le trafic vers <strong>BLUE</strong>, qui exécute la version <strong>4.2.1</strong>. L'équipe déploie la version <strong>4.3.0</strong> sur <strong>GREEN</strong>, y déroule ses tests de santé (réussis), puis bascule le routeur sur GREEN.</p><ol><li>Quelle est la version en ligne immédiatement après la bascule ?</li><li>Quel environnement devient inactif (idle) ?</li><li>Combien de temps les utilisateurs sont-ils interrompus par la bascule (en minutes) ?</li><li>Une anomalie majeure est découverte 10 minutes après la bascule : sur quel environnement le routeur doit-il être rebasculé ?</li><li>Comment se nomme cette opération de retour arrière ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROUTER active=BLUE version=1.2.0
-DEPLOY target=GREEN version=1.3.0 health_check=PASS</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>BilletterieLive (vente de billets) : BLUE actif en 1.8.0, déploiement de la 1.9.0 sur GREEN, tests de santé réussis, routeur basculé sur GREEN.
+
+1) Version en ligne : 1.9.0.
+2) BLUE devient inactif.
+3) Interruption : 0 minute.
+4) En cas d'anomalie : rebascule sur BLUE.
+5) L'opération est un rollback.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le déploiement Blue-Green garantit zéro interruption car la nouvelle version est validée avant la bascule du load balancer.</li>
-        <li>En cas d’erreur, aucun utilisateur ne subit la version corrompue.</li>
+        <li>Le blue-green entretient deux jumeaux de production : un seul reçoit le trafic à la fois.</li>
+        <li>La nouvelle version est déployée et validée sur l'environnement inactif avant qu'aucun utilisateur ne la voie.</li>
+        <li>1. Identifiez l'environnement pointé par le routeur après la bascule. 2. L'autre devient inactif. 3. La bascule ne modifie qu'une configuration de routeur. 4. En cas d'anomalie, on repart vers l'ancien environnement. 5. Ce retour s'appelle le rollback.</li>
       </ol>
     </details>
   </div>
@@ -237,24 +233,30 @@ DEPLOY target=GREEN version=1.3.0 health_check=PASS</pre></div>
      data-exercise="do3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45&#10;CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rates=0.10,0.85,1.20,2.00">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c4-e2) — Gestionnaire de déploiement progressif en Canari (Canary Release)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="StreamVision (vidéo à la demande) : 60 000 requêtes par heure, paliers 10 %, 25 %, 50 %, 100 %, seuil 0,5 %. Taux mesurés : 0,2 %, 0,3 %, 0,2 %, 0,4 %.&#10;&#10;1) Canari à 10 % : 6 000 req/h.&#10;2) Stable à 25 % : 75 % × 60 000 = 45 000 req/h.&#10;3) Tous les paliers passent : le dernier validé est 100 %.&#10;4) Aucun palier ne dépasse 0,5 % (maximum 0,4 %) : pas d'arrêt.&#10;5) Le déploiement est promu à 100 % : promotion.&#10;6) La part exposée est le rayon d'impact (blast radius).">
+  <script type="text/plain" data-lab-starter># Exercice — Le déploiement canari du moteur de recherche de VenteEnLigne
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Échec dès le premier palier 5%]
-# Données : CANARY app=auth_api version=1.9.0 seuil_max=0.80 steps=5,20,50,100 error_rates=1.50,0.0,0.0,0.0
+[Question 1 — Requêtes servies par le canari à 5 %]
 A_COMPLETER
 
-[Cas 2 — Succès sans faille sur 3 paliers]
-# Données : CANARY app=cart_service version=2.0.0 seuil_max=2.00 steps=10,50,100 error_rates=0.50,0.80,1.10
+[Question 2 — Requêtes servies par la version stable à 20 %]
 A_COMPLETER
 
-[Cas 3 — Échec au dernier palier 100%]
-# Données : CANARY app=search_svc version=4.1.0 seuil_max=1.00 steps=10,50,100 error_rates=0.20,0.40,1.80
+[Question 3 — Dernier palier validé en %]
+A_COMPLETER
+
+[Question 4 — Taux d'erreur au palier de l'arrêt]
+A_COMPLETER
+
+[Question 5 — Action déclenchée au-delà du seuil]
+A_COMPLETER
+
+[Question 6 — Part d'utilisateurs exposée]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Gestionnaire de déploiement progressif en Canari (Canary Release)</h3>
+    <h3 class="lab__title">Exercice 2 — Le déploiement canari du moteur de recherche de VenteEnLigne</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -263,23 +265,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Acheminer graduellement le trafic utilisateur vers une version canari tout en surveillant le taux d’erreur pour avorter automatiquement en cas de régression.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas...&gt; error_rates=&lt;e1,e2,...&gt;&lt;/code&gt;.<br><br>
-Déroulement des paliers :<br>
-- À chaque palier <code>steps[i]</code>, le taux d'erreur observé est <code>error_rates[i]</code>.<br>
-- Si $error\_rates[i] &gt; seuil\_max$ : le déploiement est immédiatement interrompu.<br>
-  <code>CANARY_DEPLOY: app=&lt;nom&gt; -&gt; ARRET_ANOMALIE_ETAPE=&lt;step&gt;% (erreur=&lt;e:.2f&gt;%/seuil=&lt;max:.2f&gt;%) | STATUT=ROLLBACK_AUTOMATIQUE</code><br>
-- Si toutes les étapes sont validées jusqu'au dernier palier (100%) sans dépasser le seuil :<br>
-  <code>CANARY_DEPLOY: app=&lt;nom&gt; -&gt; PROMOTION_100%_SUCCES | STATUT=DEPLOIEMENT_FINALISE | VERSION_ACTIVE=&lt;ver&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Router progressivement le trafic vers une version canari, surveiller le taux d'erreur et décider de la promotion ou du retour arrière.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> VenteEnLigne traite <strong>40 000 requêtes de recherche par heure</strong> sur son site de grande distribution. L'équipe déploie son nouveau moteur de recherche en <strong>canari</strong> : le trafic est routé par paliers de <strong>5 %, puis 20 %, puis 50 %, puis 100 %</strong>. À chaque palier, le taux d'erreur est mesuré ; au-delà d'un <strong>seuil de 1 %</strong>, le déploiement est automatiquement interrompu et annulé. Mesures : 0,4 % au palier 5 % ; 0,5 % au palier 20 % ; 1,8 % au palier 50 %. Répondez par la valeur seule.</p><ol><li>Combien de requêtes par heure le canari sert-il au premier palier (5 % de 40 000) ?</li><li>Au palier 20 %, combien de requêtes par heure la version stable sert-elle encore ?</li><li>Quel est le dernier palier validé avant l'arrêt du déploiement (en %) ?</li><li>Quel est le taux d'erreur mesuré au palier où le déploiement s'arrête (en %) ?</li><li>Comment se nomme l'action automatiquement déclenchée quand le seuil est dépassé ?</li><li>Comment nomme-t-on la part d'utilisateurs exposée à une version défaillante ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CANARY app=payment_svc version=2.4.0 seuil_max=1.00 steps=5,25,50,100 error_rates=0.20,0.35,0.40,0.45
-CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rates=0.10,0.85,1.20,2.00</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>StreamVision (vidéo à la demande) : 60 000 requêtes par heure, paliers 10 %, 25 %, 50 %, 100 %, seuil 0,5 %. Taux mesurés : 0,2 %, 0,3 %, 0,2 %, 0,4 %.
+
+1) Canari à 10 % : 6 000 req/h.
+2) Stable à 25 % : 75 % × 60 000 = 45 000 req/h.
+3) Tous les paliers passent : le dernier validé est 100 %.
+4) Aucun palier ne dépasse 0,5 % (maximum 0,4 %) : pas d'arrêt.
+5) Le déploiement est promu à 100 % : promotion.
+6) La part exposée est le rayon d'impact (blast radius).</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le déploiement Canari réduit le rayon d’impact (blast radius) en exposant d’abord un petit échantillon d’utilisateurs (ex: 5%).</li>
-        <li>Interrompre la boucle dès le premier dépassement de seuil.</li>
+        <li>Un canari expose d'abord la nouvelle version à un petit échantillon du trafic avant de la généraliser.</li>
+        <li>À chaque palier : part du canari × trafic total pour la nouvelle version, le reste pour la version stable.</li>
+        <li>1. Calculez 5 % de 40 000. 2. Calculez 80 % de 40 000. 3. Comparez chaque taux d'erreur au seuil de 1 %. 4. Repérez le premier palier qui dépasse le seuil. 5. Au-delà du seuil, le pipeline annule le déploiement. 6. La part exposée s'appelle le rayon d'impact (blast radius).</li>
       </ol>
     </details>
   </div>
@@ -289,24 +292,30 @@ CANARY app=reco_engine version=3.0.0 seuil_max=0.50 steps=10,30,70,100 error_rat
      data-exercise="do3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ROLLING replicas=4 max_surge=1 max_unavail=0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (do3-c4-e3) — Simulateur de mise à jour progressive Kubernetes (Rolling Update)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="CineBooking (billetterie de cinéma) : 6 pods, mise à jour progressive avec maxSurge = 1 et maxUnavailable = 0, remplacement par lots de 1.&#10;&#10;1) Maximum : 6 + 1 = 7 pods.&#10;2) Minimum disponible : 6 − 0 = 6 pods.&#10;3) Vagues : 6 pods par lots de 1, soit 6 vagues.&#10;4) Avec maxSurge = 0 et maxUnavailable = 2 : 6 − 2 = 4 pods au minimum.&#10;5) La capacité constante exige maxUnavailable = 0.&#10;6) Publication à une part d'utilisateurs : feature flags.">
+  <script type="text/plain" data-lab-starter># Exercice — La mise à jour progressive de la plateforme RésaPlus
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Remplacement par paquets de 2 avec maxSurge=2]
-# Données : ROLLING replicas=4 max_surge=2 max_unavail=0
+[Question 1 — Nombre maximal de pods]
 A_COMPLETER
 
-[Cas 2 — Pod unique avec maxSurge 1]
-# Données : ROLLING replicas=1 max_surge=1 max_unavail=0
+[Question 2 — Nombre minimal de pods disponibles]
 A_COMPLETER
 
-[Cas 3 — Grande flotte de 6 réplicas avec surge de 3]
-# Données : ROLLING replicas=6 max_surge=3 max_unavail=0
+[Question 3 — Nombre de vagues de remplacement]
+A_COMPLETER
+
+[Question 4 — Minimum disponible avec maxSurge à 0]
+A_COMPLETER
+
+[Question 5 — Paramètre garantissant la capacité]
+A_COMPLETER
+
+[Question 6 — Mécanisme de publication à 10 % des utilisateurs]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de mise à jour progressive Kubernetes (Rolling Update)</h3>
+    <h3 class="lab__title">Exercice 3 — La mise à jour progressive de la plateforme RésaPlus</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -315,32 +324,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="do3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le déroulement pas à pas d’un Rolling Update Kubernetes en garantissant les contraintes de maxSurge et maxUnavailable.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas.<br><br>
-Paramètres :<br>
-- $N$ : nombre désiré de réplicas en régime stable.<br>
-- $S$ (maxSurge) : nombre maximal de pods supplémentaires autorisés au-delà de $N$ ($Total_{max} = N + S$).<br>
-- $U$ (maxUnavailable) : nombre maximal de pods indisponibles autorisés ($Dispo_{min} = N - U$).<br><br>
-Algorithme de déroulement par pas :<br>
-Initialement, $v1 = N, v2 = 0$.<br>
-À chaque pas :<br>
-1. On ajoute autant de pods $v2$ que possible sans dépasser $Total_{max} = N + S$ (soit $ajout = \min(S, N - v2)$ pour le premier pas ou pour compléter). Plus précisément : $v2_{cible} = \min(N, v2 + S)$.<br>
-2. Une fois les nouveaux $v2$ créés, on détruit des pods $v1$ pour ramener le total à $N$ (ou s'assurer que $v1 + v2 \ge N - U$), c’est-à-dire : supprimer des pods $v1$ jusqu’à ce que $v1 = N - v2$ (ou $v1 = 0$ quand $v2 = N$).<br>
-3. Répéter jusqu’à ce que $v1 = 0$ et $v2 = N$.<br><br>
-Afficher :<br>
-<code>ROLLING_SPEC: REPLICAS=&lt;N&gt; | MAX_TOTAL=&lt;N+S&gt; | MIN_DISPO=&lt;N-U&gt;</code><br>
-Puis chaque pas :<br>
-<code>PAS &lt;k&gt;: v1=&lt;v1&gt;, v2=&lt;v2&gt; (total=&lt;v1+v2&gt;)</code><br>
-Et la conclusion finale :<br>
-<code>ETAT_FINAL: v1=0, v2=&lt;N&gt; | SUCCES_ROLLING_UPDATE</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dimensionner une mise à jour continue Kubernetes via maxSurge et maxUnavailable et vérifier la garantie de capacité.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> RésaPlus édite un service de réservation de salles. Son déploiement Kubernetes fait tourner <strong>8 pods</strong> de la version 1. L'équipe lance une mise à jour progressive (rolling update) vers la version 2 avec <strong>maxSurge = 2</strong> et <strong>maxUnavailable = 0</strong> : durant l'opération, le cluster peut dépasser la cible d'au plus 2 pods, et aucune indisponibilité n'est tolérée. Les anciens pods sont remplacés par lots de 2. L'équipe étudie ensuite la configuration <strong>maxSurge = 0 et maxUnavailable = 2</strong>. Répondez par la valeur seule aux questions numériques.</p><ol><li>Quel est le nombre maximal de pods simultanément en cours pendant la mise à jour ?</li><li>Quel est le nombre minimal de pods disponibles à tout moment ?</li><li>Combien de vagues successives faut-il pour remplacer les 8 anciens pods par lots de 2 ?</li><li>Avec maxSurge = 0 et maxUnavailable = 2, quel serait le nombre minimal de pods disponibles ?</li><li>Quel paramètre doit rester à 0 pour garantir une capacité constante pendant la mise à jour ?</li><li>Mise à jour terminée, l'équipe veut activer la nouvelle fonctionnalité pour 10 % des utilisateurs seulement : quel mécanisme doit-elle utiliser ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROLLING replicas=4 max_surge=1 max_unavail=0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CineBooking (billetterie de cinéma) : 6 pods, mise à jour progressive avec maxSurge = 1 et maxUnavailable = 0, remplacement par lots de 1.
+
+1) Maximum : 6 + 1 = 7 pods.
+2) Minimum disponible : 6 − 0 = 6 pods.
+3) Vagues : 6 pods par lots de 1, soit 6 vagues.
+4) Avec maxSurge = 0 et maxUnavailable = 2 : 6 − 2 = 4 pods au minimum.
+5) La capacité constante exige maxUnavailable = 0.
+6) Publication à une part d'utilisateurs : feature flags.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>À chaque itération, créer les pods v2 autorisés puis détruire les anciens pods v1 correspondants.</li>
-        <li>Le nombre de pods disponibles ne doit jamais chuter sous N - U.</li>
+        <li>maxSurge autorise des pods supplémentaires au-delà de la cible ; maxUnavailable autorise des pods manquants.</li>
+        <li>Avec maxUnavailable = 0, la capacité ne baisse jamais ; avec maxSurge = 0, elle ne dépasse jamais la cible.</li>
+        <li>1. Calculez 8 + 2 pour le maximum. 2. Calculez 8 − 0 pour le minimum. 3. Divisez 8 pods par lots de 2. 4. Calculez 8 − 2. 5. Une capacité constante impose zéro pod indisponible. 6. La publication progressive d'une fonctionnalité passe par des feature flags.</li>
       </ol>
     </details>
   </div>
@@ -353,80 +354,80 @@ Et la conclusion finale :<br>
     <div class="q">
       <p class="q__stem">Quelle différence fondamentale sépare la Livraison Continue (Continuous Delivery) du Déploiement Continu (Continuous Deployment) ?</p>
       <div class="opts">
-        <button class="opt">La livraison continue ne teste pas le code</button>
+        <button class="opt">La livraison continue exclut toute phase de tests automatisés et pousse chaque commit en production sans aucune vérification préalable du code</button>
+        <button class="opt">La livraison continue est strictement réservée aux applications mobiles natives tandis que le déploiement continu ne s’applique qu’aux logiciels embarqués</button>
         <button class="opt" data-correct="1">Le déploiement continu envoie automatiquement chaque commit validé en production sans validation humaine, tandis que la livraison continue requiert une approbation manuelle pour la mise en prod</button>
-        <button class="opt">La livraison continue est réservée aux applications mobiles</button>
-        <button class="opt">Le déploiement continu ne fonctionne que sur le cloud AWS</button>
+        <button class="opt">Le déploiement continu fonctionne exclusivement sur l’infrastructure du cloud AWS et demeure impossible sur des serveurs physiques on-premise</button>
       </div>
       <div class="q__exp">En Continuous Delivery, le paquet est prêt et testé, mais un humain déclenche le passage en production. En Continuous Deployment, l’ensemble de la chaîne est automatisé de bout en bout jusqu’à la prod.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une stratégie de déploiement Blue/Green, comment s’effectue la bascule vers la nouvelle version du logiciel ?</p>
       <div class="opts">
-        <button class="opt">En réinstallant manuellement le système d’exploitation de tous les serveurs un par un</button>
+        <button class="opt">En réinstallant manuellement le système d’exploitation de chacun des serveurs de l’ancien environnement, un par un, pendant la nuit</button>
+        <button class="opt">En coupant l’alimentation électrique du datacenter pendant dix minutes afin de forcer le redémarrage complet de tous les services</button>
+        <button class="opt">En demandant à chaque client final de vider manuellement le cache de son navigateur pour recharger la nouvelle version déployée</button>
         <button class="opt" data-correct="1">En basculant instantanément l’aiguillage du trafic au niveau du routeur ou de l’équilibreur de charge vers le nouvel environnement (Green)</button>
-        <button class="opt">En coupant l’électricité du datacenter pendant 10 minutes</button>
-        <button class="opt">En demandant à chaque client de vider son cache de navigateur</button>
       </div>
       <div class="q__exp">L’environnement Green est déployé et vérifié à blanc à côté de l’environnement Blue actif. La bascule se fait en modifiant la cible du répartiteur de charge en une fraction de seconde.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’intérêt majeur d’une « Canary Release » (déploiement canari) par rapport à un déploiement massif classique ?</p>
       <div class="opts">
-        <button class="opt">Elle divise par deux la facture de bande passante réseau</button>
         <button class="opt" data-correct="1">Elle achemine d’abord un très faible pourcentage du trafic réel (ex. 5%) vers la nouvelle version pour détecter les anomalies avant de généraliser le déploiement</button>
-        <button class="opt">Elle supprime le besoin de surveiller les logs de production</button>
-        <button class="opt">Elle permet de compiler le code directement dans le navigateur du client</button>
+        <button class="opt">Elle divise par deux la facture de bande passante réseau de l’entreprise en répartissant les requêtes sur deux hébergeurs distincts</button>
+        <button class="opt">Elle supprime entièrement le besoin de surveiller les journaux de production puisque la nouvelle version est présumée stable par défaut</button>
+        <button class="opt">Elle permet de compiler le code applicatif directement dans le navigateur de chaque client afin d’alléger les serveurs de production</button>
       </div>
       <div class="q__exp">À l’image des canaris autrefois descendus dans les mines de charbon pour détecter le coup de grisou, la Canary Release expose un échantillon d’utilisateurs réels pour tester la fiabilité sans exposer l’ensemble du public.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi le patron de conception « Expand and Contract » est-il obligatoire pour faire du Zero-Downtime Deployment sur une base de données ?</p>
       <div class="opts">
-        <button class="opt">Pour compresser les tables de données et libérer de l’espace disque</button>
+        <button class="opt">Pour compresser les tables de données volumineuses et libérer de l’espace disque sur les serveurs de base de données en production</button>
         <button class="opt" data-correct="1">Pour assurer que le schéma de base de données reste compatible simultanément avec l’ancienne version et la nouvelle version du code durant la phase de transition</button>
-        <button class="opt">Pour désactiver les clés primaires sur les tables transactionnelles</button>
-        <button class="opt">Pour convertir automatiquement MySQL en MongoDB</button>
+        <button class="opt">Pour désactiver temporairement les clés primaires et les contraintes d’intégrité sur les tables transactionnelles durant la migration</button>
+        <button class="opt">Pour convertir automatiquement une base MySQL relationnelle en base documentaire MongoDB sans réécriture du code applicatif</button>
       </div>
       <div class="q__exp">Pendant un déploiement sans coupure, des instances de l’ancienne et de la nouvelle version tournent conjointement. Le schéma de base doit donc pouvoir être lu et écrit par les deux versions sans erreur.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que signifie l’adage DevOps « Deploy is not Release » (Déployer n’est pas Publier) ?</p>
       <div class="opts">
-        <button class="opt">Le code ne doit jamais être envoyé sur les serveurs de production</button>
+        <button class="opt">Le code applicatif ne doit en aucun cas être envoyé sur les serveurs de production avant la signature du contrat de maintenance</button>
+        <button class="opt">Il faut obligatoirement deux équipes juridiques distinctes, l’une chargée du déploiement technique et l’autre de la publication</button>
         <button class="opt" data-correct="1">L’acheminement technique du code sur l’infrastructure de production est décorrélé de son activation fonctionnelle visible par les utilisateurs finaux</button>
-        <button class="opt">Il faut deux équipes juridiques distinctes pour chaque projet</button>
-        <button class="opt">Le déploiement se fait uniquement sur support physique (DVD)</button>
+        <button class="opt">Le déploiement du code s’effectue uniquement sur support physique, par envoi postal de DVD gravés vers chaque datacenter</button>
       </div>
       <div class="q__exp">On peut déployer du code en production de manière continue tout en maintenant la fonctionnalité éteinte derrière un Feature Flag jusqu’au moment commercial ou marketing opportun.</div>
     </div>
     <div class="q">
       <p class="q__stem">Qu’est-ce qu’un « Kill Switch » implémenté via un Feature Flag en exploitation ?</p>
       <div class="opts">
-        <button class="opt">Un script qui détruit la base de données en cas d’attaque pirate</button>
+        <button class="opt">Un script d’urgence qui détruit intégralement la base de données afin d’empêcher toute exfiltration lors d’une attaque pirate</button>
+        <button class="opt">Un bouton physique de mise hors tension situé sur la façade de chacun des serveurs physiques de production</button>
+        <button class="opt">Un protocole de déconnexion automatique et forcée de tous les développeurs connectés chaque soir à la fermeture des bureaux</button>
         <button class="opt" data-correct="1">Un interrupteur logiciel d’urgence permettant de désactiver instantanément une fonctionnalité défaillante ou trop lourde sans re-déployer de code</button>
-        <button class="opt">Un bouton physique situé sur la façade du serveur physique</button>
-        <button class="opt">Un protocole de déconnexion automatique des développeurs le soir</button>
       </div>
       <div class="q__exp">Un Kill Switch permet aux équipes d’astreinte de désactiver à chaud un composant causant une surcharge CPU ou un bogue critique par simple changement de configuration instantané.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel risque technique majeur engendre l’accumulation excessive de Feature Flags non nettoyés dans une base de code ?</p>
       <div class="opts">
-        <button class="opt">Une saturation de l’espace disque du serveur Git</button>
+        <button class="opt">Une saturation progressive de l’espace disque du serveur Git due au volume croissant des fichiers de configuration de drapeaux</button>
         <button class="opt" data-correct="1">Une dette technique exponentielle due à la combinatoire d’embranchements conditionnels (code spaghetti) et au risque d’activation de code mort</button>
-        <button class="opt">Une interdiction de compiler par le compilateur</button>
-        <button class="opt">Une augmentation des impôts sur les sociétés</button>
+        <button class="opt">Un allongement drastique du temps de compilation, chaque drapeau devant être évalué dynamiquement au lancement du programme</button>
+        <button class="opt">Une obligation réglementaire de déclarer chaque nouveau drapeau auprès de la CNIL avant toute mise en production</button>
       </div>
       <div class="q__exp">Chaque drapeau ajoute des branches logiques if/else. Si les vieux flags ne sont pas élagués après généralisation, la combinatoire des tests devient ingérable et des comportements imprévus surviennent.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une stratégie Rolling Update sous Kubernetes, que spécifie le paramètre « maxUnavailable » ?</p>
       <div class="opts">
-        <button class="opt">La durée maximale en minutes d’un incident de production</button>
         <button class="opt" data-correct="1">Le nombre ou pourcentage maximum de pods autorisés à être indisponibles simultanément durant la mise à jour progressive</button>
-        <button class="opt">Le nombre maximal de développeurs pouvant commiter en même temps</button>
-        <button class="opt">La mémoire vive maximale allouée au conteneur</button>
+        <button class="opt">La durée maximale en minutes tolérée pour un incident de production avant le déclenchement de la procédure d’escalade</button>
+        <button class="opt">Le nombre maximal de développeurs autorisés à soumettre des commits simultanément sur le dépôt du projet</button>
+        <button class="opt">La quantité de mémoire vive maximale allouée à chaque conteneur lors de sa recréation par le contrôleur</button>
       </div>
       <div class="q__exp">maxUnavailable garantit qu’un pourcentage suffisant de répliques reste opérationnel en continu pour continuer à absorber le trafic usuel sans dégradation de service.</div>
     </div>
@@ -552,7 +553,7 @@ Et la conclusion finale :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

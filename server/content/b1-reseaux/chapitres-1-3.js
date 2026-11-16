@@ -125,14 +125,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un réseau informatique limité à l\'intérieur d\'un immeuble est…', opts: ['un WAN', 'un LAN', 'un MAN'], correct: 1, exp: 'LAN (Local Area Network) : salle, classe, immeuble, campus privé.' },
-      { q: 'Les réseaux WAN relient typiquement…', opts: ['des périphériques à l\'intérieur d\'une seule pièce', 'uniquement les ordinateurs d\'une salle', 'des réseaux locaux de sites distants'], correct: 2, exp: 'Un WAN interconnecte des réseaux de sites distants ; il ne dépend ni d\'un seuil fixe ni obligatoirement de liaisons louées.' },
+      { q: 'Un réseau informatique limité à l\'intérieur d\'un immeuble est…', opts: ['un LAN', 'un WAN', 'un MAN'], correct: 0, exp: 'LAN (Local Area Network) : salle, classe, immeuble, campus privé.' },
+      { q: 'Les réseaux WAN relient typiquement…', opts: ['des périphériques à l\'intérieur d\'une seule pièce', 'des réseaux locaux de sites distants', 'uniquement les ordinateurs d\'une salle'], correct: 1, exp: 'Un WAN interconnecte des réseaux de sites distants ; il ne dépend ni d\'un seuil fixe ni obligatoirement de liaisons louées.' },
       { q: 'Dans un réseau d\'égal à égal (poste-à-poste), chaque ordinateur…', opts: ['ne peut que recevoir des données', 'est obligatoirement un serveur dédié', 'peut agir à la fois comme client et fournisseur de ressources'], correct: 2, exp: 'Postes égaux : ressources partagées sans serveur centralisé.' },
-      { q: 'Quel rôle joue un serveur dans une architecture client-serveur ?', opts: ['remplacer tous les ordinateurs des utilisateurs', 'fournir un service demandé par des clients', 'supprimer le besoin d\'un mot de passe'], correct: 1, exp: 'Un serveur fournit un service aux clients ; il ne remplace pas leurs appareils et ne supprime pas nécessairement les mots de passe.' },
+      { q: 'Quel rôle joue un serveur dans une architecture client-serveur ?', opts: ['remplacer tous les ordinateurs des utilisateurs', 'supprimer le besoin d\'un mot de passe', 'fournir un service demandé par des clients'], correct: 2, exp: 'Un serveur fournit un service aux clients ; il ne remplace pas leurs appareils et ne supprime pas nécessairement les mots de passe.' },
       { q: 'Un smartphone synchronisé en Bluetooth avec des écouteurs forme…', opts: ['un PAN', 'un MAN', 'un SAN'], correct: 0, exp: 'PAN : Personal Area Network (réseau personnel de proximité immédiate).' },
       { q: 'Le Wi-Fi est la technologie la plus répandue pour…', opts: ['les liaisons intercontinentales WAN', 'les réseaux locaux sans fil (WLAN)', 'les réseaux de stockage de masse SAN'], correct: 1, exp: 'WLAN : Wireless Local Area Network, normes IEEE 802.11.' },
-      { q: 'L\'interconnexion des hôpitaux d\'une même ville sur une dorsale fibre est…', opts: ['un MAN', 'un PAN', 'un SAN'], correct: 0, exp: 'MAN : Metropolitan Area Network (échelle d\'une agglomération).' },
-      { q: 'Un SAN (Storage Area Network) a pour rôle principal de…', opts: ['relier des baies de stockage de données en mode bloc', 'permettre la navigation web grand public', 'synchroniser un smartphone avec une imprimante'], correct: 0, exp: 'SAN : réseau spécialisé pour le stockage de niveau bloc.' }
+      { q: 'L\'interconnexion des hôpitaux d\'une même ville sur une dorsale fibre est…', opts: ['un SAN', 'un PAN', 'un MAN'], correct: 2, exp: 'MAN : Metropolitan Area Network (échelle d\'une agglomération).' },
+      { q: 'Un SAN (Storage Area Network) a pour rôle principal de…', opts: ['permettre la navigation web grand public', 'relier des baies de stockage de données en mode bloc', 'synchroniser un smartphone avec une imprimante'], correct: 1, exp: 'SAN : réseau spécialisé pour le stockage de niveau bloc.' }
     ],
 
     pitfalls: [
@@ -268,14 +268,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La topologie 10Base2 (« thinnet ») est…', opts: ['un anneau', 'un bus', 'une étoile'], correct: 1, exp: 'Câble coaxial fin, raccord en T, un seul lien partagé.' },
+      { q: 'La topologie 10Base2 (« thinnet ») est…', opts: ['un bus', 'un anneau', 'une étoile'], correct: 0, exp: 'Câble coaxial fin, raccord en T, un seul lien partagé.' },
       { q: 'Le défaut majeur du bus est…', opts: ['le coût des équipements', 'la fragilité : tout tombe', 'la lenteur du jeton'], correct: 1, exp: 'Une connexion défectueuse affecte tout le réseau.' },
-      { q: 'Le jeton du Token Ring sert à…', opts: ['accélérer la fibre', 'désigner qui peut émettre, sans collisions', 'chiffrer les données'], correct: 1, exp: 'Un seul ordinateur émet à la fois : jusqu\'à 16 Mbit/s.' },
-      { q: 'Une seule coupure survient dans un double anneau redondant compatible :', opts: ['tout tombe nécessairement', 'les portions intactes peuvent être reconfigurées avec le secondaire', 'un seul poste s\'isole nécessairement'], correct: 1, exp: 'La redondance permet une reconfiguration si les équipements et la panne le permettent ; ce n\'est pas une garantie pour tous les anneaux.' },
-      { q: 'Dans une étoile, une coupure isole…', opts: ['tout le réseau', 'le nœud central', 'un seul poste'], correct: 2, exp: 'Liaisons point à point : le reste du réseau continue.' },
-      { q: 'La longueur maximale d\'un segment UTP est…', opts: ['10 m', '100 m', '1000 m'], correct: 1, exp: '100 mètres ; 5e catégorie pour 1000 Mbit/s.' },
-      { q: 'Quel câble à paires torsadées comporte un blindage contre les interférences ?', opts: ['l\'UTP non blindé', 'le STP blindé', 'le CPL'], correct: 1, exp: 'STP comporte un blindage ; les performances dépendent aussi de la catégorie, de la norme et de l\'installation.' },
-      { q: 'Le CPL réutilise…', opts: ['les lignes électriques', 'la fibre', 'les ondes radio'], correct: 0, exp: 'Courants Porteurs en Ligne : réservé au domestique.' }
+      { q: 'Le jeton du Token Ring sert à…', opts: ["accélérer la circulation sur la fibre optique","chiffrer les données qui circulent sur l'anneau","désigner qui peut émettre, sans collisions"], correct: 2, exp: "Le jeton circule de poste en poste : seul son détenteur émet, d'où zéro collision ; il ne chiffre rien et n'accélère pas la fibre, le débit plafonnant à 16 Mbit/s." },
+      { q: 'Une seule coupure survient dans un double anneau redondant compatible :', opts: ["les portions intactes peuvent être reconfigurées avec le secondaire","tout le réseau tombe nécessairement, sans exception","un seul poste s'isole et le reste continue normalement"], correct: 0, exp: 'La redondance permet une reconfiguration si les équipements et la panne le permettent ; ce n\'est pas une garantie pour tous les anneaux.' },
+      { q: 'Dans une étoile, une coupure isole…', opts: ['tout le réseau', 'un seul poste', 'le nœud central'], correct: 1, exp: 'Liaisons point à point : le reste du réseau continue.' },
+      { q: 'La longueur maximale d\'un segment UTP est…', opts: ['100 m', '10 m', '1000 m'], correct: 0, exp: '100 mètres ; 5e catégorie pour 1000 Mbit/s.' },
+      { q: 'Quel câble à paires torsadées comporte un blindage contre les interférences ?', opts: ['l\'UTP non blindé', 'le CPL', 'le STP blindé'], correct: 2, exp: 'STP comporte un blindage ; les performances dépendent aussi de la catégorie, de la norme et de l\'installation.' },
+      { q: 'Le CPL réutilise…', opts: ['les ondes radio', 'la fibre', 'les lignes électriques'], correct: 2, exp: 'Courants Porteurs en Ligne : réservé au domestique.' }
     ],
 
     pitfalls: [
@@ -396,13 +396,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La couche la plus proche de l\'utilisateur est…', opts: ['la couche 6', 'la couche 7 application', 'la couche 5 session'], correct: 1, exp: 'Navigateur, messagerie, FTP : couche 7.' },
-      { q: 'Le routage des paquets se fait en couche…', opts: ['2', '3', '4'], correct: 1, exp: 'Couche réseau : routeurs et adresses IP.' },
-      { q: 'Les commutateurs travaillent surtout en couche…', opts: ['1', '2', '3'], correct: 1, exp: 'Liaison de données, sous-couches MAC et LLC.' },
-      { q: 'Les ports TCP et UDP fonctionnent en couche…', opts: ['3', '4', '7'], correct: 1, exp: 'Transport ; les adresses IP, elles, sont en couche 3.' },
-      { q: 'Quel exemple montre que le chiffrement n’est pas limité à la présentation ?', opts: ['IPsec au niveau IP, couche réseau', 'Un câble RJ45 sans protocole', 'Un numéro de port seul'], correct: 0, exp: 'La présentation peut chiffrer dans le modèle OSI ; IPsec protège aussi au niveau IP.' },
-      { q: 'La couche session assure…', opts: ['le routage', 'la synchronisation du dialogue', 'l\'encodage'], correct: 1, exp: 'Ouverture, coordination, terminaison des sessions.' },
-      { q: 'Premier réflexe de dépannage :', opts: ['réinstaller l\'application', 'vérifier la couche physique', 'changer le routeur'], correct: 1, exp: 'Câbles et alimentation d\'abord — couche 1.' },
+      { q: 'La couche la plus proche de l\'utilisateur est…', opts: ['la couche 6', 'la couche 7 application', 'la couche 5 session'], correct: 1, exp: "La couche application (couche 7) est la plus proche de l'utilisateur : navigateur, messagerie et FTP y vivent ; la présentation, couche 6, se charge de l'encodage." },
+      { q: 'Le routage des paquets se fait en couche…', opts: ['3', '2', '4'], correct: 0, exp: 'Couche réseau : routeurs et adresses IP.' },
+      { q: 'Les commutateurs travaillent surtout en couche…', opts: ['1', '3', '2'], correct: 2, exp: 'Liaison de données, sous-couches MAC et LLC.' },
+      { q: 'Les ports TCP et UDP fonctionnent en couche…', opts: ['4', '3', '7'], correct: 0, exp: 'Transport ; les adresses IP, elles, sont en couche 3.' },
+      { q: 'Quel exemple montre que le chiffrement n’est pas limité à la présentation ?', opts: ['Un câble RJ45 sans protocole', 'IPsec au niveau IP, couche réseau', 'Un numéro de port seul'], correct: 1, exp: 'La présentation peut chiffrer dans le modèle OSI ; IPsec protège aussi au niveau IP.' },
+      { q: 'La couche session assure…', opts: ['le routage', 'l\'encodage', 'la synchronisation du dialogue'], correct: 2, exp: 'Ouverture, coordination, terminaison des sessions.' },
+      { q: 'Premier réflexe de dépannage :', opts: ['vérifier la couche physique', 'réinstaller l\'application', 'changer le routeur'], correct: 0, exp: 'Câbles et alimentation d\'abord — couche 1.' },
       { q: 'La couche physique décrit…', opts: ['les protocoles de messagerie', 'câbles, broches, tensions, radio', 'les tables de routage'], correct: 1, exp: 'Caractéristiques électriques, logiques et physiques.' }
     ],
 

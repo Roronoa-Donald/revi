@@ -3,8 +3,15 @@
  */
 'use strict';
 
-const { ic, crumb, box } = require('../../../../scripts/course-kit');
+const { ic, crumb, box, qcm } = require('../../../../scripts/course-kit');
 const { chnav, disclaimer } = require('./helpers');
+
+const EXAMEN_QCM = [
+  { stem: 'Quel type SQL garantit l’absence totale d’erreur d’arrondi binaire sur des montants monétaires ?', opts: ['FLOAT', 'DOUBLE PRECISION', 'DECIMAL(p, s)', 'REAL'], correct: 2, exp: 'DECIMAL/NUMERIC stocke les valeurs exactes en base 10.' },
+  { stem: 'Dans une requête SQL, quelle clause permet de filtrer des groupes produits par GROUP BY ?', opts: ['WHERE', 'HAVING', 'DISTINCT', 'ORDER BY'], correct: 1, exp: 'HAVING filtre les groupes après agrégation, contrairement à WHERE qui filtre les lignes avant groupement.' },
+  { stem: 'Quel niveau d’isolation élimine lecture sale, lecture non répétable et lecture fantôme ?', opts: ['Read Uncommitted', 'Read Committed', 'Repeatable Read', 'Serializable'], correct: 3, exp: 'Seul le niveau Serializable garantit l’équivalence stricte à une exécution séquentielle.' },
+  { stem: 'Quel avantage principal offre un index B-Tree sur une colonne très sélective ?', opts: ['Supprimer les contraintes NOT NULL', 'Passer d’un coût O(N) à O(log N) en lecture', 'Remplacer la clé primaire', 'Éviter toute écriture sur disque'], correct: 1, exp: 'Un index B-Tree accélère les recherches sélectives en évitant le parcours séquentiel complet.' }
+];
 
 /* ======================== Examens Blancs ======================== */
 
@@ -120,6 +127,9 @@ function examens(course) {
       '  <li><strong>Optimisation (3 pts) :</strong> Le Seq Scan lit séquentiellement les 10 millions de blocs (coût O(N)). L’Index Scan parcourt un arbre B-Tree de profondeur 3 ou 4 (coût O(log N)). Le planificateur choisit le Seq Scan si la condition de filtrage sélectionne une large fraction de la table (ex: &gt; 20-30 % des lignes), car les lectures aléatoires de l’index deviendraient plus coûteuses qu’une lecture séquentielle continue.</li>',
       '</ul>'
     ].join('\n')),
+    '',
+    '  <h2>Épreuve 3 : Contrôle QCM de Synthèse (correction serveur)</h2>',
+    qcm(EXAMEN_QCM, { mastery: true, secure: true }),
     '',
     chnav({ href: 'formules.html', label: 'Consulter le mémento' }, { href: 'exercices.html', label: 'Voir le catalogue d’exercices' }),
     '',

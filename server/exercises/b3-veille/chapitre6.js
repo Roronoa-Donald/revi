@@ -6,123 +6,174 @@
 
 module.exports = [
   {
-    id: "vt3-c6-e1",
-    chapter: 6,
-    level: "n1",
-    language: 'analyse',
-    title: "Générateur de bulletin d’alerte de veille synthétique (Curated Digest)",
-    goal: "Mettre en forme et prioriser un flux d’articles pour produire un bulletin de veille exécutif hiérarchisé.",
-    brief: "Dans la restitution de veille, l’attention des décideurs impose une hiérarchisation stricte par criticité de l’information :\n- Ordre de priorité : `CRITIQUE` (priorité 1), `MOYENNE` (priorité 2), puis `FAIBLE` (priorité 3).\n- En cas d’égalité de criticité, ordonner les articles par identifiant `id` alphabétique croissant.\n\nFormat de chaque ligne du bulletin :\n`BULLETIN_ITEM [<CRITICITE>] (<SOURCE>) <TITRE> (id: <ID>)`\n\nEntrée :\n`ARTICLE id=<ID> source=<SRC> criticite=<FAIBLE|MOYENNE|CRITIQUE> title=<TITRE>`\n\nRésultat d’analyse attendu :\n- Lignes ordonnées du bulletin :\n  `BULLETIN_ITEM [<CRITICITE>] (<SRC>) <TITRE> (id: <ID>)`\n- Bilan :\n  `SUMMARY total=<N> critiques=<C> moyennes=<M> faibles=<F>`",
-    starter: "# Grille d'analyse (vt3-c6-e1) — Générateur de bulletin d’alerte de veille synthétique (Curated Digest)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Multiples articles critiques avec départage par identifiant]\n# Données : ARTICLE id=Z1 source=NVD criticite=CRITIQUE title=Vulnérabilité noyau Linux\n# Données : ARTICLE id=A9 source=ANSSI criticite=CRITIQUE title=Campagne de rançongiciel active\nA_COMPLETER\n\n[Cas 2 — Tous les articles de niveau faible]\n# Données : ARTICLE id=1 source=DevBlog criticite=FAIBLE title=Nouvelle syntaxe CSS\n# Données : ARTICLE id=2 source=Medium criticite=FAIBLE title=Astuces productivité VS Code\nA_COMPLETER\n\n[Cas 3 — Un seul article de criticité moyenne]\n# Données : ARTICLE id=Solo source=Reuters criticite=MOYENNE title=Rachat d un fournisseur de puces\nA_COMPLETER\n",
-    hints: [
-          "Attribuer un poids numérique à chaque niveau de criticité (ex: CRITIQUE=1, MOYENNE=2, FAIBLE=3).",
-          "Trier la liste avec la clé (poids_criticite, id).",
-          "Compter le nombre d’articles par palier pour le bilan final."
+    "id": "vt3-c6-e1",
+    "chapter": 6,
+    "level": "n1",
+    "language": "analyse",
+    "title": "Le digest hebdomadaire de la communauté d'agglomération Grand Lac",
+    "exampleTitle": "Exemple résolu — le digest hebdomadaire d'une université",
+    "goal": "Hiérarchiser des brèves par criticité, choisir le livrable adapté à chaque événement et respecter l'entonnoir informationnel.",
+    "brief": "<p><strong>Énoncé.</strong> La chargée de veille de la communauté d'agglomération Grand Lac (9 communes) prépare le Curated Digest du lundi matin. Brèves collectées cette semaine :</p><table><tr><th>Brève</th><th>Source</th><th>Objet</th><th>Criticité</th></tr><tr><td>B1</td><td>CERT-FR</td><td>Faille critique activée dans le portail de paiement des cantines</td><td>CRITIQUE</td></tr><tr><td>B2</td><td>Blog tech d'un journaliste</td><td>Refonte de l'interface du logiciel de billetterie des piscines</td><td>FAIBLE</td></tr><tr><td>B3</td><td>Préfecture</td><td>Décret modifiant le calcul des subventions aux associations</td><td>MOYENNE</td></tr><tr><td>B4</td><td>Observatoire régional</td><td>Fréquentation touristique en hausse de 12 %</td><td>FAIBLE</td></tr></table><p>Rappel du cours : la flash note est un livrable d'une page maximum, diffusé en urgence lors d'un événement critique ; le Curated Digest hebdomadaire retient de 3 à 5 faits marquants priorisés par criticité ; l'entonnoir informationnel place l'essentiel en tête de document.</p><p>Consignes : la question 1 attend le nom du livrable (par exemple « flash note ») ; les questions 2, 4 et 5 attendent l'identifiant de la brève ; la question 6 attend une réponse très courte.</p><ol><li>Quel livrable convient pour la brève B1, diffusé immédiatement et sans attendre le digest ?</li><li>Quelle brève ouvrira le digest, en tête de page ?</li><li>Un Curated Digest retient entre 3 et combien de faits marquants ?</li><li>Quelle brève relève de la veille juridique et réglementaire ?</li><li>Quelle brève relève de la veille sociétale ?</li><li>Dans chaque livrable, où l'essentiel doit-il apparaître ?</li></ol>",
+    "starter": "# Exercice — Le digest hebdomadaire de la communauté d'agglomération Grand Lac\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Livrable adapté à la brève B1]\nA_COMPLETER\n\n[Question 2 — Brève qui ouvre le digest]\nA_COMPLETER\n\n[Question 3 — Nombre maximal de faits du digest]\nA_COMPLETER\n\n[Question 4 — Brève relevant de la veille juridique]\nA_COMPLETER\n\n[Question 5 — Brève relevant de la veille sociétale]\nA_COMPLETER\n\n[Question 6 — Emplacement de l'essentiel]\nA_COMPLETER\n",
+    "hints": [
+      "Un événement critique (faille activée) ne peut pas attendre le lundi : il déclenche le livrable court d'urgence.",
+      "Le digest s'ouvre sur la criticité la plus haute, pas sur l'ordre d'arrivée des brèves.",
+      "Un décret relève de la réglementation ; une statistique de fréquentation touristique décrit la société. L'essentiel se place là où le lecteur commence."
     ],
-    examples: [
-          {
-                "stdin": "ARTICLE id=A1 source=CERT-FR criticite=CRITIQUE title=Faille d exécution de code dans OpenSSH\nARTICLE id=A2 source=TechCrunch criticite=FAIBLE title=Nouveau design pour l application Slack\nARTICLE id=A3 source=CloudBlog criticite=MOYENNE title=Augmentation des prix de l infrastructure AWS",
-                "expected": "BULLETIN_ITEM [CRITIQUE] (CERT-FR) Faille d exécution de code dans OpenSSH (id: A1)\nBULLETIN_ITEM [MOYENNE] (CloudBlog) Augmentation des prix de l infrastructure AWS (id: A3)\nBULLETIN_ITEM [FAIBLE] (TechCrunch) Nouveau design pour l application Slack (id: A2)\nSUMMARY total=3 critiques=1 moyennes=1 faibles=1",
-                "note": "L’article CRITIQUE est affiché en tête, suivi de MOYENNE puis FAIBLE."
-          }
+    "examples": [
+      {
+        "stdin": "Une université collecte trois brèves :\n— une faille critique dans le portail d'inscription (CRITIQUE) ;\n— un appel à projets ANR (MOYENNE) ;\n— une hausse des inscriptions de 8 % (FAIBLE).\n\nRésolution :\n1) La faille déclenche une flash note immédiate.\n2) Elle ouvre aussi le digest du lundi, en tête de page.\n3) Le digest retient de 3 à 5 faits marquants.\n4) L'appel à projets relève de la veille juridique (règlement d'appel).\n5) La hausse des inscriptions relève de la veille sociétale.\n6) L'essentiel apparaît en tête du document (entonnoir informationnel).",
+        "expected": "flash note pour la faille — digest : 3 à 5 faits — l'essentiel en tête du document",
+        "note": "Un décideur lit une note de veille de haut en bas : ce qu'il ne voit pas en tête, il ne le lira pas."
+      }
     ],
-    tests: [
-          {
-                "label": "Multiples articles critiques avec départage par identifiant",
-                "stdin": "cas:1",
-                "expected": "BULLETIN_ITEM [CRITIQUE] (ANSSI) Campagne de rançongiciel active (id: A9)\nBULLETIN_ITEM [CRITIQUE] (NVD) Vulnérabilité noyau Linux (id: Z1)\nSUMMARY total=2 critiques=2 moyennes=0 faibles=0"
-          },
-          {
-                "label": "Tous les articles de niveau faible",
-                "stdin": "cas:2",
-                "expected": "BULLETIN_ITEM [FAIBLE] (DevBlog) Nouvelle syntaxe CSS (id: 1)\nBULLETIN_ITEM [FAIBLE] (Medium) Astuces productivité VS Code (id: 2)\nSUMMARY total=2 critiques=0 moyennes=0 faibles=2"
-          },
-          {
-                "label": "Un seul article de criticité moyenne",
-                "stdin": "cas:3",
-                "expected": "BULLETIN_ITEM [MOYENNE] (Reuters) Rachat d un fournisseur de puces (id: Solo)\nSUMMARY total=1 critiques=0 moyennes=1 faibles=0"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Livrable adapté à la brève B1",
+        "stdin": "q:1",
+        "expected": "flash note||Flash Note||bulletin d'alerte flash||flash||la flash note"
+      },
+      {
+        "label": "Question 2 — Brève qui ouvre le digest",
+        "stdin": "q:2",
+        "expected": "B1||la brève B1||b1||la brève B1 (faille critique)"
+      },
+      {
+        "label": "Question 3 — Nombre maximal de faits du digest",
+        "stdin": "q:3",
+        "expected": "5||cinq"
+      },
+      {
+        "label": "Question 4 — Brève relevant de la veille juridique",
+        "stdin": "q:4",
+        "expected": "B3||la brève B3||b3"
+      },
+      {
+        "label": "Question 5 — Brève relevant de la veille sociétale",
+        "stdin": "q:5",
+        "expected": "B4||la brève B4||b4"
+      },
+      {
+        "label": "Question 6 — Emplacement de l'essentiel",
+        "stdin": "q:6",
+        "expected": "en tête de document||en tête||au début||au début du document"
+      }
     ],
-    solution: "[Exemple]\nBULLETIN_ITEM [CRITIQUE] (CERT-FR) Faille d exécution de code dans OpenSSH (id: A1)\nBULLETIN_ITEM [MOYENNE] (CloudBlog) Augmentation des prix de l infrastructure AWS (id: A3)\nBULLETIN_ITEM [FAIBLE] (TechCrunch) Nouveau design pour l application Slack (id: A2)\nSUMMARY total=3 critiques=1 moyennes=1 faibles=1\n\n[Cas 1 — Multiples articles critiques avec départage par identifiant]\nBULLETIN_ITEM [CRITIQUE] (ANSSI) Campagne de rançongiciel active (id: A9)\nBULLETIN_ITEM [CRITIQUE] (NVD) Vulnérabilité noyau Linux (id: Z1)\nSUMMARY total=2 critiques=2 moyennes=0 faibles=0\n\n[Cas 2 — Tous les articles de niveau faible]\nBULLETIN_ITEM [FAIBLE] (DevBlog) Nouvelle syntaxe CSS (id: 1)\nBULLETIN_ITEM [FAIBLE] (Medium) Astuces productivité VS Code (id: 2)\nSUMMARY total=2 critiques=0 moyennes=0 faibles=2\n\n[Cas 3 — Un seul article de criticité moyenne]\nBULLETIN_ITEM [MOYENNE] (Reuters) Rachat d un fournisseur de puces (id: Solo)\nSUMMARY total=1 critiques=0 moyennes=1 faibles=0\n"
+    "solution": "[Question 1 — Livrable adapté à la brève B1]\nflash note\n\n[Question 2 — Brève qui ouvre le digest]\nB1\n\n[Question 3 — Nombre maximal de faits du digest]\n5\n\n[Question 4 — Brève relevant de la veille juridique]\nB3\n\n[Question 5 — Brève relevant de la veille sociétale]\nB4\n\n[Question 6 — Emplacement de l'essentiel]\nen tête de document",
+    "takeaway": "1) La faille activée est un événement critique : elle appelle une flash note, diffusée immédiatement.\n2) Le digest s'ouvre sur la brève la plus critique : B1.\n3) Le Curated Digest hebdomadaire retient de 3 à 5 faits marquants : maximum 5.\n4) Le décret de la préfecture (B3) relève de la veille juridique et réglementaire.\n5) La statistique de fréquentation touristique (B4) relève de la veille sociétale.\n6) L'essentiel doit apparaître en tête de document, conformément à l'entonnoir informationnel.\nContrôle : la faille (B1) cumule les deux livrables, flash note immédiate puis tête du digest ; les quatre brèves tiennent dans le format de 3 à 5 faits."
   },
   {
-    id: "vt3-c6-e2",
-    chapter: 6,
-    level: "n2",
-    language: 'analyse',
-    title: "Calculateur de radar technologique (Tech Radar ThoughtWorks)",
-    goal: "Classer les technologies selon les quatre quadrants et les quatre anneaux d’adoption du Tech Radar.",
-    brief: "Popularisé par Martin Fowler et ThoughtWorks, le **Tech Radar** projette les technologies émergentes sur quatre quadrants cartographiques et quatre anneaux d’action concentriques :\n- Quadrants : `TECHNIQUES`, `OUTILS`, `PLATEFORMES`, `LANGAGES`.\n- Anneaux d’action (avec scores de maturité associés) :\n  - `ADOPT` (score: 100) : technologie éprouvée, standard d’entreprise fortement recommandé.\n  - `TRIAL` (score: 75) : technologie prête pour des projets pilotes réels avec risques maîtrisés.\n  - `ASSESS` (score: 50) : technologie prometteuse à évaluer et prototyper en laboratoire.\n  - `HOLD` (score: 25) : technologie obsolète, à éviter ou en cours de décommissionnement.\n\nCalculs :\n- Score de chaque nœud = score associé à son anneau.\n- Calculer le score moyen global de toutes les technologies (arrondi à 1 décimale).\n- Identifier le quadrant cumulant le score total le plus élevé.\n\nEntrée :\n`TECH nom=<N> quadrant=<TECHNIQUES|OUTILS|PLATEFORMES|LANGAGES> anneau=<ADOPT|TRIAL|ASSESS|HOLD>`\n\nRésultat d’analyse attendu :\n- Pour chaque technologie :\n  `RADAR_NODE nom=<N> quad=<Q> ring=<R> score=<SCORE>`\n- Bilan :\n  `SUMMARY total_nodes=<N> top_quadrant=<Q> avg_score=<MOY>`",
-    starter: "# Grille d'analyse (vt3-c6-e2) — Calculateur de radar technologique (Tech Radar ThoughtWorks)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Technologies multiples avec égalité de score sur un quadrant]\n# Données : TECH nom=Docker quadrant=OUTILS anneau=ADOPT\n# Données : TECH nom=Terraform quadrant=OUTILS anneau=ADOPT\n# Données : TECH nom=Go quadrant=LANGAGES anneau=ADOPT\nA_COMPLETER\n\n[Cas 2 — Toutes les technologies en évaluation (ASSESS)]\n# Données : TECH nom=Quantum quadrant=TECHNIQUES anneau=ASSESS\n# Données : TECH nom=Zig quadrant=LANGAGES anneau=ASSESS\nA_COMPLETER\n\n[Cas 3 — Un seul nœud]\n# Données : TECH nom=Kafka quadrant=PLATEFORMES anneau=TRIAL\nA_COMPLETER\n",
-    hints: [
-          "Associer chaque anneau à sa valeur numérique (ADOPT:100, TRIAL:75, ASSESS:50, HOLD:25).",
-          "Cumuler les scores par quadrant pour déterminer le top quadrant.",
-          "Calculer la moyenne arithmétique globale."
+    "id": "vt3-c6-e2",
+    "chapter": 6,
+    "level": "n2",
+    "language": "analyse",
+    "title": "Le radar technologique du groupe de presse La Dépêche du Matin",
+    "exampleTitle": "Exemple résolu — le radar technologique d'une banque en ligne",
+    "goal": "Lire un Tech Radar (quadrants et anneaux), calculer son indice moyen et mesurer l'effet d'un mouvement.",
+    "brief": "<p><strong>Énoncé.</strong> Le comité d'architecture du groupe de presse La Dépêche du Matin publie son radar semestriel :</p><table><tr><th>Technologie</th><th>Quadrant</th><th>Anneau</th></tr><tr><td>Rust</td><td>Langages et cadres</td><td>TRIAL</td></tr><tr><td>Kubernetes</td><td>Plateformes</td><td>ADOPT</td></tr><tr><td>eBPF</td><td>Techniques</td><td>ASSESS</td></tr><tr><td>SVN</td><td>Outils</td><td>HOLD</td></tr><tr><td>Grafana</td><td>Outils</td><td>ADOPT</td></tr></table><p>Barème des anneaux (cours) : ADOPT vaut 100 points, TRIAL 75, ASSESS 50, HOLD 25. L'indice du radar est la moyenne des points des technologies placées ; le radar compte quatre anneaux et quatre quadrants.</p><p>Consignes : les réponses numériques s'écrivent en nombres seuls ; la question 4 demande un dénombrement.</p><ol><li>Combien d'anneaux compte le radar ?</li><li>Combien de points vaut la technologie Rust ?</li><li>Combien de points vaut la technologie SVN ?</li><li>Combien de technologies sont placées en anneau ADOPT ?</li><li>Quel est l'indice moyen du radar, arrondi à l'unité ?</li><li>Si eBPF passait d'ASSESS à TRIAL au semestre suivant, l'indice moyen augmenterait-il de combien de points ?</li></ol>",
+    "starter": "# Exercice — Le radar technologique du groupe de presse La Dépêche du Matin\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Nombre d'anneaux du radar]\nA_COMPLETER\n\n[Question 2 — Points de la technologie Rust]\nA_COMPLETER\n\n[Question 3 — Points de la technologie SVN]\nA_COMPLETER\n\n[Question 4 — Technologies en anneau ADOPT]\nA_COMPLETER\n\n[Question 5 — Indice moyen du radar]\nA_COMPLETER\n\n[Question 6 — Gain de points si eBPF passe en TRIAL]\nA_COMPLETER\n",
+    "hints": [
+      "Traduisez d'abord chaque anneau en points : TRIAL 75, ADOPT 100, ASSESS 50, HOLD 25.",
+      "Indice actuel : (75 + 100 + 50 + 25 + 100) / 5. Avec eBPF en TRIAL, son score passe de 50 à 75.",
+      "Les deux seules technologies en ADOPT sont Kubernetes et Grafana ; pour la question 6, comparez l'indice avant et après le mouvement d'eBPF."
     ],
-    examples: [
-          {
-                "stdin": "TECH nom=Kubernetes quadrant=PLATEFORMES anneau=ADOPT\nTECH nom=Rust quadrant=LANGAGES anneau=TRIAL\nTECH nom=eBPF quadrant=TECHNIQUES anneau=ASSESS\nTECH nom=SVN quadrant=OUTILS anneau=HOLD",
-                "expected": "RADAR_NODE nom=Kubernetes quad=PLATEFORMES ring=ADOPT score=100\nRADAR_NODE nom=Rust quad=LANGAGES ring=TRIAL score=75\nRADAR_NODE nom=eBPF quad=TECHNIQUES ring=ASSESS score=50\nRADAR_NODE nom=SVN quad=OUTILS ring=HOLD score=25\nSUMMARY total_nodes=4 top_quadrant=PLATEFORMES avg_score=62.5",
-                "note": "Le quadrant PLATEFORMES cumule 100 points et devance les autres."
-          }
+    "examples": [
+      {
+        "stdin": "Une banque en ligne place sur son radar :\n— Kafka (Plateformes, TRIAL) ;\n— Vue.js (Langages, ADOPT) ;\n— Istio (Techniques, ASSESS) ;\n— SOAP (Outils, HOLD).\n\nRésolution :\n1) Points : 75 + 100 + 50 + 25 = 250.\n2) Indice moyen : 250 / 4 = 62,5, arrondi à 63.\n3) Le radar compte 4 anneaux.",
+        "expected": "indice moyen 62,5 arrondi à 63 — 4 anneaux",
+        "note": "L'indice moyen se lit comme une photographie du patrimoine : sous 60, la dette technologique domine."
+      }
     ],
-    tests: [
-          {
-                "label": "Technologies multiples avec égalité de score sur un quadrant",
-                "stdin": "cas:1",
-                "expected": "RADAR_NODE nom=Docker quad=OUTILS ring=ADOPT score=100\nRADAR_NODE nom=Terraform quad=OUTILS ring=ADOPT score=100\nRADAR_NODE nom=Go quad=LANGAGES ring=ADOPT score=100\nSUMMARY total_nodes=3 top_quadrant=OUTILS avg_score=100.0"
-          },
-          {
-                "label": "Toutes les technologies en évaluation (ASSESS)",
-                "stdin": "cas:2",
-                "expected": "RADAR_NODE nom=Quantum quad=TECHNIQUES ring=ASSESS score=50\nRADAR_NODE nom=Zig quad=LANGAGES ring=ASSESS score=50\nSUMMARY total_nodes=2 top_quadrant=LANGAGES avg_score=50.0"
-          },
-          {
-                "label": "Un seul nœud",
-                "stdin": "cas:3",
-                "expected": "RADAR_NODE nom=Kafka quad=PLATEFORMES ring=TRIAL score=75\nSUMMARY total_nodes=1 top_quadrant=PLATEFORMES avg_score=75.0"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Nombre d'anneaux du radar",
+        "stdin": "q:1",
+        "expected": "4||quatre"
+      },
+      {
+        "label": "Question 2 — Points de la technologie Rust",
+        "stdin": "q:2",
+        "expected": "75||75 points"
+      },
+      {
+        "label": "Question 3 — Points de la technologie SVN",
+        "stdin": "q:3",
+        "expected": "25||25 points"
+      },
+      {
+        "label": "Question 4 — Technologies en anneau ADOPT",
+        "stdin": "q:4",
+        "expected": "2||deux||2 (Kubernetes et Grafana)||deux (Kubernetes et Grafana)"
+      },
+      {
+        "label": "Question 5 — Indice moyen du radar",
+        "stdin": "q:5",
+        "expected": "70||70 points"
+      },
+      {
+        "label": "Question 6 — Gain de points si eBPF passe en TRIAL",
+        "stdin": "q:6",
+        "expected": "5||5 points"
+      }
     ],
-    solution: "[Exemple]\nRADAR_NODE nom=Kubernetes quad=PLATEFORMES ring=ADOPT score=100\nRADAR_NODE nom=Rust quad=LANGAGES ring=TRIAL score=75\nRADAR_NODE nom=eBPF quad=TECHNIQUES ring=ASSESS score=50\nRADAR_NODE nom=SVN quad=OUTILS ring=HOLD score=25\nSUMMARY total_nodes=4 top_quadrant=PLATEFORMES avg_score=62.5\n\n[Cas 1 — Technologies multiples avec égalité de score sur un quadrant]\nRADAR_NODE nom=Docker quad=OUTILS ring=ADOPT score=100\nRADAR_NODE nom=Terraform quad=OUTILS ring=ADOPT score=100\nRADAR_NODE nom=Go quad=LANGAGES ring=ADOPT score=100\nSUMMARY total_nodes=3 top_quadrant=OUTILS avg_score=100.0\n\n[Cas 2 — Toutes les technologies en évaluation (ASSESS)]\nRADAR_NODE nom=Quantum quad=TECHNIQUES ring=ASSESS score=50\nRADAR_NODE nom=Zig quad=LANGAGES ring=ASSESS score=50\nSUMMARY total_nodes=2 top_quadrant=LANGAGES avg_score=50.0\n\n[Cas 3 — Un seul nœud]\nRADAR_NODE nom=Kafka quad=PLATEFORMES ring=TRIAL score=75\nSUMMARY total_nodes=1 top_quadrant=PLATEFORMES avg_score=75.0\n"
+    "solution": "[Question 1 — Nombre d'anneaux du radar]\n4\n\n[Question 2 — Points de la technologie Rust]\n75\n\n[Question 3 — Points de la technologie SVN]\n25\n\n[Question 4 — Technologies en anneau ADOPT]\n2\n\n[Question 5 — Indice moyen du radar]\n70\n\n[Question 6 — Gain de points si eBPF passe en TRIAL]\n5",
+    "takeaway": "1) Le radar compte 4 anneaux : ADOPT, TRIAL, ASSESS, HOLD.\n2) Rust est en TRIAL : 75 points.\n3) SVN est en HOLD : 25 points.\n4) Kubernetes et Grafana sont en ADOPT : 2 technologies.\n5) Indice moyen = (75 + 100 + 50 + 25 + 100) / 5 = 350 / 5 = 70.\n6) eBPF passerait de 50 à 75 points : nouvel indice = 375 / 5 = 75, soit +5 points.\nContrôle : 350 + 25 = 375, et 75 − 70 = 5 ; le gain se lit aussi directement : 25 points supplémentaires répartis sur 5 technologies."
   },
   {
-    id: "vt3-c6-e3",
-    chapter: 6,
-    level: "n3",
-    language: 'analyse',
-    title: "Simulateur de gouvernance d’équipe et workflow Kanban de veille",
-    goal: "Mesurer la performance d’une cellule de veille en calculant le temps de cycle (Lead Time) et le taux d’approbation éditoriale.",
-    brief: "Dans une cellule de veille collaborative, les articles cheminent à travers un workflow éditorial en quatre étapes horodatées (en heures) :\n- `COLLECTE` ($T_1$) : repérage initial par le veilleur.\n- `EVALUATION` ($T_2$) : qualification de fiabilité et scoring.\n- `VALIDATION` ($T_3$) : revue par le Lead Analyst.\n- `DIFFUSION` ($T_4$) : publication dans le livret ou dashboard.\n\nRègles de calcul du cycle de traitement (Lead Time) :\n- Si l’article est `DIFFUSE` : $\\text{cycle} = T_4 - T_1$ (heures).\n- Si l’article est `REJETE` : $\\text{cycle} = T_2 - T_1$ (heures, arrêt au stade évaluation).\n\nBilan d’équipe :\n- Taux d’approbation : $\\text{taux} = (\\frac{\\text{diffusés}}{\\text{total soumissions}}) \\times 100$ (en %, arrondi à 1 décimale).\n- Temps de cycle moyen des articles diffusés : $\\text{moyenne} = \\frac{\\sum \\text{cycles diffusés}}{\\text{diffusés}}$ (arrondi à 1 décimale).\n\nEntrée :\n`KANBAN_CARD id=<ID> veilleur=<V> t1=<T1> t2=<T2> t3=<T3> t4=<T4> decision=<DIFFUSE|REJETE>`\n\nRésultat d’analyse attendu :\n- Pour chaque carte :\n  `CARD_RESULT id=<ID> veilleur=<V> statut=<DIFFUSE|REJETE> cycle_time=<T>h`\n- Bilan :\n  `SUMMARY total_soumissions=<N> diffuses=<D> taux_approbation=<T>% avg_cycle_time=<MOY>h`",
-    starter: "# Grille d'analyse (vt3-c6-e3) — Simulateur de gouvernance d’équipe et workflow Kanban de veille\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les soumissions validées et diffusées]\n# Données : KANBAN_CARD id=1 veilleur=Claire t1=0 t2=1 t3=2 t4=4 decision=DIFFUSE\n# Données : KANBAN_CARD id=2 veilleur=David t1=5 t2=6 t3=7 t4=11 decision=DIFFUSE\nA_COMPLETER\n\n[Cas 2 — Toutes les soumissions rejetées au premier stade]\n# Données : KANBAN_CARD id=R1 veilleur=Emma t1=0 t2=1 t3=0 t4=0 decision=REJETE\n# Données : KANBAN_CARD id=R2 veilleur=Emma t1=2 t2=4 t3=0 t4=0 decision=REJETE\nA_COMPLETER\n\n[Cas 3 — Une seule soumission diffusée avec cycle long]\n# Données : KANBAN_CARD id=Solo veilleur=Hugo t1=0 t2=10 t3=20 t4=30 decision=DIFFUSE\nA_COMPLETER\n",
-    hints: [
-          "Convertir les temps T1, T2, T3, T4 en entiers ou flottants.",
-          "Calculer cycle = T4 - T1 si DIFFUSE, sinon T2 - T1 si REJETE.",
-          "Suivre la somme des temps de cycle des seuls articles diffusés pour calculer avg_cycle_time."
+    "id": "vt3-c6-e3",
+    "chapter": 6,
+    "level": "n3",
+    "language": "analyse",
+    "title": "Le tableau Kanban de la cellule de veille de la maison d'édition Boréal",
+    "exampleTitle": "Exemple résolu — le tableau Kanban d'une cellule de banque de données économiques",
+    "goal": "Lire un tableau Kanban de veille, calculer des lead times, identifier le goulot d'étranglement et chiffrer un renfort.",
+    "brief": "<p><strong>Énoncé.</strong> La cellule de veille de la maison d'édition Boréal (marché du livre) fait défiler ses dossiers dans un Kanban à quatre étapes : Collecte, Analyse, Validation, Diffusion. Durées de la semaine, en heures :</p><table><tr><th>Dossier</th><th>Collecte</th><th>Analyse</th><th>Validation</th><th>Diffusion</th></tr><tr><td>D1</td><td>2</td><td>6</td><td>1</td><td>1</td></tr><tr><td>D2</td><td>4</td><td>4</td><td>2</td><td>1</td></tr><tr><td>D3</td><td>1</td><td>8</td><td>2</td><td>2</td></tr><tr><td>D4</td><td>3</td><td>5</td><td>1</td><td>1</td></tr><tr><td>D5</td><td>2</td><td>7</td><td>1</td><td>2</td></tr></table><p>Définitions : le lead time d'un dossier est la somme des durées de ses quatre étapes ; le goulot est l'étape qui totalise le plus d'heures sur la semaine.</p><p>Consignes : les durées s'écrivent en nombres seuls (heures) ; la question 3 attend le nom de l'étape.</p><ol><li>Quel est le lead time du dossier D3 ?</li><li>Quel est le lead time moyen des cinq dossiers, arrondi à une décimale ?</li><li>Quelle étape est le goulot d'étranglement ?</li><li>Combien d'heures l'étape Analyse a-t-elle consommées au total ?</li><li>Combien de dossiers dépassent strictement 11 heures de lead time ?</li><li>Un second analyste se consacre entièrement à l'étape Analyse : au mieux, en combien d'heures les cinq dossiers traversent-ils cette étape ?</li></ol>",
+    "starter": "# Exercice — Le tableau Kanban de la cellule de veille de la maison d'édition Boréal\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Lead time du dossier D3]\nA_COMPLETER\n\n[Question 2 — Lead time moyen arrondi à une décimale]\nA_COMPLETER\n\n[Question 3 — Étape goulot d'étranglement]\nA_COMPLETER\n\n[Question 4 — Heures consommées par l'étape Analyse]\nA_COMPLETER\n\n[Question 5 — Dossiers au-delà de 11 heures]\nA_COMPLETER\n\n[Question 6 — Durée d'analyse avec un second analyste]\nA_COMPLETER\n",
+    "hints": [
+      "Lead time de D3 = 1 + 8 + 2 + 2. Additionnez colonne par colonne pour obtenir les totaux d'étapes.",
+      "Totaux d'étapes : Collecte 12 h, Analyse 30 h, Validation 7 h, Diffusion 7 h ; le goulot est la colonne la plus lourde.",
+      "Lead times : D1 10 h, D2 11 h, D3 13 h, D4 10 h, D5 12 h. Seuls ceux qui dépassent strictement 11 h comptent pour la question 5 ; pour la question 6, divisez la charge d'analyse par deux analystes."
     ],
-    examples: [
-          {
-                "stdin": "KANBAN_CARD id=C1 veilleur=Alice t1=0 t2=2 t3=5 t4=8 decision=DIFFUSE\nKANBAN_CARD id=C2 veilleur=Bob t1=1 t2=3 t3=0 t4=0 decision=REJETE\nKANBAN_CARD id=C3 veilleur=Alice t1=10 t2=12 t3=14 t4=16 decision=DIFFUSE",
-                "expected": "CARD_RESULT id=C1 veilleur=Alice statut=DIFFUSE cycle_time=8h\nCARD_RESULT id=C2 veilleur=Bob statut=REJETE cycle_time=2h\nCARD_RESULT id=C3 veilleur=Alice statut=DIFFUSE cycle_time=6h\nSUMMARY total_soumissions=3 diffuses=2 taux_approbation=66.7% avg_cycle_time=7.0h",
-                "note": "C1 met 8h, C2 est rejeté en 2h, C3 met 6h. Moyenne des diffusés = (8 + 6) / 2 = 7.0h."
-          }
+    "examples": [
+      {
+        "stdin": "Une cellule de banque de données économiques suit quatre dossiers :\n— E1 : collecte 1 h, analyse 3 h, validation 1 h, diffusion 1 h ;\n— E2 : collecte 2 h, analyse 2 h, validation 1 h, diffusion 1 h ;\n— E3 : collecte 1 h, analyse 4 h, validation 2 h, diffusion 1 h ;\n— E4 : collecte 2 h, analyse 3 h, validation 1 h, diffusion 2 h.\n\nRésolution :\n1) Lead times : E1 6 h ; E2 6 h ; E3 8 h ; E4 8 h. Moyenne : 28 / 4 = 7 h.\n2) Totaux par étape : collecte 6 h ; analyse 12 h ; validation 5 h ; diffusion 5 h → goulot : l'analyse.\n3) Avec deux analystes en parallèle : 12 / 2 = 6 h.",
+        "expected": "lead moyen 7 h — goulot : analyse — avec deux analystes : 6 h",
+        "note": "Ajouter un analyste au goulot divise sa durée par deux ; en ajouter ailleurs ne change rien au délai."
+      }
     ],
-    tests: [
-          {
-                "label": "Toutes les soumissions validées et diffusées",
-                "stdin": "cas:1",
-                "expected": "CARD_RESULT id=1 veilleur=Claire statut=DIFFUSE cycle_time=4h\nCARD_RESULT id=2 veilleur=David statut=DIFFUSE cycle_time=6h\nSUMMARY total_soumissions=2 diffuses=2 taux_approbation=100.0% avg_cycle_time=5.0h"
-          },
-          {
-                "label": "Toutes les soumissions rejetées au premier stade",
-                "stdin": "cas:2",
-                "expected": "CARD_RESULT id=R1 veilleur=Emma statut=REJETE cycle_time=1h\nCARD_RESULT id=R2 veilleur=Emma statut=REJETE cycle_time=2h\nSUMMARY total_soumissions=2 diffuses=0 taux_approbation=0.0% avg_cycle_time=0.0h"
-          },
-          {
-                "label": "Une seule soumission diffusée avec cycle long",
-                "stdin": "cas:3",
-                "expected": "CARD_RESULT id=Solo veilleur=Hugo statut=DIFFUSE cycle_time=30h\nSUMMARY total_soumissions=1 diffuses=1 taux_approbation=100.0% avg_cycle_time=30.0h"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Lead time du dossier D3",
+        "stdin": "q:1",
+        "expected": "13||13 h||13 heures"
+      },
+      {
+        "label": "Question 2 — Lead time moyen arrondi à une décimale",
+        "stdin": "q:2",
+        "expected": "11,2||11.2||11,2 h"
+      },
+      {
+        "label": "Question 3 — Étape goulot d'étranglement",
+        "stdin": "q:3",
+        "expected": "l'analyse||analyse||l'étape analyse||Analyse"
+      },
+      {
+        "label": "Question 4 — Heures consommées par l'étape Analyse",
+        "stdin": "q:4",
+        "expected": "30||30 h||30 heures"
+      },
+      {
+        "label": "Question 5 — Dossiers au-delà de 11 heures",
+        "stdin": "q:5",
+        "expected": "2||deux||2 (D3 et D5)||deux (D3 et D5)"
+      },
+      {
+        "label": "Question 6 — Durée d'analyse avec un second analyste",
+        "stdin": "q:6",
+        "expected": "15||15 h||15 heures"
+      }
     ],
-    solution: "[Exemple]\nCARD_RESULT id=C1 veilleur=Alice statut=DIFFUSE cycle_time=8h\nCARD_RESULT id=C2 veilleur=Bob statut=REJETE cycle_time=2h\nCARD_RESULT id=C3 veilleur=Alice statut=DIFFUSE cycle_time=6h\nSUMMARY total_soumissions=3 diffuses=2 taux_approbation=66.7% avg_cycle_time=7.0h\n\n[Cas 1 — Toutes les soumissions validées et diffusées]\nCARD_RESULT id=1 veilleur=Claire statut=DIFFUSE cycle_time=4h\nCARD_RESULT id=2 veilleur=David statut=DIFFUSE cycle_time=6h\nSUMMARY total_soumissions=2 diffuses=2 taux_approbation=100.0% avg_cycle_time=5.0h\n\n[Cas 2 — Toutes les soumissions rejetées au premier stade]\nCARD_RESULT id=R1 veilleur=Emma statut=REJETE cycle_time=1h\nCARD_RESULT id=R2 veilleur=Emma statut=REJETE cycle_time=2h\nSUMMARY total_soumissions=2 diffuses=0 taux_approbation=0.0% avg_cycle_time=0.0h\n\n[Cas 3 — Une seule soumission diffusée avec cycle long]\nCARD_RESULT id=Solo veilleur=Hugo statut=DIFFUSE cycle_time=30h\nSUMMARY total_soumissions=1 diffuses=1 taux_approbation=100.0% avg_cycle_time=30.0h\n"
+    "solution": "[Question 1 — Lead time du dossier D3]\n13\n\n[Question 2 — Lead time moyen arrondi à une décimale]\n11,2\n\n[Question 3 — Étape goulot d'étranglement]\nl'analyse\n\n[Question 4 — Heures consommées par l'étape Analyse]\n30\n\n[Question 5 — Dossiers au-delà de 11 heures]\n2\n\n[Question 6 — Durée d'analyse avec un second analyste]\n15",
+    "takeaway": "1) D3 : 1 + 8 + 2 + 2 = 13 heures.\n2) Lead times : 10 + 11 + 13 + 10 + 12 = 56 ; moyenne = 56 / 5 = 11,2 heures.\n3) Totaux d'étapes : Collecte 12 h, Analyse 30 h, Validation 7 h, Diffusion 7 h : le goulot est l'Analyse.\n4) L'Analyse a consommé 30 heures.\n5) D3 (13 h) et D5 (12 h) dépassent strictement 11 h : 2 dossiers.\n6) Deux analystes en parallèle : 30 / 2 = 15 heures au mieux.\nContrôle : 12 + 30 + 7 + 7 = 56 heures, identique à la somme des lead times ; la charge de l'analyse égale plus du double de chaque autre étape."
   }
 ];

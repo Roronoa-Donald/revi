@@ -39,7 +39,7 @@ module.exports = [
         html: [
           '<p>Git est le <strong>système de gestion de version décentralisé</strong> open source qui ' +
           'facilite les activités GitHub sur le poste de travail. Décentralisé signifie que chaque machine ' +
-          'possède <strong>tout l\'historique</strong> : on peut commité, revenir en arrière, brancher, ' +
+          'possède <strong>tout l\'historique</strong> : on peut commiter, revenir en arrière, brancher, ' +
           'sans réseau. Le réseau ne sert qu\'à la synchronisation entre dépôts.</p>',
           '<p>Les bénéfices concrets du TP : revenir à n\'importe quelle version d\'un fichier, savoir ' +
           'qui a changé quoi et quand, expérimenter sur une branche sans risquer la version qui marche, ' +
@@ -122,13 +122,13 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que crée exactement git init ?', opts: ['Un dépôt distant', 'Un sous-dossier .git contenant le dépôt local', 'Un fichier de configuration seul'], correct: 1, exp: 'git init crée le sous-dossier .git qui abrite tout le dépôt local.' },
-      { stem: 'Sans user.name ni user.email configurés, un commit…', opts: ['est accepté anonymement', 'peut être refusé ou signé d\'une identité incorrecte', 'demande le mot de passe'], correct: 1, exp: 'C\'est l\'erreur classique du débutant signalée par le TP1 : configurer avant de commiter.' },
+      { stem: 'Que crée exactement git init ?', opts: ["Un dépôt distant hébergé sur un serveur Git","Un simple fichier de configuration du projet","Un sous-dossier .git contenant le dépôt local"], correct: 2, exp: 'git init crée le sous-dossier .git qui abrite tout le dépôt local.' },
+      { stem: 'Sans user.name ni user.email configurés, un commit…', opts: ["peut être refusé ou signé d'une identité incorrecte","est accepté et signé par un utilisateur anonyme","demande le mot de passe du compte GitHub"], correct: 0, exp: 'C\'est l\'erreur classique du débutant signalée par le TP1 : configurer avant de commiter.' },
       { stem: 'La configuration --global s\'applique…', opts: ['au dépôt courant seulement', 'à tous les dépôts de la machine', 'au dépôt distant'], correct: 1, exp: '--global vaut pour tous les dépôts locaux ; sans elle, la configuration ne vaut que pour le dépôt courant.' },
-      { stem: 'Quels sont les trois espaces de Git ?', opts: ['RAM, disque, cloud', 'Copie de travail, index, dépôt local', 'main, feature, origin'], correct: 1, exp: 'Copie de travail, index (zone de transit) et dépôt local (historique, tête HEAD).' },
+      { stem: 'Quels sont les trois espaces de Git ?', opts: ["Copie de travail, index, dépôt local","La RAM, le disque dur et le cloud","main, feature, origin (des branches)"], correct: 0, exp: 'Copie de travail, index (zone de transit) et dépôt local (historique, tête HEAD).' },
       { stem: 'Quelle commande fait un état des lieux permanent ?', opts: ['git add', 'git log', 'git status'], correct: 2, exp: 'git status liste nouveaux fichiers et modifications à commiter.' },
       { stem: 'Un fichier « untracked » est…', opts: ['supprimé', 'jamais ajouté au suivi', 'en conflit'], correct: 1, exp: 'Non suivi : présent dans la copie de travail mais jamais passé par git add.' },
-      { stem: 'git clone fait quoi, de plus que copier des fichiers ?', opts: ['Rien de plus', 'Télécharge le projet et tout son historique, et crée le lien origin', 'Crée un .gitignore'], correct: 1, exp: 'Le clone reconstruit l\'historique complet et le lien vers le dépôt distant.' },
+      { stem: 'git clone fait quoi, de plus que copier des fichiers ?', opts: ["Rien de plus : le clone se réduit à une copie des fichiers","Télécharge le projet et tout son historique, et crée le lien origin","Crée un .gitignore adapté au projet téléchargé"], correct: 1, exp: 'Le clone reconstruit l\'historique complet et le lien vers le dépôt distant.' },
       { stem: 'Quelle commande vérifie la configuration posée ?', opts: ['git config --list', 'git status', 'git log'], correct: 0, exp: 'git config --list liste toutes les valeurs de configuration actives.' }
     ],
 
@@ -281,14 +281,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'git add . et git add -A ont en commun de…', opts: ['ignorer les fichiers détruits', 'prendre nouveaux, modifiés et détruits', 'ne prendre que les modifiés'], correct: 1, exp: 'Les deux couvrent les trois états ; -u, lui, ignore les nouveaux fichiers.' },
-      { stem: 'Que fait git add -u ?', opts: ['Indexe les nouveaux fichiers', 'Indexe modifications et destructions des fichiers suivis', 'Met à jour le dépôt distant'], correct: 1, exp: '-u (update) ne voit que les fichiers déjà suivis : modifiés et détruits.' },
-      { stem: 'Un fichier déjà suivi est ajouté au .gitignore : que se passe-t-il ?', opts: ['Il sort du suivi', 'Il reste suivi — il faut git rm --cached', 'Il est supprimé'], correct: 1, exp: 'Le .gitignore ne s\'applique qu\'aux fichiers pas encore suivis.' },
-      { stem: 'Que fait git rm --cached fichier ?', opts: ['Supprime le fichier du disque', 'Retire l\'index et le suivi, le fichier reste sur disque', 'Ne fait rien'], correct: 1, exp: '--cached sort de l\'index et du suivi sans détruire physiquement le fichier.' },
-      { stem: 'git reset HEAD fichier fait quoi ?', opts: ['Efface le fichier', 'Retire ses modifications de l\'index, qui repartent dans la copie', 'Crée un commit'], correct: 1, exp: 'reset HEAD est l\'inverse de git add : le fichier reste suivi.' },
-      { stem: 'Que contient un commit ?', opts: ['La copie de travail entière', 'L\'état de l\'index, décrit par le message, identifié par un SHA-1', 'Les fichiers du dépôt distant'], correct: 1, exp: 'Le commit archive ce que l\'index contient au moment de la commande.' },
-      { stem: 'Quand peut-on commit --amend sans risque ?', opts: ['Toujours', 'Si le commit n\'a pas encore été poussé', 'Après un push'], correct: 1, exp: 'Amend change le SHA-1 : les autres collaborateurs subiraient le déplacement d\'historique.' },
-      { stem: 'Après un commit, l\'index est…', opts: ['plein', 'vide', 'inversé'], correct: 1, exp: 'Le commit a transféré tout l\'index vers le dépôt : l\'index se vide.' }
+      { stem: 'git add . et git add -A ont en commun de…', opts: ['ignorer les fichiers détruits', 'ne prendre que les modifiés', 'prendre nouveaux, modifiés et détruits'], correct: 2, exp: 'Les deux couvrent les trois états ; -u, lui, ignore les nouveaux fichiers.' },
+      { stem: 'Que fait git add -u ?', opts: ["Indexe uniquement les nouveaux fichiers non suivis","Met à jour le dépôt distant avec les commits","Indexe modifications et destructions des fichiers suivis"], correct: 2, exp: '-u (update) ne voit que les fichiers déjà suivis : modifiés et détruits.' },
+      { stem: 'Un fichier déjà suivi est ajouté au .gitignore : que se passe-t-il ?', opts: ["Il reste suivi — il faut git rm --cached","Il sort automatiquement du suivi du dépôt","Il est supprimé de la copie de travail"], correct: 0, exp: 'Le .gitignore ne s\'applique qu\'aux fichiers pas encore suivis.' },
+      { stem: 'Que fait git rm --cached fichier ?', opts: ["Supprime physiquement le fichier du disque dur","Retire l'index et le suivi, le fichier reste sur disque","Ne modifie rien avant le prochain commit"], correct: 1, exp: '--cached sort de l\'index et du suivi sans détruire physiquement le fichier.' },
+      { stem: 'git reset HEAD fichier fait quoi ?', opts: ["Retire ses modifications de l'index, qui repartent dans la copie","Efface définitivement le fichier de la copie de travail","Crée un commit d'annulation dans l'historique"], correct: 0, exp: 'reset HEAD est l\'inverse de git add : le fichier reste suivi.' },
+      { stem: 'Que contient un commit ?', opts: ["Toute la copie de travail, y compris les fichiers non suivis","L'état de l'index, décrit par le message, identifié par un SHA-1","Les fichiers du dépôt distant au moment du push"], correct: 1, exp: 'Le commit archive ce que l\'index contient au moment de la commande.' },
+      { stem: 'Quand peut-on commit --amend sans risque ?', opts: ["Toujours, même après un push partagé","Uniquement après un push sur origin","Si le commit n'a pas encore été poussé"], correct: 2, exp: 'Amend change le SHA-1 : les autres collaborateurs subiraient le déplacement d\'historique.' },
+      { stem: 'Après un commit, l\'index est…', opts: ['plein', 'inversé', 'vide'], correct: 2, exp: 'Le commit a transféré tout l\'index vers le dépôt : l\'index se vide.' }
     ],
 
     pitfalls: [
@@ -438,14 +438,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quelle commande montre une ligne par commit ?', opts: ['git show', 'git log --oneline', 'git diff'], correct: 1, exp: 'log --oneline : SHA abrégé + message, du plus récent au plus ancien.' },
+      { stem: 'Quelle commande montre une ligne par commit ?', opts: ['git log --oneline', 'git show', 'git diff'], correct: 0, exp: 'log --oneline : SHA abrégé + message, du plus récent au plus ancien.' },
       { stem: 'Avec reset --soft, où remontent les commits annulés ?', opts: ['Dans la corbeille', 'Dans l\'index', 'Nulle part'], correct: 1, exp: 'soft ramène les modifications dans l\'index : prêtes à être re-commitées.' },
       { stem: 'Quelle option de reset efface aussi la copie de travail ?', opts: ['--soft', '--mixed', '--hard'], correct: 2, exp: 'hard aligne les trois espaces sur le commit visé — les modifications locales sont perdues.' },
       { stem: 'Quelle est l\'option par défaut de git reset ?', opts: ['--soft', '--mixed', '--hard'], correct: 1, exp: 'Sans option, reset agit comme --mixed : index vidé, copie conservée.' },
-      { stem: 'Que fait git revert ?', opts: ['Il supprime un commit de l\'historique', 'Il ajoute un commit qui annule un commit existant', 'Il remet le dépôt à zéro'], correct: 1, exp: 'revert annule avec trace : l\'historique gagne un commit de réversion.' },
-      { stem: 'Sur un dépôt partagé, quelle annulation privilégier ?', opts: ['reset --hard', 'revert', 'git rm'], correct: 1, exp: 'revert préserve l\'historique partagé ; reset réécrirait le passé des autres.' },
+      { stem: 'Que fait git revert ?', opts: ['Il ajoute un commit qui annule un commit existant', 'Il supprime un commit de l\'historique', 'Il remet le dépôt à zéro'], correct: 0, exp: 'revert annule avec trace : l\'historique gagne un commit de réversion.' },
+      { stem: 'Sur un dépôt partagé, quelle annulation privilégier ?', opts: ['reset --hard', 'git rm', 'revert'], correct: 2, exp: 'revert préserve l\'historique partagé ; reset réécrirait le passé des autres.' },
       { stem: 'git diff --cached compare…', opts: ['copie ↔ index', 'index ↔ dépôt local', 'deux branches'], correct: 1, exp: '--cached (comme --staged) montre ce que l\'index contient par rapport au dépôt.' },
-      { stem: 'Que ne montre pas git diff ?', opts: ['Les fichiers modifiés', 'Les fichiers non suivis', 'Les branches'], correct: 1, exp: 'diff ne voit que le suivi : les non suivis apparaissent dans git status.' }
+      { stem: 'Que ne montre pas git diff ?', opts: ['Les fichiers non suivis', 'Les fichiers modifiés', 'Les branches'], correct: 0, exp: 'diff ne voit que le suivi : les non suivis apparaissent dans git status.' }
     ],
 
     pitfalls: [

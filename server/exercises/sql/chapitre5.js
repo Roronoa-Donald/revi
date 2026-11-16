@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Débitez 15000 sur id=1 et créditez 15000 sur id=2\nUPDATE comptes SET solde = solde WHERE id = 1;",
     "hints": [
       "Écrivez deux instructions UPDATE séparées par un point-virgule.",
-      "La première soustrait 15000 sur WHERE id = 1, la seconde ajoute 15000 sur WHERE id = 2."
+      "La première soustrait 15000 sur WHERE id = 1, la seconde ajoute 15000 sur WHERE id = 2.",
+      "Enchaînez dans l ordre : débit du compte émetteur, crédit du compte destinataire, chaque UPDATE ciblé par son identifiant."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+-----------+-------+\n| id | titulaire | solde |\n+----+-----------+-------+\n| 1  | Afi       | 85000 |\n| 2  | Binta     | 55000 |\n| 3  | Epargne   | 90000 |\n+----+-----------+-------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "UPDATE comptes SET solde = solde - 15000 WHERE id = 1;\nUPDATE comptes SET solde = solde + 15000 WHERE id = 2;"
+    "solution": "UPDATE comptes SET solde = solde - 15000 WHERE id = 1;\nUPDATE comptes SET solde = solde + 15000 WHERE id = 2;",
+    "takeaway": "Encapsuler débit et crédit dans une transaction ACID (BEGIN/COMMIT) préserve l invariant comptable même en cas de panne."
   },
   {
     "id": "sql2-c5-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Validez la commande id=10 et décrémentez de 3 le stock de l’article id=1\nUPDATE commandes SET statut = statut WHERE id = 10;",
     "hints": [
       "Exécutez UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;",
-      "Puis exécutez UPDATE articles SET stock = stock - 3 WHERE id = 1;"
+      "Puis exécutez UPDATE articles SET stock = stock - 3 WHERE id = 1;",
+      "Enchaînez la mise à jour du statut de la commande puis la décrémentation du stock, chacune filtrée par son identifiant."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+----+------------+-------+\n| id | statut     | stock |\n+----+------------+-------+\n| 10 | VALIDEE    | 22    |\n| 20 | EN_ATTENTE | 22    |\n+----+------------+-------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;\nUPDATE articles SET stock = stock - 3 WHERE id = 1;"
+    "solution": "UPDATE commandes SET statut = 'VALIDEE' WHERE id = 10;\nUPDATE articles SET stock = stock - 3 WHERE id = 1;",
+    "takeaway": "Vérifier et décrémenter le stock atomiquement (WHERE stock >= qte) évite les conditions de concurrence (overselling)."
   },
   {
     "id": "sql2-c5-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Calculez total_debit et total_credit par tx_id\nSELECT tx_id FROM ecritures GROUP BY tx_id;",
     "hints": [
       "Utilisez SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit.",
-      "Faites de même pour CREDIT et regroupez avec GROUP BY tx_id ORDER BY tx_id ASC."
+      "Faites de même pour CREDIT et regroupez avec GROUP BY tx_id ORDER BY tx_id ASC.",
+      "Groupez les écritures par transaction, calculez les deux totaux conditionnels, puis triez par identifiant de transaction croissant."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+-------+-------------+--------------+\n| tx_id | total_debit | total_credit |\n+-------+-------------+--------------+\n| 1     | 1500        | 1500         |\n| 2     | 4500        | 4500         |\n+-------+-------------+--------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT tx_id, SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit, SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit FROM ecritures GROUP BY tx_id ORDER BY tx_id ASC;"
+    "solution": "SELECT tx_id, SUM(CASE WHEN sens = 'DEBIT' THEN montant ELSE 0 END) AS total_debit, SUM(CASE WHEN sens = 'CREDIT' THEN montant ELSE 0 END) AS total_credit FROM ecritures GROUP BY tx_id ORDER BY tx_id ASC;",
+    "takeaway": "Une écriture comptable équilibrée vérifie par agrégation GROUP BY que SUM(debit) == SUM(credit) sur chaque lot."
   }
 ];

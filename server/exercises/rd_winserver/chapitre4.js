@@ -14,7 +14,7 @@ module.exports = [
     language: 'powershell',
     title: 'Suivi des mises à jour',
     goal: 'Compter les échecs parmi une liste de mises à jour et décider d’une maintenance.',
-    brief: '<p>Le script lit un entier <code>n</code>, puis <code>n</code> résultats de mise à jour ' +
+    brief: '<p>Lors d’un contrôle post-correctifs WSUS / <code>Get-HotFix</code> sur un parc Windows Server, le script lit un entier <code>n</code>, puis <code>n</code> résultats de mise à jour ' +
       '(<code>ok</code> ou <code>echec</code>). Affichez <code>echecs : X</code>, puis ' +
       '<code>maintenance : requise</code> s’il y a au moins un échec, sinon ' +
       '<code>maintenance : a jour</code>.</p>',
@@ -28,8 +28,9 @@ for ($i = 0; $i -lt $n; $i++) {
 # À compléter : afficher le nombre d'échecs puis l'état de maintenance.
 `,
     hints: [
-      'Comparez avec -eq : ($res -eq "echec").',
-      'Choisissez la ligne d’état selon ($echecs -gt 0).'
+      "Comparez avec -eq : ($res -eq \"echec\").",
+      "Choisissez la ligne d’état selon ($echecs -gt 0).",
+      "Étapes : lire n ; compter les « echec » ; afficher « echecs : » ; compteur positif → « maintenance : requise », sinon « maintenance : a jour »."
     ],
     examples: [
       { stdin: '3\nok\nechec\nok', expected: 'echecs : 1\nmaintenance : requise', note: 'Une mise à jour en échec.' }
@@ -53,7 +54,8 @@ if ($echecs -gt 0) {
 } else {
     Write-Output "maintenance : a jour"
 }
-`
+`,
+    takeaway: "Enchaîner plusieurs échecs de correctifs déclenche la planification d une fenêtre de maintenance hors production."
   },
   {
     id: 'ws2-c4-e2',
@@ -71,8 +73,9 @@ if ($echecs -gt 0) {
 # "etat : danger" ou "etat : critique" selon la température.
 `,
     hints: [
-      'Traitez les cas les plus graves d’abord, en descendant : -ge 95, puis -ge 85, etc.',
-      'Utilisez if / elseif / else : chaque branche couvre une plage.'
+      "Traitez les cas les plus graves d’abord, en descendant : -ge 95, puis -ge 85, etc.",
+      "Utilisez if / elseif / else : chaque branche couvre une plage.",
+      "Étapes : lire la température ; ≥ 95 → critique ; ≥ 85 → danger ; ≥ 60 → chaud ; sinon normal. Tester les seuils dans l’ordre décroissant."
     ],
     examples: [
       { stdin: '45', expected: 'etat : normal', note: '45 °C : plage normale.' }
@@ -93,7 +96,8 @@ if ($temp -ge 95) {
 } else {
     Write-Output "etat : normal"
 }
-`
+`,
+    takeaway: "Un switch ou une cascade if/elseif ordonnée classe chaque mesure thermique dans sa plage d alerte matérielle."
   },
   {
     id: 'ws2-c4-e3',
@@ -113,8 +117,9 @@ if ($temp -ge 95) {
 # À compléter : avec un switch sur $freq, afficher l'action correspondante.
 `,
     hints: [
-      'PowerShell dispose d’un switch : switch ($freq) { "hebdomadaire" { ... } ... }.',
-      'Prévoyez une branche default pour les valeurs non reconnues.'
+      "PowerShell dispose d’un switch : switch ($freq) { \"hebdomadaire\" { ... } ... }.",
+      "Prévoyez une branche default pour les valeurs non reconnues.",
+      "Étapes : lire la fréquence ; l’associer à son action ; toute valeur non reconnue, vide ou composée, tombe dans la branche par défaut : « action : inconnue »."
     ],
     examples: [
       { stdin: 'mensuelle', expected: 'action : test de sauvegarde', note: 'Le mensuel teste les sauvegardes.' }
@@ -138,6 +143,7 @@ switch ($freq) {
     "annuelle" { Write-Output "action : audit securite" }
     default { Write-Output "action : inconnue" }
 }
-`
+`,
+    takeaway: "L instruction switch PowerShell associe directement une chaîne de fréquence ou catégorie à l action d exploitation."
   }
 ];

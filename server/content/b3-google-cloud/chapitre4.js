@@ -176,32 +176,32 @@ module.exports = {
   questions: [
     {
       stem: 'Combien d\'adresses IP sont utilisables pour assigner à des machines virtuelles dans un sous-réseau Google Cloud VPC avec un masque /24 (256 adresses totales) ?',
-      opts: ['256', '254', '252', '250'],
-      correct: 2,
+      opts: ['252', '254', '256', '250'],
+      correct: 0,
       exp: 'Google Cloud réserve obligatoirement 4 adresses IP par sous-réseau (.0 réseau, .1 passerelle, .2 DNS interne, .255 broadcast). Il reste donc 256 - 4 = 252 adresses IP assignables.'
     },
     {
       stem: 'Dans le pare-feu Google Cloud VPC, entre une règle A de priorité 100 qui refuse le port 22 et une règle B de priorité 1000 qui autorise tous les ports, quelle règle s\'applique pour le port 22 ?',
-      opts: ['La règle B (1000) car elle est plus permissive', 'La règle A (100) car les priorités les plus petites sont évaluées en premier', 'Les deux règles s\'annulent', 'La règle la plus récente créée'],
-      correct: 1,
+      opts: ["La règle B (1000) car elle est plus permissive et donc prioritaire dans la chaîne","Les deux règles s'annulent mutuellement et le trafic est bloqué par défaut","La règle la plus récente créée dans la console Cloud prévaut sur les autres","La règle A (100) car les priorités les plus petites sont évaluées en premier"],
+      correct: 3,
       exp: 'Dans Google Cloud, les priorités de pare-feu vont de 0 à 65535, et les chiffres les plus petits sont les plus prioritaires. La règle de priorité 100 s\'applique donc avant celle de priorité 1000.'
     },
     {
       stem: 'Quel service managé permet à des machines virtuelles sans adresse IP publique d\'accéder à Internet pour télécharger des mises à jour de sécurité ?',
-      opts: ['Cloud Interconnect', 'Cloud NAT', 'Cloud CDN', 'Cloud Armor'],
-      correct: 1,
+      opts: ['Cloud Interconnect', 'Cloud CDN', 'Cloud NAT', 'Cloud Armor'],
+      correct: 2,
       exp: 'Cloud NAT fournit la traduction d\'adresses réseau sortante sécurisée sans attribuer d\'adresses IP externes aux VMs, empêchant toute intrusion directe depuis l\'extérieur.'
     },
     {
       stem: 'Dans un Global External HTTP(S) Load Balancer Google Cloud, quel composant inspecte le chemin de la requête (/api/* ou /images/*) pour router vers le bon backend ?',
-      opts: ['La Global Forwarding Rule', 'Le Target HTTPS Proxy', 'L\'URL Map', 'Le Cloud Router'],
-      correct: 2,
+      opts: ['La Global Forwarding Rule', 'L\'URL Map', 'Le Target HTTPS Proxy', 'Le Cloud Router'],
+      correct: 1,
       exp: 'L\'URL Map est la table de correspondance qui analyse les noms d\'hôtes et les préfixes d\'URL pour acheminer les flux vers les différents Backend Services.'
     },
     {
       stem: 'Deux réseaux VPC A et B sont interconnectés par VPC Peering. B est également interconnecté par VPC Peering avec C. A peut-il communiquer avec C sans lien supplémentaire ?',
-      opts: ['Oui, le peering est toujours transitif', 'Non, le VPC Peering n\'est pas transitif dans Google Cloud', 'Oui, uniquement si le protocole BGP est activé', 'Oui, si les deux VPC sont dans la même région'],
-      correct: 1,
+      opts: ['Non, le VPC Peering n\'est pas transitif dans Google Cloud', 'Oui, le peering est toujours transitif', 'Oui, uniquement si le protocole BGP est activé', 'Oui, si les deux VPC sont dans la même région'],
+      correct: 0,
       exp: 'Le VPC Network Peering dans Google Cloud est strictement non transitif : pour que A communique avec C, un lien de peering direct entre A et C doit être explicitement créé.'
     }
   ],

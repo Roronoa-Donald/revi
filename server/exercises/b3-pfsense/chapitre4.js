@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c4-e1) — Validateur d'encapsulation 802.1Q et calcul de sous-interfaces VLAN\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sous-interface sur carte réseau igb0]\n# Données : VLAN_SUBIF parent=igb0 tag=100 name=MGMT subnet=10.100.0.0/24\n# Données : FRAME id=ADMIN_FRAME ingress_if=igb0 tag=100 payload_bytes=1024\nA_COMPLETER\n\n[Cas 2 — Interface parente différente avec le même tag]\n# Données : VLAN_SUBIF parent=em0 tag=30 name=GUEST subnet=172.16.30.0/24\n# Données : FRAME id=TEST_WRONG_PARENT ingress_if=em1 tag=30 payload_bytes=256\nA_COMPLETER\n\n[Cas 3 — Trames non taguées répétées]\n# Données : VLAN_SUBIF parent=vtnet0 tag=50 name=SERVERS subnet=192.168.50.0/24\n# Données : FRAME id=RAW1 ingress_if=vtnet0 tag=0 payload_bytes=64\n# Données : FRAME id=RAW2 ingress_if=vtnet0 tag=0 payload_bytes=128\nA_COMPLETER\n",
     "hints": [
       "Stocker les VLANs sous une clé composite (parent, tag).",
-      "Traiter tag=0 comme non étiqueté (DROPPED)."
+      "Traiter tag=0 comme non étiqueté (DROPPED).",
+      "1. Si tag=0 : rejet immédiat. 2. Chercher la sous-interface (parent, tag). 3. Trouvée : ACCEPTED avec son sous-réseau, sinon DROPPED avec UNKNOWN."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "8021Q_EVAL id=RAW1 tag=0 status=DROPPED subif=NONE subnet=NONE\n8021Q_EVAL id=RAW2 tag=0 status=DROPPED subif=NONE subnet=NONE"
       }
     ],
-    "solution": "[Exemple]\n8021Q_EVAL id=F1 tag=10 status=ACCEPTED subif=em0.10 subnet=192.168.10.0/24\n8021Q_EVAL id=F2 tag=99 status=DROPPED subif=UNKNOWN subnet=NONE\n8021Q_EVAL id=F3 tag=0 status=DROPPED subif=NONE subnet=NONE\n\n[Cas 1 — Sous-interface sur carte réseau igb0]\n8021Q_EVAL id=ADMIN_FRAME tag=100 status=ACCEPTED subif=igb0.100 subnet=10.100.0.0/24\n\n[Cas 2 — Interface parente différente avec le même tag]\n8021Q_EVAL id=TEST_WRONG_PARENT tag=30 status=DROPPED subif=UNKNOWN subnet=NONE\n\n[Cas 3 — Trames non taguées répétées]\n8021Q_EVAL id=RAW1 tag=0 status=DROPPED subif=NONE subnet=NONE\n8021Q_EVAL id=RAW2 tag=0 status=DROPPED subif=NONE subnet=NONE"
+    "solution": "[Exemple]\n8021Q_EVAL id=F1 tag=10 status=ACCEPTED subif=em0.10 subnet=192.168.10.0/24\n8021Q_EVAL id=F2 tag=99 status=DROPPED subif=UNKNOWN subnet=NONE\n8021Q_EVAL id=F3 tag=0 status=DROPPED subif=NONE subnet=NONE\n\n[Cas 1 — Sous-interface sur carte réseau igb0]\n8021Q_EVAL id=ADMIN_FRAME tag=100 status=ACCEPTED subif=igb0.100 subnet=10.100.0.0/24\n\n[Cas 2 — Interface parente différente avec le même tag]\n8021Q_EVAL id=TEST_WRONG_PARENT tag=30 status=DROPPED subif=UNKNOWN subnet=NONE\n\n[Cas 3 — Trames non taguées répétées]\n8021Q_EVAL id=RAW1 tag=0 status=DROPPED subif=NONE subnet=NONE\n8021Q_EVAL id=RAW2 tag=0 status=DROPPED subif=NONE subnet=NONE",
+    "takeaway": "Associer un VLAN ID 802.1Q à son interface parent crée un segment isolé nécessitant son propre plan d’adressage et ses règles dédiées."
   },
   {
     "id": "pf3-c4-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c4-e2) — Contrôleur de matrice de flux inter-VLANs et filtrage DMZ\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Autorisation DNS explicite depuis la DMZ vers le WAN]\n# Données : POLICY src=DMZ dst=WAN port=53 action=PASS\n# Données : FLOW id=DNS_QUERY src=DMZ dst=WAN port=53 state=NEW\nA_COMPLETER\n\n[Cas 2 — Tentative de rebond SSH depuis la DMZ vers le LAN bloquée]\n# Données : POLICY src=DMZ dst=LAN port=ANY action=BLOCK\n# Données : FLOW id=SSH_BREACH src=DMZ dst=LAN port=22 state=NEW\nA_COMPLETER\n\n[Cas 3 — Flux établi passant sans règle explicite]\n# Données : FLOW id=TCP_REPLY src=DMZ dst=LAN port=443 state=ESTABLISHED\nA_COMPLETER\n",
     "hints": [
       "Vérifier d'abord si state == \"ESTABLISHED\".",
-      "Si NEW, chercher la première règle POLICY correspondante ou appliquer DEFAULT_DENY."
+      "Si NEW, chercher la première règle POLICY correspondante ou appliquer DEFAULT_DENY.",
+      "1. ESTABLISHED : PASS immédiat. 2. NEW : parcourir les politiques dans l'ordre, retenir la première correspondance src, dst et port. 3. Sinon DEFAULT_DENY."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "FLOW_REPORT id=TCP_REPLY src=DMZ dst=LAN port=443 action=PASS reason=STATE_ESTABLISHED"
       }
     ],
-    "solution": "[Exemple]\nFLOW_REPORT id=F1 src=LAN dst=DMZ port=80 action=PASS reason=RULE_MATCH\nFLOW_REPORT id=F2 src=DMZ dst=LAN port=445 action=BLOCK reason=RULE_MATCH\nFLOW_REPORT id=F3 src=DMZ dst=LAN port=80 action=PASS reason=STATE_ESTABLISHED\nFLOW_REPORT id=F4 src=DMZ dst=WAN port=22 action=BLOCK reason=DEFAULT_DENY\n\n[Cas 1 — Autorisation DNS explicite depuis la DMZ vers le WAN]\nFLOW_REPORT id=DNS_QUERY src=DMZ dst=WAN port=53 action=PASS reason=RULE_MATCH\n\n[Cas 2 — Tentative de rebond SSH depuis la DMZ vers le LAN bloquée]\nFLOW_REPORT id=SSH_BREACH src=DMZ dst=LAN port=22 action=BLOCK reason=RULE_MATCH\n\n[Cas 3 — Flux établi passant sans règle explicite]\nFLOW_REPORT id=TCP_REPLY src=DMZ dst=LAN port=443 action=PASS reason=STATE_ESTABLISHED"
+    "solution": "[Exemple]\nFLOW_REPORT id=F1 src=LAN dst=DMZ port=80 action=PASS reason=RULE_MATCH\nFLOW_REPORT id=F2 src=DMZ dst=LAN port=445 action=BLOCK reason=RULE_MATCH\nFLOW_REPORT id=F3 src=DMZ dst=LAN port=80 action=PASS reason=STATE_ESTABLISHED\nFLOW_REPORT id=F4 src=DMZ dst=WAN port=22 action=BLOCK reason=DEFAULT_DENY\n\n[Cas 1 — Autorisation DNS explicite depuis la DMZ vers le WAN]\nFLOW_REPORT id=DNS_QUERY src=DMZ dst=WAN port=53 action=PASS reason=RULE_MATCH\n\n[Cas 2 — Tentative de rebond SSH depuis la DMZ vers le LAN bloquée]\nFLOW_REPORT id=SSH_BREACH src=DMZ dst=LAN port=22 action=BLOCK reason=RULE_MATCH\n\n[Cas 3 — Flux établi passant sans règle explicite]\nFLOW_REPORT id=TCP_REPLY src=DMZ dst=LAN port=443 action=PASS reason=STATE_ESTABLISHED",
+    "takeaway": "Une matrice inter-VLAN stricte n’autorise que les ports applicatifs précis vers la DMZ tout en bloquant le trafic transversal inutile."
   },
   {
     "id": "pf3-c4-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c4-e3) — Auditeur de fuite d'isolation réseau (VLAN Hopping & Double Tagging)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection d'attaque sur VLAN natif personnalisé (VLAN 99)]\n# Données : TRUNK_CONFIG native_vlan=99 allowed_vlans=10,20\n# Données : PACKET id=EXPLOIT outer_tag=99 inner_tag=10 dst_ip=192.168.10.50\nA_COMPLETER\n\n[Cas 2 — Double tag sans correspondance VLAN natif]\n# Données : TRUNK_CONFIG native_vlan=1 allowed_vlans=10,20\n# Données : PACKET id=MALFORMED outer_tag=50 inner_tag=20 dst_ip=192.168.20.2\nA_COMPLETER\n\n[Cas 3 — Trames autorisées sur VLANs distincts]\n# Données : TRUNK_CONFIG native_vlan=1 allowed_vlans=100,200\n# Données : PACKET id=P1 outer_tag=100 inner_tag=NONE dst_ip=10.100.0.1\n# Données : PACKET id=P2 outer_tag=200 inner_tag=NONE dst_ip=10.200.0.1\nA_COMPLETER\n",
     "hints": [
       "Convertir allowed_vlans en un ensemble d'entiers.",
-      "Comparer outer_tag avec native_vlan lorsque deux tags sont présents."
+      "Comparer outer_tag avec native_vlan lorsque deux tags sont présents.",
+      "1. Deux tags : externe égal au VLAN natif, attaque, sinon rejet. 2. Un tag : autorisé si présent dans allowed_vlans. 3. Aucun tag : trame native transférée."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "AUDIT_VLAN id=P1 status=VALID type=STANDARD_TAGGED target_vlan=100 action=FORWARD\nAUDIT_VLAN id=P2 status=VALID type=STANDARD_TAGGED target_vlan=200 action=FORWARD"
       }
     ],
-    "solution": "[Exemple]\nAUDIT_VLAN id=PKT1 status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=20 action=ALERT_DROP\nAUDIT_VLAN id=PKT2 status=VALID type=STANDARD_TAGGED target_vlan=10 action=FORWARD\nAUDIT_VLAN id=PKT3 status=BLOCKED type=UNAUTHORIZED_VLAN target_vlan=99 action=DROP\nAUDIT_VLAN id=PKT4 status=NATIVE type=UNTAGGED target_vlan=1 action=FORWARD\n\n[Cas 1 — Détection d'attaque sur VLAN natif personnalisé (VLAN 99)]\nAUDIT_VLAN id=EXPLOIT status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=10 action=ALERT_DROP\n\n[Cas 2 — Double tag sans correspondance VLAN natif]\nAUDIT_VLAN id=MALFORMED status=REJECTED type=INVALID_NESTED_TAG target_vlan=20 action=DROP\n\n[Cas 3 — Trames autorisées sur VLANs distincts]\nAUDIT_VLAN id=P1 status=VALID type=STANDARD_TAGGED target_vlan=100 action=FORWARD\nAUDIT_VLAN id=P2 status=VALID type=STANDARD_TAGGED target_vlan=200 action=FORWARD"
+    "solution": "[Exemple]\nAUDIT_VLAN id=PKT1 status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=20 action=ALERT_DROP\nAUDIT_VLAN id=PKT2 status=VALID type=STANDARD_TAGGED target_vlan=10 action=FORWARD\nAUDIT_VLAN id=PKT3 status=BLOCKED type=UNAUTHORIZED_VLAN target_vlan=99 action=DROP\nAUDIT_VLAN id=PKT4 status=NATIVE type=UNTAGGED target_vlan=1 action=FORWARD\n\n[Cas 1 — Détection d'attaque sur VLAN natif personnalisé (VLAN 99)]\nAUDIT_VLAN id=EXPLOIT status=ATTACK_DETECTED type=DOUBLE_TAGGING target_vlan=10 action=ALERT_DROP\n\n[Cas 2 — Double tag sans correspondance VLAN natif]\nAUDIT_VLAN id=MALFORMED status=REJECTED type=INVALID_NESTED_TAG target_vlan=20 action=DROP\n\n[Cas 3 — Trames autorisées sur VLANs distincts]\nAUDIT_VLAN id=P1 status=VALID type=STANDARD_TAGGED target_vlan=100 action=FORWARD\nAUDIT_VLAN id=P2 status=VALID type=STANDARD_TAGGED target_vlan=200 action=FORWARD",
+    "takeaway": "Désactiver le VLAN natif non attribué et interdire le double tagging empêchent l’évasion de VLAN (VLAN Hopping) sur les trunks."
   }
 ];

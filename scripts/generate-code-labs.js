@@ -151,6 +151,7 @@ function renderLab(exercise, index) {
     '<div class="lab" id="' + escAttr(exercise.id) + '" data-lab\n' +
     '     data-exercise="' + escAttr(exercise.id) + '"\n' +
     (gradingSuspended ? '     data-grading-suspended="1"\n' : '') +
+    (exercise.preview ? '     data-preview="' + escAttr(exercise.preview) + '"\n' : '') +
     '     data-language="' + escAttr(exercise.language) + '"\n' +
     '     data-height="300"\n' +
     '     data-stdin="' + escAttr(example.stdin) + '">\n' +

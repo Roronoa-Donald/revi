@@ -4,103 +4,162 @@ module.exports = [
   {
     "id": "vo3-c3-e1",
     "chapter": 3,
-    "title": "Validateur & Générateur de Profils SIP Asterisk",
     "level": "n1",
     "language": "analyse",
-    "goal": "Valider la conformité d'une déclaration de compte utilisateur Asterisk dans sip.conf et générer la configuration normalisée.",
-    "brief": "<p>Dans Asterisk (fichiers sip.conf ou pjsip.conf), chaque utilisateur ou téléphone IP est modélisé par une section déclarative. Pour un compte SIP standard dans sip.conf, les directives clés sont :</p><ul><li><code>[numero_extension]</code> : en-tête identifiant le numéro (ex: [706438029])</li><li><code>type</code> : friend (émet et reçoit), peer (poste appelant ou trunk externe), user (uniquement entrant)</li><li><code>host</code> : dynamic (nécessite un enregistrement SIP REGISTER) ou IP statique</li><li><code>secret</code> : mot de passe d'authentification SIP (doit comporter au moins 6 caractères)</li><li><code>context</code> : contexte du dialplan dans lequel l'utilisateur évolue (ex: work, interne)</li><li><code>dtmfmode</code> : mode de transmission DTMF (rfc2833 obligatoire pour la ToIP moderne)</li><li><code>disallow</code> : all (désactive tous les codecs)</li><li><code>allow</code> : codecs autorisés (ex: ulaw, alaw, g729)</li></ul>\n<p>Format d'entrée :<br>Lignes décrivant un compte SIP sous forme :<br>NUM=<ext> TYPE=<friend|peer|user> HOST=<dynamic|ip> SECRET=<pass> CONTEXT=<nom> CODECS=<c1,c2,...></p>\n<p>Pour chaque compte, vérifier :<br>1. NUM doit être composé de 3 à 10 chiffres.<br>2. TYPE doit appartenir à {friend, peer, user}.<br>3. SECRET doit faire au moins 6 caractères.<br>4. CODECS ne doit pas être vide.<br>Si tout est valide, générer le bloc de configuration compact formaté pour Asterisk. Sinon afficher ERREUR avec le motif du refus.</p>\n<p>Format de sortie :<br>Si valide :<br>[<ext>] | type=<type> | host=<host> | secret=*** | context=<context> | dtmfmode=rfc2833 | disallow=all | allow=<codecs><br>Si invalide :<br>REJET:<ext> | MOTIF:<NUM_INVALIDE|SECRET_TROP_COURT|TYPE_INCONNU|CODECS_VIDES></p>",
-    "starter": "# Grille d'analyse (vo3-c3-e1) — Validateur & Générateur de Profils SIP Asterisk\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : NUM=6001 TYPE=peer HOST=192.168.1.100 SECRET=TrunkSecure2026 CONTEXT=incoming CODECS=g729,alaw\n# Données : NUM=8002 TYPE=admin HOST=dynamic SECRET=PassAdmin99 CONTEXT=work CODECS=alaw\n# Données : NUM=9003 TYPE=friend HOST=dynamic SECRET=MySecretPass CONTEXT=interne CODECS=\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : NUM=1001 TYPE=user HOST=dynamic SECRET=Abcdef1 CONTEXT=default CODECS=opus,ulaw\n# Données : NUM=abcdef TYPE=friend HOST=dynamic SECRET=ValidPass123 CONTEXT=work CODECS=alaw\nA_COMPLETER\n",
+    "title": "Les postes du cabinet Vergnet & Associés",
+    "exampleTitle": "Exemple résolu — l'étude notariale Beau-Séjour",
+    "goal": "Dresser la liste des comptes SIP d'une PME et citer les directives de sip.conf qui les définissent.",
+    "brief": "<p><strong>Énoncé.</strong> Le cabinet d'expertise comptable Vergnet & Associés, quatre collaborateurs, remplace son standard analogique par un IPBX Asterisk. La responsable informatique dresse la table d'extensions suivante :</p><table><tr><th>Extension</th><th>Collaborateur</th><th>Service</th><th>Contexte</th><th>Matériel</th></tr><tr><th>201</th><td>Aïcha Ndiaye</td><td>Accueil</td><td>work</td><td>Poste IP PoE</td></tr><tr><th>202</th><td>Marc Leroux</td><td>Comptabilité</td><td>work</td><td>Softphone sur portable</td></tr><tr><th>203</th><td>Sofia Pereira</td><td>Comptabilité</td><td>work</td><td>Poste IP PoE</td></tr><tr><th>204</th><td>Yanis Amrani</td><td>Direction</td><td>direction</td><td>Softphone nomade</td></tr></table><p>Le cabinet ajoute une boîte vocale générale, la numéro 250, qui accueille les appelants en dehors des horaires d'ouverture. Cette boîte n'est rattachée à aucun poste physique.</p><p>Rappel du cours : chaque poste est déclaré dans sip.conf par une section [numéro] avec les directives type, host, secret et context.</p><ol><li>Combien de comptes SIP faut-il déclarer dans sip.conf ?</li><li>Quelle directive indique qu'un poste sans adresse IP fixe doit s'enregistrer auprès du serveur ?</li><li>Quelle directive rattache chaque poste à son contexte d'acheminement du Dialplan ?</li><li>Quelle valeur du paramètre type autorise un poste à la fois à émettre et à recevoir des appels ?</li><li>Dans quel fichier les boîtes vocales, comme la 250, sont-elles déclarées ?</li></ol><p>Répondez de façon courte (un nombre, une directive, un mot).</p>",
+    "starter": "# Exercice — Les postes du cabinet Vergnet & Associés\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez de façon courte : un nombre, une directive ou un mot.\n\n[Question 1 — Nombre de comptes SIP à déclarer]\nA_COMPLETER\n\n[Question 2 — Directive d'enregistrement pour un poste sans IP fixe]\nA_COMPLETER\n\n[Question 3 — Directive de rattachement au contexte]\nA_COMPLETER\n\n[Question 4 — Valeur de type pour émettre et recevoir]\nA_COMPLETER\n\n[Question 5 — Fichier des boîtes vocales]\nA_COMPLETER\n",
     "hints": [
-      "Vérifiez que toutes les directives obligatoires (type, host, secret, context) sont présentes.",
-      "Assurez-vous que disallow=all précède les directives allow autorisant les codecs."
+      "Seuls les postes qui émettent et reçoivent des appels ont besoin d'un compte SIP : la boîte vocale générale n'en est pas un.",
+      "Relisez la fiche type du cours : [706438029] avec type=friend, host=dynamic, secret=… et context=work.",
+      "1. Comptez les postes de la table, pas les boîtes vocales. 2. host=dynamic impose l'enregistrement REGISTER. 3. La directive context fixe le contexte du Dialplan. 4. type=friend combine peer et user. 5. Les boîtes vocales se déclarent dans voicemail.conf."
     ],
     "examples": [
       {
-        "stdin": "NUM=706438029 TYPE=friend HOST=dynamic SECRET=PassSecret8190 CONTEXT=work CODECS=ulaw,alaw\nNUM=10 TYPE=friend HOST=dynamic SECRET=secret CONTEXT=work CODECS=alaw\nNUM=785446979 TYPE=friend HOST=dynamic SECRET=123 CONTEXT=work CODECS=ulaw",
-        "expected": "[706438029] | type=friend | host=dynamic | secret=*** | context=work | dtmfmode=rfc2833 | disallow=all | allow=ulaw,alaw\nREJET:10 | MOTIF:NUM_INVALIDE\nREJET:785446979 | MOTIF:SECRET_TROP_COURT\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "L'étude notariale Beau-Séjour installe un IPBX Asterisk : extensions 101 à 105 (cinq collaborateurs,\npostes IP et softphones) et une boîte vocale générale 199.\n\n1) Il faut déclarer 5 comptes SIP (101 à 105) : la boîte 199 n'est pas un poste.\n2) Les softphones sans IP fixe utilisent host=dynamic.\n3) Chaque poste est rattaché à son contexte par la directive context.\n4) type=friend autorise l'émission et la réception.\n5) La boîte 199 se déclare dans voicemail.conf.",
+        "expected": "5 comptes — host=dynamic — context — friend — voicemail.conf",
+        "note": "Une boîte vocale n'est pas un compte SIP : elle vit dans voicemail.conf, pas dans sip.conf."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "[6001] | type=peer | host=192.168.1.100 | secret=*** | context=incoming | dtmfmode=rfc2833 | disallow=all | allow=g729,alaw\nREJET:8002 | MOTIF:TYPE_INCONNU\nREJET:9003 | MOTIF:CODECS_VIDES\n"
+        "label": "Question 1 — Nombre de comptes SIP à déclarer",
+        "stdin": "q:1",
+        "expected": "4||quatre"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "[1001] | type=user | host=dynamic | secret=*** | context=default | dtmfmode=rfc2833 | disallow=all | allow=opus,ulaw\nREJET:abcdef | MOTIF:NUM_INVALIDE\n"
+        "label": "Question 2 — Directive d'enregistrement pour un poste sans IP fixe",
+        "stdin": "q:2",
+        "expected": "host=dynamic||dynamic||la directive host=dynamic"
+      },
+      {
+        "label": "Question 3 — Directive de rattachement au contexte",
+        "stdin": "q:3",
+        "expected": "context||la directive context||context=work"
+      },
+      {
+        "label": "Question 4 — Valeur de type pour émettre et recevoir",
+        "stdin": "q:4",
+        "expected": "friend||type=friend"
+      },
+      {
+        "label": "Question 5 — Fichier des boîtes vocales",
+        "stdin": "q:5",
+        "expected": "voicemail.conf||le fichier voicemail.conf"
       }
     ],
-    "solution": "[Exemple]\n[706438029] | type=friend | host=dynamic | secret=*** | context=work | dtmfmode=rfc2833 | disallow=all | allow=ulaw,alaw\nREJET:10 | MOTIF:NUM_INVALIDE\nREJET:785446979 | MOTIF:SECRET_TROP_COURT\n\n\n[Cas 1 — Cas de test 1]\n[6001] | type=peer | host=192.168.1.100 | secret=*** | context=incoming | dtmfmode=rfc2833 | disallow=all | allow=g729,alaw\nREJET:8002 | MOTIF:TYPE_INCONNU\nREJET:9003 | MOTIF:CODECS_VIDES\n\n\n[Cas 2 — Cas de test 2]\n[1001] | type=user | host=dynamic | secret=*** | context=default | dtmfmode=rfc2833 | disallow=all | allow=opus,ulaw\nREJET:abcdef | MOTIF:NUM_INVALIDE"
+    "solution": "[Question 1 — Nombre de comptes SIP à déclarer]\n4\n\n[Question 2 — Directive d'enregistrement pour un poste sans IP fixe]\nhost=dynamic\n\n[Question 3 — Directive de rattachement au contexte]\ncontext\n\n[Question 4 — Valeur de type pour émettre et recevoir]\nfriend\n\n[Question 5 — Fichier des boîtes vocales]\nvoicemail.conf",
+    "takeaway": "1) Il faut 4 comptes SIP : les extensions 201, 202, 203 et 204. La boîte vocale 250 n'est pas un poste : aucun compte SIP pour elle.\n2) host=dynamic : le poste n'a pas d'adresse IP fixe, il doit s'enregistrer par une requête REGISTER.\n3) C'est la directive context (ex. context=work pour l'accueil et la comptabilité, context=direction pour la direction) qui rattache le poste à son contexte du Dialplan.\n4) type=friend : le poste est à la fois client (peer, il émet) et serveur (user, il reçoit).\n5) Les boîtes vocales se déclarent dans /etc/asterisk/voicemail.conf, par contexte ([work], [direction]).\nContrôle : la table compte 4 lignes de postes pour 5 numéros annoncés (201 à 204 plus la boîte 250) : la différence est précisément la boîte vocale, sans compte SIP."
   },
   {
     "id": "vo3-c3-e2",
     "chapter": 3,
-    "title": "Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)",
     "level": "n2",
     "language": "analyse",
-    "goal": "Parser la configuration des boîtes vocales voicemail.conf et calculer l'espace de stockage des messages audio.",
-    "brief": "<p>Dans Asterisk, la messagerie vocale est configurée dans le fichier <code>voicemail.conf</code> sous des contextes dédiés.<br>Chaque boîte vocale est déclarée sur une ligne au format :<br><code><mailbox_num> => <pin_code>,<nom_utilisateur>,<email_notification>,<options></code></p>\n<p>Exemple :<br><code>706438029 => 8190,Pape Moussa SONKO,assoum1024@gmail.com,attach=yes</code></p>\n<p>Règles de validation :</p><ul><li><code>mailbox_num</code> : entier de 3 à 10 chiffres</li><li><code>pin_code</code> : code PIN secret à 4 chiffres (ex: 8190)</li><li><code>nom_utilisateur</code> : chaîne non vide</li><li><code>email_notification</code> : doit contenir un '@' et un '.' valide</li><li><code>quota_messages</code> : seuil maximal de messages (défaut 50)</li></ul>\n<p>Format d'entrée :<br>Lignes de la forme :<br>BOX=<num> PIN=<pin> NAME=<nom> EMAIL=<email> MSG_COUNT=<nb_messages_actuels></p>\n<p>Format de sortie :<br>Pour chaque boîte vocale :<br>1. Valider le format (numéro, PIN à 4 chiffres, email).<br>2. Si invalide, afficher : <code>VOICEMAIL_REJET:<num> | MOTIF:<PIN_INVALIDE|EMAIL_INVALIDE|NUM_INVALIDE></code>.<br>3. Si valide :<br>   Calculer le statut :<br>   - Si <code>MSG_COUNT >= 50</code> : <code>STATUT:PLEINE</code><br>   - Si <code>MSG_COUNT >= 40</code> : <code>STATUT:AVERTISSEMENT</code><br>   - Sinon : <code>STATUT:OK</code><br>   Afficher :<br>   <code>VM:<num> | NOM:<nom> | PIN:**** | EMAIL:<email> | STOCKAGE:<msg>/50 | STATUT:<statut></code></p>",
-    "starter": "# Grille d'analyse (vo3-c3-e2) — Gestionnaire de Boîtes Vocales Asterisk (voicemail.conf)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : BOX=5001 PIN=9988 NAME=Support Technique EMAIL=support@voip.lan MSG_COUNT=50\n# Données : BOX=5002 PIN=1122 NAME=Direction Générale EMAIL=dir@voip.lan MSG_COUNT=42\n# Données : BOX=abc PIN=1234 NAME=Invalide EMAIL=inv@voip.lan MSG_COUNT=0\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : BOX=600 PIN=0000 NAME=Accueil Standard EMAIL=accueil@corp.com MSG_COUNT=55\n# Données : BOX=700 PIN=12345 NAME=Test EMAIL=test@test.com MSG_COUNT=1\nA_COMPLETER\n",
+    "title": "La messagerie vocale du cabinet Vergnet",
+    "exampleTitle": "Exemple résolu — le standard du musée du Bord de Mer",
+    "goal": "Lire une configuration voicemail.conf et chiffrer le stockage des messages vocaux en G.711.",
+    "brief": "<p><strong>Énoncé.</strong> Le cabinet Vergnet & Associés active la messagerie vocale de son IPBX Asterisk. L'extrait de /etc/asterisk/voicemail.conf est le suivant :</p><pre>[work]\n201 => 4102,Aïcha Ndiaye,accueil@vergnet-associes.fr,,attach=yes\n202 => 8831,Marc Leroux,comptabilite@vergnet-associes.fr,,attach=no\n203 => 5150,Sofia Pereira,comptabilite@vergnet-associes.fr,,attach=no</pre><p>Le message d'accueil du cabinet invite les clients à « laisser un message de deux minutes maximum ». Les messages sont enregistrés en G.711, soit un débit de 64 kbps.</p><p>Rappel du cours : la consultation d'une boîte passe par l'application VoiceMailMain() ; le code PIN (4 chiffres) est le premier champ de la ligne de la boîte.</p><ol><li>Quel code PIN Marc Leroux compose-t-il pour consulter sa boîte vocale ?</li><li>Quelle application du Dialplan permet à un salarié de consulter sa boîte vocale ?</li><li>Pour quelle boîte le message audio est-il envoyé par courriel en pièce jointe ?</li><li>Combien d'octets par seconde occupe un message enregistré en G.711 (64 kbps) ?</li><li>Quelle taille, en octets, occupe au maximum un message de deux minutes ?</li></ol><p>Répondez par le nombre, le code ou le nom attendus.</p>",
+    "starter": "# Exercice — La messagerie vocale du cabinet Vergnet\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre, le code ou le nom attendus.\n\n[Question 1 — Code PIN de la boîte de Marc Leroux]\nA_COMPLETER\n\n[Question 2 — Application de consultation de la boîte vocale]\nA_COMPLETER\n\n[Question 3 — Boîte qui reçoit le message par courriel]\nA_COMPLETER\n\n[Question 4 — Octets par seconde d'un message G.711]\nA_COMPLETER\n\n[Question 5 — Taille maximale d'un message de deux minutes (en octets)]\nA_COMPLETER\n",
     "hints": [
-      "Découpez chaque ligne de boîte vocale par les séparateurs => et les virgules.",
-      "Calculez le volume audio en multipliant la durée par le débit G.711 de 8 000 octets/seconde."
+      "Le code PIN est le premier champ après le numéro de boîte, avant le nom du propriétaire.",
+      "Un débit de 64 kbps équivaut à 64 000 bits par seconde, donc 8 000 octets par seconde.",
+      "1. PIN de 202 : lisez la deuxième ligne. 2. La consultation passe par VoiceMailMain(). 3. attach=yes n'apparaît que sur une ligne. 4. 64 000 / 8 = 8 000 octets/s. 5. Deux minutes = 120 secondes : multipliez."
     ],
     "examples": [
       {
-        "stdin": "BOX=706438029 PIN=8190 NAME=Pape Moussa SONKO EMAIL=assoum1024@gmail.com MSG_COUNT=12\nBOX=101 PIN=12 EMAIL=test@corp.fr NAME=Alice MSG_COUNT=5\nBOX=2001 PIN=4321 NAME=Bob Smith EMAIL=bob.smith MSG_COUNT=45",
-        "expected": "VM:706438029 | NOM:Pape Moussa SONKO | PIN:**** | EMAIL:assoum1024@gmail.com | STOCKAGE:12/50 | STATUT:OK\nVOICEMAIL_REJET:101 | MOTIF:PIN_INVALIDE\nVOICEMAIL_REJET:2001 | MOTIF:EMAIL_INVALIDE\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "Le musée du Bord de Mer configure sa messagerie : [accueil]\n300 => 2178,Perpetue Mendy,accueil@musee-bm.fr,,attach=yes\nLes messages sont limités à 90 secondes, enregistrés en G.711 (64 kbps).\n\n1) Code PIN : 2178.\n2) Consultation : VoiceMailMain().\n3) La pièce jointe part pour la boîte 300 (attach=yes).\n4) 64 000 / 8 = 8 000 octets par seconde.\n5) 90 secondes : 8 000 × 90 = 720 000 octets.",
+        "expected": "PIN 2178 — VoiceMailMain() — pièce jointe pour la boîte 300 — 8 000 octets/s — 720 000 octets",
+        "note": "attach=yes transmet le fichier WAV par courriel ; la boîte conserve néanmoins sa copie sur le serveur."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "VM:5001 | NOM:Support Technique | PIN:**** | EMAIL:support@voip.lan | STOCKAGE:50/50 | STATUT:PLEINE\nVM:5002 | NOM:Direction Générale | PIN:**** | EMAIL:dir@voip.lan | STOCKAGE:42/50 | STATUT:AVERTISSEMENT\nVOICEMAIL_REJET:abc | MOTIF:NUM_INVALIDE\n"
+        "label": "Question 1 — Code PIN de la boîte de Marc Leroux",
+        "stdin": "q:1",
+        "expected": "8831||le code 8831"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "VM:600 | NOM:Accueil Standard | PIN:**** | EMAIL:accueil@corp.com | STOCKAGE:55/50 | STATUT:PLEINE\nVOICEMAIL_REJET:700 | MOTIF:PIN_INVALIDE\n"
+        "label": "Question 2 — Application de consultation de la boîte vocale",
+        "stdin": "q:2",
+        "expected": "VoiceMailMain()||VoiceMailMain||voicemailmain()||voicemailmain"
+      },
+      {
+        "label": "Question 3 — Boîte qui reçoit le message par courriel",
+        "stdin": "q:3",
+        "expected": "201||la boîte 201||la boite 201"
+      },
+      {
+        "label": "Question 4 — Octets par seconde d'un message G.711",
+        "stdin": "q:4",
+        "expected": "8000||8 000||8000 octets"
+      },
+      {
+        "label": "Question 5 — Taille maximale d'un message de deux minutes (en octets)",
+        "stdin": "q:5",
+        "expected": "960000||960 000||960000 octets"
       }
     ],
-    "solution": "[Exemple]\nVM:706438029 | NOM:Pape Moussa SONKO | PIN:**** | EMAIL:assoum1024@gmail.com | STOCKAGE:12/50 | STATUT:OK\nVOICEMAIL_REJET:101 | MOTIF:PIN_INVALIDE\nVOICEMAIL_REJET:2001 | MOTIF:EMAIL_INVALIDE\n\n\n[Cas 1 — Cas de test 1]\nVM:5001 | NOM:Support Technique | PIN:**** | EMAIL:support@voip.lan | STOCKAGE:50/50 | STATUT:PLEINE\nVM:5002 | NOM:Direction Générale | PIN:**** | EMAIL:dir@voip.lan | STOCKAGE:42/50 | STATUT:AVERTISSEMENT\nVOICEMAIL_REJET:abc | MOTIF:NUM_INVALIDE\n\n\n[Cas 2 — Cas de test 2]\nVM:600 | NOM:Accueil Standard | PIN:**** | EMAIL:accueil@corp.com | STOCKAGE:55/50 | STATUT:PLEINE\nVOICEMAIL_REJET:700 | MOTIF:PIN_INVALIDE"
+    "solution": "[Question 1 — Code PIN de la boîte de Marc Leroux]\n8831\n\n[Question 2 — Application de consultation de la boîte vocale]\nVoiceMailMain()\n\n[Question 3 — Boîte qui reçoit le message par courriel]\n201\n\n[Question 4 — Octets par seconde d'un message G.711]\n8000\n\n[Question 5 — Taille maximale d'un message de deux minutes (en octets)]\n960000",
+    "takeaway": "1) Le code PIN de la boîte 202 (Marc Leroux) est 8831.\n2) La consultation passe par l'application VoiceMailMain() du Dialplan.\n3) attach=yes n'apparaît que sur la ligne de la boîte 201 : seul le message d'Aïcha Ndiaye part en pièce jointe vers accueil@vergnet-associes.fr.\n4) 64 kbps = 64 000 bits/s = 64 000 / 8 = 8 000 octets par seconde.\n5) Deux minutes = 120 secondes : 8 000 × 120 = 960 000 octets, soit environ 0,96 Mo par message.\nContrôle : une heure de messages en G.711 occuperait 8 000 × 3 600 = 28,8 Mo : la limite de deux minutes tient chaque boîte sous le méga-octet par message."
   },
   {
     "id": "vo3-c3-e3",
     "chapter": 3,
-    "title": "Analyseur de Télémétrie SIP Registrar & Expiration de Baux",
     "level": "n3",
     "language": "analyse",
-    "goal": "Gérer les baux d'enregistrement SIP auprès du Registrar et détecter les expirations de contacts.",
-    "brief": "<p>Le serveur SIP Registrar maintient la base des associations entre l'adresse logique (Address of Record, AOR: ex: sip:701@voip.lan) et l'adresse IP de contact réelle.<br>Chaque requête <code>REGISTER</code> comporte un en-tête <code>Expires: <secondes></code> (typiquement 3 600 s) renouvelant le bail de l'équipement.<br>Si aucun REGISTER n'est reçu avant expiration du délai (avec une tolérance de 60 s), le poste bascule en état <code>UNREACHABLE</code> (hors-ligne).<br>De plus, si la latence réseau (RTT en ms mesuré par paquets OPTIONS périodiques) dépasse 150 ms, le poste est qualifié de <code>LAGGED</code> (gigue/délai excessif).</p>\n<p>Format d'entrée :<br>Lignes au format :<br>EXTENSION=<num> IP_CONTACT=<ip:port> LAST_SEEN_SEC=<secondes_depuis_dernier_register> EXPIRES=<duree_bail> RTT_MS=<latence></p>\n<p>Règles de qualification :<br>1. Calculer le temps restant du bail : <code>REMAINING = EXPIRES - LAST_SEEN_SEC</code>.<br>2. Déterminer l'état de joignabilité :<br>   - Si <code>LAST_SEEN_SEC > EXPIRES + 60</code> : <code>STATUT = EXPIRED</code><br>   - Sinon si <code>RTT_MS < 0</code> ou <code>RTT_MS > 300</code> : <code>STATUT = UNREACHABLE</code><br>   - Sinon si <code>RTT_MS > 150</code> : <code>STATUT = LAGGED</code><br>   - Sinon : <code>STATUT = REACHABLE</code></p>\n<p>Format de sortie :<br>Pour chaque ligne, afficher :<br>EXT:<num> | IP:<ip:port> | BAIL_RESTANT:<REMAINING>s | LATENCE:<RTT_MS>ms | STATUT:<statut></p>",
-    "starter": "# Grille d'analyse (vo3-c3-e3) — Analyseur de Télémétrie SIP Registrar & Expiration de Baux\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Cas de test 1]\n# Données : EXTENSION=100 IP_CONTACT=10.0.4.12:5060 LAST_SEEN_SEC=500 EXPIRES=600 RTT_MS=450\n# Données : EXTENSION=101 IP_CONTACT=10.0.4.13:5060 LAST_SEEN_SEC=50 EXPIRES=3600 RTT_MS=8\n# Données : EXTENSION=102 IP_CONTACT=10.0.4.14:5060 LAST_SEEN_SEC=4000 EXPIRES=3600 RTT_MS=-1\nA_COMPLETER\n\n[Cas 2 — Cas de test 2]\n# Données : EXTENSION=800 IP_CONTACT=172.20.1.1:5060 LAST_SEEN_SEC=1700 EXPIRES=1800 RTT_MS=160\n# Données : EXTENSION=801 IP_CONTACT=172.20.1.2:5060 LAST_SEEN_SEC=1850 EXPIRES=1800 RTT_MS=30\nA_COMPLETER\n",
+    "title": "Les enregistrements SIP du serveur de Vergnet & Associés",
+    "exampleTitle": "Exemple résolu — les baux de l'agence immobilière Horizon",
+    "goal": "Suivre les baux d'enregistrement REGISTER d'un IPBX et détecter les postes injoignables.",
+    "brief": "<p><strong>Énoncé.</strong> Les postes du cabinet Vergnet & Associés sont déclarés avec host=dynamic : chacun s'enregistre périodiquement auprès du Registrar d'Asterisk. À <strong>08:45:00</strong>, la console du serveur affiche l'état des enregistrements :</p><table><tr><th>Poste</th><th>Dernier REGISTER reçu</th><th>Durée du bail (expires)</th></tr><tr><th>201</th><td>08:00:00</td><td>3600 s</td></tr><tr><th>202</th><td>08:20:00</td><td>1800 s</td></tr><tr><th>204</th><td>07:00:00</td><td>3600 s</td></tr></table><p>Rappel du cours : le bail expire à l'heure du dernier REGISTER + expires ; un poste non réenregistré devient injoignable en appel entrant ; l'enregistrement s'effectue par une requête REGISTER acquittée par un 200 OK.</p><ol><li>À 08:45:00, combien de minutes restent-ils avant l'expiration du bail du poste 201 ?</li><li>Combien de minutes restent-ils avant l'expiration du bail du poste 202 ?</li><li>Le poste 204 est-il encore enregistré à 08:45:00 (oui ou non) ?</li><li>Quelle méthode SIP un poste envoie-t-il pour renouveler son bail ?</li><li>Quel code de réponse finale confirme un enregistrement réussi ?</li><li>À quelle heure exacte le bail du poste 202 expire-t-il (format hh:mm) ?</li></ol><p>Répondez par le nombre, oui/non, la méthode ou le code attendus.</p>",
+    "starter": "# Exercice — Les enregistrements SIP du serveur de Vergnet & Associés\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Répondez par le nombre, oui/non, la méthode ou le code attendus.\n\n[Question 1 — Minutes restantes au bail du poste 201]\nA_COMPLETER\n\n[Question 2 — Minutes restantes au bail du poste 202]\nA_COMPLETER\n\n[Question 3 — Le poste 204 est-il encore enregistré]\nA_COMPLETER\n\n[Question 4 — Méthode SIP de renouvellement du bail]\nA_COMPLETER\n\n[Question 5 — Code de réponse confirmant l'enregistrement]\nA_COMPLETER\n\n[Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)]\nA_COMPLETER\n",
     "hints": [
-      "Comparez le temps écoulé depuis le dernier contact avec le paramètre expires.",
-      "Marquez le statut comme ACTIF si le bail est valide, sinon EXPIRE."
+      "Convertissez la durée du bail en minutes : 3600 s = 60 min, 1800 s = 30 min, puis ajoutez-la à l'heure du dernier REGISTER.",
+      "Un bail déjà expiré à l'heure d'observation signifie que le poste n'a pas renouvelé son enregistrement.",
+      "1. Poste 201 : dernier REGISTER 08:00 + 60 min = expiration 09:00 ; il reste 15 min à 08:45. 2. Poste 202 : 08:20 + 30 min = expiration 08:50. 3. Poste 204 : 07:00 + 60 min = 08:00, donc expiré depuis 08:45. 4. Le renouvellement passe par REGISTER. 5. La réponse finale de succès est le 200 OK."
     ],
     "examples": [
       {
-        "stdin": "EXTENSION=701 IP_CONTACT=192.168.1.50:5060 LAST_SEEN_SEC=120 EXPIRES=3600 RTT_MS=15\nEXTENSION=702 IP_CONTACT=192.168.1.51:5060 LAST_SEEN_SEC=3700 EXPIRES=3600 RTT_MS=20\nEXTENSION=703 IP_CONTACT=192.168.1.52:5060 LAST_SEEN_SEC=200 EXPIRES=1800 RTT_MS=195",
-        "expected": "EXT:701 | IP:192.168.1.50:5060 | BAIL_RESTANT:3480s | LATENCE:15ms | STATUT:REACHABLE\nEXT:702 | IP:192.168.1.51:5060 | BAIL_RESTANT:-100s | LATENCE:20ms | STATUT:EXPIRED\nEXT:703 | IP:192.168.1.52:5060 | BAIL_RESTANT:1600s | LATENCE:195ms | STATUT:LAGGED\n",
-        "note": "Cas d'usage nominal."
+        "stdin": "L'agence immobilière Horizon observe ses postes à 09:15:00 :\n101 : REGISTER à 09:00:00, expires 1200 s (20 min) ;\n102 : REGISTER à 08:30:00, expires 3600 s (60 min) ;\n103 : REGISTER à 08:00:00, expires 1800 s (30 min).\n\n1) Poste 101 : expiration à 09:20:00, il reste 5 minutes.\n2) Poste 102 : expiration à 09:30:00, il reste 15 minutes.\n3) Poste 103 : bail expiré depuis 08:30:00 : poste non enregistré.\n4) Le renouvellement se fait par REGISTER, acquitté 200 OK.",
+        "expected": "101 : 5 minutes restantes — 102 : 15 minutes — 103 : expiré — REGISTER — 200 OK",
+        "note": "Un bail expiré rend le poste injoignable : sans réenregistrement, l'IPBX ne sait plus où acheminer les appels entrants."
       }
     ],
     "tests": [
       {
-        "label": "Cas de test 1",
-        "stdin": "cas:1",
-        "expected": "EXT:100 | IP:10.0.4.12:5060 | BAIL_RESTANT:100s | LATENCE:450ms | STATUT:UNREACHABLE\nEXT:101 | IP:10.0.4.13:5060 | BAIL_RESTANT:3550s | LATENCE:8ms | STATUT:REACHABLE\nEXT:102 | IP:10.0.4.14:5060 | BAIL_RESTANT:-400s | LATENCE:-1ms | STATUT:EXPIRED\n"
+        "label": "Question 1 — Minutes restantes au bail du poste 201",
+        "stdin": "q:1",
+        "expected": "15||15 minutes||15 min"
       },
       {
-        "label": "Cas de test 2",
-        "stdin": "cas:2",
-        "expected": "EXT:800 | IP:172.20.1.1:5060 | BAIL_RESTANT:100s | LATENCE:160ms | STATUT:LAGGED\nEXT:801 | IP:172.20.1.2:5060 | BAIL_RESTANT:-50s | LATENCE:30ms | STATUT:REACHABLE\n"
+        "label": "Question 2 — Minutes restantes au bail du poste 202",
+        "stdin": "q:2",
+        "expected": "5||5 minutes||5 min"
+      },
+      {
+        "label": "Question 3 — Le poste 204 est-il encore enregistré",
+        "stdin": "q:3",
+        "expected": "non"
+      },
+      {
+        "label": "Question 4 — Méthode SIP de renouvellement du bail",
+        "stdin": "q:4",
+        "expected": "REGISTER||register||la méthode REGISTER"
+      },
+      {
+        "label": "Question 5 — Code de réponse confirmant l'enregistrement",
+        "stdin": "q:5",
+        "expected": "200 OK||200 ok||le 200 OK||200"
+      },
+      {
+        "label": "Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)",
+        "stdin": "q:6",
+        "expected": "08:50||8:50||08h50"
       }
     ],
-    "solution": "[Exemple]\nEXT:701 | IP:192.168.1.50:5060 | BAIL_RESTANT:3480s | LATENCE:15ms | STATUT:REACHABLE\nEXT:702 | IP:192.168.1.51:5060 | BAIL_RESTANT:-100s | LATENCE:20ms | STATUT:EXPIRED\nEXT:703 | IP:192.168.1.52:5060 | BAIL_RESTANT:1600s | LATENCE:195ms | STATUT:LAGGED\n\n\n[Cas 1 — Cas de test 1]\nEXT:100 | IP:10.0.4.12:5060 | BAIL_RESTANT:100s | LATENCE:450ms | STATUT:UNREACHABLE\nEXT:101 | IP:10.0.4.13:5060 | BAIL_RESTANT:3550s | LATENCE:8ms | STATUT:REACHABLE\nEXT:102 | IP:10.0.4.14:5060 | BAIL_RESTANT:-400s | LATENCE:-1ms | STATUT:EXPIRED\n\n\n[Cas 2 — Cas de test 2]\nEXT:800 | IP:172.20.1.1:5060 | BAIL_RESTANT:100s | LATENCE:160ms | STATUT:LAGGED\nEXT:801 | IP:172.20.1.2:5060 | BAIL_RESTANT:-50s | LATENCE:30ms | STATUT:REACHABLE"
+    "solution": "[Question 1 — Minutes restantes au bail du poste 201]\n15\n\n[Question 2 — Minutes restantes au bail du poste 202]\n5\n\n[Question 3 — Le poste 204 est-il encore enregistré]\nnon\n\n[Question 4 — Méthode SIP de renouvellement du bail]\nREGISTER\n\n[Question 5 — Code de réponse confirmant l'enregistrement]\n200 OK\n\n[Question 6 — Heure d'expiration du bail du poste 202 (hh:mm)]\n08:50",
+    "takeaway": "1) Poste 201 : dernier REGISTER à 08:00:00 + 3600 s = expiration à 09:00:00 ; à 08:45:00, il reste 15 minutes.\n2) Poste 202 : 08:20:00 + 1800 s = expiration à 08:50:00 ; il reste 5 minutes.\n3) Poste 204 : 07:00:00 + 3600 s = expiration à 08:00:00 ; à 08:45:00 le bail est expiré depuis 45 minutes : le poste n'est plus enregistré (il n'a pas renouvelé son bail).\n4) Le poste renouvelle son bail par une requête REGISTER envoyée au Registrar.\n5) L'enregistrement réussi est confirmé par une réponse finale 200 OK.\n6) Le bail du poste 202 expire à 08:50.\nContrôle : le poste 203, lui, n'apparaît pas dans la console : il ne s'est jamais enregistré depuis le redémarrage du serveur, situation à distinguer d'un bail expiré."
   }
 ];

@@ -73,14 +73,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que renvoie une comparaison en Java ?', opts: ['Un entier', 'Un boolean', 'Une chaîne'], correct: 1, exp: 'Les comparaisons produisent un boolean (true/false).' },
-    { stem: 'Que fait l’opérateur ternaire ?', opts: ['Répète', 'Choisit une valeur selon une condition', 'Compare deux chaînes'], correct: 1, exp: 'condition ? a : b choisit a ou b.' },
-    { stem: 'Quand préférer switch ?', opts: ['Pour comparer une valeur à plusieurs cas', 'Pour boucler', 'Pour déclarer un type'], correct: 0, exp: 'switch évite une longue cascade de else if.' },
+    { stem: 'Que renvoie une comparaison en Java ?', opts: ['Un boolean', 'Un entier', 'Une chaîne'], correct: 0, exp: 'Les comparaisons produisent un boolean (true/false).' },
+    { stem: 'Que fait l’opérateur ternaire ?', opts: ["Répète un bloc d’instructions en boucle","Choisit une valeur selon une condition","Compare deux chaînes caractère par caractère"], correct: 1, exp: "Le ternaire évalue une condition et rend l’une des deux valeurs : condition ? a : b. Il ne répète rien — c’est le rôle des boucles — et il ne compare pas des chaînes." },
+    { stem: 'Quand préférer switch ?', opts: ["Pour répéter des instructions comme une boucle","Pour déclarer le type d’une variable locale","Pour comparer une valeur à plusieurs cas"], correct: 2, exp: "switch compare une même variable à plusieurs cas constants et évite la cascade de else if. Il ne boucle pas et ne déclare aucun type." },
     { stem: 'À quoi sert break dans un switch ?', opts: ['À sortir du cas', 'À relancer', 'À ignorer'], correct: 0, exp: 'break empêche le fall-through vers le cas suivant.' },
-    { stem: 'Quelle boucle pour un nombre d’itérations connu ?', opts: ['for', 'while', 'switch'], correct: 0, exp: 'for exprime directement initialisation, condition et incrément.' },
-    { stem: 'Que fait continue ?', opts: ['Sort de la boucle', 'Passe à l’itération suivante', 'Arrête le programme'], correct: 1, exp: 'continue saute le reste du corps et repart au tour suivant.' },
-    { stem: 'Que fait i++ ?', opts: ['i = i + 1', 'i = i − 1', 'i × 2'], correct: 0, exp: 'L’opérateur ++ incrémente la variable de 1.' },
-    { stem: 'Comment calcule-t-on une suite sans tableau ?', opts: ['En gardant les derniers termes dans des variables', 'Impossible', 'En triant'], correct: 0, exp: 'On retient deux valeurs et on les décale à chaque itération.' }
+    { stem: 'Quelle boucle pour un nombre d’itérations connu ?', opts: ['while', 'for', 'switch'], correct: 1, exp: 'for exprime directement initialisation, condition et incrément.' },
+    { stem: 'Que fait continue ?', opts: ['Passe à l’itération suivante', 'Sort de la boucle', 'Arrête le programme'], correct: 0, exp: 'continue saute le reste du corps et repart au tour suivant.' },
+    { stem: 'Que fait i++ ?', opts: ['i × 2', 'i = i − 1', 'i = i + 1'], correct: 2, exp: 'L’opérateur ++ incrémente la variable de 1.' },
+    { stem: 'Comment calcule-t-on une suite sans tableau ?', opts: ["Impossible : la suite exige de mémoriser tout l’historique","En triant les termes à chaque nouvelle itération","En gardant les derniers termes dans des variables"], correct: 2, exp: "On retient deux valeurs et on les décale à chaque itération : Fibonacci n’a besoin que des deux derniers termes. Nul historique complet à mémoriser, nul tri à opérer." }
   ],
 
   pitfalls: [

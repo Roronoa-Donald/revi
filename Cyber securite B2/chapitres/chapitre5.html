@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -231,10 +229,11 @@ Algorithme :
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Azerty123;sel_unique_42;3</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le sel (salt) empêche les attaques par dictionnaires précalculés et tables arc-en-ciel.</li>
         <li>L’étirement de clé (key stretching) augmente le coût de calcul par force brute via des itérations successives.</li>
+        <li>Pour chaque cas : concaténer mot de passe et sel, hacher, puis répéter l itération le nombre de fois demandé en réinjectant le résultat à chaque tour.</li>
       </ol>
     </details>
   </div>
@@ -288,10 +287,11 @@ Traitement :
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZSIsInJvbGUiOiJhZG1pbiIsImV4cCI6MTc1MDAwMDAwMH0.signatureFactice;1700000000</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un jeton JWT authentique doit obligatoirement comporter une signature cryptographique valide.</li>
         <li>Rejetez catégoriquement l’algorithme "none" qui tente de contourner la vérification de signature.</li>
+        <li>Pour chaque jeton : vérifier les trois segments, décoder l en-tête, rejeter l algorithme none ou inconnu, puis contrôler la signature et l expiration.</li>
       </ol>
     </details>
   </div>
@@ -357,10 +357,11 @@ alice:ADMIN|bob:USER
 bob write</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Dans le modèle RBAC, l’accès est déterminé par la matrice d’habilitation liant les rôles aux permissions.</li>
         <li>Contrôlez que l’opération demandée fait expressément partie des privilèges accordés au rôle de l’utilisateur.</li>
+        <li>Pour chaque requête : retrouver le rôle de l utilisateur, puis vérifier que la permission demandée figure expressément dans la liste attachée à ce rôle.</li>
       </ol>
     </details>
   </div>
@@ -373,29 +374,29 @@ bob write</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le rôle fondamental du sel cryptographique (Salt) lors du stockage des mots de passe ?</p>
       <div class="opts">
+        <button class="opt">Chiffrer le mot de passe de manière réversible pour qu’il puisse ensuite être relu en clair par l’administrateur du système</button>
+        <button class="opt">Réduire sensiblement la taille de l’empreinte cryptographique finale stockée sur le disque dur du serveur d’authentification</button>
+        <button class="opt">Permettre la réinitialisation entièrement automatique du mot de passe oublié par simple envoi d’un SMS</button>
         <button class="opt" data-correct="1">Rendre inopérantes les tables arc-en-ciel (rainbow tables) précalculées et garantir que deux mots de passe identiques produisent des empreintes distinctes</button>
-        <button class="opt">Chiffrer le mot de passe pour qu’il puisse être relu en clair par l’administrateur</button>
-        <button class="opt">Réduire la taille de l’empreinte stockée sur le disque dur</button>
-        <button class="opt">Permettre la réinitialisation automatique du mot de passe par SMS</button>
       </div>
       <div class="q__exp">Le sel est une valeur aléatoire unique par compte qui modifie l’entrée de la fonction de hachage. Les dictionnaires et tables de correspondance précalculées deviennent inutilisables car chaque utilisateur nécessite son propre calcul dédié.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi l’algorithme de hachage de mot de passe Argon2id est-il aujourd’hui recommandé plutôt qu’un simple SHA-256 ?</p>
       <div class="opts">
+        <button class="opt">Parce que le SHA-256 a été mathématiquement cassé et ne produit plus aucune empreinte cryptographique fiable</button>
+        <button class="opt">Parce qu’Argon2id fonctionne sans avoir besoin d’aucun processeur physique ni aucune ressource matérielle</button>
         <button class="opt" data-correct="1">Parce que ses paramètres de temps et de mémoire augmentent le coût des essais, y compris sur GPU et ASIC, sans rendre une attaque impossible</button>
-        <button class="opt">Parce que le SHA-256 a été mathématiquement cassé et ne produit plus d’empreintes</button>
-        <button class="opt">Parce qu’Argon2id fonctionne sans aucun processeur physique</button>
-        <button class="opt">Parce qu’il permet de se connecter sans avoir besoin de taper de mot de passe</button>
+        <button class="opt">Parce qu’il permet à l’utilisateur de se connecter sans avoir besoin de taper le moindre mot de passe</button>
       </div>
       <div class="q__exp">SHA-256 est rapide et peut aider à vérifier l’intégrité d’un fichier si son empreinte de référence est fiable. Argon2id associe un sel et des paramètres de temps, mémoire et parallélisme afin d’augmenter le coût des essais ; aucune valeur ne rend toutes les attaques impossibles.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un jeton JWT valide, que garantit la troisième partie (la signature cryptographique) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Que le contenu du payload n’a pas été falsifié ni altéré depuis son émission par le serveur</button>
-        <button class="opt">Que les données du payload sont chiffrées et illisibles par le client</button>
         <button class="opt">Que le jeton sera éternellement valide sans jamais expirer</button>
+        <button class="opt">Que les données du payload sont chiffrées et illisibles par le client</button>
+        <button class="opt" data-correct="1">Que le contenu du payload n’a pas été falsifié ni altéré depuis son émission par le serveur</button>
         <button class="opt">Que la connexion réseau est protégée par un pare-feu matériel</button>
       </div>
       <div class="q__exp">Un JWT standard n’est pas chiffré (le payload en Base64URL est lisible en clair). En revanche, la signature prouve l’intégrité et l’authenticité : toute altération d’un claim (comme le rôle) invalidera la signature.</div>
@@ -403,10 +404,10 @@ bob write</pre></div>
     <div class="q">
       <p class="q__stem">Quel modèle de contrôle d’accès permet d’autoriser un accès en évaluant des règles dynamiques telles que « autoriser si heure entre 8h et 18h ET connexion depuis la France » ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ABAC (Attribute-Based Access Control)</button>
+        <button class="opt">MAC (Mandatory Access Control)</button>
         <button class="opt">DAC (Discretionary Access Control)</button>
         <button class="opt">RBAC (Role-Based Access Control)</button>
-        <button class="opt">MAC (Mandatory Access Control)</button>
+        <button class="opt" data-correct="1">ABAC (Attribute-Based Access Control)</button>
       </div>
       <div class="q__exp">Le modèle ABAC évalue les attributs contextuels du sujet, de la ressource, de l’action et de l’environnement pour autoriser ou refuser dynamiquement l’accès.</div>
     </div>
@@ -529,7 +530,7 @@ bob write</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

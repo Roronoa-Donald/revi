@@ -161,23 +161,23 @@ module.exports = {
     {
       stem: 'Quel engagement est officiellement lié à l’artefact de l’Incrément dans le Scrum Guide ?',
       opts: [
-        'Le Product Goal',
-        'Le Sprint Goal',
         'La Definition of Done (DoD)',
+        'Le Sprint Goal',
+        'Le Product Goal',
         'Le cahier des charges fonctionnel'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'L’Incrément est formellement lié à la Definition of Done : dès qu’un élément de backlog satisfait la DoD, un nouvel incrément naît.'
     },
     {
       stem: 'Quelle est la durée maximale autorisée pour le Daily Scrum, quelle que soit la durée du Sprint ?',
       opts: [
         '10 minutes',
-        '15 minutes',
         '30 minutes',
+        '15 minutes',
         '1 heure'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Daily Scrum est un événement strictement timeboxé à 15 minutes au maximum chaque jour ouvrable.'
     },
     {
@@ -185,52 +185,52 @@ module.exports = {
       opts: [
         'Le déployer quand même en production et corriger les bugs plus tard',
         'Prolonger la durée du Sprint de quelques jours pour le terminer',
-        'Ne pas le présenter en Review, ne pas le compter dans la vélocité et le réintégrer dans le Product Backlog',
-        'Supprimer temporairement les critères DoD non satisfaits'
+        'Supprimer temporairement les critères DoD non satisfaits',
+        'Ne pas le présenter en Review, ne pas le compter dans la vélocité et le réintégrer dans le Product Backlog'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Un travail non conforme à la DoD ne peut ni être mis en production ni comptabilisé dans la vélocité. Le PO réévalue sa priorité dans le Product Backlog.'
     },
     {
       stem: 'Quel est l’objectif premier de la Sprint Retrospective ?',
       opts: [
-        'Identifier le coupable des bugs du sprint pour lui infliger un avertissement',
-        'Inspecter le déroulement du sprint passé (personnes, processus, outils) et planifier des améliorations concrètes',
-        'Présenter la démo du logiciel aux utilisateurs finaux',
-        'Négocier le salaire des développeurs'
+        "Identifier le coupable des bugs du sprint pour lui infliger un avertissement formel",
+        "Présenter la démo du logiciel aux utilisateurs finaux et recueillir leurs retours",
+        "Inspecter le déroulement du sprint passé (personnes, processus, outils) et planifier des améliorations concrètes",
+        "Négocier le salaire et les primes des développeurs avec la direction des ressources humaines"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La Rétrospective est dédiée à l’inspection et à l’adaptation de l’équipe sur ses relations humaines, ses processus et sa qualité technique.'
     },
     {
       stem: 'Dans Scrum, qui décide de la manière technique dont les éléments du Sprint Backlog seront réalisés ?',
       opts: [
-        'Le Product Owner seul',
-        'Le Scrum Master seul',
-        'Les Développeurs (Developers) en auto-organisation',
-        'La direction informatique (DSI)'
+        "Le Product Owner seul, décideur unique du backlog",
+        "Le Scrum Master seul, garant de la méthode",
+        "La direction informatique (DSI), hiérarchie fonctionnelle",
+        "Les Développeurs (Developers) en auto-organisation"
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Les Developers sont des professionnels autonomes : ils décident de la conception, de l’architecture et du plan technique d’implémentation.'
     },
     {
       stem: 'Pour un Sprint standard de 2 semaines, quelle est la timebox maximale recommandée pour le Sprint Planning ?',
       opts: [
-        '2 heures',
         '4 heures',
+        '2 heures',
         '8 heures',
         'Une journée entière'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Planning est calibré sur 2 heures par semaine de sprint : pour un sprint de 2 semaines, la durée maximale est de 4 heures (8h pour 4 semaines).'
     },
     {
       stem: 'Pourquoi est-il fortement déconseillé qu’un Scrum Master soit également le manager hiérarchique direct des développeurs de l’équipe ?',
       opts: [
-        'Parce que le Scrum Master n’a pas le droit d’avoir de compte e-mail',
-        'Parce que cela crée un rapport d’autorité qui inhibe la transparence, la sécurité psychologique et la capacité à exprimer les difficultés lors des rétrospectives',
-        'Parce que la loi du travail l’interdit',
-        'Parce que le Scrum Master doit obligatoirement être un stagiaire'
+        "Parce que le framework Scrum interdit formellement à une même personne de cumuler deux rôles officiels simultanément",
+        "Parce que cela crée un rapport d’autorité qui inhibe la transparence, la sécurité psychologique et la capacité à exprimer les difficultés lors des rétrospectives",
+        "Parce que la législation du travail interdit à un manager hiérarchique d’animer des réunions avec ses subordonnés directs",
+        "Parce que le Scrum Master doit obligatoirement être recruté à l’extérieur de l’équipe de développement qu’il accompagne"
       ],
       correct: 1,
       exp: 'Le Scrum Master est un leader serviteur et un facilitateur. Un lien hiérarchique direct détruit la confiance et la sécurité psychologique indispensables à l’empirisme.'

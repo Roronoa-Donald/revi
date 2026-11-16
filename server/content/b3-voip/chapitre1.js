@@ -153,14 +153,14 @@ module.exports = {
     },
     {
       stem: 'Quel est le débit binaire brut d\'un canal voix standard numérisé selon la norme ITU-T G.711 (loi A ou loi µ) ?',
-      opts: ['8 kbps', '16 kbps', '64 kbps', '128 kbps'],
-      correct: 2,
+      opts: ['64 kbps', '16 kbps', '8 kbps', '128 kbps'],
+      correct: 0,
       exp: 'G.711 échantillonne à 8 000 Hz avec 8 bits par échantillon : 8 000 * 8 = 64 000 bits/s = 64 kbps.'
     },
     {
       stem: 'Quelle taille totale d\'en-têtes IP/UDP/RTP obtient-on avec IPv4 sans options et un en-tête RTP minimal ?',
-      opts: ['14 octets', '28 octets', '40 octets', '64 octets'],
-      correct: 2,
+      opts: ['14 octets', '28 octets', '64 octets', '40 octets'],
+      correct: 3,
       exp: 'IPv4 sans options (20 octets) + UDP (8 octets) + RTP minimal (12 octets) = 40 octets ; des options et les autres couches peuvent ajouter de la surcharge.'
     },
     {
@@ -171,26 +171,26 @@ module.exports = {
     },
     {
       stem: 'Quel codec audio utilise l\'algorithme CS-ACELP pour compresser la parole humaine à un débit brut de seulement 8 kbps ?',
-      opts: ['G.711', 'G.722', 'G.729', 'Opus'],
-      correct: 2,
+      opts: ['G.711', 'G.729', 'G.722', 'Opus'],
+      correct: 1,
       exp: 'G.729 compresse la voix à 8 kbps grâce à la modélisation mathématique du conduit vocal par prédiction linéaire (CS-ACELP).'
     },
     {
       stem: 'Dans quelle région géographique la loi de compression logarithmique G.711 A-law est-elle obligatoirement déployée sur les réseaux téléphoniques ?',
-      opts: ['États-Unis et Canada', 'Europe et Afrique', 'Japon uniquement', 'Australie uniquement'],
-      correct: 1,
+      opts: ['Europe et Afrique', 'États-Unis et Canada', 'Japon uniquement', 'Australie uniquement'],
+      correct: 0,
       exp: 'L\'Europe, l\'Afrique et la majorité des pays du monde utilisent la norme A-law (PCMA), tandis que l\'Amérique du Nord et le Japon utilisent la loi µ (PCMU).'
     },
     {
       stem: 'Dans le modèle E (ITU-T G.107), quel score MOS (Mean Opinion Score) correspond au seuil à partir duquel la qualité de communication est qualifiée d\'Excellente ?',
-      opts: ['MOS >= 3.10', 'MOS >= 3.60', 'MOS >= 4.03', 'MOS = 5.00'],
-      correct: 2,
+      opts: ['MOS >= 3.10', 'MOS >= 3.60', 'MOS = 5.00', 'MOS >= 4.03'],
+      correct: 3,
       exp: 'Selon la classification ITU-T, un score MOS >= 4.03 qualifie une communication d\'Excellente (qualité studio/réseau local optimal).'
     },
     {
       stem: 'Pourquoi est-il impossible d\'utiliser le protocole de transport TCP pour acheminer les flux audio RTP en téléphonie temps réel ?',
-      opts: ['Car TCP ne supporte pas les adresses IP', 'Car le mécanisme de retransmission (ACK/retransmission) et le contrôle de congestion de TCP introduiraient un retard et une gigue inacceptables pour la conversation', 'Car TCP est limité à 10 kbps', 'Car les pare-feux bloquent tous les flux TCP'],
-      correct: 1,
+      opts: ["Car TCP ne sait pas acheminer les paquets audio RTP vers les adresses IP des terminaux téléphoniques distants du réseau d’entreprise","Car TCP est limité par conception à un débit maximal de 10 kbps, débit très insuffisant pour transporter un codec vocal standard","Car le mécanisme de retransmission (ACK/retransmission) et le contrôle de congestion de TCP introduiraient un retard et une gigue inacceptables pour la conversation","Car les pare-feux d’entreprise bloquent systématiquement l’ensemble des flux TCP qui traversent le réseau Internet"],
+      correct: 2,
       exp: 'La retransmission TCP en cas de paquet perdu arriverait trop tard pour être jouée dans l\'oreille humaine. On privilégie UDP qui délivre les paquets sans délai ni retransmission.'
     }
   ],

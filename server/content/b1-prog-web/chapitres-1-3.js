@@ -202,11 +202,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Dans le dialogue HTTP, qui envoie la requête ?', opts: ['Le serveur web', 'Le client (navigateur)', 'Le système DNS'], correct: 1, exp: 'Le client demande la ressource ; le serveur y répond.' },
-      { stem: 'Dans l’URL https://campus.fr/cours/a.html?page=2, que vaut l’hôte ?', opts: ['campus.fr', '/cours/a.html', 'page=2'], correct: 0, exp: 'L’hôte suit le protocole et se termine avant la première barre oblique.' },
-      { stem: 'Pour une URL HTTP, quelle composante est incluse dans la cible transmise au serveur ?', opts: ['le fragment #ancre', 'la requête après le ?', 'aucune des deux'], correct: 1, exp: 'La requête fait partie de la cible HTTP ; le fragment n’y est pas inclus.' },
+      { stem: 'Dans le dialogue HTTP, qui envoie la requête ?', opts: ['Le client (navigateur)', 'Le serveur web', 'Le système DNS'], correct: 0, exp: 'Le client demande la ressource ; le serveur y répond.' },
+      { stem: 'Dans l’URL https://campus.fr/cours/a.html?page=2, que vaut l’hôte ?', opts: ['/cours/a.html', 'campus.fr', 'page=2'], correct: 1, exp: 'L’hôte suit le protocole et se termine avant la première barre oblique.' },
+      { stem: 'Pour une URL HTTP, quelle composante est incluse dans la cible transmise au serveur ?', opts: ['le fragment #ancre', 'aucune des deux', 'la requête après le ?'], correct: 2, exp: 'La requête fait partie de la cible HTTP ; le fragment n’y est pas inclus.' },
       { stem: 'Quelle méthode est définie comme idempotente par HTTP ?', opts: ['POST', 'PATCH', 'PUT'], correct: 2, exp: 'PUT est défini comme idempotent. POST et PATCH ne le garantissent pas, même si une opération précise peut l’être.' },
-      { stem: 'Le serveur renvoie 503. De quelle famille s’agit-il ?', opts: ['erreur du client', 'erreur du serveur', 'redirection'], correct: 1, exp: '503 appartient à la famille 5xx ; ce code ne prouve pas à lui seul que la demande était valide.' },
+      { stem: 'Le serveur renvoie 503. De quelle famille s’agit-il ?', opts: ['erreur du serveur', 'erreur du client', 'redirection'], correct: 0, exp: '503 appartient à la famille 5xx ; ce code ne prouve pas à lui seul que la demande était valide.' },
       { stem: 'Quel langage décrit la structure du contenu ?', opts: ['CSS', 'HTML', 'JavaScript'], correct: 1, exp: 'HTML structure et donne du sens ; CSS présente ; JavaScript anime.' }
     ],
 
@@ -458,12 +458,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quel attribut déclare l’encodage des caractères ?', opts: ['<meta charset="UTF-8">', '<meta name="encoding">', 'lang="fr"'], correct: 0, exp: 'C’est la balise meta charset qui fixe l’encodage du document.' },
+      { stem: 'Quel attribut déclare l’encodage des caractères ?', opts: ['lang="fr"', '<meta name="encoding">', '<meta charset="UTF-8">'], correct: 2, exp: 'C’est la balise meta charset qui fixe l’encodage du document.' },
       { stem: 'Quelle balise introduit le contenu principal, unique par page ?', opts: ['<section>', '<main>', '<div>'], correct: 1, exp: 'main délimite le contenu principal ; il ne doit y en avoir qu’un.' },
-      { stem: 'Un tableau de notes doit contenir…', opts: ['des <div> alignées', 'une <caption> et des <th scope>', 'des colonnes CSS'], correct: 1, exp: 'Légende et en-têtes porteurs de scope rendent le tableau exploitable et accessible.' },
+      { stem: 'Un tableau de notes doit contenir…', opts: ['une <caption> et des <th scope>', 'des <div> alignées', 'des colonnes CSS'], correct: 0, exp: 'Légende et en-têtes porteurs de scope rendent le tableau exploitable et accessible.' },
       { stem: 'À quoi sert l’attribut alt d’une image informative ?', opts: ['à définir sa taille', 'à décrire ce qu’elle apporte', 'à la rendre cliquable'], correct: 1, exp: 'alt remplace l’image pour ceux qui ne la voient pas ; il décrit son information.' },
-      { stem: 'Quelle hiérarchie de titres est correcte ?', opts: ['h1, h3, h4', 'h1, h2, h3', 'h2, h1, h3'], correct: 1, exp: 'On descend d’un niveau à la fois, et la page commence par h1.' },
-      { stem: 'Quelle balise décrit un contenu qui aurait du sens ailleurs ?', opts: ['<section>', '<article>', '<aside>'], correct: 1, exp: 'article est autonome : fiche, sujet, note de blog.' }
+      { stem: 'Quelle hiérarchie de titres est correcte ?', opts: ['h1, h3, h4', 'h2, h1, h3', 'h1, h2, h3'], correct: 2, exp: 'On descend d’un niveau à la fois, et la page commence par h1.' },
+      { stem: 'Quelle balise décrit un contenu qui aurait du sens ailleurs ?', opts: ['<article>', '<section>', '<aside>'], correct: 0, exp: 'article est autonome : fiche, sujet, note de blog.' }
     ],
 
     pitfalls: [
@@ -706,9 +706,9 @@ module.exports = [
 
     questions: [
       { stem: 'Quel attribut rend un champ effectivement transmis au serveur ?', opts: ['id', 'name', 'class'], correct: 1, exp: 'Le couple name/valeur est ce qui voyage dans la requête ; sans name, le champ est ignoré.' },
-      { stem: 'Quel type de champ pour une note sur 20 bornée ?', opts: ['<input type="text">', '<input type="number" min="0" max="20">', '<input type="range">'], correct: 1, exp: 'type="number" avec min et max donne un contrôle adapté et des bornes.' },
-      { stem: 'Pourquoi un placeholder ne remplace-t-il pas un label ?', opts: ['il disparaît dès la saisie et est mal lu par les lecteurs d’écran', 'il n’est pas stylable', 'il ne fonctionne pas sur mobile'], correct: 0, exp: 'Le texte d’aide doit rester visible et associé au champ : c’est le rôle du label.' },
-      { stem: 'Que fait la validation HTML côté client ?', opts: ['elle protège le serveur', 'elle aide l’utilisateur', 'elle remplace la validation serveur'], correct: 1, exp: 'Elle est contournable : elle rend service au visiteur, mais ne protège rien.' },
+      { stem: 'Quel type de champ pour une note sur 20 bornée ?', opts: ["<input type=\"number\" min=\"0\" max=\"20\">","<input type=\"text\" maxlength=\"2\">","<input type=\"number\" step=\"20\">"], correct: 0, exp: "Le champ type=\"number\" avec min=\"0\" et max=\"20\" fournit un contrôle numérique borné ; maxlength ne limite que la longueur du texte et step règle l’incrément, pas les bornes." },
+      { stem: 'Pourquoi un placeholder ne remplace-t-il pas un label ?', opts: ["il n’est pas stylable par la feuille CSS du formulaire","il ne s’affiche pas sur les navigateurs mobiles récents","il disparaît dès la saisie et est mal lu par les lecteurs d’écran"], correct: 2, exp: "Le placeholder s’efface dès la première frappe et n’est pas toujours lu par les lecteurs d’écran ; il est pourtant stylable, mais une aide qui disparaît ne remplace pas un label associé au champ." },
+      { stem: 'Que fait la validation HTML côté client ?', opts: ['elle protège le serveur', 'elle remplace la validation serveur', 'elle aide l’utilisateur'], correct: 2, exp: 'Elle est contournable : elle rend service au visiteur, mais ne protège rien.' },
       { stem: 'Comment insérer un commentaire d’utilisateur sans risque ?', opts: ['innerHTML', 'textContent', 'document.write'], correct: 1, exp: 'textContent traite la valeur comme du texte ; innerHTML l’interpréterait comme du HTML.' },
       { stem: 'Quel remplacement doit être fait en premier lors de l’échappement ?', opts: ['&', '<', '"'], correct: 0, exp: 'Commencer par & évite de ré-échapper les entités créées par les remplacements suivants.' }
     ],

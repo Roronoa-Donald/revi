@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -208,24 +206,31 @@
      data-exercise="aws3-c6-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="LAMBDA_COST REQS=5000000 DURATION_MS=200 MEM_MB=512 FREE_TIER=NO">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c6-e1) — Calculateur de Coûts Serverless AWS Lambda (Go-secondes & Requêtes)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le service de transcription Dictao facture sa fonction Lambda : 256 Mo de mémoire,&#10;500 ms par exécution, 1 000 000 d'invocations dans le mois.&#10;Grille : 0,20 € par million de requêtes, 0,00001 € par Go-seconde.&#10;&#10;1) Mémoire : 256 Mo = 0,25 Go.&#10;2) Go-secondes par appel : 0,25 × 0,5 = 0,125.&#10;3) Total du mois : 0,125 × 1 000 000 = 125 000 Go-s.&#10;4) Calcul : 125 000 × 0,00001 = 1,25 €.&#10;5) Requêtes : 1 × 0,20 = 0,20 €.&#10;6) Total : 1,25 + 0,20 = 1,45 €.">
+  <script type="text/plain" data-lab-starter># Exercice — La facture Lambda du service Vignetta
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses : le nombre seul.
 
-[Cas 1 — Fonction avec AWS Free Tier déduit]
-# Données : LAMBDA_COST REQS=5000000 DURATION_MS=200 MEM_MB=512 FREE_TIER=YES
+[Question 1 — Mémoire allouée par invocation (en Go)]
 A_COMPLETER
 
-[Cas 2 — Faible volume couvert à 100% par le Free Tier]
-# Données : LAMBDA_COST REQS=500000 DURATION_MS=100 MEM_MB=128 FREE_TIER=YES
+[Question 2 — Go-secondes par invocation]
 A_COMPLETER
 
-[Cas 3 — Micro-service intensif haute mémoire (2048 MB sans Free Tier)]
-# Données : LAMBDA_COST REQS=10000000 DURATION_MS=500 MEM_MB=2048 FREE_TIER=NO
+[Question 3 — Go-secondes sur le mois]
+A_COMPLETER
+
+[Question 4 — Coût de calcul du mois (en €)]
+A_COMPLETER
+
+[Question 5 — Coût des requêtes du mois (en €)]
+A_COMPLETER
+
+[Question 6 — Total de la facture Lambda (en €)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur de Coûts Serverless AWS Lambda (Go-secondes &amp; Requêtes)</h3>
+    <h3 class="lab__title">Exercice 1 — La facture Lambda du service Vignetta</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -234,30 +239,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c6-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la facture mensuelle d'une fonction AWS Lambda selon sa mémoire allouée, sa durée d'exécution et le nombre d'invocations.</p>
-    <div class="lab__brief"><p>Le modèle de tarification d'<strong>AWS Lambda</strong> repose sur deux axes :<br><br>
-1. <strong>Coût des requêtes</strong> : 0.20 $ par million de requêtes (soit <code>0.0000002 $</code> par requête).<br>
-2. <strong>Coût de calcul (Go-secondes)</strong> :<br>
-La mémoire (ex: 512 MB) est convertie en Go : <code>Go = Memory_MB / 1024.0</code>.<br>
-La durée en ms est convertie en secondes : <code>Secondes = Duration_MS / 1000.0</code>.<br>
-<code>Go_Secondes = Requetes * Go * Secondes</code>.<br>
-Tarif unitaire de calcul : <code>0.0000166667 $</code> par Go-seconde (architecture x86).<br><br>
-3. <strong>AWS Free Tier (Optionnel)</strong> :<br>
-Si <code>FREE_TIER=YES</code>, déduire chaque mois :<br>
-- 1 000 000 de requêtes gratuites (minimum facturé 0).<br>
-- 400 000 Go-secondes gratuites (minimum facturé 0).<br><br>
-Données du cas :<br>
-<code>LAMBDA_COST REQS=&lt;n&gt; DURATION_MS=&lt;ms&gt; MEM_MB=&lt;mb&gt; FREE_TIER=&lt;YES|NO&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-<code>LAMBDA_BILL: gb_seconds=&lt;gbs:.2f&gt; req_cost=&lt;rc:.4f&gt;$ compute_cost=&lt;cc:.4f&gt;$ total_cost=&lt;tot:.2f&gt;$</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la facture d'une fonction Lambda : Go-secondes de calcul et facturation des requêtes.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Vignetta exploite un service de partage d'images : à chaque photo importée, une fonction AWS Lambda génère une vignette. La fonction est configurée avec <strong>512 Mo de mémoire</strong> et s'exécute en moyenne <strong>300 ms</strong> par invocation. Le mois dernier, elle a été invoquée <strong>2 000 000 de fois</strong>.</p><p>Grille pédagogique simplifiée retenue pour l'exercice : <strong>0,20 € par million de requêtes</strong> et <strong>0,00001 € par Go-seconde</strong> de calcul (mémoire allouée × durée d'exécution).</p><p>Toutes les questions attendent un nombre (les questions 1 et 2 admettent une décimale).</p><ol><li>Combien de Go de mémoire la fonction alloue-t-elle à chaque invocation ?</li><li>Combien de Go-secondes consomme chaque invocation (mémoire × durée en secondes) ?</li><li>Combien de Go-secondes la fonction consomme-t-elle au total sur le mois ?</li><li>Quel est le coût de calcul du mois, en euros ?</li><li>Quel est le coût des requêtes du mois, en euros ?</li><li>Quel est le total de la facture Lambda du mois, en euros ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LAMBDA_COST REQS=5000000 DURATION_MS=200 MEM_MB=512 FREE_TIER=NO</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le service de transcription Dictao facture sa fonction Lambda : 256 Mo de mémoire,
+500 ms par exécution, 1 000 000 d'invocations dans le mois.
+Grille : 0,20 € par million de requêtes, 0,00001 € par Go-seconde.
+
+1) Mémoire : 256 Mo = 0,25 Go.
+2) Go-secondes par appel : 0,25 × 0,5 = 0,125.
+3) Total du mois : 0,125 × 1 000 000 = 125 000 Go-s.
+4) Calcul : 125 000 × 0,00001 = 1,25 €.
+5) Requêtes : 1 × 0,20 = 0,20 €.
+6) Total : 1,25 + 0,20 = 1,45 €.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Convertissez la mémoire en Go (512 Mo = 0,5 Go) et la durée en secondes (300 ms = 0,3 s) avant tout calcul.</li>
+        <li>Les Go-secondes du mois valent Go par invocation × nombre d'invocations ; les requêtes se facturent par million.</li>
+        <li>1. 512 Mo en Go. 2. 0,5 × 0,3. 3. Multipliez par 2 000 000. 4. Multipliez par 0,00001. 5. 2 000 000 / 1 000 000 × 0,20. 6. Additionnez les deux coûts.</li>
       </ol>
     </details>
   </div>
@@ -267,24 +268,31 @@ Résultat d’analyse attendu :<br>
      data-exercise="aws3-c6-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="CW_ALARM METRIC=CPUUtilization THRESHOLD=80.0 OP=GREATER_EQUAL PERIODS=3 POINTS=45.0,78.0,85.0,88.0,92.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c6-e2) — Analyseur de Métriques & Détecteur d'Alarmes Amazon CloudWatch
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La plateforme AlloResto découple ses paiements : le site dépose chaque paiement dans une file SQS,&#10;maxReceiveCount = 4, délai de visibilité 120 s ; notification du client par e-mail et du comptoir par webhook.&#10;&#10;1) La file SQS absorbe les pics de commandes.&#10;2) Un paiement en échec part en file lettres mortes après 4 réceptions.&#10;3) Pendant 120 s, le message est invisible pour les autres consommateurs.&#10;4) Les notifications simultanées partent par SNS.&#10;5) Les paiements d'une même commande exigent une file FIFO.&#10;6) Traitement de 200 s contre 120 s de visibilité : augmenter le délai de visibilité.">
+  <script type="text/plain" data-lab-starter># Exercice — Le découplage des commandes de l'épicerie Vitabio
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 2 : le nombre. Question 3 : oui ou non. Question 6 : le nom du paramètre.
 
-[Cas 1 — Alarme en état OK (le dernier point est repassé sous le seuil)]
-# Données : CW_ALARM METRIC=CPUUtilization THRESHOLD=80.0 OP=GREATER_EQUAL PERIODS=3 POINTS=85.0,88.0,75.0
+[Question 1 — Service de file d'attente du découplage]
 A_COMPLETER
 
-[Cas 2 — Données insuffisantes (2 points disponibles pour une période de 3)]
-# Données : CW_ALARM METRIC=DatabaseConnections THRESHOLD=50.0 OP=GREATER_EQUAL PERIODS=3 POINTS=90.0,95.0
+[Question 2 — Réceptions avant le passage en file lettres mortes]
 A_COMPLETER
 
-[Cas 3 — Alarme sur seuil inférieur (Espace disque libre <= 10%)]
-# Données : CW_ALARM METRIC=FreeDiskSpace THRESHOLD=10.0 OP=LESS_EQUAL PERIODS=2 POINTS=12.0,8.5,7.0
+[Question 3 — Message visible par les autres pendant le délai ?]
+A_COMPLETER
+
+[Question 4 — Service de publication vers e-mail et webhook]
+A_COMPLETER
+
+[Question 5 — Famille de files garantissant ordre et unicité]
+A_COMPLETER
+
+[Question 6 — Paramètre à ajuster pour éviter les doublons]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Analyseur de Métriques &amp; Détecteur d'Alarmes Amazon CloudWatch</h3>
+    <h3 class="lab__title">Exercice 2 — Le découplage des commandes de l'épicerie Vitabio</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -293,28 +301,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c6-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer l'état d'une alarme CloudWatch (OK, ALARM, INSUFFICIENT_DATA) selon la règle des N points de données consécutifs.</p>
-    <div class="lab__brief"><p>Une <strong>alarme Amazon CloudWatch</strong> surveille une métrique (ex: CPUUtilization) :<br><br>
-Règles d'évaluation :<br>
-1. <code>OPERATOR</code> :<br>
-- <code>GREATER_EQUAL</code> : un point est en infraction si <code>valeur &gt;= THRESHOLD</code>.<br>
-- <code>LESS_EQUAL</code> : un point est en infraction si <code>valeur &lt;= THRESHOLD</code>.<br>
-2. <code>PERIODS</code> : Nombre de points consécutifs récents nécessaires pour déclencher l'alarme.<br>
-3. États de l'alarme :<br>
-- Si le nombre de points disponibles est inférieur à <code>PERIODS</code> -&gt; <code>INSUFFICIENT_DATA</code>.<br>
-- Si les <code>PERIODS</code> derniers points sont TOUS en infraction -&gt; <code>ALARM</code>.<br>
-- Sinon -&gt; <code>OK</code>.<br><br>
-Données du cas :<br>
-<code>CW_ALARM METRIC=&lt;nom&gt; THRESHOLD=&lt;t&gt; OP=&lt;GREATER_EQUAL|LESS_EQUAL&gt; PERIODS=&lt;n&gt; POINTS=&lt;p1,p2,...&gt;</code>.<br><br>
-Résultat d’analyse attendu : <code>ALARM_VERDICT: metric=&lt;nom&gt; state=&lt;OK|ALARM|INSUFFICIENT_DATA&gt; evaluated_points=&lt;pts&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Raisonner sur une file SQS : délai de visibilité, DLQ, choix Standard ou FIFO, et rôle de SNS.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Vitabio est une épicerie en ligne. Le soir du restockage, les commandes affluent : pour éviter de perdre les commandes si les serveurs de traitement saturent, l'architecture découple les étapes. Le site web dépose chaque commande dans la file Amazon SQS « commandes » ; des serveurs consomment la file, génèrent la facture et préparent le colis. Les messages dont le traitement échoue partent dans la file lettres mortes « commandes-mortes », avec <strong>maxReceiveCount = 3</strong> ; le <strong>délai de visibilité</strong> est de <strong>60 secondes</strong>. À l'expédition, une notification doit partir simultanément au client (e-mail) et à l'entrepôt (webhook).</p><p>Rappel du cours : pendant le délai de visibilité, un message reçu n'est pas redélivré aux autres consommateurs ; au-delà de maxReceiveCount réceptions sans suppression, le message part dans la file lettres mortes (DLQ) ; les files Standard offrent un débit élevé sans garantie d'ordre, les files FIFO garantissent l'ordre et le traitement exactement unique ; SNS est le service de publication/abonnement pour notifier plusieurs destinataires.</p><p>Les questions 2, 3 et 6 attendent un nombre ou « oui/non » ; les autres une réponse courte.</p><ol><li>Quel service de file d'attente découple le site web des serveurs de traitement ?</li><li>Un message de commande échoue systématiquement : après combien de réceptions sans succès est-il déplacé vers la file lettres mortes ?</li><li>Pendant le délai de visibilité de 60 secondes, le message est-il visible pour les autres consommateurs ?</li><li>Pour notifier simultanément le client par e-mail et l'entrepôt par webhook, quel service de publication/abonnement utiliser ?</li><li>Quelle famille de files SQS garantit l'ordre et le traitement exactement unique des messages : Standard ou FIFO ?</li><li>Le traitement réel d'une commande prend 90 secondes alors que le délai de visibilité est de 60 secondes : faut-il augmenter le délai de visibilité ou le maxReceiveCount pour éviter les traitements en double ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CW_ALARM METRIC=CPUUtilization THRESHOLD=80.0 OP=GREATER_EQUAL PERIODS=3 POINTS=45.0,78.0,85.0,88.0,92.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La plateforme AlloResto découple ses paiements : le site dépose chaque paiement dans une file SQS,
+maxReceiveCount = 4, délai de visibilité 120 s ; notification du client par e-mail et du comptoir par webhook.
+
+1) La file SQS absorbe les pics de commandes.
+2) Un paiement en échec part en file lettres mortes après 4 réceptions.
+3) Pendant 120 s, le message est invisible pour les autres consommateurs.
+4) Les notifications simultanées partent par SNS.
+5) Les paiements d'une même commande exigent une file FIFO.
+6) Traitement de 200 s contre 120 s de visibilité : augmenter le délai de visibilité.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>La file absorbe les pics : le producteur dépose, les consommateurs traitent à leur rythme ; rien n'est perdu tant que le message vit dans la file.</li>
+        <li>Un message non supprimé redevient visible à l'expiration du délai de visibilité : si le traitement dure plus longtemps, un autre consommateur le reprend.</li>
+        <li>1. Le service de file d'attente managé d'AWS. 2. Relisez maxReceiveCount. 3. Que masque le délai de visibilité ? 4. Publication/abonnement vers plusieurs protocoles. 5. Standard ou FIFO ? 6. Comparez 90 s de traitement et 60 s de visibilité.</li>
       </ol>
     </details>
   </div>
@@ -324,24 +329,31 @@ Résultat d’analyse attendu : <code>ALARM_VERDICT: metric=&lt;nom&gt; state=&l
      data-exercise="aws3-c6-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SQS_PROCESS MAX_RECEIVES=3 MSGS=m1:1:SUCCESS;m2:1:ERROR;m3:2:ERROR">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c6-e3) — Simulateur de File d'Attente Amazon SQS & Dead-Letter Queue (DLQ)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le service de veille PresseLib reconstitue sa facture (730 h) :&#10;1 instance EC2 à 0,10 €/h ; 200 Go S3 à 0,023 €/Go ; 1 million de requêtes Lambda à 0,20 €/M ;&#10;10 Go sortants à 0,09 €/Go ; ALB 730 h × 0,025 €/h. Alarme de facturation avec seuil de 90 €.&#10;&#10;1) EC2 : 730 × 0,10 = 73,00 €.&#10;2) S3 : 200 × 0,023 = 4,60 €.&#10;3) Lambda : 0,20 € ; transfert : 0,90 € ; ALB : 18,25 €.&#10;4) Total : 73,00 + 4,60 + 0,20 + 0,90 + 18,25 = 96,95 €.&#10;5) Part EC2 : 73 / 96,95 ≈ 75 %.&#10;6) 96,95 &gt; 90 : l'alarme passe en état ALARM.">
+  <script type="text/plain" data-lab-starter># Exercice — La facture mensuelle du service de podcasts Streamly
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 et 5 : le nombre seul. Question 6 : oui ou non.
 
-[Cas 1 — Tous les messages traités avec succès]
-# Données : SQS_PROCESS MAX_RECEIVES=3 MSGS=msg-1:1:SUCCESS;msg-2:1:SUCCESS;msg-3:2:SUCCESS
+[Question 1 — Montant de la ligne EC2 (en €)]
 A_COMPLETER
 
-[Cas 2 — Deux messages transférés vers la DLQ]
-# Données : SQS_PROCESS MAX_RECEIVES=3 MSGS=order-1:2:ERROR;order-2:1:ERROR;order-3:3:ERROR
+[Question 2 — Montant de la ligne S3 (en €)]
 A_COMPLETER
 
-[Cas 3 — Seuil strict de 1 tentative (échec immédiat en DLQ)]
-# Données : SQS_PROCESS MAX_RECEIVES=1 MSGS=job-a:0:ERROR;job-b:0:SUCCESS
+[Question 3 — Total de la facture (en €)]
+A_COMPLETER
+
+[Question 4 — Ligne dominante de la facture]
+A_COMPLETER
+
+[Question 5 — Part de la ligne EC2 (en %)]
+A_COMPLETER
+
+[Question 6 — Alarme CloudWatch de seuil 200 € en état ALARM ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de File d'Attente Amazon SQS &amp; Dead-Letter Queue (DLQ)</h3>
+    <h3 class="lab__title">Exercice 3 — La facture mensuelle du service de podcasts Streamly</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -350,26 +362,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c6-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le traitement de messages SQS et l'isolation des messages en échec vers une Dead-Letter Queue (DLQ).</p>
-    <div class="lab__brief"><p>Amazon SQS permet de découpler les architectures asynchrones et gère les pannes avec une <strong>Dead-Letter Queue (DLQ)</strong> :<br><br>
-Règles de cycle de vie d'un message :<br>
-1. Chaque message possède un identifiant <code>id</code>, un compteur de tentatives <code>receive_count</code> et un statut de tentative de traitement <code>SUCCESS</code> ou <code>ERROR</code>.<br>
-2. Si le traitement est <code>SUCCESS</code> : le message est traité avec succès et supprimé de la file (<code>PROCESSED</code>).<br>
-3. Si le traitement est <code>ERROR</code> : le compteur <code>receive_count</code> est incrémenté de 1.<br>
-- Si le nouveau <code>receive_count &gt;= MAX_RECEIVES</code> : le message est transféré vers la Dead-Letter Queue (<code>SENT_TO_DLQ</code>).<br>
-- Sinon : le message reste dans la file principale pour une nouvelle tentative (<code>RETRY_IN_FLIGHT</code>).<br><br>
-Données du cas :<br>
-<code>SQS_PROCESS MAX_RECEIVES=&lt;n&gt; MSGS=&lt;id:rec_count:status;...&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-<code>SQS_SUMMARY: processed=&lt;p&gt; retry_in_flight=&lt;r&gt; dlq_count=&lt;d&gt; dlq_ids=&lt;id1,id2,...|NONE&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Vérifier une facture mensuelle multi-services ligne par ligne, identifier la ligne dominante et arbitrer une alarme CloudWatch.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Streamly exploite une plateforme de podcasts. Le directeur technique reconstitue la facture du mois à partir de la grille simplifiée suivante (730 heures dans le mois) :</p><table><tr><th>Ligne de coût</th><th>Détail</th></tr><tr><th>Instances EC2</th><td>2 instances m5.large, 24 h/24, à 0,10 €/h</td></tr><tr><th>Stockage S3 Standard</th><td>100 Go de podcasts à 0,023 €/Go</td></tr><tr><th>Requêtes AWS Lambda</th><td>3 millions de requêtes à 0,20 € par million</td></tr><tr><th>Transfert sortant vers Internet</th><td>50 Go à 0,09 €/Go</td></tr><tr><th>Application Load Balancer</th><td>coût fixe 730 h × 0,025 €/h (hors unités LCU)</td></tr></table><p>Une alarme CloudWatch surveille en parallèle la métrique de facturation estimée du compte, avec un seuil de <strong>200 €</strong>.</p><p>Les questions 1 à 3 et 5 attendent un nombre ; la question 4 un court libellé ; la question 6 « oui » ou « non ».</p><ol><li>Vérifiez la ligne EC2 : quel est son montant mensuel, en euros ?</li><li>Vérifiez la ligne S3 : quel est son montant mensuel, en euros ?</li><li>Quel est le total de la facture, en euros ?</li><li>Quelle ligne pèse le plus lourd dans la facture ?</li><li>Quelle part du total la ligne EC2 représente-t-elle, en pourcentage arrondi à l'unité ?</li><li>La facture calculée fait-elle passer l'alarme CloudWatch de seuil 200 € en état ALARM ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SQS_PROCESS MAX_RECEIVES=3 MSGS=m1:1:SUCCESS;m2:1:ERROR;m3:2:ERROR</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le service de veille PresseLib reconstitue sa facture (730 h) :
+1 instance EC2 à 0,10 €/h ; 200 Go S3 à 0,023 €/Go ; 1 million de requêtes Lambda à 0,20 €/M ;
+10 Go sortants à 0,09 €/Go ; ALB 730 h × 0,025 €/h. Alarme de facturation avec seuil de 90 €.
+
+1) EC2 : 730 × 0,10 = 73,00 €.
+2) S3 : 200 × 0,023 = 4,60 €.
+3) Lambda : 0,20 € ; transfert : 0,90 € ; ALB : 18,25 €.
+4) Total : 73,00 + 4,60 + 0,20 + 0,90 + 18,25 = 96,95 €.
+5) Part EC2 : 73 / 96,95 ≈ 75 %.
+6) 96,95 &gt; 90 : l'alarme passe en état ALARM.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Calculez chaque ligne : EC2 = nombre d'instances × heures × prix ; S3 = Go × prix ; Lambda = millions × prix ; ALB = heures × prix fixe.</li>
+        <li>Le total est la somme des cinq lignes ; la part d'une ligne vaut montant de la ligne divisé par le total, multiplié par 100.</li>
+        <li>1. 2 × 730 × 0,10. 2. 100 × 0,023. 3. Ajoutez aussi 3 × 0,20, 50 × 0,09 et 730 × 0,025. 4. Comparez les montants. 5. Ligne EC2 / total × 100. 6. Comparez le total au seuil de l'alarme.</li>
       </ol>
     </details>
   </div>
@@ -383,8 +395,8 @@ Résultat d’analyse attendu :<br>
       <p class="q__stem">Quelle est la durée maximale d'exécution (timeout limite) autorisée pour une fonction AWS Lambda avant interruption forcée ?</p>
       <div class="opts">
         <button class="opt">5 minutes</button>
-        <button class="opt" data-correct="1">15 minutes</button>
         <button class="opt">1 heure</button>
+        <button class="opt" data-correct="1">15 minutes</button>
         <button class="opt">Illimitée</button>
       </div>
       <div class="q__exp">Une fonction AWS Lambda peut s'exécuter pendant une durée maximale de 15 minutes (900 secondes). Au-delà, l'exécution est interrompue et il convient d'employer AWS Batch, ECS ou EC2.</div>
@@ -393,49 +405,49 @@ Résultat d’analyse attendu :<br>
       <p class="q__stem">Dans Amazon SQS, quel mécanisme permet d'isoler automatiquement les messages ayant échoué à être traités après N tentatives infructueuses ?</p>
       <div class="opts">
         <button class="opt">Auto-scaling Queue</button>
-        <button class="opt" data-correct="1">Dead-Letter Queue (DLQ)</button>
-        <button class="opt">Visibility Timeout infini</button>
         <button class="opt">S3 Glacier Archive</button>
+        <button class="opt">Visibility Timeout infini</button>
+        <button class="opt" data-correct="1">Dead-Letter Queue (DLQ)</button>
       </div>
       <div class="q__exp">Une Dead-Letter Queue (DLQ) reçoit automatiquement les messages dont le compteur ReceiveCount atteint ou dépasse le seuil MaxReceiveCount configuré, isolant ainsi les messages toxiques.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre Amazon CloudWatch et AWS CloudTrail ?</p>
       <div class="opts">
-        <button class="opt">CloudWatch est payant alors que CloudTrail est gratuit</button>
         <button class="opt" data-correct="1">CloudWatch surveille les métriques de performance et les logs ; CloudTrail enregistre l'historique d'audit de tous les appels API (qui a fait quoi)</button>
-        <button class="opt">CloudTrail ne fonctionne qu'avec S3</button>
-        <button class="opt">Il n'y a aucune différence</button>
+        <button class="opt">CloudWatch est un service payant alors que CloudTrail est entièrement gratuit, quelle que soit la région utilisée</button>
+        <button class="opt">CloudTrail ne fonctionne qu'avec les buckets S3 et les instances EC2, tous les autres services AWS étant exclus du suivi</button>
+        <button class="opt">Il n'y a aucune différence réelle : les deux services enregistrent exactement les mêmes journaux d'audit et de performance</button>
       </div>
       <div class="q__exp">CloudWatch monitore l'état opérationnel et les métriques des ressources (CPU, mémoire, requêtes). CloudTrail est un outil d'audit de gouvernance qui trace l'identité de l'appelant et chaque requête API.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel patron d'architecture permet de dupliquer un message unique vers plusieurs files d'attente SQS traitées en parallèle par différents services ?</p>
       <div class="opts">
-        <button class="opt">Le patron Scatter-Gather</button>
+        <button class="opt">Le patron Scatter-Gather avec agrégation des réponses</button>
         <button class="opt" data-correct="1">Le patron Fan-out (Amazon SNS vers plusieurs Amazon SQS)</button>
-        <button class="opt">Le patron Single Point of Failure</button>
-        <button class="opt">Le patron Round-Robin DNS</button>
+        <button class="opt">Le patron Single Point of Failure concentré sur un nœud</button>
+        <button class="opt">Le patron Round-Robin DNS avec rotation d'adresses IP</button>
       </div>
       <div class="q__exp">Le pattern Fan-out consiste à publier un message sur un topic Amazon SNS, auquel sont abonnées plusieurs files SQS distinctes. SNS duplique et pousse le message vers chaque file en parallèle.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment la puissance de calcul CPU et la bande passante réseau sont-elles allouées à une fonction AWS Lambda ?</p>
       <div class="opts">
-        <button class="opt">Elles doivent être achetées sur une console dédiée</button>
+        <button class="opt">Elles doivent être achetées à l'unité sur une console dédiée de réservation de capacité</button>
+        <button class="opt">Elles sont toujours plafonnées à 1 vCPU, quelle que soit la mémoire configurée</button>
         <button class="opt" data-correct="1">Elles sont allouées proportionnellement à la quantité de mémoire RAM configurée pour la fonction</button>
-        <button class="opt">Elles sont toujours plafonnées à 1 vCPU</button>
-        <button class="opt">Elles dépendent de la région uniquement</button>
+        <button class="opt">Elles dépendent uniquement de la région de déploiement, pas de la mémoire de la fonction</button>
       </div>
       <div class="q__exp">Dans AWS Lambda, l'unique curseur de performance est la mémoire RAM (128 MB à 10 GB). AWS alloue automatiquement la puissance CPU et le réseau de façon strictement proportionnelle à la RAM allouée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle caractéristique technique distingue formellement une file Amazon SQS FIFO d'une file SQS Standard ?</p>
       <div class="opts">
-        <button class="opt">Les files FIFO ne supportent pas le format JSON</button>
+        <button class="opt">Les files FIFO ne supportent pas le format JSON dans les charges utiles des messages échangés entre producteurs</button>
+        <button class="opt">Les files FIFO sont gratuites à l'usage, sans aucune limite de débit ni de quota de requêtes par seconde</button>
+        <button class="opt">Les files FIFO ne peuvent contenir que 10 messages en attente simultanément, au-delà tout envoi est rejeté</button>
         <button class="opt" data-correct="1">Les files FIFO garantissent un ordre de traitement strict (premier entré, premier sorti) et une livraison exactement une fois sans doublon</button>
-        <button class="opt">Les files FIFO sont gratuites sans limite</button>
-        <button class="opt">Les files FIFO ne peuvent contenir que 10 messages</button>
       </div>
       <div class="q__exp">Les files SQS FIFO (First-In-First-Out) garantissent que les messages sont remis strictement dans l'ordre de leur émission et éliminent les doublons (exactly-once processing).</div>
     </div>
@@ -577,7 +589,7 @@ Résultat d’analyse attendu :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

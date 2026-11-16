@@ -137,12 +137,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Qu’appelle-t-on un individu en statistique ?', opts: ['Une personne interrogée uniquement', 'Un élément de la population étudiée', 'Une modalité'], correct: 1, exp: 'Un individu peut être une personne, un objet, un jour, un site : tout élément de la population.' },
+      { stem: 'Qu’appelle-t-on un individu en statistique ?', opts: ['Une personne interrogée uniquement', 'Une modalité', 'Un élément de la population étudiée'], correct: 2, exp: 'Un individu peut être une personne, un objet, un jour, un site : tout élément de la population.' },
       { stem: 'Le caractère « couleur des yeux » est…', opts: ['quantitatif discret', 'qualitatif', 'quantitatif continu'], correct: 1, exp: 'Ses modalités ne sont pas numériques : il est qualitatif.' },
-      { stem: 'Un numéro de téléphone est…', opts: ['quantitatif discret', 'qualitatif', 'quantitatif continu'], correct: 1, exp: 'Écrit avec des chiffres, il ne se calcule pas : il est qualitatif.' },
+      { stem: 'Un numéro de téléphone est…', opts: ['qualitatif', 'quantitatif discret', 'quantitatif continu'], correct: 0, exp: 'Écrit avec des chiffres, il ne se calcule pas : il est qualitatif.' },
       { stem: 'Sur la série 3, 5, 5, 8, 5, 3, combien de modalités compte-t-elle ?', opts: ['2', '3', '6'], correct: 1, exp: 'Les valeurs distinctes sont 3, 5 et 8 : trois modalités.' },
-      { stem: 'Qu’est-ce que le centre d’une classe [160 ; 170[ ?', opts: ['160', '165', '170'], correct: 1, exp: 'Le centre est la demi-somme des bornes : (160 + 170)/2 = 165.' },
-      { stem: 'Une valeur égale à 160 appartient à quelle classe ?', opts: ['[150 ; 160[', '[160 ; 170[', 'Les deux'], correct: 1, exp: 'Une borne intérieure appartient à la classe qui commence par cette borne ; la dernière classe inclut aussi le maximum.' }
+      { stem: 'Qu’est-ce que le centre d’une classe [160 ; 170[ ?', opts: ['160', '170', '165'], correct: 2, exp: 'Le centre est la demi-somme des bornes : (160 + 170)/2 = 165.' },
+      { stem: 'Une valeur égale à 160 appartient à quelle classe ?', opts: ['[160 ; 170[', '[150 ; 160[', 'Les deux'], correct: 0, exp: 'Une borne intérieure appartient à la classe qui commence par cette borne ; la dernière classe inclut aussi le maximum.' }
     ],
 
     pitfalls: [
@@ -297,12 +297,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que vaut la somme des fréquences relatives ?', opts: ['N', '1', '100'], correct: 1, exp: 'Les parts du tout se totalisent à 1, soit 100 %.' },
-      { stem: '12 individus sur 30, cela représente…', opts: ['12 %', '40 %', '0,4 %'], correct: 1, exp: '12/30 = 0,4, soit 40 %.' },
-      { stem: 'L’effectif cumulé croissant de la dernière modalité vaut…', opts: ['1', 'N', 'la fréquence'], correct: 1, exp: 'La dernière ECC cumule tous les individus : elle vaut N.' },
+      { stem: 'Que vaut la somme des fréquences relatives ?', opts: ['1', 'N', '100'], correct: 0, exp: 'Les parts du tout se totalisent à 1, soit 100 %.' },
+      { stem: '12 individus sur 30, cela représente…', opts: ['12 %', '40 %', '0,4 %'], correct: 1, exp: "La fréquence est le rapport de l’effectif à l’effectif total : 12/30 = 0,4, soit 40 % ; écrire 0,4 % confondrait fréquence et pourcentage." },
+      { stem: 'L’effectif cumulé croissant de la dernière modalité vaut…', opts: ['1', 'la fréquence', 'N'], correct: 2, exp: 'La dernière ECC cumule tous les individus : elle vaut N.' },
       { stem: '« Au moins 12 » se lit dans quelle colonne ?', opts: ['Effectif', 'ECC', 'ECD'], correct: 2, exp: 'ECD = nombre d’individus de valeur supérieure ou égale : « au moins ».' },
       { stem: 'Une fréquence vaut 1,35. Que peut-on en conclure ?', opts: ['C’est normal', 'Il y a une erreur de calcul', 'La population est grande'], correct: 1, exp: 'Une fréquence ne peut pas dépasser 1 : le calcul est faux.' },
-      { stem: 'Pour comparer deux promotions de tailles différentes, on utilise…', opts: ['les effectifs', 'les fréquences', 'les ECD'], correct: 1, exp: 'Les fréquences ramènent les effectifs à une même base de comparaison.' }
+      { stem: 'Pour comparer deux promotions de tailles différentes, on utilise…', opts: ['les fréquences', 'les effectifs', 'les ECD'], correct: 0, exp: 'Les fréquences ramènent les effectifs à une même base de comparaison.' }
     ],
 
     pitfalls: [
@@ -472,12 +472,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'La moyenne de la série 4, 6, 8, 10 vaut…', opts: ['6', '7', '8'], correct: 1, exp: '(4 + 6 + 8 + 10)/4 = 7.' },
+      { stem: 'La moyenne de la série 4, 6, 8, 10 vaut…', opts: ['6', '8', '7'], correct: 2, exp: "La moyenne est la somme divisée par l’effectif : (4 + 6 + 8 + 10)/4 = 28/4 = 7 ; répondre 8 reviendrait à moyenner seulement les deux plus grandes valeurs." },
       { stem: 'Calculer la moyenne des modalités sans pondérer est…', opts: ['correct si les effectifs sont égaux', 'toujours correct', 'toujours faux'], correct: 0, exp: 'Faire la moyenne des modalités revient à supposer des effectifs égaux.' },
-      { stem: 'Pour une série en classes, la moyenne utilise…', opts: ['les centres de classe pondérés par les effectifs', 'les centres seuls', 'les bornes seules'], correct: 0, exp: 'Chaque centre représente sa classe et est pondéré par son effectif : le résultat est approché.' },
-      { stem: 'La médiane d’une série ordonnée de 9 valeurs est…', opts: ['la 4e', 'la 5e', 'la moyenne des 4e et 5e'], correct: 1, exp: 'Rang (9 + 1)/2 = 5 : la 5e valeur.' },
-      { stem: 'Si des modalités se détachent, comment identifier le mode d’une série ?', opts: ['Toutes les modalités d’effectif maximal, même en cas d’égalité', 'Une seule modalité, obligatoirement', 'La moyenne si elle est entière'], correct: 0, exp: 'Plusieurs modalités peuvent partager l’effectif maximal ; si toutes ont le même effectif, aucune ne se détache et le cours ne retient pas de mode.' },
-      { stem: 'Quel indicateur de position s’applique à un caractère qualitatif ?', opts: ['La moyenne', 'La médiane', 'Le mode'], correct: 2, exp: 'On ne peut pas ordonner un caractère qualitatif : seul le mode reste calculable.' }
+      { stem: 'Pour une série en classes, la moyenne utilise…', opts: ["les centres de classe sans pondération par les effectifs","les centres de classe pondérés par les effectifs","les bornes de classes additionnées entre elles"], correct: 1, exp: "Chaque centre représente sa classe, pondéré par l’effectif correspondant : sans pondération, une classe de 2 et une classe de 200 individus compteraient autant ; le résultat reste approché." },
+      { stem: 'La médiane d’une série ordonnée de 9 valeurs est…', opts: ['la 5e', 'la 4e', 'la moyenne des 4e et 5e'], correct: 0, exp: "Pour un effectif impair, la médiane occupe le rang (n + 1)/2 : (9 + 1)/2 = 5, donc la 5e valeur ; moyenner les 4e et 5e ne s’impose qu’aux effectifs pairs." },
+      { stem: 'Si des modalités se détachent, comment identifier le mode d’une série ?', opts: ["Une seule modalité, la première rencontrée obligatoirement","La moyenne de la série arrondie à l’entier le plus proche","Toutes les modalités d’effectif maximal, même en cas d’égalité"], correct: 2, exp: 'Plusieurs modalités peuvent partager l’effectif maximal ; si toutes ont le même effectif, aucune ne se détache et le cours ne retient pas de mode.' },
+      { stem: 'Quel indicateur de position s’applique à un caractère qualitatif ?', opts: ['La moyenne', 'Le mode', 'La médiane'], correct: 1, exp: 'On ne peut pas ordonner un caractère qualitatif : seul le mode reste calculable.' }
     ],
 
     pitfalls: [

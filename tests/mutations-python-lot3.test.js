@@ -22,7 +22,8 @@ async function provider({ code, stdin }) {
 
 test('la frontière d’une minute rejette une mutation acceptée par les anciens tests', async () => {
   const exercise = catalogue.getExercise('py-c1-e3');
-  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), true);
+  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), false);
+  assert.equal(policy.isGradingSuspended(exercise.course, 'exercice-inconnu'), true);
   const mutant = exercise.solution.replace('(total % 3600) // 60', '(total % 3600) // 61');
   assert.notEqual(mutant, exercise.solution);
   const oldTests = exercise.tests.filter(item => item.stdin !== '60');

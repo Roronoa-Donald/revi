@@ -140,34 +140,34 @@ module.exports = {
     {
       stem: 'Dans un pare-feu Linux iptables, quelle chaîne de la table filter inspecte les paquets qui traversent la machine d’une interface réseau à une autre ?',
       opts: [
-        'FORWARD',
+        'PREROUTING',
         'INPUT',
         'OUTPUT',
-        'PREROUTING'
+        'FORWARD'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La chaîne FORWARD traite les paquets qui ne sont ni émis par la machine locale ni destinés à celle-ci, mais qui sont routés d’une interface à une autre.'
     },
     {
       stem: 'Pourquoi est-il crucial d’isoler les serveurs web publics dans une zone démilitarisée (DMZ) ?',
       opts: [
-        'Pour empêcher un pirate qui compromettrait le serveur web d’accéder directement et sans entrave au réseau interne de l’entreprise',
-        'Pour accélérer la vitesse de calcul du processeur du serveur web',
         'Parce que le protocole HTTPS ne peut pas fonctionner sur un réseau local standard',
+        'Pour accélérer la vitesse de calcul du processeur du serveur web',
+        'Pour empêcher un pirate qui compromettrait le serveur web d’accéder directement et sans entrave au réseau interne de l’entreprise',
         'Pour éviter d’avoir à installer des antivirus sur les postes de travail'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'En cas de compromission d’un serveur en DMZ, la politique de filtrage interdit à la DMZ d’initier des connexions vers le réseau interne, limitant ainsi la propagation latérale de l’attaque.'
     },
     {
       stem: 'Lors d’un scan Nmap SYN (-sS), quelle réponse du serveur cible indique que le port testé est OUVERT ?',
       opts: [
-        'Un paquet SYN-ACK',
         'Un paquet RST-ACK',
+        'Un paquet SYN-ACK',
         'Une absence totale de réponse (timeout)',
         'Un paquet ICMP Port Unreachable'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Si le port est ouvert, la pile réseau du serveur accepte la négociation en répondant SYN-ACK. Nmap envoie alors un RST pour couper la connexion avant qu’elle ne soit loguée par l’application.'
     },
     {

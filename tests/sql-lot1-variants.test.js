@@ -370,10 +370,16 @@ test('contre-vérification des corrigés et variantes avec SQLite natif', diagno
   diagnostic.diagnostic(`SQLite ${report.version} : ${report.solution_runs} jeux de corrigés et ${report.variant_runs} exécutions de variantes ; 72/72 variantes rejetées sans erreur SQL.`);
 });
 
-test('le correcteur ne réactive pas le moteur SQL local non isolé', async () => {
-  const result = await localRunner.runSql('SELECT 1;', '');
-  assert.equal(result.ok, false);
-  assert.equal(result.httpStatus, 503);
+test('le moteur SQL WASM local borne les accès disque et exécute en mémoire sans processus externe', async () => {
+  const okRes = await localRunner.runSql('SELECT 1;', '');
+  assert.equal(okRes.ok, true);
+  assert.match(okRes.data.stdout, /\|\s*1\s*\|/);
+  const recRes = await localRunner.runSql(
+    'WITH RECURSIVE cnt(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM cnt) SELECT x FROM cnt;',
+    ''
+  );
+  assert.equal(recRes.ok, false);
+  assert.match(recRes.data.stderr, /Limite.*2000 lignes/i);
 });
 
 }

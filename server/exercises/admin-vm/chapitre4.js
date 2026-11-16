@@ -19,8 +19,9 @@ module.exports = [
 # À compléter : avec un switch, afficher la description de l'élément LVM.
 `,
     hints: [
-      'PV = Physical Volume (disque ou partition).',
-      'VG = Volume Group (pool) ; LV = Logical Volume (disque d’une VM).'
+      "PV = Physical Volume (disque ou partition).",
+      "VG = Volume Group (pool) ; LV = Logical Volume (disque d’une VM).",
+      "Étapes : lire l’élément ; pv → disque physique ; vg → groupe de volumes ; lv → volume logique ; toute autre valeur → « élément : inconnu »."
     ],
     examples: [
       { stdin: 'vg', expected: 'vg : groupe de volumes', note: 'Le pool de stockage.' }
@@ -38,7 +39,8 @@ switch ($element) {
     "lv" { Write-Output "lv : volume logique" }
     default { Write-Output ($element + " : inconnu") }
 }
-`
+`,
+    takeaway: "Sous LVM, les PV (disques physiques) alimentent un VG (réservoir) découpé souplement en LV (volumes logiques)."
   },
   {
     id: 'vm2-c4-e2',
@@ -56,8 +58,9 @@ $utilise = [int][Console]::In.ReadLine()
 # À compléter : afficher l'espace libre, puis une alerte sous 10 Go.
 `,
     hints: [
-      'Espace libre = `$capacite - $utilise`.',
-      'Ajoutez une ligne d’alerte si le libre est inférieur à 10.'
+      "Espace libre = `$capacite - $utilise`.",
+      "Ajoutez une ligne d’alerte si le libre est inférieur à 10.",
+      "Étapes : lire capacité puis utilisé ; libre = différence ; afficher « libre : » en Go ; si libre passe sous 10, ajouter « alerte : espace faible »."
     ],
     examples: [
       { stdin: '500\n100', expected: 'libre : 400 Go', note: '400 Go disponibles.' }
@@ -75,7 +78,8 @@ Write-Output ("libre : " + $libre + " Go")
 if ($libre -lt 10) {
     Write-Output "alerte : espace faible"
 }
-`
+`,
+    takeaway: "Surveiller le pourcentage occupé d un volume logique évite l arrêt brutal d écriture sur la VM en cas de disque plein."
   },
   {
     id: 'vm2-c4-e3',
@@ -93,8 +97,9 @@ if ($libre -lt 10) {
 # À compléter : avec un switch, afficher la rétention correspondante.
 `,
     hints: [
-      'GFS = Grandfather / Father / Son.',
-      'Quotidien 7 jours ; hebdo 4 semaines ; mensuel 6 à 12 mois.'
+      "GFS = Grandfather / Father / Son.",
+      "Quotidien 7 jours ; hebdo 4 semaines ; mensuel 6 à 12 mois.",
+      "Étapes : lire la fréquence ; quotidien → 7 jours ; hebdo → 4 semaines ; mensuel → 6 a 12 mois ; autre valeur → « retention : inconnue »."
     ],
     examples: [
       { stdin: 'hebdo', expected: 'retention : 4 semaines', note: 'Sauvegarde hebdomadaire.' }
@@ -112,6 +117,7 @@ switch ($frequence) {
     "mensuel" { Write-Output "retention : 6 a 12 mois" }
     default { Write-Output "retention : inconnue" }
 }
-`
+`,
+    takeaway: "Une rotation GFS (Grand-Père / Père / Fils) équilibre rétention journalière, hebdomadaire et mensuelle sur le stockage."
   }
 ];

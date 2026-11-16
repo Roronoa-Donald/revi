@@ -102,6 +102,26 @@ module.exports = {
         '  </tbody>',
         '</table>'
       ].join('\n')
+    },
+    {
+      title: 'Trace d’adressage indirect &amp; Simulateur de transfert x86-16',
+      html: [
+        '<p>Pour copier une donnée mémoire vers une autre case mémoire sans violer l’interdiction de <code>MOV [dest], [src]</code>, ' +
+        'on passe par un registre intermédiaire et l’adressage basé-indexé <code>[BX + SI]</code> :</p>',
+        '<table class="table">',
+        '  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>BX</th><th>SI</th><th>AX</th><th>Mémoire [0x20..0x22]</th><th>Opération d’adressage</th></tr></thead>',
+        '  <tbody>',
+        '    <tr><td>1</td><td><code>MOV BX, 0x0020</code></td><td><code>0x0020</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>00 00</code></td><td>Initialise le registre de base <code>BX = 0x20</code>.</td></tr>',
+        '    <tr><td>2</td><td><code>MOV [BX], 0x002A</code></td><td><code>0x0020</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>2A 00</code></td><td>Écrit 42 (<code>0x002A</code>) à l’adresse <code>[0x20]</code>.</td></tr>',
+        '    <tr><td>3</td><td><code>MOV SI, 0x0002</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x0000</code></td><td><code>2A 00</code></td><td>Définit l’index de décalage <code>SI = 2</code> octets.</td></tr>',
+        '    <tr><td>4</td><td><code>MOV AX, [BX]</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x002A</code></td><td><code>2A 00</code></td><td>Lit la source mémoire dans le registre relais <code>AX</code>.</td></tr>',
+        '    <tr><td>5</td><td><code>ADD AX, 0x0008</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x0032</code></td><td><code>2A 00</code></td><td>Ajoute 8 dans <code>AX</code> ($42 + 8 = 50 = 0\\text{x0032}$).</td></tr>',
+        '    <tr><td>6</td><td><code>MOV [BX+SI], AX</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x0032</code></td><td><code>2A 32</code></td><td>Écrit <code>AX</code> à l’adresse effective <code>[0x20 + 2] = [0x22]</code>.</td></tr>',
+        '  </tbody>',
+        '</table>',
+        '<div class="asm-sim" data-asm-simulator data-asm-code="MOV BX, 0x0020\\nMOV [BX], 0x002A\\nMOV SI, 0x0002\\nMOV AX, [BX]\\nADD AX, 0x0008\\nMOV [BX+SI], AX\\nMOV DX, [0x22]\\nHLT"></div>',
+        '<script src="/assets/js/engines/asm-simulator.js" defer></script>'
+      ].join('\n')
     }
   ],
 
@@ -109,21 +129,21 @@ module.exports = {
     {
       stem: 'Pourquoi l’instruction assembleur MOV [eax], [ebx] est-elle rejetée par l’assembleur x86 ?',
       opts: [
-        'Parce que les formes de MOV ne codent pas deux opérandes mémoire explicites',
         'Parce que les registres EAX et EBX sont réservés aux calculs flottants',
+        'Parce que les formes de MOV ne codent pas deux opérandes mémoire explicites',
         'Parce que les crochets sont interdits en syntaxe Intel',
         'Parce que l’instruction MOV ne supporte que les constantes'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'MOV ne propose pas cette forme à deux opérandes mémoire explicites. Une instruction spécialisée comme MOVSB lit et écrit pourtant en mémoire avec des adresses implicites.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre MOV EAX, [EBX+4] et LEA EAX, [EBX+4] ?',
       opts: [
-        'MOV lit la valeur stockée en mémoire vive, tandis que LEA charge l’adresse arithmétique sans accéder à la RAM',
-        'MOV est plus rapide que LEA',
-        'LEA modifie les drapeaux EFLAGS et pas MOV',
-        'MOV est une instruction 64 bits et LEA une instruction 16 bits'
+        "MOV lit la valeur stockée en mémoire vive, tandis que LEA charge l’adresse arithmétique sans accéder à la RAM",
+        "MOV est systématiquement plus rapide que LEA sur tous les processeurs modernes",
+        "LEA modifie les drapeaux EFLAGS du processeur, contrairement à MOV qui les préserve",
+        "MOV est une instruction 64 bits, tandis que LEA serait une instruction 16 bits"
       ],
       correct: 0,
       exp: 'LEA (Load Effective Address) calcule l’expression d’adresse et l’écrit dans le registre sans générer de cycle de bus mémoire.'
@@ -131,43 +151,43 @@ module.exports = {
     {
       stem: 'Quel calcul mathématique l’instruction LEA EAX, [EAX + EAX*2] effectue-t-elle en réalité sur EAX ?',
       opts: [
-        'Multiplication par 3 (EAX = 3 * EAX)',
+        'Division par 2',
         'Multiplication par 2',
         'Élévation au carré (EAX = EAX²)',
-        'Division par 2'
+        'Multiplication par 3 (EAX = 3 * EAX)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'EAX + (EAX * 2) = 1*EAX + 2*EAX = 3*EAX, réalisé en un seul cycle d’horloge sans altérer les drapeaux.'
     },
     {
       stem: 'Quelles sont les valeurs autorisées pour le facteur d’échelle (scale) dans l’adressage x86 [Base + Index * Scale] ?',
       opts: [
-        '1, 2, 4 ou 8 uniquement',
-        'N’importe quel nombre entier de 1 à 255',
         'Uniquement les nombres impairs',
+        'N’importe quel nombre entier de 1 à 255',
+        '1, 2, 4 ou 8 uniquement',
         'Toutes les puissances de 10'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le facteur d’échelle est codé sur 2 bits dans l’octet SIB : seules les valeurs 1 (octet), 2 (word), 4 (dword) et 8 (qword) sont possibles.'
     },
     {
       stem: 'Sur microcontrôleur AVR, quelle instruction permet de charger une constante immédiate dans le registre R16 ?',
       opts: [
-        'LDI R16, 42',
         'LDS R16, 42',
+        'LDI R16, 42',
         'STS 42, R16',
         'MOV R16, 42'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'LDI (Load Immediate) charge une valeur constante dans les registres hauts R16 à R31.'
     },
     {
       stem: 'Que fait l’instruction NEG EAX ?',
       opts: [
-        'Elle remplace le contenu de EAX par son opposé arithmétique en complément à 2 (EAX = -EAX)',
-        'Elle force le bit de signe à 1',
-        'Elle annule tous les bits négatifs',
-        'Elle teste si EAX est inférieur à zéro'
+        "Elle remplace le contenu de EAX par son opposé arithmétique en complément à 2 (EAX = -EAX)",
+        "Elle force uniquement le bit de signe à 1, sans rien changer d’autre au registre",
+        "Elle annule un par un tous les bits de poids négatif du registre EAX",
+        "Elle teste si EAX est inférieur à zéro, sans jamais le modifier"
       ],
       correct: 0,
       exp: 'NEG calcule 0 - EAX, inversant le signe du nombre en complément à 2.'
@@ -175,23 +195,23 @@ module.exports = {
     {
       stem: 'Quelle instruction AVR permet d’envoyer une valeur sur le port de sortie matériel PORTB ?',
       opts: [
-        'OUT PORTB, R16',
+        'PUSH PORTB',
         'IN R16, PORTB',
         'LDS PORTB, R16',
-        'PUSH PORTB'
+        'OUT PORTB, R16'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'OUT écrit la valeur d’un registre général vers un registre d’E/S périphérique.'
     },
     {
       stem: 'Si EBX = 0x00401000 et ECX = 5, quelle adresse est calculée par LEA EAX, [EBX + ECX*4 + 0x10] ?',
       opts: [
-        '0x00401024',
-        '0x00401020',
         '0x00401036',
+        '0x00401020',
+        '0x00401024',
         '0x00401015'
       ],
-      correct: 0,
+      correct: 2,
       exp: '0x00401000 + 5*4 (20 = 0x14) + 0x10 (16) = 0x00401000 + 0x24 = 0x00401024.'
     }
   ],

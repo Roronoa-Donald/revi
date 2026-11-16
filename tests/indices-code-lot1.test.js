@@ -59,5 +59,5 @@ test('Les indices de code conservent leur texte et leurs dollars restent hors du
     }
   }
   assert.equal(documents.size, 21);
-  assert.equal(checked, 66);
+  assert.equal(checked, exerciseIds.length * 3);
 });

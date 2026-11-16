@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Utilisez LAG(ca, 1, 0) OVER (ORDER BY mois ASC)\nSELECT mois, ca FROM chiffre_affaires;",
     "hints": [
       "LAG(ca, 1, 0) renvoie la valeur de ca 1 ligne plus haut, ou 0 sur la toute première ligne.",
-      "Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation."
+      "Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation.",
+      "1. Ordonner les lignes par mois croissant. 2. Récupérer le CA de la ligne précédente, 0 par défaut. 3. Soustraire pour obtenir la variation."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+------+--------+--------------+-----------+\n| mois | ca     | ca_precedent | variation |\n+------+--------+--------------+-----------+\n| 1    | 200000 | 0            | 200000    |\n| 2    | 180000 | 200000       | -20000    |\n+------+--------+--------------+-----------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;"
+    "solution": "SELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;",
+    "takeaway": "La fonction de fenêtre LAG() OVER lit la valeur d’une ligne précédente dans la partition sans écraser les lignes par un GROUP BY."
   },
   {
     "id": "sql3-c4-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Sélectionnez les rangs <= 2 par département avec DENSE_RANK()\nSELECT departement, nom, salaire FROM employes;",
     "hints": [
       "Une fonction de fenêtrage ne peut pas figurer directement dans WHERE : calculez-la dans une CTE WITH classement AS (...).",
-      "Filtrez ensuite avec WHERE rang <= 2."
+      "Filtrez ensuite avec WHERE rang <= 2.",
+      "1. Calculer le rang dense par département et salaire décroissant dans une CTE. 2. Filtrer la CTE sur les rangs 1 et 2. 3. Trier par département, rang puis nom."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+-------------+-----+---------+------+\n| departement | nom | salaire | rang |\n+-------------+-----+---------+------+\n| A           | E1  | 100     | 1    |\n| A           | E2  | 90      | 2    |\n| B           | E4  | 200     | 1    |\n+-------------+-----+---------+------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "WITH classement AS (\n  SELECT departement, nom, salaire, DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang\n  FROM employes\n)\nSELECT departement, nom, salaire, rang FROM classement WHERE rang <= 2 ORDER BY departement ASC, rang ASC, nom ASC;"
+    "solution": "WITH classement AS (\n  SELECT departement, nom, salaire, DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang\n  FROM employes\n)\nSELECT departement, nom, salaire, rang FROM classement WHERE rang <= 2 ORDER BY departement ASC, rang ASC, nom ASC;",
+    "takeaway": "Combiner DENSE_RANK() dans une CTE avec un filtre sur le rang extrait proprement le Top-N par groupe tout en conservant les ex æquo."
   },
   {
     "id": "sql3-c4-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)\nSELECT id, nom FROM organigramme;",
     "hints": [
       "Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.",
-      "Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1."
+      "Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1.",
+      "1. Ancrage : sélectionner les racines (manager NULL) au niveau 1. 2. Joindre les employés sur leur manager en incrémentant le niveau. 3. Trier par niveau puis identifiant."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+----+----------+--------+\n| id | nom      | niveau |\n+----+----------+--------+\n| 10 | Recteur  | 1      |\n| 20 | Doyen B1 | 2      |\n| 30 | Doyen B3 | 2      |\n+----+----------+--------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "WITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;"
+    "solution": "WITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;",
+    "takeaway": "WITH RECURSIVE enchaîne ancre initiale et membre récursif pour parcourir arbres ou nomenclatures SQL à profondeur arbitraire."
   }
 ];

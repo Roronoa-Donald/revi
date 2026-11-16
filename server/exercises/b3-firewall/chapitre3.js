@@ -39,7 +39,8 @@ module.exports = [
         "expected": "EVAL packet=IC1 action=PERMIT matched=PING\nEVAL packet=IC2 action=DENY matched=DEFAULT_DROP"
       }
     ],
-    "solution": "[Exemple]\nEVAL packet=P1 action=PERMIT matched=R1\nEVAL packet=P2 action=DENY matched=R2\n\n[Cas 1 — Paquet ne correspondant à aucune règle menant au DEFAULT_DROP]\nEVAL packet=P3 action=DENY matched=DEFAULT_DROP\n\n[Cas 2 — Filtrage par adresses IP spécifiques et ANY sur le port]\nEVAL packet=T1 action=PERMIT matched=ADM1\nEVAL packet=T2 action=DENY matched=BLOCK_ADM\nEVAL packet=T3 action=PERMIT matched=WEB\n\n[Cas 3 — Protocole ICMP sans numéro de port]\nEVAL packet=IC1 action=PERMIT matched=PING\nEVAL packet=IC2 action=DENY matched=DEFAULT_DROP"
+    "solution": "[Exemple]\nEVAL packet=P1 action=PERMIT matched=R1\nEVAL packet=P2 action=DENY matched=R2\n\n[Cas 1 — Paquet ne correspondant à aucune règle menant au DEFAULT_DROP]\nEVAL packet=P3 action=DENY matched=DEFAULT_DROP\n\n[Cas 2 — Filtrage par adresses IP spécifiques et ANY sur le port]\nEVAL packet=T1 action=PERMIT matched=ADM1\nEVAL packet=T2 action=DENY matched=BLOCK_ADM\nEVAL packet=T3 action=PERMIT matched=WEB\n\n[Cas 3 — Protocole ICMP sans numéro de port]\nEVAL packet=IC1 action=PERMIT matched=PING\nEVAL packet=IC2 action=DENY matched=DEFAULT_DROP",
+    "takeaway": "L’évaluation séquentielle First-Match-Wins applique la première règle correspondante et termine impérativement par un blocage explicite."
   },
   {
     "id": "fw3-c3-e2",
@@ -52,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c3-e2) — Détecteur d’anomalies et masquage de règles (Rule Shadowing)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection d’une redondance parfaite entre deux règles]\n# Données : RULE id=R1 action=PERMIT proto=TCP src=ANY dst=10.0.0.5 dport=443\n# Données : RULE id=R2 action=PERMIT proto=TCP src=192.168.1.1 dst=10.0.0.5 dport=443\n# Données : RULE id=R3 action=PERMIT proto=TCP src=ANY dst=10.0.0.5 dport=80\nA_COMPLETER\n\n[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]\n# Données : RULE id=R1 action=PERMIT proto=TCP src=10.0.0.50 dst=10.0.0.1 dport=22\n# Données : RULE id=R2 action=DENY proto=TCP src=ANY dst=10.0.0.1 dport=22\n# Données : RULE id=R3 action=PERMIT proto=TCP src=ANY dst=ANY dport=80\nA_COMPLETER\n\n[Cas 3 — Multiples masquages en cascade]\n# Données : RULE id=A1 action=DENY proto=TCP src=ANY dst=ANY dport=22\n# Données : RULE id=A2 action=PERMIT proto=TCP src=192.168.1.1 dst=ANY dport=22\n# Données : RULE id=A3 action=DENY proto=TCP src=192.168.1.2 dst=ANY dport=22\nA_COMPLETER\n",
     "hints": [
       "Parcourir chaque règle i et vérifier si une règle j antérieure (j < i) englobe tous ses critères.",
-      "S’arrêter au premier antécédent j qui englobe la règle i."
+      "S’arrêter au premier antécédent j qui englobe la règle i.",
+      "Pour chaque règle i, chercher un antécédent j dont protocole, source, destination et port l’englobent (égalité ou ANY) ; noter SHADOWED by j, sinon OK."
     ],
     "examples": [
       {
@@ -78,7 +80,8 @@ module.exports = [
         "expected": "ANALYZE rule=A1 status=OK\nANALYZE rule=A2 status=SHADOWED by A1\nANALYZE rule=A3 status=REDUNDANT with A1"
       }
     ],
-    "solution": "[Exemple]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=SHADOWED by R1\n\n[Cas 1 — Détection d’une redondance parfaite entre deux règles]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=REDUNDANT with R1\nANALYZE rule=R3 status=OK\n\n[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=OK\nANALYZE rule=R3 status=OK\n\n[Cas 3 — Multiples masquages en cascade]\nANALYZE rule=A1 status=OK\nANALYZE rule=A2 status=SHADOWED by A1\nANALYZE rule=A3 status=REDUNDANT with A1"
+    "solution": "[Exemple]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=SHADOWED by R1\n\n[Cas 1 — Détection d’une redondance parfaite entre deux règles]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=REDUNDANT with R1\nANALYZE rule=R3 status=OK\n\n[Cas 2 — Règles spécifiques d’abord puis règle générale : politique saine]\nANALYZE rule=R1 status=OK\nANALYZE rule=R2 status=OK\nANALYZE rule=R3 status=OK\n\n[Cas 3 — Multiples masquages en cascade]\nANALYZE rule=A1 status=OK\nANALYZE rule=A2 status=SHADOWED by A1\nANALYZE rule=A3 status=REDUNDANT with A1",
+    "takeaway": "Une règle générale placée trop haut masque les règles plus spécifiques en aval (shadowing) et crée des failles silencieuses."
   },
   {
     "id": "fw3-c3-e3",
@@ -91,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c3-e3) — Simulateur de translation d’adresses NAT (SNAT Masquerade & DNAT)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]\n# Données : CONFIG_DNAT ext_ip=198.51.100.1 ext_port=80 int_ip=10.0.0.10 int_port=8080\n# Données : PACKET dir=INBOUND src=203.0.113.5:12345 dst=198.51.100.1:80\nA_COMPLETER\n\n[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]\n# Données : CONFIG_SNAT public_ip=198.51.100.1 start_port=50000\n# Données : PACKET dir=OUTBOUND src=192.168.1.10:4500 dst=8.8.8.8:53\n# Données : PACKET dir=INBOUND src=8.8.8.8:53 dst=198.51.100.1:50000\nA_COMPLETER\n\n[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]\n# Données : CONFIG_SNAT public_ip=198.51.100.1 start_port=40000\n# Données : PACKET dir=INBOUND src=1.2.3.4:9999 dst=198.51.100.1:22\nA_COMPLETER\n",
     "hints": [
       "Gérer un compteur incrémental pour les ports SNAT dynamiques.",
-      "Mémoriser les sessions SNAT : port_alloué -> (src_interne_ip, src_interne_port)."
+      "Mémoriser les sessions SNAT : port_alloué -> (src_interne_ip, src_interne_port).",
+      "Sortant : allouer séquentiellement le port public suivant et mémoriser la correspondance ; entrant : chercher la règle DNAT (ext_ip, ext_port) et réécrire vers (int_ip, int_port)."
     ],
     "examples": [
       {
@@ -117,6 +121,7 @@ module.exports = [
         "expected": "NAT dir=INBOUND in=1.2.3.4:9999->198.51.100.1:22 out=DROP_NO_ROUTE"
       }
     ],
-    "solution": "[Exemple]\nNAT dir=OUTBOUND in=192.168.1.50:52001->93.184.216.34:80 out=198.51.100.1:40000->93.184.216.34:80\n\n[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]\nNAT dir=INBOUND in=203.0.113.5:12345->198.51.100.1:80 out=203.0.113.5:12345->10.0.0.10:8080\n\n[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]\nNAT dir=OUTBOUND in=192.168.1.10:4500->8.8.8.8:53 out=198.51.100.1:50000->8.8.8.8:53\nNAT dir=INBOUND in=8.8.8.8:53->198.51.100.1:50000 out=8.8.8.8:53->192.168.1.10:4500\n\n[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]\nNAT dir=INBOUND in=1.2.3.4:9999->198.51.100.1:22 out=DROP_NO_ROUTE"
+    "solution": "[Exemple]\nNAT dir=OUTBOUND in=192.168.1.50:52001->93.184.216.34:80 out=198.51.100.1:40000->93.184.216.34:80\n\n[Cas 1 — DNAT Port Forwarding entrant vers serveur web DMZ]\nNAT dir=INBOUND in=203.0.113.5:12345->198.51.100.1:80 out=203.0.113.5:12345->10.0.0.10:8080\n\n[Cas 2 — Aller-retour complet : SNAT sortant puis réponse retour]\nNAT dir=OUTBOUND in=192.168.1.10:4500->8.8.8.8:53 out=198.51.100.1:50000->8.8.8.8:53\nNAT dir=INBOUND in=8.8.8.8:53->198.51.100.1:50000 out=8.8.8.8:53->192.168.1.10:4500\n\n[Cas 3 — Paquet entrant sans DNAT ni session SNAT correspondante]\nNAT dir=INBOUND in=1.2.3.4:9999->198.51.100.1:22 out=DROP_NO_ROUTE",
+    "takeaway": "SNAT/Masquerade réécrit l’IP source des flux sortants privés, tandis que DNAT publie un service interne sur une IP publique."
   }
 ];

@@ -25,8 +25,21 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 // Note : '/api/' retiré — les routes API sont enregistrées AVANT le catch-all,
 // donc une requête GET sur un endpoint POST-only renvoie désormais 405 propre
 // au lieu du 403 générique qui masquait le véritable état de l'API.
-const BLOCKED_PATHS = ['/server/', '/node_modules/', '/public/', '/.env', '/.git/', '/package.json', '/package-lock.json', '/scripts/', '/dist/', '/vercel.json', '/.vercelignore', '/b1/', '/verification/', '/corrections/', '/tests/', '/audit/', '/.taskstate/'];
-const PRIVATE_AUDIT_DIRS = new Set(['verification', 'corrections', 'tests', 'audit', '.taskstate']);
+const BLOCKED_PATHS = [
+  '/server/', '/node_modules/', '/public/', '/.env', '/.git/', '/.gitignore', '/.github/', '/.vercel',
+  '/package.json', '/package-lock.json', '/scripts/', '/dist/', '/vercel.json', '/.vercelignore',
+  '/b1/', '/verification/', '/corrections/', '/tests/', '/audit/', '/.taskstate/',
+  '/docs/', '/revi-mu-plateforme/', '/AUDIT_COMPLET_2026-11/', '/stitch_brilliant_website_design_system/',
+  '/cours B1 IT/', '/COURS_B3/', '/administration machine virtuel/', '/cours windows/',
+  '/cours/', '/ref/', '/exos/', '/tools/'
+];
+const PRIVATE_AUDIT_DIRS = new Set([
+  'verification', 'corrections', 'tests', 'audit', '.taskstate',
+  'docs', 'revi-mu-plateforme', 'AUDIT_COMPLET_2026-11', 'stitch_brilliant_website_design_system',
+  'cours B1 IT', 'COURS_B3', 'administration machine virtuel', 'cours windows',
+  'cours', 'ref', 'exos', 'tools', 'server', 'scripts', 'public', 'node_modules', 'dist', 'b1'
+]);
+const BLOCKED_STATIC_EXTENSIONS = new Set(['.docx', '.doc', '.pptx', '.ppt', '.bak', '.tmp']);
 
 // Allowlist des fichiers racine servables (tout le reste → 404).
 // Empêche l'exposition des fichiers de test/preview et des scripts jetables.
@@ -143,14 +156,35 @@ function verifyAdminForPage(request) {
 // Script d'injection pour les pages HTML des cours
 // ========================
 const AUTH_INJECT_HEAD = '<link rel="stylesheet" href="/_auth/css/auth-styles.css">';
-const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<script src="/_auth/js/auth-check.js"></script>\n<script src="/assets/js/delight.js" defer></script>';
+const AUTH_INJECT_BODY = '<script src="/_auth/js/fingerprint.js"></script>\n<script src="/_auth/js/auth-check.js"></script>\n<script src="/assets/js/progress-sync.js" defer></script>\n<script src="/rd-ai-chat.js"></script>\n<script src="/assets/js/delight.js" defer></script>';
 
 // ========================
 // Serveur de fichiers statiques avec contrôle d'accès
 // ========================
 fastify.get('/*', async (request, reply) => {
-  let urlPath = decodeURIComponent(request.url.split('?')[0]);
+  const rawUrl = (request.url || '/').split('?')[0];
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(rawUrl);
+  } catch {
+    return reply.code(400).send('Bad Request');
+  }
+  if (decodedPath.includes('\0')) {
+    return reply.code(400).send('Bad Request');
+  }
+
+  const slashPath = decodedPath.replace(/\\/g, '/');
+  if (/(^|\/)\.\.($|\/)/.test(slashPath)) {
+    return reply.code(403).send('Forbidden');
+  }
+
+  let urlPath = path.posix.normalize('/' + slashPath).replace(/^\/+/, '/');
   const queryString = request.url.includes('?') ? request.url.substring(request.url.indexOf('?')) : '';
+
+  // Bloquer tout fichier ou dossier caché (ex: /.env, /./.env, /.git/config)
+  if (urlPath.split('/').filter(Boolean).some(seg => seg.startsWith('.'))) {
+    return reply.code(403).send('Forbidden');
+  }
 
   // Default to index.html
   if (urlPath === '/' || urlPath === '') urlPath = '/index.html';
@@ -187,9 +221,13 @@ fastify.get('/*', async (request, reply) => {
 
   // ---- Bloquer les fichiers sensibles ----
   for (const blocked of BLOCKED_PATHS) {
-    if (urlPath.startsWith(blocked) || urlPath === blocked) {
+    const blockedNoSlash = blocked.endsWith('/') ? blocked.slice(0, -1) : blocked;
+    if (urlPath.startsWith(blocked) || urlPath === blocked || urlPath === blockedNoSlash) {
       return reply.code(403).send('Forbidden');
     }
+  }
+  if (BLOCKED_STATIC_EXTENSIONS.has(path.extname(urlPath).toLowerCase())) {
+    return reply.code(403).send('Forbidden');
   }
 
   // ---- Allowlist racine : ne servir que les fichiers racine déclarés ----

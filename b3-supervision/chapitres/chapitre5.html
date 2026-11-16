@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -180,24 +178,28 @@
      data-exercise="sup3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] &quot;GET /api/v1/users HTTP/1.1&quot; 500 2314 &quot;-&quot; &quot;curl/7.88.1&quot;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e1) — Parseur et Normalisateur de Logs Web Nginx / Apache
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La bibliothèque LireIci collecte les journaux Apache de son catalogue :&#10;192.0.2.10 - marc [02/Apr/2026:14:03:11 +0200] &quot;GET /catalogue HTTP/1.1&quot; 200 8421&#10;192.0.2.55 - - [02/Apr/2026:14:04:02 +0200] &quot;GET /emprunt HTTP/1.1&quot; 401 97&#10;&#10;1) La page /catalogue est servie en GET.&#10;2) Le code 401 demande une authentification pour /emprunt.&#10;3) La réponse du catalogue pèse 8 421 octets.&#10;4) L'IP 192.0.2.55 a reçu le 401.&#10;5) L'utilisateur authentifié est marc.">
+  <script type="text/plain" data-lab-starter># Exercice — Les journaux d'accès Nginx de la librairie LivrExpress
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 4 et 5 : le mot exact. Questions 2 et 3 : la valeur seule.
 
-[Cas 1 — Requête POST de connexion réussie 200]
-# Données : LOG_PARSE 10.0.4.15 - - [11/Oct/2026:15:00:01 +0000] "POST /auth/login HTTP/1.1" 200 450 "https://app.corp.local" "Mozilla/5.0"
+[Question 1 — Méthode HTTP de l'ajout au panier]
 A_COMPLETER
 
-[Cas 2 — Erreur client 404 page non trouvée avec octets nuls]
-# Données : LOG_PARSE 203.0.113.89 - - [11/Oct/2026:15:05:00 +0000] "GET /admin/setup.php HTTP/1.1" 404 - "-" "scanner-bot"
+[Question 2 — Code HTTP du refus de /admin]
 A_COMPLETER
 
-[Cas 3 — Redirection HTTP 302 catégorisée OTHER]
-# Données : LOG_PARSE 172.16.0.2 - - [11/Oct/2026:15:10:00 +0000] "GET /old-portal HTTP/1.1" 302 120 "-" "curl/8.0"
+[Question 3 — Taille de la réponse de la fiche produit (en octets)]
+A_COMPLETER
+
+[Question 4 — Adresse IP ayant tenté /admin]
+A_COMPLETER
+
+[Question 5 — Utilisateur authentifié de la deuxième ligne]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Parseur et Normalisateur de Logs Web Nginx / Apache</h3>
+    <h3 class="lab__title">Exercice 1 — Les journaux d'accès Nginx de la librairie LivrExpress</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -206,25 +208,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Extraire les champs structurés d'une ligne de journal HTTP Combined Log et classifier la réponse par catégorie.</p>
-    <div class="lab__brief"><p>Dans une chaîne Logstash / Fluentd, le parsing grok décompose la ligne de log :<br><br>
-Format standard Combined Log :<br>
-<code>&lt;client_ip&gt; - - [&lt;timestamp&gt;] "&lt;method&gt; &lt;uri&gt; &lt;http_version&gt;" &lt;status_code&gt; &lt;response_bytes&gt; "&lt;referrer&gt;" "&lt;user_agent&gt;"</code><br><br>
-Catégories de statut :<br>
-- 200..299 : <code>SUCCESS</code><br>
-- 400..499 : <code>CLIENT_ERROR</code><br>
-- 500..599 : <code>SERVER_ERROR</code><br>
-- Autre : <code>OTHER</code><br><br>
-Données du cas : <code>LOG_PARSE &lt;combined_log_line&gt;</code>.<br>
-Résultat d’analyse attendu : <code>WEB_LOG: ip=&lt;client_ip&gt; method=&lt;method&gt; uri=&lt;uri&gt; status=&lt;status_code&gt; bytes=&lt;bytes&gt; category=&lt;category&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une ligne de journal d'accès web : adresse IP, utilisateur, méthode, ressource, code HTTP et taille.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La librairie en ligne LivrExpress collecte les journaux d'accès de son serveur Nginx. Format d'une ligne : adresse IP du client, identité locale, utilisateur authentifié, horodatage, requête entre guillemets, code HTTP, taille de la réponse en octets. Trois lignes extraites du 12 mars 2026 :</p><p><code>203.0.113.45 - - [12/Mar/2026:10:15:32 +0100] "GET /livre/9782070413119 HTTP/1.1" 200 5123</code></p><p><code>198.51.100.7 - alice [12/Mar/2026:10:16:01 +0100] "POST /panier HTTP/1.1" 201 842</code></p><p><code>203.0.113.45 - - [12/Mar/2026:10:16:45 +0100] "GET /admin HTTP/1.1" 403 199</code></p><p>Rappel du cours : un tiret signale une valeur absente ; le code 403 signifie que le serveur refuse de servir la ressource.</p><ol><li>Quelle méthode HTTP correspond à l'ajout d'un article au panier ?</li><li>Quel code HTTP traduit le refus de servir la page /admin ?</li><li>Combien d'octets le serveur a-t-il renvoyés pour la fiche produit ?</li><li>Quelle adresse IP a tenté d'accéder à /admin ?</li><li>Quel identifiant d'utilisateur authentifié figure dans la deuxième ligne ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LOG_PARSE 192.168.1.10 - - [11/Oct/2026:14:32:10 +0000] "GET /api/v1/users HTTP/1.1" 500 2314 "-" "curl/7.88.1"</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La bibliothèque LireIci collecte les journaux Apache de son catalogue :
+192.0.2.10 - marc [02/Apr/2026:14:03:11 +0200] "GET /catalogue HTTP/1.1" 200 8421
+192.0.2.55 - - [02/Apr/2026:14:04:02 +0200] "GET /emprunt HTTP/1.1" 401 97
+
+1) La page /catalogue est servie en GET.
+2) Le code 401 demande une authentification pour /emprunt.
+3) La réponse du catalogue pèse 8 421 octets.
+4) L'IP 192.0.2.55 a reçu le 401.
+5) L'utilisateur authentifié est marc.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez l'adresse IP, la requête entre guillemets et le code de statut HTTP.</li>
-        <li>Gérez le cas où les octets sont représentés par un tiret '-' en affectant 0.</li>
+        <li>Le format se lit dans l'ordre : IP, identité, utilisateur, horodatage, requête entre guillemets, code, taille en octets.</li>
+        <li>La méthode GET demande une ressource au serveur ; la méthode POST transmet des données, comme un ajout au panier.</li>
+        <li>1. Cherchez la requête qui touche /panier. 2. Le refus de servir se lit sur la ligne de /admin. 3. La taille suit le code HTTP. 4. Regardez l'IP en tête de la ligne de /admin. 5. Le troisième champ de la deuxième ligne remplace le tiret.</li>
       </ol>
     </details>
   </div>
@@ -234,24 +236,28 @@ Résultat d’analyse attendu : <code>WEB_LOG: ip=&lt;client_ip&gt; method=&lt;m
      data-exercise="sup3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e2) — Détecteur d’Anomalies de Débit de Logs (Spike & Drop)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le portail SportiNet tourne sur un bruit de fond de 120 EPS, avec la même règle d'alerte (bruit + 200 %).&#10;Mesures : 15:10 = 125 ; 15:20 = 118 ; 15:30 = 420 ; 15:40 = 390 ; 15:50 = 130.&#10;Le pic coïncide avec la rediffusion d'un match attendue par les abonnés.&#10;&#10;1) Bruit de fond : 120 EPS.&#10;2) Seuil : 120 × 3 = 360 EPS.&#10;3) Deux mesures dépassent le seuil (420 et 390).&#10;4) Première mesure hors norme à 15:30.&#10;5) Le pic accompagne la rediffusion : il est légitime.">
+  <script type="text/plain" data-lab-starter># Exercice — Le débit de journaux de la vente flash de PrimStyle
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nombre seul. Question 4 : l'heure au format 20:20. Question 5 : légitime ou suspect.
 
-[Cas 1 — Chute brutale de logs (service écroulé)]
-# Données : EPS_CHECK BASELINE=1000.0 MIN_DROP=80.0 MAX_SPIKE=150.0 SAMPLES=980.0,950.0,120.0
+[Question 1 — Bruit de fond (en EPS)]
 A_COMPLETER
 
-[Cas 2 — Débit nominal parfaitement stable]
-# Données : EPS_CHECK BASELINE=250.0 MIN_DROP=75.0 MAX_SPIKE=150.0 SAMPLES=245.0,260.0,255.0
+[Question 2 — Seuil d'alerte (en EPS)]
 A_COMPLETER
 
-[Cas 3 — Légère baisse sans dépassement du seuil de drop]
-# Données : EPS_CHECK BASELINE=400.0 MIN_DROP=50.0 MAX_SPIKE=100.0 SAMPLES=380.0,300.0
+[Question 3 — Nombre de mesures au-dessus du seuil]
+A_COMPLETER
+
+[Question 4 — Heure de la première mesure hors norme]
+A_COMPLETER
+
+[Question 5 — Qualificatif du pic]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Détecteur d’Anomalies de Débit de Logs (Spike &amp; Drop)</h3>
+    <h3 class="lab__title">Exercice 2 — Le débit de journaux de la vente flash de PrimStyle</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -260,24 +266,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Surveiller les variations d'Events Per Second (EPS) et détecter les pics anormaux (inondation) ou chutes brutales (panne de collecte).</p>
-    <div class="lab__brief"><p>La télémétrie des flux de logs permet de repérer des anomalies opérationnelles majeures :<br><br>
-Calcul de déviation sur le dernier échantillon de débit mesuré <code>current</code> :<br>
-<code>deviation_pct = ((current - BASELINE) / BASELINE) * 100.0</code>.<br><br>
-Règles d'alerte :<br>
-- Si <code>deviation_pct &gt;= MAX_SPIKE</code> : <code>alert=LOG_FLOOD action=REQUIRED</code>.<br>
-- Sinon si <code>deviation_pct &lt;= -MIN_DROP</code> : <code>alert=LOG_DROP action=REQUIRED</code>.<br>
-- Sinon : <code>alert=NORMAL action=NONE</code>.<br><br>
-Données du cas : <code>EPS_CHECK BASELINE=&lt;base&gt; MIN_DROP=&lt;drop_pct&gt; MAX_SPIKE=&lt;spike_pct&gt; SAMPLES=&lt;s1,s2,...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>EPS_ALERT: current=&lt;curr:.1f&gt; deviation=&lt;dev_pct:+.1f&gt;% alert=&lt;LOG_FLOOD|LOG_DROP|NORMAL&gt; action=&lt;REQUIRED|NONE&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Construire un seuil d'alerte sur le débit de journaux (EPS) et distinguer pic légitime et anomalie.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La plateforme de mode PrimStyle centralise ses journaux dans une pile ELK. En régime normal, le pipeline traite un bruit de fond de <strong>250 événements par seconde (EPS)</strong>. Règle d'alerte du NOC : pic de journaux si le débit mesuré dépasse le bruit de fond <strong>augmenté de 200 %</strong>. Débits mesurés toutes les dix minutes pendant la vente flash du 20 mars :</p><table><tr><th>Heure</th><th>20:00</th><th>20:10</th><th>20:20</th><th>20:30</th><th>20:40</th><th>20:50</th><th>21:00</th></tr><tr><th>Débit (EPS)</th><td>252</td><td>248</td><td>980</td><td>1010</td><td>965</td><td>260</td><td>255</td></tr></table><p>Contexte : l'équipe marketing a lancé la vente flash à 20 h 20.</p><ol><li>Quel est le bruit de fond du pipeline, en EPS ?</li><li>Quel est le seuil d'alerte du NOC, en EPS ?</li><li>Combien de mesures dépassent le seuil d'alerte ?</li><li>À quelle heure la première mesure hors norme apparaît-elle ?</li><li>Ce pic doit-il être traité comme un incident de sécurité ? Répondez par le qualificatif attendu : légitime ou suspect.</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>EPS_CHECK BASELINE=500.0 MIN_DROP=80.0 MAX_SPIKE=200.0 SAMPLES=480.0,510.0,520.0,1600.0</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le portail SportiNet tourne sur un bruit de fond de 120 EPS, avec la même règle d'alerte (bruit + 200 %).
+Mesures : 15:10 = 125 ; 15:20 = 118 ; 15:30 = 420 ; 15:40 = 390 ; 15:50 = 130.
+Le pic coïncide avec la rediffusion d'un match attendue par les abonnés.
+
+1) Bruit de fond : 120 EPS.
+2) Seuil : 120 × 3 = 360 EPS.
+3) Deux mesures dépassent le seuil (420 et 390).
+4) Première mesure hors norme à 15:30.
+5) Le pic accompagne la rediffusion : il est légitime.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Extrayez la dernière valeur de la liste SAMPLES.</li>
-        <li>Formatez la déviation avec un signe explicite (+ ou -) via :+.1f.</li>
+        <li>Une augmentation de 200 % du bruit de fond revient à multiplier le débit par trois : 250 × 3.</li>
+        <li>Comparez chaque mesure au seuil : seules les mesures strictement supérieures au seuil comptent comme pics.</li>
+        <li>1. Le bruit de fond est donné dans l'énoncé. 2. Seuil = bruit de fond × 3. 3. Comptez les mesures au-dessus. 4. Repérez la première mesure qui saute. 5. Confrontez le pic au contexte : que s'est-il passé à 20 h 20 ?</li>
       </ol>
     </details>
   </div>
@@ -287,24 +294,28 @@ Résultat d’analyse attendu : <code>EPS_ALERT: current=&lt;curr:.1f&gt; deviat
      data-exercise="sup3-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c5-e3) — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le serveur de fichiers FichiersNet est compromis dans la nuit du 3 avril.&#10;22 h 41 : échec d'authentification admin depuis 203.0.113.9 (sshd)&#10;22 h 42 : échec d'authentification admin depuis 203.0.113.9 (sshd)&#10;22 h 43 : authentification admin réussie depuis 203.0.113.9 (sshd)&#10;22 h 47 : connexion sortante vers 192.0.2.50 port 8080 (pare-feu)&#10;22 h 58 : copie compressée des partages vers l'extérieur (application)&#10;&#10;1) Deux échecs avant le succès.&#10;2) L'attaque vient de 203.0.113.9.&#10;3) Attaque par force brute.&#10;4) La connexion sortante vers un port inhabituel installe un canal de contrôle.&#10;5) De 22 h 43 à 22 h 58 : 15 minutes.">
+  <script type="text/plain" data-lab-starter># Exercice — Corréler trois sources : l'intrusion du serveur de paie de ComptaPlus
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 5 : le nombre seul. Question 2 : l'adresse exacte. Questions 3 et 4 : un court libellé.
 
-[Cas 1 — Trafic légitime sans alerte]
-# Données : CORRELATE TARGET_IP=192.168.1.50 LOGS=firewall:192.168.1.50:TcpSyn:INFO|proxy:192.168.1.50:PageGet:INFO
+[Question 1 — Tentatives échouées avant le succès]
 A_COMPLETER
 
-[Cas 2 — Blocage immédiat sur règle DENY de pare-feu]
-# Données : CORRELATE TARGET_IP=10.10.10.10 LOGS=firewall:10.10.10.10:SqlInjection:DENY
+[Question 2 — Adresse IP de l'attaquant]
 A_COMPLETER
 
-[Cas 3 — Deux avertissements sous le seuil de 3]
-# Données : CORRELATE TARGET_IP=172.20.1.100 LOGS=proxy:172.20.1.100:SlowRequest:WARN|app:172.20.1.100:DeprecationCall:WARN
+[Question 3 — Type d'attaque par essais successifs]
+A_COMPLETER
+
+[Question 4 — Nature du canal sortant sur le port 4444]
+A_COMPLETER
+
+[Question 5 — Minutes entre compromission et exfiltration]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Corrélateur Multi-Sources de Logs d’Incidents de Sécurité</h3>
+    <h3 class="lab__title">Exercice 3 — Corréler trois sources : l'intrusion du serveur de paie de ComptaPlus</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -313,22 +324,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Regrouper et corréler les traces d'une adresse IP suspecte à travers des équipements hétérogènes.</p>
-    <div class="lab__brief"><p>En analyse SOC / SIEM, les traces laissées sur différents serveurs sont corrélées :<br><br>
-Critères de décision :<br>
-- Un événement est considéré <strong>suspect</strong> si sa sévérité est <code>WARN</code>, <code>ALERT</code> ou <code>DENY</code>.<br>
-- La mise en quarantaine (<code>quarantine=YES</code>) est décidée si l'adresse IP cible cumule <code>&gt;= 3</code> événements suspects OU si au moins un événement porte la sévérité bloquante <code>DENY</code>.<br>
-- Sinon, <code>quarantine=NO</code>.<br><br>
-Données du cas : <code>CORRELATE TARGET_IP=&lt;ip&gt; LOGS=&lt;src1:ip1:act1:sev1|src2:ip2:act2:sev2|...&gt;</code>.<br>
-Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&lt;total_matches&gt; suspicious=&lt;n_suspects&gt; quarantine=&lt;YES|NO&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Corréler des journaux d'équipements hétérogènes pour reconstituer une chronologie d'attaque.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le SIEM de l'entreprise ComptaPlus fusionne les journaux du serveur SSH, du pare-feu et de l'application de paie. Dans la nuit du 15 mars 2026, le corrélateur aligne les événements suivants :</p><table><tr><th>Heure</th><th>Source</th><th>Événement</th></tr><tr><th>03 h 12</th><td>sshd</td><td>échec d'authentification root depuis 198.51.100.77</td></tr><tr><th>03 h 13</th><td>sshd</td><td>échec d'authentification root depuis 198.51.100.77</td></tr><tr><th>03 h 14</th><td>sshd</td><td>authentification root réussie depuis 198.51.100.77</td></tr><tr><th>03 h 16</th><td>pare-feu</td><td>connexion sortante autorisée vers 203.0.113.200 port 4444</td></tr><tr><th>03 h 22</th><td>application paie</td><td>export du fichier salaries_2026.csv lancé par root</td></tr></table><ol><li>Combien de tentatives d'authentification ont échoué avant le succès ?</li><li>Quelle adresse IP mène l'attaque ?</li><li>Comment nomme-t-on une attaque qui enchaîne des essais d'identifiants jusqu'au succès ?</li><li>La connexion sortante vers le port 4444 évoque quel type de canal installé par l'attaquant ?</li><li>Combien de minutes séparent la compromission (03 h 14) de l'exfiltration (03 h 22) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>CORRELATE TARGET_IP=198.51.100.42 LOGS=firewall:198.51.100.42:PortScan:WARN|proxy:198.51.100.42:AuthFailed:WARN|proxy:10.0.0.5:HomeView:INFO|auth:198.51.100.42:BruteForce:ALERT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le serveur de fichiers FichiersNet est compromis dans la nuit du 3 avril.
+22 h 41 : échec d'authentification admin depuis 203.0.113.9 (sshd)
+22 h 42 : échec d'authentification admin depuis 203.0.113.9 (sshd)
+22 h 43 : authentification admin réussie depuis 203.0.113.9 (sshd)
+22 h 47 : connexion sortante vers 192.0.2.50 port 8080 (pare-feu)
+22 h 58 : copie compressée des partages vers l'extérieur (application)
+
+1) Deux échecs avant le succès.
+2) L'attaque vient de 203.0.113.9.
+3) Attaque par force brute.
+4) La connexion sortante vers un port inhabituel installe un canal de contrôle.
+5) De 22 h 43 à 22 h 58 : 15 minutes.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez les événements correspondant à TARGET_IP.</li>
-        <li>Vérifiez si le nombre d'événements suspects est &gt;= 3 ou si la sévérité DENY apparaît.</li>
+        <li>Reconstituez la chronologie minute par minute : qui fait quoi, depuis où, vers où.</li>
+        <li>Des échecs répétés suivis d'un succès sur le compte root caractérisent une attaque par force brute.</li>
+        <li>1. Comptez les échecs sshd avant 03 h 14. 2. L'IP revient sur les trois lignes sshd. 3. Nommez la technique des essais successifs. 4. Un port de sortie inhabituel juste après la compromission signe le canal de contrôle. 5. De 03 h 14 à 03 h 22.</li>
       </ol>
     </details>
   </div>
@@ -341,10 +358,10 @@ Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&
     <div class="q">
       <p class="q__stem">Quel est l'avantage principal de Filebeat par rapport à Logstash pour la collecte de journaux sur les serveurs applicatifs ?</p>
       <div class="opts">
-        <button class="opt">Filebeat est une application Java lourde</button>
+        <button class="opt">Filebeat est une application Java lourde et très gourmande en ressources système</button>
+        <button class="opt">Filebeat remplace intégralement la base de données Elasticsearch du cluster</button>
         <button class="opt" data-correct="1">Filebeat est un binaire autonome léger écrit en Go qui consomme très peu de CPU et de mémoire RAM</button>
-        <button class="opt">Filebeat remplace la base Elasticsearch</button>
-        <button class="opt">Filebeat ne fonctionne que sous Windows</button>
+        <button class="opt">Filebeat ne fonctionne que sur les systèmes d'exploitation Windows de Microsoft</button>
       </div>
       <div class="q__exp">Filebeat a été spécialement conçu pour être un expéditeur ultra-léger (Go) qui n'impacte pas les performances des serveurs hébergeant les applications métiers.</div>
     </div>
@@ -361,10 +378,10 @@ Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&
     <div class="q">
       <p class="q__stem">Dans la terminologie Logstash, que désigne un filtre « grok » ?</p>
       <div class="opts">
-        <button class="opt">Un protocole de routage réseau</button>
         <button class="opt" data-correct="1">Une bibliothèque de motifs d'expressions régulières nommées permettant de découper du texte brut en champs JSON structurés</button>
-        <button class="opt">Un algorithme de chiffrement asymétrique</button>
-        <button class="opt">Un outil de compression zip</button>
+        <button class="opt">Un protocole de routage réseau dynamique réservé aux échanges entre équipements supervisés</button>
+        <button class="opt">Un algorithme de chiffrement asymétrique utilisé pour sécuriser les flux de journaux</button>
+        <button class="opt">Un outil de compression zip destiné à réduire la taille des journaux avant leur archivage final</button>
       </div>
       <div class="q__exp">Grok permet d'associer des motifs regex réutilisables (ex: %{IP:client_ip}) pour transformer facilement des lignes de logs brutes en documents JSON.</div>
     </div>
@@ -372,9 +389,9 @@ Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&
       <p class="q__stem">Si un cluster de logs fonctionnant habituellement à 500 EPS subit une chute brutale à 10 EPS sur un service critique, comment qualifie-t-on cette anomalie ?</p>
       <div class="opts">
         <button class="opt">Log Flood</button>
-        <button class="opt" data-correct="1">Log Drop</button>
-        <button class="opt">Normal Drift</button>
         <button class="opt">Capacity Spike</button>
+        <button class="opt">Normal Drift</button>
+        <button class="opt" data-correct="1">Log Drop</button>
       </div>
       <div class="q__exp">Une chute massive de débit sous la baseline normale est un Log Drop, indiquant fréquemment un arrêt inopiné du service émetteur ou une rupture de connectivité.</div>
     </div>
@@ -382,8 +399,8 @@ Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&
       <p class="q__stem">Quel port TCP Kibana utilise-t-il par défaut pour son interface web d'administration et de tableaux de bord ?</p>
       <div class="opts">
         <button class="opt">Port 9200</button>
-        <button class="opt" data-correct="1">Port 5601</button>
         <button class="opt">Port 3000</button>
+        <button class="opt" data-correct="1">Port 5601</button>
         <button class="opt">Port 8080</button>
       </div>
       <div class="q__exp">Kibana est accessible sur le port 5601/TCP par défaut.</div>
@@ -391,30 +408,30 @@ Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&
     <div class="q">
       <p class="q__stem">Que signifie le concept de « backpressure » implémenté dans Filebeat ?</p>
       <div class="opts">
-        <button class="opt">L'arrêt complet du serveur Linux</button>
+        <button class="opt">L'arrêt complet et automatique du serveur Linux concerné par la collecte, déclenché afin de prévenir tout débordement mémoire</button>
         <button class="opt" data-correct="1">La capacité de l'agent à ralentir la lecture des logs si le collecteur Logstash ou Elasticsearch est saturé, évitant ainsi tout débordement mémoire</button>
-        <button class="opt">Le chiffrement des disques durs</button>
-        <button class="opt">L'inversion des flux réseau</button>
+        <button class="opt">Le chiffrement systématique et intégral des disques durs hébergeant l'ensemble des journaux collectés par l'agent léger</button>
+        <button class="opt">L'inversion temporaire du sens de circulation des flux réseau entre le collecteur central et les agents distants de la flotte</button>
       </div>
       <div class="q__exp">Le contrôle de contre-pression permet à Filebeat d'adapter son rythme d'émission à la capacité d'ingestion en aval sans perdre d'événements.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il nécessaire d'utiliser un schéma commun comme l'ECS (Elastic Common Schema) lors de l'ingestion de logs provenant de sources hétérogènes ?</p>
       <div class="opts">
-        <button class="opt">Pour rendre les logs illisibles aux attaquants</button>
         <button class="opt" data-correct="1">Pour standardiser les noms de champs (ex: client_ip vs src_ip) et permettre des corrélations transversales dans le SIEM</button>
-        <button class="opt">Pour économiser les adresses IPv4</button>
-        <button class="opt">Pour désactiver le pare-feu</button>
+        <button class="opt">Pour rendre les journaux volontairement illisibles aux attaquants éventuels du système d'information</button>
+        <button class="opt">Pour économiser les adresses IPv4 de l'entreprise lors des phases d'ingestion des journaux</button>
+        <button class="opt">Pour désactiver temporairement le pare-feu pendant les phases d'ingestion massive de journaux</button>
       </div>
       <div class="q__exp">Si chaque équipement nomme différemment l'adresse IP source (src_ip, client, host_ip, remote_addr), il est impossible d'exécuter une requête corrélée unique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un SIEM, quel critère permet de relier chronologiquement une attaque par injection SQL sur un serveur web à une création suspecte de compte administrateur sur une machine Linux ?</p>
       <div class="opts">
-        <button class="opt">Le numéro de série de l'ordinateur</button>
         <button class="opt" data-correct="1">L'adresse IP source commune et l'horodatage précis sur une fenêtre temporelle courte</button>
-        <button class="opt">Le nom du système d'exploitation</button>
-        <button class="opt">La taille du fichier de log</button>
+        <button class="opt">Le numéro de série du fabricant de l'ordinateur ayant généré l'événement</button>
+        <button class="opt">Le nom exact du système d'exploitation installé sur la machine</button>
+        <button class="opt">La taille totale du fichier de journal analysé par la sonde du SIEM</button>
       </div>
       <div class="q__exp">La corrélation spatio-temporelle repose sur des identifiants partagés (adresse IP, trace_id, identifiant utilisateur) et une synchronisation d'horloge rigoureuse (NTP).</div>
     </div>
@@ -536,7 +553,7 @@ Résultat d’analyse attendu : <code>CORRELATION: ip=&lt;TARGET_IP&gt; events=&
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

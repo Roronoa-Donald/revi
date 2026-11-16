@@ -173,88 +173,88 @@ module.exports = {
       stem: 'Quelle fonction de classement attribue la suite (1, 2, 2, 3) pour quatre éléments dont le 2e et le 3e sont ex-æquo ?',
       opts: [
         'ROW_NUMBER()',
-        'RANK()',
         'DENSE_RANK()',
+        'RANK()',
         'NTILE(4)'
       ],
-      correct: 2,
+      correct: 1,
       exp: 'DENSE_RANK() attribue le même rang aux éléments ex-æquo sans sauter de valeur dans la suite des entiers consécutifs.'
     },
     {
       stem: 'Que produit la requête SELECT SUM(montant) OVER (ORDER BY date_vente) FROM ventes ?',
       opts: [
-        'La somme totale globale répétée sur chaque ligne',
         'Une somme cumulative progressive au fur et à mesure des dates',
+        'La somme totale globale répétée sur chaque ligne',
         'Une erreur de syntaxe car PARTITION BY est obligatoire',
         'La moyenne arithmétique des ventes'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'En présence d’un ORDER BY dans OVER sans clause ROWS, le cadre par défaut devient RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, calculant un cumul.'
     },
     {
       stem: 'Quelle clause permet de calculer une moyenne glissante sur la ligne courante et les 2 lignes physiques précédentes ?',
       opts: [
-        'ROWS BETWEEN 2 PRECEDING AND CURRENT ROW',
+        'PARTITION BY 2 ROWS',
         'RANGE BETWEEN 2 PRECEDING AND CURRENT ROW',
         'ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING',
-        'PARTITION BY 2 ROWS'
+        'ROWS BETWEEN 2 PRECEDING AND CURRENT ROW'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'ROWS BETWEEN 2 PRECEDING AND CURRENT ROW sélectionne exactement les 2 tuples physiques précédents et le tuple courant.'
     },
     {
       stem: 'À quoi sert le troisième paramètre de la fonction LAG(colonne, décalage, valeur_defaut) ?',
       opts: [
-        'À spécifier le nom de la partition',
-        'À fournir une valeur de substitution si la ligne précédente n’existe pas (à la place de NULL)',
-        'À définir le pas d’incrémentation',
-        'À indiquer le type de données de sortie'
+        "À spécifier le nom de la partition de fenêtrage concernée par la fonction",
+        "À définir le pas d’incrémentation appliqué entre chaque valeur successives",
+        "À fournir une valeur de substitution si la ligne précédente n’existe pas (à la place de NULL)",
+        "À indiquer explicitement le type de données attendu en sortie de la fonction"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le troisième paramètre de LAG permet de remplacer la valeur NULL retournée pour la toute première ligne de la partition.'
     },
     {
       stem: 'Dans une CTE WITH RECURSIVE, quel opérateur relie l’ancre au terme récursif en conservant les doublons ?',
       opts: [
-        'UNION ALL',
         'INTERSECT',
+        'UNION ALL',
         'CROSS JOIN',
         'MERGE'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'UNION ALL conserve les doublons générés par le terme récursif. UNION est aussi possible : il élimine les doublons sur la ligne entière.'
     },
     {
       stem: 'Dans PostgreSQL, comment éviter qu’une requête WITH RECURSIVE contenant une colonne niveau qui augmente ne boucle sur un cycle ?',
       opts: [
-        'En désactivant le cache PostgreSQL',
-        'En traçant les identifiants visités dans un tableau et en vérifiant WHERE NOT (id = ANY(chemin))',
-        'En remplaçant UNION ALL par UNION, qui suffit toujours',
-        'En augmentant la variable work_mem'
+        "En traçant les identifiants visités dans un tableau et en vérifiant WHERE NOT (id = ANY(chemin))",
+        "En désactivant complètement le cache mémoire partagé du serveur PostgreSQL",
+        "En remplaçant simplement UNION ALL par UNION, ce qui suffirait toujours à casser les cycles",
+        "En augmentant fortement la valeur de la variable de configuration work_mem"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Dans PostgreSQL, le tableau ARRAY permet d’exclure les identifiants déjà visités. UNION élimine les doublons sur toutes les colonnes : il peut arrêter un cycle si la ligne entière se répète, mais pas si le niveau augmente à chaque passage.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre une fonction d’agrégation ordinaire et une fonction de fenêtrage ?',
       opts: [
-        'La fonction de fenêtrage ne peut s’exécuter que la nuit',
-        'La fonction d’agrégation compresse les lignes en une seule, la fonction de fenêtrage conserve chaque ligne',
-        'La fonction de fenêtrage ne fonctionne que sur des chaînes de caractères',
-        'Aucune différence, ce sont de purs synonymes'
+        "La fonction de fenêtrage ne peut s’exécuter que pendant les plages horaires nocturnes",
+        "La fonction de fenêtrage ne fonctionne que sur des colonnes de type chaîne de caractères",
+        "La fonction d’agrégation compresse les lignes en une seule, la fonction de fenêtrage conserve chaque ligne",
+        "Aucune différence réelle, ces deux termes étant de parfaits synonymes interchangeables"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Une fonction de fenêtrage calcule une valeur pour chaque ligne sans réduire le nombre total de lignes renvoyées par la requête.'
     },
     {
       stem: 'Que renvoie la fonction NTILE(4) appliquée sur une partition de 100 lignes ?',
       opts: [
-        '4 lignes au hasard',
-        'Un numéro de quartile (1, 2, 3 ou 4) affecté à chaque tranche de 25 lignes',
-        'Le pourcentage d’avancement de chaque ligne',
-        'Le quotient de la division entière par 4'
+        "Un échantillon de quatre lignes tirées au hasard dans la partition",
+        "Le pourcentage d’avancement du parcours associé à chaque ligne",
+        "Le quotient de la division entière du rang par quatre",
+        "Un numéro de quartile (1, 2, 3 ou 4) affecté à chaque tranche de 25 lignes"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'NTILE(4) répartit les 100 lignes ordonnées en 4 tranches égales (quartiles) numérotées de 1 à 4.'
     }
   ],

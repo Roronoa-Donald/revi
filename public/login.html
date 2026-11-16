@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion — Cours Interactifs</title>
   <meta name="robots" content="noindex">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="/assets/css/fonts.css">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <script src="/assets/js/theme.js"></script>
   <style>
     :root {
       --bg-deep: #f5f3f1;
@@ -26,15 +26,49 @@
       --tr: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       --font: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
+    [data-theme="dark"] {
+      --bg-deep: #0f172a;
+      --bg-surface: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #94a3b8;
+      --border-oat: #334155;
+      --blue: #60a5fa;
+    }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: var(--font);
       background: var(--bg-deep);
       color: var(--text-primary);
       min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 76px 20px 24px;
     }
+    .auth-topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      height: 56px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg-surface); border-bottom: 1px solid var(--border-oat);
+    }
+    .auth-topbar__brand {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Space Grotesk', var(--font); font-weight: 700; font-size: .92rem;
+      color: var(--text-primary); text-decoration: none;
+    }
+    .auth-topbar__brand .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; color: var(--green-dark); }
+    [data-theme="dark"] .auth-topbar__brand .ic { color: var(--green); }
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 8px;
+      border: 1px solid var(--border-oat); background: var(--bg-surface);
+      color: var(--text-primary); cursor: pointer;
+    }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle__sun, .theme-toggle__moon { display: none; }
+    [data-theme="dark"] .theme-toggle__sun { display: block; }
+    :root:not([data-theme="dark"]) .theme-toggle__moon { display: block; }
+    [data-theme="dark"] .tab.is-active { background: #3b82f6; color: #ffffff; border-color: #3b82f6; }
+    [data-theme="dark"] .level-card.is-selected { background: rgba(59, 130, 246, 0.18); border-color: #60a5fa; }
     .card {
       background: var(--bg-surface);
       border: 1px solid var(--border-oat);
@@ -106,6 +140,20 @@
   </style>
 </head>
 <body>
+  <header class="auth-topbar" role="banner">
+    <a href="/" class="auth-topbar__brand" aria-label="Retour au portail des cours">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-house"></use></svg>
+      <span>cours.interactifs</span>
+    </a>
+    <button type="button" id="themeToggle" class="theme-toggle" aria-label="Basculer le thème clair ou sombre" title="Changer de thème">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      </svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+      </svg>
+    </button>
+  </header>
   <main class="card" id="main-content">
     <div class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="/assets/img/ui-icons.svg#i-graduation"></use></svg></div>
     <h1 id="pageTitle">Connexion</h1>
@@ -187,10 +235,33 @@
   <script src="/_auth/js/fingerprint.js"></script>
   <script>
     (function () {
+      var themeBtn = document.getElementById('themeToggle');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', function () {
+          if (typeof window.toggleTheme === 'function') window.toggleTheme();
+        });
+      }
       'use strict';
 
+      function safeRedirect(raw) {
+        if (!raw || typeof raw !== 'string') return '/';
+        var trimmed = raw.trim();
+        if (!trimmed || trimmed.charAt(0) !== '/' || trimmed.charAt(1) === '/' || trimmed.charAt(1) === '\\') {
+          return '/';
+        }
+        try {
+          var u = new URL(trimmed, window.location.origin);
+          if (u.origin !== window.location.origin || u.pathname.charAt(0) !== '/' || u.pathname.charAt(1) === '/') {
+            return '/';
+          }
+          return u.pathname + u.search + u.hash;
+        } catch (e) {
+          return '/';
+        }
+      }
+
       var urlParams = new URLSearchParams(window.location.search);
-      var redirect = urlParams.get('redirect') || '/';
+      var redirect = safeRedirect(urlParams.get('redirect'));
       var resetToken = urlParams.get('reset');
 
       var views = {
@@ -216,7 +287,12 @@
       }
 
       function esc(s) {
-        return String(s == null ? '' : s).replace(/[<>&"']/g, '');
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
       }
 
       // ── Détection : si déjà connecté → compte ; si ?reset= → reset ; si ?mode=register → inscription
@@ -262,7 +338,7 @@
       });
 
       function goBack(redirectValue) {
-        var target = redirectValue || redirect || '/';
+        var target = safeRedirect(redirectValue || redirect);
         window.location.href = target;
       }
 

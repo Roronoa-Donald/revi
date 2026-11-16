@@ -189,67 +189,67 @@ module.exports = {
     {
       q: 'Quelle primitive matérielle VAAI remplace le verrouillage global de LUN (SCSI reservation) par un verrouillage ultra-fin bloc par bloc ?',
       opts: [
-        'ATS (Atomic Test and Set).',
         'XCOPY (Extended Copy).',
+        'ATS (Atomic Test and Set).',
         'UNMAP (Block Space Reclamation).',
         'Write Same (Zeroing Offload).'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'ATS (Atomic Test and Set) permet aux hôtes ESXi de modifier des métadonnées de datastore en verrouillant uniquement le secteur concerné plutôt que l\'intégralité du LUN, évitant les blocages d\'E/S.'
     },
     {
       q: 'Pourquoi configure-t-on un MTU de 9000 octets (Jumbo Frames) sur les interfaces réseau dédiées au stockage iSCSI ?',
       opts: [
-        'Pour réduire le nombre de paquets par seconde, diminuant la charge CPU et augmentant le débit utile.',
-        'Pour crypter automatiquement les échanges de trames avec l\'algorithme AES-256.',
         'Pour empêcher les attaques par déni de service SYN flood sur le port 3260.',
+        'Pour crypter automatiquement les échanges de trames avec l\'algorithme AES-256.',
+        'Pour réduire le nombre de paquets par seconde, diminuant la charge CPU et augmentant le débit utile.',
         'Pour permettre le routage des paquets sur Internet sans passerelle par défaut.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Transporter 9000 octets par trame au lieu de 1500 réduit par six le nombre d\'en-têtes et d\'interruptions système traitées par les processeurs, optimisant considérablement le débit d\'E/S.'
     },
     {
       q: 'Combien d\'hôtes physiques distincts sont au minimum requis pour déployer la politique de stockage vSAN `FTT=1_RAID5` (Erasure Coding 3+1) ?',
       opts: [
-        '4 hôtes minimum.',
+        '6 hôtes minimum.',
         '2 hôtes avec un disque témoin externe.',
         '3 hôtes physiques.',
-        '6 hôtes minimum.'
+        '4 hôtes minimum.'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La règle vSAN FTT=1 RAID-5 distribue les blocs selon un schéma 3+1 (3 blocs de données et 1 bloc de parité). Chacun des 4 composants devant résider sur un hôte différent, 4 hôtes sont obligatoires.'
     },
     {
       q: 'Quel est le multiplicateur de consommation brute pour une machine virtuelle dont le disque utile fait 10 To sous la politique vSAN `FTT=1_RAID1` ?',
       opts: [
-        '2.00x (soit 20 To bruts consommés).',
+        '3.00x (soit 30 To bruts consommés).',
         '1.33x (soit 13.3 To bruts consommés).',
         '1.00x (aucun surcoût d\'espace).',
-        '3.00x (soit 30 To bruts consommés).'
+        '2.00x (soit 20 To bruts consommés).'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La politique FTT=1 RAID-1 applique un miroir classique à deux copies identiques (plus un témoin). Le volume brut consommé sur les disques est exactement le double du volume utile (multiplicateur 2.0x).'
     },
     {
       q: 'Pourquoi VMware impose-t-il une réserve opérationnelle de 20% (Slack Space) sur un cluster de stockage vSAN ?',
       opts: [
-        'Pour permettre la reconstruction automatique des données en cas de défaillance d\'un hôte ou d\'un disque.',
-        'Pour héberger les fichiers ISO d\'installation des systèmes d\'exploitation invités.',
         'Pour stocker les logs d\'audit de vCenter Server en cas de perte de connectivité.',
+        'Pour héberger les fichiers ISO d\'installation des systèmes d\'exploitation invités.',
+        'Pour permettre la reconstruction automatique des données en cas de défaillance d\'un hôte ou d\'un disque.',
         'Pour allouer la mémoire swap de l\'hyperviseur sur les disques mécaniques.'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le Slack Space de 20% garantit qu\'en cas de perte physique d\'un serveur ou d\'un disque de capacité, le cluster dispose de l\'espace libre nécessaire pour resynchroniser et restaurer le niveau de protection configuré.'
     },
     {
       q: 'Quelle politique de sélection de chemins NMP (PSP) distribue les E/S sur l\'ensemble des liens de stockage pour maximiser la bande passante ?',
       opts: [
-        'Round Robin (VMW_PSP_RR).',
         'Fixed (VMW_PSP_FIXED).',
+        'Round Robin (VMW_PSP_RR).',
         'Most Recently Used (VMW_PSP_MRU).',
         'Single Path Direct.'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La politique Round Robin alterne les requêtes d\'E/S entre tous les chemins actifs disponibles vers la baie de stockage, assurant une répartition équitable de la charge et un basculement transparent.'
     },
     {

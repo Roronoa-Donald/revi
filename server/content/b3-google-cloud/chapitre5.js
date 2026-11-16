@@ -168,32 +168,32 @@ module.exports = {
   questions: [
     {
       stem: 'Quelle est la durée minimale de facturation associée à la classe de stockage Cloud Storage Nearline ?',
-      opts: ['0 jour', '30 jours', '90 jours', '365 jours'],
-      correct: 1,
+      opts: ['30 jours', '0 jour', '90 jours', '365 jours'],
+      correct: 0,
       exp: 'Cloud Storage Nearline impose une durée minimale de facturation de 30 jours (Coldline impose 90 jours et Archive 365 jours).'
     },
     {
       stem: 'Quelle technologie matérielle brevetée par Google permet à Cloud Spanner de garantir une cohérence transactionnelle stricte ACID à travers le monde entier ?',
-      opts: ['Le protocole Raft', 'Google TrueTime (horloges atomiques et récepteurs GPS)', 'La technologie Quantum Sync', 'Les disques NVMe'],
+      opts: ["Le protocole Raft de consensus distribué entre les régions","Google TrueTime (horloges atomiques et récepteurs GPS)","La technologie propriétaire Quantum Sync de Google","Les disques NVMe à faible latence des datacenters"],
       correct: 1,
       exp: 'Google TrueTime synchronise les horloges de tous les datacenters de Google via des récepteurs GPS et des horloges atomiques, fournissant une incertitude temporelle bornée pour ordonner les transactions mondiales.'
     },
     {
       stem: 'Quel service de base de données NoSQL Google Cloud est recommandé pour stocker des flux de télémétrie IoT massifs avec des latences de lecture/écriture inférieures à la milliseconde ?',
-      opts: ['Firestore', 'Cloud Bigtable', 'Cloud SQL', 'Firebase Realtime Database'],
-      correct: 1,
+      opts: ['Firestore', 'Cloud SQL', 'Cloud Bigtable', 'Firebase Realtime Database'],
+      correct: 2,
       exp: 'Cloud Bigtable est le moteur NoSQL large-colonne conçu pour absorber des débits colossaux d\'écriture et de lecture avec des temps de réponse sub-millisecondes constants.'
     },
     {
       stem: 'Avec un abonnement Pub/Sub standard, que peut-il se passer si un message retenu reste non acquitté après expiration de son Ack Deadline, sans prolongation ?',
-      opts: ['Le message est détruit immédiatement', 'Pub/Sub peut tenter de le relivrer au même client ou à un autre', 'Pub/Sub prouve que le consommateur est en panne', 'Le message est forcément livré immédiatement à un autre client'],
-      correct: 1,
+      opts: ['Le message est détruit immédiatement', 'Le message est forcément livré immédiatement à un autre client', 'Pub/Sub prouve que le consommateur est en panne', 'Pub/Sub peut tenter de le relivrer au même client ou à un autre'],
+      correct: 3,
       exp: 'Après expiration sans acquittement ni prolongation, une tentative de relivraison est possible ; elle dépend notamment de la politique de retry et peut viser le même client. Le délai, la rétention et la présence d\'une file de lettres mortes influencent le parcours.'
     },
     {
       stem: 'Quelle méthode de contrôle d\'accès Cloud Storage permet de donner à un utilisateur externe un accès temporaire en écriture ou lecture à un objet précis sans qu\'il ne possède de compte Google ?',
-      opts: ['Les autorisations IAM au niveau du projet', 'Les règles de pare-feu VPC', 'Les URL signées (Signed URLs)', 'Le partage de clés de compte de service'],
-      correct: 2,
+      opts: ['Les URL signées (Signed URLs)', 'Les règles de pare-feu VPC', 'Les autorisations IAM au niveau du projet', 'Le partage de clés de compte de service'],
+      correct: 0,
       exp: 'Une URL signée (Signed URL) fournit un lien sécurisé temporaire avec signature cryptographique permettant d\'effectuer une opération HTTP (GET, PUT) pendant une durée définie sans authentification GCP.'
     }
   ],

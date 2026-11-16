@@ -97,12 +97,12 @@ module.exports = {
     {
       "stem": "Pourquoi le scan Nmap SYN (-sS) est-il qualifié de \"Stealth\" ou \"demi-ouvert\" ?",
       "opts": [
-        "Parce qu'il envoie un paquet RST immédiatement après avoir reçu le SYN+ACK sans jamais envoyer le ACK final qui finaliserait la connexion",
         "Parce qu'il chiffre l'intégralité des paquets transmis avec une clé AES 256 bits",
+        "Parce qu'il envoie un paquet RST immédiatement après avoir reçu le SYN+ACK sans jamais envoyer le ACK final qui finaliserait la connexion",
         "Parce qu'il masque l'adresse IP de l'auditeur en usurpant automatiquement celle de la passerelle",
         "Parce qu'il utilise exclusivement des ports sources inférieurs à 1024"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "Le scan SYN n'établit jamais la connexion TCP complète : en envoyant un RST dès réception du SYN+ACK, la session n'est pas finalisée et n'était historiquement pas enregistrée par les logs applicatifs."
     },
     {
@@ -119,54 +119,54 @@ module.exports = {
     {
       "stem": "Quelle est la valeur typique de Time to Live (TTL) initial observée lors d'une capture réseau sur une machine Linux par rapport à Windows ?",
       "opts": [
-        "TTL 64 pour Linux contre TTL 128 pour Windows",
+        "Le TTL est strictement identique sur tous les systèmes d'exploitation",
         "TTL 255 pour Linux contre TTL 32 pour Windows",
         "TTL 128 pour Linux contre TTL 64 pour Windows",
-        "Le TTL est strictement identique sur tous les systèmes d'exploitation"
+        "TTL 64 pour Linux contre TTL 128 pour Windows"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Par défaut, la pile réseau du noyau Linux initialise le champ TTL à 64, tandis que la pile réseau de Microsoft Windows l'initialise à 128 (et les équipements réseau Cisco/Solaris à 255)."
     },
     {
       "stem": "Quel est l'objectif principal d'un scan Nmap avec l'option -sA (TCP ACK Scan) ?",
       "opts": [
+        "Identifier les versions exactes des logiciels serveurs web tournant sur les ports ouverts",
+        "Déchiffrer les communications HTTPS en cours entre le client et le serveur distant",
         "Cartographier les règles de pare-feu et déterminer s'il s'agit d'un pare-feu avec état (Stateful)",
-        "Identifier les versions des logiciels serveurs web",
-        "Déchiffrer les communications HTTPS en cours",
-        "Énumérer les utilisateurs du domaine Active Directory"
+        "Énumérer les utilisateurs du domaine Active Directory via le protocole LDAP"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "L'ACK scan envoie des paquets ACK hors session pour analyser si le pare-feu filtre les paquets non sollicités (Timeout/Filtered) ou s'il laisse passer les paquets vers l'hôte qui répond RST (Unfiltered)."
     },
     {
       "stem": "Pourquoi les scans furtifs FIN (-sF), Null (-sN) et Xmas (-sX) échouent-ils systématiquement face à des cibles sous Microsoft Windows ?",
       "opts": [
-        "Parce que la pile TCP de Windows ne respecte pas la RFC 793 et répond systématiquement par un RST sur tous les ports",
-        "Parce que Windows bloque physiquement la carte réseau dès qu'un paquet suspect est détecté",
         "Parce que ces scans exigent le protocole IPv6 qui est désactivé sous Windows",
+        "Parce que Windows bloque physiquement la carte réseau dès qu'un paquet suspect est détecté",
+        "Parce que la pile TCP de Windows ne respecte pas la RFC 793 et répond systématiquement par un RST sur tous les ports",
         "Parce que Nmap refuse d'exécuter ces scans sur des systèmes Windows"
       ],
-      "correct": 0,
+      "correct": 2,
       "exp": "Windows ne respecte pas la disposition de la RFC 793 stipulant qu'un port ouvert ne doit pas répondre à un paquet invalide : Windows renvoie un RST que le port soit ouvert ou fermé."
     },
     {
       "stem": "Quel risque critique de sécurité présente un service SNMP v1 ou v2c configuré avec la chaîne de communauté par défaut \"public\" ?",
       "opts": [
-        "Un attaquant peut interroger la base MIB et extraire la liste complète des processus, interfaces réseau, utilisateurs et logiciels installés",
-        "Le serveur est immédiatement formaté et rendu inaccessible",
-        "Les clés privées SSH du serveur sont écrites en clair sur le port série",
-        "Aucun risque, la communauté public est chiffrée par défaut"
+        "Le serveur SNMP est immédiatement formaté par l'attaquant distant et rendu totalement inaccessible aux équipes",
+        "Les clés privées SSH du serveur sont automatiquement écrites en clair sur le port série de la machine",
+        "Aucun risque réel, car les échanges de la communauté public du protocole SNMP sont chiffrés par défaut",
+        "Un attaquant peut interroger la base MIB et extraire la liste complète des processus, interfaces réseau, utilisateurs et logiciels installés"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "En SNMP v1/v2c, la communauté \"public\" transmet en clair et accorde un accès en lecture (RO) permettant d'énumérer toute la MIB-2 système (processus, interfaces, tables de routage, utilisateurs)."
     },
     {
       "stem": "Qu'est-ce qu'une \"session nulle\" (Null Session) dans le protocole SMB (port 445/139) ?",
       "opts": [
         "Une connexion établie anonymement sans nom d'utilisateur ni mot de passe permettant d'énumérer les partages et comptes",
-        "Une coupure brutale de la connexion réseau par le pare-feu",
-        "Une session dont les données ont été corrompues par des zéros binaires",
-        "Une commande de redémarrage automatique du contrôleur de domaine"
+        "Une coupure brutale et définitive de la connexion réseau provoquée par le pare-feu de périmètre",
+        "Une session dont les données ont été corrompues par des zéros binaires injectés dans le flux",
+        "Une commande de redémarrage automatique et planifié du contrôleur de domaine Active Directory"
       ],
       "correct": 0,
       "exp": "Une session nulle SMB permet à un utilisateur anonyme de s'authentifier avec des identifiants vides pour interroger les partages IPC$ et énumérer les comptes d'utilisateurs et de groupes du système."
@@ -174,12 +174,12 @@ module.exports = {
     {
       "stem": "Quelle catégorie de scripts du Nmap Scripting Engine (NSE) permet d'identifier les vulnérabilités de sécurité connues sur une cible ?",
       "opts": [
-        "--script vuln",
         "--script discovery",
+        "--script vuln",
         "--script broadcast",
         "--script brute"
       ],
-      "correct": 0,
+      "correct": 1,
       "exp": "La catégorie \"--script vuln\" regroupe tous les scripts vérifiant la présence de failles de sécurité répertoriées (telles que EternalBlue, Shellshock, Heartbleed, etc.)."
     }
   ],

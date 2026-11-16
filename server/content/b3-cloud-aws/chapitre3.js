@@ -190,32 +190,32 @@ module.exports = {
   questions: [
     {
       stem: 'Quel modèle d\'achat EC2 permet d\'obtenir jusqu\'à 90% de réduction par rapport au tarif On-Demand, sous réserve d\'accepter des interruptions potentielles avec 2 minutes de préavis ?',
-      opts: ['Instances Réservées (Reserved Instances)', 'Savings Plans', 'Instances Spot', 'Hôtes Dédiés (Dedicated Hosts)'],
-      correct: 2,
+      opts: ['Instances Réservées (Reserved Instances)', 'Savings Plans', 'Hôtes Dédiés (Dedicated Hosts)', 'Instances Spot'],
+      correct: 3,
       exp: 'Les instances Spot exploitent le surplus de capacité matérielle inutilisée d\'AWS avec jusqu\'à 90% de rabais, mais AWS peut les réclamer avec un préavis d\'interruption de 2 minutes.'
     },
     {
       stem: 'Quelle caractéristique technique distinguez les volumes EBS gp3 par rapport aux anciens volumes gp2 ?',
-      opts: ['Les volumes gp3 ne peuvent pas être chiffrés', 'Les volumes gp3 permettent d\'augmenter les IOPS et le débit MB/s indépendamment de la taille du disque de stockage', 'Les volumes gp3 sont accessibles simultanément par 100 instances', 'Les volumes gp3 sont stockés sur bande magnétique'],
-      correct: 1,
+      opts: ["Les volumes gp3 ne peuvent pas être chiffrés, contrairement aux anciens volumes gp2","Les volumes gp3 sont accessibles simultanément en lecture et écriture par 100 instances EC2 distinctes","Les volumes gp3 permettent d'augmenter les IOPS et le débit MB/s indépendamment de la taille du disque de stockage","Les volumes gp3 sont stockés sur des bandes magnétiques à très faible coût par téraoctet"],
+      correct: 2,
       exp: 'Contrairement à gp2 dont les performances dépendaient strictement du nombre de Go alloués, gp3 permet de provisionner les IOPS et le débit indépendamment de la capacité de stockage.'
     },
     {
       stem: 'À quelle couche du modèle OSI l\'Application Load Balancer (ALB) opère-t-il pour inspecter les requêtes HTTP/HTTPS ?',
-      opts: ['Couche 2 (Liaison de données)', 'Couche 3 (Réseau)', 'Couche 4 (Transport)', 'Couche 7 (Application)'],
-      correct: 3,
+      opts: ['Couche 2 (Liaison de données)', 'Couche 7 (Application)', 'Couche 4 (Transport)', 'Couche 3 (Réseau)'],
+      correct: 1,
       exp: 'L\'Application Load Balancer opère au niveau de la couche 7 (Application), ce qui lui permet d\'inspecter les en-têtes HTTP, les URLs, les cookies et d\'effectuer des redirections intelligentes.'
     },
     {
       stem: 'Comment un Auto Scaling Group réagit-il lors d\'un événement de Scale Out pour maintenir une haute disponibilité optimale ?',
-      opts: ['Il lance toutes les instances dans la première zone alphabétique', 'Il lance l\'instance dans l\'Availability Zone qui compte actuellement le moins d\'instances', 'Il supprime aléatoirement une instance dans une autre zone', 'Il attend que toutes les zones soient pleines'],
-      correct: 1,
+      opts: ['Il lance l\'instance dans l\'Availability Zone qui compte actuellement le moins d\'instances', 'Il lance toutes les instances dans la première zone alphabétique', 'Il supprime aléatoirement une instance dans une autre zone', 'Il attend que toutes les zones soient pleines'],
+      correct: 0,
       exp: 'Pour garantir la tolérance aux pannes, l\'Auto Scaling Group veille à toujours équilibrer la flotte en allouant les nouvelles instances dans la zone de disponibilité la moins chargée.'
     },
     {
       stem: 'Quel service d\'orchestration AWS permet d\'exécuter des conteneurs Docker sans avoir à gérer, dimensionner ni patcher de machines virtuelles EC2 sous-jacentes ?',
-      opts: ['Amazon EC2 Dedicated Hosts', 'AWS Fargate', 'Amazon EBS multi-attach', 'AWS Storage Gateway'],
-      correct: 1,
+      opts: ['AWS Fargate', 'Amazon EC2 Dedicated Hosts', 'Amazon EBS multi-attach', 'AWS Storage Gateway'],
+      correct: 0,
       exp: 'AWS Fargate est une technologie de calcul serverless pour conteneurs (utilisable avec ECS et EKS) qui abstrait totalement l\'infrastructure et les serveurs sous-jacents.'
     },
     {
@@ -226,14 +226,14 @@ module.exports = {
     },
     {
       stem: 'Qu\'advient-il d\'une instance EC2 membre d\'un Auto Scaling Group qui échoue de manière répétée aux sondes de santé (Health Checks) de son Load Balancer ?',
-      opts: ['L\'ASG ignore l\'échec', 'L\'ASG termine automatiquement l\'instance défaillante et lance une nouvelle instance saine de remplacement (Auto-healing)', 'L\'ASG arrête toutes les autres instances de la région', 'L\'ASG passe en mode dégradé manuel'],
-      correct: 1,
+      opts: ["L'ASG ignore l'échec des sondes et attend une intervention manuelle de l'administrateur sur l'instance","L'ASG arrête toutes les autres instances de la région pour éviter la propagation de la panne","L'ASG termine automatiquement l'instance défaillante et lance une nouvelle instance saine de remplacement (Auto-healing)","L'ASG passe en mode dégradé manuel et attend que l'instance défaillante redémarre d'elle-même"],
+      correct: 2,
       exp: 'L\'ASG intègre l\'auto-healing : dès qu\'une instance est déclarée Unhealthy par le Load Balancer, il la termine et en instancie une nouvelle pour préserver la capacité désirée.'
     },
     {
       stem: 'Pourquoi les snapshots Amazon EBS sont-ils qualifiés d\'incrémentaux ?',
-      opts: ['Car chaque snapshot copie l\'intégralité du disque à chaque fois', 'Car seuls les blocs de données modifiés depuis le dernier snapshot sont enregistrés dans Amazon S3', 'Car leur prix augmente avec le temps', 'Car ils ne fonctionnent que sur des fichiers texte'],
-      correct: 1,
+      opts: ["Car chaque snapshot copie l'intégralité du disque dur vers Amazon S3, ce qui simplifie la restauration","Car leur prix de stockage diminue automatiquement au fil du temps sans intervention","Car ils ne fonctionnent que sur des volumes contenant exclusivement des fichiers texte","Car seuls les blocs de données modifiés depuis le dernier snapshot sont enregistrés dans Amazon S3"],
+      correct: 3,
       exp: 'Les snapshots EBS sont incrémentaux : seule la différence (les blocs modifiés depuis la sauvegarde précédente) est stockée dans S3, ce qui réduit considérablement les coûts et le temps de sauvegarde.'
     }
   ],

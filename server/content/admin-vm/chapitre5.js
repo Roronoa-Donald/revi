@@ -95,14 +95,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Qu’est-ce qu’un bridge ?', opts: ['Un switch virtuel', 'Un pare-feu', 'Un VLAN'], correct: 0, exp: 'Il relie les VM entre elles et au réseau physique.' },
-    { stem: 'À quoi sert le NAT ?', opts: ['Accéder à Internet sans IP publique', 'Filtrer le trafic', 'Segmenter'], correct: 0, exp: 'La VM sort via l’hôte.' },
-    { stem: 'Que fait un VLAN ?', opts: ['Segmente logiquement', 'Filtre les paquets', 'Chiffre'], correct: 0, exp: 'Il isole les flux dans un même switch.' },
-    { stem: 'Le tagging VLAN remplace-t-il un pare-feu ?', opts: ['Non', 'Oui', 'Toujours'], correct: 0, exp: 'Il structure mais ne filtre pas.' },
-    { stem: 'Où placer un serveur web exposé ?', opts: ['En DMZ', 'Dans le LAN', 'Sur le contrôleur de domaine'], correct: 0, exp: 'La DMZ accueille les services exposés.' },
+    { stem: 'Qu’est-ce qu’un bridge ?', opts: ['Un pare-feu', 'Un switch virtuel', 'Un VLAN'], correct: 1, exp: 'Il relie les VM entre elles et au réseau physique.' },
+    { stem: 'À quoi sert le NAT ?', opts: ['Accéder à Internet sans IP publique', 'Filtrer le trafic', 'Segmenter'], correct: 0, exp: "Le NAT fait sortir la VM via l’adresse de l’hôte, sans IP publique propre. Il ne filtre pas les paquets et ne segmente rien." },
+    { stem: 'Que fait un VLAN ?', opts: ['Chiffre', 'Filtre les paquets', 'Segmente logiquement'], correct: 2, exp: "Un VLAN segmente logiquement le réseau : les flux d’un groupe restent isolés dans le même switch. Il ne filtre pas les paquets et ne chiffre rien." },
+    { stem: 'Le tagging VLAN remplace-t-il un pare-feu ?', opts: ['Oui', 'Non', 'Toujours'], correct: 1, exp: "Non : le tagging structure et étiquette les trames, mais ne filtre rien. Un pare-feu décide de laisser passer ou non — le VLAN ne fait que séparer." },
+    { stem: 'Où placer un serveur web exposé ?', opts: ['Dans le LAN', 'En DMZ', 'Sur le contrôleur de domaine'], correct: 1, exp: "Un serveur web exposé se place en DMZ, zone tampon entre Internet et le LAN. Le garder dans le LAN exposerait tout le réseau interne." },
     { stem: 'Où ne jamais mettre la base de données ?', opts: ['En DMZ', 'Dans le LAN', 'Derrière le pare-feu'], correct: 0, exp: 'Elle contient les données les plus sensibles.' },
-    { stem: 'VLAN des serveurs ?', opts: ['20', '10', '30'], correct: 0, exp: 'VLAN 20 pour les serveurs, 10 utilisateurs, 30 DMZ.' },
-    { stem: 'Premier réflexe de diagnostic ?', opts: ['Tester la connectivité', 'Réinstaller', 'Changer de switch'], correct: 0, exp: 'On vérifie d’abord si la cible est atteignable.' }
+    { stem: 'VLAN des serveurs ?', opts: ['30', '10', '20'], correct: 2, exp: 'VLAN 20 pour les serveurs, 10 utilisateurs, 30 DMZ.' },
+    { stem: 'Premier réflexe de diagnostic ?', opts: ['Changer de switch', 'Réinstaller', 'Tester la connectivité'], correct: 2, exp: 'On vérifie d’abord si la cible est atteignable.' }
   ],
 
   pitfalls: [

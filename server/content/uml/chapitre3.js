@@ -201,8 +201,8 @@ module.exports = {
   questions: [
     {
       stem: 'Quel symbole représente la visibilité «protégée» (protected) d’un attribut ou d’une méthode dans une classe UML ?',
-      opts: ['+', '-', '#', '~'],
-      correct: 2,
+      opts: ['#', '-', '+', '~'],
+      correct: 0,
       exp: 'En UML, le dièse «#» désigne la visibilité protégée (accessible par la classe elle-même et ses sous-classes dérivées).'
     },
     {
@@ -218,45 +218,45 @@ module.exports = {
     },
     {
       stem: 'Quelle multiplicité représente une relation où l’élément est facultatif ou peut être présent au plus une fois ?',
-      opts: ['1', '0..1', '0..*', '1..*'],
-      correct: 1,
+      opts: ['1', '0..*', '0..1', '1..*'],
+      correct: 2,
       exp: 'La multiplicité «0..1» signifie zéro ou un élément (présence optionnelle, souvent représentée par un type nullable ou Optional).'
     },
     {
       stem: 'Quelle est la différence fondamentale entre une agrégation faible (losange creux) et une composition forte (losange plein) ?',
       opts: [
-        'L’agrégation utilise des bases de données SQL et la composition des bases NoSQL',
-        'En composition, la partie ne peut appartenir qu’à un seul composite et est détruite avec lui, alors qu’en agrégation les parties ont un cycle de vie indépendant',
-        'L’agrégation est réservée aux entités graphiques et la composition aux services réseau',
-        'Il n’y a aucune différence, ce sont deux variantes graphiques équivalentes'
+        "L’agrégation s’applique uniquement aux bases de données SQL, tandis que la composition s’applique aux bases NoSQL",
+        "L’agrégation est strictement réservée aux entités graphiques de l’interface, la composition aux services réseau distants",
+        "Il n’y a aucune différence technique réelle, ce sont deux simples variantes graphiques strictement équivalentes d’UML",
+        "En composition, la partie ne peut appartenir qu’à un seul composite et est détruite avec lui, alors qu’en agrégation les parties ont un cycle de vie indépendant"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La composition impose un cycle de vie exclusif et lié : si le composite est détruit, ses parties composantes sont obligatoirement détruites en cascade. L’agrégation permet la survie autonome des parties.'
     },
     {
       stem: 'De quel côté de la ligne de relation doit-on obligatoirement placer le losange (d’agrégation ou de composition) ?',
       opts: [
         'Du côté du composant (la partie)',
-        'Du côté du contenant / composite (le tout)',
+        'Aux deux extrémités à la fois',
         'Au milieu exact de la ligne',
-        'Aux deux extrémités à la fois'
+        'Du côté du contenant / composite (le tout)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La norme OMG stipule que le losange (creux ou plein) est impérativement rattaché à l’extrémité de la classe qui joue le rôle de contenant (le tout).'
     },
     {
       stem: 'Quelle est la multiplicité maximale possible du côté du composite dans une relation de composition forte ?',
-      opts: ['*', '1 ou 0..1 (au maximum 1)', 'Autant qu’on veut', 'Exactement 2'],
-      correct: 1,
+      opts: ['*', 'Autant qu’on veut', '1 ou 0..1 (au maximum 1)', 'Exactement 2'],
+      correct: 2,
       exp: 'Puisqu’une partie appartient exclusivement à un seul composite à la fois en composition forte, la multiplicité du côté composite ne peut jamais dépasser 1 (elle est typiquement 1, ou 0..1 avant attachement).'
     },
     {
       stem: 'Quand doit-on recourir à une «classe d’association» au lieu d’une simple association entre deux classes ?',
       opts: [
-        'Quand la relation est sécurisée par mot de passe',
-        'Quand l’association possède elle-même des attributs qui dépendent de la combinaison des deux classes participantes',
-        'Quand les deux classes sont situées sur deux serveurs différents',
-        'Quand il y a plus de 1000 objets créés en mémoire'
+        "Quand la relation doit être impérativement sécurisée par un mot de passe chiffré côté serveur",
+        "Quand l’association possède elle-même des attributs qui dépendent de la combinaison des deux classes participantes",
+        "Quand les deux classes reliées sont situées sur deux serveurs physiques différents",
+        "Quand le nombre d’objets créés simultanément en mémoire vive dépasse les 1000"
       ],
       correct: 1,
       exp: 'Une classe d’association modélise des informations relatives à la relation elle-même (ex: dateInscription, noteExamen) qui n’appartiennent ni à l’une ni à l’autre des entités prises isolément.'
@@ -264,12 +264,12 @@ module.exports = {
     {
       stem: 'Comment est représentée graphiquement la relation d’héritage (généralisation) entre deux classes en UML ?',
       opts: [
-        'Un trait plein avec une flèche ouverte simple vers la classe fille',
-        'Un trait plein terminé par un triangle blanc fermé pointant vers la classe mère',
-        'Un trait tireté avec une croix',
-        'Un losange noir des deux côtés'
+        "Un trait plein terminé par un triangle blanc fermé pointant vers la classe mère",
+        "Un trait plein avec une flèche ouverte simple vers la classe fille",
+        "Un trait tireté avec une croix terminale du côté de la classe fille",
+        "Un losange noir placé aux deux extrémités de la relation d’héritage"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’héritage est matérialisé par un trait plein muni d’une tête de flèche en triangle fermé creux (blanc) dirigé vers la classe mère (le généralisateur).'
     }
   ],

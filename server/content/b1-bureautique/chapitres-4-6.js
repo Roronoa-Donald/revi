@@ -83,12 +83,12 @@ module.exports = [
 
     questions: [
       { q: 'Une formule de calcul commence toujours par…', opts: ['un signe +', 'le signe =', 'une apostrophe'], correct: 1, exp: 'Sans =, le contenu reste du texte aligné à gauche.' },
-      { q: 'L\'opérateur ^ est…', opts: ['la multiplication', 'l\'exposant', 'la concaténation'], correct: 1, exp: '3^2 = 9 ; * multiplie ; & concatène.' },
-      { q: 'B5:B15 est un opérateur de…', opts: ['plage', 'union', 'intersection'], correct: 0, exp: 'Deux-points : toutes les cellules comprises, bornes incluses.' },
+      { q: 'L\'opérateur ^ est…', opts: ['l\'exposant', 'la multiplication', 'la concaténation'], correct: 0, exp: "L'opérateur ^ élève à la puissance : 3^2 = 3 × 3 = 9 ; la multiplication par * donnerait 6, et & se borne à assembler des textes." },
+      { q: 'B5:B15 est un opérateur de…', opts: ['intersection', 'union', 'plage'], correct: 2, exp: 'Deux-points : toutes les cellules comprises, bornes incluses.' },
       { q: 'NB compte…', opts: ['toutes les cellules', 'les cellules non vides', 'les cellules numériques'], correct: 2, exp: 'NBVAL, elle, compte les non vides, texte compris.' },
-      { q: 'Gauche(B1;3) sur INFORMATIQUE donne…', opts: ['QUE', 'INF', 'ION'], correct: 1, exp: 'Les 3 premiers caractères : INF.' },
-      { q: 'STXT(B1;2;3) sur INFORMATIQUE donne…', opts: ['INF', 'NFO', 'TIQ'], correct: 1, exp: '3 caractères à partir de la position 2 : NFO.' },
-      { q: 'La moyenne de 10, 20, 30, 40 vaut…', opts: ['25', '100', '30'], correct: 0, exp: 'SOMME 100 / NB 4 = 25.' },
+      { q: 'Gauche(B1;3) sur INFORMATIQUE donne…', opts: ['QUE', 'INF', 'ION'], correct: 1, exp: "Gauche(B1;3) extrait les 3 premiers caractères depuis le début de la chaîne, soit INF ; QUE serait le résultat de Droite(B1;3)." },
+      { q: 'STXT(B1;2;3) sur INFORMATIQUE donne…', opts: ['NFO', 'INF', 'TIQ'], correct: 0, exp: '3 caractères à partir de la position 2 : NFO.' },
+      { q: 'La moyenne de 10, 20, 30, 40 vaut…', opts: ['30', '100', '25'], correct: 2, exp: "La moyenne est le total divisé par l'effectif : (10+20+30+40)/4 = 100/4 = 25 ; le distracteur 100 n'est que la somme des valeurs." },
       { q: '"Nord" & "Sud" produit…', opts: ['Nord Sud', 'NordSud', 'une erreur'], correct: 1, exp: 'Concaténation : un seul élément de texte continu.' }
     ],
 
@@ -208,14 +208,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'SI(Test; V; F) renvoie…', opts: ['toujours V', 'V si le test est vrai, F sinon', 'le test'], correct: 1, exp: 'Formule conditionnelle : résultat selon la vérité du test.' },
-      { q: 'Pour une commission à trois paliers, on écrit…', opts: ['trois SI séparés', 'un SI imbriqué du plus strict au plus large', 'un SI unique'], correct: 1, exp: 'SI dans SI : le premier test élimine les cas hauts.' },
-      { q: 'NB.SI(plage;critère) renvoie…', opts: ['la somme sous condition', 'le nombre de cellules remplissant le critère', 'la moyenne'], correct: 1, exp: 'SOMME.SI additionne ; MOYENNE.SI moyenne.' },
-      { q: 'SOMME.SI(plage;critère;plage_somme) additionne…', opts: ['toute la plage', 'la plage_somme des cellules remplissant le critère', 'les critères'], correct: 1, exp: 'La plage de somme est distincte de la plage de test.' },
-      { q: 'RANG(nombre;référence;ordre) renvoie…', opts: ['le plus grand nombre', 'la position relative dans la liste', 'le nombre de valeurs'], correct: 1, exp: 'La taille relative aux autres valeurs de la liste.' },
+      { q: 'SI(Test; V; F) renvoie…', opts: ['V si le test est vrai, F sinon', 'toujours V', 'le test'], correct: 0, exp: 'Formule conditionnelle : résultat selon la vérité du test.' },
+      { q: 'Pour une commission à trois paliers, on écrit…', opts: ["trois formules SI indépendantes dans trois cellules","un SI imbriqué du plus strict au plus large","un seul SI dont le test cumule les trois paliers"], correct: 1, exp: "Un SI imbriqué place un second SI dans la branche faux du premier : chaque test élimine un palier ; trois SI séparés produiraient trois résultats simultanés." },
+      { q: 'NB.SI(plage;critère) renvoie…', opts: ["la somme des cellules vérifiant le critère","la moyenne des cellules sélectionnées","le nombre de cellules remplissant le critère"], correct: 2, exp: "NB.SI compte les cellules qui remplissent le critère ; additionner sous condition est le rôle de SOMME.SI, moyenner celui de MOYENNE.SI." },
+      { q: 'SOMME.SI(plage;critère;plage_somme) additionne…', opts: ["la plage_somme des cellules remplissant le critère","toutes les cellules de la plage de critère","les critères de la plage de test uniquement"], correct: 0, exp: "La plage de somme est distincte de la plage de test : seules les cellules dont la ligne remplit le critère sont additionnées, jamais toute la plage." },
+      { q: 'RANG(nombre;référence;ordre) renvoie…', opts: ['la position relative dans la liste', 'le plus grand nombre', 'le nombre de valeurs'], correct: 0, exp: 'La taille relative aux autres valeurs de la liste.' },
       { q: 'CA = 10000, commission du support :', opts: ['10 %', '15 %', '20 %'], correct: 1, exp: '10000 &lt;= CA &lt; 50000 : palier 15 %.' },
-      { q: 'Dans un SI imbriqué, l\'ordre des tests…', opts: ['n\'importe pas', 'va du plus strict au plus large', 'est alphabétique'], correct: 1, exp: 'Tester >= 50000 avant >= 10000 sinon le palier bas capture tout.' },
-      { q: 'Le test d\'un SI est…', opts: ['une expression logique', 'un nombre', 'une plage'], correct: 0, exp: 'Vrai ou faux : c\'est lui qui décide de la branche.' }
+      { q: 'Dans un SI imbriqué, l\'ordre des tests…', opts: ['n\'importe pas', 'est alphabétique', 'va du plus strict au plus large'], correct: 2, exp: 'Tester >= 50000 avant >= 10000 sinon le palier bas capture tout.' },
+      { q: 'Le test d\'un SI est…', opts: ['une plage', 'un nombre', 'une expression logique'], correct: 2, exp: 'Vrai ou faux : c\'est lui qui décide de la branche.' }
     ],
 
     pitfalls: [
@@ -344,13 +344,13 @@ module.exports = [
 
     questions: [
       { q: 'Le mode qui affiche une diapositive à la fois :', opts: ['Trieuse', 'Normal', 'Diaporama'], correct: 1, exp: 'Normal : édition, volet Plan/Diapositives à gauche.' },
-      { q: 'Le mode Trieuse sert à…', opts: ['éditer le texte', 'réorganiser les diapositives et régler transitions et minutage', 'imprimer'], correct: 1, exp: 'Vue globale en miniatures ; masquage possible.' },
+      { q: 'Le mode Trieuse sert à…', opts: ["réorganiser les diapositives et régler transitions et minutage","éditer le texte d'une seule diapositive à la fois","imprimer la présentation en pages de commentaires"], correct: 0, exp: "La Trieuse affiche toutes les diapositives en miniatures : on y réorganise, masque, règle transitions et minutage ; l'édition du texte relève du mode Normal." },
       { q: 'Le passage à la diapositive suivante peut être…', opts: ['uniquement manuel', 'automatique (délai) ou manuel', 'uniquement automatique'], correct: 1, exp: 'Les deux existent, réglés dans le diaporama.' },
       { q: 'La page de commentaire associe…', opts: ['des notes à chaque diapositive', 'des images', 'des transitions'], correct: 0, exp: 'Diapositive en haut, commentaires dessous — guide ou support distribué.' },
-      { q: 'Le bouton Office remplace…', opts: ['le ruban', 'le menu Fichier', 'la barre d\'état'], correct: 1, exp: 'Nouveau, Ouvrir, Enregistrer, Enregistrer sous, Quitter.' },
-      { q: 'Un modèle est…', opts: ['un document vierge', 'un document prédéfini avec styles et diapositives d\'exemple', 'une animation'], correct: 1, exp: 'À télécharger (connexion requise), puis à personnaliser.' },
-      { q: 'Adapter les couleurs d\'un thème :', opts: ['onglet Création, menu Couleurs', 'onglet Accueil, Police', 'bouton Office'], correct: 0, exp: 'Groupe Thèmes ; le survol donne l\'aperçu.' },
-      { q: '« Ouvrir et réparer » sert en cas de…', opts: ['modèle manquant', 'document corrompu', 'thème moche'], correct: 1, exp: 'Panne, déconnexion USB, extinction brutale : la flèche à droite d\'Ouvrir.' }
+      { q: 'Le bouton Office remplace…', opts: ['le ruban', 'la barre d\'état', 'le menu Fichier'], correct: 2, exp: 'Nouveau, Ouvrir, Enregistrer, Enregistrer sous, Quitter.' },
+      { q: 'Un modèle est…', opts: ["un document vierge, sans style ni contenu préétabli","une animation de transitions entre les diapositives","un document prédéfini avec styles et diapositives d'exemple"], correct: 2, exp: "Un modèle est un document prédéfini (styles, diapositives d'exemple à remplacer) téléchargé depuis Office Online ; le document vierge, lui, ne contient rien." },
+      { q: 'Adapter les couleurs d\'un thème :', opts: ['onglet Accueil, Police', 'onglet Création, menu Couleurs', 'bouton Office'], correct: 1, exp: 'Groupe Thèmes ; le survol donne l\'aperçu.' },
+      { q: '« Ouvrir et réparer » sert en cas de…', opts: ['document corrompu', 'modèle manquant', 'thème moche'], correct: 0, exp: 'Panne, déconnexion USB, extinction brutale : la flèche à droite d\'Ouvrir.' }
     ],
 
     pitfalls: [

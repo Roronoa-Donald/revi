@@ -40,8 +40,9 @@ done
 # À compléter : le total des chemins absolus.
 `,
     hints: [
-      'Le motif `/*` en début de case correspond à tout chemin commençant par un slash.',
-      'Le bilan sort une seule fois, après la boucle.'
+      "Le motif `/*` en début de case correspond à tout chemin commençant par un slash.",
+      "Le bilan sort une seule fois, après la boucle.",
+      "Étapes : lire n ; pour chaque chemin, s’il commence par / afficher « chemin : absolu » et incrémenter le compteur, sinon afficher « chemin : relatif » ; conclure par « absolus : N »."
     ],
     examples: [
       { stdin: '2\n/etc/hosts\nhome/rd\n', expected: '/etc/hosts : absolu\nhome/rd : relatif\nabsolus : 1' }
@@ -61,7 +62,8 @@ for ((i=0; i<n; i++)); do
   esac
 done
 echo "absolus : $a"
-`
+`,
+    takeaway: "Un chemin absolu commence impérativement par / depuis la racine, indépendamment du répertoire courant pwd."
   },
   {
     id: 'lx2-c1-e2',
@@ -84,8 +86,9 @@ done
 # À compléter : afficher les trois compteurs.
 `,
     hints: [
-      'Un case sur le type : fichier, repertoire, lien.',
-      'Les trois lignes de bilan sortent dans l’ordre fichiers, repertoires, liens.'
+      "Un case sur le type : fichier, repertoire, lien.",
+      "Les trois lignes de bilan sortent dans l’ordre fichiers, repertoires, liens.",
+      "Étapes : lire n ; pour chaque entrée, lire le type et incrémenter le compteur correspondant (fichier, repertoire ou lien) ; en fin de parcours, afficher les trois bilans dans l’ordre convenu."
     ],
     examples: [
       { stdin: '3\netc repertoire\nbashrc lien\nnotes fichier\n', expected: 'fichiers : 1\nrepertoires : 1\nliens : 1' }
@@ -110,7 +113,8 @@ done
 echo "fichiers : $f"
 echo "repertoires : $d"
 echo "liens : $l"
-`
+`,
+    takeaway: "Dans ls -l, le premier caractère indique la nature de l inœud : - pour fichier, d pour dossier, l pour lien symbolique."
   },
   {
     id: 'lx2-c1-e3',
@@ -129,8 +133,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Le motif `*/` en début de case repère un répertoire terminé par un slash.',
-      'Ne pas oublier le cas simple, sans slash final, dans la branche par défaut.'
+      "Le motif `*/` en début de case repère un répertoire terminé par un slash.",
+      "Ne pas oublier le cas simple, sans slash final, dans la branche par défaut.",
+      "Étapes : lire n ; pour chaque couple, si le répertoire finit par / afficher répertoire puis nom tels quels ; sinon intercaler un / entre les deux ; rien d’autre à afficher."
     ],
     examples: [
       { stdin: '2\n/etc hosts\n/var/ log\n', expected: '/etc/hosts\n/var/log' }
@@ -148,7 +153,8 @@ for ((i=0; i<n; i++)); do
     *) echo "$repertoire/$nom" ;;
   esac
 done
-`
+`,
+    takeaway: "Nettoyer le / final avant de concaténer évite les doubles barres obliques // sans altérer le chemin racine /."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -176,8 +182,9 @@ done
 # À compléter : le bilan des deux compteurs.
 `,
     hints: [
-      'Un case sur op : cp pour une copie, mv pour un déplacement.',
-      'Les deux compteurs s’affichent dans l’ordre copies puis deplacements.'
+      "Un case sur op : cp pour une copie, mv pour un déplacement.",
+      "Les deux compteurs s’affichent dans l’ordre copies puis deplacements.",
+      "Étapes : lire n ; pour chaque ligne, lire op, source, destination ; cp → afficher « copie source vers destination » et compter une copie ; mv → « deplacement … » et compter un déplacement ; bilan final."
     ],
     examples: [
       { stdin: '2\ncp a.txt b.txt\nmv b.txt c.txt\n', expected: 'copie a.txt vers b.txt\ndeplacement b.txt vers c.txt\ncopies : 1\ndeplacements : 1' }
@@ -199,7 +206,8 @@ for ((i=0; i<n; i++)); do
 done
 echo "copies : $c"
 echo "deplacements : $m"
-`
+`,
+    takeaway: "cp duplique un fichier en conservant la source alors que mv déplace ou renomme sans copie de données sur le même volume."
   },
   {
     id: 'lx2-c2-e2',
@@ -220,8 +228,9 @@ done
 # À compléter : le total des scripts.
 `,
     hints: [
-      'Le motif `*.sh` correspond à tout nom se terminant par .sh.',
-      'Si aucun fichier ne correspond, seul le bilan s’affiche, avec 0.'
+      "Le motif `*.sh` correspond à tout nom se terminant par .sh.",
+      "Si aucun fichier ne correspond, seul le bilan s’affiche, avec 0.",
+      "Étapes : lire n ; pour chaque fichier, s’il se termine par .sh l’afficher et incrémenter le compteur, sinon passer ; après la boucle, afficher « scripts : N »."
     ],
     examples: [
       { stdin: '3\ninstall.sh\nnotes.txt\nbackup.sh\n', expected: 'install.sh\nbackup.sh\nscripts : 2' }
@@ -241,7 +250,8 @@ for ((i=0; i<n; i++)); do
   esac
 done
 echo "scripts : $s"
-`
+`,
+    takeaway: "Filtrer explicitement le suffixe *.sh garantit de ne traiter que les scripts shell sans toucher aux fichiers temporaires."
   },
   {
     id: 'lx2-c2-e3',
@@ -262,8 +272,9 @@ done
 # À compléter : le total des erreurs.
 `,
     hints: [
-      '`read -r niveau message` laisse le reste de la ligne dans message.',
-      'La comparaison se fait sur le niveau seul, avec [ "$niveau" = "ERROR" ].'
+      "`read -r niveau message` laisse le reste de la ligne dans message.",
+      "La comparaison se fait sur le niveau seul, avec [ \"$niveau\" = \"ERROR\" ].",
+      "Étapes : lire n ; pour chaque ligne, lire le premier mot comme niveau ; s’il vaut exactement ERROR, incrémenter le compteur ; en fin, afficher « erreurs : N »."
     ],
     examples: [
       { stdin: '3\nINFO demarrage\nERROR disque plein\nWARN memoire faible\n', expected: 'erreurs : 1' }
@@ -282,7 +293,8 @@ for ((i=0; i<n; i++)); do
   fi
 done
 echo "erreurs : $e"
-`
+`,
+    takeaway: "Extraire uniquement les niveaux ERROR/CRITICAL d un journal isole les incidents critiques du bruit de debug."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -306,8 +318,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Trois trios : les caractères 1-3, 4-6 puis 7-9 de la permission.',
-      'Un case sur le trio : *r* ajoute 4, *w* ajoute 2, *x* ajoute 1.'
+      "Trois trios : les caractères 1-3, 4-6 puis 7-9 de la permission.",
+      "Un case sur le trio : *r* ajoute 4, *w* ajoute 2, *x* ajoute 1.",
+      "Étapes : pour chaque permission, découper trois trios (caractères 1-3, 4-6, 7-9) ; noter 4 si r est présent, 2 si w, 1 si x, et additionner dans chaque trio ; afficher « permission : » suivi des trois chiffres."
     ],
     examples: [
       { stdin: '1\nrwxr-xr-x\n', expected: 'permission : 755' }
@@ -331,7 +344,8 @@ for ((i=0; i<n; i++)); do
   done
   echo "permission : $o"
 done
-`
+`,
+    takeaway: "Convertir chaque bloc rwx en somme de bits (4+2+1) fournit la notation octale exacte attendue par chmod."
   },
   {
     id: 'lx2-c3-e2',
@@ -351,8 +365,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Le premier trio correspond aux caractères 1 à 3 de la permission.',
-      'Lire cherche r, ecrire cherche w, executer cherche x.'
+      "Le premier trio correspond aux caractères 1 à 3 de la permission.",
+      "Lire cherche r, ecrire cherche w, executer cherche x.",
+      "Étapes : lire la permission et l’action ; extraire les caractères 1 à 3 ; selon l’action, tester la présence de r, w ou x dans ce trio ; afficher « droit : oui » si la lettre y figure, « droit : non » sinon."
     ],
     examples: [
       { stdin: '2\nrw-r--r-- lire\nrw-r--r-- executer\n', expected: 'droit : oui\ndroit : non' }
@@ -374,7 +389,8 @@ for ((i=0; i<n; i++)); do
   esac
   echo "droit : $ok"
 done
-`
+`,
+    takeaway: "Lire les droits u, g, o dans l ordre fixe évite toute confusion entre autorisations propriétaire et groupe."
   },
   {
     id: 'lx2-c3-e3',
@@ -395,8 +411,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Un case sur user : rd → it, sam → dev, ada → admin.',
-      'La comparaison se fait ensuite avec `[ "$groupe" = "$attendu" ]`.'
+      "Un case sur user : rd → it, sam → dev, ada → admin.",
+      "La comparaison se fait ensuite avec `[ \"$groupe\" = \"$attendu\" ]`.",
+      "Étapes : lire user et groupe ; retrouver le groupe attendu de user (rd → it, sam → dev, ada → admin) ; s’il coïncide avec le groupe lu, afficher « membre », sinon « non membre »."
     ],
     examples: [
       { stdin: '2\nrd it\nsam admin\n', expected: 'rd : membre\nsam : non membre' }
@@ -420,7 +437,8 @@ for ((i=0; i<n; i++)); do
     echo "$user : non membre"
   fi
 done
-`
+`,
+    takeaway: "Croiser l annuaire des groupes avec /etc/group permet de vérifier rapidement les droits hérités d un utilisateur."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -443,8 +461,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Le premier contrôle est le nombre de champs : quatre octets exactement.',
-      'Chaque octet ne doit contenir que des chiffres et rester inférieur ou égal à 255.'
+      "Le premier contrôle est le nombre de champs : quatre octets exactement.",
+      "Chaque octet ne doit contenir que des chiffres et rester inférieur ou égal à 255.",
+      "Étapes : pour chaque adresse, vérifier dans l’ordre : quatre champs séparés par des points, chacun non vide et numérique, chacun entre 0 et 255 ; toute violation → « ip : invalide », sinon « ip : valide »."
     ],
     examples: [
       { stdin: '3\n192.168.1.1\n10.0.0\n256.1.1.1\n', expected: 'ip : valide\nip : invalide\nip : invalide' }
@@ -460,7 +479,8 @@ for ((i=0; i<n; i++)); do
   ok=$(printf '%s' "$ip" | awk -F'.' '{ if (NF != 4) { print "invalide"; exit } for (i = 1; i <= 4; i++) { if ($i == "" || $i !~ /^[0-9]+$/ || $i + 0 > 255) { print "invalide"; exit } } print "valide" }')
   echo "ip : $ok"
 done
-`
+`,
+    takeaway: "Une adresse IPv4 valide comprend 4 octets décimaux sans zéros ambigus, chacun compris entre 0 et 255 inclus."
   },
   {
     id: 'lx2-c4-e2',
@@ -480,8 +500,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'Un case sur le préfixe suffit : 10.* et 192.168.* sont privés.',
-      'Pour 172, seules les plages 16 à 31 sont privées ; 172.15 et 172.32 ne le sont pas.'
+      "Un case sur le préfixe suffit : 10.* et 192.168.* sont privés.",
+      "Pour 172, seules les plages 16 à 31 sont privées ; 172.15 et 172.32 ne le sont pas.",
+      "Étapes : lire l’adresse ; préfixe 10. ou 192.168. → privée ; préfixe 172. suivi d’un nombre de 16 à 31 → privée aussi ; toute autre adresse → publique."
     ],
     examples: [
       { stdin: '3\n10.0.0.5\n8.8.8.8\n192.168.1.1\n', expected: 'classe : privee\nclasse : publique\nclasse : privee' }
@@ -501,7 +522,8 @@ for ((i=0; i<n; i++)); do
     *) echo "classe : publique" ;;
   esac
 done
-`
+`,
+    takeaway: "Les plages RFC 1918 (10/8, 172.16/12, 192.168/16) sont non routables sur Internet et réservées aux réseaux privés."
   },
   {
     id: 'lx2-c4-e3',
@@ -521,8 +543,9 @@ for ((i=0; i<n; i++)); do
 done
 `,
     hints: [
-      'cut -d@ sépare la partie utilisateur de la partie hôte:port.',
-      'cut -d: sépare ensuite le nom d’hôte du port.'
+      "cut -d@ sépare la partie utilisateur de la partie hôte:port.",
+      "cut -d: sépare ensuite le nom d’hôte du port.",
+      "Étapes : pour chaque cible, couper au premier @ : la partie gauche est l’utilisateur ; dans la partie droite, couper au premier : ; la gauche donne l’hôte, la droite le port ; afficher les trois lignes dans l’ordre."
     ],
     examples: [
       { stdin: '2\nrd@10.0.0.5:22\nadmin@192.168.1.1:2222\n', expected: 'utilisateur : rd\nhote : 10.0.0.5\nport : 22\nutilisateur : admin\nhote : 192.168.1.1\nport : 2222' }
@@ -543,7 +566,8 @@ for ((i=0; i<n; i++)); do
   echo "hote : $hote"
   echo "port : $port"
 done
-`
+`,
+    takeaway: "Une cible SSH user@host[:port] applique le port 22 par défaut dès qu aucun séparateur « :port » n est fourni."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -567,8 +591,9 @@ done
 # À compléter : afficher la somme.
 `,
     hints: [
-      'L’addition arithmétique s’écrit s=$((s + v)).',
-      'La somme s’affiche une seule fois, après la boucle.'
+      "L’addition arithmétique s’écrit s=$((s + v)).",
+      "La somme s’affiche une seule fois, après la boucle.",
+      "Étapes : initialiser la somme à 0 ; lire n puis chaque valeur ; ajouter chaque valeur à la somme ; en fin de boucle, afficher « somme : total »."
     ],
     examples: [
       { stdin: '3\n4\n6\n10\n', expected: 'somme : 20' }
@@ -585,7 +610,8 @@ for ((i=0; i<n; i++)); do
   s=$((s + v))
 done
 echo "somme : $s"
-`
+`,
+    takeaway: "Un accumulateur shell arithmétique $((total + n)) additionne proprement les flux numériques lus ligne par ligne."
   },
   {
     id: 'lx2-c5-e2',
@@ -605,8 +631,9 @@ done
 # À compléter : afficher le maximum.
 `,
     hints: [
-      'La première valeur sert de maximum initial.',
-      'On compare ensuite chaque nouvelle valeur à max avec `[ "$v" -gt "$max" ]`.'
+      "La première valeur sert de maximum initial.",
+      "On compare ensuite chaque nouvelle valeur à max avec `[ \"$v\" -gt \"$max\" ]`.",
+      "Étapes : lire n ; la première valeur devient le maximum initial ; pour chaque valeur suivante, si elle dépasse le maximum courant, elle le remplace ; conclure par « max : valeur »."
     ],
     examples: [
       { stdin: '3\n5\n9\n2\n', expected: 'max : 9' }
@@ -627,7 +654,8 @@ for ((i=1; i<n; i++)); do
   fi
 done
 echo "max : $max"
-`
+`,
+    takeaway: "Initialiser le maximum avec la première valeur lue assure l exactitude même quand toutes les mesures sont négatives."
   },
   {
     id: 'lx2-c5-e3',
@@ -649,8 +677,9 @@ done
 # À compléter : le total des gros fichiers.
 `,
     hints: [
-      'La comparaison se fait avec [ "$taille" -ge 1024 ].',
-      'Le seuil est inclusif : 1024 est déjà « gros ».'
+      "La comparaison se fait avec [ \"$taille\" -ge 1024 ].",
+      "Le seuil est inclusif : 1024 est déjà « gros ».",
+      "Étapes : pour chaque fichier, si la taille atteint 1024 afficher « nom : gros » et incrémenter le compteur ; sinon afficher « nom : petit » ; conclure par « gros : N »."
     ],
     examples: [
       { stdin: '2\nlog.txt 2048\nnotes 512\n', expected: 'log.txt : gros\nnotes : petit\ngros : 1' }
@@ -672,7 +701,8 @@ for ((i=0; i<n; i++)); do
   fi
 done
 echo "gros : $g"
-`
+`,
+    takeaway: "Comparer la taille en octets aux seuils système détecte les fichiers journaux volumineux à archiver ou purger."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -699,8 +729,9 @@ done
 # À compléter : le total des alertes.
 `,
     hints: [
-      'Trois cas : active, inactive (démarrer), failed (redémarrer).',
-      'Une alerte est comptée pour tout service qui n’est pas active.'
+      "Trois cas : active, inactive (démarrer), failed (redémarrer).",
+      "Une alerte est comptée pour tout service qui n’est pas active.",
+      "Étapes : pour chaque service, active → « rien a faire » ; inactive → « demarrer » et une alerte ; failed → « redemarrer » et une alerte ; conclure par « alertes : N »."
     ],
     examples: [
       { stdin: '3\nssh active\nnginx inactive\nmysql failed\n', expected: 'ssh : rien a faire\nnginx : demarrer\nmysql : redemarrer\nalertes : 2' }
@@ -721,7 +752,8 @@ for ((i=0; i<n; i++)); do
   esac
 done
 echo "alertes : $a"
-`
+`,
+    takeaway: "Sur systemd, un service failed appelle restart/journalctl, inactive nécessite start, et active running reste en surveillance."
   },
   {
     id: 'lx2-c6-e2',
@@ -743,8 +775,9 @@ done
 # À compléter : le total des zombies.
 `,
     hints: [
-      'Trois états possibles : running, sleeping, zombie.',
-      'Seuls les zombies alimentent le compteur final.'
+      "Trois états possibles : running, sleeping, zombie.",
+      "Seuls les zombies alimentent le compteur final.",
+      "Étapes : pour chaque processus, running → « actif », sleeping → « en attente » ; zombie → « a nettoyer » et un zombie de plus ; conclure par « zombies : N »."
     ],
     examples: [
       { stdin: '3\n101 running\n205 sleeping\n309 zombie\n', expected: '101 : actif\n205 : en attente\n309 : a nettoyer\nzombies : 1' }
@@ -765,7 +798,8 @@ for ((i=0; i<n; i++)); do
   esac
 done
 echo "zombies : $z"
-`
+`,
+    takeaway: "Un processus zombie (état Z) ne consomme plus de CPU mais reste dans la table tant que son parent ne lit pas son code de retour."
   },
   {
     id: 'lx2-c6-e3',
@@ -787,8 +821,9 @@ done
 # À compléter : le total des tâches du matin.
 `,
     hints: [
-      'La comparaison se fait sur l’heure seule : [ "$heure" -lt 12 ].',
-      'Midi (12) et au-delà sont considérés comme l’après-midi.'
+      "La comparaison se fait sur l’heure seule : [ \"$heure\" -lt 12 ].",
+      "Midi (12) et au-delà sont considérés comme l’après-midi.",
+      "Étapes : pour chaque tâche, lire l’heure ; strictement inférieure à 12 → « tache : matin » et incrémenter le compteur ; sinon « tache : apres-midi » ; conclure par « matin : N »."
     ],
     examples: [
       { stdin: '2\n6 30 sauvegarde\n23 0 nettoyage\n', expected: 'sauvegarde : matin\nnettoyage : apres-midi\nmatin : 1' }
@@ -810,6 +845,7 @@ for ((i=0; i<n; i++)); do
   fi
 done
 echo "matin : $m"
-`
+`,
+    takeaway: "Lire le champ heure (0..23) d une entrée crontab classe sans ambiguïté les tâches planifiées avant ou après midi."
   }
 ];

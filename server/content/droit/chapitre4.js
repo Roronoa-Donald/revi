@@ -94,14 +94,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'La loi n° 78-17 du 6 janvier 1978 est…', opts: ['La loi Informatique et Libertés', 'Le RGPD', 'Un traité OMPI'], correct: 0, exp: 'Elle protège les personnes face au traitement informatique de leurs données.' },
+    { stem: 'La loi n° 78-17 du 6 janvier 1978 est…', opts: ['Un traité OMPI', 'Le RGPD', 'La loi Informatique et Libertés'], correct: 2, exp: 'Elle protège les personnes face au traitement informatique de leurs données.' },
     { stem: 'Quel article du Code civil protège la vie privée ?', opts: ['L’article 9', 'L’article 29', 'L’article 55'], correct: 0, exp: 'L’article 9 du Code civil : respect de la vie privée.' },
-    { stem: 'Une victime de diffamation sur un réseau social invoque…', opts: ['L’article 29 de la loi sur la liberté de la presse', 'Le traité OMPI de 1996', 'L’article 86 de la loi togolaise'], correct: 0, exp: 'Diffamation et injure relèvent de la loi sur la presse.' },
-    { stem: 'Les articles 8 et 10 de la CEDH protègent…', opts: ['La vie privée et la liberté d’expression', 'Le droit d’auteur', 'Les contrats informatiques'], correct: 0, exp: 'Article 8 : vie privée ; article 10 : liberté d’expression.' },
-    { stem: 'Les traités Internet de l’OMPI datent de…', opts: ['1996', '1950', '2019'], correct: 0, exp: 'Droit d’auteur et interprétations/phonogrammes, adoptés en 1996.' },
-    { stem: 'La CEDH est une source…', opts: ['Supranationale', 'Nationale', 'Purement contractuelle'], correct: 0, exp: 'Instrument international, au-dessus du droit interne.' },
+    { stem: 'Une victime de diffamation sur un réseau social invoque…', opts: ["Le traité OMPI de 1996 sur le droit d’auteur","L’article 29 de la loi sur la liberté de la presse","L’article 86 de la loi togolaise sur les données"], correct: 1, exp: "La diffamation et l’injure relèvent de l’article 29 de la loi sur la presse. Le traité OMPI concerne le droit d’auteur, et l’article 86 les données sensibles." },
+    { stem: 'Les articles 8 et 10 de la CEDH protègent…', opts: ["La vie privée et la liberté d’expression","Le droit d’auteur sur les logiciels","Les contrats informatiques de prestations"], correct: 0, exp: "L’article 8 protège la vie privée, l’article 10 la liberté d’expression. Le droit d’auteur et les contrats informatiques relèvent d’autres textes." },
+    { stem: 'Les traités Internet de l’OMPI datent de…', opts: ['2019', '1950', '1996'], correct: 2, exp: 'Droit d’auteur et interprétations/phonogrammes, adoptés en 1996.' },
+    { stem: 'La CEDH est une source…', opts: ['Nationale', 'Supranationale', 'Purement contractuelle'], correct: 1, exp: 'Instrument international, au-dessus du droit interne.' },
     { stem: 'L’article 29 de la loi sur la presse est une source…', opts: ['Nationale', 'Supranationale', 'Normative internationale'], correct: 0, exp: 'Texte interne invoqué devant les juridictions nationales.' },
-    { stem: 'Les règles du droit informatique sont réunies dans…', opts: ['Aucun code unique', 'Le Code du numérique', 'Le Code de commerce'], correct: 0, exp: 'Elles sont dispersées entre plusieurs textes : il n’existe pas de code unique.' }
+    { stem: 'Les règles du droit informatique sont réunies dans…', opts: ['Le Code du numérique', 'Aucun code unique', 'Le Code de commerce'], correct: 1, exp: 'Elles sont dispersées entre plusieurs textes : il n’existe pas de code unique.' }
   ],
 
   pitfalls: [

@@ -163,54 +163,54 @@ module.exports = {
     {
       stem: 'Pourquoi est-il crucial de placer la commande « COPY package.json » avant « COPY . . » dans un Dockerfile Node.js ?',
       opts: [
-        'Car Docker refuse de compiler si les fichiers JavaScript sont copiés en premier',
-        'Pour éviter d’invalider le cache de l’installation des dépendances à chaque modification d’un fichier source de l’application',
-        'Pour chiffrer les dépendances de production',
-        'Pour réduire automatiquement la taille de la RAM hôte'
+        "Car Docker refuse de compiler l’image si les fichiers JavaScript de l’application sont copiés avant les manifestes",
+        "Pour chiffrer les dépendances de production avant leur copie dans l’image finale du registre",
+        "Pour réduire automatiquement la taille de la mémoire vive consommée par le serveur hôte",
+        "Pour éviter d’invalider le cache de l’installation des dépendances à chaque modification d’un fichier source de l’application"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Si le code source change, la couche correspondante et toutes les suivantes sont invalidées. Isoler la copie des manifestes de dépendances permet de réutiliser le cache de téléchargement de paquets.'
     },
     {
       stem: 'Quel est l’avantage architectural majeur d’un Dockerfile « Multi-Stage Build » ?',
       opts: [
-        'Il permet d’exécuter plusieurs systèmes d’exploitation différents dans le même conteneur',
-        'Il sépare l’étape de compilation de l’étape de runtime pour produire une image de production ultra-légère exempte d’outils de build et de compilateurs',
-        'Il double automatiquement la mémoire allouée au conteneur',
-        'Il empêche l’utilisation de Git'
+        "Il permet d’exécuter simultanément plusieurs systèmes d’exploitation différents au sein d’un même et unique conteneur applicatif",
+        "Il double automatiquement la quantité de mémoire vive et de cœurs CPU allouée au conteneur lors de son exécution en production",
+        "Il sépare l’étape de compilation de l’étape de runtime pour produire une image de production ultra-légère exempte d’outils de build et de compilateurs",
+        "Il empêche l’utilisation du gestionnaire de versions Git et des dépôts de code externes pendant la construction de l’image"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Multi-Stage Build isole les outils de build lourds dans un stage temporaire et ne transfère que le binaire final dans l’image de production, réduisant la taille et éliminant les CVE.'
     },
     {
       stem: 'Pourquoi est-il formellement déconseillé de laisser un conteneur s’exécuter par défaut sous l’utilisateur « root » en production ?',
       opts: [
-        'Car root consomme trop de bande passante réseau',
-        'Car une faille de fuite de conteneur (container breakout) donnerait immédiatement à l’attaquant les privilèges administrateur complets sur le serveur hôte',
-        'Car Docker interdit le déploiement en production des images root',
-        'Car les logs ne peuvent pas être enregistrés sous root'
+        "Car l’utilisateur root consomme à lui seul une part excessive de la bande passante réseau disponible sur la machine hôte",
+        "Car Docker interdit formellement le déploiement en production de toute image dont le processus principal s’exécute sous root",
+        "Car une faille de fuite de conteneur (container breakout) donnerait immédiatement à l’attaquant les privilèges administrateur complets sur le serveur hôte",
+        "Car les journaux applicatifs ne peuvent tout simplement pas être enregistrés sur le disque tant que le conteneur tourne sous root"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En cas de vulnérabilité permettant d’échapper au conteneur, un processus tournant sous UID 0 (root) s’octroie un accès root direct sur le noyau de la machine hôte. Il faut toujours créer un utilisateur non privilégié.'
     },
     {
       stem: 'En Infrastructure as Code (IaC), que signifie la propriété d’« Idempotence » ?',
       opts: [
-        'Le script doit s’exécuter obligatoirement en moins d’une seconde',
-        'L’application répétée d’une configuration produit le même état final sans créer de duplication ni d’effets secondaires non désirés',
-        'L’infrastructure doit être réinitialisée et détruite chaque matin',
-        'Les serveurs doivent tous être localisés dans la même zone géographique'
+        "Le script de provisionnement doit s’exécuter obligatoirement en moins d’une seconde sur chaque nœud",
+        "L’infrastructure doit être intégralement réinitialisée et détruite chaque matin avant toute nouvelle exécution",
+        "Les serveurs composant l’infrastructure doivent tous être localisés dans une même et unique zone géographique",
+        "L’application répétée d’une configuration produit le même état final sans créer de duplication ni d’effets secondaires non désirés"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une opération idempotente converge vers l’état cible : qu’elle soit exécutée une fois ou cent fois consécutives, l’infrastructure reste conforme sans altération non sollicitée.'
     },
     {
       stem: 'Comment qualifie-t-on la situation où la réalité des ressources de production ne correspond plus au code source de configuration déclaré sur Git ?',
       opts: [
-        'La dérive de configuration (Configuration Drift)',
-        'La compilation sémantique',
-        'Le multi-threading',
-        'L’équilibrage de charge dynamique'
+        "La dérive de configuration (Configuration Drift)",
+        "La compilation sémantique du code déclaratif versionné",
+        "Le multi-threading des agents de configuration",
+        "L’équilibrage de charge dynamique des flux réseau"
       ],
       correct: 0,
       exp: 'Le Configuration Drift survient lorsque des modifications manuelles (ou des pannes non réconciliées) désalignent l’infrastructure réelle par rapport au code d’infrastructure versionné.'
@@ -218,10 +218,10 @@ module.exports = {
     {
       stem: 'Parmi ces types d’images de base de conteneur, laquelle offre la surface d’attaque la plus restreinte pour héberger un binaire compilé en Go ou Rust ?',
       opts: [
-        'Ubuntu Desktop 22.04 LTS complète',
-        'Une image Scratch ou Distroless (contenant uniquement le binaire et les certificats TLS de base)',
-        'Debian GNU/Linux avec suite de développement gcc préinstallée',
-        'CentOS 7 avec serveur de messagerie'
+        "Une image Ubuntu Desktop 22.04 LTS complète avec environnement graphique",
+        "Une image Scratch ou Distroless (contenant uniquement le binaire et les certificats TLS de base)",
+        "Une image Debian GNU/Linux avec la suite de développement gcc préinstallée par défaut",
+        "Une image CentOS 7 dotée d’un serveur de messagerie Postfix activé par défaut"
       ],
       correct: 1,
       exp: 'Les images Scratch ou Distroless ne contiennent ni shell (/bin/sh), ni gestionnaire de paquets, ni outils de diagnostic : un assaillant qui injecte du code ne dispose d’aucun binaire pour pivoter.'

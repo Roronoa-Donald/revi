@@ -164,34 +164,34 @@ module.exports = {
     {
       stem: 'Que se passe-t-il lorsqu’un module PAM marqué « required » échoue lors de son évaluation ?',
       opts: [
-        'Le système s’éteint immédiatement par sécurité',
-        'La chaîne d’authentification est immédiatement interrompue avec un message d’erreur',
         'L’échec global est mémorisé, mais PAM continue d’évaluer les modules suivants de la chaîne',
+        'La chaîne d’authentification est immédiatement interrompue avec un message d’erreur',
+        'Le système s’éteint immédiatement par sécurité',
         'L’échec est ignoré et l’utilisateur est connecté'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Le drapeau required mémorise l’échec mais poursuit l’évaluation du reste de la pile pour ne pas indiquer à un attaquant quel composant spécifique a rejeté l’authentification.'
     },
     {
       stem: 'Quel drapeau de contrôle PAM interrompt immédiatement la chaîne en cas d’échec ?',
       opts: [
         'required',
-        'requisite',
+        'optional',
         'sufficient',
-        'optional'
+        'requisite'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le drapeau requisite provoque un arrêt immédiat (abort) de la chaîne avec refus d’accès dès qu’il retourne un échec.'
     },
     {
       stem: 'Dans une pile PAM, que fait un module marqué « sufficient » lorsqu’il réussit et qu’aucun échec préalable n’a eu lieu ?',
       opts: [
-        'Il accorde l’accès immédiatement sans évaluer la suite de la chaîne pour ce type de gestionnaire',
-        'Il demande obligatoirement un second mot de passe',
-        'Il annule l’authentification',
-        'Il réinitialise les droits de l’utilisateur'
+        "Il demande obligatoirement un second mot de passe à l’utilisateur avant de poursuivre la chaîne",
+        "Il annule immédiatement l’authentification et ferme la session de l’utilisateur",
+        "Il accorde l’accès immédiatement sans évaluer la suite de la chaîne pour ce type de gestionnaire",
+        "Il réinitialise complètement les droits et les groupes de l’utilisateur connecté"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Un module sufficient accorde immédiatement le succès et interrompt l’évaluation de la chaîne s’il réussit et qu’aucun échec antérieur n’a été enregistré.'
     },
     {
@@ -208,34 +208,34 @@ module.exports = {
     {
       stem: 'Dans un journal auditd, quelle condition caractérise une tentative d’élévation de privilèges vers les droits super-administrateur ?',
       opts: [
-        'uid == 0 et euid == 1000',
         'uid != 0 et euid == 0',
+        'uid == 0 et euid == 1000',
         'pid == 1 et ppid == 0',
         'gid == 100 et egid == 100'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Une élévation de privilèges survient lorsque l’utilisateur réel (uid) n’est pas root mais que l’utilisateur effectif sous lequel s’exécute le processus (euid) devient 0 (root).'
     },
     {
       stem: 'À quoi sert la directive sysctl « net.ipv4.tcp_syncookies = 1 » ?',
       opts: [
         'À enregistrer les cookies de session des navigateurs Web',
-        'À protéger la pile réseau TCP contre les attaques par déni de service SYN Flood',
+        'À désactiver le pare-feu iptables',
         'À accélérer la vitesse de téléchargement Wi-Fi',
-        'À désactiver le pare-feu iptables'
+        'À protéger la pile réseau TCP contre les attaques par déni de service SYN Flood'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les SYN Cookies permettent au noyau de répondre aux paquets SYN sans allouer immédiatement d’espace dans la table de connexion, contrant ainsi les attaques par déni de service SYN Flood.'
     },
     {
       stem: 'Où sont stockées par défaut les règles persistantes du démon d’audit Linux auditd ?',
       opts: [
-        '/etc/audit/rules.d/audit.rules',
-        '/var/log/audit/rules.txt',
         '/sys/kernel/security/audit.conf',
+        '/var/log/audit/rules.txt',
+        '/etc/audit/rules.d/audit.rules',
         '/usr/share/audit/rules.xml'
       ],
-      correct: 0,
+      correct: 2,
       exp: '/etc/audit/rules.d/audit.rules contient les règles compilées par augenrules lors du démarrage du démon auditd.'
     }
   ],

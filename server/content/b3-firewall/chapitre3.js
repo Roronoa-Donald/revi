@@ -138,67 +138,67 @@ module.exports = {
     {
       stem: 'Qu’est-ce que l’anomalie de configuration appelée « Rule Shadowing » ?',
       opts: [
-        'Une règle antérieure englobe totalement les critères d’une règle postérieure avec une action contraire, empêchant cette dernière d’être jamais exécutée',
-        'Une règle qui masque le mot de passe de l’administrateur dans les logs',
-        'Une règle qui s’applique uniquement pendant la nuit',
-        'Un bogue de mémoire vive faisant disparaître les règles après un redémarrage'
+        "Une règle qui masque automatiquement le mot de passe de l’administrateur technique dans l’ensemble des journaux d’audit du pare-feu",
+        "Une règle antérieure englobe totalement les critères d’une règle postérieure avec une action contraire, empêchant cette dernière d’être jamais exécutée",
+        "Une règle programmée pour ne s’appliquer que pendant les plages horaires nocturnes de l’entreprise, en dehors des heures d’ouverture",
+        "Un bogue de mémoire vive du boîtier matériel faisant disparaître certaines règles de filtrage après chaque redémarrage complet"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le Rule Shadowing survient lorsqu’une règle plus générale placée plus haut intercepte tout le trafic destiné à une règle plus spécifique située plus bas.'
     },
     {
       stem: 'Quel est l’ordre logique recommandé pour organiser les règles au sein d’une ACL ?',
       opts: [
-        'De la règle la plus spécifique (hôte, port précis) vers la règle la plus générale (sous-réseau, ANY)',
-        'De la règle la plus générale vers la plus spécifique',
-        'Par ordre alphabétique des noms de serveurs',
-        'Toutes les règles DENY d’abord puis toutes les règles PERMIT à la fin'
+        "De la règle la plus générale (sous-réseau large, ANY) vers la règle la plus spécifique (hôte unique)",
+        "Par ordre alphabétique strict des noms de serveurs concernés par les règles",
+        "De la règle la plus spécifique (hôte, port précis) vers la règle la plus générale (sous-réseau, ANY)",
+        "Toutes les règles DENY regroupées en tête d’ACL, puis toutes les règles PERMIT rejetées en fin de liste"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Placer le spécifique avant le général permet de traiter les exceptions d’abord avant d’appliquer la politique globale.'
     },
     {
       stem: 'Quel mécanisme réseau permet à plusieurs milliers d’ordinateurs internes de naviguer sur Internet avec une seule adresse IP publique ?',
       opts: [
-        'Le PAT (Port Address Translation / SNAT dynamique) qui associe chaque flux à un port source éphémère unique',
-        'Le routage statique sans passerelle',
-        'Le protocole ARP gratuit',
-        'Le protocole Spanning Tree (STP)'
+        "Le routage statique mis en œuvre sans passerelle par défaut configurée sur les postes internes",
+        "Le protocole ARP gratuit diffusé périodiquement par les commutateurs d’accès du réseau local",
+        "Le protocole Spanning Tree (STP) exécuté entre les commutateurs de la couche d’accès",
+        "Le PAT (Port Address Translation / SNAT dynamique) qui associe chaque flux à un port source éphémère unique"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le PAT multiplexe de nombreuses connexions privées sur une seule adresse IP publique en modifiant dynamiquement le port source de chaque session.'
     },
     {
       stem: 'Dans quel scénario met-on en œuvre une règle de Destination NAT (DNAT / Port Forwarding) ?',
       opts: [
-        'Pour rediriger une requête arrivant sur l’adresse IP publique du pare-feu vers un serveur web ou applicatif interne en DMZ',
-        'Pour permettre aux utilisateurs internes de consulter un site web public',
-        'Pour chiffrer les disques durs des serveurs de bases de données',
-        'Pour attribuer automatiquement une adresse IP par DHCP'
+        "Pour permettre aux utilisateurs internes du LAN d’accéder à un site web public hébergé sur Internet",
+        "Pour chiffrer intégralement les disques durs des serveurs de bases de données de l’entreprise",
+        "Pour attribuer automatiquement une adresse IP privée à chaque poste de travail via le protocole DHCP",
+        "Pour rediriger une requête arrivant sur l’adresse IP publique du pare-feu vers un serveur web ou applicatif interne en DMZ"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le DNAT modifie l’adresse IP destination publique du paquet pour l’acheminer vers l’IP privée du serveur interne hébergeant le service.'
     },
     {
       stem: 'Si une règle R1 PERMIT ANY -> 10.0.0.1:80 précède une règle R2 PERMIT 192.168.1.10 -> 10.0.0.1:80, comment qualifie-t-on la règle R2 ?',
       opts: [
-        'Redondante (Redundant)',
-        'Masquée (Shadowed)',
         'Invalide (Invalid Syntax)',
+        'Masquée (Shadowed)',
+        'Redondante (Redundant)',
         'Prioritaire'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'R1 autorisant déjà tout le monde vers ce service, R2 produit exactement le même effet pour un sous-ensemble : elle est redondante et inutile.'
     },
     {
       stem: 'Quelle adresse IP est modifiée dans l’en-tête du paquet lors de l’application d’une translation SNAT sur le trafic sortant ?',
       opts: [
-        'L’adresse IP source (remplacée par l’IP publique du pare-feu)',
         'L’adresse IP destination (remplacée par 127.0.0.1)',
+        'L’adresse IP source (remplacée par l’IP publique du pare-feu)',
         'L’adresse MAC du commutateur de distribution',
         'Le numéro de réseau de diffusion (Broadcast)'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le SNAT réécrit l’adresse IP source du paquet avant de l’émettre sur l’interface publique.'
     },
     {

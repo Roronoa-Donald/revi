@@ -253,12 +253,12 @@ module.exports = {
     {
       stem: 'Que signifie l’acronyme POUR qui définit les quatre piliers fondamentaux des normes d’accessibilité WCAG du W3C ?',
       opts: [
-        'Performant, Optimisé, Unifié, Rapide',
-        'Perceptible, Utilisable (Operable), Compréhensible (Understandable), Robuste',
-        'Programmé, Ouvert, Universel, Réactif',
-        'Polyvalent, Organisé, Utile, Résilient'
+        "Performant, Optimisé, Unifié, Rapide, les quatre qualités d’un produit numérique réussi",
+        "Programmé, Ouvert, Universel, Réactif, les quatre exigences du W3C pour le code",
+        "Perceptible, Utilisable (Operable), Compréhensible (Understandable), Robuste",
+        "Polyvalent, Organisé, Utile, Résilient, les quatre vertus du designer moderne"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'POUR regroupe Perceptible, Utilisable (Operable), Compréhensible (Understandable) et Robuste, les 4 piliers universels du W3C.'
     },
     {
@@ -266,30 +266,30 @@ module.exports = {
       opts: [
         '2.0 : 1',
         '3.0 : 1',
-        '4.5 : 1',
-        '10.0 : 1'
+        '10.0 : 1',
+        '4.5 : 1'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Le critère WCAG 1.4.3 (Niveau AA) impose un ratio de contraste minimal de 4.5:1 pour le texte normal (et 3.0:1 pour le grand texte).'
     },
     {
       stem: 'Quelle est la bonne pratique d’accessibilité pour une image purement décorative (ex: séparateur graphique ou onde de fond) ?',
       opts: [
-        'Supprimer la balise img et la remplacer par du texte invisible',
-        'Fournir un attribut alt="" vide explicite pour que le lecteur d’écran l’ignore silencieusement',
-        'Ne pas mettre d’attribut alt du tout',
-        'Écrire alt="Image décorative ne pas lire"'
+        "Fournir un attribut alt=\"\" vide explicite pour que le lecteur d’écran l’ignore silencieusement",
+        "Supprimer la balise img et la remplacer par un texte invisible aux yeux des utilisateurs voyants",
+        "Ne surtout pas mettre d’attribut alt, le lecteur d’écran devinant seul le rôle de l’image",
+        "Écrire alt=\"Image décorative ne pas lire\" pour demander au lecteur de passer outre"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’attribut alt="" vide signale au lecteur d’écran que l’image est purement cosmétique, évitant ainsi de polluer la restitution sonore avec le nom du fichier.'
     },
     {
       stem: 'Pourquoi est-il strictement déconseillé d’utiliser des attributs tabindex avec des valeurs strictement positives (ex: tabindex="3") ?',
       opts: [
-        'Parce que le navigateur refuse d’exécuter le JavaScript de la page',
-        'Parce qu’ils forcent artificiellement l’ordre de tabulation hors du flux logique du DOM, désorientant totalement les utilisateurs naviguant au clavier',
-        'Parce que cela bloque le téléchargement des images',
-        'Parce qu’ils augmentent la taille du fichier HTML de manière critique'
+        "Parce que le navigateur refuse alors d’exécuter le code JavaScript de la page concernée par la tabulation clavier",
+        "Parce qu’ils forcent artificiellement l’ordre de tabulation hors du flux logique du DOM, désorientant totalement les utilisateurs naviguant au clavier",
+        "Parce que leur présence bloque complètement le téléchargement et l’affichage des images lourdes de la page",
+        "Parce qu’ils augmentent de manière critique la taille du fichier HTML téléchargé par l’utilisateur au chargement"
       ],
       correct: 1,
       exp: 'Les tabindex positifs surchargent l’ordre de tabulation naturel et créent un parcours imprévisible et désordonné, considéré comme un anti-pattern majeur d’accessibilité.'
@@ -297,45 +297,45 @@ module.exports = {
     {
       stem: 'À quoi sert la valeur spéciale tabindex="-1" sur un conteneur HTML ou une modale ?',
       opts: [
-        'À supprimer définitivement l’élément du document',
-        'À retirer l’élément de la séquence de tabulation standard tout en permettant de lui donner le focus par script JavaScript (element.focus())',
-        'À interdire tout clic de souris sur l’élément',
-        'À inverser le sens de lecture du texte'
+        "À supprimer définitivement l’élément du flux du document HTML après la fermeture de la fenêtre modale",
+        "À interdire tout clic de souris de l’utilisateur sur l’élément tant que la fenêtre modale reste ouverte",
+        "À retirer l’élément de la séquence de tabulation standard tout en permettant de lui donner le focus par script JavaScript (element.focus())",
+        "À inverser complètement le sens de lecture du texte contenu dans l’élément HTML ciblé par le script"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'tabindex="-1" rend un élément focusable par programmation (très utile lors de l’ouverture d’une modale ou pour cibler un message d’erreur) sans l’insérer dans la boucle Tab standard.'
     },
     {
       stem: 'Pourquoi l’instruction CSS « outline: none; » appliquée globalement sur les éléments interactifs au focus constitue-t-elle un grave problème d’utilisabilité ?',
       opts: [
-        'Elle empêche le clic gauche de fonctionner',
-        'Elle supprime le témoin visuel indiquant à l’utilisateur au clavier quel élément est actuellement sélectionné',
-        'Elle ralentit la vitesse de défilement de la page',
-        'Elle change la couleur du texte en blanc sur blanc'
+        "Elle empêche le clic gauche de la souris de fonctionner sur les liens hypertextes de la page",
+        "Elle ralentit considérablement la vitesse de défilement de la page au scroll",
+        "Elle change la couleur du texte en blanc sur fond blanc pour tous les visiteurs du site",
+        "Elle supprime le témoin visuel indiquant à l’utilisateur au clavier quel élément est actuellement sélectionné"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Sans indicateur visuel de focus, un utilisateur navigant avec la touche Tab est totalement aveugle quant à l’élément actif sur lequel il s’apprête à appuyer.'
     },
     {
       stem: 'Quel niveau de conformité WCAG est généralement exigé par les lois internationales et européennes (notamment le RGAA) pour les services en ligne ?',
       opts: [
-        'Niveau A uniquement',
         'Niveau AA',
+        'Niveau A uniquement',
         'Niveau AAA obligatoire pour tous les sites',
         'Aucun niveau n’est légalement reconnu'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le niveau AA est le standard légal universellement retenu : il garantit une accessibilité étendue sans imposer les contraintes extrêmes du niveau AAA.'
     },
     {
       stem: 'Comment rendre accessible un bouton contenant uniquement une icône SVG de loupe sans texte visible ?',
       opts: [
-        'En ajoutant un attribut aria-label="Rechercher" sur la balise button',
         'En nommant le fichier SVG "recherche.svg"',
+        'En ajoutant un attribut aria-label="Rechercher" sur la balise button',
         'En augmentant la taille de l’icône à 100 pixels',
         'En passant la couleur du bouton en noir pur'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’attribut aria-label fournit le nom accessible indispensable que le lecteur d’écran va prononcer à haute voix à l’utilisateur.'
     }
   ],

@@ -264,9 +264,6 @@ class ScrollAnimations {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// MATHJAX — config is in each chapter's <head> (inline script).
-// Do NOT duplicate here: MathJax reads window.MathJax on load (async),
-// which happens before this file executes.
 // ─────────────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────

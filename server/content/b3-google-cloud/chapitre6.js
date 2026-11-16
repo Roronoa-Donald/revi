@@ -163,8 +163,8 @@ module.exports = {
   questions: [
     {
       stem: 'Quel composant de Cloud Logging permet de router et d\'exporter automatiquement les journaux d\'événements vers BigQuery pour analyse SQL à long terme ?',
-      opts: ['Un Log Router (Log Sink)', 'Un Cloud Router', 'Une URL Map', 'Une règle de pare-feu'],
-      correct: 0,
+      opts: ['Un Cloud Router', 'Un Log Router (Log Sink)', 'Une URL Map', 'Une règle de pare-feu'],
+      correct: 1,
       exp: 'Un récepteur de journaux (Log Sink) configure un filtre logique et achemine en streaming continu les événements sélectionnés vers une destination comme BigQuery ou Cloud Storage.'
     },
     {
@@ -175,20 +175,20 @@ module.exports = {
     },
     {
       stem: 'Quel outil de la suite Google Cloud Operations permet de mesurer la latence de chaque appel RPC et requête réseau à travers une chaîne complexe de microservices ?',
-      opts: ['Cloud Monitoring', 'Cloud Profiler', 'Cloud Trace', 'Error Reporting'],
-      correct: 2,
+      opts: ['Cloud Monitoring', 'Cloud Profiler', 'Error Reporting', 'Cloud Trace'],
+      correct: 3,
       exp: 'Cloud Trace est le système de traçabilité distribuée (Distributed Tracing) qui chronomètre la traversée des requêtes à travers l\'ensemble des microservices.'
     },
     {
       stem: 'Où le fichier d\'état d\'infrastructure Terraform (terraform.tfstate) doit-il être stocké en production pour garantir le travail collaboratif et le verrouillage d\'état ?',
-      opts: ['Dans le dépôt Git public du projet', 'Dans un bucket Cloud Storage configuré en backend distant (backend "gcs")', 'Sur le bureau de l\'administrateur', 'Dans un fichier ZIP sur une clé USB'],
-      correct: 1,
+      opts: ["Dans un bucket Cloud Storage configuré en backend distant (backend \"gcs\")","Dans le dépôt Git public du projet à côté des fichiers de configuration","Sur le bureau de l'administrateur de l'infrastructure Cloud","Dans un fichier ZIP chiffré stocké sur une clé USB hors site"],
+      correct: 0,
       exp: 'Terraform recommande d\'utiliser le backend « gcs » pour stocker son fichier d\'état dans un bucket Google Cloud Storage sécurisé avec verrouillage automatique pour éviter les écritures concurrentes.'
     },
     {
       stem: 'Quelle pratique de sécurité relative aux identifiants est formellement requise lors de l\'écriture de code Terraform pour Google Cloud ?',
-      opts: ['Écrire le mot de passe root en commentaire', 'Inscrire le chemin d\'une clé JSON de compte de service dans le bloc provider', 'Utiliser Application Default Credentials (ADC) ou Workload Identity sans clé en dur', 'Désactiver le contrôle SSL'],
-      correct: 2,
+      opts: ['Écrire le mot de passe root en commentaire', 'Utiliser Application Default Credentials (ADC) ou Workload Identity sans clé en dur', 'Inscrire le chemin d\'une clé JSON de compte de service dans le bloc provider', 'Désactiver le contrôle SSL'],
+      correct: 1,
       exp: 'Le code Terraform ne doit jamais contenir de fichier de clé de compte de service en dur ; il doit s\'appuyer sur Application Default Credentials (ADC) en local ou Workload Identity Federation dans la CI/CD.'
     }
   ],

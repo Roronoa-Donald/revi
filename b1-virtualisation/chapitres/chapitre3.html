@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -76,6 +74,8 @@
       <li>classer chaque service dans sa catégorie : données, publication, protection, recette ;</li>
       <li>dresser l’inventaire des VM par type de service, dans l’ordre d’apparition ;</li>
       <li>mesurer la charge par service et repérer celui qui porte le plus.</li>
+      <li>décrire l’anatomie d’une VM : vCPU, mémoire allouée, disque virtuel, carte réseau virtuelle ;</li>
+      <li>expliquer la surallocation (overcommit) et ses limites, et choisir un format de disque (VDI, VMDK, VHDX, QCOW2, dynamique ou fixe).</li>
     </ol>
   </div>
 
@@ -114,7 +114,24 @@
 
 <section class="sec">
 
-<h2>3. La charge de chaque service</h2>
+<h2>3. Anatomie d’une machine virtuelle</h2>
+
+<p>Le chapitre précédent a montré ce qui se partage. Voyons comment une VM concrète est fabriquée : une « machine » complète décrite par un fichier de configuration et quelques fichiers de données.</p>
+<table>
+    <tr><th>Élément</th><th>Rôle dans la VM</th><th>Côté hôte</th></tr>
+    <tr><td>vCPU</td><td>Processeurs que voit le système invité</td><td>Chaque vCPU est un fil d’exécution que l’hyperviseur place sur un cœur ou un thread physique</td></tr>
+    <tr><td>RAM</td><td>Mémoire vive que voit le système invité</td><td>Zone de la mémoire de l’hôte réservée ou prêtée à la VM</td></tr>
+    <tr><td>Disque virtuel</td><td>Disque dur que voit le système invité</td><td>Un fichier (.vdi, .vmdk, .vhdx, .qcow2) sur le stockage de l’hôte</td></tr>
+    <tr><td>Carte réseau virtuelle</td><td>Interface Ethernet de la VM</td><td>Branchée sur un commutateur virtuel (chapitre 4)</td></tr>
+    <tr><td>Configuration</td><td>Liste des éléments ci-dessus</td><td>Un petit fichier texte ou XML (.vbox, .vmx, .xml)</td></tr>
+  </table>
+<p>Un vCPU n’est pas un cœur dédié : si l’on donne 4 vCPU à une VM sur un hôte de 8 cœurs, la VM peut utiliser jusqu’à 4 fils d’exécution en parallèle, mais ils partagent le processeur avec les autres VM. Donner trop de vCPU à une petite charge est contre-productif : l’hyperviseur doit attendre que tous les vCPU soient disponibles en même temps. <strong>Règle pratique : commencer petit (1 à 2 vCPU) et augmenter selon la charge mesurée.</strong></p>
+
+</section>
+
+<section class="sec">
+
+<h2>4. La charge de chaque service</h2>
 
 <p>« On ne prendra chacun que ce dont on a besoin » suppose de <strong>mesurer</strong> ce qu’on prend. La charge se cumule par service : chaque VM déclare son pourcentage de processeur, le service additionne ses VM. Au-delà de 70 % cumulés, un service entre en zone « à surveiller » — pas encore en panne, mais la marge s’amincit.</p>
 <p>Le service « le plus chargé » se repère avec une règle stricte : un service ne devient champion que si sa charge dépasse <strong>strictement</strong> le maximum connu. À égalité, le premier arrivé garde la couronne — comme dans l’histoire, où chacun ne prend que son dû.</p>
@@ -127,7 +144,26 @@
 
 <section class="sec">
 
-<h2>4. Ce que l’inventaire révèle</h2>
+<h2>5. La surallocation (overcommit) : promettre plus que l’on possède</h2>
+
+<p>L’histoire dit : « on ne prendra chacun que ce dont on a besoin ». Or un besoin déclaré n’est pas un besoin permanent. Les hyperviseurs en tirent parti : on peut déclarer, au total, <strong>plus de vCPU ou de mémoire que la machine physique n’en possède</strong>. C’est la surallocation, ou <em>overcommit</em>.</p>
+<table>
+    <tr><th>Ressource</th><th>Surallocation possible ?</th><th>Risque si tout le monde demande en même temps</th></tr>
+    <tr><td>vCPU</td><td>Oui, souvent</td><td>Les VM attendent leur tour : ralentissement général</td></tr>
+    <tr><td>RAM</td><td>Oui, avec prudence (partage de pages, ballooning)</td><td>L’hôte swappe sur le disque : effondrement des performances</td></tr>
+    <tr><td>Disque (thin provisioning)</td><td>Oui</td><td>Le stockage de l’hôte se remplit : les VM sont suspendues</td></tr>
+  </table>
+<p>Exemple chiffré : un hôte de 64 Go de RAM héberge 10 VM de 16 Go déclarés (160 Go promis, soit 2,5 fois la capacité). Tant que chaque VM n’utilise réellement que 4 Go en moyenne (40 Go), tout va bien. Si trois d’entre elles montent à 16 Go simultanément, la mémoire réelle nécessaire dépasse la capacité de l’hôte. L’alerte doit venir de la <strong>mesure de l’utilisation réelle</strong>, jamais seulement de la somme des allocations.</p>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Piège — confondre réservé et utilisé</div>
+    <p>Un hôte « plein » côté allocation n’est pas forcément saturé côté utilisation, et inversement un hôte à moitié alloué peut être saturé si une VM consomme tout. Surveillez les deux chiffres. Un taux de surallocation acceptable (2:1, 4:1…) dépend de la charge : ce sont des ordres de grandeur pédagogiques, pas des normes.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>6. Ce que l’inventaire révèle</h2>
 
 <p>L’inventaire et la charge préparent le dimensionnement du chapitre 4 : un service dont la charge cumulée grimpe aura besoin d’une VM supplémentaire ; un service à 5 % pourrait partager mieux. Le parc devient un objet que l’on lit, pas une collection de machines que l’on subit.</p>
   <div class="box box--tech">
@@ -137,11 +173,38 @@
 
 </section>
 
+<section class="sec">
+
+<h2>7. Formats de disques virtuels : VDI, VMDK, VHDX, QCOW2</h2>
+
+<p>Le disque d’une VM est un <strong>simple fichier</strong> sur l’hôte. Chaque hyperviseur a son format de prédilection, mais les outils de conversion permettent de passer de l’un à l’autre.</p>
+<table>
+    <tr><th>Format</th><th>Hyperviseur d’origine</th><th>À retenir</th></tr>
+    <tr><td>VDI</td><td>Oracle VirtualBox</td><td>Format natif de VirtualBox, allocation dynamique par défaut</td></tr>
+    <tr><td>VMDK</td><td>VMware (ESXi, Workstation)</td><td>Très répandu ; lisible par VirtualBox et QEMU ; cœur des fichiers OVA</td></tr>
+    <tr><td>VHD / VHDX</td><td>Microsoft Hyper-V</td><td>VHDX : disques jusqu’à 64 To, plus résistant aux coupures de courant</td></tr>
+    <tr><td>QCOW2</td><td>QEMU / KVM</td><td>Copy-on-write : prend en charge l’allocation fine, la compression et les snapshots</td></tr>
+  </table>
+<p>Deux stratégies d’allocation existent, quel que soit le format :</p>
+<ul>
+    <li><strong>Allocation dynamique (thin)</strong> : un disque de 100 Go déclaré ne pèse au départ que quelques Mo ; le fichier grossit à mesure que la VM écrit. Économique, mais attention à la surallocation du stockage.</li>
+    <li><strong>Allocation fixe (thick)</strong> : les 100 Go sont réservés dès la création. Plus prévisible, légèrement plus rapide au premier remplissage, mais gourmand dès le premier jour.</li>
+  </ul>
+<pre><code># Examiner et convertir un disque (outils QEMU)
+qemu-img info disque.vmdk
+qemu-img convert -f vmdk -O qcow2 disque.vmdk disque.qcow2
+
+# Cloner un disque VirtualBox vers un autre format
+VBoxManage clonemedium disk source.vdi cible.vmdk --format VMDK</code></pre>
+<p>Rappel du chapitre 4 : la taille déclarée d’un disque ne dit rien de l’espace réellement occupé, et un disque dynamique ne garantit pas de bonnes performances. Mesurez le fichier, pas la promesse.</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>8. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -149,36 +212,30 @@
      data-exercise="vt-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;base donnees&#10;site publication&#10;pare-feu protection&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c3-e1) — Les services de l’histoire
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Une école virtualise quatre services sur son serveur : un serveur de fichiers, un site de l'école, un pare-feu et une VM de travaux pratiques.&#10;&#10;1) Le serveur de fichiers porte les données.&#10;2) Le site de l'école assure la publication.&#10;3) Le pare-feu assure la protection.&#10;4) La VM de travaux pratiques sert de recette : on y essaie sans casser la production.&#10;5) Pour recréer une VM de TP, le technicien clone une image déjà configurée.">
+  <script type="text/plain" data-lab-starter># Exercice — Quatre services, quatre rôles
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Le parc complet]
-# Données : 4
-# Données : base donnees
-# Données : site publication
-# Données : pare-feu protection
-# Données : test recette
+[Question 1 — Nombre de services hébergés]
 A_COMPLETER
 
-[Cas 2 — Trois confusions]
-# Données : 4
-# Données : base publication
-# Données : site protection
-# Données : pare-feu recette
-# Données : test recette
+[Question 2 — Le service des données]
 A_COMPLETER
 
-[Cas 3 — Ordre mélangé]
-# Données : 4
-# Données : test recette
-# Données : pare-feu protection
-# Données : site publication
-# Données : base donnees
+[Question 3 — Le service de la publication]
+A_COMPLETER
+
+[Question 4 — Le service de la protection]
+A_COMPLETER
+
+[Question 5 — Le service de la recette]
+A_COMPLETER
+
+[Question 6 — Le modèle de VM préconfiguré]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Les services de l’histoire</h3>
+    <h3 class="lab__title">Exercice 1 — Quatre services, quatre rôles</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -187,20 +244,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider les quatre services virtualisés : base, site, pare-feu, test.</p>
-    <div class="lab__brief"><p>L’histoire se termine : le serveur « hébergeait maintenant une base de données, un site web, un pare-feu virtuel et même un serveur de test ». Analysez chaque ligne proposée « service categorie » : categorie est un code parmi <code>donnees</code> (base de données), <code>publication</code> (site web), <code>protection</code> (pare-feu) ou <code>recette</code> (serveur de test). Pour chaque ligne, indiquez <code>service : OK</code> ou <code>service : ERREUR</code>, puis <code>correctes : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque service virtualisé de l'histoire à son rôle : données, publication, protection, recette.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> À la fin de l'histoire, M. Fainéant « hébergeait maintenant une base de données, un site web, un pare-feu virtuel et même un serveur de test. Et pour une fois, il ne s'ennuyait plus ! » Chaque service a un rôle précis : la base de données porte les <strong>données</strong> de l'entreprise ; le site web assure la <strong>publication</strong> vers les utilisateurs ; le pare-feu virtuel assure la <strong>protection</strong> du parc ; le serveur de test sert de <strong>recette</strong> : essayer sans casser la production. Et pour créer ces VM rapidement, l'ingénieur ne réinstalle pas tout à chaque fois : il part d'un modèle de VM préconfiguré, appelé <strong>image</strong>.</p><ol><li>Combien de services M. Fainéant héberge-t-il désormais ?</li><li>Quel service porte les données de l'entreprise ?</li><li>Quel service assure la publication vers les utilisateurs ?</li><li>Quel service assure la protection du parc ?</li><li>Quel service sert de recette, pour essayer sans casser la production ?</li><li>Comment s'appelle le modèle de VM préconfiguré qui sert à créer une nouvelle VM rapidement ? (un mot)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-base donnees
-site publication
-pare-feu protection
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Une école virtualise quatre services sur son serveur : un serveur de fichiers, un site de l'école, un pare-feu et une VM de travaux pratiques.
+
+1) Le serveur de fichiers porte les données.
+2) Le site de l'école assure la publication.
+3) Le pare-feu assure la protection.
+4) La VM de travaux pratiques sert de recette : on y essaie sans casser la production.
+5) Pour recréer une VM de TP, le technicien clone une image déjà configurée.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur le service : base → donnees, site → publication, pare-feu → protection, test → recette.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>L'inventaire de fin d'histoire cite les quatre services dans un ordre précis : base, site, pare-feu, test.</li>
+        <li>Associez chaque service à sa catégorie : données (base), publication (site), protection (pare-feu), recette (test).</li>
+        <li>Pour la dernière question, pensez à ce que l'ingénieur duplique au lieu de réinstaller : un modèle tout prêt, que l'on nomme comme une copie exacte d'un système.</li>
       </ol>
     </details>
   </div>
@@ -210,37 +270,30 @@ pare-feu protection
      data-exercise="vt-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;vm-bd base&#10;vm-web site&#10;vm-bd2 base&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c3-e2) — Une machine par service : l’inventaire
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Inventaire d'un parc de démonstration, dans l'ordre d'apparition :&#10;vm-a (site) — vm-b (base) — vm-c (site).&#10;&#10;1) Total : 3 VM.&#10;2) Services distincts : site et base, soit 2.&#10;3) VM du service site : vm-a et vm-c, soit 2.&#10;4) Premier service apparu : le site.&#10;5) Avant une manipulation risquée sur vm-b, le technicien crée un snapshot — qui ne remplace pas une sauvegarde.">
+  <script type="text/plain" data-lab-starter># Exercice — L'inventaire du parc et le snapshot du serveur de test
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Le parc de la fin]
-# Données : 4
-# Données : vm1 base
-# Données : vm2 site
-# Données : vm3 pare-feu
-# Données : vm4 test
+[Question 1 — Nombre total de VM]
 A_COMPLETER
 
-[Cas 2 — Fermes de VM]
-# Données : 5
-# Données : web1 site
-# Données : web2 site
-# Données : bd1 base
-# Données : bd2 base
-# Données : bd3 base
+[Question 2 — Nombre de services distincts]
 A_COMPLETER
 
-[Cas 3 — Ordre d’apparition]
-# Données : 4
-# Données : a test
-# Données : b site
-# Données : c test
-# Données : d pare-feu
+[Question 3 — VM du service site]
+A_COMPLETER
+
+[Question 4 — Premier service apparu dans l'inventaire]
+A_COMPLETER
+
+[Question 5 — Nom de l'instantané (un mot)]
+A_COMPLETER
+
+[Question 6 — Un snapshot remplace-t-il une sauvegarde ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Une machine par service : l’inventaire</h3>
+    <h3 class="lab__title">Exercice 2 — L'inventaire du parc et le snapshot du serveur de test</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -249,20 +302,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Dresser l’inventaire des VM par type de service et compter les catégories.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « vm service » puis Indiquez chaque ligne <code>vm : service</code>. Ensuite, pour chaque service <strong>dans l’ordre de première apparition</strong>,, indiquez <code>service : X vm</code>, et enfin <code>services : Y</code> — l’inventaire de ce que le serveur héberge maintenant, comme à la fin de l’histoire.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Dresser un inventaire de VM par service dans l'ordre d'apparition et connaître le rôle d'un snapshot.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Un mois après le réveil de M. Fainéant, l'ingénieur dresse l'inventaire des machines virtuelles, <strong>dans leur ordre de première apparition</strong> (l'ordre dans lequel le parc a grandi, pas l'ordre alphabétique) :</p><table><tr><th>Ordre</th><th>VM</th><th>Service</th></tr><tr><td>1</td><td>vm-01</td><td>base</td></tr><tr><td>2</td><td>vm-02</td><td>site</td></tr><tr><td>3</td><td>vm-03</td><td>base</td></tr><tr><td>4</td><td>vm-04</td><td>test</td></tr><tr><td>5</td><td>vm-05</td><td>site</td></tr><tr><td>6</td><td>vm-06</td><td>pare-feu</td></tr><tr><td>7</td><td>vm-07</td><td>site</td></tr><tr><td>8</td><td>vm-08</td><td>test</td></tr></table><p>Avant de tester une mise à jour risquée sur vm-04, l'ingénieur crée un <strong>snapshot</strong> (instantané) de la VM : si le test tourne mal, il pourra ramener la machine à l'état du moment de la copie. Mais il garde en tête la règle du cours : un snapshot ne remplace pas une sauvegarde indépendante.</p><ol><li>Combien de machines virtuelles compte le parc ?</li><li>Combien de services distincts tournent sur M. Fainéant ?</li><li>Combien de VM servent le service « site » ?</li><li>Quel service est apparu en premier dans l'inventaire ?</li><li>Comment appelle-t-on l'instantané créé avant le test de mise à jour ? (un mot, en anglais)</li><li>Un snapshot peut-il remplacer une sauvegarde indépendante ? (oui ou non)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-vm-bd base
-vm-web site
-vm-bd2 base
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Inventaire d'un parc de démonstration, dans l'ordre d'apparition :
+vm-a (site) — vm-b (base) — vm-c (site).
+
+1) Total : 3 VM.
+2) Services distincts : site et base, soit 2.
+3) VM du service site : vm-a et vm-c, soit 2.
+4) Premier service apparu : le site.
+5) Avant une manipulation risquée sur vm-b, le technicien crée un snapshot — qui ne remplace pas une sauvegarde.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Nouveau service : <code>[ -z "${compte[$service]+x}" ]</code> → <code>ordre[$g]=$service</code> et <code>g=$((g+1))</code>.</li>
-        <li>Les bilans sortent après la boucle, dans l’ordre du tableau ordre, puis g.</li>
+        <li>Lisez le tableau ligne par ligne : chaque ligne est une VM avec son service ; l'ordre du tableau est l'ordre d'apparition.</li>
+        <li>Comptez les VM par service (base, site, pare-feu, test) et listez les services rencontrés pour la première fois.</li>
+        <li>L'instantané porte un nom anglais bien connu des administrateurs ; souvenez-vous aussi qu'il fige un état mais ne protège pas d'une panne de disque.</li>
       </ol>
     </details>
   </div>
@@ -272,33 +329,30 @@ vm-bd2 base
      data-exercise="vt-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="4&#10;vm1 base 40&#10;vm2 site 30&#10;vm3 base 20&#10;vm4 test 5&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (vt-c3-e3) — La charge de chaque service
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Relevé d'un parc satellite :&#10;service a : 25 % + 25 % — service b : 60 % — service c : 5 %.&#10;&#10;1) Charge de a : 25 + 25 = 50 %.&#10;2) Charge de b : 60 %.&#10;3) Aucun service ne dépasse 70 % : personne en zone « à surveiller ».&#10;4) Le plus chargé : b (60 %), strictement supérieur à 50 %.&#10;5) Charge totale : 50 + 60 + 5 = 115 %.&#10;6) Si un jour a et b atteignaient le même total, le premier arrivé (a) garderait la couronne.">
+  <script type="text/plain" data-lab-starter># Exercice — La charge de chaque service : le seuil des 70 %
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Pare-feu chargé]
-# Données : 4
-# Données : vm1 site 50
-# Données : vm2 pare-feu 45
-# Données : vm3 site 20
-# Données : vm4 base 10
+[Question 1 — Charge cumulée du service base (%)]
 A_COMPLETER
 
-[Cas 2 — Égalité de charge]
-# Données : 3
-# Données : vm1 base 35
-# Données : vm2 site 35
-# Données : vm3 test 10
+[Question 2 — Charge cumulée du service site (%)]
 A_COMPLETER
 
-[Cas 3 — Un seul service]
-# Données : 2
-# Données : vm1 base 50
-# Données : vm2 base 30
+[Question 3 — base à 70 % : strictement au-delà du seuil ?]
+A_COMPLETER
+
+[Question 4 — Service le plus chargé]
+A_COMPLETER
+
+[Question 5 — Charge totale du parc (%)]
+A_COMPLETER
+
+[Question 6 — À égalité, qui garde la couronne ?]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — La charge de chaque service</h3>
+    <h3 class="lab__title">Exercice 3 — La charge de chaque service : le seuil des 70 %</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -307,36 +361,40 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="vt-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer la charge par service et repérer celui qui consomme le plus.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « vm service charge » (charge en % CPU), puis Indiquez pour chaque service <strong>dans l’ordre de première apparition</strong> <code>service : X% de charge</code> (somme des charges), puis <code>service le plus charge : NOM (Y%)</code> — le premier atteignant le maximum gagne, comme au support « on ne prendra chacun que ce dont on a besoin » : au-delà de 70 % cumulés, le service est <code>service : X% de charge (a surveiller)</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Cumuler la charge par service, appliquer le seuil « à surveiller » de 70 % et la règle du maximum strict.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> « On ne prendra que ce dont on a besoin » suppose de <strong>mesurer</strong> ce que chacun prend. Chaque VM déclare son pourcentage de processeur ; la <strong>charge d'un service est la somme des charges de ses VM</strong>. Au-delà de <strong>70 % cumulés</strong>, un service entre en zone « à surveiller ». Règle du <strong>maximum strict</strong> : le service le plus chargé ne change que si un autre le dépasse strictement ; à égalité, le premier arrivé dans l'inventaire garde la couronne. Relevé du jour, dans l'ordre d'apparition de l'inventaire :</p><table><tr><th>Service</th><th>VM</th><th>Charge CPU de la VM</th></tr><tr><td>base</td><td>vm-01</td><td>40 %</td></tr><tr><td>site</td><td>vm-02</td><td>20 %</td></tr><tr><td>base</td><td>vm-03</td><td>30 %</td></tr><tr><td>test</td><td>vm-04</td><td>10 %</td></tr><tr><td>site</td><td>vm-05</td><td>15 %</td></tr><tr><td>pare-feu</td><td>vm-06</td><td>50 %</td></tr><tr><td>site</td><td>vm-07</td><td>15 %</td></tr><tr><td>test</td><td>vm-08</td><td>20 %</td></tr></table><ol><li>Quelle est la charge cumulée du service base, en pourcentage ?</li><li>Quelle est la charge cumulée du service site, en pourcentage ?</li><li>Le service base, à 70 % cumulés exactement, est-il strictement au-delà du seuil « à surveiller » de 70 % ? (oui ou non)</li><li>Quel est le service le plus chargé du parc ?</li><li>Quelle est la charge totale du parc (somme des charges de tous les services), en pourcentage ?</li><li>À égalité de charge entre deux services, qui garde le titre du plus chargé : le premier arrivé ou le dernier arrivé ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
-vm1 base 40
-vm2 site 30
-vm3 base 20
-vm4 test 5
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Relevé d'un parc satellite :
+service a : 25 % + 25 % — service b : 60 % — service c : 5 %.
+
+1) Charge de a : 25 + 25 = 50 %.
+2) Charge de b : 60 %.
+3) Aucun service ne dépasse 70 % : personne en zone « à surveiller ».
+4) Le plus chargé : b (60 %), strictement supérieur à 50 %.
+5) Charge totale : 50 + 60 + 5 = 115 %.
+6) Si un jour a et b atteignaient le même total, le premier arrivé (a) garderait la couronne.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Somme par service dans un tableau ; nouveau service → enregistrer l’ordre (g).</li>
-        <li>Maximum au sens strict : charge &gt; max → max=charge, max_nom=service (le premier atteignant le max gagne).</li>
+        <li>Regroupez le tableau par service : chaque service additionne les charges de toutes ses VM, quel que soit leur rang dans le tableau.</li>
+        <li>La zone « à surveiller » commence STRICTEMENT au-delà de 70 % : un service qui atteint exactement 70 % ne la franchit pas.</li>
+        <li>Pour le maximum strict, comparez les charges cumulées : le champion ne change que si un concurrent le dépasse strictement ; à égalité, l'ordre du tableau tranche.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>9. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Le site web sert à…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la publication</button>
-        <button class="opt">la protection</button>
         <button class="opt">la recette</button>
+        <button class="opt">la protection</button>
+        <button class="opt" data-correct="1">la publication</button>
       </div>
       <div class="q__exp">Publication vers les utilisateurs ; la base porte les données, le pare-feu protège, le test recette.</div>
     </div>
@@ -353,16 +411,16 @@ vm4 test 5
       <p class="q__stem">Le serveur de test illustre…</p>
       <div class="opts">
         <button class="opt" data-correct="1">la recette sans machine physique dédiée</button>
-        <button class="opt">la sauvegarde automatique</button>
-        <button class="opt">la réplication</button>
+        <button class="opt">la sauvegarde automatique de chaque machine</button>
+        <button class="opt">la réplication des disques entre serveurs</button>
       </div>
       <div class="q__exp">Une VM s’allume pour essayer, puis s’éteint — grand bénéfice du partage.</div>
     </div>
     <div class="q">
       <p class="q__stem">L’inventaire par service se fait…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">dans l’ordre de première apparition</button>
         <button class="opt">par ordre alphabétique</button>
+        <button class="opt" data-correct="1">dans l’ordre de première apparition</button>
         <button class="opt">au hasard</button>
       </div>
       <div class="q__exp">L’ordre du fichier d’inventaire — celui dans lequel le parc a grandi.</div>
@@ -370,9 +428,9 @@ vm4 test 5
     <div class="q">
       <p class="q__stem">La zone « à surveiller » commence…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">au-delà de 70 % de charge cumulée</button>
-        <button class="opt">à 0 %</button>
         <button class="opt">après 100 %</button>
+        <button class="opt">à 0 %</button>
+        <button class="opt" data-correct="1">au-delà de 70 % de charge cumulée</button>
       </div>
       <div class="q__exp">Au-delà de 70 % cumulés, la marge s’amincit : à surveiller.</div>
     </div>
@@ -380,28 +438,46 @@ vm4 test 5
       <p class="q__stem">Le service le plus chargé se choisit…</p>
       <div class="opts">
         <button class="opt" data-correct="1">en strictement supérieur, le premier arrivé gagne à égalité</button>
-        <button class="opt">en alphabétique</button>
-        <button class="opt">au hasard</button>
+        <button class="opt">par ordre alphabétique des noms des services</button>
+        <button class="opt">au hasard, en tirant un service parmi les actifs</button>
       </div>
       <div class="q__exp">Test strict : à égalité, le premier rencontré garde le titre.</div>
     </div>
     <div class="q">
       <p class="q__stem">La charge d’un service est…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">la somme des charges de ses VM</button>
-        <button class="opt">le maximum de ses VM</button>
         <button class="opt">la moyenne de ses VM</button>
+        <button class="opt">le maximum de ses VM</button>
+        <button class="opt" data-correct="1">la somme des charges de ses VM</button>
       </div>
       <div class="q__exp">Chaque VM déclare sa part ; le service additionne.</div>
     </div>
     <div class="q">
       <p class="q__stem">Les quatre services de l’histoire sont…</p>
       <div class="opts">
+        <button class="opt">DNS, DHCP, serveur web et serveur de messagerie</button>
         <button class="opt" data-correct="1">base de données, site web, pare-feu, serveur de test</button>
-        <button class="opt">DNS, DHCP, web, mail</button>
-        <button class="opt">proxy, VPN, web, FTP</button>
+        <button class="opt">proxy, VPN, serveur web et serveur FTP</button>
       </div>
       <div class="q__exp">L’inventaire exact de la fin de l’histoire.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel format de disque virtuel est le format natif de Hyper-V ?</p>
+      <div class="opts">
+        <button class="opt">VMDK</button>
+        <button class="opt">QCOW2</button>
+        <button class="opt" data-correct="1">VHDX</button>
+      </div>
+      <div class="q__exp">VHDX est le format de disque d’Hyper-V ; VMDK vient de VMware et QCOW2 de QEMU/KVM, VDI de VirtualBox.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Un hôte de 64 Go de RAM promet 160 Go à ses VM. Comment appelle-t-on cette pratique ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">la surallocation (overcommit)</button>
+        <button class="opt">le clonage lié</button>
+        <button class="opt">la migration à chaud</button>
+      </div>
+      <div class="q__exp">Promettre plus de ressources que l’hôte n’en possède, en pariant que toutes ne seront pas utilisées en même temps, s’appelle la surallocation ou overcommit.</div>
     </div>
   </div>
 
@@ -409,7 +485,7 @@ vm4 test 5
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>10. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -425,7 +501,7 @@ vm4 test 5
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>11. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Lire son parc</div>
@@ -440,7 +516,7 @@ vm4 test 5
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>12. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -457,9 +533,9 @@ vm4 test 5
       <li>Je calcule la charge cumulée et j’applique le seuil des 70 %.</li>
       <li>Je trouve le service le plus chargé avec le test strict.</li>
     </ul>
-    <h3>Les 8 notions à connaître absolument</h3>
+    <h3>Les 11 notions à connaître absolument</h3>
     <ol>
-      <li>base de données</li><li>site web</li><li>pare-feu virtuel</li><li>serveur de test</li><li>inventaire</li><li>ordre d’apparition</li><li>charge cumulée</li><li>maximum strict</li>
+      <li>base de données</li><li>site web</li><li>pare-feu virtuel</li><li>serveur de test</li><li>inventaire</li><li>ordre d’apparition</li><li>charge cumulée</li><li>maximum strict</li><li><strong>vCPU</strong> : processeur virtuel, planifié par l’hyperviseur sur un cœur ou un thread physique.</li><li><strong>Surallocation (overcommit)</strong> : promettre aux VM plus de ressources que la machine n’en possède réellement.</li><li><strong>Disque virtuel</strong> : un fichier (VDI, VMDK, VHDX, QCOW2) que la VM voit comme un disque.</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -469,7 +545,7 @@ vm4 test 5
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>13. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -518,7 +594,7 @@ vm4 test 5
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

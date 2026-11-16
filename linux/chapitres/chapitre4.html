@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -131,15 +129,35 @@ scp fichier rd@serveur:/tmp/     # copier via SSH</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>4. Volumes logiques LVM (pvcreate, vgcreate, lvextend) et réseau avancé (nmcli, ip route)</h2>
+
+<p>En administration serveur B2, le partitionnement statique cède la place à <strong>LVM (Logical Volume Manager)</strong>, qui permet d’agrandir les volumes à chaud sans coupure de service :</p>
+<pre><code>pvcreate /dev/sdb /dev/sdc                 # 1. Initialiser les volumes physiques (PV)
+vgcreate vg_data /dev/sdb /dev/sdc         # 2. Assembler le groupe de volumes (VG)
+lvcreate -L 20G -n lv_app vg_data          # 3. Découper un volume logique (LV)
+lvextend -L +10G -r /dev/vg_data/lv_app    # 4. Étendre le LV et le système de fichiers (-r) à chaud</code></pre>
+<p>Côté réseau, l’administrateur B2 pilote les interfaces et la table de routage via <strong>NetworkManager (<code>nmcli</code>)</strong> et la suite <strong>iproute2 (<code>ip addr</code>, <code>ip route</code>)</strong> :</p>
+<pre><code>nmcli connection modify eth0 ipv4.addresses 10.10.20.15/24 ipv4.gateway 10.10.20.1 ipv4.method manual
+nmcli connection up eth0
+ip route show                              # Inspecter la table de routage active
+ip route add 192.168.50.0/24 via 10.10.20.254 dev eth0</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>4. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>5. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="lx2-c4-e1" data-lab
      data-exercise="lx2-c4-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="3&#10;192.168.1.1&#10;10.0.0&#10;256.1.1.1&#10;">
@@ -153,13 +171,11 @@ done
     <h3 class="lab__title">Exercice 1 — Valider une adresse IPv4</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Contrôler qu’une adresse est bien formée avant de la configurer.</p>
-    <p class="lab__note" id="lx2-c4-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune une adresse IPv4. Une adresse est <strong>valide</strong> si elle compte exactement quatre octets séparés par des points, chacun entre 0 et 255. Il affiche <code>ip : valide</code> ou <code>ip : invalide</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
@@ -172,10 +188,11 @@ ip : invalide
 ip : invalide</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le premier contrôle est le nombre de champs : quatre octets exactement.</li>
         <li>Chaque octet ne doit contenir que des chiffres et rester inférieur ou égal à 255.</li>
+        <li>Étapes : pour chaque adresse, vérifier dans l’ordre : quatre champs séparés par des points, chacun non vide et numérique, chacun entre 0 et 255 ; toute violation → « ip : invalide », sinon « ip : valide ».</li>
       </ol>
     </details>
   </div>
@@ -183,7 +200,6 @@ ip : invalide</pre></div>
 
 <div class="lab" id="lx2-c4-e2" data-lab
      data-exercise="lx2-c4-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="3&#10;10.0.0.5&#10;8.8.8.8&#10;192.168.1.1&#10;">
@@ -197,13 +213,11 @@ done
     <h3 class="lab__title">Exercice 2 — Classer une adresse privée ou publique</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Repérer les adresses réservées aux réseaux internes.</p>
-    <p class="lab__note" id="lx2-c4-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong>, chacune une adresse IPv4. Sont <strong>privées</strong> les adresses <code>10.*</code>, <code>192.168.*</code> et <code>172.16.*</code> à <code>172.31.*</code>. Les autres sont <strong>publiques</strong>. Il affiche <code>classe : privee</code> ou <code>classe : publique</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
@@ -216,10 +230,11 @@ classe : publique
 classe : privee</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un case sur le préfixe suffit : 10.* et 192.168.* sont privés.</li>
         <li>Pour 172, seules les plages 16 à 31 sont privées ; 172.15 et 172.32 ne le sont pas.</li>
+        <li>Étapes : lire l’adresse ; préfixe 10. ou 192.168. → privée ; préfixe 172. suivi d’un nombre de 16 à 31 → privée aussi ; toute autre adresse → publique.</li>
       </ol>
     </details>
   </div>
@@ -227,7 +242,6 @@ classe : privee</pre></div>
 
 <div class="lab" id="lx2-c4-e3" data-lab
      data-exercise="lx2-c4-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="2&#10;rd@10.0.0.5:22&#10;admin@192.168.1.1:2222&#10;">
@@ -241,13 +255,11 @@ done
     <h3 class="lab__title">Exercice 3 — Décoder une cible SSH</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Extraire utilisateur, hôte et port d’une chaîne de connexion.</p>
-    <p class="lab__note" id="lx2-c4-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> selon la notation de cet exercice <code>utilisateur@hote:port</code>. Cette notation n’est pas une commande SSH : pour se connecter, utilisez <code>ssh -p port utilisateur@hote</code>. Pour chaque ligne, le script affiche : <code>utilisateur : X</code>, <code>hote : Y</code>, <code>port : Z</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
@@ -262,25 +274,26 @@ hote : 192.168.1.1
 port : 2222</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>cut -d@ sépare la partie utilisateur de la partie hôte:port.</li>
         <li>cut -d: sépare ensuite le nom d’hôte du port.</li>
+        <li>Étapes : pour chaque cible, couper au premier @ : la partie gauche est l’utilisateur ; dans la partie droite, couper au premier : ; la gauche donne l’hôte, la droite le port ; afficher les trois lignes dans l’ordre.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>5. QCM — niveau examen</h2>
+  <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Combien d’octets dans une adresse IPv4 valide ?</p>
       <div class="opts">
         <button class="opt">2</button>
-        <button class="opt" data-correct="1">4</button>
         <button class="opt">6</button>
+        <button class="opt" data-correct="1">4</button>
       </div>
       <div class="q__exp">IPv4 s’écrit en quatre octets séparés par des points, chacun de 0 à 255.</div>
     </div>
@@ -305,8 +318,8 @@ port : 2222</pre></div>
     <div class="q">
       <p class="q__stem">À quoi sert la passerelle ?</p>
       <div class="opts">
-        <button class="opt">à traduire les noms</button>
         <button class="opt" data-correct="1">à sortir du réseau local</button>
+        <button class="opt">à traduire les noms</button>
         <button class="opt">à chiffrer</button>
       </div>
       <div class="q__exp">La passerelle (default via) est la sortie vers les réseaux extérieurs.</div>
@@ -315,16 +328,16 @@ port : 2222</pre></div>
       <p class="q__stem">Port SSH par défaut ?</p>
       <div class="opts">
         <button class="opt">21</button>
-        <button class="opt" data-correct="1">22</button>
         <button class="opt">443</button>
+        <button class="opt" data-correct="1">22</button>
       </div>
       <div class="q__exp">SSH écoute sur le port 22 par défaut ; 21 est FTP et 443 HTTPS.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle commande SSH utilise le port 2222 pour sam@serveur ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ssh -p 2222 sam@serveur</button>
         <button class="opt">ssh sam@serveur:2222</button>
+        <button class="opt" data-correct="1">ssh -p 2222 sam@serveur</button>
         <button class="opt">ssh -p sam 2222@serveur</button>
       </div>
       <div class="q__exp">L’option -p indique le port ; sans préfixe ssh://, le suffixe :2222 n’est pas interprété comme le port de la cible.</div>
@@ -332,20 +345,20 @@ port : 2222</pre></div>
     <div class="q">
       <p class="q__stem">Que fait ssh-copy-id ?</p>
       <div class="opts">
-        <button class="opt">copie un fichier</button>
         <button class="opt" data-correct="1">installe la clé publique sur le serveur</button>
-        <button class="opt">génère une clé</button>
+        <button class="opt">génère une paire de clés si elle n’existe pas</button>
+        <button class="opt">copie un fichier quelconque vers le serveur</button>
       </div>
-      <div class="q__exp">Il dépose la clé publique dans le fichier authorized_keys du serveur.</div>
+      <div class="q__exp">Il dépose la clé publique dans le fichier authorized_keys du serveur. La génération des clés relève de ssh-keygen, pas de ssh-copy-id.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi un serveur en IP fixe ?</p>
       <div class="opts">
-        <button class="opt">pour économiser</button>
+        <button class="opt">pour économiser des adresses du sous-réseau</button>
         <button class="opt" data-correct="1">pour rester joignable à la même adresse</button>
-        <button class="opt">c’est obligatoire</button>
+        <button class="opt">parce que c’est obligatoire pour un serveur</button>
       </div>
-      <div class="q__exp">Les clients doivent retrouver le serveur à une adresse stable.</div>
+      <div class="q__exp">Les clients doivent retrouver le serveur à une adresse stable. Une IP fixe n’est pas une obligation technique : un bail DHCP réservé resterait joignable aussi.</div>
     </div>
   </div>
 
@@ -353,7 +366,7 @@ port : 2222</pre></div>
 
 <section class="sec">
 
-<h2>6. Erreurs classiques — récapitulatif</h2>
+<h2>7. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -370,7 +383,7 @@ port : 2222</pre></div>
 
 <section class="sec">
 
-<h2>7. Méthodologie de résolution</h2>
+<h2>8. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Rendre un serveur joignable</div>
@@ -387,7 +400,7 @@ port : 2222</pre></div>
 
 <section class="sec">
 
-<h2>8. Révision active</h2>
+<h2>9. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -417,7 +430,7 @@ port : 2222</pre></div>
 
 <section class="sec">
 
-<h2>9. Test de maîtrise</h2>
+<h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -466,7 +479,7 @@ port : 2222</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

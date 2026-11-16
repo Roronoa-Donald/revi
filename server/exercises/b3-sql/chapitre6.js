@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Regroupez les mesures par partition trimestrielle p_q1..p_q4\nSELECT mois, valeur FROM mesures_iot;",
     "hints": [
       "Utilisez l’expression CASE WHEN pour calculer partition_cible.",
-      "Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC."
+      "Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC.",
+      "1. Mapper chaque mois vers son trimestre avec des bornes cumulatives. 2. Grouper par partition cible. 3. Compter les lignes, sommer les valeurs, trier par partition."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 1         | 50            |\n| p_q2            | 1         | 60            |\n| p_q3            | 1         | 70            |\n| p_q4            | 1         | 80            |\n+-----------------+-----------+---------------+\n(4 lignes retournées)"
       }
     ],
-    "solution": "SELECT CASE WHEN mois <= 3 THEN 'p_q1' WHEN mois <= 6 THEN 'p_q2' WHEN mois <= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible, COUNT(*) AS nb_lignes, SUM(valeur) AS total_valeurs FROM mesures_iot GROUP BY partition_cible ORDER BY partition_cible ASC;"
+    "solution": "SELECT CASE WHEN mois <= 3 THEN 'p_q1' WHEN mois <= 6 THEN 'p_q2' WHEN mois <= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible, COUNT(*) AS nb_lignes, SUM(valeur) AS total_valeurs FROM mesures_iot GROUP BY partition_cible ORDER BY partition_cible ASC;",
+    "takeaway": "Le partitionnement par intervalles permet l’élagage de partitions (partition pruning) afin de ne scanner que la tranche temporelle requise."
   },
   {
     "id": "sql3-c6-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Calculez lag_mb = sent_lsn_mb - replay_lsn_mb pour chaque réplica\nSELECT application_name FROM pg_stat_replication_sim;",
     "hints": [
       "Soustrayez replay_lsn_mb de sent_lsn_mb et renommez la colonne AS lag_mb.",
-      "Triez par lag_mb DESC, application_name ASC."
+      "Triez par lag_mb DESC, application_name ASC.",
+      "1. Soustraire le LSN rejoué du LSN envoyé pour chaque réplique. 2. Renommer le résultat lag_mb. 3. Trier par retard décroissant puis nom d’application croissant."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| ha_node          | sync       | 0      |\n+------------------+------------+--------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT application_name, sync_state, sent_lsn_mb - replay_lsn_mb AS lag_mb FROM pg_stat_replication_sim ORDER BY lag_mb DESC, application_name ASC;"
+    "solution": "SELECT application_name, sync_state, sent_lsn_mb - replay_lsn_mb AS lag_mb FROM pg_stat_replication_sim ORDER BY lag_mb DESC, application_name ASC;",
+    "takeaway": "Mesurer l’écart d’octets entre les LSN primaire et réplica détecte précocement un retard de réplication avant rupture de lecture."
   },
   {
     "id": "sql3-c6-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Sélectionnez le meilleur candidat REPLICA sain avec ORDER BY ... LIMIT 1\nSELECT node_name, received_lsn, priority FROM cluster_nodes;",
     "hints": [
       "Filtrez avec WHERE role = 'REPLICA' AND healthy = 1.",
-      "Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1."
+      "Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1.",
+      "1. Ne garder que les réplicas sains. 2. Ordonner par LSN reçu décroissant puis priorité décroissante. 3. Ne retourner que la première ligne."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| pg-dr     | 4200         | 10       |\n+-----------+--------------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT node_name, received_lsn, priority FROM cluster_nodes WHERE role = 'REPLICA' AND healthy = 1 ORDER BY received_lsn DESC, priority DESC LIMIT 1;"
+    "solution": "SELECT node_name, received_lsn, priority FROM cluster_nodes WHERE role = 'REPLICA' AND healthy = 1 ORDER BY received_lsn DESC, priority DESC LIMIT 1;",
+    "takeaway": "L’élection de basculement automatique (Patroni) choisit le réplica sain le plus proche en LSN afin de minimiser la perte de transactions."
   }
 ];

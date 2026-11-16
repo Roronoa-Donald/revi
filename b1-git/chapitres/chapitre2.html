@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -164,23 +162,30 @@ git reset /chemin/vers/dossier/fichier.ext</code></pre>
      data-language="shell"
      data-height="300"
      data-stdin="6&#10;add a&#10;add b&#10;commit&#10;add c&#10;compte&#10;commit&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op fichier
-  # À compléter : index, dépôt, comptes.
+  # À compléter : créer & git add, git commit si index non vide, afficher index et commits.
 done
-# À compléter : afficher les comptes.
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Cycle add / commit</h3>
+    <h3 class="lab__title">Exercice 1 — Cycle réel git add / git commit</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Reproduire le trajet copie de travail → index → dépôt local des fichiers.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>add fichier</code> (met en index), <code>commit</code> (archève tout l’index : chaque fichier indexé devient « commité » et l’index se vide), ou <code>compte</code>. Le compte affiche <code>index : K</code> et <code>commits : K</code> (nombre total de fichiers passés au dépôt, tous commits confondus).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Exécuter git add et git commit sur un vrai dépôt et observer l’index avec git diff --cached.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt Git temporaire avec identité configurée, le script lit <strong>n opérations</strong> : <code>add fichier</code> (crée/modifie le fichier puis exécute <code>git add</code>), <code>commit</code> (valide l’index avec <code>git commit -q -m "maj"</code> s’il n’est pas vide), ou <code>compte</code>. Le compte affiche <code>index : K</code> (fichiers actuellement en zone d’index via <code>git diff --cached --name-only</code>) et <code>commits : C</code> (nombre de commits dans l’historique via <code>git rev-list --count HEAD</code>, ou <code>0</code> avant le premier commit).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
 add a
@@ -191,14 +196,15 @@ compte
 commit
 </pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>index : 1
-commits : 2</pre></div>
+commits : 1</pre></div>
     </div>
-    <p class="lab__note">Le compte se lit après le premier commit ; le second commit archève c.</p>
+    <p class="lab__note">Premier commit créé (commits=1) puis c est mis en index (index=1).</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un commit ne crée pas une pile : il vide l’index vers le dépôt.</li>
-        <li>Deux compteurs : taille courante de l’index et cumul des fichiers commités.</li>
+        <li>Avant git add "$fichier", assurez-vous que le fichier existe et contient du texte (echo "$i" &gt; "$fichier").</li>
+        <li>Un git commit sans --allow-empty échoue quand l’index est vide : testez git diff --cached --quiet avant d’exécuter git commit -q -m "maj".</li>
+        <li>git diff --cached --name-only | wc -l donne le nombre exact de fichiers actuellement dans l’index.</li>
       </ol>
     </details>
   </div>
@@ -208,28 +214,36 @@ commits : 2</pre></div>
      data-exercise="gt-c2-e2"
      data-language="shell"
      data-height="300"
-     data-stdin="6&#10;add a&#10;add b&#10;reset a&#10;index&#10;add c&#10;index&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+     data-stdin="6&#10;add b&#10;add a&#10;reset a&#10;index&#10;add c&#10;index&#10;">
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+git commit --allow-empty -q -m "init"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r op fichier
-  # À compléter : maintenir l'index comme une file avec retraits.
+  # À compléter : git add, test de présence + git reset -q HEAD --, git diff --cached --name-only.
 done
-# À compléter : afficher l'index.
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — reset HEAD sélectif</h3>
+    <h3 class="lab__title">Exercice 2 — Retirer de l’index avec git reset HEAD</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Retirer des fichiers de l’index avec git reset HEAD, fichier par fichier.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n opérations</strong> : <code>add fichier</code>, <code>reset fichier</code> (retire du index ; si le fichier n’y est pas, affiche <code>non indexé</code>), ou <code>index</code> (affiche le contenu courant de l’index, un fichier par ligne, dans l’ordre des add encore présents ; rien si l’index est vide).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Utiliser git reset -q HEAD -- &lt;fichier&gt; sur un vrai dépôt pour désindexer un fichier sans perdre son contenu.</p>
+    <div class="lab__brief"><p>Dans un vrai dépôt initialisé avec un commit racine <code>init</code>, le script lit <strong>n opérations</strong> : <code>add fichier</code> (crée/modifie le fichier et exécute <code>git add</code>), <code>reset fichier</code> (retire le fichier de l’index avec <code>git reset -q HEAD -- fichier</code> ; s’il n’est pas dans l’index, affiche <code>non indexé</code>), ou <code>index</code> (affiche <code>git diff --cached --name-only</code>, trié par chemin comme l’index Git réel).</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>6
-add a
 add b
+add a
 reset a
 index
 add c
@@ -239,12 +253,13 @@ index
 b
 c</pre></div>
     </div>
-    <p class="lab__note">Le premier index ne montre plus a ; le second montre b puis c.</p>
+    <p class="lab__note">Premier index : b ; second index trié : b puis c.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Deux tableaux parallèles (noms et drapeau présent) permettent de retirer sans réordonner.</li>
-        <li>Pour retirer : marquer présent=0 ; pour afficher : ne lister que les présents.</li>
+        <li>Vérifiez si fichier figure dans la zone d’index avec git diff --cached --name-only | grep -Fxq "$fichier".</li>
+        <li>Exécutez git reset -q HEAD -- "$fichier" uniquement s’il est indexé ; sinon affichez « non indexé ».</li>
+        <li>L’index Git trie naturellement les chemins par ordre lexicographique : git diff --cached --name-only suffit pour l’opération index.</li>
       </ol>
     </details>
   </div>
@@ -255,22 +270,31 @@ c</pre></div>
      data-language="shell"
      data-height="300"
      data-stdin="3&#10;Initialisation du projet&#10;ajout du point d entrée&#10;Ajout du point d entrée.&#10;">
-  <script type="text/plain" data-lab-starter>read -r n
+  <script type="text/plain" data-lab-starter>export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null LC_ALL=C
+REPO=$(mktemp -d)
+trap 'rm -rf "$REPO"' EXIT
+cd "$REPO" || exit 1
+git init -q -b main
+git config user.name "Alice"
+git config user.email "alice@campus.fr"
+
+read -r n
 for ((i=0; i<n; i++)); do
   read -r ligne
-  # À compléter : trois règles, la première vraie gagne.
+  # À compléter : valider selon majuscule, <=50, sans point final ; commiter si ok.
 done
+# À compléter : afficher commits : K via git rev-list --count HEAD.
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Messages de commit disciplinés</h3>
+    <h3 class="lab__title">Exercice 3 — Messages de commit disciplinés et commit réel</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
-    <p class="lab__goal"><strong>Objectif :</strong> Valider les messages de commit selon la convention du TP : verbosité et longueur.</p>
-    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> de messages de commit (une par ligne). Pour chacune il affiche <code>ok</code> si : le message commence par une majuscule <em>et</em> fait au plus 50 caractères <em>et</em> ne contient pas de point final. Sinon il affiche le motif exact : <code>majuscule</code>, <code>longueur</code>, <code>point final</code> — dans cet ordre de priorité, un seul motif par message.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Contrôler la convention d’un message avant de l’enregistrer avec git commit --allow-empty.</p>
+    <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> de messages proposés. Pour chacun il affiche <code>ok</code> (et exécute <code>git commit --allow-empty -q -m "$ligne"</code> dans un dépôt Git temporaire) si : le message commence par une majuscule, fait au plus 50 caractères et ne finit pas par un point. Sinon il refuse le commit et affiche le premier motif fautif : <code>majuscule</code>, <code>longueur</code> ou <code>point final</code>. Après la boucle, affichez <code>commits : K</code> en lisant le compte réel via <code>git rev-list --count HEAD</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
 Initialisation du projet
@@ -279,13 +303,15 @@ Ajout du point d entrée.
 </pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>ok
 majuscule
-point final</pre></div>
+point final
+commits : 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Premier caractère : ${ligne:0:1} ; [[:upper:]] vérifie une lettre majuscule, pas un chiffre.</li>
-        <li>Longueur : ${#ligne} ; point final : vérifier que le dernier caractère est un point.</li>
+        <li>Premier caractère : ${ligne:0:1} testé contre [[:upper:]] ; longueur : ${#ligne} ; dernier caractère : ${ligne: -1}.</li>
+        <li>En cas de succès, créez réellement le commit avec git commit --allow-empty -q -m "$ligne".</li>
+        <li>Attention si aucun commit n’a réussi : git rev-list --count HEAD échoue sans HEAD, utilisez || echo 0.</li>
       </ol>
     </details>
   </div>
@@ -299,62 +325,62 @@ point final</pre></div>
       <p class="q__stem">git add . et git add -A ont en commun de…</p>
       <div class="opts">
         <button class="opt">ignorer les fichiers détruits</button>
-        <button class="opt" data-correct="1">prendre nouveaux, modifiés et détruits</button>
         <button class="opt">ne prendre que les modifiés</button>
+        <button class="opt" data-correct="1">prendre nouveaux, modifiés et détruits</button>
       </div>
       <div class="q__exp">Les deux couvrent les trois états ; -u, lui, ignore les nouveaux fichiers.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait git add -u ?</p>
       <div class="opts">
-        <button class="opt">Indexe les nouveaux fichiers</button>
+        <button class="opt">Indexe uniquement les nouveaux fichiers non suivis</button>
+        <button class="opt">Met à jour le dépôt distant avec les commits</button>
         <button class="opt" data-correct="1">Indexe modifications et destructions des fichiers suivis</button>
-        <button class="opt">Met à jour le dépôt distant</button>
       </div>
       <div class="q__exp">-u (update) ne voit que les fichiers déjà suivis : modifiés et détruits.</div>
     </div>
     <div class="q">
       <p class="q__stem">Un fichier déjà suivi est ajouté au .gitignore : que se passe-t-il ?</p>
       <div class="opts">
-        <button class="opt">Il sort du suivi</button>
         <button class="opt" data-correct="1">Il reste suivi — il faut git rm --cached</button>
-        <button class="opt">Il est supprimé</button>
+        <button class="opt">Il sort automatiquement du suivi du dépôt</button>
+        <button class="opt">Il est supprimé de la copie de travail</button>
       </div>
       <div class="q__exp">Le .gitignore ne s'applique qu'aux fichiers pas encore suivis.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait git rm --cached fichier ?</p>
       <div class="opts">
-        <button class="opt">Supprime le fichier du disque</button>
+        <button class="opt">Supprime physiquement le fichier du disque dur</button>
         <button class="opt" data-correct="1">Retire l'index et le suivi, le fichier reste sur disque</button>
-        <button class="opt">Ne fait rien</button>
+        <button class="opt">Ne modifie rien avant le prochain commit</button>
       </div>
       <div class="q__exp">--cached sort de l'index et du suivi sans détruire physiquement le fichier.</div>
     </div>
     <div class="q">
       <p class="q__stem">git reset HEAD fichier fait quoi ?</p>
       <div class="opts">
-        <button class="opt">Efface le fichier</button>
         <button class="opt" data-correct="1">Retire ses modifications de l'index, qui repartent dans la copie</button>
-        <button class="opt">Crée un commit</button>
+        <button class="opt">Efface définitivement le fichier de la copie de travail</button>
+        <button class="opt">Crée un commit d'annulation dans l'historique</button>
       </div>
       <div class="q__exp">reset HEAD est l'inverse de git add : le fichier reste suivi.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que contient un commit ?</p>
       <div class="opts">
-        <button class="opt">La copie de travail entière</button>
+        <button class="opt">Toute la copie de travail, y compris les fichiers non suivis</button>
         <button class="opt" data-correct="1">L'état de l'index, décrit par le message, identifié par un SHA-1</button>
-        <button class="opt">Les fichiers du dépôt distant</button>
+        <button class="opt">Les fichiers du dépôt distant au moment du push</button>
       </div>
       <div class="q__exp">Le commit archive ce que l'index contient au moment de la commande.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quand peut-on commit --amend sans risque ?</p>
       <div class="opts">
-        <button class="opt">Toujours</button>
+        <button class="opt">Toujours, même après un push partagé</button>
+        <button class="opt">Uniquement après un push sur origin</button>
         <button class="opt" data-correct="1">Si le commit n'a pas encore été poussé</button>
-        <button class="opt">Après un push</button>
       </div>
       <div class="q__exp">Amend change le SHA-1 : les autres collaborateurs subiraient le déplacement d'historique.</div>
     </div>
@@ -362,8 +388,8 @@ point final</pre></div>
       <p class="q__stem">Après un commit, l'index est…</p>
       <div class="opts">
         <button class="opt">plein</button>
-        <button class="opt" data-correct="1">vide</button>
         <button class="opt">inversé</button>
+        <button class="opt" data-correct="1">vide</button>
       </div>
       <div class="q__exp">Le commit a transféré tout l'index vers le dépôt : l'index se vide.</div>
     </div>
@@ -486,7 +512,7 @@ point final</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

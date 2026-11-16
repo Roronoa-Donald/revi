@@ -20,8 +20,9 @@ $enLigne = [int][Console]::In.ReadLine()
 # À compléter : tester la majorité et afficher l'état du quorum.
 `,
     hints: [
-      'Plus de la moitié s’écrit `($enLigne * 2 -gt $total)`.',
-      'Multiplier par 2 évite la division et garde des entiers.'
+      "Plus de la moitié s’écrit `($enLigne * 2 -gt $total)`.",
+      "Multiplier par 2 évite la division et garde des entiers.",
+      "Étapes : lire total puis enLigne ; si enLigne × 2 dépasse strictement total, « quorum : atteint », sinon « quorum : perdu »."
     ],
     examples: [
       { stdin: '4\n3', expected: 'quorum : atteint', note: '3 nœuds sur 4 : majorité.' }
@@ -39,7 +40,8 @@ if ($enLigne * 2 -gt $total) {
 } else {
     Write-Output "quorum : perdu"
 }
-`
+`,
+    takeaway: "Sans majorité de nœuds (ou quorum witness), un cluster refuse les basculements pour prévenir le split-brain."
   },
   {
     id: 'vm2-c6-e2',
@@ -58,8 +60,9 @@ $seuil = [int][Console]::In.ReadLine()
 # À compléter : comparer la valeur au seuil et afficher l'état.
 `,
     hints: [
-      'Alerte dès que `($valeur -ge $seuil)`.',
-      'Un seuil bien choisi évite le bruit autant que l’aveuglement.'
+      "Alerte dès que `($valeur -ge $seuil)`.",
+      "Un seuil bien choisi évite le bruit autant que l’aveuglement.",
+      "Étapes : lire valeur puis seuil ; valeur supérieure ou égale au seuil → « etat : alerte », sinon « etat : normal »."
     ],
     examples: [
       { stdin: '92\n85', expected: 'etat : alerte', note: '92 % dépasse le seuil de 85 %.' }
@@ -77,7 +80,8 @@ if ($valeur -ge $seuil) {
 } else {
     Write-Output "etat : normal"
 }
-`
+`,
+    takeaway: "Comparer chaque sonde CPU/disque/latence à son seuil critique déclenche une alerte avant l interruption de service."
   },
   {
     id: 'vm2-c6-e3',
@@ -96,8 +100,9 @@ $taux = [int][Console]::In.ReadLine()
 # À compléter : calculer la taille après déduplication et l'afficher.
 `,
     hints: [
-      'Taille restante = `$brut * (100 - $taux) / 100`.',
-      'Arrondis avec [int]([math]::Floor(...)) pour un entier.'
+      "Taille restante = `$brut * (100 - $taux) / 100`.",
+      "Arrondis avec [int]([math]::Floor(...)) pour un entier.",
+      "Étapes : lire brut puis taux ; restant = partie entière de brut × (100 − taux) / 100 ; afficher « apres dedup : » suivi du résultat en Go."
     ],
     examples: [
       { stdin: '100\n40', expected: 'apres dedup : 60 Go', note: '40 % d’espace économisé.' }
@@ -112,6 +117,7 @@ $taux = [int][Console]::In.ReadLine()
 
 $restant = [int]([math]::Floor($brut * (100 - $taux) / 100))
 Write-Output ("apres dedup : " + $restant + " Go")
-`
+`,
+    takeaway: "Le taux de déduplication s applique au volume réellement stocké après élimination des blocs identiques entre VM."
   }
 ];

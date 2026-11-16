@@ -23,6 +23,17 @@ module.exports = {
   ],
   sections: [
     {
+      title: 'Articulation B3 : Mise en œuvre Appliance (/b3-pfsense/) vs Architecture Multi-Zones (/b3-firewall/)',
+      html: [
+        box('tech', 'Répartition des périmètres entre pfSense &amp; Routage B3 (/b3-pfsense/) et Firewall &amp; Sécurité Réseau B3 (/b3-firewall/)', 'compass',
+          '    <p>Ce cours se concentre sur l’<strong>implémentation opérationnelle d’une appliance pare-feu/routeur d’entreprise</strong> en complément direct du cours d’architecture <a href="/b3-firewall/index.html"><strong>Firewall &amp; Sécurité Réseau B3 (<code>/b3-firewall/</code>)</strong></a> :</p>\n' +
+          '    <ul>\n' +
+          '      <li><strong>Fondations architecturales (<a href="/b3-firewall/">/b3-firewall/</a>) :</strong> modélisation des zones de confiance (DMZ, Zero Trust), inspection WAF/DPI et filtrage noyau Linux (<code>nftables</code> / <code>iptables</code>).</li>\n' +
+          '      <li><strong>Périmètre exclusif de ce cours pfSense B3 (<code>/b3-pfsense/</code>) :</strong> maîtrise de l’appliance FreeBSD Packet Filter (<code>pf</code>), ordonnancement des jeux de règles et Aliases pfSense, <strong>NAT / Port Forwarding</strong> et bascule Multi-WAN, tunnels chiffrés (<strong>OpenVPN</strong>, <strong>IPsec IKEv2</strong>, <strong>WireGuard</strong>), haute disponibilité actif/passif (<strong>CARP / pfsync / XMLRPC</strong>) et reverse proxy L7 (<strong>HAProxy</strong>).</li>\n' +
+          '    </ul>')
+      ].join('\n')
+    },
+    {
       title: 'Architecture Système : Du Noyau FreeBSD au Moteur Packet Filter (pf)',
       html: [
         '<div class="box box--intuition">',
@@ -185,10 +196,10 @@ module.exports = {
     {
       stem: 'Quel moteur de filtrage noyau est utilisé sous pfSense pour inspecter les paquets ?',
       opts: [
-        'Netfilter / iptables (noyau Linux)',
-        'Packet Filter (pf, intégré au noyau FreeBSD)',
-        'Unbound DNS Resolver',
-        'ISC DHCPD / Kea'
+        "Netfilter / iptables, le pare-feu du noyau Linux",
+        "Packet Filter (pf, intégré au noyau FreeBSD)",
+        "Unbound, le résolveur DNS récursif de pfSense",
+        "ISC DHCPD / Kea, les serveurs DHCP du système"
       ],
       correct: 1,
       exp: 'pfSense s’appuie sur le moteur Packet Filter (pf) intégré au noyau FreeBSD, tandis que Netfilter/iptables relève du noyau Linux.'
@@ -196,34 +207,34 @@ module.exports = {
     {
       stem: 'Quel fichier maître stocke l’intégralité de la configuration persistante de pfSense ?',
       opts: [
-        '/etc/pf.conf',
-        '/var/log/filter.log',
         '/cf/conf/config.xml',
+        '/var/log/filter.log',
+        '/etc/pf.conf',
         '/tmp/rules.debug'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Toute la configuration persistante de pfSense (interfaces, règles, certificats, services) est centralisée dans /cf/conf/config.xml, tandis que /tmp/rules.debug est le fichier temporaire généré pour pfctl.'
     },
     {
       stem: 'Quelle commande CLI permet d’activer le moteur de filtrage pf sous FreeBSD ?',
       opts: [
-        'pfctl -e',
+        'systemctl enable iptables',
         'pfctl -d',
         'service firewall start',
-        'systemctl enable iptables'
+        'pfctl -e'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La commande pfctl -e (enable) active le moteur de filtrage pf dans le noyau, alors que pfctl -d (disable) le désactive.'
     },
     {
       stem: 'Quel est le comportement de filtrage par défaut d’une nouvelle interface optionnelle (OPT1) qui vient d’être activée sur pfSense ?',
       opts: [
-        'Tout le trafic entrant sur l’interface OPT1 (émis par les machines du réseau OPT1) est autorisé vers Internet uniquement',
-        'Aucune règle n’est créée par défaut : tout trafic arrivant sur l’interface OPT1 (émis par les hôtes du segment OPT1) est bloqué par la politique implicite Default Deny',
-        'Le trafic entre OPT1 et LAN est autorisé, mais l’accès vers le WAN est bloqué',
-        'L’interface OPT1 hérite automatiquement des règles de filtrage de l’interface LAN'
+        "Tout le trafic entrant sur l’interface OPT1 (émis par les machines du réseau OPT1) est autorisé vers Internet uniquement",
+        "Le trafic inter-segments entre OPT1 et le LAN est d’office autorisé, mais l’accès vers le WAN reste bloqué tant qu’aucune règle NAT n’est déclarée",
+        "Aucune règle n’est créée par défaut : tout trafic arrivant sur l’interface OPT1 (émis par les hôtes du segment OPT1) est bloqué par la politique implicite Default Deny",
+        "L’interface OPT1 hérite automatiquement de la règle « Default allow LAN to any » de l’interface LAN, ce qui autorise tout son trafic sortant"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Contrairement à l’interface LAN qui reçoit la règle initiale « Default allow LAN to any », une interface OPT nouvellement créée possède une table de règles vide : tout paquet entrant sur la patte OPT1 depuis les hôtes du segment OPT1 est donc rejeté tant qu’aucune règle pass explicite n’y est ajoutée.'
     },
     {
@@ -240,34 +251,34 @@ module.exports = {
     {
       stem: 'Où doivent être positionnées les adresses IP des réservations DHCP statiques (Static Mappings) ?',
       opts: [
-        'Obligatoirement dans la plage du pool dynamique',
-        'En dehors de la plage d’adresses du pool dynamique, mais dans le même sous-réseau CIDR que l’interface',
-        'Dans un sous-réseau différent de l’interface',
-        'Sur l’adresse IP de broadcast du réseau'
+        "En dehors de la plage d’adresses du pool dynamique, mais dans le même sous-réseau CIDR que l’interface",
+        "Obligatoirement à l’intérieur de la plage du pool dynamique, pour que le serveur puisse réserver l’adresse",
+        "Dans un sous-réseau différent de celui de l’interface, afin d’isoler les hôtes à bail fixe du réseau local",
+        "Sur l’adresse IP de diffusion du sous-réseau, qui n’est jamais attribuable à un hôte"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Pour éviter tout conflit d’attribution dans le serveur DHCP, les baux statiques doivent appartenir au sous-réseau de l’interface mais être situés hors de la plage dynamique.'
     },
     {
       stem: 'Quel est le rôle principal du service DNS Unbound dans pfSense ?',
       opts: [
-        'Transférer les fichiers d’amorçage réseau par TFTP',
-        'Résolveur DNS récursif local avec validation cryptographique DNSSEC (vérification des signatures RRSIG)',
-        'Attribuer dynamiquement les adresses IP aux postes du LAN',
-        'Synchroniser l’horloge système par NTP'
+        "Transférer les fichiers d’amorçage réseau (boot) aux postes du LAN par le protocole TFTP",
+        "Attribuer dynamiquement les adresses IP aux postes du LAN grâce à un pool de baux DHCP",
+        "Synchroniser l’horloge système du pare-feu avec des serveurs NTP de stratum 1",
+        "Résolveur DNS récursif local avec validation cryptographique DNSSEC (vérification des signatures RRSIG)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Unbound est un résolveur DNS récursif complet qui interroge les serveurs racines et valide les signatures DNSSEC (RRSIG) pour prévenir l’empoisonnement de cache.'
     },
     {
       stem: 'Quel protocole est utilisé par Unbound pour relayer des requêtes DNS chiffrées en TLS sur le port TCP 853 ?',
       opts: [
         'DHCP (Dynamic Host Configuration Protocol)',
-        'DoT (DNS over TLS)',
         'BPF (Berkeley Packet Filter)',
+        'DoT (DNS over TLS)',
         'NTP (Network Time Protocol)'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'DNS over TLS (DoT) encapsule et chiffre les requêtes DNS dans un tunnel TLS sur le port TCP standard 853.'
     }
   ],

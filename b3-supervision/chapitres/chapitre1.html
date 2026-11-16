@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -222,10 +220,11 @@ Format : <code>SLA: uptime_hours=&lt;up:.2f&gt; downtime_hours=&lt;down:.2f&gt; 
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SLA_CALC TOTAL_HOURS=720 OUTAGES=45,15</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertissez les minutes de coupure en heures en divisant par 60.0.</li>
         <li>Pour OUTAGES=NONE, indiquez non_calculable pour les deux rapports.</li>
+        <li>Calculez MTBF = temps_fonctionnement / nb_pannes, MTTR = temps_arret / nb_pannes puis disponibilité = uptime / (uptime + downtime) * 100.</li>
       </ol>
     </details>
   </div>
@@ -235,28 +234,28 @@ Format : <code>SLA: uptime_hours=&lt;up:.2f&gt; downtime_hours=&lt;down:.2f&gt; 
      data-exercise="sup3-c1-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c1-e2) — Matrice de Criticité & Priorisation d’Incidents de Supervision
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le service de suivi des colis ColiSuivi est observé pendant 30 jours (43 200 minutes).&#10;Trois pannes : 60 minutes, 30 minutes et 30 minutes.&#10;&#10;1) Trois pannes.&#10;2) Fonctionnement : 43 200 − 120 = 43 080 minutes.&#10;3) MTTR : 120 / 3 = 40 minutes.&#10;4) MTBF : 43 080 / 3 = 14 360 minutes.&#10;5) Disponibilité : 43 080 / 43 200 × 100 = 99,7222 %.">
+  <script type="text/plain" data-lab-starter># Exercice — MTBF et MTTR du service de paiement PayFlux
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses sont des nombres seuls.
 
-[Cas 1 — Base de données principale sans redondance 80 utilisateurs]
-# Données : INCIDENT SERVICE=Postgres-Primary LAYER=database USERS=80 REDUNDANT=NO
+[Question 1 — Nombre de pannes]
 A_COMPLETER
 
-[Cas 2 — Serveur DHCP sans redondance avec 5 utilisateurs]
-# Données : INCIDENT SERVICE=DHCP-Primary LAYER=server USERS=5 REDUNDANT=NO
+[Question 2 — Temps de fonctionnement total (en minutes)]
 A_COMPLETER
 
-[Cas 3 — Serveur Web Nginx redondant avec 30 utilisateurs]
-# Données : INCIDENT SERVICE=Nginx-Web-Front LAYER=application USERS=30 REDUNDANT=YES
+[Question 3 — MTTR (en minutes)]
 A_COMPLETER
 
-[Cas 4 — Service NTP interne redondant avec 0 utilisateur direct]
-# Données : INCIDENT SERVICE=NTP-Internal LAYER=server USERS=0 REDUNDANT=YES
+[Question 4 — MTBF (en minutes)]
+A_COMPLETER
+
+[Question 5 — Disponibilité du trimestre (en %, 4 décimales)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Matrice de Criticité &amp; Priorisation d’Incidents de Supervision</h3>
+    <h3 class="lab__title">Exercice 2 — MTBF et MTTR du service de paiement PayFlux</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -265,23 +264,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c1-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Qualifier et classifier le niveau de gravité d'une alerte selon la couche réseau/système, le nombre d'utilisateurs et la redondance.</p>
-    <div class="lab__brief"><p>Pour prioriser l'action des équipes d'exploitation sans provoquer de fatigue d'alerte, chaque événement doit être qualifié :<br><br>
-Règles de classification :<br>
-1. <strong>P1-CRITICAL</strong> : Si (<code>USERS &gt;= 100</code> ET <code>REDUNDANT=NO</code>) OU (<code>LAYER=database</code> ET <code>USERS &gt;= 50</code>).<br>
-2. <strong>P2-HIGH</strong> : Sinon, si <code>USERS &gt;= 50</code> OU (<code>REDUNDANT=NO</code> ET <code>LAYER in [network, server]</code>).<br>
-3. <strong>P3-MEDIUM</strong> : Sinon, si <code>USERS &gt;= 10</code>.<br>
-4. <strong>P4-LOW</strong> : Tous les autres cas.<br><br>
-Données du cas : <code>INCIDENT SERVICE=&lt;nom&gt; LAYER=&lt;network|server|database|application&gt; USERS=&lt;n&gt; REDUNDANT=&lt;YES|NO&gt;</code>.<br>
-Résultat d’analyse attendu : <code>INCIDENT_PRIORITY: service=&lt;nom&gt; layer=&lt;layer&gt; users=&lt;n&gt; priority=&lt;P1-CRITICAL|P2-HIGH|P3-MEDIUM|P4-LOW&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer MTTR, MTBF et disponibilité d'un service à partir d'un journal d'incidents datés.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'équipe exploitation du prestataire de paiement PayFlux observe le service d'autorisation des transactions pendant le premier trimestre, soit <strong>90 jours = 129 600 minutes</strong>. Le journal des incidents du trimestre est le suivant :</p><table><tr><th>Incident</th><th>Date</th><th>Service touché</th><th>Durée d'indisponibilité</th></tr><tr><th>I-1042</th><td>3 janvier</td><td>autorisation des paiements</td><td>40 min</td></tr><tr><th>I-1051</th><td>21 janvier</td><td>autorisation des paiements</td><td>25 min</td></tr><tr><th>I-1063</th><td>9 février</td><td>autorisation des paiements</td><td>55 min</td></tr><tr><th>I-1077</th><td>2 mars</td><td>autorisation des paiements</td><td>30 min</td></tr></table><p>Rappels du cours : MTTR = durée totale d'indisponibilité / nombre de pannes ; MTBF = temps de fonctionnement / nombre de pannes ; disponibilité = temps de fonctionnement / durée totale × 100.</p><p>Répondez par le nombre seul.</p><ol><li>Combien de pannes le service a-t-il connues sur le trimestre ?</li><li>Quel est le temps de fonctionnement total, en minutes ?</li><li>Quel est le MTTR, en minutes ?</li><li>Quel est le MTBF, en minutes ?</li><li>Quelle est la disponibilité du trimestre, arrondie à 4 décimales (en pourcentage) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>INCIDENT SERVICE=Switch-Core-01 LAYER=network USERS=250 REDUNDANT=NO</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le service de suivi des colis ColiSuivi est observé pendant 30 jours (43 200 minutes).
+Trois pannes : 60 minutes, 30 minutes et 30 minutes.
+
+1) Trois pannes.
+2) Fonctionnement : 43 200 − 120 = 43 080 minutes.
+3) MTTR : 120 / 3 = 40 minutes.
+4) MTBF : 43 080 / 3 = 14 360 minutes.
+5) Disponibilité : 43 080 / 43 200 × 100 = 99,7222 %.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Extrayez les paramètres clé=valeur de chaque ligne INCIDENT.</li>
-        <li>Vérifiez les conditions dans l'ordre de priorité décroissant (P1 puis P2 puis P3 puis P4).</li>
+        <li>Le temps de fonctionnement est la durée totale de la fenêtre moins la somme des indisponibilités.</li>
+        <li>MTTR et MTBF se divisent tous deux par le nombre de pannes ; seule la grandeur divisée change : la coupure pour le MTTR, le fonctionnement pour le MTBF.</li>
+        <li>1. Somme des coupures : 40 + 25 + 55 + 30. 2. Fonctionnement = 129 600 − coupure. 3. MTTR = coupure / 4. 4. MTBF = fonctionnement / 4. 5. Disponibilité = fonctionnement / 129 600 × 100.</li>
       </ol>
     </details>
   </div>
@@ -332,10 +332,11 @@ Résultat d’analyse attendu : <code>BUDGET: period_days=&lt;j&gt; allowed_min=
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ERROR_BUDGET SLO=99.9 PERIOD_DAYS=30 OUTAGES=12,18,5</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez le nombre total de minutes sur la période.</li>
         <li>Arrondissez allowed_min, consumed_min et remaining_min à 1 décimale, consumed_pct à 2 décimales.</li>
+        <li>Convertissez le pourcentage de SLO en budget d erreur mensuel (minutes totales * (1 - SLO)), puis comparez avec la consommation cumulée pour donner l état.</li>
       </ol>
     </details>
   </div>
@@ -348,8 +349,8 @@ Résultat d’analyse attendu : <code>BUDGET: period_days=&lt;j&gt; allowed_min=
     <div class="q">
       <p class="q__stem">Quelle démarche informatique a pour objet principal la mesure et l'historisation de données quantitatives en vue du Capacity Planning ?</p>
       <div class="opts">
-        <button class="opt">L'audit de conformité</button>
         <button class="opt" data-correct="1">La métrologie</button>
+        <button class="opt">L'audit de conformité</button>
         <button class="opt">La supervision réactive</button>
         <button class="opt">Le pentest offensif</button>
       </div>
@@ -359,9 +360,9 @@ Résultat d’analyse attendu : <code>BUDGET: period_days=&lt;j&gt; allowed_min=
       <p class="q__stem">Sur un mois de 720 heures, un serveur subit 2 pannes de 30 minutes chacune. Quel est son MTTR (Mean Time To Repair) ?</p>
       <div class="opts">
         <button class="opt">1.0 heure</button>
-        <button class="opt" data-correct="1">0.5 heure</button>
-        <button class="opt">359.5 heures</button>
         <button class="opt">719.0 heures</button>
+        <button class="opt">359.5 heures</button>
+        <button class="opt" data-correct="1">0.5 heure</button>
       </div>
       <div class="q__exp">La durée totale d'indisponibilité est de 60 minutes (1.0 heure). Le MTTR est l'indisponibilité divisée par le nombre de pannes : 1.0 h / 2 = 0.5 heure (soit 30 minutes).</div>
     </div>
@@ -369,8 +370,8 @@ Résultat d’analyse attendu : <code>BUDGET: period_days=&lt;j&gt; allowed_min=
       <p class="q__stem">Dans le scénario précédent (720 heures totales, 2 pannes totalisant 1 heure), quel est le MTBF (Mean Time Between Failures) ?</p>
       <div class="opts">
         <button class="opt">0.5 heure</button>
-        <button class="opt" data-correct="1">359.5 heures</button>
         <button class="opt">719.0 heures</button>
+        <button class="opt" data-correct="1">359.5 heures</button>
         <button class="opt">720.0 heures</button>
       </div>
       <div class="q__exp">Le temps de fonctionnement effectif (uptime) est 720 - 1 = 719 heures. Le MTBF est le temps d'uptime divisé par le nombre de pannes : 719 / 2 = 359.5 heures.</div>
@@ -388,40 +389,40 @@ Résultat d’analyse attendu : <code>BUDGET: period_days=&lt;j&gt; allowed_min=
     <div class="q">
       <p class="q__stem">Parmi les composants suivants, lequel relève typiquement de la supervision des équipements réseaux ?</p>
       <div class="opts">
-        <button class="opt">Taux d'inodes occupés sur /var</button>
         <button class="opt" data-correct="1">Erreurs de trames CRC et ifOperStatus sur un commutateur</button>
-        <button class="opt">Latence de requête SQL sur MySQL</button>
-        <button class="opt">Nombre de baux DHCP expirés</button>
+        <button class="opt">Le taux d'inodes occupés sur le système de fichiers /var</button>
+        <button class="opt">La latence des requêtes SQL sur le serveur MySQL applicatif</button>
+        <button class="opt">Le nombre de baux DHCP expirés sur le serveur de noms</button>
       </div>
       <div class="q__exp">L'état opérationnel des interfaces (ifOperStatus) et les erreurs CRC sur les paquets sont des métriques fondamentales de la couche réseau.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans la terminologie SRE, quelle action est recommandée lorsque le budget d'erreur (Error Budget) d'un service est entièrement consommé avant la fin du mois ?</p>
       <div class="opts">
-        <button class="opt">Augmenter immédiatement le prix du contrat client</button>
+        <button class="opt">Augmenter immédiatement le prix du contrat client pour financer la fiabilité</button>
         <button class="opt" data-correct="1">Geler temporairement les déploiements de nouvelles fonctionnalités au profit de la fiabilisation</button>
-        <button class="opt">Arrêter définitivement le serveur de production</button>
-        <button class="opt">Supprimer les sondes de supervision pour masquer les pannes</button>
+        <button class="opt">Arrêter définitivement le serveur de production jusqu'à la fin du mois</button>
+        <button class="opt">Supprimer les sondes de supervision afin de masquer les pannes aux clients</button>
       </div>
       <div class="q__exp">Lorsque le budget d'erreur est épuisé, les équipes gèlent les livraisons applicatives à risque pour concentrer leurs efforts sur la résilience et la correction des bugs d'infrastructure.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que mesure l'indicateur IPMI / iLO / iDRAC sur un serveur physique ?</p>
       <div class="opts">
-        <button class="opt">Les requêtes HTTP entrantes</button>
+        <button class="opt">Le volume de requêtes HTTP entrantes traitées par le serveur web</button>
+        <button class="opt">Le temps de parsing des requêtes DNS par le résolveur local</button>
         <button class="opt" data-correct="1">L'état matériel hors-bande (température, alimentations, ventilateurs, disques)</button>
-        <button class="opt">Le temps de parsing des requêtes DNS</button>
-        <button class="opt">Le nombre de lignes de logs générées par minute</button>
+        <button class="opt">Le nombre de lignes de journaux générées par le serveur chaque minute</button>
       </div>
       <div class="q__exp">Ces interfaces d'administration hors-bande (out-of-band) surveillent directement les composants physiques du serveur, même lorsque le système d'exploitation est éteint ou planté.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la différence fondamentale entre un audit et une opération de supervision ?</p>
       <div class="opts">
-        <button class="opt">L'audit est permanent alors que la supervision est annuelle</button>
+        <button class="opt">L'audit est une démarche permanente et continue, alors que la supervision reste strictement annuelle</button>
+        <button class="opt">La supervision ne s'applique qu'aux logiciels libres et aux solutions open source du SI</button>
+        <button class="opt">L'audit ne concerne exclusivement que le matériel réseau de l'infrastructure informatique</button>
         <button class="opt" data-correct="1">La supervision est continue en temps réel pour détecter les pannes, alors que l'audit est ponctuel pour évaluer la conformité</button>
-        <button class="opt">La supervision ne concerne que les logiciels libres</button>
-        <button class="opt">L'audit ne s'applique qu'au matériel réseau</button>
       </div>
       <div class="q__exp">La supervision opère en continu 24/7 pour réagir immédiatement aux incidents, tandis que l'audit est une évaluation planifiée et ponctuelle de conformité.</div>
     </div>
@@ -543,7 +544,7 @@ Résultat d’analyse attendu : <code>BUDGET: period_days=&lt;j&gt; allowed_min=
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

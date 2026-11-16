@@ -44,7 +44,8 @@ module.exports = [
         "expected": "EAX=0 EBX=0 ECX=0 EDX=0"
       }
     ],
-    "solution": "[Exemple]\nEAX=42 EBX=42 ECX=0 EDX=0\n\n[Cas 1 — Chaîne de transferts entre les 4 registres]\nEAX=10 EBX=20 ECX=10 EDX=20\n\n[Cas 2 — Écrasement successif d’un même registre]\nEAX=100 EBX=0 ECX=50 EDX=0\n\n[Cas 3 — Copie croisée]\nEAX=999 EBX=999 ECX=999 EDX=999\n\n[Cas 4 — Valeur nulle explicite]\nEAX=0 EBX=0 ECX=0 EDX=0"
+    "solution": "[Exemple]\nEAX=42 EBX=42 ECX=0 EDX=0\n\n[Cas 1 — Chaîne de transferts entre les 4 registres]\nEAX=10 EBX=20 ECX=10 EDX=20\n\n[Cas 2 — Écrasement successif d’un même registre]\nEAX=100 EBX=0 ECX=50 EDX=0\n\n[Cas 3 — Copie croisée]\nEAX=999 EBX=999 ECX=999 EDX=999\n\n[Cas 4 — Valeur nulle explicite]\nEAX=0 EBX=0 ECX=0 EDX=0",
+    "takeaway": "MOV copie une source (immédiate, registre ou mémoire) vers la destination sans autoriser deux opérandes mémoire simultanés."
   },
   {
     "id": "asm2-c5-e2",
@@ -57,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c5-e2) — Calcul d’adresse effective LEA (Base + Index * Scale + Disp)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Accès au premier élément sans déplacement (index 0)]\n# Données : 0x00405000;0;8;0x00000000\nA_COMPLETER\n\n[Cas 2 — Tableau d’entiers 64 bits (scale = 8)]\n# Données : 0x00500000;10;8;0x00000020\nA_COMPLETER\n\n[Cas 3 — Tableau de caractères (scale = 1)]\n# Données : 0x00100000;25;1;0x00000005\nA_COMPLETER\n\n[Cas 4 — Index négatif avec déplacement]\n# Données : 0x00402000;2;4;0x00000000\nA_COMPLETER\n",
     "hints": [
       "L’instruction LEA applique la formule d’adressage x86 : Adresse = Base + (Index × Facteur_Echelle) + Déplacement.",
-      "L’instruction LEA calcule uniquement l’adresse arithmétique sans jamais lire le contenu de la mémoire."
+      "L’instruction LEA calcule uniquement l’adresse arithmétique sans jamais lire le contenu de la mémoire.",
+      "Pour chaque cas : multiplier l index par le facteur d échelle, ajouter la base puis le déplacement, et afficher l adresse en hexadécimal et en décimal."
     ],
     "examples": [
       {
@@ -88,7 +90,8 @@ module.exports = [
         "expected": "ADRESSE=0x00402008 DEC=4202504"
       }
     ],
-    "solution": "[Exemple]\nADRESSE=0x00401020 DEC=4198432\n\n[Cas 1 — Accès au premier élément sans déplacement (index 0)]\nADRESSE=0x00405000 DEC=4214784\n\n[Cas 2 — Tableau d’entiers 64 bits (scale = 8)]\nADRESSE=0x00500070 DEC=5242992\n\n[Cas 3 — Tableau de caractères (scale = 1)]\nADRESSE=0x0010001E DEC=1048606\n\n[Cas 4 — Index négatif avec déplacement]\nADRESSE=0x00402008 DEC=4202504"
+    "solution": "[Exemple]\nADRESSE=0x00401020 DEC=4198432\n\n[Cas 1 — Accès au premier élément sans déplacement (index 0)]\nADRESSE=0x00405000 DEC=4214784\n\n[Cas 2 — Tableau d’entiers 64 bits (scale = 8)]\nADRESSE=0x00500070 DEC=5242992\n\n[Cas 3 — Tableau de caractères (scale = 1)]\nADRESSE=0x0010001E DEC=1048606\n\n[Cas 4 — Index négatif avec déplacement]\nADRESSE=0x00402008 DEC=4202504",
+    "takeaway": "LEA calcule Base + Index * Scale + Disp directement dans le registre cible sans déréférencer ni toucher à la RAM."
   },
   {
     "id": "asm2-c5-e3",
@@ -101,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c5-e3) — Exécuteur d’opérations arithmétiques x86 (ADD, SUB, INC, DEC, NEG, XOR)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Opération NEG et soustraction]\n# Données : 5;NEG, SUB 3\nA_COMPLETER\n\n[Cas 2 — Remise à zéro classique par XOR sur lui-même]\n# Données : 123;XOR 123\nA_COMPLETER\n\n[Cas 3 — Incrémentations et décrémentations successives]\n# Données : 0;INC, INC, INC, DEC\nA_COMPLETER\n\n[Cas 4 — Séquence complète mixte]\n# Données : 50;ADD 50, XOR 15, NEG\nA_COMPLETER\n",
     "hints": [
       "Sur un registre 32 bits, conservez les calculs modulo 2^32 (plage 0 à 0xFFFFFFFF).",
-      "Pour interpréter la valeur signée, si le bit de poids fort vaut 1, appliquez la convention du complément à 2."
+      "Pour interpréter la valeur signée, si le bit de poids fort vaut 1, appliquez la convention du complément à 2.",
+      "Pour chaque cas : partir de la valeur initiale, appliquer les opérations dans l ordre modulo 2 puissance 32, puis livrer la valeur signée et l hexadécimal."
     ],
     "examples": [
       {
@@ -132,6 +136,7 @@ module.exports = [
         "expected": "VAL=-107 HEX=0xFFFFFF95"
       }
     ],
-    "solution": "[Exemple]\nVAL=14 HEX=0x0000000E\n\n[Cas 1 — Opération NEG et soustraction]\nVAL=-8 HEX=0xFFFFFFF8\n\n[Cas 2 — Remise à zéro classique par XOR sur lui-même]\nVAL=0 HEX=0x00000000\n\n[Cas 3 — Incrémentations et décrémentations successives]\nVAL=2 HEX=0x00000002\n\n[Cas 4 — Séquence complète mixte]\nVAL=-107 HEX=0xFFFFFF95"
+    "solution": "[Exemple]\nVAL=14 HEX=0x0000000E\n\n[Cas 1 — Opération NEG et soustraction]\nVAL=-8 HEX=0xFFFFFFF8\n\n[Cas 2 — Remise à zéro classique par XOR sur lui-même]\nVAL=0 HEX=0x00000000\n\n[Cas 3 — Incrémentations et décrémentations successives]\nVAL=2 HEX=0x00000002\n\n[Cas 4 — Séquence complète mixte]\nVAL=-107 HEX=0xFFFFFF95",
+    "takeaway": "Enchaîner ADD, SUB, NEG et XOR eax, eax (remise à zéro rapide) modifie à la fois les registres et les drapeaux ALU."
   }
 ];

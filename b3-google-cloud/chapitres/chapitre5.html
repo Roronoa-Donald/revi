@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -263,10 +261,11 @@ Cette grille ne vérifie ni les autres conditions ni les frais, et ne réalise p
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>LIFECYCLE_EVAL bucket_type=NON_ZONAL current_class=STANDARD age_days=35 target_class=NEARLINE min_age=30</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Écartez d’abord les scénarios Rapid pour SetStorageClass, puis comparez l’âge de l’objet au seuil de la règle.</li>
         <li>Une condition satisfaite indique une éligibilité dans la grille, pas une transition réellement exécutée.</li>
+        <li>Comparez l âge de l objet avec chaque règle de transition (Nearline &gt;= 30 j, Coldline &gt;= 90 j, Archive &gt;= 365 j) ; notez qu une simulation n exécute pas le moteur GCS.</li>
       </ol>
     </details>
   </div>
@@ -335,10 +334,11 @@ Retourner <code>RECOMMENDATION: service=&lt;nom&gt; &lt;attributs...&gt;</code>.
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SELECT_DB model=RELATIONAL scale=GLOBAL choice=SPANNER config=MULTI_REGION eligible=YES</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Ne déduisez pas le SLO de la seule échelle régionale ou mondiale : vérifiez l’édition, la haute disponibilité, la configuration et la couverture.</li>
         <li>Distinguez l’objectif contractuel mensuel d’une garantie de fonctionnement continu.</li>
+        <li>Associez relationnel mondial à Cloud Spanner, transactionnel régional à Cloud SQL et analytique colonne à BigQuery en conditionnant le SLA à la topologie.</li>
       </ol>
     </details>
   </div>
@@ -403,10 +403,11 @@ DELIVER_MSG sub=order-processor msg_id=ORD-999 elapsed_time=6 effective_deadline
 DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadline=10 ack=NO</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Ne supposez jamais qu’un message est acquitté à partir du seul temps écoulé : l’état ack est fourni.</li>
         <li>Comparez elapsed_time au délai effectif, éventuellement prolongé ; une relivraison est possible, pas certaine.</li>
+        <li>Vérifiez si l acquittement (ack) arrive avant l expiration de ack_deadline : au-delà du délai, Pub/Sub déclenche une relivraison possible (at-least-once).</li>
       </ol>
     </details>
   </div>
@@ -419,8 +420,8 @@ DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadli
     <div class="q">
       <p class="q__stem">Quelle est la durée minimale de facturation associée à la classe de stockage Cloud Storage Nearline ?</p>
       <div class="opts">
-        <button class="opt">0 jour</button>
         <button class="opt" data-correct="1">30 jours</button>
+        <button class="opt">0 jour</button>
         <button class="opt">90 jours</button>
         <button class="opt">365 jours</button>
       </div>
@@ -429,10 +430,10 @@ DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadli
     <div class="q">
       <p class="q__stem">Quelle technologie matérielle brevetée par Google permet à Cloud Spanner de garantir une cohérence transactionnelle stricte ACID à travers le monde entier ?</p>
       <div class="opts">
-        <button class="opt">Le protocole Raft</button>
+        <button class="opt">Le protocole Raft de consensus distribué entre les régions</button>
         <button class="opt" data-correct="1">Google TrueTime (horloges atomiques et récepteurs GPS)</button>
-        <button class="opt">La technologie Quantum Sync</button>
-        <button class="opt">Les disques NVMe</button>
+        <button class="opt">La technologie propriétaire Quantum Sync de Google</button>
+        <button class="opt">Les disques NVMe à faible latence des datacenters</button>
       </div>
       <div class="q__exp">Google TrueTime synchronise les horloges de tous les datacenters de Google via des récepteurs GPS et des horloges atomiques, fournissant une incertitude temporelle bornée pour ordonner les transactions mondiales.</div>
     </div>
@@ -440,8 +441,8 @@ DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadli
       <p class="q__stem">Quel service de base de données NoSQL Google Cloud est recommandé pour stocker des flux de télémétrie IoT massifs avec des latences de lecture/écriture inférieures à la milliseconde ?</p>
       <div class="opts">
         <button class="opt">Firestore</button>
-        <button class="opt" data-correct="1">Cloud Bigtable</button>
         <button class="opt">Cloud SQL</button>
+        <button class="opt" data-correct="1">Cloud Bigtable</button>
         <button class="opt">Firebase Realtime Database</button>
       </div>
       <div class="q__exp">Cloud Bigtable est le moteur NoSQL large-colonne conçu pour absorber des débits colossaux d'écriture et de lecture avec des temps de réponse sub-millisecondes constants.</div>
@@ -450,18 +451,18 @@ DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadli
       <p class="q__stem">Avec un abonnement Pub/Sub standard, que peut-il se passer si un message retenu reste non acquitté après expiration de son Ack Deadline, sans prolongation ?</p>
       <div class="opts">
         <button class="opt">Le message est détruit immédiatement</button>
-        <button class="opt" data-correct="1">Pub/Sub peut tenter de le relivrer au même client ou à un autre</button>
-        <button class="opt">Pub/Sub prouve que le consommateur est en panne</button>
         <button class="opt">Le message est forcément livré immédiatement à un autre client</button>
+        <button class="opt">Pub/Sub prouve que le consommateur est en panne</button>
+        <button class="opt" data-correct="1">Pub/Sub peut tenter de le relivrer au même client ou à un autre</button>
       </div>
       <div class="q__exp">Après expiration sans acquittement ni prolongation, une tentative de relivraison est possible ; elle dépend notamment de la politique de retry et peut viser le même client. Le délai, la rétention et la présence d'une file de lettres mortes influencent le parcours.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle méthode de contrôle d'accès Cloud Storage permet de donner à un utilisateur externe un accès temporaire en écriture ou lecture à un objet précis sans qu'il ne possède de compte Google ?</p>
       <div class="opts">
-        <button class="opt">Les autorisations IAM au niveau du projet</button>
-        <button class="opt">Les règles de pare-feu VPC</button>
         <button class="opt" data-correct="1">Les URL signées (Signed URLs)</button>
+        <button class="opt">Les règles de pare-feu VPC</button>
+        <button class="opt">Les autorisations IAM au niveau du projet</button>
         <button class="opt">Le partage de clés de compte de service</button>
       </div>
       <div class="q__exp">Une URL signée (Signed URL) fournit un lien sécurisé temporaire avec signature cryptographique permettant d'effectuer une opération HTTP (GET, PUT) pendant une durée définie sans authentification GCP.</div>
@@ -584,7 +585,7 @@ DELIVER_MSG sub=order-processor msg_id=ORD-1000 elapsed_time=14 effective_deadli
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

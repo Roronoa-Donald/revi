@@ -99,11 +99,11 @@ module.exports = [
       { q: 'Le groupe Police appartient à l\'onglet…', opts: ['Insertion', 'Accueil', 'Affichage'], correct: 1, exp: 'Accueil : Presse-papiers, Police, Paragraphe, Style, Modification.' },
       { q: 'Le groupe Tableaux appartient à l\'onglet…', opts: ['Insertion', 'Accueil', 'Références'], correct: 0, exp: 'Insertion : Pages, Tableaux, Illustrations, Liens, En-tête et pied, Texte, Symbole.' },
       { q: 'Le mode d\'affichage actif par défaut est…', opts: ['Brouillon', 'Web', 'Page'], correct: 2, exp: 'Page : le plus utilisé, montre les 4 marges de 2,5 cm.' },
-      { q: 'Le mode Plan sert surtout à…', opts: ['visualiser les titres d\'un long document', 'imprimer', 'compter les mots'], correct: 0, exp: 'Plan : l\'enchaînement des titres et sous-titres.' },
+      { q: 'Le mode Plan sert surtout à…', opts: ["lancer l'impression du document complet","compter les mots du document ouvert","visualiser les titres d'un long document"], correct: 2, exp: "Le mode Plan révèle l'enchaînement des titres et sous-titres d'un long document ; l'impression se lance depuis le bouton Office, pas depuis ce mode." },
       { q: 'Sélectionner une phrase à la souris :', opts: ['double-clic', 'Ctrl + clic', 'triple-clic'], correct: 1, exp: 'Ctrl + clic dans la phrase ; double-clic = mot ; triple-clic = paragraphe.' },
       { q: 'Sélectionner tout le document :', opts: ['Ctrl+A', 'Ctrl+S', 'F8 une fois'], correct: 0, exp: 'Ctrl+A ; F8 successifs vont jusqu\'à la section.' },
-      { q: '« Ah ! » est compté par les Statistiques comme…', opts: ['un mot', 'deux mots', 'zéro mot'], correct: 1, exp: 'Tout caractère précédé d\'un espace, sans caractère suivant, compte pour un mot.' },
-      { q: 'À la fermeture, « Annuler » signifie…', opts: ['perdre les modifications', 'rester dans Word', 'enregistrer'], correct: 1, exp: 'Oui enregistre, Non ferme sans enregistrer, Annuler reste dans le document.' }
+      { q: '« Ah ! » est compté par les Statistiques comme…', opts: ['un mot', 'zéro mot', 'deux mots'], correct: 2, exp: 'Tout caractère précédé d\'un espace, sans caractère suivant, compte pour un mot.' },
+      { q: 'À la fermeture, « Annuler » signifie…', opts: ['rester dans Word', 'perdre les modifications', 'enregistrer'], correct: 0, exp: 'Oui enregistre, Non ferme sans enregistrer, Annuler reste dans le document.' }
     ],
 
     pitfalls: [
@@ -230,12 +230,12 @@ module.exports = [
 
     questions: [
       { q: 'Avant de mettre en forme un texte, il faut…', opts: ['l\'enregistrer', 'le sélectionner', 'l\'imprimer'], correct: 1, exp: 'Règle du support : on sélectionne, ensuite seulement on met en forme.' },
-      { q: 'L\'alignement qui aligne les deux côtés :', opts: ['centrer', 'justifier', 'aligner à droite'], correct: 1, exp: 'Justifier : côtés gauche ET droit proprement alignés.' },
-      { q: 'L\'interligne règle…', opts: ['l\'espace entre les lignes', 'la taille de police', 'les marges'], correct: 0, exp: 'Espace entre chaque ligne du paragraphe concerné.' },
-      { q: 'Chaque augmentation du retrait décale de…', opts: ['1 cm', 'une valeur de tabulation', '2,5 cm'], correct: 1, exp: 'Le bord gauche se décale d\'une tabulation.' },
-      { q: 'Poser un taquet de tabulation :', opts: ['double-clic dans le texte', 'clic sur la règle horizontale', 'Ctrl+T'], correct: 1, exp: 'Clic sur la règle ; glisser pour déplacer, hors règle pour supprimer.' },
-      { q: 'L\'orientation « paysage » correspond à…', opts: ['le sens de la largeur', 'le sens de la longueur', 'le format A4'], correct: 0, exp: 'Portrait = longueur ; paysage = largeur.' },
-      { q: 'La numérotation des pages se règle à l\'onglet…', opts: ['Accueil', 'Insertion', 'Révision'], correct: 1, exp: 'Insertion, Numéros de page : position et alignement.' },
+      { q: 'L\'alignement qui aligne les deux côtés :', opts: ['justifier', 'centrer', 'aligner à droite'], correct: 0, exp: 'Justifier : côtés gauche ET droit proprement alignés.' },
+      { q: 'L\'interligne règle…', opts: ['la taille de police', 'l\'espace entre les lignes', 'les marges'], correct: 1, exp: 'Espace entre chaque ligne du paragraphe concerné.' },
+      { q: 'Chaque augmentation du retrait décale de…', opts: ['1 cm', '2,5 cm', 'une valeur de tabulation'], correct: 2, exp: 'Le bord gauche se décale d\'une tabulation.' },
+      { q: 'Poser un taquet de tabulation :', opts: ['double-clic dans le texte', 'Ctrl+T', 'clic sur la règle horizontale'], correct: 2, exp: 'Clic sur la règle ; glisser pour déplacer, hors règle pour supprimer.' },
+      { q: 'L\'orientation « paysage » correspond à…', opts: ['le sens de la longueur', 'le sens de la largeur', 'le format A4'], correct: 1, exp: 'Portrait = longueur ; paysage = largeur.' },
+      { q: 'La numérotation des pages se règle à l\'onglet…', opts: ['Insertion', 'Accueil', 'Révision'], correct: 0, exp: 'Insertion, Numéros de page : position et alignement.' },
       { q: 'Avant d\'imprimer, le support impose…', opts: ['un enregistrement', 'l\'aperçu avant impression', 'un filigrane'], correct: 1, exp: 'Toujours l\'aperçu pour les dernières retouches ; Ctrl+P ensuite.' }
     ],
 
@@ -360,13 +360,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le contenu d\'une cellule se voit et se modifie dans…', opts: ['la barre d\'état', 'la barre de formule', 'la barre de titre'], correct: 1, exp: 'Barre de formule : voir et modifier le contenu des cellules.' },
-      { q: 'Par défaut, le texte s\'aligne…', opts: ['à droite', 'au centre', 'à gauche'], correct: 2, exp: 'Texte à gauche, chiffres à droite.' },
+      { q: 'Le contenu d\'une cellule se voit et se modifie dans…', opts: ['la barre d\'état', 'la barre de titre', 'la barre de formule'], correct: 2, exp: 'Barre de formule : voir et modifier le contenu des cellules.' },
+      { q: 'Par défaut, le texte s\'aligne…', opts: ['à gauche', 'au centre', 'à droite'], correct: 0, exp: "Par défaut, Excel aligne le texte à gauche et les nombres à droite ; centrer le texte, comme l'affirmait le distracteur, exige une mise en forme explicite." },
       { q: 'La nouvelle colonne s\'insère…', opts: ['à gauche de la sélection', 'à droite de la sélection', 'en dernière position'], correct: 0, exp: 'Clic droit, Insertion : ligne au-dessus, colonne à gauche.' },
       { q: 'Excel compte…', opts: ['5 onglets par défaut', '7 onglets par défaut', '9 onglets par défaut'], correct: 1, exp: 'Accueil, Insertion, Mise en page, Formules, Données, Révision, Affichage.' },
-      { q: 'Copier une feuille se fait par…', opts: ['clic droit, Déplacer ou copier', 'Ctrl+C', 'Enregistrer sous'], correct: 0, exp: 'Clic droit sur l\'onglet, case « Créer une copie ».' },
-      { q: 'Le format « Texte » …', opts: ['aligne à droite', 'interprète tout littéralement', 'convertit en nombre'], correct: 1, exp: 'Même une saisie numérique reste du texte.' },
-      { q: 'Fusionner et centrer se trouve…', opts: ['dans le groupe Accueil', 'à l\'onglet Données', 'dans la barre d\'état'], correct: 0, exp: 'Groupe Accueil : fusionner et centrer les cellules sélectionnées.' },
+      { q: 'Copier une feuille se fait par…', opts: ['Enregistrer sous', 'Ctrl+C', 'clic droit, Déplacer ou copier'], correct: 2, exp: 'Clic droit sur l\'onglet, case « Créer une copie ».' },
+      { q: 'Le format « Texte » …', opts: ['interprète tout littéralement', 'aligne à droite', 'convertit en nombre'], correct: 0, exp: 'Même une saisie numérique reste du texte.' },
+      { q: 'Fusionner et centrer se trouve…', opts: ['dans la barre d\'état', 'à l\'onglet Données', 'dans le groupe Accueil'], correct: 2, exp: 'Groupe Accueil : fusionner et centrer les cellules sélectionnées.' },
       { q: 'L\'enregistrement du classeur est…', opts: ['optionnel', 'la chose la plus importante', 'automatique'], correct: 1, exp: 'Sinon tout est perdu à la fermeture inattendue.' }
     ],
 

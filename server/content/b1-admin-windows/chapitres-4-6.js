@@ -115,12 +115,12 @@ module.exports = [
 
     questions: [
       { q: 'AD DS s’organise en…', opts: ['domaines, arbres et forêt', 'postes et serveurs', 'rôles et fonctionnalités'], correct: 0, exp: 'La hiérarchie forme une arborescence composée de domaines, arbres et forêt.' },
-      { q: 'Un domaine est…', opts: ['une entité logique (administrative) qui héberge objets et stratégies', 'un disque dur réseau', 'une licence Microsoft'], correct: 0, exp: 'Il héberge utilisateurs, ordinateurs, et des paramètres de stratégies.' },
-      { q: 'paris.cdp.org est…', opts: ['un domaine enfant de cdp.org', 'une forêt', 'un groupe de sécurité'], correct: 0, exp: 'C’est un sous-domaine (domaine enfant) du domaine racine cdp.org.' },
-      { q: 'Un arbre partage…', opts: ['un espace de nom contigu et hiérarchique', 'le même mot de passe', 'une seule UO'], correct: 0, exp: 'Les domaines d’un même arbre partagent un espace de nom contigu.' },
+      { q: 'Un domaine est…', opts: ["un disque dur réseau partagé entre plusieurs postes de l’entreprise","une entité logique (administrative) qui héberge objets et stratégies","une licence Microsoft qui autorise l’installation du rôle AD DS"], correct: 1, exp: 'Il héberge utilisateurs, ordinateurs, et des paramètres de stratégies.' },
+      { q: 'paris.cdp.org est…', opts: ['un groupe de sécurité', 'une forêt', 'un domaine enfant de cdp.org'], correct: 2, exp: 'C’est un sous-domaine (domaine enfant) du domaine racine cdp.org.' },
+      { q: 'Un arbre partage…', opts: ["un mot de passe commun aux administrateurs","une seule unité d’organisation pour le domaine","un espace de nom contigu et hiérarchique"], correct: 2, exp: 'Les domaines d’un même arbre partagent un espace de nom contigu.' },
       { q: 'Une forêt regroupe…', opts: ['un ou plusieurs arbres indépendants', 'tous les domaines du monde', 'un seul domaine obligatoirement'], correct: 0, exp: 'Une forêt est un regroupement d’une ou plusieurs arborescences, indépendantes et distinctes.' },
-      { q: 'Les objets du domaine sont rangés dans…', opts: ['des unités d’organisation', 'des fichiers .txt', 'des partitions système'], correct: 0, exp: 'Les UO remplissent le domaine d’objets : utilisateurs, ordinateurs, groupes, contrôleurs.' },
-      { q: 'Le renommage d’un domaine AD DS…', opts: ['a un impact technique très conséquent', 'se fait en un clic sans effet', 'est impossible'], correct: 0, exp: 'Possible mais lourd : PC, utilisateurs, services et logiciels sont touchés.' },
+      { q: 'Les objets du domaine sont rangés dans…', opts: ['des fichiers .txt', 'des unités d’organisation', 'des partitions système'], correct: 1, exp: 'Les UO remplissent le domaine d’objets : utilisateurs, ordinateurs, groupes, contrôleurs.' },
+      { q: 'Le renommage d’un domaine AD DS…', opts: ['est impossible', 'se fait en un clic sans effet', 'a un impact technique très conséquent'], correct: 2, exp: 'Possible mais lourd : PC, utilisateurs, services et logiciels sont touchés.' },
       { q: 'Le nom NetBIOS correspond…', opts: ['au préfixe du domaine saisi', 'au nom du serveur', 'à la marque de la carte réseau'], correct: 0, exp: 'Lors de la configuration, le nom NetBIOS est dérivé du nom du domaine.' }
     ],
 
@@ -288,14 +288,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Après l’installation initiale du rôle AD DS…', opts: ['les binaires sont là, la configuration reste à faire', 'le domaine est prêt', 'il faut réinstaller Windows'], correct: 0, exp: 'AD DS n’est pas encore configuré : il faut promouvoir le serveur en contrôleur de domaine.' },
+      { q: 'Après l’installation initiale du rôle AD DS…', opts: ["le domaine est prêt et le serveur est déjà contrôleur","les binaires sont là, la configuration reste à faire","il faut réinstaller Windows Server avec le rôle prédéfini"], correct: 1, exp: 'AD DS n’est pas encore configuré : il faut promouvoir le serveur en contrôleur de domaine.' },
       { q: 'Pour créer un domaine racine, l’assistant propose…', opts: ['Ajouter une nouvelle forêt', 'Ajouter un domaine enfant', 'Joindre un domaine existant'], correct: 0, exp: 'La création d’un nouveau domaine racine passe par « Ajouter une nouvelle forêt ».' },
-      { q: 'Le niveau fonctionnel du domaine définit…', opts: ['les services disponibles pour ce domaine', 'le prix de la licence', 'le nom du serveur'], correct: 0, exp: 'Plus le niveau est élevé, plus les fonctionnalités sont nombreuses : viser 2012 R2.' },
-      { q: 'Le mot de passe de restauration sert…', opts: ['à restaurer un AD DS corrompu et inaccessible', 'à se connecter en utilisateur', 'à installer le DNS'], correct: 0, exp: 'DSRM : utilisé uniquement si l’AD devient inaccessible — d’où sa solidité.' },
-      { q: 'L’avertissement à l’installation d’AD DS concerne…', opts: ['le rôle DNS, nécessaire au domaine', 'l’activation de Windows', 'le pare-feu'], correct: 0, exp: 'AD DS nécessite un serveur DNS ; installé en même temps, il se configure quasi-automatiquement.' },
+      { q: 'Le niveau fonctionnel du domaine définit…', opts: ["le prix de la licence et des licences d’accès","le nom du serveur et son adresse IP","les services disponibles pour ce domaine"], correct: 2, exp: 'Plus le niveau est élevé, plus les fonctionnalités sont nombreuses : viser 2012 R2.' },
+      { q: 'Le mot de passe de restauration sert…', opts: ["à ouvrir une session administrateur sur le serveur","à restaurer un AD DS corrompu et inaccessible","à installer le rôle DNS sur le contrôleur"], correct: 1, exp: 'DSRM : utilisé uniquement si l’AD devient inaccessible — d’où sa solidité.' },
+      { q: 'L’avertissement à l’installation d’AD DS concerne…', opts: ['l’activation de Windows', 'le rôle DNS, nécessaire au domaine', 'le pare-feu'], correct: 1, exp: 'AD DS nécessite un serveur DNS ; installé en même temps, il se configure quasi-automatiquement.' },
       { q: 'La base de l’Active Directory s’appelle…', opts: ['NTDS.DIT', 'SYSVOL', 'install.wim'], correct: 0, exp: 'NTDS.DIT dans le dossier « base de données » ; SYSVOL porte scripts et GPO.' },
-      { q: 'Le dossier SYSVOL contient…', opts: ['scripts de connexion, GPO et fichiers de réplication', 'les logs système', 'les profils utilisateurs'], correct: 0, exp: 'Les fichiers journaux sont dans le second dossier ; SYSVOL est le dossier des stratégies.' },
-      { q: 'Quand la vérification des prérequis est passée…', opts: ['le serveur doit obligatoirement redémarrer', 'rien d’autre à faire', 'le domaine est supprimé'], correct: 0, exp: 'Le redémarrage est obligatoire pour finaliser la promotion.' }
+      { q: 'Le dossier SYSVOL contient…', opts: ["les journaux système et les journaux d’audit du contrôleur","les profils utilisateurs stockés sur le serveur","scripts de connexion, GPO et fichiers de réplication"], correct: 2, exp: 'Les fichiers journaux sont dans le second dossier ; SYSVOL est le dossier des stratégies.' },
+      { q: 'Quand la vérification des prérequis est passée…', opts: ["rien d’autre : le rôle est déjà opérationnel","le domaine est supprimé puis recréé automatiquement","le serveur doit obligatoirement redémarrer"], correct: 2, exp: 'Le redémarrage est obligatoire pour finaliser la promotion.' }
     ],
 
     pitfalls: [
@@ -447,14 +447,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La console pour peupler l’AD est…', opts: ['Utilisateurs et ordinateurs Active Directory', 'Gestionnaire des tâches', 'Gestion du stockage'], correct: 0, exp: 'C’est la console du support pour créer UO, utilisateurs et groupes.' },
-      { q: 'La première brique de rangement est…', opts: ['l’unité d’organisation', 'le groupe de sécurité', 'le profil itinérant'], correct: 0, exp: 'L’UO contient les objets ; on la crée avant les comptes.' },
-      { q: 'L’UPN d’un utilisateur ressemble à…', opts: ['iziti@ntic.ma', 'NTIC\\iziti', 'iziti_NTIC'], correct: 0, exp: 'UPN = forme d’adresse e-mail ; l’autre forme est DOMAINE\\login.' },
-      { q: 'L’option « doit changer le mot de passe à la prochaine ouverture »…', opts: ['force le changement à la première connexion', 'bloque le compte', 'supprime le mot de passe'], correct: 0, exp: 'Réflexe de sécurité pour tout compte neuf.' },
-      { q: 'L’onglet Compte des propriétés permet…', opts: ['les restrictions d’horaires d’accès', 'de changer l’UPN du domaine', 'de créer une UO'], correct: 0, exp: 'Il regroupe l’ouverture de session et les horaires d’accès.' },
-      { q: 'Les groupes de distribution servent…', opts: ['à la diffusion (listes)', 'à donner des droits', 'à joindre le domaine'], correct: 0, exp: 'Seuls les groupes de sécurité reçoivent des droits.' },
-      { q: 'Avant de joindre un poste au domaine, on vérifie…', opts: ['que le DNS du client pointe vers le domaine', 'que le pare-feu est éteint', 'que l’UO existe'], correct: 0, exp: 'Le client localise le contrôleur par DNS : premier contrôle du support.' },
-      { q: 'Un profil itinérant permet…', opts: ['de suivre le profil de l’utilisateur de poste en poste', 'de partager des imprimantes', 'de créer des groupes'], correct: 0, exp: 'Le profil est synchronisé sur le serveur pour être accessible depuis tout poste du domaine.' }
+      { q: 'La console pour peupler l’AD est…', opts: ["Utilisateurs et ordinateurs Active Directory","Gestionnaire des tâches du contrôleur de domaine","Gestion du stockage du serveur de fichiers"], correct: 0, exp: 'C’est la console du support pour créer UO, utilisateurs et groupes.' },
+      { q: 'La première brique de rangement est…', opts: ['le groupe de sécurité', 'l’unité d’organisation', 'le profil itinérant'], correct: 1, exp: 'L’UO contient les objets ; on la crée avant les comptes.' },
+      { q: 'L’UPN d’un utilisateur ressemble à…', opts: ['NTIC\\iziti', 'iziti@ntic.ma', 'iziti_NTIC'], correct: 1, exp: 'UPN = forme d’adresse e-mail ; l’autre forme est DOMAINE\\login.' },
+      { q: 'L’option « doit changer le mot de passe à la prochaine ouverture »…', opts: ["force le changement à la première connexion","bloque le compte jusqu’à un déverrouillage manuel","supprime le mot de passe et désactive le compte"], correct: 0, exp: 'Réflexe de sécurité pour tout compte neuf.' },
+      { q: 'L’onglet Compte des propriétés permet…', opts: ['de créer une UO', 'de changer l’UPN du domaine', 'les restrictions d’horaires d’accès'], correct: 2, exp: 'Il regroupe l’ouverture de session et les horaires d’accès.' },
+      { q: 'Les groupes de distribution servent…', opts: ['à joindre le domaine', 'à donner des droits', 'à la diffusion (listes)'], correct: 2, exp: 'Seuls les groupes de sécurité reçoivent des droits.' },
+      { q: 'Avant de joindre un poste au domaine, on vérifie…', opts: ["que le DNS du client pointe vers le domaine","que le pare-feu est éteint sur le poste client","que l’unité d’organisation du poste est déjà créée"], correct: 0, exp: 'Le client localise le contrôleur par DNS : premier contrôle du support.' },
+      { q: 'Un profil itinérant permet…', opts: ["de partager des imprimantes entre tous les postes du domaine","de suivre le profil de l’utilisateur de poste en poste","de créer des groupes de sécurité automatiquement"], correct: 1, exp: 'Le profil est synchronisé sur le serveur pour être accessible depuis tout poste du domaine.' }
     ],
 
     pitfalls: [

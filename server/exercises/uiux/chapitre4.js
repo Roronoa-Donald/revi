@@ -15,8 +15,9 @@ module.exports = [
     brief: "<p>Pour chaque cas, examinez les valeurs entières non négatives de dimensions ou de marges en pixels, une par ligne. Cette convention de projet est un modèle pour l’exercice, pas une norme universelle.<br>\n- Si la valeur est un multiple de 8 (<code>val % 8 == 0</code>) : afficher <code>&lt;val&gt;px -&gt; CONFORME (Grille 8pt)</code><br>\n- Sinon, si la valeur est un multiple de 4 (<code>val % 4 == 0</code>) : afficher <code>&lt;val&gt;px -&gt; CONFORME (Demi-grille 4pt)</code><br>\n- Sinon : calculer le multiple de 8 le plus proche (en cas d'équidistance, choisir le multiple supérieur) et afficher :<br>\n<code>&lt;val&gt;px -&gt; NON_CONFORME (Correction: &lt;cible&gt;px)</code></p>",
     starter: "# Grille d'analyse (ux2-c4-e1) — Validateur de dimensions sur Grille 8pt\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Multiples stricts de 8]\n# Données : 8\n# Données : 24\n# Données : 32\n# Données : 64\nA_COMPLETER\n\n[Cas 2 — Demi-grille 4pt (icônes et micro-espaces)]\n# Données : 4\n# Données : 12\n# Données : 20\n# Données : 28\nA_COMPLETER\n\n[Cas 3 — Valeurs non conformes avec corrections]\n# Données : 13\n# Données : 18\n# Données : 23\n# Données : 35\nA_COMPLETER\n\n[Cas 4 — Zéro et petites valeurs]\n# Données : 0\n# Données : 1\n# Données : 5\nA_COMPLETER\n",
     hints: [
-          "Cherchez les deux multiples de 8 voisins et comparez leurs distances à la valeur.",
-          "Commencez par vérifier les multiples de 8, puis ceux de 4 ; zéro est un multiple de 8."
+      "Cherchez les deux multiples de 8 voisins et comparez leurs distances à la valeur.",
+      "Commencez par vérifier les multiples de 8, puis ceux de 4 ; zéro est un multiple de 8.",
+      "Pour chaque valeur : si val % 8 vaut 0 afficher Grille 8pt ; sinon si val % 4 vaut 0 afficher Demi-grille 4pt ; sinon proposer le multiple de 8 le plus proche, supérieur en cas d'équidistance."
     ],
     examples: [
           {
@@ -47,7 +48,8 @@ module.exports = [
                 "expected": "0px -> CONFORME (Grille 8pt)\n1px -> NON_CONFORME (Correction: 0px)\n5px -> NON_CONFORME (Correction: 8px)"
           }
     ],
-    solution: "[Exemple]\n16px -> CONFORME (Grille 8pt)\n12px -> CONFORME (Demi-grille 4pt)\n15px -> NON_CONFORME (Correction: 16px)\n7px -> NON_CONFORME (Correction: 8px)\n\n[Cas 1 — Multiples stricts de 8]\n8px -> CONFORME (Grille 8pt)\n24px -> CONFORME (Grille 8pt)\n32px -> CONFORME (Grille 8pt)\n64px -> CONFORME (Grille 8pt)\n\n[Cas 2 — Demi-grille 4pt (icônes et micro-espaces)]\n4px -> CONFORME (Demi-grille 4pt)\n12px -> CONFORME (Demi-grille 4pt)\n20px -> CONFORME (Demi-grille 4pt)\n28px -> CONFORME (Demi-grille 4pt)\n\n[Cas 3 — Valeurs non conformes avec corrections]\n13px -> NON_CONFORME (Correction: 16px)\n18px -> NON_CONFORME (Correction: 16px)\n23px -> NON_CONFORME (Correction: 24px)\n35px -> NON_CONFORME (Correction: 32px)\n\n[Cas 4 — Zéro et petites valeurs]\n0px -> CONFORME (Grille 8pt)\n1px -> NON_CONFORME (Correction: 0px)\n5px -> NON_CONFORME (Correction: 8px)\n"
+    solution: "[Exemple]\n16px -> CONFORME (Grille 8pt)\n12px -> CONFORME (Demi-grille 4pt)\n15px -> NON_CONFORME (Correction: 16px)\n7px -> NON_CONFORME (Correction: 8px)\n\n[Cas 1 — Multiples stricts de 8]\n8px -> CONFORME (Grille 8pt)\n24px -> CONFORME (Grille 8pt)\n32px -> CONFORME (Grille 8pt)\n64px -> CONFORME (Grille 8pt)\n\n[Cas 2 — Demi-grille 4pt (icônes et micro-espaces)]\n4px -> CONFORME (Demi-grille 4pt)\n12px -> CONFORME (Demi-grille 4pt)\n20px -> CONFORME (Demi-grille 4pt)\n28px -> CONFORME (Demi-grille 4pt)\n\n[Cas 3 — Valeurs non conformes avec corrections]\n13px -> NON_CONFORME (Correction: 16px)\n18px -> NON_CONFORME (Correction: 16px)\n23px -> NON_CONFORME (Correction: 24px)\n35px -> NON_CONFORME (Correction: 32px)\n\n[Cas 4 — Zéro et petites valeurs]\n0px -> CONFORME (Grille 8pt)\n1px -> NON_CONFORME (Correction: 0px)\n5px -> NON_CONFORME (Correction: 8px)\n",
+    takeaway: "La grille de 8 px aligne marges, gouttières et hauteurs de composants sur un multiple commun cohérent entre design et CSS."
   },
   {
     id: "ux2-c4-e2",
@@ -59,8 +61,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application une liste d'éléments d'interface (un par ligne).<br>\nSelon la taxonomie Atomic Design :<br>\n- <strong>ATOME</strong> : <code>Bouton</code>, <code>ChampTexte</code>, <code>Icone</code>, <code>Label</code>, <code>Avatar</code>, <code>Badge</code>.<br>\n- <strong>MOLECULE</strong> : <code>FormulaireRecherche</code>, <code>ChampAvecBouton</code>, <code>CarteUtilisateurCompacte</code>, <code>SelecteurDate</code>.<br>\n- <strong>ORGANISME</strong> : <code>BarreNavigation</code>, <code>EnTeteHeader</code>, <code>PiedDePageFooter</code>, <code>GrilleDeProduits</code>.<br>\n- <strong>TEMPLATE</strong> : <code>GabaritDashboard</code>, <code>GabaritArticleBlog</code>, <code>GabaritFicheProduit</code>.<br>\n- <strong>PAGE</strong> : <code>PageAccueilProduction</code>, <code>PageProfilAlice</code>, <code>PagePaiementReelle</code>.<br>\nPour chaque élément, afficher :<br>\n<code>&lt;Element&gt; -&gt; &lt;ATOME | MOLECULE | ORGANISME | TEMPLATE | PAGE&gt;</code><br>\nSi non répertorié :<br>\n<code>&lt;Element&gt; -&gt; INCONNU</code></p>",
     starter: "# Grille d'analyse (ux2-c4-e2) — Classificateur Atomic Design de Brad Frost\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Atomes et molécules de base]\n# Données : ChampTexte\n# Données : Icone\n# Données : ChampAvecBouton\n# Données : Avatar\nA_COMPLETER\n\n[Cas 2 — Organismes structurants]\n# Données : EnTeteHeader\n# Données : PiedDePageFooter\n# Données : GrilleDeProduits\nA_COMPLETER\n\n[Cas 3 — Templates et Pages concrètes]\n# Données : GabaritFicheProduit\n# Données : PageProfilAlice\n# Données : PagePaiementReelle\nA_COMPLETER\n\n[Cas 4 — Éléments inconnus et badge]\n# Données : Badge\n# Données : ScriptBackendPython\n# Données : SelecteurDate\nA_COMPLETER\n",
     hints: [
-          "Normaliser la chaîne en minuscules.",
-          "Un organisme est un assemblage complexe de molécules et d'atomes formant une section distincte d'IHM."
+      "Normaliser la chaîne en minuscules.",
+      "Un organisme est un assemblage complexe de molécules et d'atomes formant une section distincte d'IHM.",
+      "Pour chaque élément : le normaliser, le rechercher dans les cinq listes ATOME à PAGE, afficher la strate trouvée, sinon renvoyer INCONNU."
     ],
     examples: [
           {
@@ -91,7 +94,8 @@ module.exports = [
                 "expected": "Badge -> ATOME\nScriptBackendPython -> INCONNU\nSelecteurDate -> MOLECULE"
           }
     ],
-    solution: "[Exemple]\nBouton -> ATOME\nFormulaireRecherche -> MOLECULE\nBarreNavigation -> ORGANISME\nGabaritDashboard -> TEMPLATE\nPageAccueilProduction -> PAGE\n\n[Cas 1 — Atomes et molécules de base]\nChampTexte -> ATOME\nIcone -> ATOME\nChampAvecBouton -> MOLECULE\nAvatar -> ATOME\n\n[Cas 2 — Organismes structurants]\nEnTeteHeader -> ORGANISME\nPiedDePageFooter -> ORGANISME\nGrilleDeProduits -> ORGANISME\n\n[Cas 3 — Templates et Pages concrètes]\nGabaritFicheProduit -> TEMPLATE\nPageProfilAlice -> PAGE\nPagePaiementReelle -> PAGE\n\n[Cas 4 — Éléments inconnus et badge]\nBadge -> ATOME\nScriptBackendPython -> INCONNU\nSelecteurDate -> MOLECULE\n"
+    solution: "[Exemple]\nBouton -> ATOME\nFormulaireRecherche -> MOLECULE\nBarreNavigation -> ORGANISME\nGabaritDashboard -> TEMPLATE\nPageAccueilProduction -> PAGE\n\n[Cas 1 — Atomes et molécules de base]\nChampTexte -> ATOME\nIcone -> ATOME\nChampAvecBouton -> MOLECULE\nAvatar -> ATOME\n\n[Cas 2 — Organismes structurants]\nEnTeteHeader -> ORGANISME\nPiedDePageFooter -> ORGANISME\nGrilleDeProduits -> ORGANISME\n\n[Cas 3 — Templates et Pages concrètes]\nGabaritFicheProduit -> TEMPLATE\nPageProfilAlice -> PAGE\nPagePaiementReelle -> PAGE\n\n[Cas 4 — Éléments inconnus et badge]\nBadge -> ATOME\nScriptBackendPython -> INCONNU\nSelecteurDate -> MOLECULE\n",
+    takeaway: "Atomic Design compose des molécules à partir d atomes puis des organismes et templates réutilisables sans duplication visuelle."
   },
   {
     id: "ux2-c4-e3",
@@ -103,8 +107,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application une ligne contenant deux valeurs :<br>\n<code>&lt;BASE_PX&gt; &lt;RATIO&gt;</code> (ex: <code>16 1.25</code> pour le ratio Major Third).<br>\nLe cas doit calculer et afficher les tailles typographiques entières arrondies (<code>round(BASE * RATIO^k)</code>) pour les 7 crans d'échelle suivants :<br>\n- <code>text-xs: &lt;px&gt;px</code> (k = -2)<br>\n- <code>text-sm: &lt;px&gt;px</code> (k = -1)<br>\n- <code>text-base: &lt;px&gt;px</code> (k = 0)<br>\n- <code>text-lg: &lt;px&gt;px</code> (k = 1)<br>\n- <code>text-xl: &lt;px&gt;px</code> (k = 2)<br>\n- <code>text-2xl: &lt;px&gt;px</code> (k = 3)<br>\n- <code>text-3xl: &lt;px&gt;px</code> (k = 4)</p>",
     starter: "# Grille d'analyse (ux2-c4-e3) — Générateur d’échelle typographique modulaire\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Base 16px avec ratio Minor Third 1.20]\n# Données : 16 1.20\nA_COMPLETER\n\n[Cas 2 — Base 16px avec ratio Perfect Fourth 1.333]\n# Données : 16 1.333\nA_COMPLETER\n\n[Cas 3 — Base 14px avec ratio Golden Ratio 1.618]\n# Données : 14 1.618\nA_COMPLETER\n\n[Cas 4 — Base 18px avec ratio Major Second 1.125]\n# Données : 18 1.125\nA_COMPLETER\n",
     hints: [
-          "Pour k < 0, BASE * (RATIO ** k).",
-          "Utiliser round() pour obtenir des pixels entiers propres dans les feuilles CSS."
+      "Pour k < 0, BASE * (RATIO ** k).",
+      "Utiliser round() pour obtenir des pixels entiers propres dans les feuilles CSS.",
+      "Pour chaque cas : lire base et ratio, puis pour k allant de -2 à 4 calculer round(base * ratio puissance k) et afficher les sept lignes text-xs à text-3xl."
     ],
     examples: [
           {
@@ -135,6 +140,7 @@ module.exports = [
                 "expected": "text-xs: 14px\ntext-sm: 16px\ntext-base: 18px\ntext-lg: 20px\ntext-xl: 23px\ntext-2xl: 26px\ntext-3xl: 29px"
           }
     ],
-    solution: "[Exemple]\ntext-xs: 10px\ntext-sm: 13px\ntext-base: 16px\ntext-lg: 20px\ntext-xl: 25px\ntext-2xl: 31px\ntext-3xl: 39px\n\n[Cas 1 — Base 16px avec ratio Minor Third 1.20]\ntext-xs: 11px\ntext-sm: 13px\ntext-base: 16px\ntext-lg: 19px\ntext-xl: 23px\ntext-2xl: 28px\ntext-3xl: 33px\n\n[Cas 2 — Base 16px avec ratio Perfect Fourth 1.333]\ntext-xs: 9px\ntext-sm: 12px\ntext-base: 16px\ntext-lg: 21px\ntext-xl: 28px\ntext-2xl: 38px\ntext-3xl: 51px\n\n[Cas 3 — Base 14px avec ratio Golden Ratio 1.618]\ntext-xs: 5px\ntext-sm: 9px\ntext-base: 14px\ntext-lg: 23px\ntext-xl: 37px\ntext-2xl: 59px\ntext-3xl: 96px\n\n[Cas 4 — Base 18px avec ratio Major Second 1.125]\ntext-xs: 14px\ntext-sm: 16px\ntext-base: 18px\ntext-lg: 20px\ntext-xl: 23px\ntext-2xl: 26px\ntext-3xl: 29px\n"
+    solution: "[Exemple]\ntext-xs: 10px\ntext-sm: 13px\ntext-base: 16px\ntext-lg: 20px\ntext-xl: 25px\ntext-2xl: 31px\ntext-3xl: 39px\n\n[Cas 1 — Base 16px avec ratio Minor Third 1.20]\ntext-xs: 11px\ntext-sm: 13px\ntext-base: 16px\ntext-lg: 19px\ntext-xl: 23px\ntext-2xl: 28px\ntext-3xl: 33px\n\n[Cas 2 — Base 16px avec ratio Perfect Fourth 1.333]\ntext-xs: 9px\ntext-sm: 12px\ntext-base: 16px\ntext-lg: 21px\ntext-xl: 28px\ntext-2xl: 38px\ntext-3xl: 51px\n\n[Cas 3 — Base 14px avec ratio Golden Ratio 1.618]\ntext-xs: 5px\ntext-sm: 9px\ntext-base: 14px\ntext-lg: 23px\ntext-xl: 37px\ntext-2xl: 59px\ntext-3xl: 96px\n\n[Cas 4 — Base 18px avec ratio Major Second 1.125]\ntext-xs: 14px\ntext-sm: 16px\ntext-base: 18px\ntext-lg: 20px\ntext-xl: 23px\ntext-2xl: 26px\ntext-3xl: 29px\n",
+    takeaway: "Une échelle typographique modulaire applique un ratio constant depuis la taille de base pour garantir une hiérarchie équilibrée."
   }
 ];

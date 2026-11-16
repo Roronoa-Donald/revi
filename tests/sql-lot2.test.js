@@ -233,7 +233,9 @@ test('F171 : ordre, table et index complet, sans exposer les tests cachés', asy
   const inactive = inactiveChapter3.find(entry => entry.id === 'sql3-c3-e3');
   assert.ok(active);
   assert.ok(inactive);
-  assert.equal(isGradingSuspended('b3-sql'), true);
+  assert.equal(isGradingSuspended('b3-sql'), false);
+  assert.equal(isGradingSuspended('b3-sql', 'sql3-c3-e3'), false);
+  assert.equal(isGradingSuspended('b3-sql', 'inconnu'), true);
   const client = catalogue.toClient(active);
   assert.equal(Object.hasOwn(client, 'tests'), false);
   assert.equal(Object.hasOwn(client, 'solution'), false);

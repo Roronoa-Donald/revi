@@ -137,9 +137,9 @@ test('les pourcentages et la comparaison RSA restent des formules KaTeX valides'
 });
 
 test('les indices Bash et PHP qui contiennent des dollars sont des blocs de code', () => {
-  const bash = parse5.parseFragment(labs.renderSection('b1-architecture', 2));
+  const bash = parse5.parseFragment(labs.renderSection('b1-linux', 1));
   const php = parse5.parseFragment(labs.renderSection('php', 1));
-  assert.ok(elements(bash, 'code').some(node => text(node) === '$((v % 2))'));
+  assert.ok(elements(bash, 'code').some(node => text(node) === '"$cwd/$chemin"'));
   assert.ok(elements(php, 'code').some(node => text(node) === '$this'));
 });
 

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -171,25 +169,28 @@
      data-exercise="az3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="POLICY cool_days=30 archive_days=90 delete_days=365&#10;BLOB name=log-recent.csv size_gb=10 age_days=10&#10;BLOB name=backup-q1.bak size_gb=100 age_days=45&#10;BLOB name=archive-2023.tar size_gb=500 age_days=120&#10;BLOB name=temp-2022.tmp size_gb=50 age_days=400">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e1) — Simulateur de cycle de vie Azure Blob Storage
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le cabinet d'architectes Tympan archive ses plans : 800 Go de projets en cours&#10;consultés chaque jour, 4 000 Go de projets livrés consultés une fois par trimestre.&#10;&#10;1) Les 800 Go de projets en cours vont en palier chaud (accès fréquent).&#10;2) Les 4 000 Go livrés vont en palier froid (accès occasionnel).&#10;3) Coût du chaud : 800 × 0,018 = 14,40 € par mois.&#10;4) Coût du froid : 4 000 × 0,010 = 40 € par mois.&#10;5) Le palier archive impose 180 jours de rétention minimale.">
+  <script type="text/plain" data-lab-starter># Exercice — Les paliers d'accès des archives de l'étude Daubrun
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : le nom du palier. Questions 3 à 5 : le nombre seul.
 
-[Cas 1 — Cycle de vie complet avec Hot, Cool et Archive]
-# Données : POLICY cool_days=15 archive_days=60 delete_days=180
-# Données : BLOB name=app-events.json size_gb=5 age_days=5
-# Données : BLOB name=db-snapshot.dump size_gb=50 age_days=20
-# Données : BLOB name=old-logs.gz size_gb=200 age_days=90
+[Question 1 — Palier adapté aux actes de l'année en cours]
 A_COMPLETER
 
-[Cas 2 — Blobs récents restant tous en palier Hot]
-# Données : POLICY cool_days=30 archive_days=90 delete_days=180
-# Données : BLOB name=data1.parquet size_gb=20 age_days=5
-# Données : BLOB name=data2.parquet size_gb=30 age_days=15
+[Question 2 — Palier au prix au Go le plus bas]
+A_COMPLETER
+
+[Question 3 — Coût mensuel des 500 Go en palier chaud (en €)]
+A_COMPLETER
+
+[Question 4 — Coût mensuel des 2 000 Go en palier Archive (en €)]
+A_COMPLETER
+
+[Question 5 — Rétention minimale du palier Archive (en jours)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de cycle de vie Azure Blob Storage</h3>
+    <h3 class="lab__title">Exercice 1 — Les paliers d'accès des archives de l'étude Daubrun</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -198,40 +199,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer des règles de gestion automatique du cycle de vie des données Blob Storage (Hot -&gt; Cool -&gt; Archive -&gt; Delete) et mesurer les économies financières.</p>
-    <div class="lab__brief"><p>Azure Blob Lifecycle Management permet de transférer automatiquement des données froides vers des paliers de stockage moins coûteux ou de les purger.<br><br>
-Tarification de référence mensuelle par Go :<br>
-- <code>HOT</code> : 0.0184 USD / Go<br>
-- <code>COOL</code> : 0.0100 USD / Go<br>
-- <code>ARCHIVE</code> : 0.00099 USD / Go<br>
-- <code>DELETED</code> : 0.0000 USD / Go<br><br>
-Format d'entrée :<br>
-Ligne 1 : Déclaration de la politique de cycle de vie :<br>
-<code>POLICY cool_days=&lt;int&gt; archive_days=&lt;int&gt; delete_days=&lt;int&gt;</code><br>
-Lignes suivantes : Objets blobs à évaluer :<br>
-<code>BLOB name=&lt;nom&gt; size_gb=&lt;int&gt; age_days=&lt;int&gt;</code><br><br>
-Règles de transition (évaluation par ordre de priorité descendante) :<br>
-- Si <code>age_days &gt;= delete_days</code> : palier <code>DELETED</code> (coût = 0.0000)<br>
-- Sinon si <code>age_days &gt;= archive_days</code> : palier <code>ARCHIVE</code> (coût = <code>size_gb * 0.00099</code>)<br>
-- Sinon si <code>age_days &gt;= cool_days</code> : palier <code>COOL</code> (coût = <code>size_gb * 0.0100</code>)<br>
-- Sinon : palier <code>HOT</code> (coût = <code>size_gb * 0.0184</code>)<br><br>
-Format de sortie attendu :<br>
-Pour chaque blob :<br>
-<code>BLOB &lt;nom&gt;: age=&lt;age_days&gt;d TARGET_TIER=&lt;TIER&gt; COST=$&lt;cost:.4f&gt;</code><br>
-À la fin, afficher le récapitulatif comparatif (coût initial si tous en HOT vs coût optimisé) :<br>
-<code>TOTAL_HOT=$&lt;total_hot:.2f&gt; TOTAL_OPTIMIZED=$&lt;total_opt:.2f&gt; SAVINGS=&lt;savings_pct:.1f&gt;%</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir le palier d'accès d'un stockage Blob (chaud, froid, archive) selon la fréquence de consultation et calculer le coût de stockage.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'étude notariale Daubrun, forte de 12 collaborateurs, archive ses actes scannés dans le stockage Blob Azure. Le tarif mensuel de l'énoncé distingue trois paliers d'accès :</p><table><tr><th>Palier</th><th>Prix au Go / mois</th><th>Usage prévu</th><th>Rétention minimale</th></tr><tr><th>Chaud (Hot)</th><td>0,018 €</td><td>accès fréquent</td><td>aucune</td></tr><tr><th>Froid (Cool)</th><td>0,010 €</td><td>accès occasionnel</td><td>30 jours</td></tr><tr><th>Archive</th><td>0,001 €</td><td>accès rare, récupération lente</td><td>180 jours</td></tr></table><p>L'étude stocke <strong>500 Go</strong> d'actes de l'année en cours, consultés chaque semaine par les notaires, et <strong>2 000 Go</strong> d'actes de plus de dix ans, consultés environ une fois par an.</p><ol><li>Quel palier convient aux 500 Go d'actes de l'année en cours ?</li><li>Quel palier propose le prix au Go le plus bas ?</li><li>Quel est le coût mensuel de stockage des 500 Go en palier chaud, en euros ?</li><li>Quel est le coût mensuel de stockage des 2 000 Go en palier Archive, en euros ?</li><li>Combien de jours de rétention minimale le palier Archive impose-t-il ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>POLICY cool_days=30 archive_days=90 delete_days=365
-BLOB name=log-recent.csv size_gb=10 age_days=10
-BLOB name=backup-q1.bak size_gb=100 age_days=45
-BLOB name=archive-2023.tar size_gb=500 age_days=120
-BLOB name=temp-2022.tmp size_gb=50 age_days=400</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le cabinet d'architectes Tympan archive ses plans : 800 Go de projets en cours
+consultés chaque jour, 4 000 Go de projets livrés consultés une fois par trimestre.
+
+1) Les 800 Go de projets en cours vont en palier chaud (accès fréquent).
+2) Les 4 000 Go livrés vont en palier froid (accès occasionnel).
+3) Coût du chaud : 800 × 0,018 = 14,40 € par mois.
+4) Coût du froid : 4 000 × 0,010 = 40 € par mois.
+5) Le palier archive impose 180 jours de rétention minimale.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifier les conditions d'âge dans l'ordre : delete_days, puis archive_days, puis cool_days.</li>
-        <li>Calculer total_hot = somme(size_gb * 0.0184) pour mesurer le gain du Lifecycle Management.</li>
+        <li>Le palier se choisit selon la fréquence d'accès : chaque semaine, c'est un accès fréquent ; une fois par an, c'est un accès rare.</li>
+        <li>Le coût d'un volume se calcule en multipliant les Go par le prix au Go du palier concerné.</li>
+        <li>1. Les actes de l'année sont consultés chaque semaine. 2. Comparez les trois prix au Go. 3. Multipliez 500 par 0,018. 4. Multipliez 2 000 par 0,001. 5. Lisez la colonne rétention minimale.</li>
       </ol>
     </details>
   </div>
@@ -307,10 +292,11 @@ REQUEST method=GET time=150 proto=https
 REQUEST method=DELETE time=150 proto=https</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Associez chaque opération fictive à sa lettre de permission : GET à r, PUT à w, DELETE à d et LIST à l.</li>
         <li>Respecter l'ordre prescrit des contrôles d'erreur : protocole, puis anticipé, puis expiré, puis permissions.</li>
+        <li>Vérifiez successivement les trois conditions : fenêtre temporelle validée (start &lt;= t &lt;= end), protocole autorisé (HTTPS) et permission requise présente dans sp=</li>
       </ol>
     </details>
   </div>
@@ -320,26 +306,28 @@ REQUEST method=DELETE time=150 proto=https</pre></div>
      data-exercise="az3-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="REQUIREMENT workload=app-erp model=RELATIONAL&#10;REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c5-e3) — Sélecteur d'architecture de données Azure
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le cabinet d'avocats Vigie applique : palier Froid après 60 jours, Archive après&#10;180 jours, suppression après 10 ans. Audit au 1er juin 2025 :&#10;- memo-2025-04-20.pdf : versé depuis 42 jours ;&#10;- memo-2024-06-15.pdf : versé depuis 351 jours ;&#10;- memo-2013-01-10.pdf : plus de 10 ans.&#10;&#10;1) 42 jours : moins de 60, le mémo reste en palier Chaud.&#10;2) 351 jours : au-delà de 180, il est en palier Archive.&#10;3) Le mémo de 2013 est supprimé.&#10;4) 2 000 Go en Froid coûtent 2 000 × 0,010 = 20 € par mois.&#10;5) Un versement du 20 avril 2025 (42 jours) n'est pas encore passé en Froid.">
+  <script type="text/plain" data-lab-starter># Exercice — La politique de cycle de vie du cabinet Ombrelys
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : le nom du palier. Question 5 : oui ou non.
 
-[Cas 1 — Classification CRM relationnel et télémétrie IoT NoSQL]
-# Données : REQUIREMENT workload=crm-core model=RELATIONAL
-# Données : REQUIREMENT workload=iot-telemetry model=NOSQL_DOCUMENT
+[Question 1 — Palier de facture-2025-03-04.pdf]
 A_COMPLETER
 
-[Cas 2 — Classification partage SMB et data lake Blob]
-# Données : REQUIREMENT workload=legacy-shares model=FILE_SMB
-# Données : REQUIREMENT workload=data-lake model=UNSTRUCTURED_OBJECTS
+[Question 2 — Palier de facture-2024-09-12.pdf]
 A_COMPLETER
 
-[Cas 3 — Cas de modèle inconnu]
-# Données : REQUIREMENT workload=blockchain model=LEDGER_GRAPH
+[Question 3 — Sort de facture-2018-02-01.pdf]
+A_COMPLETER
+
+[Question 4 — Coût mensuel de 1 000 Go en palier Froid (en €)]
+A_COMPLETER
+
+[Question 5 — Une facture versée le 15 mars 2025 est-elle déjà en palier Froid]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Sélecteur d'architecture de données Azure</h3>
+    <h3 class="lab__title">Exercice 3 — La politique de cycle de vie du cabinet Ombrelys</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -348,31 +336,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les besoins fonctionnels et recommander le service de stockage ou de base de données managé Azure adéquat.</p>
-    <div class="lab__brief"><p>Azure dispose d'une gamme diversifiée de services de données managés. Le choix dépend du modèle de données (relationnel, NoSQL, fichiers, objets) et des contraintes d'infrastructure.<br><br>
-Matrice de décision Azure :<br>
-- Si <code>model=RELATIONAL</code> :<br>
-  <code>SERVICE=Azure_SQL_Database JUSTIFICATION="Moteur relationnel transactionnel ACID et compatibilité T-SQL"</code><br>
-- Si <code>model=NOSQL_DOCUMENT</code> :<br>
-  <code>SERVICE=Azure_Cosmos_DB JUSTIFICATION="Base NoSQL multi-modèle distribuée mondialement avec latence garantie &lt; 10ms"</code><br>
-- Si <code>model=FILE_SMB</code> :<br>
-  <code>SERVICE=Azure_Files JUSTIFICATION="Partage de fichiers partagé natif compatible SMB/NFS sans serveur dédié"</code><br>
-- Si <code>model=UNSTRUCTURED_OBJECTS</code> :<br>
-  <code>SERVICE=Azure_Blob_Storage JUSTIFICATION="Stockage objet massif hautement scalable avec gestion de cycle de vie et niveaux d'accès"</code><br><br>
-Format d'entrée :<br>
-<code>REQUIREMENT workload=&lt;nom&gt; model=&lt;MODEL&gt;</code><br><br>
-Format de sortie attendu :<br>
-<code>DECISION workload=&lt;nom&gt;: SERVICE=&lt;SERVICE&gt; JUSTIFICATION="&lt;JUSTIFICATION&gt;"</code><br>
-(Si le modèle est inconnu : <code>DECISION workload=&lt;nom&gt;: SERVICE=UNKNOWN JUSTIFICATION="Modèle non supporté"</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer une politique de cycle de vie du stockage Blob (paliers, suppression) et chiffrer le coût d'un volume par palier.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Ombrelys, cabinet d'expertise comptable à Lille, applique au conteneur <code>factures</code> la politique de cycle de vie suivante :</p><ul><li>règle 1 : les blobs versés depuis plus de <strong>30 jours</strong> passent en palier Froid ;</li><li>règle 2 : les blobs versés depuis plus de <strong>90 jours</strong> passent en palier Archive ;</li><li>règle 3 : les blobs versés depuis plus de <strong>2 550 jours</strong> (7 ans) sont supprimés.</li></ul><p>Tarifs mensuels de l'énoncé : Chaud 0,018 €/Go, Froid 0,010 €/Go, Archive 0,001 €/Go. Situation au <strong>30 avril 2025</strong> :</p><table><tr><th>Fichier</th><th>Date de versement</th><th>Ancienneté au 30 avril 2025</th></tr><tr><th>facture-2025-03-04.pdf</th><td>4 mars 2025</td><td>57 jours</td></tr><tr><th>facture-2024-09-12.pdf</th><td>12 septembre 2024</td><td>230 jours</td></tr><tr><th>facture-2018-02-01.pdf</th><td>1er février 2018</td><td>plus de 7 ans</td></tr></table><ol><li>Dans quel palier se trouve facture-2025-03-04.pdf au 30 avril 2025 ?</li><li>Dans quel palier se trouve facture-2024-09-12.pdf ?</li><li>Que devient facture-2018-02-01.pdf ?</li><li>Quel est le coût mensuel de stockage de 1 000 Go en palier Froid, en euros ?</li><li>Une facture versée le 15 mars 2025 est-elle déjà passée en palier Froid au 30 avril 2025 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQUIREMENT workload=app-erp model=RELATIONAL
-REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le cabinet d'avocats Vigie applique : palier Froid après 60 jours, Archive après
+180 jours, suppression après 10 ans. Audit au 1er juin 2025 :
+- memo-2025-04-20.pdf : versé depuis 42 jours ;
+- memo-2024-06-15.pdf : versé depuis 351 jours ;
+- memo-2013-01-10.pdf : plus de 10 ans.
+
+1) 42 jours : moins de 60, le mémo reste en palier Chaud.
+2) 351 jours : au-delà de 180, il est en palier Archive.
+3) Le mémo de 2013 est supprimé.
+4) 2 000 Go en Froid coûtent 2 000 × 0,010 = 20 € par mois.
+5) Un versement du 20 avril 2025 (42 jours) n'est pas encore passé en Froid.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Associer chaque mot-clé de modèle de données aux caractéristiques techniques du service managé Azure.</li>
-        <li>Soigner le formatage avec guillemets autour de la justification.</li>
+        <li>Pour chaque fichier, comparez son ancienneté aux seuils 30, 90 et 2 550 jours, en commençant par le seuil le plus long.</li>
+        <li>Le coût d'un volume se calcule en multipliant les Go par le prix au Go du palier concerné.</li>
+        <li>1. 57 jours se situent entre 30 et 90. 2. 230 jours dépassent 90. 3. Comparez 7 ans au seuil de suppression. 4. Multipliez 1 000 par 0,010. 5. Comptez les jours écoulés depuis le 15 mars (mars compte 31 jours).</li>
       </ol>
     </details>
   </div>
@@ -386,9 +370,9 @@ REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
       <p class="q__stem">Quel protocole réseau standard Azure Files supporte-t-il nativement pour permettre le montage de lecteurs réseau partagés sur des postes Windows et serveurs Linux ?</p>
       <div class="opts">
         <button class="opt">FTP</button>
-        <button class="opt" data-correct="1">SMB 3.0 / NFS</button>
-        <button class="opt">Telnet</button>
         <button class="opt">TFTP</button>
+        <button class="opt">Telnet</button>
+        <button class="opt" data-correct="1">SMB 3.0 / NFS</button>
       </div>
       <div class="q__exp">Azure Files fournit des partages de fichiers managés dans le Cloud accessibles directement via les protocoles standard SMB 3.0 (port 445) et NFS 4.1.</div>
     </div>
@@ -406,17 +390,17 @@ REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
       <p class="q__stem">Quel palier de stockage offre le coût de stockage par Go le plus bas (moins de 0.001 $/Go/mois) mais nécessite une réhydratation de plusieurs heures pour être lu ?</p>
       <div class="opts">
         <button class="opt">Hot</button>
-        <button class="opt">Cool</button>
-        <button class="opt">Cold</button>
         <button class="opt" data-correct="1">Archive</button>
+        <button class="opt">Cold</button>
+        <button class="opt">Cool</button>
       </div>
       <div class="q__exp">Le palier Archive stocke les données hors ligne au tarif le plus bas (≈ 0.00099 $/Go/mois), mais nécessite un délai de réhydratation de plusieurs heures pour redevenir lisible.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel paramètre d'un jeton de signature d'accès partagé (SAS) permet de forcer l'utilisation exclusive du protocole chiffré HTTPS ?</p>
       <div class="opts">
-        <button class="opt">ssl=true</button>
         <button class="opt" data-correct="1">spr=https</button>
+        <button class="opt">ssl=true</button>
         <button class="opt">tls=1.3</button>
         <button class="opt">secure=yes</button>
       </div>
@@ -426,9 +410,9 @@ REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
       <p class="q__stem">Dans quelles circonstances devez-vous recommander Azure Cosmos DB plutôt qu'Azure SQL Database ?</p>
       <div class="opts">
         <button class="opt">Pour héberger une application comptable nécessitant des jointures SQL complexes et des clés étrangères strictes</button>
+        <button class="opt">Pour réduire la taille de la mémoire RAM allouée à une machine virtuelle hébergeant la base</button>
+        <button class="opt">Uniquement pour archiver des fichiers PDF et des documents bureautiques rarement consultés par les utilisateurs</button>
         <button class="opt" data-correct="1">Pour une application mobile mondiale requérant une latence sub-10ms, un modèle de données semi-structuré JSON et une distribution multi-régions</button>
-        <button class="opt">Pour réduire la taille de la mémoire RAM d'une VM</button>
-        <button class="opt">Uniquement pour les fichiers PDF archivés</button>
       </div>
       <div class="q__exp">Azure Cosmos DB est la base NoSQL par excellence pour les applications web et mobiles modernes distribuées mondialement nécessitant une latence ultra-faible garantie et un schéma JSON flexible.</div>
     </div>
@@ -437,8 +421,8 @@ REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
       <div class="opts">
         <button class="opt">5 Go</button>
         <button class="opt">100 Go</button>
-        <button class="opt">5 To</button>
         <button class="opt" data-correct="1">Environ 190.7 To</button>
+        <button class="opt">5 To</button>
       </div>
       <div class="q__exp">Un Block Blob standard dans Azure Storage peut atteindre jusqu'à environ 190.7 To (50 000 blocs de 4 000 Mo chacun).</div>
     </div>
@@ -446,18 +430,18 @@ REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
       <p class="q__stem">Quelle stratégie de réplication garantit la copie synchrone sur 3 zones de disponibilité locales, suivie d'une réplication asynchrone dans la région jumelée ?</p>
       <div class="opts">
         <button class="opt">LRS</button>
-        <button class="opt">ZRS</button>
-        <button class="opt">GRS</button>
         <button class="opt" data-correct="1">GZRS (Geo-Zone-Redundant Storage)</button>
+        <button class="opt">GRS</button>
+        <button class="opt">ZRS</button>
       </div>
       <div class="q__exp">GZRS (Geo-Zone-Redundant Storage) combine la haute disponibilité locale sur 3 zones (ZRS) avec la résilience géographique dans la région jumelée (GRS).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel service Azure Storage devez-vous utiliser pour créer un système de découplage de tâches et de traitement asynchrone entre microservices ?</p>
       <div class="opts">
-        <button class="opt">Blob Storage</button>
-        <button class="opt">Azure Files</button>
         <button class="opt" data-correct="1">Azure Queue Storage</button>
+        <button class="opt">Azure Files</button>
+        <button class="opt">Blob Storage</button>
         <button class="opt">Ultra Disk</button>
       </div>
       <div class="q__exp">Azure Queue Storage permet de stocker d'immenses volumes de messages (jusqu'à 64 Ko par message) pour découpler les microservices et absorber les pics de charge applicatifs.</div>
@@ -580,7 +564,7 @@ REQUIREMENT workload=mobile-cart model=NOSQL_DOCUMENT</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

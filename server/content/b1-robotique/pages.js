@@ -137,15 +137,13 @@ function atelier(course) {
   const body = [
     crumb(course, [{ href: 'index.html', label: course.brand }, { href: 'sommaire.html', label: 'Sommaire' }, { label: 'Atelier' }]),
     '  <h1>Atelier de simulation</h1>',
-    '  <p class="lead">Un éditeur dans la page, un vrai interpréteur Python derrière. Programme le ' +
-    'comportement du robot, exécutez-le et lisez ce qu’il affiche : c’est ici qu’une idée devient un programme.</p>',
+    '  <p class="lead">Un espace structuré dans la page pour analyser le comportement d’un montage robotique, décrire ses transitions et valider vos grilles par cas d’usage.</p>',
     box('objectifs', 'Comment fonctionne l’atelier', 'target', [
       '    <ul>',
-      '      <li><strong>Exécuter</strong> fait tourner votre code Python tel quel et affiche sa sortie, ses erreurs et son code de sortie.</li>',
-      '      <li><strong>Données du cas</strong> contient les paramètres soumis à l’étude.</li>',
-      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur, quand il y a une erreur, pourquoi elle survient et par où chercher. Il explique en mots : il n’écrit jamais de code à votre place.</li>',
-      '      <li>Le raccourci <strong>Ctrl + Entrée</strong> exécute le script sans quitter l’éditeur.</li>',
-      '      <li>Votre code est conservé dans ce navigateur, par exercice et par cours.</li>',
+      '      <li><strong>Rédiger par cas</strong> organise vos réponses sous chaque repère d’étude.</li>',
+      '      <li><strong>Données du cas</strong> contient les relevés de capteurs et consignes soumis à l’étude.</li>',
+      '      <li><strong>Expliquer mon erreur</strong> demande au tuteur pourquoi un raisonnement diverge et comment l’ajuster.</li>',
+      '      <li>Votre analyse est conservée dans ce navigateur, par exercice et par cours.</li>',
       '    </ul>'
     ].join('\n')),
     '  <h2>Zone libre</h2>',
@@ -153,13 +151,12 @@ function atelier(course) {
       '<div class="lab" data-lab',
       '     data-language="analyse"',
       '     data-height="360"',
-      '     data-languages="1"',
       '     data-stdin="">',
-      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Cas d\'application libre]\n# Données :\nA_COMPLETER\n</script>',
+      '  <script type="text/plain" data-lab-starter># Zone libre : appliquez la méthodologie du cours.\n# Rédigez votre analyse sous forme de grille structurée.\n\n[Cas 1 — Zone libre : simulez votre logique robotique]\nA_COMPLETER\n</script>',
       '  <div class="lab__head">',
       '    <h3 class="lab__title">Zone libre — régulateur de distance</h3>',
       '    <div class="lab__meta">',
-      '      <span class="lab__lang">' + ic('terminal') + ' Python</span>',
+      '      <span class="lab__lang">' + ic('layers') + ' Étude de cas</span>',
       '    </div>',
       '  </div>',
       '  <div class="lab__body">',
@@ -457,7 +454,7 @@ function examens(course) {
     sujets.map(sujet => '  <h2>' + sujet.title + '</h2>\n\n  <p class="lead">' + sujet.intro + '</p>\n\n' +
       sujet.items.map(itemHtml).join('\n\n')).join('\n\n'),
     '  <h2>QCM final — toutes notions</h2>',
-    '  ' + qcm(mastery, { mastery: true }),
+    '  ' + qcm(mastery, { mastery: true, secure: true }),
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },

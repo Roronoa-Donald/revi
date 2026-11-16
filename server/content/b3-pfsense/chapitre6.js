@@ -95,6 +95,16 @@ module.exports = {
         '  </div>',
         '</div>'
       ].join('\n')
+    },
+    {
+      title: 'Reverse Proxy L7 HAProxy &amp; Tunnels Modernes WireGuard sous pfSense',
+      html: [
+        '<p>Au-delà du filtrage L3/L4 et du clustering CARP/pfsync, une appliance pfSense de bordure intègre deux briques majeures pour publier et interconnecter les services d’entreprise :</p>',
+        '<ul>',
+        '  <li><strong>HAProxy (Reverse Proxy &amp; Load Balancer L7) :</strong> le package <code>pfSense-pkg-haproxy</code> assure la terminaison TLS (<em>SSL Offloading</em> avec certificats ACME / Let’s Encrypt), l’aiguillage HTTP par nom d’hôte (ACL sur l’en-tête <code>Host</code> ou le SNI) vers plusieurs <em>backends</em> internes en DMZ et les sondes de santé actives (<em>Health Checks</em> HTTP <code>200 OK</code>).</li>',
+        '  <li><strong>WireGuard (VPN cryptographique moderne) :</strong> en complément d’OpenVPN et d’IPsec IKEv2, le package WireGuard s’appuie sur le protocole <em>Noise</em> (Curve25519, ChaCha20-Poly1305, BLAKE2s) avec routage par clés publiques (<em>Cryptokey Routing</em> / <code>AllowedIPs</code>) pour établir des liaisons site-à-site ou nomades à faible latence.</li>',
+        '</ul>'
+      ].join('\n')
     }
   ],
   method: [
@@ -141,76 +151,76 @@ module.exports = {
     {
       stem: 'Quel protocole réseau ouvert est utilisé par pfSense pour partager une adresse IP virtuelle (VIP) en haute disponibilité ?',
       opts: [
-        'HSRP (Hot Standby Router Protocol)',
-        'CARP (Common Address Redundancy Protocol)',
-        'VRRP propriétaire',
-        'OSPF'
+        "HSRP (Hot Standby Router Protocol) de Cisco",
+        "VRRP (Virtual Router Redundancy Protocol)",
+        "OSPF (Open Shortest Path First), routage dynamique",
+        "CARP (Common Address Redundancy Protocol)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'CARP est le standard libre développé sous BSD pour assurer la redondance d’adresses IP entre pare-feux sans brevets propriétaires.'
     },
     {
       stem: 'Dans la formule d’annonce CARP (advbase + advskew / 256), quel nœud est élu MASTER du cluster ?',
       opts: [
         'Le nœud ayant le plus grand advskew',
-        'Le nœud ayant le plus petit advskew (annonce la plus rapide)',
         'Le nœud ayant la plus grande quantité de mémoire vive',
+        'Le nœud ayant le plus petit advskew (annonce la plus rapide)',
         'Le nœud désigné aléatoirement par le commutateur'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le nœud émettant au rythme le plus rapide (plus petite valeur d’advskew, typiquement 0) s’impose comme Master auprès des autres.'
     },
     {
       stem: 'Quel protocole BSD est responsable de répliquer les sessions de la table d’états entre pare-feux en temps réel ?',
       opts: [
-        'pfsync',
         'rsync',
+        'pfsync',
         'syslog',
         'CARP'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'pfsync synchronise les entrées de la table d’états entre les pare-feux, mais ne garantit pas le maintien de chaque session lors d’une bascule.'
     },
     {
       stem: 'Comment la synchronisation des règles et de la configuration s’opère-t-elle entre le nœud primaire et secondaire ?',
       opts: [
-        'Par transfert FTP non chiffré',
         'Via des appels chiffrés XMLRPC sur l’interface dédiée',
+        'Par transfert FTP non chiffré',
         'Par copier-coller manuel obligatoire',
         'Via une base de données MySQL partagée'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'XMLRPC Sync synchronise le fichier config.xml du pare-feu primaire vers le pare-feu secondaire lors de toute modification.'
     },
     {
       stem: 'Dans quelle table de filtrage du noyau pf les adresses IP bloquées par Snort ou Suricata sont-elles insérées dynamiquement ?',
       opts: [
         'blocked_ips',
-        'snort2c',
+        'drop_table',
         'bogons',
-        'drop_table'
+        'snort2c'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La table système pf snort2c stocke dynamiquement les adresses IP d’attaquants identifiées par l’IDS/IPS pour appliquer un DROP immédiat.'
     },
     {
       stem: 'Pourquoi est-il indispensable de configurer une Pass List (liste blanche) sur le module IDS/IPS Snort ?',
       opts: [
-        'Pour accélérer la connexion Internet',
-        'Pour empêcher le blocage accidentel des passerelles et serveurs DNS internes en cas d’usurpation d’adresse IP',
-        'Pour contourner les limites de licence Snort',
-        'Pour autoriser le téléchargement de vidéos'
+        "Pour accélérer la connexion Internet en court-circuitant l’inspection des paquets du flux",
+        "Pour contourner les limites de licence Snort imposées en environnement professionnel",
+        "Pour empêcher le blocage accidentel des passerelles et serveurs DNS internes en cas d’usurpation d’adresse IP",
+        "Pour autoriser le téléchargement de vidéos volumineuses sans inspection de contenu"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Sans Pass List, un pirate pourrait forger des paquets malveillants avec l’adresse IP du routeur ou du DNS interne pour forcer pfSense à bloquer ses propres infrastructures clés.'
     },
     {
       stem: 'Quel protocole de transport réseau et quelle adresse multicast sont utilisés par les annonces CARP ?',
       opts: [
-        'TCP sur port 443',
-        'Protocole IP 112 sur l’adresse multicast 224.0.0.18',
-        'UDP port 53',
-        'ICMP Echo Request'
+        "TCP sur le port 443 sécurisé par une session TLS mutuelle",
+        "Protocole IP 112 sur l’adresse multicast 224.0.0.18",
+        "UDP sur le port 53 réservé aux résolutions DNS",
+        "ICMP Echo Request envoyé périodiquement aux membres du cluster"
       ],
       correct: 1,
       exp: 'CARP utilise le protocole IP numéro 112 et diffuse ses annonces sur l’adresse multicast IPv4 réservée 224.0.0.18.'
@@ -218,12 +228,12 @@ module.exports = {
     {
       stem: 'Quelle commande CLI permet de vérifier le contenu de la table de blocage snort2c sous pfSense ?',
       opts: [
-        'pfctl -s rules',
         'pfctl -t snort2c -T show',
+        'pfctl -s rules',
         'cat /var/log/snort.log',
         'ifconfig carp0'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La commande pfctl -t snort2c -T show affiche la liste des adresses IP actuellement verrouillées dans la table noyau snort2c.'
     }
   ],

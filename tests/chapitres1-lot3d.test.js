@@ -89,14 +89,14 @@ test('SQL annonce les requêtes dans les objectifs et Linux signale sa conventio
   assert.ok(sql.objectives.some(objective => /SELECT.*DISTINCT.*ORDER BY/.test(objective)));
   assert.match(sql.sections[0].html, /Un tableur peut aussi organiser, filtrer et partager/);
   assert.match(linux.sections.map(section => section.html).join(' '), /Ce n’est pas une normalisation/);
-  assert.equal(policy.isGradingSuspended('b1-linux', 'lx-c1-e1'), true);
+  assert.equal(policy.isGradingSuspended('b1-linux', 'lx-c1-e1'), false);
 });
 
 test('le chapitre algorithmique explicite le quotient plancher et la convention de remise', () => {
   const lesson = fs.readFileSync(path.join(__dirname, '../b1-algo/chapitres/chapitre1.html'), 'utf8');
   assert.match(lesson, /-7 \/\/ 4<\/code> vaut <code>-2/);
   assert.match(lesson, /arrondit la remise vers le bas avant de la soustraire/);
-  assert.equal(policy.isGradingSuspended('b1-algo', 'algo-c1-e2'), true);
+  assert.equal(policy.isGradingSuspended('b1-algo', 'algo-c1-e2'), false);
 });
 
 test('le cours C distingue pointeur vers le tableau et adresse du scalaire', () => {
@@ -105,26 +105,25 @@ test('le cours C distingue pointeur vers le tableau et adresse du scalaire', () 
   assert.match(lesson, /comportement indéfini/);
   assert.match(lesson, /combien de conversions ont réussi/);
   const exercise = catalogue.getExercise('c-c1-e1');
-  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), true);
+  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), false);
   assert.doesNotMatch(exercise.hints.join(' '), /seule variable/);
 });
 
 test('une mutation de la division des minutes est désormais interceptée par la suite de tests', async () => {
+  const localRunner = require('../server/services/execution/local-runner');
   const exercise = catalogue.getExercise('algo-c1-e3');
-  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), true);
-  const mutant = exercise.solution.replace('(total % 3600) // 60', '(total % 3600) // 61');
+  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), false);
+  const mutant = exercise.solution.replace('reste DIV 60', 'reste DIV 61');
   assert.notEqual(mutant, exercise.solution);
   const provider = async ({ code, stdin }) => {
-    const result = spawnSync('/usr/bin/bwrap', [
-      '--die-with-parent', '--unshare-all', '--new-session', '--clearenv', '--cap-drop', 'ALL',
-      '--ro-bind', '/usr', '/usr', '--symlink', 'usr/bin', '/bin', '--symlink', 'usr/lib', '/lib',
-      '--symlink', 'usr/lib', '/lib64', '--dir', '/etc', '--ro-bind', '/etc/ld.so.cache', '/etc/ld.so.cache',
-      '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp', '--chdir', '/tmp',
-      '/usr/bin/python3', '-I', '-B', '-c', code
-    ], { input: stdin, encoding: 'utf8', timeout: 5000, maxBuffer: 1024 * 1024 });
-    if (result.error) throw result.error;
-    return { ok: result.status === 0, status: result.status === 0 ? 'success' : 'runtime_error',
-      stdout: result.stdout, stderr: result.stderr, exitCode: result.status };
+    const res = await localRunner.runPseudoCode(code, stdin);
+    return {
+      ok: res.ok,
+      status: res.ok ? 'success' : 'runtime_error',
+      stdout: res.data?.stdout || '',
+      stderr: res.data?.stderr || '',
+      exitCode: res.data?.exit_code ?? 1
+    };
   };
   const execution = await runTests(exercise, mutant, { execute: provider });
   assert.equal(execution.stop?.reason, 'wrong_output');

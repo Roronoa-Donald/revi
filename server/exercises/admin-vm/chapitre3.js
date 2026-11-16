@@ -21,8 +21,9 @@ $coeurs = [int][Console]::In.ReadLine()
 # À compléter : afficher "surallocation : oui/non" puis "exces : X".
 `,
     hints: [
-      'Surallocation quand `($vcpu -gt $coeurs)`.',
-      'L’excédent vaut `$vcpu - $coeurs`.'
+      "Surallocation quand `($vcpu -gt $coeurs)`.",
+      "L’excédent vaut `$vcpu - $coeurs`.",
+      "Étapes : lire vcpu puis coeurs ; si vcpu dépasse coeurs, « surallocation : oui » et l’excédent vaut la différence ; sinon « non » avec excédent 0."
     ],
     examples: [
       { stdin: '24\n16', expected: 'surallocation : oui\nexces : 8', note: '8 vCPU de trop.' }
@@ -42,7 +43,8 @@ if ($vcpu -gt $coeurs) {
     Write-Output "surallocation : non"
     Write-Output "exces : 0"
 }
-`
+`,
+    takeaway: "Comparer vCPU / pCPU au plafond recommandé prévient les temps d attente CPU Ready nuisant aux applications sensibles."
   },
   {
     id: 'vm2-c3-e2',
@@ -61,8 +63,9 @@ if ($vcpu -gt $coeurs) {
 # À compléter : avec un switch, afficher la tâche de la phase.
 `,
     hints: [
-      'Conception → définir les besoins ; Provisioning → allouer les ressources.',
-      'Exploitation → superviser ; Retrait → archiver et nettoyer.'
+      "Conception → définir les besoins ; Provisioning → allouer les ressources.",
+      "Exploitation → superviser ; Retrait → archiver et nettoyer.",
+      "Étapes : lire la phase ; conception → definir les besoins, provisioning → allouer, exploitation → superviser, retrait → archiver ; sinon « tache : inconnue »."
     ],
     examples: [
       { stdin: 'autre', expected: 'tache : inconnue', note: 'Une phase qui ne figure pas dans la liste est inconnue.' }
@@ -83,7 +86,8 @@ switch ($phase) {
     "retrait" { Write-Output "tache : archiver et nettoyer" }
     default { Write-Output "tache : inconnue" }
 }
-`
+`,
+    takeaway: "Le cycle de vie d une VM enchaîne provisionnement, exploitation/migration, instantanés maîtrisés et décommissionnement."
   },
   {
     id: 'vm2-c3-e3',
@@ -103,8 +107,9 @@ $ramVm = [int][Console]::In.ReadLine()
 # À compléter : calculer la capacité utile et afficher "capacite : X".
 `,
     hints: [
-      'Mémoire utile = `$ramHote - $ramSysteme`.',
-      'Capacité = division entière de la mémoire utile par $ramVm.'
+      "Mémoire utile = `$ramHote - $ramSysteme`.",
+      "Capacité = division entière de la mémoire utile par $ramVm.",
+      "Étapes : lire ramHote, ramSysteme puis ramVm ; utile = ramHote − ramSysteme ; capacite = partie entière de utile/ramVm ; afficher « capacite : »."
     ],
     examples: [
       { stdin: '64\n8\n4', expected: 'capacite : 14', note: '56 Go utiles pour des VM de 4 Go.' }
@@ -121,6 +126,7 @@ $ramVm = [int][Console]::In.ReadLine()
 $utile = $ramHote - $ramSysteme
 $capacite = [int]([math]::Floor($utile / $ramVm))
 Write-Output ("capacite : " + $capacite)
-`
+`,
+    takeaway: "Toujours soustraire la mémoire réservée à l hyperviseur (dom0/OS hôte) avant d estimer la capacité allouable aux invités."
   }
 ];

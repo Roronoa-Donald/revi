@@ -100,14 +100,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: '« 30545454 » sans contexte, c\'est…', opts: ['une information', 'une donnée', 'une connaissance'], correct: 1, exp: 'Un chiffre brut est une donnée ; il devient information quand on sait qu\'il s\'agit d\'un numéro de client à rappeler.' },
-      { q: 'La chaîne correcte est…', opts: ['donnée + traitement + contexte = information', 'information + traitement = donnée', 'connaissance + contexte = information'], correct: 0, exp: 'La donnée est travaillée (collecte, saisie, stockage, traitement) et mise en contexte pour devenir information.' },
+      { q: '« 30545454 » sans contexte, c\'est…', opts: ['une donnée', 'une information', 'une connaissance'], correct: 0, exp: 'Un chiffre brut est une donnée ; il devient information quand on sait qu\'il s\'agit d\'un numéro de client à rappeler.' },
+      { q: 'La chaîne correcte est…', opts: ['information + traitement = donnée', 'donnée + traitement + contexte = information', 'connaissance + contexte = information'], correct: 1, exp: 'La donnée est travaillée (collecte, saisie, stockage, traitement) et mise en contexte pour devenir information.' },
       { q: 'Le système de décision…', opts: ['assemble les produits', 'mémorise les factures', 'assigne les objectifs et contrôle'], correct: 2, exp: 'Il analyse l\'environnement et le fonctionnement interne, assigne les objectifs, contrôle le travail de l\'opérant.' },
-      { q: 'Le système opérant…', opts: ['produit les biens et services', 'stocke les commandes', 'édite les budgets'], correct: 0, exp: 'C\'est la production physique de flux de biens et services.' },
-      { q: 'Le système d\'information…', opts: ['décide à la place du gérant', 'mémorise, traite et transmet', 'fabrique les produits'], correct: 1, exp: 'Il mémorise des informations internes et externes, les traite et les transmet aux autres sous-systèmes.' },
+      { q: 'Le système opérant…', opts: ['édite les budgets', 'stocke les commandes', 'produit les biens et services'], correct: 2, exp: 'C\'est la production physique de flux de biens et services.' },
+      { q: 'Le système d\'information…', opts: ['mémorise, traite et transmet', 'décide à la place du gérant', 'fabrique les produits'], correct: 0, exp: 'Il mémorise des informations internes et externes, les traite et les transmet aux autres sous-systèmes.' },
       { q: 'Une loi nouvelle qui contraint l\'entreprise est une information…', opts: ['technique', 'juridique', 'commerciale'], correct: 1, exp: 'Les lois, directives et règlements relèvent du domaine juridique.' },
-      { q: '« L\'entreprise est un système ouvert » signifie…', opts: ['tout le monde peut y entrer', 'elle est en relation avec son environnement', 'elle n\'a pas de frontière juridique'], correct: 1, exp: 'Ouvert = en relation avec l\'environnement économique, juridique, technique ; pas « public ».' },
-      { q: '« L\'entreprise est régulée » signifie…', opts: ['des décisions hiérarchisées corrigent le fonctionnement', 'elle produit sans arrêt', 'elle change de nom souvent'], correct: 0, exp: 'La régulation : un groupe organisé et hiérarchisé prend les décisions correctives.' }
+      { q: '« L\'entreprise est un système ouvert » signifie…', opts: ['tout le monde peut y entrer', 'elle n\'a pas de frontière juridique', 'elle est en relation avec son environnement'], correct: 2, exp: 'Ouvert = en relation avec l\'environnement économique, juridique, technique ; pas « public ».' },
+      { q: '« L\'entreprise est régulée » signifie…', opts: ["elle produit sans arrêt, jour et nuit, sans pause","des décisions hiérarchisées corrigent le fonctionnement","elle change souvent de nom et d'activité"], correct: 1, exp: 'La régulation : un groupe organisé et hiérarchisé prend les décisions correctives.' }
     ],
 
     pitfalls: [
@@ -236,14 +236,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'MERISE se caractérise par…', opts: ['une démarche unique par essais-erreurs', 'une double démarche par niveaux et par étapes', 'une démarche uniquement physique'], correct: 1, exp: 'Par niveaux (conceptuel, logique, physique) et par étapes (cycle de vie du projet).' },
-      { q: 'Au niveau conceptuel, on répond à…', opts: ['comment réaliser ?', 'comment organiser ?', 'quoi ?'], correct: 2, exp: 'Le conceptuel décrit le système indépendamment de toute contrainte technique.' },
-      { q: 'Le MLD appartient au niveau…', opts: ['conceptuel', 'logique/organisationnel', 'physique'], correct: 1, exp: 'Le MLD organise le stockage : c\'est la forme machinale du MCD, niveau logique.' },
-      { q: 'Le MCT décrit…', opts: ['les traitements fondamentaux, sans organisation', 'les programmes', 'les tables SQL'], correct: 0, exp: 'Le MCT représente les règles de traitement fondamentales et leurs enchaînements.' },
-      { q: 'Le MOpT appartient au niveau…', opts: ['physique', 'logique', 'conceptuel'], correct: 0, exp: 'Le MOpT (opérationnel) décrit comment réaliser les traitements : niveau physique.' },
-      { q: 'Si le taux de TVA est codé dans le programme…', opts: ['rien ne change quand le taux bouge', 'le programme doit être modifié à chaque changement', 'les données deviennent inutiles'], correct: 1, exp: 'Traitement codé en dur = réécriture à chaque changement ; donnée mémorisée = simple mise à jour.' },
-      { q: 'La séparation données/traitements garantit…', opts: ['cohérence et pérennité', 'rapidité et prix', 'sécurité et mot de passe'], correct: 0, exp: 'Cohérence (étude globale) et pérennité (les traitements évoluent sans casser les données).' },
-      { q: 'La démarche par niveaux part…', opts: ['du pratique vers le théorique', 'du théorique vers la pratique', 'du hasard'], correct: 1, exp: 'Modèle idéal au conceptuel, adaptation au logique, mise en place au physique.' }
+      { q: 'MERISE se caractérise par…', opts: ['une double démarche par niveaux et par étapes', 'une démarche unique par essais-erreurs', 'une démarche uniquement physique'], correct: 0, exp: 'Par niveaux (conceptuel, logique, physique) et par étapes (cycle de vie du projet).' },
+      { q: 'Au niveau conceptuel, on répond à…', opts: ['comment réaliser ?', 'quoi ?', 'comment organiser ?'], correct: 1, exp: 'Le conceptuel décrit le système indépendamment de toute contrainte technique.' },
+      { q: 'Le MLD appartient au niveau…', opts: ['conceptuel', 'physique', 'logique/organisationnel'], correct: 2, exp: 'Le MLD organise le stockage : c\'est la forme machinale du MCD, niveau logique.' },
+      { q: 'Le MCT décrit…', opts: ["les traitements fondamentaux, sans organisation","les programmes informatiques de l'application","les tables SQL de la base de données"], correct: 0, exp: 'Le MCT représente les règles de traitement fondamentales et leurs enchaînements.' },
+      { q: 'Le MOpT appartient au niveau…', opts: ['logique', 'physique', 'conceptuel'], correct: 1, exp: 'Le MOpT (opérationnel) décrit comment réaliser les traitements : niveau physique.' },
+      { q: 'Si le taux de TVA est codé dans le programme…', opts: ['le programme doit être modifié à chaque changement', 'rien ne change quand le taux bouge', 'les données deviennent inutiles'], correct: 0, exp: 'Traitement codé en dur = réécriture à chaque changement ; donnée mémorisée = simple mise à jour.' },
+      { q: 'La séparation données/traitements garantit…', opts: ['sécurité et mot de passe', 'rapidité et prix', 'cohérence et pérennité'], correct: 2, exp: 'Cohérence (étude globale) et pérennité (les traitements évoluent sans casser les données).' },
+      { q: 'La démarche par niveaux part…', opts: ['du pratique vers le théorique', 'du hasard', 'du théorique vers la pratique'], correct: 2, exp: 'Modèle idéal au conceptuel, adaptation au logique, mise en place au physique.' }
     ],
 
     pitfalls: [
@@ -371,14 +371,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le MontantTTC d\'une facture est une propriété…', opts: ['élémentaire', 'composée', 'calculée'], correct: 2, exp: 'Il se déduit du HT et de la TVA par une règle de calcul : le MCD ne le mémorise pas.' },
+      { q: 'Le MontantTTC d\'une facture est une propriété…', opts: ['élémentaire', 'calculée', 'composée'], correct: 1, exp: 'Il se déduit du HT et de la TVA par une règle de calcul : le MCD ne le mémorise pas.' },
       { q: '« Adresse = numéro, rue, ville » : Adresse est…', opts: ['composée', 'calculée', 'élémentaire'], correct: 0, exp: 'Sa valeur est obtenue par une règle de construction sur d\'autres informations.' },
-      { q: 'NumClt → NomClt se lit…', opts: ['le nom détermine le numéro', 'le numéro détermine le nom', 'les deux sont équivalents'], correct: 1, exp: 'A → B : connaître A suffit pour connaître B.' },
-      { q: 'Le dictionnaire de données sert à…', opts: ['dessiner le MCD directement', 'recenser et décrire toutes les propriétés', 'écrire les programmes'], correct: 1, exp: 'Il recense et décrit l\'ensemble des propriétés utilisées pour élaborer le MCD.' },
-      { q: 'La matrice des dépendances sert à…', opts: ['voir toutes les DF d\'un coup d\'œil et repérer les identifiants', 'compter les utilisateurs', 'dessiner les écrans'], correct: 0, exp: 'Croisement sources × cibles : on y lit identifiants candidats, propriétés élémentaires et CIF.' },
-      { q: 'NumCde → NumClt (numéro de commande détermine le client) est…', opts: ['une CIF', 'une association réflexive', 'une erreur toujours'], correct: 0, exp: 'Une DF vers l\'identifiant d\'un autre groupe de propriétés est une contrainte d\'intégrité fonctionnelle.' },
-      { q: 'Une propriété calculée dans une table…', opts: ['est recommandée', 'crée un risque d\'incohérence', 'est obligatoire en 3FN'], correct: 1, exp: 'Elle risque de contredire le recalcul ; on la calcule au moment du traitement.' },
-      { q: 'À quoi reconnaît-on l\'identifiant dans la matrice ?', opts: ['il est la source de toutes les autres propriétés de l\'entité', 'il est en colonne', 'il apparaît deux fois'], correct: 0, exp: 'L\'identifiant détermine toutes les propriétés de son entité.' }
+      { q: 'NumClt → NomClt se lit…', opts: ['le nom détermine le numéro', 'les deux sont équivalents', 'le numéro détermine le nom'], correct: 2, exp: 'A → B : connaître A suffit pour connaître B.' },
+      { q: 'Le dictionnaire de données sert à…', opts: ['recenser et décrire toutes les propriétés', 'dessiner le MCD directement', 'écrire les programmes'], correct: 0, exp: 'Il recense et décrit l\'ensemble des propriétés utilisées pour élaborer le MCD.' },
+      { q: 'La matrice des dépendances sert à…', opts: ["compter les utilisateurs et les volumes de données","voir toutes les DF d'un coup d'œil et repérer les identifiants","dessiner les futurs écrans de saisie du logiciel"], correct: 1, exp: 'Croisement sources × cibles : on y lit identifiants candidats, propriétés élémentaires et CIF.' },
+      { q: 'NumCde → NumClt (numéro de commande détermine le client) est…', opts: ['une erreur toujours', 'une association réflexive', 'une CIF'], correct: 2, exp: 'Une DF vers l\'identifiant d\'un autre groupe de propriétés est une contrainte d\'intégrité fonctionnelle.' },
+      { q: 'Une propriété calculée dans une table…', opts: ['crée un risque d\'incohérence', 'est recommandée', 'est obligatoire en 3FN'], correct: 0, exp: 'Elle risque de contredire le recalcul ; on la calcule au moment du traitement.' },
+      { q: 'À quoi reconnaît-on l\'identifiant dans la matrice ?', opts: ["il occupe toujours la dernière colonne de la matrice","il est la source de toutes les autres propriétés de l'entité","il apparaît exactement deux fois dans la matrice"], correct: 1, exp: 'L\'identifiant détermine toutes les propriétés de son entité.' }
     ],
 
     pitfalls: [

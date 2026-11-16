@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -162,11 +160,34 @@ nouvelle_adresse = A + padding</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>5. Trace d’étiquettes symboliques &amp; Simulateur d’assemblage x86-16</h2>
+
+<p>Lors de l’assemblage, chaque étiquette (comme <code>boucle:</code> ou <code>fin:</code>) est convertie en index d’instruction pour le pointeur <code>IP</code>. Voici la trace complète d’une boucle de décrémentation utilisant <code>DEC</code> et <code>JNE</code> :</p>
+<table class="table">
+  <thead><tr><th>Cycle</th><th>IP initial</th><th>Instruction exécutée</th><th>AX</th><th>CX</th><th>ZF</th><th>IP suivant</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>0</td><td><code>MOV AX, 0</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td>0</td><td>1</td></tr>
+    <tr><td>2</td><td>1</td><td><code>MOV CX, 2</code></td><td><code>0x0000</code></td><td><code>0x0002</code></td><td>0</td><td>2 (<code>boucle</code>)</td></tr>
+    <tr><td>3</td><td>2</td><td><code>ADD AX, 5</code></td><td><code>0x0005</code></td><td><code>0x0002</code></td><td>0</td><td>3</td></tr>
+    <tr><td>4</td><td>3</td><td><code>DEC CX</code></td><td><code>0x0005</code></td><td><code>0x0001</code></td><td>0</td><td>4</td></tr>
+    <tr><td>5</td><td>4</td><td><code>JNE boucle</code></td><td><code>0x0005</code></td><td><code>0x0001</code></td><td>0</td><td>2 (saut pris car <code>ZF=0</code>)</td></tr>
+    <tr><td>6</td><td>2</td><td><code>ADD AX, 5</code></td><td><code>0x000A</code></td><td><code>0x0001</code></td><td>0</td><td>3</td></tr>
+    <tr><td>7</td><td>3</td><td><code>DEC CX</code></td><td><code>0x000A</code></td><td><code>0x0000</code></td><td>1</td><td>4</td></tr>
+    <tr><td>8</td><td>4</td><td><code>JNE boucle</code></td><td><code>0x000A</code></td><td><code>0x0000</code></td><td>1</td><td>5 (sortie car <code>ZF=1</code>)</td></tr>
+  </tbody>
+</table>
+<div class="asm-sim" data-asm-simulator data-asm-code="MOV AX, 0\nMOV CX, 2\nboucle:\nADD AX, 5\nDEC CX\nJNE boucle\nHLT"></div>
+<script src="/assets/js/engines/asm-simulator.js" defer></script>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -260,10 +281,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>.text;0x00401000;0x00000050</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>L’adresse virtuelle (VA) d’un symbole correspond à l’addition de l’adresse de base de la section et de son déplacement relatif.</li>
         <li>Vérifiez la concordance entre la valeur décimale et la notation hexadécimale sur 32 bits.</li>
+        <li>Pour chaque cas : additionner la base de la section et le déplacement du symbole, puis restituer la VA en hexadécimal 32 bits et sa valeur décimale.</li>
       </ol>
     </details>
   </div>
@@ -309,17 +331,18 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x1003;4</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Pour aligner une adresse A sur une frontière de N octets, calculez le padding requis : (N - (A mod N)) mod N.</li>
         <li>La nouvelle adresse alignée est égale à A + padding et doit être strictement divisible par N.</li>
+        <li>Pour chaque cas : calculer le reste de l adresse modulo N ; s il est nul le padding vaut zéro, sinon N moins ce reste ; l adresse alignée est la somme des deux.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -335,19 +358,19 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Pourquoi la section .bss d’un fichier ELF n’occupe-t-elle presque aucun espace sur le disque ?</p>
       <div class="opts">
+        <button class="opt">Parce qu’elle est systématiquement compressée avec l’algorithme gzip au moment de l’édition de liens</button>
         <button class="opt" data-correct="1">Parce qu’elle ne contient que des variables non initialisées ou nulles, le noyau se chargeant de réserver des zéros en RAM au lancement</button>
-        <button class="opt">Parce qu’elle est compressée avec l’algorithme gzip</button>
-        <button class="opt">Parce qu’elle est stockée dans la mémoire Flash du processeur</button>
-        <button class="opt">Parce qu’elle est supprimée lors de l’édition de liens</button>
+        <button class="opt">Parce qu’elle est intégralement stockée dans la mémoire Flash non volatile du microcontrôleur</button>
+        <button class="opt">Parce qu’elle est purement et simplement supprimée du fichier binaire lors de la phase d’édition de liens</button>
       </div>
       <div class="q__exp">La section .bss n’enregistre que la taille totale à allouer : les pages de zéros sont fournies à la volée par le système d’exploitation.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle directive NASM permet de réserver et d’initialiser un entier de 64 bits (8 octets) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">dq (define quad word)</button>
-        <button class="opt">dd (define double word)</button>
         <button class="opt">dw (define word)</button>
+        <button class="opt">dd (define double word)</button>
+        <button class="opt" data-correct="1">dq (define quad word)</button>
         <button class="opt">db (define byte)</button>
       </div>
       <div class="q__exp">dq = Define Quad Word = 64 bits = 8 octets.</div>
@@ -355,10 +378,10 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Quelle section d’un binaire ELF contient le code exécutable du programme protégé en lecture et exécution (r-x) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">.text</button>
+        <button class="opt">.bss</button>
         <button class="opt">.data</button>
         <button class="opt">.rodata</button>
-        <button class="opt">.bss</button>
+        <button class="opt" data-correct="1">.text</button>
       </div>
       <div class="q__exp">La section .text héberge le code machine exécuté par le processeur.</div>
     </div>
@@ -366,17 +389,17 @@ A_COMPLETER
       <p class="q__stem">Qu’est-ce qu’une erreur d’édition de liens « undefined reference to main » signifie exactement ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">L’éditeur de liens ld n’a trouvé aucun symbole global nommé main dans les fichiers objets fournis</button>
-        <button class="opt">Le code assembleur contient une division par zéro</button>
-        <button class="opt">Le processeur ne supporte pas le jeu d’instructions 64 bits</button>
-        <button class="opt">Le fichier source C est trop volumineux</button>
+        <button class="opt">Le code assembleur contient une instruction de division par zéro interdite</button>
+        <button class="opt">Le processeur ne supporte pas le jeu d’instructions 64 bits utilisé</button>
+        <button class="opt">Le fichier source C est beaucoup trop volumineux pour le compilateur</button>
       </div>
       <div class="q__exp">Cette erreur survient lors de la phase de linkage : le symbole du point d’entrée principal n’a pas été résolu.</div>
     </div>
     <div class="q">
       <p class="q__stem">À quelle adresse se retrouve une variable située à l’adresse 0x1003 si l’on applique la directive ALIGN 4 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">0x1004 (1 octet de padding ajouté)</button>
         <button class="opt">0x1008</button>
+        <button class="opt" data-correct="1">0x1004 (1 octet de padding ajouté)</button>
         <button class="opt">0x1000</button>
         <button class="opt">0x1007</button>
       </div>
@@ -386,19 +409,19 @@ A_COMPLETER
       <p class="q__stem">Dans quelle section mémoire résident les chaînes de caractères littérales passées à printf("Hello
 ") ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">.rodata (données en lecture seule)</button>
+        <button class="opt">Dans la pile RSP</button>
         <button class="opt">.bss</button>
         <button class="opt">.text</button>
-        <button class="opt">Dans la pile RSP</button>
+        <button class="opt" data-correct="1">.rodata (données en lecture seule)</button>
       </div>
       <div class="q__exp">Les constantes non modifiables sont logées dans la section .rodata (Read-Only Data).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel outil de la toolchain AVR permet d’extraire le code machine binaire d’un fichier ELF pour en faire un fichier .hex flashable ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">avr-objcopy</button>
-        <button class="opt">avrdude</button>
         <button class="opt">avr-gdb</button>
+        <button class="opt">avrdude</button>
+        <button class="opt" data-correct="1">avr-objcopy</button>
         <button class="opt">avr-cpp</button>
       </div>
       <div class="q__exp">avr-objcopy extrait les sections exécutables de l’ELF pour produire le format Intel HEX accepté par les programmateurs de Flash.</div>
@@ -409,7 +432,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -426,7 +449,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour assembler et lier un programme NASM</div>
@@ -442,7 +465,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -473,7 +496,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -522,7 +545,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

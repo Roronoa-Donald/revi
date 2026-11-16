@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -265,10 +263,11 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROUTE_CHECK method=GET path=/api/users codes=200,404,500</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifier que la liste des codes contient au moins un 2xx et au moins un 4xx/5xx.</li>
-        <li>Tester la présence de /api/ ou /v au début du chemin.</li>
+        <li>Rappelez-vous les contraintes REST : verbe standard, chemin normalisé et documentation conjointe des succès 2xx et des erreurs 4xx/5xx.</li>
+        <li>Validez successivement la méthode, le préfixe du chemin (/api/ ou /v), puis la composition de la liste des codes.</li>
+        <li>1. Méthode parmi GET, POST, PUT, DELETE, PATCH. 2. Chemin préfixé correctement. 3. Au moins un code 2xx et un code 4xx ou 5xx. 4. Sinon, lister les erreurs dans l’ordre officiel.</li>
       </ol>
     </details>
   </div>
@@ -324,10 +323,11 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DOCSTRING_AUDIT fn=calculer_tva params=montant_ht,taux doc=Calcul du montant. Args: montant_ht (float): base. taux (float): taux. Returns: float</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Découper les paramètres et vérifier leur présence dans le texte de la doc.</li>
-        <li>Vérifier la présence de Returns: ou return:.</li>
+        <li>Rappelez-vous le format Google : chaque paramètre de la signature doit être documenté dans Args et la valeur produite décrite sous Returns.</li>
+        <li>Découpez la liste des paramètres, recherchez chacun dans le texte de la docstring, puis vérifiez la section de retour.</li>
+        <li>1. Pour chaque paramètre, chercher nom: ou nom ( dans la doc. 2. Lister les absents dans l’ordre. 3. Sans Returns : ajouter RETURNS_MANQUANT. 4. Rédiger le verdict.</li>
       </ol>
     </details>
   </div>
@@ -387,10 +387,11 @@ Afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SCHEMA_CHECK endpoint=/api/user requis=id:int,nom:str,actif:bool payload={"id": 10, "nom": "Alice", "actif": true}</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utiliser json.loads pour parser le payload.</li>
-        <li>Attention au piège Python : isinstance(True, int) vaut True, vérifier le type bool en priorité.</li>
+        <li>Rappelez-vous la notion de contrat d’interface : chaque champ requis doit exister dans le payload avec le type exact promis.</li>
+        <li>Analysez le payload JSON, puis contrôlez chaque champ déclaré dans requis : existence d’abord, type ensuite.</li>
+        <li>1. Champ absent : CHAMP_MANQUANT. 2. Type inadapté : TYPE_INCORRECT avec attendu et reçu. 3. Aucune erreur : CONTRAT_RESPECTE ; sinon VIOLATION_CONTRAT avec la liste.</li>
       </ol>
     </details>
   </div>
@@ -403,50 +404,50 @@ Afficher :<br>
     <div class="q">
       <p class="q__stem">Quel est le bénéfice principal de l’approche « API-First » dans un projet logiciel moderne ?</p>
       <div class="opts">
-        <button class="opt">Elle permet de supprimer totalement l’équipe de test</button>
+        <button class="opt">Elle permet de supprimer totalement l’équipe de test, la spécification OpenAPI tenant lieu de campagne de recette complète</button>
         <button class="opt" data-correct="1">Le contrat d’interface OpenAPI est validé avant le codage, permettant le développement parallèle du front-end et du back-end via des serveurs de mocks</button>
-        <button class="opt">Elle rend le serveur dix fois plus rapide lors des requêtes SQL</button>
-        <button class="opt">Elle interdit l’utilisation du format JSON</button>
+        <button class="opt">Elle rend le serveur applicatif dix fois plus rapide lors de l’exécution des requêtes SQL complexes en base</button>
+        <button class="opt">Elle interdit définitivement l’utilisation du format JSON dans les échanges entre le client web et le serveur</button>
       </div>
       <div class="q__exp">API-First contractualise les interfaces en amont : les intégrateurs n’attendent plus la fin du back-end pour commencer à développer leurs applications clientes.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel code de statut HTTP une API REST conforme doit-elle retourner lors de la création réussie d’un nouvel utilisateur via une méthode POST ?</p>
       <div class="opts">
-        <button class="opt">200 OK</button>
         <button class="opt" data-correct="1">201 Created (avec l’en-tête Location désignant la nouvelle ressource)</button>
-        <button class="opt">204 No Content</button>
-        <button class="opt">302 Found</button>
+        <button class="opt">200 OK, simple succès générique sans signaler la création de la ressource</button>
+        <button class="opt">204 No Content, succès sans corps de réponse renvoyé au client appelant</button>
+        <button class="opt">302 Found, redirection temporaire vers une autre URL du serveur</button>
       </div>
       <div class="q__exp">Le code 201 Created est le code standard désignant la création effective d’une ressource nouvelle, idéalement accompagné de l’en-tête Location précisant son URI.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pour une API qui choisit des collections au pluriel et des méthodes HTTP pour les actions, quelle URI suit cette convention ?</p>
       <div class="opts">
-        <button class="opt">/api/getUserById?id=12</button>
-        <button class="opt">/api/v1/deleteUser/12</button>
+        <button class="opt">/api/getUserById?id=12, action encodée dans le nom de la route</button>
+        <button class="opt">/api/v1/deleteUser/12, verbe d’action inscrit dans le chemin de l’URI</button>
+        <button class="opt">/api/user_action.php?action=view&amp;uid=12, style RPC legacy côté serveur</button>
         <button class="opt" data-correct="1">/api/v1/users/12 (avec la méthode HTTP appropriée GET ou DELETE)</button>
-        <button class="opt">/api/user_action.php?action=view&amp;uid=12</button>
       </div>
       <div class="q__exp">Dans cette convention, /users désigne une collection. Le pluriel n’est pas imposé par REST : l’API GitHub propose par exemple GET /user.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans la spécification OpenAPI 3.0, à quoi sert la section « components/schemas » ?</p>
       <div class="opts">
-        <button class="opt">À lister les noms des employés de l’entreprise</button>
+        <button class="opt">À lister les noms et les rôles des employés de l’entreprise autorisés à consulter l’API interne</button>
+        <button class="opt">À enregistrer les adresses IP physiques et les configurations des commutateurs réseau de la salle serveur</button>
         <button class="opt" data-correct="1">À centraliser les définitions réutilisables des modèles de données JSON via des références $ref pour éviter la duplication</button>
-        <button class="opt">À enregistrer les adresses IP physiques des commutateurs réseau</button>
-        <button class="opt">À stocker le code source en langage binaire</button>
+        <button class="opt">À stocker le code source de l’application compilé sous forme de langage binaire exécutable</button>
       </div>
       <div class="q__exp">La section components/schemas est le dictionnaire des types de données : un même schéma (ex. User ou ErrorPayload) est référencé partout via `$ref`.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle différence formelle sépare le code d’erreur HTTP 401 Unauthorized du code 403 Forbidden ?</p>
       <div class="opts">
-        <button class="opt">Il n’y a aucune différence, ils sont strictement interchangeables</button>
+        <button class="opt">Il n’y a aucune différence réelle : les deux codes sont strictement interchangeables et relèvent d’un choix arbitraire de l’équipe de développement</button>
         <button class="opt" data-correct="1">Le code 401 signale l’absence ou l’invalidité d’authentification (identité non prouvée), tandis que le code 403 indique que l’identité est connue mais que les droits d’accès sont insuffisants</button>
-        <button class="opt">Le code 401 concerne les bases de données et le 403 les serveurs DNS</button>
-        <button class="opt">Le code 403 n’existe pas dans les standards du W3C</button>
+        <button class="opt">Le code 401 signale des erreurs des bases de données relationnelles, tandis que le code 403 signale des pannes des serveurs DNS du nom de domaine</button>
+        <button class="opt">Le code 403 n’existe pas dans les standards du W3C : seul le code 401 y est officiellement normalisé pour les API web modernes</button>
       </div>
       <div class="q__exp">401 est un problème d’authentification (« Qui êtes-vous ? »). 403 est un problème d’autorisation (« Je sais qui vous êtes, mais vous n’avez pas le droit »).</div>
     </div>
@@ -454,19 +455,19 @@ Afficher :<br>
       <p class="q__stem">Pourquoi est-il considéré comme une faute majeure de renvoyer un code 200 OK pour une requête ayant échoué (ex: `{"status": 200, "error": "Compte introuvable"}`) ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Car cela brise la couche protocolaire HTTP, empêchant les passerelles, proxys, équilibreurs de charge et bibliothèques clientes de détecter l’erreur</button>
-        <button class="opt">Car le navigateur web s’arrête immédiatement de fonctionner</button>
-        <button class="opt">Car cela supprime la base de données</button>
-        <button class="opt">Car cela consomme le double de mémoire vive</button>
+        <button class="opt">Car le navigateur web du client s’arrête immédiatement de fonctionner dès qu’il reçoit ce type de réponse incohérente</button>
+        <button class="opt">Car cela supprime automatiquement la base de données de production lors de la sérialisation de la réponse d’erreur</button>
+        <button class="opt">Car cela consomme le double de mémoire vive sur le serveur applicatif lors de la génération du corps JSON</button>
       </div>
       <div class="q__exp">Les couches intermédiaires (API Gateways, clients HTTP) inspectent le code statut : masquer une erreur sous un 200 OK oblige à parser chaque corps JSON et neutralise la supervision.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une docstring Python au format standard Google, quelles sont les trois sections fondamentales couramment attendues ?</p>
       <div class="opts">
-        <button class="opt">Introduction, Conclusion, Remerciements</button>
+        <button class="opt">Introduction, Conclusion et Remerciements, comme dans un mémoire universitaire</button>
+        <button class="opt">Budget, Facturation et Bénéfices, selon le modèle économique du projet</button>
         <button class="opt" data-correct="1">Args (arguments d’entrée), Returns (valeur de retour) et Raises (exceptions levées)</button>
-        <button class="opt">Budget, Facturation, Bénéfices</button>
-        <button class="opt">Hardware, Software, Firmware</button>
+        <button class="opt">Hardware, Software et Firmware, les trois couches matérielles du système</button>
       </div>
       <div class="q__exp">Le format Google structure l’explication technique en documentant les arguments (Args), la valeur produite (Returns) et les erreurs potentielles (Raises).</div>
     </div>
@@ -474,9 +475,9 @@ Afficher :<br>
       <p class="q__stem">Quel outil permet de transformer une spécification OpenAPI 3.0 en une interface web interactive avec formulaire de test « Try it out » ?</p>
       <div class="opts">
         <button class="opt">Microsoft Excel</button>
-        <button class="opt" data-correct="1">Swagger UI</button>
-        <button class="opt">Vim en ligne de commande</button>
         <button class="opt">Le compilateur GCC</button>
+        <button class="opt">Vim en ligne de commande</button>
+        <button class="opt" data-correct="1">Swagger UI</button>
       </div>
       <div class="q__exp">Swagger UI analyse le fichier OpenAPI YAML/JSON et génère dynamiquement une page web ergonomique permettant aux développeurs de tester les requêtes en temps réel.</div>
     </div>
@@ -601,7 +602,7 @@ Afficher :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

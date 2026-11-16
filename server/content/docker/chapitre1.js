@@ -226,32 +226,32 @@ module.exports = {
     {
       stem: 'Quelle est la différence architecturale majeure entre une Machine Virtuelle et un Conteneur Docker ?',
       opts: [
-        'La VM n’a pas besoin de processeur physique',
-        'La VM virtualise le matériel et embarque son propre système d’exploitation invité complet, tandis que le conteneur partage le noyau de l’hôte',
-        'Le conteneur est codé en Java alors que la VM est codée en assembleur',
-        'Il n’y a aucune différence, ce sont deux dénominations commerciales identiques'
+        "La VM n’a nullement besoin d’un processeur physique pour fonctionner, tout le calcul étant simulé logiciellement",
+        "Le conteneur serait codé en Java, alors que la VM serait codée en langage assembleur natif",
+        "Il n’y a aucune différence technique réelle, ce sont deux dénominations commerciales strictement identiques",
+        "La VM virtualise le matériel et embarque son propre système d’exploitation invité complet, tandis que le conteneur partage le noyau de l’hôte"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une VM duplique un OS invité complet avec son propre noyau au-dessus d’un hyperviseur. Le conteneur s’exécute directement sur l’OS hôte et partage son noyau.'
     },
     {
       stem: 'Quel mécanisme du noyau Linux permet d’attribuer au processus principal d’un conteneur l’identifiant PID 1 tout en conservant son vrai PID sur la machine hôte ?',
       opts: [
-        'Le PID Namespace',
-        'Le contrôleur Cgroups de mémoire',
         'Le pilote Wi-Fi du noyau',
+        'Le contrôleur Cgroups de mémoire',
+        'Le PID Namespace',
         'L’hyperviseur KVM'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le PID Namespace crée une arborescence de processus cloisonnée et indépendante où le premier processus lancé reçoit le PID 1 à l’intérieur du conteneur.'
     },
     {
       stem: 'À quoi servent les Control Groups (Cgroups) dans l’infrastructure de conteneurs Linux ?',
       opts: [
-        'À chiffrer les disques durs avec une clé AES-256',
-        'À limiter, contrôler et comptabiliser la quantité de ressources matérielles (CPU, mémoire RAM, E/S disques) allouée aux processus',
-        'À traduire les noms de domaine en adresses IP publiques',
-        'À compiler le code source des applications automatiquement'
+        "À chiffrer intégralement les disques durs de la machine hôte avec une clé de chiffrement symétrique AES-256",
+        "À limiter, contrôler et comptabiliser la quantité de ressources matérielles (CPU, mémoire RAM, E/S disques) allouée aux processus",
+        "À traduire automatiquement les noms de domaine Internet saisis en adresses IP publiques",
+        "À compiler automatiquement le code source des applications conteneurisées au moment du build"
       ],
       correct: 1,
       exp: 'Alors que les namespaces isolent la visibilité des ressources, les cgroups régulent quantitativement l’allocation des ressources physiques (plafond de RAM, part de CPU).'
@@ -259,34 +259,34 @@ module.exports = {
     {
       stem: 'Quel composant logiciel bas niveau conforme aux spécifications de l’OCI (Open Container Initiative) est responsable de la création effective des namespaces et du démarrage du processus conteneurisé ?',
       opts: [
-        'docker-compose',
         'runc',
+        'docker-compose',
         'VirtualBox',
         'kubelet'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'runc est le runtime OCI de référence : il interagit directement avec les primitives du noyau Linux pour instancier le conteneur selon la spécification OCI.'
     },
     {
       stem: 'Pourquoi le processus « containerd-shim » reste-t-il actif pour chaque conteneur en cours d’exécution ?',
       opts: [
-        'Pour miner des cryptomonnaies en arrière-plan',
-        'Pour maintenir ouverts les flux stdin/stdout/stderr et l’état du conteneur sans dépendre du démon Docker, permettant de redémarrer le démon sans couper les conteneurs',
-        'Pour vérifier la validité de la licence commerciale Docker Desktop',
-        'Pour émuler une carte graphique 3D virtuelle'
+        "Pour miner des cryptomonnaies en arrière-plan en exploitant les ressources inutilisées de la machine hôte physique du serveur",
+        "Pour vérifier périodiquement la validité de la licence commerciale de Docker Desktop auprès des serveurs distants de l’éditeur",
+        "Pour émuler une carte graphique 3D virtuelle dédiée aux applications de rendu scientifique exécutées au sein du conteneur",
+        "Pour maintenir ouverts les flux stdin/stdout/stderr et l’état du conteneur sans dépendre du démon Docker, permettant de redémarrer le démon sans couper les conteneurs"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'containerd-shim découple le conteneur du démon dockerd : si dockerd plante ou est mis à jour, les conteneurs continuent de tourner sans interruption.'
     },
     {
       stem: 'Que se passe-t-il si un utilisateur non-root a un accès complet en écriture au fichier socket « /var/run/docker.sock » ?',
       opts: [
-        'Il peut uniquement afficher la version de Docker',
-        'Il dispose virtuellement d’un accès superutilisateur root complet sur l’ensemble de la machine hôte physique',
-        'Le système Linux refuse d’exécuter la moindre commande',
-        'La vitesse du processeur est réduite de moitié'
+        "Il peut uniquement afficher la version de Docker installée sur la machine hôte",
+        "Le système Linux refuse d’exécuter la moindre commande de gestion des conteneurs",
+        "Il dispose virtuellement d’un accès superutilisateur root complet sur l’ensemble de la machine hôte physique",
+        "La vitesse du processeur de la machine hôte est automatiquement réduite de moitié"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Contrôler la socket Docker permet de lancer un conteneur privilégié montant le disque hôte (-v /:/host) et modifiant le fichier /etc/shadow pour prendre le contrôle total de l’hôte.'
     },
     {
@@ -303,12 +303,12 @@ module.exports = {
     {
       stem: 'Quelle commande CLI Docker permet d’afficher la configuration bas niveau d’un conteneur au format JSON (adresses IP, points de montage, statut) ?',
       opts: [
-        'docker log',
         'docker inspect',
+        'docker log',
         'docker top',
         'docker status'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'docker inspect retourne l’état complet, la configuration réseau, les montages et les limites de ressources du conteneur au format JSON structuré.'
     }
   ],

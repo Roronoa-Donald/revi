@@ -130,21 +130,21 @@ module.exports = {
     {
       q: 'Que représente économiquement une variable d’écart égale à zéro (s_i = 0) à l’optimum ?',
       opts: [
-        'La ressource correspondante est saturée (pleinement exploitée)',
         'La ressource est inutile et n’a pas été utilisée',
+        'La ressource correspondante est saturée (pleinement exploitée)',
         'Le problème n’a pas de solution',
         'Le coût unitaire de la ressource est nul'
       ],
-      correct: 0,
+      correct: 1,
       exp: '$s_i = 0$ signifie que toute la capacité disponible de la ressource $i$ a été consommée par la production.'
     },
     {
       q: 'D’après le théorème fondamental de la programmation linéaire, où se trouve nécessairement la solution optimale si elle existe et est finie ?',
       opts: [
-        'Sur au moins un sommet (point extrême) de la région réalisable',
-        'Toujours au centre de gravité géométrique',
-        'À l’origine (0, 0)',
-        'Strictement à l’intérieur du polygone'
+        "Sur au moins un sommet (point extrême) de la région réalisable",
+        "Au centre de gravité géométrique de la région réalisable entière",
+        "Toujours à l’origine (0, 0), quelles que soient les contraintes",
+        "Strictement à l’intérieur du polygone, jamais sur ses bords"
       ],
       correct: 0,
       exp: 'Le gradient linéaire pousse la solution vers le bord le plus éloigné, garantissant que l’optimum est atteint sur un sommet.'
@@ -152,43 +152,43 @@ module.exports = {
     {
       q: 'Si deux droites frontières ont des pentes strictement identiques et que le déterminant principal Δ vaut 0, que peut-on en déduire ?',
       opts: [
-        'Les deux droites sont parallèles (ou confondues) et ne se coupent pas en un point unique',
-        'Le problème est forcément sans solution',
-        'L’optimum est atteint à l’origine',
-        'Les variables sont nulles'
+        "Le problème est forcément sans aucune solution, quelle que soit la situation",
+        "Les deux droites sont parallèles (ou confondues) et ne se coupent pas en un point unique",
+        "L’optimum est systématiquement atteint à l’origine du repère (0, 0)",
+        "Toutes les variables de décision sont nécessairement nulles à l’optimum"
       ],
-      correct: 0,
+      correct: 1,
       exp: '$\\Delta = 0$ implique la colinéarité des vecteurs normaux, donc des droites parallèles sans point d’intersection unique.'
     },
     {
       q: 'Comment appelle-t-on les droites pour lesquelles la fonction objectif Z conserve une valeur constante dans le plan ?',
       opts: [
-        'Les droites d’iso-profit (ou lignes de niveau)',
-        'Les droites de régression',
-        'Les asymptotes obliques',
-        'Les bissectrices canoniques'
+        "Les droites de régression linéaire",
+        "Les asymptotes obliques de la parabole",
+        "Les droites d’iso-profit (ou lignes de niveau)",
+        "Les bissectrices canoniques du repère"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Pour une constante $k$, l’équation $c_1 x_1 + c_2 x_2 = k$ décrit une droite d’iso-profit le long de laquelle le gain est identique.'
     },
     {
       q: 'Que se passe-t-il graphiquement si la droite d’iso-profit est parallèle à une arête de la région réalisable à l’optimum ?',
       opts: [
-        'Il y a une infinité de solutions optimales sur toute cette arête',
-        'Le problème devient non borné',
-        'Le profit maximal vaut 0',
-        'Le problème devient irréalisable'
+        "Le problème devient non borné et le profit croît vers l’infini",
+        "Le profit maximal s’annule, aucune production n’est rentable",
+        "Le problème devient irréalisable, aucune solution n’existe",
+        "Il y a une infinité de solutions optimales sur toute cette arête"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Tous les points du segment frontière partagent la même valeur optimale de $Z$.'
     },
     {
       q: 'Que signifie un problème linéaire « non borné » (unbounded) dans un contexte économique ?',
       opts: [
-        'Le profit pourrait croître vers l’infini car une contrainte physique essentielle a été omise',
-        'L’usine n’a aucun client',
-        'Le budget de trésorerie est bloqué',
-        'Les variables doivent être négatives'
+        "Le profit pourrait croître vers l’infini car une contrainte physique essentielle a été omise",
+        "L’usine ne trouve aucun client et ne peut absolument rien vendre",
+        "Le budget de trésorerie de l’entreprise est intégralement bloqué",
+        "Toutes les variables de décision doivent obligatoirement être négatives"
       ],
       correct: 0,
       exp: 'Dans la réalité, aucun profit ne peut être infini : la non-bornitude révèle un oubli dans les contraintes de ressources.'
@@ -196,12 +196,12 @@ module.exports = {
     {
       q: 'Dans la méthode graphique, que représente la région réalisable lorsque le système de contraintes est contradictoire ?',
       opts: [
-        'L’ensemble vide ∅ (aucune solution réalisable)',
-        'Le plan entier ℝ²',
-        'L’origine uniquement',
-        'Une droite infinie'
+        "Le plan entier ℝ², sans aucune restriction",
+        "L’ensemble vide ∅ (aucune solution réalisable)",
+        "L’origine du repère uniquement (0, 0)",
+        "Une droite infinie sans point de rencontre"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Si aucun point ne satisfait l’ensemble des contraintes, la région réalisable est vide (problème infaisable).'
     }
   ],

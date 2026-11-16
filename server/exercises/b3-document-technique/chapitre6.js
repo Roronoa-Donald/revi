@@ -15,8 +15,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application :<br>\n<code>READABILITY_INPUT texte=&lt;texte_sur_une_ligne&gt;</code>.<br><br>\nCalculs :<br>\n- Phrases : séparer le texte selon la ponctuation forte (<code>.</code>, <code>!</code>, <code>?</code>). Ne conserver que les phrases contenant au moins un mot.<br>\n- Nombre de phrases : $S$. Si $S = 0$, $S = 1$.<br>\n- Mots : découper l'ensemble du texte nettoyé en mots alphanumériques. Nombre total de mots : $W$.<br>\n- Longueur moyenne de phrase (Average Sentence Length) :<br>\n  $ASL = W / S$ (arrondie à 1 décimale).<br><br>\nVerdict de clarté technique :<br>\n- Si $ASL \\le 15.0$ : <code>VERDICT=EXCELLENTE_CONCISE</code><br>\n- Sinon si $ASL \\le 25.0$ : <code>VERDICT=ACCEPTABLE_STANDARD</code><br>\n- Sinon : <code>VERDICT=TROP_COMPLEXE_PHRASES_TROP_LONGUES (SCINDER_REQUIS)</code><br><br>\nAfficher :<br>\n<code>READABILITY_METRIC: MOTS=&lt;W&gt; PHRASES=&lt;S&gt; -&gt; ASL=&lt;ASL:.1f&gt; mots/phrase | VERDICT=&lt;VERDICT&gt;</code></p>",
     starter: "# Grille d'analyse (dt3-c6-e1) — Calculateur de longueur moyenne de phrase et de clarté documentaire\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Phrases standards de documentation technique]\n# Données : READABILITY_INPUT texte=Ce guide presente les etapes de configuration du cluster Kubernetes pour la production. Veillez a verifier les certificats TLS avant tout deploiement.\nA_COMPLETER\n\n[Cas 2 — Texte acceptable légèrement verbeux]\n# Données : READABILITY_INPUT texte=Dans le cadre de l installation du serveur d application vous devez telecharger l archive puis decompresser le binaire dans le dossier cible. Ensuite executez le script de demarrage avec les droits administrateur requis.\nA_COMPLETER\n\n[Cas 3 — Phrase pachydermique trop complexe nécessitant scission]\n# Données : READABILITY_INPUT texte=Afin de permettre une communication fluide et ininterrompue entre les modules il est imperatif que l administrateur configure les regles de routage tout en s assurant que les sondes de surveillance ne generent pas de saturation excessive sur la base de donnees transactionnelle.\nA_COMPLETER\n",
     hints: [
-          "Utiliser l’extraction des champs pour découper les phrases.",
-          "Ne compter que les segments de phrase contenant des mots."
+      "Rappelez-vous l’indicateur ASL du chapitre 6 : nombre moyen de mots par phrase, dont le dépassement au-delà de 25 signe la complexité excessive.",
+      "Découpez le texte selon la ponctuation forte, ignorez les segments vides, puis comptez les mots au total.",
+      "1. Compter les phrases S (au moins 1) et les mots W. 2. ASL = W/S arrondi à 1 décimale. 3. ASL <= 15 : EXCELLENTE ; <= 25 : ACCEPTABLE ; sinon SCINDER_REQUIS."
     ],
     examples: [
           {
@@ -42,7 +43,8 @@ module.exports = [
                 "expected": "READABILITY_METRIC: MOTS=43 PHRASES=1 -> ASL=43.0 mots/phrase | VERDICT=TROP_COMPLEXE_PHRASES_TROP_LONGUES (SCINDER_REQUIS)"
           }
     ],
-    solution: "[Exemple]\nREADABILITY_METRIC: MOTS=10 PHRASES=3 -> ASL=3.3 mots/phrase | VERDICT=EXCELLENTE_CONCISE\n\n[Cas 1 — Phrases standards de documentation technique]\nREADABILITY_METRIC: MOTS=22 PHRASES=2 -> ASL=11.0 mots/phrase | VERDICT=EXCELLENTE_CONCISE\n\n[Cas 2 — Texte acceptable légèrement verbeux]\nREADABILITY_METRIC: MOTS=34 PHRASES=2 -> ASL=17.0 mots/phrase | VERDICT=ACCEPTABLE_STANDARD\n\n[Cas 3 — Phrase pachydermique trop complexe nécessitant scission]\nREADABILITY_METRIC: MOTS=43 PHRASES=1 -> ASL=43.0 mots/phrase | VERDICT=TROP_COMPLEXE_PHRASES_TROP_LONGUES (SCINDER_REQUIS)\n"
+    solution: "[Exemple]\nREADABILITY_METRIC: MOTS=10 PHRASES=3 -> ASL=3.3 mots/phrase | VERDICT=EXCELLENTE_CONCISE\n\n[Cas 1 — Phrases standards de documentation technique]\nREADABILITY_METRIC: MOTS=22 PHRASES=2 -> ASL=11.0 mots/phrase | VERDICT=EXCELLENTE_CONCISE\n\n[Cas 2 — Texte acceptable légèrement verbeux]\nREADABILITY_METRIC: MOTS=34 PHRASES=2 -> ASL=17.0 mots/phrase | VERDICT=ACCEPTABLE_STANDARD\n\n[Cas 3 — Phrase pachydermique trop complexe nécessitant scission]\nREADABILITY_METRIC: MOTS=43 PHRASES=1 -> ASL=43.0 mots/phrase | VERDICT=TROP_COMPLEXE_PHRASES_TROP_LONGUES (SCINDER_REQUIS)\n",
+    takeaway: "Des phrases courtes à la voix active avec un seul sujet technique par paragraphe améliorent la lisibilité en situation d’incident."
   },
   {
     id: "dt3-c6-e2",
@@ -54,8 +56,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application :<br>\n<code>LINK_AUDIT ancres_dispos=&lt;a1,a2,...&gt; lien=[&lt;texte&gt;](&lt;cible&gt;)</code>.<br><br>\nRègles de validation selon <code>cible</code> :<br>\n- Si <code>cible</code> commence par <code>http://</code> :<br>\n  <code>VERDICT=ALERTE_INSECURISE_HTTP (MIGRER_VERS_HTTPS)</code><br>\n- Si <code>cible</code> commence par <code>https://</code> :<br>\n  <code>VERDICT=LIEN_EXTERNE_SECURISE</code><br>\n- Si <code>cible</code> commence par <code>#</code> (ancre interne, ex. <code>#section-1</code>) :<br>\n  Retirer le <code>#</code> initial. Vérifier si l'ancre figure dans la liste <code>ancres_dispos</code> (insensible à la casse) :<br>\n  - Si présente : <code>VERDICT=ANCRE_INTERNE_VALIDE</code><br>\n  - Si absente : <code>VERDICT=ERREUR_ANCRE_CASSEE_INTROUVABLE</code><br>\n- Si <code>cible</code> se termine par <code>.md</code> ou commence par <code>/</code> :<br>\n  <code>VERDICT=LIEN_DOCUMENTAIRE_RELATIF</code><br>\n- Sinon : <code>VERDICT=CIBLE_NON_RECONNUE</code><br><br>\nAfficher :<br>\n<code>LINK_CHECK: [&lt;texte&gt;](&lt;cible&gt;) -&gt; VERDICT=&lt;VERDICT&gt;</code></p>",
     starter: "# Grille d'analyse (dt3-c6-e2) — Vérificateur automatisé de liens et d’ancres Markdown (Link Checker)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Lien externe non sécurisé en HTTP]\n# Données : LINK_AUDIT ancres_dispos=intro lien=[Site Officiel](http://example.com)\nA_COMPLETER\n\n[Cas 2 — Ancre interne inexistante cassée]\n# Données : LINK_AUDIT ancres_dispos=section1,section2 lien=[Voir FAQ](#section-faq)\nA_COMPLETER\n\n[Cas 3 — Lien HTTPS externe sécurisé et lien relatif .md]\n# Données : LINK_AUDIT ancres_dispos=base lien=[Doc Securisee](https://docs.org)\n# Données : LINK_AUDIT ancres_dispos=base lien=[Runbook](guide/runbook.md)\nA_COMPLETER\n",
     hints: [
-          "Extraire le texte et la cible entre crochets et parenthèses.",
-          "Comparer les ancres internes en minuscules."
+      "Rappelez-vous la typologie des liens documentaires : externes http/https, ancres internes et fichiers relatifs, chacun avec ses règles propres.",
+      "Isolez la cible du lien, puis aiguillez selon son préfixe : http, https, # ou extension .md ; comparez les ancres sans tenir compte de la casse.",
+      "1. http : ALERTE_INSECURISE. 2. https : LIEN_EXTERNE_SECURISE. 3. Ancre : vérifier sa présence, sinon ANCRE_CASSEE. 4. .md ou / : LIEN_DOCUMENTAIRE_RELATIF ; reste : CIBLE_NON_RECONNUE."
     ],
     examples: [
           {
@@ -81,7 +84,8 @@ module.exports = [
                 "expected": "LINK_CHECK: [Doc Securisee](https://docs.org) -> VERDICT=LIEN_EXTERNE_SECURISE\nLINK_CHECK: [Runbook](guide/runbook.md) -> VERDICT=LIEN_DOCUMENTAIRE_RELATIF"
           }
     ],
-    solution: "[Exemple]\nLINK_CHECK: [Installation](#install) -> VERDICT=ANCRE_INTERNE_VALIDE\n\n[Cas 1 — Lien externe non sécurisé en HTTP]\nLINK_CHECK: [Site Officiel](http://example.com) -> VERDICT=ALERTE_INSECURISE_HTTP (MIGRER_VERS_HTTPS)\n\n[Cas 2 — Ancre interne inexistante cassée]\nLINK_CHECK: [Voir FAQ](#section-faq) -> VERDICT=ERREUR_ANCRE_CASSEE_INTROUVABLE\n\n[Cas 3 — Lien HTTPS externe sécurisé et lien relatif .md]\nLINK_CHECK: [Doc Securisee](https://docs.org) -> VERDICT=LIEN_EXTERNE_SECURISE\nLINK_CHECK: [Runbook](guide/runbook.md) -> VERDICT=LIEN_DOCUMENTAIRE_RELATIF\n"
+    solution: "[Exemple]\nLINK_CHECK: [Installation](#install) -> VERDICT=ANCRE_INTERNE_VALIDE\n\n[Cas 1 — Lien externe non sécurisé en HTTP]\nLINK_CHECK: [Site Officiel](http://example.com) -> VERDICT=ALERTE_INSECURISE_HTTP (MIGRER_VERS_HTTPS)\n\n[Cas 2 — Ancre interne inexistante cassée]\nLINK_CHECK: [Voir FAQ](#section-faq) -> VERDICT=ERREUR_ANCRE_CASSEE_INTROUVABLE\n\n[Cas 3 — Lien HTTPS externe sécurisé et lien relatif .md]\nLINK_CHECK: [Doc Securisee](https://docs.org) -> VERDICT=LIEN_EXTERNE_SECURISE\nLINK_CHECK: [Runbook](guide/runbook.md) -> VERDICT=LIEN_DOCUMENTAIRE_RELATIF\n",
+    takeaway: "L’audit automatisé des liens et ancres Markdown en CI empêche la publication de références brisées après renommage de fichiers."
   },
   {
     id: "dt3-c6-e3",
@@ -93,8 +97,9 @@ module.exports = [
     brief: "<p>Pour chaque cas d’application :<br>\n<code>STALE_CHECK doc=&lt;nom&gt; code_jours=&lt;J_code&gt; doc_jours=&lt;J_doc&gt;</code>.<br>\nOù <code>code_jours</code> représente le nombre de jours écoulés depuis le dernier commit de code source, et <code>doc_jours</code> le nombre de jours écoulés depuis la dernière mise à jour de la documentation correspondante.<br><br>\nCalcul du retard documentaire :<br>\n$\\Delta = doc\\_jours - code\\_jours$ (en jours).<br>\n(Plus $\\Delta$ est grand, plus la documentation a accumulé de retard par rapport à l'évolution du code).<br><br>\nQualification de la dette :<br>\n- Si $\\Delta \\le 7$ jours (ou $\\Delta \\le 0$) :<br>\n  <code>STATUT=A_JOUR (SYNCHRONISE)</code><br>\n- Sinon si $\\Delta \\le 30$ jours :<br>\n  <code>STATUT=ATTENTION_RETARD_MODERE (DELTA=+&lt;\\Delta&gt;j)</code><br>\n- Sinon :<br>\n  <code>STATUT=CRITIQUE_DOCUMENTATION_OBSOLETE (DELTA=+&lt;\\Delta&gt;j, REVISION_URGENTE)</code><br><br>\nAfficher :<br>\n<code>STALE_DOC_DIAGNOSTIC: &lt;doc&gt; -&gt; ECART=+&lt;\\Delta&gt;j | STATUT=&lt;STATUT&gt;</code><br>\n(Si $\\Delta &lt; 0$, afficher <code>ECART=&lt;\\Delta&gt;j</code>).</p>",
     starter: "# Grille d'analyse (dt3-c6-e3) — Détecteur de dette documentaire et de désynchronisation (Stale Docs)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Retard modéré nécessitant mise à jour prochaine]\n# Données : STALE_CHECK doc=runbook.md code_jours=5 doc_jours=25\nA_COMPLETER\n\n[Cas 2 — Documentation obsolète critique avec retard supérieur à 30 jours]\n# Données : STALE_CHECK doc=dat_architecture.md code_jours=10 doc_jours=80\nA_COMPLETER\n\n[Cas 3 — Documentation mise à jour plus récemment que le code]\n# Données : STALE_CHECK doc=faq.md code_jours=15 doc_jours=10\nA_COMPLETER\n",
     hints: [
-          "Calculer delta = doc_jours - code_jours.",
-          "Formater avec un + devant delta si >= 0."
+      "Rappelez-vous la dette documentaire : elle se mesure par l’écart entre l’âge de la dernière révision du document et celui du dernier commit de code.",
+      "Calculez l’écart doc_jours - code_jours, puis appliquez les seuils de sévérité (7 et 30 jours).",
+      "1. Delta = doc_jours - code_jours. 2. Delta <= 7 : A_JOUR. 3. Delta <= 30 : ATTENTION_RETARD_MODERE. 4. Sinon : CRITIQUE avec REVISION_URGENTE. 5. Afficher l’écart signé."
     ],
     examples: [
           {
@@ -120,6 +125,7 @@ module.exports = [
                 "expected": "STALE_DOC_DIAGNOSTIC: faq.md -> ECART=-5j | STATUT=A_JOUR (SYNCHRONISE)"
           }
     ],
-    solution: "[Exemple]\nSTALE_DOC_DIAGNOSTIC: api.md -> ECART=+3j | STATUT=A_JOUR (SYNCHRONISE)\n\n[Cas 1 — Retard modéré nécessitant mise à jour prochaine]\nSTALE_DOC_DIAGNOSTIC: runbook.md -> ECART=+20j | STATUT=ATTENTION_RETARD_MODERE (DELTA=+20j)\n\n[Cas 2 — Documentation obsolète critique avec retard supérieur à 30 jours]\nSTALE_DOC_DIAGNOSTIC: dat_architecture.md -> ECART=+70j | STATUT=CRITIQUE_DOCUMENTATION_OBSOLETE (DELTA=+70j, REVISION_URGENTE)\n\n[Cas 3 — Documentation mise à jour plus récemment que le code]\nSTALE_DOC_DIAGNOSTIC: faq.md -> ECART=-5j | STATUT=A_JOUR (SYNCHRONISE)\n"
+    solution: "[Exemple]\nSTALE_DOC_DIAGNOSTIC: api.md -> ECART=+3j | STATUT=A_JOUR (SYNCHRONISE)\n\n[Cas 1 — Retard modéré nécessitant mise à jour prochaine]\nSTALE_DOC_DIAGNOSTIC: runbook.md -> ECART=+20j | STATUT=ATTENTION_RETARD_MODERE (DELTA=+20j)\n\n[Cas 2 — Documentation obsolète critique avec retard supérieur à 30 jours]\nSTALE_DOC_DIAGNOSTIC: dat_architecture.md -> ECART=+70j | STATUT=CRITIQUE_DOCUMENTATION_OBSOLETE (DELTA=+70j, REVISION_URGENTE)\n\n[Cas 3 — Documentation mise à jour plus récemment que le code]\nSTALE_DOC_DIAGNOSTIC: faq.md -> ECART=-5j | STATUT=A_JOUR (SYNCHRONISE)\n",
+    takeaway: "Corréler la date de révision d’un document avec les modifications du dépôt cible repère la dette documentaire avant qu’elle n’induise en erreur."
   }
 ];

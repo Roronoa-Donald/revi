@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Utilisez CASE WHEN pour calculer la colonne etat\nSELECT nom, cpu_pct FROM serveurs;",
     "hints": [
       "Écrivez CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat.",
-      "Triez par nom ASC."
+      "Triez par nom ASC.",
+      "Ordonnez les branches du CASE de la condition la plus sévère à la moins sévère, terminez par ELSE, puis triez par nom."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+-------+---------+--------+\n| nom   | cpu_pct | etat   |\n+-------+---------+--------+\n| app-1 | 15      | NORMAL |\n| app-2 | 42      | NORMAL |\n+-------+---------+--------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT nom, cpu_pct, CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat FROM serveurs ORDER BY nom ASC;"
+    "solution": "SELECT nom, cpu_pct, CASE WHEN cpu_pct >= 85 THEN 'CRITIQUE' WHEN cpu_pct >= 60 THEN 'ATTENTION' ELSE 'NORMAL' END AS etat FROM serveurs ORDER BY nom ASC;",
+    "takeaway": "CASE WHEN ... THEN ... ELSE ... END évalue les branches dans l ordre et classe directement les lignes dans le SELECT."
   },
   {
     "id": "sql2-c3-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Sélectionnez les employés gagnant plus que la moyenne\nSELECT nom, salaire FROM employes;",
     "hints": [
       "Utilisez la sous-requête (SELECT AVG(salaire) FROM employes) à droite de l’opérateur >.",
-      "Triez avec ORDER BY salaire DESC."
+      "Triez avec ORDER BY salaire DESC.",
+      "Écrivez le SELECT des employés, filtrez avec le salaire supérieur à la sous-requête de moyenne, puis triez par salaire décroissant."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+-----+---------+\n| nom | salaire |\n+-----+---------+\n| C   | 450000  |\n+-----+---------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT nom, salaire FROM employes WHERE salaire > (SELECT AVG(salaire) FROM employes) ORDER BY salaire DESC;"
+    "solution": "SELECT nom, salaire FROM employes WHERE salaire > (SELECT AVG(salaire) FROM employes) ORDER BY salaire DESC;",
+    "takeaway": "Une sous-requête scalaire (SELECT AVG(...) FROM ...) permet de comparer chaque ligne à une statistique globale."
   },
   {
     "id": "sql2-c3-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Trouvez les clients sans commande avec NOT EXISTS\nSELECT id, nom FROM clients;",
     "hints": [
       "Écrivez WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id).",
-      "Triez par c.id ASC."
+      "Triez par c.id ASC.",
+      "Parcourez chaque client et ne retenez que ceux pour qui la sous-requête corrélée sur commandes ne renvoie aucune ligne."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "+----+------+\n| id | nom  |\n+----+------+\n| 1  | Sena |\n| 2  | Afi  |\n+----+------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "SELECT c.id, c.nom FROM clients c WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id) ORDER BY c.id ASC;"
+    "solution": "SELECT c.id, c.nom FROM clients c WHERE NOT EXISTS (SELECT 1 FROM commandes cmd WHERE cmd.client_id = c.id) ORDER BY c.id ASC;",
+    "takeaway": "NOT EXISTS est sûr face aux NULL, contrairement à NOT IN qui échoue silencieusement si la sous-requête contient un NULL."
   }
 ];

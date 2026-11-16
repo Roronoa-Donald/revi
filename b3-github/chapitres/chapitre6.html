@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -195,10 +193,13 @@ git-filter-repo --replace-text expressions.txt</code></pre>
 <!-- code-labs:start -->
   <div id="exercices">
   <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices. Les énoncés et les exemples restent disponibles.</p>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="gh3-c6-e1" data-lab
      data-exercise="gh3-c6-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="FILE path=videos/intro.mp4 size_bytes=52428800 sha256=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890&#10;FILE path=src/main.py size_bytes=2048 sha256=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff">
@@ -206,19 +207,17 @@ git-filter-repo --replace-text expressions.txt</code></pre>
 # Atelier Bash (gh3-c6-e1) — Simulateur de Git LFS (Large File Storage) et génération de pointeurs
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Simulateur de Git LFS (Large File Storage) et génération de pointeurs</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un fichier doit être géré par Git LFS et générer le pointeur texte officiel.</p>
-    <p class="lab__note" id="gh3-c6-e1-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Git LFS remplace, dans le dépôt, le contenu d'un fichier suivi par un petit pointeur texte ; le contenu réel est stocké séparément. La configuration effective de suivi dépend notamment des motifs configurés. Pour cet exercice seulement, utilisez la politique suivante : un chemin terminé, avec respect de la casse, par <code>.iso</code>, <code>.psd</code>, <code>.zip</code>, <code>.tar.gz</code> ou <code>.mp4</code>, ou une taille <code>size_bytes &gt;= 104857600</code> octets, impose LFS. Ce seuil n'est pas une règle automatique universelle de Git LFS.<br><br>Chaque ligne est <code>FILE path=&lt;chemin&gt; size_bytes=&lt;taille&gt; sha256=&lt;64 chiffres hexadécimaux minuscules&gt;</code>. La taille est un entier décimal de 0 à 9 223 372 036 854 775 807, sans zéro initial sauf pour 0. Le chemin peut contenir des espaces mais ni guillemet double ni le délimiteur <code> size_bytes=</code>. Le SHA-256 est fourni : le contenu du fichier n'est pas disponible pour le recalculer.<br><br>Pour un fichier ordinaire, affichez <code>LFS_DECISION file="{path}" mode=GIT_BLOB</code>. Pour LFS, affichez <code>LFS_DECISION file="{path}" mode=LFS_POINTER oid="{sha256}" size={size_bytes}</code>, puis les trois lignes du pointeur v1 :<br><code>version https://git-lfs.github.com/spec/v1</code><br><code>oid sha256:{sha256}</code><br><code>size {size_bytes}</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>FILE path=videos/intro.mp4 size_bytes=52428800 sha256=abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
@@ -231,10 +230,11 @@ LFS_DECISION file="src/main.py" mode=GIT_BLOB</pre></div>
     </div>
     <p class="lab__note">Le fichier MP4 est suivi et son pointeur est produit ; le script Python reste un blob Git.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Appliquez la politique du modèle : extension surveillée ou taille supérieure ou égale à 104857600.</li>
         <li>Reprenez le SHA-256 fourni et écrivez les trois lignes du pointeur v1 dans l’ordre.</li>
+        <li>1. LFS si extension surveillée (iso, psd, zip, tar.gz, mp4) ou taille au moins 104857600 octets. 2. Émettre la décision puis les trois lignes du pointeur (version, oid, size). 3. Sinon : GIT_BLOB.</li>
       </ol>
     </details>
   </div>
@@ -242,7 +242,6 @@ LFS_DECISION file="src/main.py" mode=GIT_BLOB</pre></div>
 
 <div class="lab" id="gh3-c6-e2" data-lab
      data-exercise="gh3-c6-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="INSPECT_FILE file=app.py content=AWS_KEY = &quot;AKIAIOSFODNN7EXAMPLE123&quot;&#10;INSPECT_FILE file=main.py content=print(&quot;Hello World&quot;)">
@@ -250,19 +249,17 @@ LFS_DECISION file="src/main.py" mode=GIT_BLOB</pre></div>
 # Atelier Bash (gh3-c6-e2) — Validateur de Hook Git pre-commit (Détection de secrets & conflits)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 2 — Validateur de Hook Git pre-commit (Détection de secrets &amp; conflits)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler les contrôles d’un hook pre-commit sur quelques motifs de conflit et de secrets.</p>
-    <p class="lab__note" id="gh3-c6-e2-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Un hook Git <code>pre-commit</code> peut interrompre un commit en renvoyant un code non nul ; il peut aussi être contourné avec <code>git commit --no-verify</code>. Ici, vous ne créez pas de vrai hook : simulez uniquement ses décisions sur les lignes <code>INSPECT_FILE file=&lt;chemin&gt; content=&lt;contenu&gt;</code>. Les chemins peuvent contenir des espaces mais ni guillemet double ni le délimiteur <code> content=</code> ; le contenu tient sur une ligne et peut représenter des retours à la ligne par <code>\n</code>.<br><br>Vérifiez ces motifs dans l'ordre : les chaînes <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code> ou <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> donnent <code>MERGE_CONFLICT_MARKERS</code> ; <code>AKIA</code> suivi d'au moins 16 lettres majuscules ASCII ou chiffres donne <code>HARDCODED_AWS_KEY</code> ; <code>ghp_</code> suivi d'au moins 20 lettres ASCII ou chiffres donne <code>HARDCODED_GITHUB_TOKEN</code> ; sinon le résultat est <code>CLEAN</code>.<br><br>Affichez <code>HOOK_RESULT file="{file}" verdict={COMMIT_ACCEPTED|COMMIT_REJECTED} reason={reason}</code>. Ces motifs sont pédagogiques : une correspondance ne prouve pas qu'un identifiant soit actif, et leur absence ne garantit pas l'absence de secret.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>INSPECT_FILE file=app.py content=AWS_KEY = "AKIAIOSFODNN7EXAMPLE123"
@@ -272,10 +269,11 @@ HOOK_RESULT file="main.py" verdict=COMMIT_ACCEPTED reason=CLEAN</pre></div>
     </div>
     <p class="lab__note">La clé AWS bloque le commit, le code sain est accepté.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez les marqueurs de conflit avant les motifs d’identifiants.</li>
         <li>Utilisez les expressions régulières de Bash et testez les longueurs immédiatement inférieure et égale aux bornes.</li>
+        <li>1. Marqueurs de conflit présents : MERGE_CONFLICT_MARKERS. 2. AKIA suivi de 16 caractères : HARDCODED_AWS_KEY. 3. ghp_ suivi de 20 : HARDCODED_GITHUB_TOKEN. 4. Sinon : COMMIT_ACCEPTED.</li>
       </ol>
     </details>
   </div>
@@ -283,7 +281,6 @@ HOOK_RESULT file="main.py" verdict=COMMIT_ACCEPTED reason=CLEAN</pre></div>
 
 <div class="lab" id="gh3-c6-e3" data-lab
      data-exercise="gh3-c6-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="COMMIT id=C1 files=main.py,.env parents=NONE&#10;COMMIT id=C2 files=main.py parents=C1&#10;PURGE_FILE target=.env">
@@ -291,19 +288,17 @@ HOOK_RESULT file="main.py" verdict=COMMIT_ACCEPTED reason=CLEAN</pre></div>
 # Atelier Bash (gh3-c6-e3) — Purge médico-légale de secrets dans l’historique (git-filter-repo)
 # Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :
 input_data="$(cat)"
-echo "A_COMPLETER"
+# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 3 — Purge médico-légale de secrets dans l’historique (git-filter-repo)</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Simuler la réécriture d’un historique Git pour expurger un fichier confidentiel commité par erreur.</p>
-    <p class="lab__note" id="gh3-c6-e3-grading-notice">La correction automatique de ce cours est temporairement suspendue pendant la vérification des exercices.</p>
     <div class="lab__brief"><p>Retirer un fichier sensible d'un commit récent ne l'efface pas des anciens commits. GitHub recommande notamment <code>git-filter-repo</code> pour réécrire l'historique ; un secret compromis doit aussi être révoqué ou renouvelé. Cet exercice est une simulation : les identifiants <code>r_{id}</code> ne sont pas de vrais hachages et aucun dépôt n'est modifié.<br><br>Déclarez zéro ou plusieurs lignes <code>COMMIT id=&lt;id&gt; files=&lt;f1,f2,...&gt; parents=&lt;p1,p2,...|NONE&gt;</code>, puis <code>PURGE_FILE target=&lt;fichier&gt;</code>. Une liste de fichiers vide s'écrit <code>files=</code>. Les noms sont distincts au sein de chaque liste et, comme les identifiants, ne contiennent ni espaces ni virgule. Les commits sont distincts, acycliques et déclarés après tous leurs parents.<br><br>Retirez le fichier cible de chaque instantané. Un commit est réécrit s'il contenait le fichier ou si au moins un de ses parents a été réécrit ; son nouvel identifiant est <code>r_{id}</code>. Les autres restent inchangés. La tête simulée est le dernier commit déclaré, ou <code>NONE</code> si l'historique est vide.<br><br>Affichez <code>PURGE_RESULT target="{fichier}" impacted_count={nombre_de_commits_réécrits} new_tip_hash="{id_de_tête}"</code>, puis pour chaque commit réécrit dans l'ordre d'entrée <code>REWRITTEN_COMMIT old="{id}" new="r_{id}" remaining_files=[{fichiers}]</code>. Conservez l'ordre des fichiers restants.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>COMMIT id=C1 files=main.py,.env parents=NONE
@@ -315,10 +310,11 @@ REWRITTEN_COMMIT old="C2" new="r_C2" remaining_files=[main.py]</pre></div>
     </div>
     <p class="lab__note">C1 contenait .env donc il est réécrit en r_C1, et C2 ayant r_C1 pour parent est réécrit en r_C2.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Parcourez les commits dans l’ordre où tous leurs parents sont déjà connus.</li>
         <li>Réécrivez un commit si le fichier est présent ou si au moins un parent a été réécrit.</li>
+        <li>1. Parcourir les commits dans l’ordre. 2. Réécrire si le fichier visé est présent ou si un parent a été réécrit. 3. Nouvel identifiant : r_ + ancien. 4. Afficher le total, la nouvelle tête puis chaque commit réécrit.</li>
       </ol>
     </details>
   </div>
@@ -331,10 +327,10 @@ REWRITTEN_COMMIT old="C2" new="r_C2" remaining_files=[main.py]</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi le stockage direct de gros fichiers binaires dans Git classique pose-t-il un problème majeur de performance ?</p>
       <div class="opts">
-        <button class="opt">Parce que Git refuse les fichiers dont l’extension n’est pas en UTF-8</button>
+        <button class="opt">Parce que Git refuse de suivre les fichiers binaires dont l’extension n’est pas encodée en UTF-8 valide</button>
+        <button class="opt">Parce que les fichiers binaires empêchent totalement l’utilisation des commandes git branch et git merge</button>
         <button class="opt" data-correct="1">Parce que Git conserve l’intégralité des versions successives dans le packfile, rendant les opérations de clone extrêmement lourdes</button>
-        <button class="opt">Parce que les fichiers binaires empêchent l’utilisation de git branch</button>
-        <button class="opt">Parce que le hachage SHA-1 ne fonctionne que sur du texte ASCII</button>
+        <button class="opt">Parce que le hachage SHA-1 du magasin d’objets ne sait calculer que sur des contenus texte ASCII</button>
       </div>
       <div class="q__exp">Git télécharge l’historique complet lors du clone. Pour des fichiers binaires non compressibles par deltas, la taille du dossier .git enfle de plusieurs gigaoctets, saturant le réseau et les disques.</div>
     </div>
@@ -342,17 +338,17 @@ REWRITTEN_COMMIT old="C2" new="r_C2" remaining_files=[main.py]</pre></div>
       <p class="q__stem">Que contient physiquement dans l’arbre Git un fichier suivi par Git LFS (Large File Storage) ?</p>
       <div class="opts">
         <button class="opt">Le fichier binaire complet compressé avec gzip</button>
-        <button class="opt" data-correct="1">Un court pointeur textuel contenant la version LFS, le hash SHA-256 et la taille en octets</button>
-        <button class="opt">Une clé API pointant vers un bucket Google Cloud Storage</button>
         <button class="opt">Un lien symbolique Unix vers le système de fichiers hôte</button>
+        <button class="opt">Une clé API pointant vers un bucket Google Cloud Storage</button>
+        <button class="opt" data-correct="1">Un court pointeur textuel contenant la version LFS, le hash SHA-256 et la taille en octets</button>
       </div>
       <div class="q__exp">Git LFS remplace le binaire par un micro-pointeur textuel contenant l’identifiant SHA-256 (oid) et la taille du fichier. Le binaire réel est déporté sur un serveur de stockage dédié.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans quel fichier de configuration les règles associant des extensions de fichiers au filtre LFS sont-elles déclarées et tracées ?</p>
       <div class="opts">
-        <button class="opt">.git/config</button>
         <button class="opt" data-correct="1">.gitattributes</button>
+        <button class="opt">.git/config</button>
         <button class="opt">.lfsconfig</button>
         <button class="opt">.gitignore</button>
       </div>
@@ -371,30 +367,30 @@ REWRITTEN_COMMIT old="C2" new="r_C2" remaining_files=[main.py]</pre></div>
     <div class="q">
       <p class="q__stem">Où le hook d’entreprise « pre-receive » s’exécute-t-il et quel est son avantage stratégique pour la sécurité ?</p>
       <div class="opts">
-        <button class="opt">Sur le poste du développeur pour chiffrer ses fichiers en local</button>
+        <button class="opt">Sur le poste du développeur, juste avant le push, pour chiffrer ses fichiers en local</button>
+        <button class="opt">Dans le navigateur web du relecteur, au moment de la création et de la validation d’une Pull Request</button>
         <button class="opt" data-correct="1">Sur le serveur distant à la réception d’un push, permettant de rejeter tout commit non conforme avant écriture</button>
-        <button class="opt">Dans le navigateur web lors de la création d’une Pull Request</button>
-        <button class="opt">Dans l’agent de signature GPG</button>
+        <button class="opt">Dans l’agent de signature GPG, lors de la vérification cryptographique des commits</button>
       </div>
       <div class="q__exp">pre-receive s’exécute sur le serveur Git distant. Il examine l’ensemble des commits reçus et peut bloquer définitivement le push s’il contient des secrets, du code mal formaté ou des violations de politiques.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle commande permet de réécrire des références locales en retirant un chemin précis de leur historique ?</p>
       <div class="opts">
-        <button class="opt">git reset --hard HEAD</button>
+        <button class="opt">git reset --hard origin/main</button>
+        <button class="opt">git rm --cached --ignore-unmatch secret.txt</button>
+        <button class="opt">git revert --no-commit HEAD~1..HEAD</button>
         <button class="opt" data-correct="1">git-filter-repo --path secret.txt --invert-paths</button>
-        <button class="opt">git rm --cached secret.txt</button>
-        <button class="opt">git revert HEAD~1</button>
       </div>
       <div class="q__exp">git-filter-repo peut réécrire les références traitées en excluant ce chemin ; les autres noms, références et copies externes nécessitent des vérifications distinctes.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle est la première action vitale à accomplir immédiatement dès qu’une clé d’API sensible est découverte sur un dépôt Git public ?</p>
       <div class="opts">
-        <button class="opt">Supprimer le dépôt de GitHub</button>
         <button class="opt" data-correct="1">Révoquer et invalider immédiatement la clé auprès du fournisseur du service tiers concerné</button>
-        <button class="opt">Faire un git commit pour supprimer le fichier .env</button>
-        <button class="opt">Envoyer un email à l’équipe support de Git</button>
+        <button class="opt">Supprimer immédiatement le dépôt public de GitHub pour effacer toute trace du secret exposé</button>
+        <button class="opt">Faire un nouveau commit qui supprime le fichier .env du répertoire de travail du projet</button>
+        <button class="opt">Envoyer un email urgent à l’équipe support de Git pour qu’elle purge le secret des caches</button>
       </div>
       <div class="q__exp">Même si le dépôt est nettoyé quelques minutes plus tard, des robots scrappeurs automatisés surveillent en permanence GitHub pour voler les secrets publiés. La seule parade absolue est la révocation immédiate du secret.</div>
     </div>
@@ -531,7 +527,7 @@ REWRITTEN_COMMIT old="C2" new="r_C2" remaining_files=[main.py]</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

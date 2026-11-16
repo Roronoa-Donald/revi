@@ -16,7 +16,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c2-e1) — Conversion en forme standard (Écart & Excès)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Contrainte <= standard]\n# Données : 2;2,5;LE;30\nA_COMPLETER\n\n[Cas 2 — Contrainte >= avec variable d excès]\n# Données : 1;1,3;GE;15\nA_COMPLETER\n\n[Cas 3 — Coefficients décimaux]\n# Données : 3;0.5,1.5;LE;12\nA_COMPLETER\n",
     "hints": [
       "Découpez la ligne par \";\".",
-      "Selon que SENS == \"LE\" ou \"GE\", choisis \"+ s{num}\" ou \"- e{num}\"."
+      "Selon que SENS == \"LE\" ou \"GE\", choisis \"+ s{num}\" ou \"- e{num}\".",
+      "Ajoutez une variable d écart +s_i pour une contrainte <= et retranchez une variable d excès -e_i pour une contrainte >= sans changer le second membre."
     ],
     "examples": [
       {
@@ -42,7 +43,8 @@ module.exports = [
         "expected": "0.5*x1 + 1.5*x2 + s3 = 12"
       }
     ],
-    "solution": "[Exemple]\n3*x1 + 4*x2 + s1 = 24\n\n[Cas 1 — Contrainte <= standard]\n2*x1 + 5*x2 + s2 = 30\n\n[Cas 2 — Contrainte >= avec variable d excès]\n1*x1 + 3*x2 - e1 = 15\n\n[Cas 3 — Coefficients décimaux]\n0.5*x1 + 1.5*x2 + s3 = 12\n"
+    "solution": "[Exemple]\n3*x1 + 4*x2 + s1 = 24\n\n[Cas 1 — Contrainte <= standard]\n2*x1 + 5*x2 + s2 = 30\n\n[Cas 2 — Contrainte >= avec variable d excès]\n1*x1 + 3*x2 - e1 = 15\n\n[Cas 3 — Coefficients décimaux]\n0.5*x1 + 1.5*x2 + s3 = 12\n",
+    "takeaway": "À retenir : Transformer une inégalité de contrainte en équation standard par ajout de variable d’écart ou d’excès.\nRepère : Contrainte <= transformée avec la variable d’écart s1."
   },
   {
     "id": "ro2-c2-e2",
@@ -55,7 +57,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c2-e2) — Intersection de deux droites par la règle de Cramer\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Intersection nette à coordonnées entières]\n# Données : 3,1,15;1,2,10\nA_COMPLETER\n\n[Cas 2 — Droites parallèles (pentes identiques)]\n# Données : 2,4,12;1,2,9\nA_COMPLETER\n\n[Cas 3 — Intersection avec coordonnées décimales]\n# Données : 2,3,13;4,1,11\nA_COMPLETER\n",
     "hints": [
       "Calculez delta = a1 * b2 - a2 * b1.",
-      "Si abs(delta) < 1e-6, affiche le cas des droites parallèles."
+      "Si abs(delta) < 1e-6, affiche le cas des droites parallèles.",
+      "Calculez le déterminant DELTA = a1*b2 - a2*b1 puis x1 et x2 par les déterminants de Cramer à deux décimales (ou signalez DELTA=0 si parallèles)."
     ],
     "examples": [
       {
@@ -81,7 +84,8 @@ module.exports = [
         "expected": "INTERSECTION x1=2.00 x2=3.00 DELTA=-10.00"
       }
     ],
-    "solution": "[Exemple]\nINTERSECTION x1=4.00 x2=2.00 DELTA=3.00\n\n[Cas 1 — Intersection nette à coordonnées entières]\nINTERSECTION x1=4.00 x2=3.00 DELTA=5.00\n\n[Cas 2 — Droites parallèles (pentes identiques)]\nPARALLELES DELTA=0.0\n\n[Cas 3 — Intersection avec coordonnées décimales]\nINTERSECTION x1=2.00 x2=3.00 DELTA=-10.00\n"
+    "solution": "[Exemple]\nINTERSECTION x1=4.00 x2=2.00 DELTA=3.00\n\n[Cas 1 — Intersection nette à coordonnées entières]\nINTERSECTION x1=4.00 x2=3.00 DELTA=5.00\n\n[Cas 2 — Droites parallèles (pentes identiques)]\nPARALLELES DELTA=0.0\n\n[Cas 3 — Intersection avec coordonnées décimales]\nINTERSECTION x1=2.00 x2=3.00 DELTA=-10.00\n",
+    "takeaway": "À retenir : Calculer le point d’intersection de deux droites de frontière dans le plan.\nRepère : Delta = 2*2 - 1*1 = 3. x1 = (10*2 - 8*1)/3 = 4. x2 = (2*8 - 1*10)/3 = 2."
   },
   {
     "id": "ro2-c2-e3",
@@ -94,7 +98,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c2-e3) — Résolution graphique par évaluation des sommets\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\n# Données : 4,3;1,1,8|2,1,12;0,0|6,0|0,8|4,4\nA_COMPLETER\n\n[Cas 2 — Optimum situé sur un axe]\n# Données : 10,2;1,1,5|3,1,9;0,0|3,0|0,5|2,3\nA_COMPLETER\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\n# Données : 5,5;1,1,4|2,1,6;10,10|5,5|0,8\nA_COMPLETER\n",
     "hints": [
       "Parse les contraintes dans une liste de tuples (a1, a2, b).",
-      "Pour chaque sommet, vérifie qu'il satisfait chaque contrainte (avec marge EPS) et compare Z."
+      "Pour chaque sommet, vérifie qu'il satisfait chaque contrainte (avec marge EPS) et compare Z.",
+      "Ne retenez que les sommets satisfaisant TOUTES les contraintes (y compris x1 >= 0, x2 >= 0) avant d évaluer Z sur chacun pour trouver l optimum."
     ],
     "examples": [
       {
@@ -120,6 +125,7 @@ module.exports = [
         "expected": "REGION_VIDE"
       }
     ],
-    "solution": "[Exemple]\nOPTIMUM: (x1=7.0, x2=2.0) Z=31.0\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\nOPTIMUM: (x1=4.0, x2=4.0) Z=28.0\n\n[Cas 2 — Optimum situé sur un axe]\nOPTIMUM: (x1=3.0, x2=0.0) Z=30.0\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\nREGION_VIDE\n"
+    "solution": "[Exemple]\nOPTIMUM: (x1=7.0, x2=2.0) Z=31.0\n\n[Cas 1 — Quatre sommets avec optimum intérieur]\nOPTIMUM: (x1=4.0, x2=4.0) Z=28.0\n\n[Cas 2 — Optimum situé sur un axe]\nOPTIMUM: (x1=3.0, x2=0.0) Z=30.0\n\n[Cas 3 — Tous les sommets proposés sont hors de la région réalisable]\nREGION_VIDE\n",
+    "takeaway": "À retenir : Identifier le sommet optimal maximisant la fonction objectif dans la région réalisable.\nRepère : Sommets réalisables : (0,0)->Z=0, (8,0)->Z=24, (0,5.5)->Z=27.5, (7,2)->Z=31.0. Le point (9,1) viole la contrainte 1 (2*9+1=19 > 16)."
   }
 ];

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -172,7 +170,7 @@ $enLigne = [int][Console]::In.ReadLine()
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Comparer deux valeurs pour décider si un cluster conserve la majorité.</p>
-    <div class="lab__brief"><p>Le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds <strong>en ligne</strong>. Le quorum est atteint si les nœuds en ligne représentent plus de la moitié du cluster. Affichez <code>quorum : atteint</code> ou <code>quorum : perdu</code>.</p></div>
+    <div class="lab__brief"><p>Avant d’ajuster le témoin de quorum WSFC (<code>Get-ClusterQuorum</code>), le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds <strong>en ligne</strong>. Le quorum est atteint si les nœuds en ligne représentent plus de la moitié du cluster. Affichez <code>quorum : atteint</code> ou <code>quorum : perdu</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>4
 3</pre></div>
@@ -180,10 +178,11 @@ $enLigne = [int][Console]::In.ReadLine()
     </div>
     <p class="lab__note">3 nœuds sur 4 : majorité.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La condition « plus de la moitié » s’écrit <code>($enLigne * 2 -gt $total)</code>.</li>
         <li>Évitez la division : multiplier par 2 garde des entiers exacts.</li>
+        <li>Étapes : lire total puis enLigne ; si enLigne × 2 dépasse strictement total, « quorum : atteint », sinon « quorum : perdu ».</li>
       </ol>
     </details>
   </div>
@@ -223,10 +222,11 @@ type : active-active</pre></div>
     </div>
     <p class="lab__note">Trois nœuds actifs.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le test d’égalité de chaînes s’écrit ($etat -eq "actif").</li>
         <li>Tous les nœuds sont actifs si <code>$actifs -eq $n</code>.</li>
+        <li>Étapes : lire n ; compter les nœuds « actif » ; afficher « actifs : » ; si le compte égale n, « type : active-active », sinon « type : active-passive ».</li>
       </ol>
     </details>
   </div>
@@ -260,10 +260,11 @@ non reparties : 1</pre></div>
     </div>
     <p class="lab__note">10 requêtes sur 3 serveurs.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La part entière vaut <code>[int]([math]::Floor($requetes / $serveurs))</code>.</li>
         <li>Le reste se calcule avec l’opérateur modulo % ou par soustraction.</li>
+        <li>Étapes : lire requêtes puis serveurs ; par serveur = partie entière du quotient ; reste = requêtes modulo serveurs ; afficher les deux lignes.</li>
       </ol>
     </details>
   </div>
@@ -277,16 +278,16 @@ non reparties : 1</pre></div>
       <p class="q__stem">Que regroupe un cluster ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Plusieurs serveurs en un seul système</button>
-        <button class="opt">Des fichiers</button>
-        <button class="opt">Des utilisateurs</button>
+        <button class="opt">Des fichiers partagés entre les nœuds</button>
+        <button class="opt">Des utilisateurs authentifiés ensemble</button>
       </div>
-      <div class="q__exp">Les nœuds coopèrent comme un ensemble.</div>
+      <div class="q__exp">Un cluster regroupe plusieurs serveurs (nœuds) vus de l’extérieur comme un seul système. Ce ne sont ni des fichiers partagés ni des utilisateurs : c’est une unité de service.</div>
     </div>
     <div class="q">
       <p class="q__stem">Citez un bénéfice du clustering.</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Tolérance aux pannes</button>
         <button class="opt">Compression</button>
+        <button class="opt" data-correct="1">Tolérance aux pannes</button>
         <button class="opt">Chiffrement</button>
       </div>
       <div class="q__exp">HA, répartition de charge et tolérance aux pannes.</div>
@@ -294,20 +295,20 @@ non reparties : 1</pre></div>
     <div class="q">
       <p class="q__stem">Dans un cluster active-passive…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Un nœud actif, d’autres en veille</button>
-        <button class="opt">Tous actifs</button>
         <button class="opt">Aucun nœud actif</button>
+        <button class="opt">Tous actifs</button>
+        <button class="opt" data-correct="1">Un nœud actif, d’autres en veille</button>
       </div>
       <div class="q__exp">Le passif prend le relais en cas de panne.</div>
     </div>
     <div class="q">
       <p class="q__stem">Inconvénient d’active-passive ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Sous-utilisation du nœud passif</button>
         <button class="opt">Aucune tolérance</button>
+        <button class="opt" data-correct="1">Sous-utilisation du nœud passif</button>
         <button class="opt">Trop rapide</button>
       </div>
-      <div class="q__exp">Le nœud en veille ne travaille pas.</div>
+      <div class="q__exp">En active-passive, le nœud passif reste en attente et ne traite aucune charge : il est sous-utilisé. La tolérance aux pannes, elle, reste entière — ce n’est pas « aucune ».</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans un cluster active-active…</p>
@@ -316,22 +317,22 @@ non reparties : 1</pre></div>
         <button class="opt">Un seul nœud travaille</button>
         <button class="opt">Aucun nœud ne travaille</button>
       </div>
-      <div class="q__exp">Les nœuds partagent les tâches.</div>
+      <div class="q__exp">En active-active, tous les nœuds traitent la charge en même temps et se répartissent les tâches. Un seul nœud au travail, c’est le schéma active-passive.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que distribue un load balancer ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Les requêtes entre serveurs</button>
-        <button class="opt">Les sauvegardes</button>
         <button class="opt">Les adresses MAC</button>
+        <button class="opt">Les sauvegardes</button>
+        <button class="opt" data-correct="1">Les requêtes entre serveurs</button>
       </div>
       <div class="q__exp">Il équilibre la charge entre les serveurs actifs.</div>
     </div>
     <div class="q">
       <p class="q__stem">Sur quoi repose un failover cluster ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Un stockage partagé</button>
         <button class="opt">Un seul disque local</button>
+        <button class="opt" data-correct="1">Un stockage partagé</button>
         <button class="opt">Aucun disque</button>
       </div>
       <div class="q__exp">Un autre nœud reprend les services avec le même état.</div>
@@ -343,7 +344,7 @@ non reparties : 1</pre></div>
         <button class="opt">À héberger un site vitrine</button>
         <button class="opt">À sauvegarder</button>
       </div>
-      <div class="q__exp">Plusieurs nœuds calculent en parallèle.</div>
+      <div class="q__exp">Un grid cluster distribue un calcul intensif sur plusieurs nœuds en parallèle — météo, rendu 3D, IA. Un site vitrine n’exige pas cette puissance, et sauvegarder n’est pas calculer.</div>
     </div>
   </div>
 
@@ -464,7 +465,7 @@ non reparties : 1</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

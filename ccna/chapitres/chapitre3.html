@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -190,31 +188,28 @@
      data-exercise="na2-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="FRAME Fa0/1 00:11:22:33:44:01 00:11:22:33:44:02&#10;FRAME Fa0/2 00:11:22:33:44:02 00:11:22:33:44:01&#10;CAM">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c3-e1) — Simulateur de table CAM de commutateur L2
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La médiathèque de Portval observe son commutateur au démarrage, table CAM vide.&#10;1) Un poste du hall (Fa0/10) interroge le serveur de catalogue (Fa0/24) : destination inconnue, la trame est inondée ; la MAC du poste est apprise sur Fa0/10.&#10;2) Le serveur répond depuis Fa0/24 : destination connue, commutation directe vers Fa0/10 ; sa MAC est apprise sur Fa0/24.&#10;3) Une borne Wi-Fi émet une annonce en diffusion : elle sort vers tous les ports sauf celui de la borne.&#10;4) Les entrées non rafraîchies expirent après 300 secondes.">
+  <script type="text/plain" data-lab-starter># Exercice — La table CAM du commutateur de la mairie de Bonneval
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot ou le nombre exact attendu.
 
-[Cas 1 — Trame de broadcast explicite]
-# Données : FRAME Fa0/3 00:aa:bb:cc:dd:01 ff:ff:ff:ff:ff:ff
+[Question 1 — Port d'apprentissage de la MAC du serveur]
 A_COMPLETER
 
-[Cas 2 — Filtrage sur même port]
-# Données : FRAME Fa0/1 00:00:00:00:00:01 ff:ff:ff:ff:ff:ff
-# Données : FRAME Fa0/1 00:00:00:00:00:02 00:00:00:00:00:01
+[Question 2 — Décision pour la trame 1]
 A_COMPLETER
 
-[Cas 3 — Déplacement d hôte de Fa0/1 vers Fa0/4]
-# Données : FRAME Fa0/1 00:50:56:01:02:03 00:50:56:aa:bb:cc
-# Données : FRAME Fa0/4 00:50:56:01:02:03 00:50:56:aa:bb:cc
-# Données : CAM
+[Question 3 — Traitement de la trame 2]
 A_COMPLETER
 
-[Cas 4 — Table vide initiale]
-# Données : CAM
+[Question 4 — Ports de sortie de la trame 3]
+A_COMPLETER
+
+[Question 5 — Durée de vie par défaut d'une entrée CAM (en secondes)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Simulateur de table CAM de commutateur L2</h3>
+    <h3 class="lab__title">Exercice 1 — La table CAM du commutateur de la mairie de Bonneval</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -223,25 +218,21 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Modéliser l'apprentissage dynamique d'adresses MAC sur les ports d'un switch et la décision de commutation (forwarding vs inondation/flooding).</p>
-    <div class="lab__brief"><p>Le commutateur possède N ports (ex: Fa0/1 à Fa0/24). La table CAM est initialement vide.<br>
-Analysez les paramètres du problème pour chaque cas.<br>
-Puis il prend sa décision :<br>
-1. Si <code>MAC_DST == ff:ff:ff:ff:ff:ff</code> ou si <code>MAC_DST</code> n'est pas dans la table : afficher <code>ACTION: FLOOD (ports sauf &lt;PORT_RECU&gt;)</code>.<br>
-2. Si <code>MAC_DST</code> est connue sur le port <code>P_DST</code> : si <code>P_DST == PORT_RECU</code>, afficher <code>ACTION: FILTRE (meme port)</code>, sinon afficher <code>ACTION: FORWARD vers &lt;P_DST&gt;</code>.<br>
-- <code>CAM</code> : Indiquez les entrées apprises triées par adresse MAC au format :<br>
-<code>&lt;MAC&gt; -&gt; &lt;PORT&gt;</code>. Si la table est vide, afficher <code>TABLE CAM VIDE</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Décrire l'apprentissage CAM et les décisions de commutation : inondation, commutation directe, diffusion.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La mairie de Bonneval, 8 000 habitants, regroupe ses serveurs et ses postes derrière un commutateur Cisco Catalyst 2960 redémarré cette nuit : la table CAM est donc vide à l'ouverture, 8 h 00. Le câblage du bâtiment est le suivant :</p><table><tr><th>Port</th><th>Équipement raccordé</th><th>MAC</th></tr><tr><th>Fa0/1</th><td>PC du secrétariat général</td><td>00:1a:2b:3c:44:01</td></tr><tr><th>Fa0/2</th><td>Serveur de délibérations</td><td>00:1a:2b:3c:44:02</td></tr><tr><th>Fa0/3</th><td>Portable de réunion</td><td>00:1a:2b:3c:44:03</td></tr><tr><th>Fa0/4</th><td>Imprimante réseau</td><td>00:1a:2b:3c:44:04</td></tr></table><p>Entre 8 h 01 et 8 h 04, l'administrateur observe les quatre trames suivantes entrant dans le commutateur :</p><table><tr><th>Ordre</th><th>Port d'entrée</th><th>MAC source</th><th>MAC destination</th></tr><tr><th>1</th><td>Fa0/1</td><td>00:1a:2b:3c:44:01</td><td>00:1a:2b:3c:44:02</td></tr><tr><th>2</th><td>Fa0/2</td><td>00:1a:2b:3c:44:02</td><td>00:1a:2b:3c:44:01</td></tr><tr><th>3</th><td>Fa0/3</td><td>00:1a:2b:3c:44:03</td><td>ff:ff:ff:ff:ff:ff</td></tr><tr><th>4</th><td>Fa0/1</td><td>00:1a:2b:3c:44:01</td><td>00:1a:2b:3c:44:02</td></tr></table><p>Rappel du cours : le commutateur apprend la MAC source sur le port d'entrée, puis traite la MAC destination (unicast connue : commutation directe ; unicast inconnue ou diffusion : inondation de tous les autres ports). Répondez par le mot ou le nombre exact.</p><ol><li>Sur quel port la MAC 00:1a:2b:3c:44:02 est-elle apprise ?</li><li>Quelle décision le commutateur prend-il pour la trame 1, dont la destination est encore inconnue ?</li><li>La trame 2 est-elle inondée ou commutée directement ?</li><li>Vers quels ports la trame 3 est-elle envoyée ?</li><li>Quelle est la durée de vie par défaut d'une entrée CAM, en secondes ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>FRAME Fa0/1 00:11:22:33:44:01 00:11:22:33:44:02
-FRAME Fa0/2 00:11:22:33:44:02 00:11:22:33:44:01
-CAM</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La médiathèque de Portval observe son commutateur au démarrage, table CAM vide.
+1) Un poste du hall (Fa0/10) interroge le serveur de catalogue (Fa0/24) : destination inconnue, la trame est inondée ; la MAC du poste est apprise sur Fa0/10.
+2) Le serveur répond depuis Fa0/24 : destination connue, commutation directe vers Fa0/10 ; sa MAC est apprise sur Fa0/24.
+3) Une borne Wi-Fi émet une annonce en diffusion : elle sort vers tous les ports sauf celui de la borne.
+4) Les entrées non rafraîchies expirent après 300 secondes.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>L'apprentissage se fait sur la MAC source.</li>
-        <li>La décision d'acheminement se fait sur la MAC destination.</li>
-        <li>Si la destination est sur le même port d'entrée (ex: hub connecté au port), le switch filtre la trame.</li>
+        <li>L'apprentissage porte sur la MAC source : la trame 2 arrive par Fa0/2 avec 00:1a:2b:3c:44:02 en source, ce qui crée l'entrée correspondante.</li>
+        <li>Une MAC destination absente de la table ne peut pas être commutée : le commutateur l'envoie sur tous les ports actifs sauf celui d'arrivée, pour être sûr de la joindre.</li>
+        <li>La diffusion (ff:ff:ff:ff:ff:ff) sort par définition vers tous les ports ; une entrée CAM non rafraîchie expire au bout de 300 secondes.</li>
       </ol>
     </details>
   </div>
@@ -251,36 +242,31 @@ CAM</pre></div>
      data-exercise="na2-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="SW1 32768 00:0a:00:11:22:33&#10;SW2 4096 00:0b:00:44:55:66&#10;SW3 32768 00:0c:00:77:88:99">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c3-e2) — Émulateur d'élection de Root Bridge STP 802.1D
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le groupe scolaire Les-Aubiers fait écrire son STP : SW-A (priorité 8192, MAC 00:22:bd:11:05:01), SW-B (32768, 00:22:bd:11:02:02) et SW-C (32768, 00:22:bd:11:03:03).&#10;&#10;1) SW-A a la priorité la plus basse : il est élu root bridge.&#10;2) Sans SW-A, SW-B et SW-C restent à 32768 : la MAC la plus basse l'emporte — 11:02:02 contre 11:03:03, SW-B est élu.&#10;3) Tous les ports de SW-A sont designated.&#10;4) SW-B et SW-C élisent chacun un root port vers SW-A.&#10;5) Les liens sont en FastEthernet : coût 19.">
+  <script type="text/plain" data-lab-starter># Exercice — L'élection du root bridge du lycée Victor-Hugo
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot ou le nombre exact attendu.
 
-[Cas 1 — Départage sur adresse MAC avec priorité par défaut]
-# Données : SW-A 32768 00:11:22:33:44:55
-# Données : SW-B 32768 00:01:02:03:04:05
-# Données : SW-C 32768 00:22:33:44:55:66
+[Question 1 — Root bridge élu]
 A_COMPLETER
 
-[Cas 2 — Priorité racine primaire 0]
-# Données : Core1 0 00:ff:ee:dd:cc:bb
-# Données : Core2 4096 00:aa:bb:cc:dd:ee
-# Données : Access1 32768 00:01:02:03:04:05
+[Question 2 — Root bridge si SW-BCD tombe en panne]
 A_COMPLETER
 
-[Cas 3 — Deux commutateurs avec MAC très proches]
-# Données : Switch-Nord 28672 cc:46:d6:10:00:01
-# Données : Switch-Sud 28672 cc:46:d6:10:00:00
+[Question 3 — Critère de départage entre SW-ADMIN et SW-CDI]
 A_COMPLETER
 
-[Cas 4 — Quatre commutateurs de distribution]
-# Données : D1 16384 00:10:11:22:33:44
-# Données : D2 8192 00:20:22:33:44:55
-# Données : D3 32768 00:05:00:00:00:01
-# Données : D4 8192 00:15:22:33:44:55
+[Question 4 — Ports designated sur le root bridge]
+A_COMPLETER
+
+[Question 5 — Root ports par commutateur non racine]
+A_COMPLETER
+
+[Question 6 — Coût STP d'un lien GigabitEthernet]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Émulateur d'élection de Root Bridge STP 802.1D</h3>
+    <h3 class="lab__title">Exercice 2 — L'élection du root bridge du lycée Victor-Hugo</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -289,27 +275,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler l'élection du commutateur racine (Root Bridge) selon les Bridge IDs (Priority + MAC).</p>
-    <div class="lab__brief"><p>Dans Spanning Tree Protocol (STP 802.1D / RSTP 802.1w), le commutateur racine est celui qui possède le plus petit Bridge ID (BID).<br>
-Le Bridge ID est composé de :<br>
-<code>&lt;Bridge Priority&gt;</code> (entier multiple de 4096 sous Cisco PVST+, défaut 32768) + <code>&lt;MAC de base&gt;</code>.<br>
-Analysez les paramètres du problème pour chaque cas.<br>
-Le script doit :<br>
-1. Afficher pour chaque switch son Bridge ID calculé sous la forme :<br>
-<code>&lt;NOM&gt;: BID=&lt;PRIORITE&gt;.&lt;MAC&gt;</code><br>
-2. Déterminer et afficher le Root Bridge élu :<br>
-<code>ROOT BRIDGE ELU: &lt;NOM&gt; (Raison: &lt;PLUS_FAIBLE_PRIORITE|DEPARTAGE_MAC&gt;)</code><br>
-Si un switch a une priorité strictement inférieure à tous les autres : <code>PLUS_FAIBLE_PRIORITE</code> ; si la priorité minimale est partagée par 2 switches ou plus et que le choix s'est fait sur la MAC : <code>DEPARTAGE_MAC</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Prédire une élection STP : plus petit Bridge ID, départage par MAC, rôles de ports et coûts de liens.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le lycée Victor-Hugo regroupe ses trois commutateurs dans un même domaine de diffusion, STP 802.1D activé. Les Bridge ID (BID) annoncés par les trois commutateurs sont :</p><table><tr><th>Commutateur</th><th>Localisation</th><th>Priorité</th><th>MAC de base</th></tr><tr><th>SW-ADMIN</th><td>Bâtiment administratif</td><td>32768</td><td>00:1c:57:aa:10:01</td></tr><tr><th>SW-CDI</th><td>Centre de documentation</td><td>32768</td><td>00:1c:57:aa:20:02</td></tr><tr><th>SW-BCD</th><td>Bâtiment des classes</td><td>4096</td><td>00:1c:57:aa:30:03</td></tr></table><p>Les liaisons entre commutateurs sont toutes des liens GigabitEthernet. Rappel du cours : est élu root bridge le commutateur au plus petit Bridge ID ; à priorité égale, la MAC la plus basse tranche ; tous les ports du root bridge sont designated, chaque commutateur non racine élit exactement un root port. Répondez par le mot ou le nombre exact.</p><ol><li>Quel commutateur est élu root bridge ?</li><li>Si SW-BCD tombait en panne, quel commutateur serait réélu root bridge ?</li><li>Quel critère tranche alors entre SW-ADMIN et SW-CDI ?</li><li>Combien de ports du root bridge sont designated ?</li><li>Combien de root ports chaque commutateur non racine élit-il ?</li><li>Quel est le coût STP 802.1D d'un lien GigabitEthernet ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SW1 32768 00:0a:00:11:22:33
-SW2 4096 00:0b:00:44:55:66
-SW3 32768 00:0c:00:77:88:99</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le groupe scolaire Les-Aubiers fait écrire son STP : SW-A (priorité 8192, MAC 00:22:bd:11:05:01), SW-B (32768, 00:22:bd:11:02:02) et SW-C (32768, 00:22:bd:11:03:03).
+
+1) SW-A a la priorité la plus basse : il est élu root bridge.
+2) Sans SW-A, SW-B et SW-C restent à 32768 : la MAC la plus basse l'emporte — 11:02:02 contre 11:03:03, SW-B est élu.
+3) Tous les ports de SW-A sont designated.
+4) SW-B et SW-C élisent chacun un root port vers SW-A.
+5) Les liens sont en FastEthernet : coût 19.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le BID se compare d'abord sur la priorité numérique, puis alphabétiquement/numériquement sur l'adresse MAC.</li>
-        <li>La plus petite valeur l'emporte toujours.</li>
+        <li>Le Bridge ID se compare comme un nombre : d'abord la priorité (multiple de 4096), puis la MAC en cas d'égalité.</li>
+        <li>SW-BCD annonce 4096, les deux autres 32768 (valeur par défaut) : le plus petit BID gagne sans départage.</li>
+        <li>À départage SW-ADMIN / SW-CDI, comparez les MAC octet par octet : aa:10:01 est inférieur à aa:20:02 ; pour les coûts, relisez le tableau du cours (10 Mbps = 100, 100 Mbps = 19, 1 Gbps = 4).</li>
       </ol>
     </details>
   </div>
@@ -319,38 +301,28 @@ SW3 32768 00:0c:00:77:88:99</pre></div>
      data-exercise="na2-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ROOT: SW1&#10;LIEN SW1:Fa0/1 SW2:Fa0/1 19&#10;LIEN SW1:Fa0/2 SW3:Fa0/1 19&#10;LIEN SW2:Fa0/2 SW3:Fa0/2 19">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c3-e3) — Déterminateur des rôles de ports STP (RP, DP, BLK)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le transporteur LogiTrans relie trois commutateurs en triangle : SW-N (root), SW-E et SW-O, chaque paire reliée par un lien direct, STP 802.1D actif.&#10;&#10;1) Le triangle offre trois chemins : sans STP, une requête en diffusion tournerait en boucle et saturerait les liens.&#10;2) STP élit SW-N root ; SW-E et SW-O prennent chacun un root port vers SW-N ; sur le lien SW-E–SW-O, un seul côté est designated.&#10;3) Le port restant du lien SW-E–SW-O passe en blocage : exactement un port bloqué au total.&#10;4) En cas de coupure d'un lien actif, ce port se réouvre et rétablit la continuité.">
+  <script type="text/plain" data-lab-starter># Exercice — La liaison redondante de la radio OndeNord
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot ou le nombre exact attendu.
 
-[Cas 1 — Liaison directe simple entre deux switches]
-# Données : ROOT: R1
-# Données : LIEN R1:Gi0/1 S2:Gi0/1 4
+[Question 1 — Chemins physiques avant le second câble]
 A_COMPLETER
 
-[Cas 2 — Boucle carrée à 4 commutateurs]
-# Données : ROOT: SW1
-# Données : LIEN SW1:Gi0/1 SW2:Gi0/1 4
-# Données : LIEN SW1:Gi0/2 SW4:Gi0/1 4
-# Données : LIEN SW2:Gi0/2 SW3:Gi0/1 4
-# Données : LIEN SW4:Gi0/2 SW3:Gi0/2 4
+[Question 2 — Phénomène déclenché si STP est désactivé]
 A_COMPLETER
 
-[Cas 3 — Coûts hétérogènes FastEthernet vs Gigabit]
-# Données : ROOT: SWA
-# Données : LIEN SWA:Fa0/1 SWB:Fa0/1 19
-# Données : LIEN SWA:Gi0/1 SWC:Gi0/1 4
-# Données : LIEN SWB:Gi0/2 SWC:Gi0/2 4
+[Question 3 — Champ TTL dans l'en-tête Ethernet]
 A_COMPLETER
 
-[Cas 4 — Ligne bus sans boucle]
-# Données : ROOT: S1
-# Données : LIEN S1:P1 S2:P1 10
-# Données : LIEN S2:P2 S3:P1 10
+[Question 4 — État des ports ni RP ni DP]
+A_COMPLETER
+
+[Question 5 — Ports bloqués une fois STP stabilisé]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Déterminateur des rôles de ports STP (RP, DP, BLK)</h3>
+    <h3 class="lab__title">Exercice 3 — La liaison redondante de la radio OndeNord</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -359,28 +331,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Déterminer les rôles et états des ports STP : Root Port (RP), Designated Port (DP) et Alternate/Blocking (BLK).</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
-Les lignes suivantes décrivent les liens bidirectionnels du réseau :<br>
-<code>LIEN &lt;SW_A&gt;:&lt;PORT_A&gt; &lt;SW_B&gt;:&lt;PORT_B&gt; &lt;COUT&gt;</code> (ex: <code>LIEN SW1:Fa0/1 SW2:Fa0/1 19</code>).<br>
-Règles Spanning Tree :<br>
-1. Sur le Root Bridge, <strong>tous les ports connectés sont DP</strong> (Designated Port, état Forwarding).<br>
-2. Pour chaque switch non-racine : le port ayant le <strong>plus faible coût cumulé vers la racine (Root Path Cost)</strong> est élu <strong>RP (Root Port)</strong>.<br>
-3. Sur chaque lien entre deux switches non-racines : le switch ayant le plus faible Root Path Cost obtient le <strong>DP</strong> sur son port. L'autre port du lien devient <strong>BLK (Alternate/Blocking)</strong>.<br>
-Indiquez pour chaque commutateur (trié alphabétiquement), puis pour chaque port de ce commutateur (trié) :<br>
-<code>&lt;SWITCH&gt; &lt;PORT&gt; -&gt; &lt;RP|DP|BLK&gt; (Cout-Racine: &lt;C&gt;)</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Anticiper l'effet d'un second lien physique : boucle L2, absence de TTL, et blocage STP d'un port.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La radio OndeNord diffuse depuis deux salles serveurs reliées par deux commutateurs Cisco, <strong>SW1</strong> (studio, élu root bridge, BID le plus faible) et <strong>SW2</strong> (régie). Jusqu'à présent, un seul câble physique relie les deux commutateurs : <code>Gi0/1</code> côté SW1 vers <code>Gi0/1</code> côté SW2. Jeudi, pour « sécuriser la diffusion en direct », le régisseur ajoute un second câble : <code>Gi0/2</code> côté SW1 vers <code>Gi0/2</code> côté SW2. STP 802.1D est actif sur les deux commutateurs ; le régisseur se souvient de la panne de 2019 sur un site où STP avait été désactivé : le réseau s'était figé en quelques secondes.</p><p>Répondez par le mot ou le nombre exact.</p><ol><li>Avant l'ajout du second câble, combien de chemins physiques reliaient SW1 et SW2 ?</li><li>Si STP était désactivé, quel phénomène le second câble déclencherait-il ?</li><li>L'en-tête Ethernet possède-t-il un champ TTL capable d'épuiser une trame en boucle ?</li><li>Avec STP actif, dans quel état sont placés les ports ni root port ni designated port ?</li><li>Une fois STP stabilisé sur ce double lien, combien de ports restent bloqués ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROOT: SW1
-LIEN SW1:Fa0/1 SW2:Fa0/1 19
-LIEN SW1:Fa0/2 SW3:Fa0/1 19
-LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le transporteur LogiTrans relie trois commutateurs en triangle : SW-N (root), SW-E et SW-O, chaque paire reliée par un lien direct, STP 802.1D actif.
+
+1) Le triangle offre trois chemins : sans STP, une requête en diffusion tournerait en boucle et saturerait les liens.
+2) STP élit SW-N root ; SW-E et SW-O prennent chacun un root port vers SW-N ; sur le lien SW-E–SW-O, un seul côté est designated.
+3) Le port restant du lien SW-E–SW-O passe en blocage : exactement un port bloqué au total.
+4) En cas de coupure d'un lien actif, ce port se réouvre et rétablit la continuité.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utiliser l'algorithme de Dijkstra ou une exploration en largeur pour trouver le coût minimum vers le Root Bridge pour chaque switch.</li>
-        <li>Le port qui offre ce chemin minimal est le Root Port (RP).</li>
-        <li>Sur un segment partagé entre non-racines, le côté le plus proche de la racine est Designated (DP), l'autre est Alternate/Blocking (BLK).</li>
+        <li>Un seul câble entre deux commutateurs forme une topologie en arbre : aucune trame ne peut tourner en rond.</li>
+        <li>Deux câbles créent une boucle physique : sans protocole, une trame de diffusion y circule indéfiniment — et l'en-tête Ethernet, contrairement à l'en-tête IP, n'a aucun compteur de vie.</li>
+        <li>STP élague l'arbre : les ports ni root port ni designated passent en blocage ; sur un double lien entre deux commutateurs, un seul des deux ports d'extrémité est bloqué.</li>
       </ol>
     </details>
   </div>
@@ -393,10 +359,10 @@ LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
     <div class="q">
       <p class="q__stem">Sur quelle adresse figurant dans une trame Ethernet un commutateur s’appuie-t-il pour enrichir sa table CAM ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">L’adresse MAC source de la trame entrante</button>
+        <button class="opt">L’adresse de broadcast FF:FF:FF:FF:FF:FF</button>
         <button class="opt">L’adresse MAC destination de la trame entrante</button>
         <button class="opt">L’adresse IP source contenue dans le payload</button>
-        <button class="opt">L’adresse de broadcast FF:FF:FF:FF:FF:FF</button>
+        <button class="opt" data-correct="1">L’adresse MAC source de la trame entrante</button>
       </div>
       <div class="q__exp">Le commutateur apprend la localisation des machines uniquement en observant l’adresse MAC source de chaque trame arrivant sur un port physique. L’adresse destination sert uniquement à décider où envoyer la trame.</div>
     </div>
@@ -423,8 +389,8 @@ LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
     <div class="q">
       <p class="q__stem">Sur un commutateur non-racine, combien de ports peuvent obtenir le rôle de Root Port (RP) pour une instance STP donnée ?</p>
       <div class="opts">
-        <button class="opt">Zéro</button>
         <button class="opt" data-correct="1">Exactement un seul port</button>
+        <button class="opt">Zéro</button>
         <button class="opt">Deux ports pour équilibrer la charge</button>
         <button class="opt">Tous les ports connectés à la racine</button>
       </div>
@@ -433,9 +399,9 @@ LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le coût Spanning Tree standard (802.1D) associé à un lien Gigabit Ethernet (1000 Mbps) ?</p>
       <div class="opts">
-        <button class="opt">100</button>
-        <button class="opt">19</button>
         <button class="opt" data-correct="1">4</button>
+        <button class="opt">19</button>
+        <button class="opt">100</button>
         <button class="opt">2</button>
       </div>
       <div class="q__exp">Selon la norme STP 802.1D, un lien 10 Mbps a un coût de 100, un lien Fast Ethernet (100 Mbps) a un coût de 19, un lien Gigabit Ethernet a un coût de 4, et un lien 10 Gigabit a un coût de 2.</div>
@@ -443,20 +409,20 @@ LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi une boucle physique sur un réseau de commutation L2 provoque-t-elle une tempête de diffusion alors qu’une boucle sur réseau IP L3 finit par s’arrêter ?</p>
       <div class="opts">
-        <button class="opt">Parce que les routeurs ont plus de mémoire que les commutateurs</button>
+        <button class="opt">Parce que les routeurs disposent de beaucoup plus de mémoire que les commutateurs</button>
         <button class="opt" data-correct="1">Parce que l’en-tête de trame Ethernet ne comporte aucun champ de durée de vie (TTL), contrairement au paquet IP</button>
-        <button class="opt">Parce que le protocole ARP force la duplication infinie des trames</button>
-        <button class="opt">Parce que les adresses MAC sont écrites en hexadécimal</button>
+        <button class="opt">Parce que le protocole ARP force la duplication infinie de toutes les trames reçues</button>
+        <button class="opt">Parce que les adresses MAC sont toujours écrites en notation hexadécimale</button>
       </div>
       <div class="q__exp">Le paquet IP contient un champ TTL (Time-To-Live) décrémenté par chaque routeur jusqu’à destruction du paquet à TTL=0. La trame Ethernet ne possède aucun TTL : sans STP, une trame Ethernet tourne indéfiniment en boucle.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est le rôle d’un port STP placé en état Blocking (Alternate) ?</p>
       <div class="opts">
-        <button class="opt">Il est électriquement éteint et désactivé</button>
+        <button class="opt">Il est physiquement éteint et totalement désactivé par l’administrateur</button>
+        <button class="opt">Il ne transfère que les trames de broadcast et de multicast sur le lien</button>
         <button class="opt" data-correct="1">Il ne transfère aucune donnée utilisateur mais continue d’écouter les BPDU pour réagir aux pannes</button>
-        <button class="opt">Il transfère uniquement les trames de broadcast</button>
-        <button class="opt">Il remplace la passerelle par défaut en mode secours actif</button>
+        <button class="opt">Il remplace automatiquement la passerelle par défaut dans un mode secours actif</button>
       </div>
       <div class="q__exp">Un port bloqué n’apprend pas les adresses MAC et ne transmet aucune trame utilisateur (rompant ainsi la boucle), mais il écoute en permanence les trames BPDU. Si la racine devient injoignable, il transite vers l’état Forwarding.</div>
     </div>
@@ -465,8 +431,8 @@ LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
       <div class="opts">
         <button class="opt">Un Root Port et plusieurs Designated Ports</button>
         <button class="opt">Uniquement des Blocking Ports</button>
-        <button class="opt" data-correct="1">Tous ses ports actifs sont Designated Ports (DP)</button>
         <button class="opt">Un Root Port et un Blocking Port</button>
+        <button class="opt" data-correct="1">Tous ses ports actifs sont Designated Ports (DP)</button>
       </div>
       <div class="q__exp">Puisque le Root Bridge est la racine absolue de la topologie, son coût vers lui-même est 0. Sur chaque segment auquel il est connecté, il offre donc le meilleur chemin : tous ses ports actifs sont Designated Ports (DP).</div>
     </div>
@@ -591,7 +557,7 @@ LIEN SW2:Fa0/2 SW3:Fa0/2 19</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

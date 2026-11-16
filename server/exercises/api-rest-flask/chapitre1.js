@@ -25,8 +25,9 @@ module.exports = [
       '<code>Version: &lt;version&gt;</code></p>',
     starter: `ligne = input().strip()\n\n# À compléter : découper la ligne et afficher les trois composants.\n`,
     hints: [
-      'Utilisez la méthode ligne.split() pour séparer les éléments sur les espaces.',
-      'Affichez chaque valeur sur une ligne dédiée avec le préfixe demandé.'
+      "Utilisez la méthode ligne.split() pour séparer les éléments sur les espaces.",
+      "Affichez chaque valeur sur une ligne dédiée avec le préfixe demandé.",
+      "Étapes : lire la ligne ; la découper sur les espaces en trois éléments ; afficher « Methode: », « Chemin: » et « Version: » suivis de chacun."
     ],
     examples: [
       {
@@ -57,7 +58,8 @@ methode, chemin, version = ligne.split()
 print(f"Methode: {methode}")
 print(f"Chemin: {chemin}")
 print(f"Version: {version}")
-`
+`,
+    takeaway: "La première ligne HTTP sépare méthode, URI cible et version du protocole pour guider le routage serveur."
   },
   {
     id: 'fl2-c1-e2',
@@ -111,7 +113,8 @@ if not params:
 else:
     for cle, val in sorted(params, key=lambda x: x[0]):
         print(f"{cle}={val}")
-`
+`,
+    takeaway: "La query string suit « ? » et encode des paires clé=valeur qu il faut parser et trier pour un comportement déterministe."
   },
   {
     id: 'fl2-c1-e3',
@@ -128,8 +131,9 @@ else:
       'Sinon, affichez <code>Format non supporte</code>.</p>',
     starter: `import sys\n\nlignes = [l.strip() for l in sys.stdin if l.strip()]\n\n# À compléter : analyser les en-têtes et afficher 'JSON supporte' ou 'Format non supporte'.\n`,
     hints: [
-      'Sépare le nom de l’en-tête et sa valeur sur le premier caractère deux-points (header.split(":", 1)).',
-      'Convertissez les noms et valeurs en minuscules (.lower()) pour une comparaison robuste.'
+      "Sépare le nom de l’en-tête et sa valeur sur le premier caractère deux-points (header.split(\":\", 1)).",
+      "Convertissez les noms et valeurs en minuscules (.lower()) pour une comparaison robuste.",
+      "Étapes : pour chaque en-tête, séparer nom et valeur au premier deux-points, en minuscules ; si content-type ou accept contient application/json, conclure « JSON supporte » ; à défaut, « Format non supporte »."
     ],
     examples: [
       {
@@ -178,6 +182,7 @@ if json_detecte:
     print("JSON supporte")
 else:
     print("Format non supporte")
-`
+`,
+    takeaway: "Content-Type décrit le format du corps envoyé tandis qu Accept négocie le format attendu dans la réponse."
   }
 ];

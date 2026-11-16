@@ -101,14 +101,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La porte AND donne 1 si…', opts: ['au moins une entrée vaut 1', 'toutes les entrées valent 1', 'les entrées diffèrent'], correct: 1, exp: 'AND = produit logique : tout à 1.' },
-      { q: 'La XOR donne 1 si les entrées…', opts: ['sont égales', 'diffèrent', 'valent 0'], correct: 1, exp: 'OU exclusif : les entrées diffèrent. NXOR = équivalence.' },
+      { q: 'La porte AND donne 1 si…', opts: ['au moins une entrée vaut 1', 'toutes les entrées valent 1', 'les entrées diffèrent'], correct: 1, exp: "La porte AND calcule le produit logique : elle ne sort 1 que si toutes les entrées valent 1 ; une seule entrée à 0 suffit à imposer 0." },
+      { q: 'La XOR donne 1 si les entrées…', opts: ['diffèrent', 'sont égales', 'valent 0'], correct: 0, exp: 'OU exclusif : les entrées diffèrent. NXOR = équivalence.' },
       { q: '(a·b)&#772; vaut…', opts: ['a&#772;·b&#772;', 'a&#772;+b&#772;', 'a+b'], correct: 1, exp: 'De Morgan : la barre se coupe, le produit devient somme.' },
-      { q: 'a + ab simplifie en…', opts: ['a', 'b', 'ab'], correct: 0, exp: 'Absorption : a(1+b) = a.' },
-      { q: 'Un groupe Karnaugh de 3 cases est…', opts: ['autorisé', 'interdit', 'obligatoire'], correct: 1, exp: 'Groupes de 1, 2, 4, 8… puissances de 2 seulement.' },
+      { q: 'a + ab simplifie en…', opts: ['ab', 'b', 'a'], correct: 2, exp: "Par absorption, a + ab = a(1 + b) = a × 1 = a : le terme ab est absorbé par a ; répondre b ferait disparaître le terme a lui-même." },
+      { q: 'Un groupe Karnaugh de 3 cases est…', opts: ['interdit', 'autorisé', 'obligatoire'], correct: 0, exp: 'Groupes de 1, 2, 4, 8… puissances de 2 seulement.' },
       { q: 'Dans un groupe où la variable vaut toujours 0, elle est…', opts: ['éliminée', 'complémentée', 'directe'], correct: 1, exp: 'Règle des bulles du support : toujours 0 → complémentée.' },
-      { q: 'La somme d\'un additionneur complet vaut…', opts: ['a ⊕ b', 'a ⊕ b ⊕ r', 'ab + r'], correct: 1, exp: 'XOR des trois entrées, retenue entrante comprise.' },
-      { q: 'Un multiplexeur à 4 entrées nécessite…', opts: ['1 bit de sélection', '2 bits', '4 bits'], correct: 1, exp: '2^k entrées : k bits de sélection, ici k = 2.' }
+      { q: 'La somme d\'un additionneur complet vaut…', opts: ['a ⊕ b ⊕ r', 'a ⊕ b', 'ab + r'], correct: 0, exp: 'XOR des trois entrées, retenue entrante comprise.' },
+      { q: 'Un multiplexeur à 4 entrées nécessite…', opts: ['1 bit de sélection', '4 bits', '2 bits'], correct: 2, exp: '2^k entrées : k bits de sélection, ici k = 2.' }
     ],
 
     pitfalls: [
@@ -246,13 +246,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un circuit séquentiel dépend…', opts: ['des entrées présentes seulement', 'des entrées ET de l\'état antérieur', 'de l\'horloge seulement'], correct: 1, exp: 'Il mémorise : l\'histoire compte ; il peut être synchrone ou asynchrone.' },
+      { q: 'Un circuit séquentiel dépend…', opts: ['des entrées présentes seulement', 'de l\'horloge seulement', 'des entrées ET de l\'état antérieur'], correct: 2, exp: 'Il mémorise : l\'histoire compte ; il peut être synchrone ou asynchrone.' },
       { q: 'Pour le verrou RS à entrées actives à 1, la combinaison R=S=1 est…', opts: ['le mode bascule', 'interdite', 'la mémorisation'], correct: 1, exp: 'Sorties identiques Q=Q&#772; : interdit pour ce verrou RS.' },
-      { q: 'J=K=1 fait…', opts: ['mémoriser', 'basculer Q', 'interdire'], correct: 1, exp: 'Mode toggle : Q prend son complément — cœur des compteurs.' },
-      { q: 'La bascule D recopie D sur Q, si son reset asynchrone est inactif…', opts: ['en continu', 'au front d\'horloge actif', 'quand R est actif'], correct: 1, exp: 'Échantillonnage au front ; entre deux fronts, état figé si aucune entrée asynchrone n\'agit.' },
-      { q: 'Un compteur modulo 8 sur 3 bits revient à 000 après…', opts: ['7 fronts', '8 fronts', '16 fronts'], correct: 1, exp: 'Il parcourt 0 à 7 : huit valeurs, retour au front suivant.' },
-      { q: 'Un registre à décalage sert à…', opts: ['convertir série en parallèle (et inversement)', 'comparer deux bits', 'décoder une adresse'], correct: 0, exp: 'Les bits glissent de bascule en bascule à chaque front.' },
-      { q: 'Un étage JK en J=K=1 divisé par 2 sert de…', opts: ['additionneur', 'diviseur de fréquence', 'multiplexeur'], correct: 1, exp: 'Un front sur deux change Q : fréquence divisée par 2.' },
+      { q: 'J=K=1 fait…', opts: ['basculer Q', 'mémoriser', 'interdire'], correct: 0, exp: 'Mode toggle : Q prend son complément — cœur des compteurs.' },
+      { q: 'La bascule D recopie D sur Q, si son reset asynchrone est inactif…', opts: ['en continu', 'quand R est actif', 'au front d\'horloge actif'], correct: 2, exp: 'Échantillonnage au front ; entre deux fronts, état figé si aucune entrée asynchrone n\'agit.' },
+      { q: 'Un compteur modulo 8 sur 3 bits revient à 000 après…', opts: ['8 fronts', '7 fronts', '16 fronts'], correct: 0, exp: 'Il parcourt 0 à 7 : huit valeurs, retour au front suivant.' },
+      { q: 'Un registre à décalage sert à…', opts: ["comparer deux mots binaires entrée par entrée","convertir série en parallèle (et inversement)","décoder l'adresse mémoire fournie par le processeur"], correct: 1, exp: 'Les bits glissent de bascule en bascule à chaque front.' },
+      { q: 'Un étage JK en J=K=1 divisé par 2 sert de…', opts: ['diviseur de fréquence', 'additionneur', 'multiplexeur'], correct: 0, exp: 'Un front sur deux change Q : fréquence divisée par 2.' },
       { q: 'Les entrées set/reset asynchrones agissent…', opts: ['au front montant', 'sans attendre un front d\'horloge', 'au front descendant'], correct: 1, exp: 'Asynchrone signifie sans attendre l\'horloge ; le circuit possède néanmoins un délai de propagation.' }
     ],
 
@@ -400,13 +400,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'L\'UAL exécute…', opts: ['les calculs et comparaisons', 'le décodage des instructions', 'le stockage permanent'], correct: 0, exp: 'Unité arithmétique et logique : calculs et comparaisons.' },
-      { q: 'L\'idée fondatrice de von Neumann :', opts: ['plusieurs processeurs', 'programme stocké dans la même mémoire que les données', 'mémoire infinie'], correct: 1, exp: 'Programme et données partagent la mémoire : machine universelle et programmable.' },
+      { q: 'L\'UAL exécute…', opts: ['le stockage permanent', 'le décodage des instructions', 'les calculs et comparaisons'], correct: 2, exp: 'Unité arithmétique et logique : calculs et comparaisons.' },
+      { q: 'L\'idée fondatrice de von Neumann :', opts: ["plusieurs processeurs travaillant en parallèle","une mémoire infinie accessible à toutes les unités","programme stocké dans la même mémoire que les données"], correct: 2, exp: 'Programme et données partagent la mémoire : machine universelle et programmable.' },
       { q: 'La RAM est une mémoire…', opts: ['permanente', 'volatile', 'de masse'], correct: 1, exp: 'Volatile : son contenu disparaît hors tension.' },
       { q: 'Le composant qui initialise la machine au démarrage :', opts: ['BIOS/UEFI', 'chipset', 'SSD'], correct: 0, exp: 'BIOS/UEFI : microprogramme de démarrage sur la carte mère.' },
-      { q: 'Le slot d\'une carte graphique dédiée :', opts: ['PCIe x16', 'DIMM', 'SATA'], correct: 0, exp: 'PCIe x16 : haut débit pour la carte graphique.' },
+      { q: 'Le slot d\'une carte graphique dédiée :', opts: ['DIMM', 'PCIe x16', 'SATA'], correct: 1, exp: 'PCIe x16 : haut débit pour la carte graphique.' },
       { q: 'Un écran tactile est un périphérique…', opts: ['d\'entrée', 'de sortie', 'd\'entrée-sortie'], correct: 2, exp: 'Il affiche (sortie) et reçoit le toucher (entrée).' },
-      { q: 'Quatre critères de choix d\'un processeur :', opts: ['fréquence, cœurs, cache, socket', 'couleur, poids, prix, taille', 'RAM, disque, écran, clavier'], correct: 0, exp: 'Les quatre critères du support.' },
+      { q: 'Quatre critères de choix d\'un processeur :', opts: ['fréquence, cœurs, cache, socket', 'couleur, poids, prix, taille', 'RAM, disque, écran, clavier'], correct: 0, exp: "Le support retient la fréquence (GHz), le nombre de cœurs, la taille du cache et la compatibilité du socket ; le prix ou la couleur n'y figurent pas." },
       { q: 'M.2 est le slot d\'un…', opts: ['SSD NVMe', 'processeur', 'écran'], correct: 0, exp: 'M.2 accueille les SSD NVMe ; le CPU va au socket.' }
     ],
 

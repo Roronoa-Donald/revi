@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -197,6 +195,16 @@ A_COMPLETER
 # Données : uefi.secureBoot.enabled = "false"
 # Données : tools.syncTime = "true"
 A_COMPLETER
+
+[Cas 3 — VM complète avec EFI, Secure Boot et horloge]
+# Données : displayName = "SRV-VIRTUAL-2026"
+# Données : guestOS = "debian12-64"
+# Données : numvcpus = "12"
+# Données : memsize = "32768"
+# Données : firmware = "EFI"
+# Données : uefi.secureBoot.enabled = "TRUE"
+# Données : tools.syncTime = "FALSE"
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Parseur de Fichier de Configuration VM .vmx &amp; Validateur d'Options Matérielles</h3>
@@ -233,10 +241,11 @@ tools.syncTime = "TRUE"
 ethernet0.virtualDev = "vmxnet3"</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Isolez les lignes avec clé = 'valeur' en retirant les guillemets et espaces superflus.</li>
         <li>Gérez les valeurs par défaut si une directive est absente du fichier .vmx.</li>
+        <li>1. Parcourir les paires cle = "valeur". 2. Renseigner displayName, guestOS, numvcpus, memsize et firmware. 3. Comparer les booléens à TRUE sans casse. 4. Appliquer les valeurs par défaut des champs absents.</li>
       </ol>
     </details>
   </div>
@@ -257,6 +266,11 @@ A_COMPLETER
 
 [Cas 2 — Exactement 3 snapshots sous le seuil de 50%]
 # Données : VM=vm-erp BASE_GB=200 DAILY_GB=1.0 SNAPS=10,20,30
+A_COMPLETER
+
+[Cas 3 — Aucun snapshot et chaîne longue à faible croissance]
+# Données : VM=vm-fresh BASE_GB=500 DAILY_GB=0.0 SNAPS=NONE
+# Données : VM=vm-legacy BASE_GB=60 DAILY_GB=0.5 SNAPS=7,14,21,28
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -292,10 +306,11 @@ VM=vm-dev BASE_GB=50 DAILY_GB=5.0 SNAPS=3,8,12,20
 VM=vm-backup BASE_GB=200 DAILY_GB=1.0 SNAPS=NONE</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Traitez le cas SNAPS=NONE en comptant 0 snapshot et 0.0 Go de delta.</li>
         <li>Formatez le ratio d'expansion avec deux chiffres après la virgule.</li>
+        <li>1. SNAPS=NONE : zéro delta, ratio 1.00, statut NOMINAL. 2. delta = DAILY_GB * somme des âges. 3. total = BASE_GB + delta ; ratio = total / BASE_GB. 4. Plus de 3 snaps ou delta &gt; 50 % de BASE_GB : ALERTE_CONSOLIDATION.</li>
       </ol>
     </details>
   </div>
@@ -319,6 +334,13 @@ A_COMPLETER
 # Données : CLUSTER_CAPACITY_MHZ=10000
 # Données : POOL=Pool-Capped RESERVED_MHZ=1000 LIMIT_MHZ=3000 SHARES=HIGH
 # Données : POOL=Pool-Free RESERVED_MHZ=1000 LIMIT_MHZ=-1 SHARES=LOW
+A_COMPLETER
+
+[Cas 3 — Trois pools à parts proportionnelles sans limite]
+# Données : CLUSTER_CAPACITY_MHZ=24000
+# Données : POOL=Gold RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=HIGH
+# Données : POOL=Silver RESERVED_MHZ=4000 LIMIT_MHZ=-1 SHARES=NORMAL
+# Données : POOL=Bronze RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -360,10 +382,11 @@ POOL=Test-Dev RESERVED_MHZ=2000 LIMIT_MHZ=6000 SHARES=NORMAL
 POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertissez les mots-clés LOW (2000), NORMAL (4000) et HIGH (8000) en valeurs entières.</li>
         <li>Affichez LIMIT:UNLIMITED si la limite vaut -1.</li>
+        <li>1. LOW = 2000, NORMAL = 4000, HIGH = 8000. 2. Réservations totales supérieures à la capacité : ERROR:CLUSTER_OVERCOMMITTED. 3. unreserved = capacité - réservations. 4. alloué = réservé + parts, plafonné par LIMIT_MHZ.</li>
       </ol>
     </details>
   </div>
@@ -376,19 +399,19 @@ POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
     <div class="q">
       <p class="q__stem">Quel est le système d'exploitation sous-jacent de l'appliance moderne VMware vCenter Server Appliance (VCSA) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">VMware Photon OS (distribution Linux durcie optimisée).</button>
+        <button class="opt">FreeBSD 13 avec noyau personnalisé pour vSphere.</button>
         <button class="opt">Microsoft Windows Server 2022 Datacenter Edition.</button>
         <button class="opt">Red Hat Enterprise Linux 9 avec interface graphique GNOME.</button>
-        <button class="opt">FreeBSD 13 avec noyau personnalisé pour vSphere.</button>
+        <button class="opt" data-correct="1">VMware Photon OS (distribution Linux durcie optimisée).</button>
       </div>
       <div class="q__exp">Depuis vSphere 6.5+, vCenter Server est exclusivement distribué sous la forme d'une appliance virtuelle (VCSA) autonome s'exécutant sur VMware Photon OS avec une base PostgreSQL intégrée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel fichier stocké sur le datastore contient la configuration matérielle complète d'une VM au format texte ASCII ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le fichier avec l'extension .vmx.</button>
-        <button class="opt">Le fichier avec l'extension -flat.vmdk.</button>
         <button class="opt">Le fichier avec l'extension .nvram.</button>
+        <button class="opt">Le fichier avec l'extension -flat.vmdk.</button>
+        <button class="opt" data-correct="1">Le fichier avec l'extension .vmx.</button>
         <button class="opt">Le fichier avec l'extension .vmsd.</button>
       </div>
       <div class="q__exp">Le fichier .vmx est le fichier de configuration principal d'une VM VMware. Il décrit en texte brut les vCPUs, la mémoire, les disques durs, les adresses MAC et les contrôleurs matériels.</div>
@@ -406,8 +429,8 @@ POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
     <div class="q">
       <p class="q__stem">Que devient le fichier de disque principal `-flat.vmdk` lorsqu'un administrateur prend un snapshot d'une VM ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Il est verrouillé en lecture seule et un nouveau disque différentiel (-delta.vmdk) intercepte les écritures.</button>
         <button class="opt">Il est immédiatement compressé et déplacé dans la corbeille de vCenter.</button>
+        <button class="opt" data-correct="1">Il est verrouillé en lecture seule et un nouveau disque différentiel (-delta.vmdk) intercepte les écritures.</button>
         <button class="opt">Il est cloné intégralement vers le second hôte ESXi du cluster.</button>
         <button class="opt">Il est converti à chaud au format Thick Eager Zeroed.</button>
       </div>
@@ -426,8 +449,8 @@ POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
     <div class="q">
       <p class="q__stem">Quelle est la taille d'un fichier .vswp pour une VM configurée avec 32 Go de RAM et une réservation mémoire de 32 Go ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">0 Go (aucun fichier d'échange requis car la mémoire est garantie à 100%).</button>
         <button class="opt">32 Go (la taille de la RAM allouée).</button>
+        <button class="opt" data-correct="1">0 Go (aucun fichier d'échange requis car la mémoire est garantie à 100%).</button>
         <button class="opt">64 Go (le double de la RAM par mesure de sécurité).</button>
         <button class="opt">16 Go (la moitié de la RAM allouée).</button>
       </div>
@@ -436,9 +459,9 @@ POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi une accumulation excessive de snapshots dégrade-t-elle les performances d'I/O d'une VM ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Les lectures nécessitent de parcourir successivement l'ensemble des fichiers deltas de la chaîne.</button>
-        <button class="opt">La carte réseau virtuelle passe automatiquement du mode 10G au mode 100M.</button>
         <button class="opt">Le contrôleur SCSI virtuel bascule en émulation IDE lente.</button>
+        <button class="opt">La carte réseau virtuelle passe automatiquement du mode 10G au mode 100M.</button>
+        <button class="opt" data-correct="1">Les lectures nécessitent de parcourir successivement l'ensemble des fichiers deltas de la chaîne.</button>
         <button class="opt">L'hyperviseur désactive l'Hyper-Threading sur tous les cœurs du socket.</button>
       </div>
       <div class="q__exp">Pour lire un bloc de données, le VMkernel doit d'abord chercher s'il a été modifié dans le delta le plus récent, puis remonter la chaîne des deltas jusqu'au disque plat d'origine, augmentant la latence d'accès.</div>
@@ -446,10 +469,10 @@ POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il si un Resource Pool possède une Limit CPU fixée à 4000 MHz alors que l'application en réclame 6000 MHz et que le cluster est inoccupé ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">L'allocation est strictement bridée à 4000 MHz, créant un goulot d'étranglement artificiel.</button>
+        <button class="opt">Une alarme sonore retentit sur les haut-parleurs physiques du serveur.</button>
         <button class="opt">La limite est ignorée dynamiquement et l'application reçoit ses 6000 MHz.</button>
         <button class="opt">L'hyperviseur éteint immédiatement la VM pour non-respect des quotas.</button>
-        <button class="opt">Une alarme sonore retentit sur les haut-parleurs physiques du serveur.</button>
+        <button class="opt" data-correct="1">L'allocation est strictement bridée à 4000 MHz, créant un goulot d'étranglement artificiel.</button>
       </div>
       <div class="q__exp">La directive Limit impose un plafond rigide. Même si le processeur de l'hôte est libre à 90%, l'hyperviseur bride l'exécution à la valeur de la limite configurée.</div>
     </div>
@@ -571,7 +594,7 @@ POOL=Staging RESERVED_MHZ=2000 LIMIT_MHZ=-1 SHARES=LOW</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

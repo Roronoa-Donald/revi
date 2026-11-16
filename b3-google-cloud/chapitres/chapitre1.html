@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -85,6 +83,10 @@
 
 <h2>1. Infrastructure Mondiale de Google Cloud : Régions, Zones &amp; Réseau Edge</h2>
 
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Ancrage sur le cours fondamental Cloud Computing B3 (/b3-cloud-computing/)</div>
+    <p>Les concepts fondateurs <strong>IaaS / PaaS / SaaS</strong>, la <strong>responsabilité partagée</strong>, la maîtrise des coûts <strong>FinOps</strong> et la stratégie <strong>Multi-cloud</strong> sont établis dans le cours socle <a href="/b3-cloud-computing/index.html"><strong>Cloud Computing B3 (<code>/b3-cloud-computing/</code>)</strong></a>. Ce cours <strong>Google Cloud Platform B3 (<code>/b3-google-cloud/</code>)</strong> approfondit les mécanismes propres à GCP : hiérarchie <code>Organization → Folder → Project</code> et stratégies <strong>IAM</strong> (Service Accounts, rôles primitifs/prédéfinis/personnalisés), architecture <strong>VPC</strong> globale (sous-réseaux régionaux, Cloud Router, Cloud NAT), pilotage par le SDK <code>gcloud</code> et services managés (Compute Engine, Cloud Storage, Cloud SQL, GKE, BigQuery).</p>
+  </div>
 <p>Google Cloud s'appuie sur la même infrastructure matérielle et réseau que celle qui alimente Google Search, YouTube et Gmail. Cette infrastructure est structurée selon un maillage mondial rigoureux :</p>
 <div class="grid grid-3">
   <div class="card">
@@ -215,28 +217,28 @@ gcloud config list</code></pre>
      data-exercise="gcp3-c1-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="VALIDATE_PROJECT_ID id=tp-cloud-b3-prod&#10;HIERARCHY_LEVEL type=PROJECT">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c1-e1) — Validateur de Hiérarchie des Ressources et Nommage GCP
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le cabinet Odonata organise son domaine Google Cloud : l'organisation odonata-data.com&#10;contient les dossiers « Études » et « Production », qui contiennent chacun des projets&#10;(odonata-etudes-fr, odonata-prod-api), lesquels hébergent VM et buckets.&#10;On propose l'identifiant Odonata_Lab pour un nouveau projet.&#10;&#10;1) La racine de la hiérarchie est l'organisation odonata-data.com.&#10;2) Un projet se situe au niveau 2.&#10;3) Le parent direct d'un projet est le dossier.&#10;4) Odonata_Lab est invalide : majuscules et underscore interdits.&#10;5) Le projet rassemble facturation, quotas et IAM.">
+  <script type="text/plain" data-lab-starter># Exercice — La hiérarchie de ressources de la scale-up Verdalia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 2 : le nombre seul. Questions 1, 3 et 5 : réponses courtes. Question 4 : oui ou non.
 
-[Cas 1 — Rejet Project ID trop court]
-# Données : VALIDATE_PROJECT_ID id=my-vm
+[Question 1 — Élément à la racine de la hiérarchie]
 A_COMPLETER
 
-[Cas 2 — Rejet Project ID avec majuscules non autorisées]
-# Données : VALIDATE_PROJECT_ID id=projet-PROD-2026
+[Question 2 — Niveau hiérarchique d'un projet]
 A_COMPLETER
 
-[Cas 3 — Rejet Project ID commençant par un chiffre]
-# Données : VALIDATE_PROJECT_ID id=123-projet-cloud
+[Question 3 — Parent direct d'un projet]
 A_COMPLETER
 
-[Cas 4 — Rejet Project ID se terminant par un tiret]
-# Données : VALIDATE_PROJECT_ID id=mon-projet-cloud-
+[Question 4 — Validité de l'identifiant Verdalia_Prod]
+A_COMPLETER
+
+[Question 5 — Entité rassemblant facturation, quotas et IAM]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Validateur de Hiérarchie des Ressources et Nommage GCP</h3>
+    <h3 class="lab__title">Exercice 1 — La hiérarchie de ressources de la scale-up Verdalia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -245,34 +247,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c1-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Valider la conformité d'un identifiant de projet Google Cloud (Project ID) selon la RFC 1035 et modéliser la hiérarchie des ressources.</p>
-    <div class="lab__brief"><p>Google Cloud organise les ressources selon une hiérarchie stricte :<br>
-<code>ORGANIZATION (niveau 0) &gt; FOLDER (niveau 1) &gt; PROJECT (niveau 2) &gt; RESOURCE (niveau 3)</code>.<br><br>
-Règles de validation d'un Project ID Google Cloud (RFC 1035) :<br>
-- Longueur comprise entre 6 et 30 caractères inclus.<br>
-- Composé uniquement de lettres minuscules (a-z), chiffres (0-9) et traits d'union (-).<br>
-- Doit obligatoirement commencer par une lettre minuscule.<br>
-- Ne doit pas se terminer par un trait d'union.<br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>VALIDATE_PROJECT_ID id=&lt;str&gt;</code> :<br>
-   - Si valide : <code>PROJECT_ID: id=&lt;id&gt; status=VALID format=RFC1035</code><br>
-   - Si trop court (&lt; 6) : <code>PROJECT_ID: id=&lt;id&gt; status=INVALID reason=TOO_SHORT</code><br>
-   - Si trop long (&gt; 30) : <code>PROJECT_ID: id=&lt;id&gt; status=INVALID reason=TOO_LONG</code><br>
-   - Si ne commence pas par une lettre : <code>PROJECT_ID: id=&lt;id&gt; status=INVALID reason=MUST_START_WITH_LETTER</code><br>
-   - Si se termine par '-' : <code>PROJECT_ID: id=&lt;id&gt; status=INVALID reason=CANNOT_END_WITH_HYPHEN</code><br>
-   - Si caractères non autorisés : <code>PROJECT_ID: id=&lt;id&gt; status=INVALID reason=INVALID_CHARS</code><br>
-2. <code>HIERARCHY_LEVEL type=&lt;ORGANIZATION|FOLDER|PROJECT|RESOURCE&gt;</code> :<br>
-   - <code>HIERARCHY: type=&lt;type&gt; level=&lt;L&gt; parent=&lt;parent&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Situer chaque élément d'une organisation Google Cloud dans la hiérarchie des ressources et valider un identifiant de projet.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Verdalia, scale-up lyonnaise de cosmétiques en ligne, organise son domaine Google Cloud. L'entreprise a créé l'organisation <code>verdalia.com</code> (liée à son domaine Cloud Identity), puis deux dossiers : « Production » et « Data-Lab ». Chaque dossier contient ses projets, par exemple <code>verdalia-prod-app</code> et <code>verdalia-lab-data</code>, qui hébergent eux-mêmes des machines virtuelles, des buckets et des tables BigQuery.</p><p>Rappel du cours : la hiérarchie des ressources s'étend de l'organisation (niveau 0) vers les dossiers (niveau 1), les projets (niveau 2) puis les ressources (niveau 3) ; les stratégies IAM accordées à un niveau sont héritées par tous les niveaux inférieurs.</p><p>Pour son prochain projet de production, le service informatique propose l'identifiant de projet <code>Verdalia_Prod</code>.</p><ol><li>Quel élément se trouve à la racine de la hiérarchie des ressources de Verdalia ?</li><li>À quel niveau de la hiérarchie se situe un projet ?</li><li>Quel est le parent direct d'un projet dans cette hiérarchie ?</li><li>L'identifiant proposé <code>Verdalia_Prod</code> respecte-t-il les règles Google Cloud (minuscules, chiffres et tirets uniquement) ?</li><li>Quelle entité de la hiérarchie rassemble la facturation, les quotas et les autorisations IAM des ressources qu'elle contient ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VALIDATE_PROJECT_ID id=tp-cloud-b3-prod
-HIERARCHY_LEVEL type=PROJECT</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le cabinet Odonata organise son domaine Google Cloud : l'organisation odonata-data.com
+contient les dossiers « Études » et « Production », qui contiennent chacun des projets
+(odonata-etudes-fr, odonata-prod-api), lesquels hébergent VM et buckets.
+On propose l'identifiant Odonata_Lab pour un nouveau projet.
+
+1) La racine de la hiérarchie est l'organisation odonata-data.com.
+2) Un projet se situe au niveau 2.
+3) Le parent direct d'un projet est le dossier.
+4) Odonata_Lab est invalide : majuscules et underscore interdits.
+5) Le projet rassemble facturation, quotas et IAM.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez la longueur avant de tester les expressions régulières ou les caractères.</li>
-        <li>Testez si id[0].isalpha() et id[0].islower() pour le premier caractère.</li>
-        <li>Pour les niveaux : ORGANIZATION -&gt; (0, NONE), FOLDER -&gt; (1, ORGANIZATION), PROJECT -&gt; (2, FOLDER), RESOURCE -&gt; (3, PROJECT).</li>
+        <li>La hiérarchie descend de la racine vers les ressources : organisation, puis dossiers, puis projets, puis ressources ; comptez les niveaux en partant de 0 pour l'organisation.</li>
+        <li>Un identifiant de projet Google Cloud n'accepte que des minuscules, des chiffres et des tirets : toute majuscule ou tout underscore le rend invalide.</li>
+        <li>1. La racine représente l'entreprise. 2. L'organisation est le niveau 0, les dossiers le niveau 1. 3. Un projet est forcément créé dans un dossier (ou directement dans l'organisation). 4. Cherchez les caractères interdits dans Verdalia_Prod. 5. C'est l'unité d'allocation des ressources qui porte facturation, quotas et IAM.</li>
       </ol>
     </details>
   </div>
@@ -342,10 +336,11 @@ La répartition ne crée aucune ressource et ne démontre pas la haute disponibi
 MULTI_ZONE_DEPLOY region=europe-west9 instance_count=5</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Pour N instances et M zones, calculez le quotient et le reste ; les premières zones reçoivent une instance supplémentaire.</li>
         <li>Comptez les zones réellement occupées et ne déduisez jamais un basculement fonctionnel de la seule répartition.</li>
+        <li>Répartissez équitablement les instances en round-robin sur les zones de la région GCP choisie (ex. europe-west9-a/b/c) et indiquez que la tolérance aux pannes dépend du déploiement.</li>
       </ol>
     </details>
   </div>
@@ -355,29 +350,31 @@ MULTI_ZONE_DEPLOY region=europe-west9 instance_count=5</pre></div>
      data-exercise="gcp3-c1-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="gcloud config set project tp-module1-prod&#10;gcloud config set compute/region europe-west9&#10;gcloud config get project&#10;gcloud config list">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c1-e3) — Parser et Simulateur de Contexte CLI gcloud
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Studio Kiwi, studio d'animation, prépare son projet kiwi-prod-euw1.&#10;Quota : 16 vCPU en europe-west1.&#10;Flotte : 2 e2-standard-4 (4 vCPU chacune) et 1 e2-standard-8 (8 vCPU) ;&#10;on veut ajouter une e2-micro (2 vCPU).&#10;&#10;1) Flotte actuelle : 2 × 4 + 8 = 16 vCPU, au plafond exactement.&#10;2) Avec l'e2-micro : 18 vCPU demandés.&#10;3) La création est bloquée : quota dépassé.&#10;4) Pour débloquer : demander une augmentation de quota.&#10;5) Dans kiwi-dev-euw1 sans facturation liée, la création échoue : le projet n'est lié à aucun compte de facturation.&#10;6) Bascule : gcloud config configurations activate prod-kiwi.">
+  <script type="text/plain" data-lab-starter># Exercice — Quotas, facturation et configurations gcloud de Norvelia
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : le nombre seul. Question 6 : la commande gcloud complète.
 
-[Cas 1 — Lecture d une propriété non définie]
-# Données : gcloud config get compute/zone
+[Question 1 — vCPU consommés par la flotte actuelle]
 A_COMPLETER
 
-[Cas 2 — Configuration du compte utilisateur et écrasement de valeur]
-# Données : gcloud config set account dev@cloud.corp
-# Données : gcloud config set account lead@cloud.corp
-# Données : gcloud config get account
+[Question 2 — vCPU demandés avec la machine supplémentaire]
 A_COMPLETER
 
-[Cas 3 — Configuration multiple complète et liste ordonnée]
-# Données : gcloud config set project gcp-bank-prod
-# Données : gcloud config set compute/region europe-west1
-# Données : gcloud config set compute/zone europe-west1-b
-# Données : gcloud config list
+[Question 3 — Mécanisme ayant bloqué la création (deux mots)]
+A_COMPLETER
+
+[Question 4 — Action pour débloquer la création]
+A_COMPLETER
+
+[Question 5 — Raison de l'échec dans le projet dev]
+A_COMPLETER
+
+[Question 6 — Commande de bascule de configuration]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Parser et Simulateur de Contexte CLI gcloud</h3>
+    <h3 class="lab__title">Exercice 3 — Quotas, facturation et configurations gcloud de Norvelia</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -386,29 +383,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c1-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le gestionnaire de configurations gcloud CLI et gérer les contextes de projet, de zone et de compte.</p>
-    <div class="lab__brief"><p>Le SDK Google Cloud (CLI <code>gcloud</code>) gère des profils de configuration contenant les paramètres par défaut de l'opérateur.<br><br>
-Opérations soumises à l’analyse :<br>
-1. <code>gcloud config set &lt;section&gt;/&lt;propriete&gt; &lt;valeur&gt;</code> ou <code>gcloud config set &lt;propriete&gt; &lt;valeur&gt;</code> :<br>
-   Met à jour la valeur et Indiquez <code>UPDATED: &lt;cle&gt;=&lt;valeur&gt;</code>.<br>
-   (Si la clé est sans slash, par exemple <code>project</code>, elle est stockée sous <code>core/project</code> ; <code>account</code> sous <code>core/account</code> ; sinon sous sa forme complète <code>compute/region</code>, <code>compute/zone</code>).<br>
-2. <code>gcloud config get &lt;propriete&gt;</code> :<br>
-   Indiquez <code>GET: &lt;cle&gt;=&lt;valeur&gt;</code> (ou <code>GET: &lt;cle&gt;=(unset)</code> si non définie).<br>
-3. <code>gcloud config list</code> :<br>
-   Indiquez la liste triée alphabétiquement des propriétés définies sous la forme :<br>
-   <code>CONFIG: [&lt;section&gt;] &lt;propriete&gt;=&lt;valeur&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Raisonner sur les quotas par projet, la liaison du compte de facturation et les configurations gcloud.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Norvelia, assurance en ligne, prépare la montée en charge de son projet <code>norvelia-prod-euw9</code>. Le quota Compute Engine de ce projet, pour la région europe-west9, est fixé à <strong>20 vCPU</strong>. La flotte actuelle compte <strong>3 machines e2-standard-4</strong> (4 vCPU chacune) et <strong>1 machine e2-standard-8</strong> (8 vCPU). L'équipe veut ajouter une machine supplémentaire de type e2-standard-4.</p><p>Par ailleurs, le projet <code>norvelia-dev-euw9</code> n'est lié à aucun compte de facturation, et l'ingénieur cloud travaille avec deux configurations gcloud : <code>dev-norvelia</code> (active) et <code>prod-norvelia</code>.</p><ol><li>Combien de vCPU la flotte actuelle consomme-t-elle ?</li><li>Combien de vCPU la flotte consommerait-elle avec la machine supplémentaire ?</li><li>La création de la machine supplémentaire est refusée : quel mécanisme Google Cloud l'a bloquée (deux mots) ?</li><li>Que doit faire l'équipe pour débloquer la création, sans changer de type de machine ?</li><li>Dans le projet norvelia-dev-euw9, la création d'une VM échoue aussi, mais pour une raison liée à l'argent : laquelle ?</li><li>Quelle commande unique permet de basculer de la configuration dev-norvelia vers prod-norvelia ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>gcloud config set project tp-module1-prod
-gcloud config set compute/region europe-west9
-gcloud config get project
-gcloud config list</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Studio Kiwi, studio d'animation, prépare son projet kiwi-prod-euw1.
+Quota : 16 vCPU en europe-west1.
+Flotte : 2 e2-standard-4 (4 vCPU chacune) et 1 e2-standard-8 (8 vCPU) ;
+on veut ajouter une e2-micro (2 vCPU).
+
+1) Flotte actuelle : 2 × 4 + 8 = 16 vCPU, au plafond exactement.
+2) Avec l'e2-micro : 18 vCPU demandés.
+3) La création est bloquée : quota dépassé.
+4) Pour débloquer : demander une augmentation de quota.
+5) Dans kiwi-dev-euw1 sans facturation liée, la création échoue : le projet n'est lié à aucun compte de facturation.
+6) Bascule : gcloud config configurations activate prod-kiwi.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Normalisez les clés simples : "project" -&gt; ("core", "project"), "account" -&gt; ("core", "account").</li>
-        <li>Pour "compute/region" -&gt; section "compute", propriété "region".</li>
-        <li>Triez les sections et les propriétés pour la commande "config list".</li>
+        <li>Comptez les vCPU machine par machine : une e2-standard-4 en apporte 4, une e2-standard-8 en apporte 8 ; comparez ensuite le total au quota de 20 vCPU.</li>
+        <li>Un quota est propre à un projet (et souvent à une région) : la consommation d'un autre projet ne compte pas dans ce total.</li>
+        <li>1. 3 machines × 4 vCPU, plus 1 machine × 8 vCPU. 2. Ajoutez 4 vCPU au total. 3. Le total dépasse 20 vCPU. 4. La seule issue sans changer de machine est une demande d'augmentation. 5. Sans compte de facturation lié, aucun déploiement payant n'est possible. 6. Une seule commande gcloud active une configuration existante.</li>
       </ol>
     </details>
   </div>
@@ -422,8 +417,8 @@ gcloud config list</pre></div>
       <p class="q__stem">Quel est l'ordre exact de la hiérarchie organisationnelle des ressources dans Google Cloud du niveau racine vers les ressources ?</p>
       <div class="opts">
         <button class="opt">Projet &gt; Dossier &gt; Organisation &gt; Ressource</button>
-        <button class="opt" data-correct="1">Organisation &gt; Dossiers &gt; Projets &gt; Ressources</button>
         <button class="opt">Dossier &gt; Organisation &gt; Projet &gt; Ressource</button>
+        <button class="opt" data-correct="1">Organisation &gt; Dossiers &gt; Projets &gt; Ressources</button>
         <button class="opt">Ressource &gt; Projet &gt; Dossier &gt; Organisation</button>
       </div>
       <div class="q__exp">La hiérarchie Google Cloud s'organise strictement du haut vers le bas : Organisation (niveau 0) &gt; Dossiers (niveau 1) &gt; Projets (niveau 2) &gt; Ressources (niveau 3).</div>
@@ -431,19 +426,19 @@ gcloud config list</pre></div>
     <div class="q">
       <p class="q__stem">Laquelle de ces chaînes est un identifiant Project ID Google Cloud VALIDE selon la RFC 1035 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">mon-projet-cloud-2026</button>
+        <button class="opt">projet-super-cloud-de-test-pour-la-production-mondiale-2026</button>
         <button class="opt">PROJET_PROD_1</button>
         <button class="opt">123-mon-projet</button>
-        <button class="opt">projet-super-cloud-de-test-pour-la-production-mondiale-2026</button>
+        <button class="opt" data-correct="1">mon-projet-cloud-2026</button>
       </div>
       <div class="q__exp">« mon-projet-cloud-2026 » est valide : entre 6 et 30 caractères, lettres minuscules, chiffres et tirets, commençant par une lettre et ne se terminant pas par un tiret.</div>
     </div>
     <div class="q">
       <p class="q__stem">Combien de zones de disponibilité au minimum une région Google Cloud contient-elle ?</p>
       <div class="opts">
-        <button class="opt">1 zone</button>
-        <button class="opt">2 zones</button>
         <button class="opt" data-correct="1">3 zones</button>
+        <button class="opt">2 zones</button>
+        <button class="opt">1 zone</button>
         <button class="opt">5 zones</button>
       </div>
       <div class="q__exp">Une région comprend au moins 3 zones. Leur présence ne garantit pas à elle seule la haute disponibilité : celle-ci dépend notamment de la redondance des composants et du basculement.</div>
@@ -462,8 +457,8 @@ gcloud config list</pre></div>
       <p class="q__stem">Que se passe-t-il si un utilisateur reçoit le rôle Viewer au niveau d'un dossier contenant 5 projets ?</p>
       <div class="opts">
         <button class="opt">L'utilisateur doit demander une validation pour chaque projet</button>
-        <button class="opt" data-correct="1">Le rôle allow est hérité, mais un deny applicable peut refuser certaines permissions</button>
         <button class="opt">L'utilisateur ne peut lire que le premier projet créé</button>
+        <button class="opt" data-correct="1">Le rôle allow est hérité, mais un deny applicable peut refuser certaines permissions</button>
         <button class="opt">Le rôle est bloqué car il doit être attribué à l'organisation</button>
       </div>
       <div class="q__exp">La liaison allow est héritée par les projets descendants. Une règle deny applicable au principal et aux permissions prises en charge peut toutefois les refuser ; ses conditions et exceptions doivent être vérifiées, ainsi que les autres règles deny applicables.</div>
@@ -586,7 +581,7 @@ gcloud config list</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

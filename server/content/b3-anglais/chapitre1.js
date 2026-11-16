@@ -132,12 +132,12 @@ module.exports = {
     {
       stem: 'Quelle est la différence fondamentale en anglais technique entre un bug et une vulnérabilité (vulnerability) ?',
       opts: [
-        'Un bug est une erreur intentionnelle alors qu’une vulnérabilité est un accident matériel.',
         'Un bug est un comportement anormal reproductible dans le code, tandis qu’une vulnérabilité est une faille permettant de compromettre la sécurité du système.',
+        'Un bug est une erreur intentionnelle alors qu’une vulnérabilité est un accident matériel.',
         'Un bug ne concerne que le matériel, alors qu’une vulnérabilité ne concerne que les bases de données.',
         'Ces deux termes sont rigoureusement synonymes et interchangeables sans nuance.'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Un bug est une erreur de programmation provoquant un comportement erroné. Une vulnérabilité est une faiblesse exploitable pour enfreindre la sécurité ou l’intégrité du système.'
     },
     {
@@ -155,33 +155,33 @@ module.exports = {
       stem: 'Que signifie l’acronyme CI/CD dans une démarche DevOps moderne ?',
       opts: [
         'Central Infrastructure / Controlled Data',
-        'Continuous Integration / Continuous Delivery (or Deployment)',
         'Cloud Interface / Container Daemon',
+        'Continuous Integration / Continuous Delivery (or Deployment)',
         'Cryptographic Identity / Certificate Distribution'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'CI/CD désigne l’intégration continue (tests et builds automatiques) et la livraison/déploiement continu vers les environnements cibles.'
     },
     {
       stem: 'Selon le modèle de responsabilité partagée en Cloud Computing, quelle couche est gérée par le client en PaaS mais par le fournisseur en SaaS ?',
       opts: [
         'La virtualisation matérielle des hyperviseurs.',
-        'L’application et son code source.',
+        'Le système d’exploitation de base.',
         'Le refroidissement physique du datacenter.',
-        'Le système d’exploitation de base.'
+        'L’application et son code source.'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'En PaaS (ex. Elastic Beanstalk, Heroku), le client est responsable du code de l’application. En SaaS (ex. Salesforce, Microsoft 365), le fournisseur gère l’application complète.'
     },
     {
       stem: 'Quelle formulation est la plus professionnelle pour remplacer la phrase familière « The website is broken » ?',
       opts: [
-        'The website is super dead.',
         'The web service is currently experiencing an outage.',
+        'The website is super dead.',
         'The portal is completely smashed down.',
         'We have bad code in the web stuff.'
       ],
-      correct: 1,
+      correct: 0,
       exp: '« The service is experiencing an outage » est la formulation technique standard pour désigner une interruption de service.'
     },
     {
@@ -199,22 +199,22 @@ module.exports = {
       stem: 'Que représente un « Exploit » en cybersécurité internationale ?',
       opts: [
         'Un rapport d’évaluation rédigé par un auditeur interne.',
-        'Un script ou payload conçu spécifiquement pour tirer parti d’une vulnérabilité identifiée.',
         'Une mise à jour logicielle corrigeant une faille de sécurité.',
+        'Un script ou payload conçu spécifiquement pour tirer parti d’une vulnérabilité identifiée.',
         'Un certificat numérique délivré par une autorité de certification.'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Un exploit est le vecteur d’attaque ou l’outil logiciel exploitant une vulnérabilité logicielle pour porter atteinte au système.'
     },
     {
       stem: 'Quelle est la signification exacte de l’acronyme SLA dans les contrats de services informatiques ?',
       opts: [
         'Software Licensing Authorization',
-        'Service Level Agreement',
+        'Storage Layer Architecture',
         'Secure Link Algorithm',
-        'Storage Layer Architecture'
+        'Service Level Agreement'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un SLA (Service Level Agreement) formalise les garanties de niveau de service et de disponibilité convenues entre un fournisseur et son client.'
     }
   ],

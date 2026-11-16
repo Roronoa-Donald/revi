@@ -31,8 +31,9 @@ public class Main {
 }
 `,
     hints: [
-      'En Java, la division entière par zéro lève une ArithmeticException, pas un résultat infini.',
-      'Place l’affichage du quotient dans le try, et le message d’erreur dans le catch.'
+      "En Java, la division entière par zéro lève une ArithmeticException, pas un résultat infini.",
+      "Place l’affichage du quotient dans le try, et le message d’erreur dans le catch.",
+      "Étapes : lire a puis b ; si b vaut 0, la division lève une exception et l’on affiche « erreur : division par zéro » ; sinon afficher le quotient entier."
     ],
     examples: [
       { stdin: '10\n2', expected: 'resultat : 5', note: '10 divisé par 2.' }
@@ -56,7 +57,8 @@ public class Main {
         }
     }
 }
-`
+`,
+    takeaway: "Intercepter ArithmeticException (ou vérifier b == 0 en amont) évite l interruption non contrôlée d une division."
   },
   {
     id: 'java2-c6-e2',
@@ -81,8 +83,9 @@ public class Main {
 }
 `,
     hints: [
-      'Integer.parseInt("42") renvoie 42, mais lance une NumberFormatException sur un texte non numérique.',
-      'Le catch (NumberFormatException e) affiche "saisie invalide".'
+      "Integer.parseInt(\"42\") renvoie 42, mais lance une NumberFormatException sur un texte non numérique.",
+      "Le catch (NumberFormatException e) affiche \"saisie invalide\".",
+      "Étapes : lire la saisie ; tenter la conversion en entier ; en cas de succès afficher « valeur : » suivi du nombre, sinon « saisie invalide »."
     ],
     examples: [
       { stdin: '42', expected: 'valeur : 42', note: 'Un entier valide.' }
@@ -106,7 +109,8 @@ public class Main {
         }
     }
 }
-`
+`,
+    takeaway: "Integer.parseInt() lève NumberFormatException sur une chaîne non numérique : gérez-la sans perdre le flux."
   },
   {
     id: 'java2-c6-e3',
@@ -152,8 +156,9 @@ public class Main {
 }
 `,
     hints: [
-      'Une exception personnalisée étend Exception et transmet le message à super().',
-      'La méthode retirer déclare throws SoldeInsuffisant ; l’appel est encadré d’un try / catch de ce type.'
+      "Une exception personnalisée étend Exception et transmet le message à super().",
+      "La méthode retirer déclare throws SoldeInsuffisant ; l’appel est encadré d’un try / catch de ce type.",
+      "Étapes : lire solde puis montant ; si le montant dépasse le solde, lancer l’exception métier et afficher « erreur : » suivi du message ; sinon afficher « reste : » suivi de la différence."
     ],
     examples: [
       { stdin: '100\n30', expected: 'reste : 70', note: 'Un retrait de 30 sur 100.' }
@@ -204,6 +209,7 @@ public class Main {
         }
     }
 }
-`
+`,
+    takeaway: "Définir une classe héritant de Exception (ou RuntimeException) permet de propager un contexte métier typé par throw."
   }
 ];

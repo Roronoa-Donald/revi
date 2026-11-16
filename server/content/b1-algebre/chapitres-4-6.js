@@ -130,16 +130,26 @@ module.exports = [
             '# v3 = v1 + v2 : les trois vecteurs n’engendrent pas ℝ³\n' +
             '# mais un plan de dimension 2.</code></pre>')
         ].join('\n')
+      },
+      {
+        title: 'Labo Python appliqué',
+        html: [
+          '<p>Python permet de vérifier numériquement une appartenance à un sous-espace : dans R³, un vecteur <code>w</code> est dans le plan <code>Vect(u, v)</code> lorsque le déterminant des trois vecteurs est nul (avec <code>u</code> et <code>v</code> libres).</p>',
+          '<pre><code class="language-python">def det3(a, b, c):\n    """Determinant 3x3 de trois vecteurs colonnes."""\n    return (a[0] * (b[1] * c[2] - b[2] * c[1])\n          - b[0] * (a[1] * c[2] - a[2] * c[1])\n          + c[0] * (a[1] * b[2] - a[2] * b[1]))\n\nu, v = (1, 0, 1), (0, 1, 1)\nfor w in [(2, 3, 5), (1, 1, 1)]:\n    d = det3(u, v, w)\n    print(w, "determinant =", d, "-&gt;", "dans Vect(u, v)" if d == 0 else "hors de Vect(u, v)")</code></pre>',
+          '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+          '<pre><code>(2, 3, 5) determinant = 0 -&gt; dans Vect(u, v)\n(1, 1, 1) determinant = -1 -&gt; hors de Vect(u, v)</code></pre>',
+          '<p>Le calcul confirme la théorie, il ne la remplace pas : sur l’épreuve, on écrit toujours la combinaison linéaire explicite.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Un espace vectoriel sur ℝ doit contenir…', opts: ['au moins deux vecteurs', 'un élément neutre pour l’addition', 'une base canonique'], correct: 1, exp: 'L’axiome du groupe commutatif impose l’existence de 0<sub>E</sub>.' },
-      { stem: 'Pour montrer que F est un sous-espace vectoriel de E, il suffit de vérifier…', opts: ['les huit axiomes', '0 ∈ F, stabilité par addition et par scalaire', 'que F est fini'], correct: 1, exp: 'Les axiomes se transmettent de E à F : trois points suffisent.' },
-      { stem: 'L’ensemble { (x, y, z) ∈ ℝ³ | z = 1 } est-il un sous-espace vectoriel ?', opts: ['Oui', 'Non, il ne contient pas le vecteur nul', 'Oui, il est stable par addition'], correct: 1, exp: 'Il ne contient pas (0, 0, 0) : ce n’est pas un sous-espace.' },
-      { stem: 'Que désigne <code>Vect(v₁, …, vₚ)</code> ?', opts: ['les vecteurs de la famille', 'toutes les combinaisons linéaires de la famille', 'les vecteurs orthogonaux'], correct: 1, exp: 'C’est l’ensemble des combinaisons linéaires : un sous-espace.' },
+      { stem: 'Un espace vectoriel sur ℝ doit contenir…', opts: ['au moins deux vecteurs', 'une base canonique', 'un élément neutre pour l’addition'], correct: 2, exp: 'L’axiome du groupe commutatif impose l’existence de 0<sub>E</sub>.' },
+      { stem: 'Pour montrer que F est un sous-espace vectoriel de E, il suffit de vérifier…', opts: ["les huit axiomes d’espace vectoriel, un par un","0 ∈ F, stabilité par addition et par scalaire","que F contient un nombre fini d’éléments"], correct: 1, exp: 'Les axiomes se transmettent de E à F : trois points suffisent.' },
+      { stem: 'L’ensemble { (x, y, z) ∈ ℝ³ | z = 1 } est-il un sous-espace vectoriel ?', opts: ["Non, il ne contient pas le vecteur nul","Oui, car c’est un plan affine de ℝ³","Oui, il est stable par addition des vecteurs"], correct: 0, exp: 'Il ne contient pas (0, 0, 0) : ce n’est pas un sous-espace.' },
+      { stem: 'Que désigne <code>Vect(v₁, …, vₚ)</code> ?', opts: ["seulement les vecteurs de la famille elle-même","les vecteurs orthogonaux à la famille","toutes les combinaisons linéaires de la famille"], correct: 2, exp: 'C’est l’ensemble des combinaisons linéaires : un sous-espace.' },
       { stem: 'Quand la somme <code>F + G</code> est-elle directe ?', opts: ['quand F = G', 'quand F ∩ G = {0}', 'quand F et G sont de même dimension'], correct: 1, exp: 'L’intersection réduite au vecteur nul rend la décomposition unique.' },
-      { stem: 'Le vecteur nul d’un espace de polynômes est…', opts: ['le polynôme constant 1', 'le polynôme nul', 'il n’existe pas'], correct: 1, exp: 'Le neutre de l’addition des polynômes est le polynôme identiquement nul.' }
+      { stem: 'Le vecteur nul d’un espace de polynômes est…', opts: ['le polynôme nul', 'le polynôme constant 1', 'il n’existe pas'], correct: 0, exp: 'Le neutre de l’addition des polynômes est le polynôme identiquement nul.' }
     ],
 
     pitfalls: [
@@ -307,16 +317,26 @@ module.exports = [
             'Après élimination il reste 2 lignes indépendantes :\n' +
             'rang(M) = 2.  Les lignes de M engendrent un plan de ℝ³.</code></pre>')
         ].join('\n')
+      },
+      {
+        title: 'Labo Python appliqué',
+        html: [
+          '<p>Le rang se calcule par élimination de Gauss. Les fractions exactes (<code>fractions.Fraction</code>) évitent les erreurs d’arrondi qui fausseraient le test « pivot nul ».</p>',
+          '<pre><code class="language-python">from fractions import Fraction\n\ndef rang(matrice):\n    """Rang par pivot de Gauss en fractions exactes."""\n    m = [[Fraction(x) for x in ligne] for ligne in matrice]\n    rang, colonnes = 0, len(m[0])\n    for c in range(colonnes):\n        pivot = next((i for i in range(rang, len(m)) if m[i][c] != 0), None)\n        if pivot is None:\n            continue\n        m[rang], m[pivot] = m[pivot], m[rang]\n        for i in range(rang + 1, len(m)):\n            f = m[i][c] / m[rang][c]\n            m[i] = [a - f * b for a, b in zip(m[i], m[rang])]\n        rang += 1\n    return rang\n\nA = [[1, 2, 3], [2, 4, 6], [1, 0, 1]]\nprint("rang(A) =", rang(A))\nprint("famille libre ?", rang([[1, 0, 1], [0, 1, 1], [1, 1, 2]]) == 3)</code></pre>',
+          '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+          '<pre><code>rang(A) = 2\nfamille libre ? False</code></pre>',
+          '<p>Une famille de <code>p</code> vecteurs est libre si et seulement si son rang vaut <code>p</code> ; ici la troisième ligne de <code>A</code> n’apporte rien, donc le rang est 2.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Une famille est génératrice de E lorsque…', opts: ['elle est libre', 'tout vecteur de E s’écrit comme combinaison linéaire de la famille', 'elle contient le vecteur nul'], correct: 1, exp: 'C’est la définition : l’espace engendré est E tout entier.' },
-      { stem: 'Une famille est libre lorsque…', opts: ['aucun vecteur n’est nul', 'a₁v₁ + … + aₚvₚ = 0 impose tous les aᵢ nuls', 'elle a p ≤ n vecteurs'], correct: 1, exp: 'L’indépendance linéaire : l’équation n’a que la solution nulle.' },
-      { stem: 'Une base est une famille…', opts: ['libre seulement', 'génératrice seulement', 'libre et génératrice'], correct: 2, exp: 'Les deux propriétés ensemble, ce qui rend les coordonnées uniques.' },
-      { stem: 'Que vaut <code>dim M<sub>2,3</sub>(ℝ)</code> ?', opts: ['2', '5', '6'], correct: 2, exp: 'La dimension est le nombre de coefficients : 2 × 3 = 6.' },
-      { stem: 'Comment calcule-t-on le rang d’une matrice ?', opts: ['en comptant ses lignes', 'en échelonnant et en comptant les pivots', 'en calculant la trace'], correct: 1, exp: 'Le rang est le nombre de pivots après échelonnement.' },
-      { stem: 'Pour A carrée d’ordre n, <code>rang(A) = n</code> équivaut à…', opts: ['det(A) = 0', 'A est inversible', 'A est symétrique'], correct: 1, exp: 'rang = n ⇔ det ≠ 0 ⇔ A inversible.' }
+      { stem: 'Une famille est génératrice de E lorsque…', opts: ["elle est libre, donc ses vecteurs sont indépendants","le vecteur nul en fait partie, ce qui suffit à tout engendrer","tout vecteur de E s’écrit comme combinaison linéaire de la famille"], correct: 2, exp: 'C’est la définition : l’espace engendré est E tout entier.' },
+      { stem: 'Une famille est libre lorsque…', opts: ["a₁v₁ + … + aₚvₚ = 0 impose tous les aᵢ nuls","aucun vecteur de la famille n’est nul","elle compte au plus n vecteurs dans E"], correct: 0, exp: 'L’indépendance linéaire : l’équation n’a que la solution nulle.' },
+      { stem: 'Une base est une famille…', opts: ['libre seulement', 'libre et génératrice', 'génératrice seulement'], correct: 1, exp: 'Les deux propriétés ensemble, ce qui rend les coordonnées uniques.' },
+      { stem: 'Que vaut <code>dim M<sub>2,3</sub>(ℝ)</code> ?', opts: ['2', '6', '5'], correct: 1, exp: 'La dimension est le nombre de coefficients : 2 × 3 = 6.' },
+      { stem: 'Comment calcule-t-on le rang d’une matrice ?', opts: ["en comptant le nombre de ses lignes","en calculant la trace de la matrice","en échelonnant et en comptant les pivots"], correct: 2, exp: 'Le rang est le nombre de pivots après échelonnement.' },
+      { stem: 'Pour A carrée d’ordre n, <code>rang(A) = n</code> équivaut à…', opts: ['A est inversible', 'det(A) = 0', 'A est symétrique'], correct: 0, exp: "rang = n équivaut à déterminant non nul, donc A inversible ; det(A) = 0 donne un rang inférieur à n et la symétrie n’intervient pas." }
     ],
 
     pitfalls: [
@@ -482,16 +502,26 @@ module.exports = [
             'donc jamais un vecteur propre. Un vecteur propre est par définition non nul — sinon la notion ' +
             'n’aurait aucun sens.</p>')
         ].join('\n')
+      },
+      {
+        title: 'Labo Python appliqué',
+        html: [
+          '<p>Le même pivot de Gauss donne le déterminant : produit des pivots, au signe près (un échange de lignes change le signe). Pour une matrice 2×2, les valeurs propres sont les racines de <code>λ² − tr(B)·λ + det(B)</code>.</p>',
+          '<pre><code class="language-python">def det(matrice):\n    """Determinant par elimination de Gauss (fractions exactes)."""\n    from fractions import Fraction\n    m = [[Fraction(x) for x in ligne] for ligne in matrice]\n    n, d = len(m), Fraction(1)\n    for c in range(n):\n        p = next((i for i in range(c, n) if m[i][c] != 0), None)\n        if p is None:\n            return Fraction(0)\n        if p != c:\n            m[c], m[p] = m[p], m[c]\n            d = -d\n        d *= m[c][c]\n        for i in range(c + 1, n):\n            f = m[i][c] / m[c][c]\n            m[i] = [a - f * b for a, b in zip(m[i], m[c])]\n    return d\n\nB = [[2, 1], [1, 2]]\ntrace, delta = B[0][0] + B[1][1], det(B)\ndisc = trace * trace - 4 * delta\nl1, l2 = (trace + disc ** 0.5) / 2, (trace - disc ** 0.5) / 2\nprint("det(B) =", delta, "valeurs propres :", l1, l2)</code></pre>',
+          '<p><strong>Sortie attendue (CPython 3) :</strong></p>',
+          '<pre><code>det(B) = 3 valeurs propres : 3.0 1.0</code></pre>',
+          '<p>Vérification à la main : <code>det(B − λI) = (2 − λ)² − 1 = 0</code> donne λ = 1 et λ = 3.</p>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Que vaut <code>det [[a, b], [c, d]]</code> ?', opts: ['ad + bc', 'ad − bc', 'ab − cd'], correct: 1, exp: 'Le produit de la diagonale moins le produit de l’anti-diagonale.' },
+      { stem: 'Que vaut <code>det [[a, b], [c, d]]</code> ?', opts: ['ad − bc', 'ad + bc', 'ab − cd'], correct: 0, exp: 'Le produit de la diagonale moins le produit de l’anti-diagonale.' },
       { stem: 'Que devient le déterminant si l’on échange deux lignes ?', opts: ['Il ne change pas', 'Il change de signe', 'Il devient nul'], correct: 1, exp: 'L’échange de deux lignes inverse le signe du déterminant.' },
-      { stem: 'Que vaut <code>det(A · B)</code> ?', opts: ['det(A) + det(B)', 'det(A) · det(B)', 'det(A) / det(B)'], correct: 1, exp: 'Le déterminant est multiplicatif.' },
-      { stem: 'Une application linéaire vérifie nécessairement…', opts: ['f(0) = 0', 'f(1) = 1', 'f est croissante'], correct: 0, exp: 'Test rapide : si f(0) ≠ 0, l’application n’est pas linéaire.' },
-      { stem: 'Une application linéaire est injective si et seulement si…', opts: ['son noyau est {0}', 'son image est E', 'sa matrice est carrée'], correct: 0, exp: 'ker f = {0} ⇔ f injective.' },
-      { stem: 'Comment trouve-t-on les valeurs propres de A ?', opts: ['en résolvant det(A − λI) = 0', 'en calculant la trace', 'en inversant A'], correct: 0, exp: 'Les valeurs propres sont les racines du polynôme caractéristique.' }
+      { stem: 'Que vaut <code>det(A · B)</code> ?', opts: ['det(A) + det(B)', 'det(A) / det(B)', 'det(A) · det(B)'], correct: 2, exp: "Le déterminant est multiplicatif : det(A · B) = det(A) × det(B) ; l’addition ne se transmet pas au produit et la division n’a pas de sens ici." },
+      { stem: 'Une application linéaire vérifie nécessairement…', opts: ['f est croissante', 'f(1) = 1', 'f(0) = 0'], correct: 2, exp: 'Test rapide : si f(0) ≠ 0, l’application n’est pas linéaire.' },
+      { stem: 'Une application linéaire est injective si et seulement si…', opts: ['son noyau est {0}', 'son image est E', 'sa matrice est carrée'], correct: 0, exp: "Une application linéaire est injective si son noyau se réduit au vecteur nul ; « image égale E » décrit la surjectivité et une matrice carrée ne suffit pas." },
+      { stem: 'Comment trouve-t-on les valeurs propres de A ?', opts: ['en calculant la trace', 'en résolvant det(A − λI) = 0', 'en inversant A'], correct: 1, exp: 'Les valeurs propres sont les racines du polynôme caractéristique.' }
     ],
 
     pitfalls: [

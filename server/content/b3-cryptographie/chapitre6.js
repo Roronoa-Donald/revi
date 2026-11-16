@@ -172,14 +172,14 @@ module.exports = {
   questions: [
     {
       stem: 'Pourquoi le protocole TLS 1.3 a-t-il totalement interdit l\'échange de clés basé sur le chiffrement RSA statique ?',
-      opts: ['Parce que RSA ne fonctionne pas avec le protocole TCP', 'Parce que RSA statique ne fournit pas la confidentialité persistante (PFS)', 'Parce que RSA consomme trop d\'électricité', 'Parce que RSA a été racheté par une entreprise privée'],
-      correct: 1,
+      opts: ['Parce que RSA ne fonctionne pas avec le protocole TCP', 'Parce que RSA a été racheté par une entreprise privée', 'Parce que RSA consomme trop d\'électricité', 'Parce que RSA statique ne fournit pas la confidentialité persistante (PFS)'],
+      correct: 3,
       exp: 'Avec RSA statique, une fuite ultérieure de la clé privée peut exposer les sessions enregistrées. TLS 1.3 retire cet échange ; sa PFS reste conditionnée au mode négocié et à la phase des données.'
     },
     {
       stem: 'Lors d\'une connexion TLS 1.3 initiale, combien d\'allers-retours réseau (RTT) sont nécessaires si les paramètres proposés conviennent dès le départ, sans HelloRetryRequest ?',
-      opts: ['0-RTT', '1-RTT', '2-RTT', '3-RTT'],
-      correct: 1,
+      opts: ['1-RTT', '0-RTT', '2-RTT', '3-RTT'],
+      correct: 0,
       exp: 'Dans ce cas, la poignée de mains initiale prend 1-RTT. Un HelloRetryRequest ajoute un aller-retour : elle peut alors nécessiter 2-RTT.'
     },
     {
@@ -190,8 +190,8 @@ module.exports = {
     },
     {
       stem: 'Quel algorithme quantique constitue une menace existentielle pour RSA et les courbes elliptiques (ECC) en résolvant la factorisation et le logarithme discret en temps polynomial ?',
-      opts: ['L\'algorithme de Grover', 'L\'algorithme de Shor', 'L\'algorithme de Dijkstra', 'L\'algorithme A*'],
-      correct: 1,
+      opts: ['L\'algorithme de Grover', 'L\'algorithme A*', 'L\'algorithme de Dijkstra', 'L\'algorithme de Shor'],
+      correct: 3,
       exp: 'Publié en 1994 par Peter Shor, cet algorithme quantique factorise les entiers et calcule les logarithmes discrets en temps polynomial, réduisant à néant la sécurité de RSA et d\'ECC.'
     },
     {

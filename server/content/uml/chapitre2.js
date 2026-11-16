@@ -180,42 +180,42 @@ module.exports = {
       stem: 'Où doivent obligatoirement se situer les acteurs dans un diagramme de cas d’utilisation UML ?',
       opts: [
         'À l’intérieur de la frontière du système (System Boundary)',
-        'À l’extérieur de la frontière du système',
+        'Directement dans l’ellipse des cas d’utilisation',
         'Exclusivement dans le coin supérieur gauche du système',
-        'Directement dans l’ellipse des cas d’utilisation'
+        'À l’extérieur de la frontière du système'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Par définition formelle OMG, un acteur représente une entité externe au système informatique. Il doit donc se trouver impérativement en dehors du rectangle délimitant le système.'
     },
     {
       stem: 'Quel est le sens standard de la flèche tiretée stéréotypée «include» entre deux cas d’utilisation ?',
       opts: [
         'Du cas inclus vers le cas de base',
-        'Du cas de base vers le cas inclus',
         'Une ligne continue sans aucune flèche',
+        'Du cas de base vers le cas inclus',
         'Une double flèche bidirectionnelle'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La flèche «include» pointe du cas client (le cas de base) vers le cas fournisseur (le sous-cas inclus obligatoire).'
     },
     {
       stem: 'Quel est le sens standard de la flèche tiretée stéréotypée «extend» entre un cas d’extension et le cas de base ?',
       opts: [
-        'Du cas de base vers le cas d’extension',
         'Du cas d’extension vers le cas de base',
+        'Du cas de base vers le cas d’extension',
         'Une ligne pleine avec un losange noir',
         'Un trait tireté reliant les acteurs'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La flèche «extend» part toujours du cas d’extension (qui enrichit le comportement) et pointe vers le cas de base qu’elle étend sous condition.'
     },
     {
       stem: 'Qu’est-ce qu’un «point d’extension» (Extension Point) dans la spécification UML ?',
       opts: [
-        'Une classe de contrôleur web',
-        'Un emplacement explicite dans le déroulement du cas de base où un comportement étendu peut être inséré',
-        'Le bouton graphique sur lequel l’utilisateur clique',
-        'Une exception logicielle non interceptée'
+        "Une classe de contrôleur web spécifique chargée de router les requêtes HTTP",
+        "Un emplacement explicite dans le déroulement du cas de base où un comportement étendu peut être inséré",
+        "Le bouton graphique de l’interface sur lequel l’utilisateur final clique",
+        "Une exception logicielle non interceptée remontée par le compilateur à l’exécution"
       ],
       correct: 1,
       exp: 'Un point d’extension est un repère formel déclaré dans le cas de base identifiant où et sous quelle condition le scénario étendu vient s’insérer.'
@@ -223,12 +223,12 @@ module.exports = {
     {
       stem: 'Un système bancaire déclenche automatiquement chaque nuit à 02h00 la clôture des comptes. Qui est l’acteur de ce cas d’utilisation ?',
       opts: [
-        'Le directeur de l’agence',
-        'Le client titulaire du compte',
-        'Un acteur temporel externe (Horloge Système / Ordonnanceur batch)',
-        'Il n’y a aucun acteur car le système est magique'
+        "Un acteur temporel externe (Horloge Système / Ordonnanceur batch)",
+        "Le directeur de l’agence bancaire, responsable du site concerné",
+        "Le client titulaire du compte concerné par la clôture nocturne",
+        "Il n’y a aucun acteur car le système est magique"
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Tout événement externe déclencheur est modélisé par un acteur, y compris les déclencheurs temporels comme l’Horloge Système ou un ordonnanceur de tâches.'
     },
     {
@@ -245,23 +245,23 @@ module.exports = {
     {
       stem: 'Quelle erreur méthodologique commet un concepteur qui décompose «Passer Commande» en «Saisir Adresse», «Saisir Téléphone» et «Valider Panier» via des «include» ?',
       opts: [
-        'Aucune, c’est la norme stricte d’UML',
-        'Une décomposition fonctionnelle abusive (Functional Decomposition), qui transforme un cas d’utilisation en micro-étapes d’IHM',
-        'Un dépassement de mémoire vive',
-        'Un abus de polymorphisme'
+        "Aucune, c’est la norme stricte recommandée par l’OMG pour tous les projets UML modernes",
+        "Un dépassement de mémoire vive survenant lors de la génération automatique des diagrammes",
+        "Une décomposition fonctionnelle abusive (Functional Decomposition), qui transforme un cas d’utilisation en micro-étapes d’IHM",
+        "Un abus de polymorphisme entre les classes du diagramme de séquence associé au cas d’utilisation"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La décomposition fonctionnelle découpe un processus en étapes algorithmiques au lieu de préserver des unités de valeur métier complètes (niveau Objectif Utilisateur).'
     },
     {
       stem: 'Qu’appelle-t-on un «cas d’utilisation orphelin» dans un diagramme de cas d’utilisation ?',
       opts: [
-        'Un cas qui n’utilise pas de base de données',
-        'Un cas d’utilisation qui ne possède aucun lien (direct ou indirect via include/extend) avec un acteur',
-        'Un cas dont le nom comporte plus de 3 mots',
-        'Un cas qui hérite de plusieurs acteurs à la fois'
+        "Un cas qui n’utilise aucune base de données relationnelle pour stocker ses données",
+        "Un cas dont le nom comporte plus de trois mots dans sa formulation",
+        "Un cas qui hérite simultanément de plusieurs acteurs du diagramme à la fois",
+        "Un cas d’utilisation qui ne possède aucun lien (direct ou indirect via include/extend) avec un acteur"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un cas orphelin est isolé du reste du système : aucun acteur ne peut l’initier ou en bénéficier, ce qui constitue une anomalie de modélisation.'
     }
   ],

@@ -164,12 +164,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que produit une jointure interne avec condition ?', opts: ['Une copie permanente des tables', 'Un résultat associant les lignes correspondantes', 'Une suppression des lignes sans correspondance'], correct: 1, exp: 'La requête produit un résultat sans modifier les tables ; le moteur ne crée pas nécessairement une table temporaire.' },
+      { stem: 'Que produit une jointure interne avec condition ?', opts: ['Une copie permanente des tables', 'Une suppression des lignes sans correspondance', 'Un résultat associant les lignes correspondantes'], correct: 2, exp: 'La requête produit un résultat sans modifier les tables ; le moteur ne crée pas nécessairement une table temporaire.' },
       { stem: 'Que retient une jointure interne ?', opts: ['Toutes les lignes des deux tables', 'Uniquement les correspondances des deux côtés', 'Les lignes de la première table'], correct: 1, exp: 'Sans correspondance, la ligne conjuguée n’existe pas.' },
-      { stem: 'Quelle jointure garde les marques sans voiture ?', opts: ['INNER JOIN', 'LEFT JOIN (Marque à gauche)', 'Aucune'], correct: 1, exp: 'LEFT JOIN garde toute la table de gauche, complétée de NULL.' },
-      { stem: 'Dans une LEFT JOIN, pourquoi COUNT(V.immat) plutôt que COUNT(*) ?', opts: ['C’est plus rapide', 'COUNT(V.immat) ignore les NULL : les marques sans voiture comptent 0', 'COUNT(*) est interdit en jointure'], correct: 1, exp: 'COUNT(colonne) ne compte que les non-NULL ; COUNT(*) compterait la ligne conjuguée.' },
-      { stem: 'Que vaut l’erreur « ambiguous column » ?', opts: ['Une colonne mal typée', 'Une colonne nommée sans préfixe alors que deux tables jointes la portent', 'Une colonne NULL'], correct: 1, exp: 'Il faut préfixer par l’alias : M.codemarque ou V.codemarque.' },
-      { stem: 'Une table aliasée en M peut encore s’écrire Marque dans la même requête ?', opts: ['Oui', 'Non, l’alias remplace le nom partout', 'Seulement dans le SELECT'], correct: 1, exp: 'Une fois déclarée, seule la forme aliasée est valide.' }
+      { stem: 'Quelle jointure garde les marques sans voiture ?', opts: ['LEFT JOIN (Marque à gauche)', 'INNER JOIN', 'Aucune'], correct: 0, exp: 'LEFT JOIN garde toute la table de gauche, complétée de NULL.' },
+      { stem: 'Dans une LEFT JOIN, pourquoi COUNT(V.immat) plutôt que COUNT(*) ?', opts: ["C’est simplement plus rapide à exécuter pour le moteur SQL","COUNT(*) est interdit dans toute requête comportant une jointure","COUNT(V.immat) ignore les NULL : les marques sans voiture comptent 0"], correct: 2, exp: 'COUNT(colonne) ne compte que les non-NULL ; COUNT(*) compterait la ligne conjuguée.' },
+      { stem: 'Que vaut l’erreur « ambiguous column » ?', opts: ["Une colonne dont le type ne correspond pas à la valeur insérée","Une colonne nommée sans préfixe alors que deux tables jointes la portent","Une colonne qui contient au moins une valeur NULL en base"], correct: 1, exp: 'Il faut préfixer par l’alias : M.codemarque ou V.codemarque.' },
+      { stem: 'Une table aliasée en M peut encore s’écrire Marque dans la même requête ?', opts: ["Non, l’alias remplace le nom partout","Oui, l’alias n’est qu’une simple abréviation","Seulement dans la clause SELECT"], correct: 0, exp: 'Une fois déclarée, seule la forme aliasée est valide.' }
     ],
 
     pitfalls: [
@@ -359,11 +359,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que renvoie une fonction d’agrégation ?', opts: ['Une colonne', 'Une seule valeur (ou une par groupe)', 'Une table'], correct: 1, exp: 'Elle résume une colonne : une valeur totale, ou une par groupe avec GROUP BY.' },
-      { stem: 'Dans un jeu hypothétique de 34 voitures dont 9 dates sont NULL, COUNT(datecirc) vaut…', opts: ['34', '25', '9'], correct: 1, exp: 'COUNT(colonne) ignore les NULL : 34 − 9 = 25. Ce jeu hypothétique diffère des 23 voitures initiales.' },
+      { stem: 'Que renvoie une fonction d’agrégation ?', opts: ["Une colonne calculée ligne par ligne","Une table de résultats détaillés","Une seule valeur (ou une par groupe)"], correct: 2, exp: 'Elle résume une colonne : une valeur totale, ou une par groupe avec GROUP BY.' },
+      { stem: 'Dans un jeu hypothétique de 34 voitures dont 9 dates sont NULL, COUNT(datecirc) vaut…', opts: ['25', '34', '9'], correct: 0, exp: 'COUNT(colonne) ignore les NULL : 34 − 9 = 25. Ce jeu hypothétique diffère des 23 voitures initiales.' },
       { stem: 'Que compte COUNT(DISTINCT marque) ?', opts: ['Toutes les lignes', 'Les marques distinctes', 'Les marques NULL'], correct: 1, exp: 'DISTINCT élimine les doublons avant le comptage.' },
-      { stem: 'En SQLite, que fait SELECT marque, immat, COUNT(*) FROM Voiture GROUP BY marque ?', opts: ['SQLite le refuse toujours', 'SQLite accepte et choisit une immatriculation du groupe sans garantir laquelle', 'SQLite choisit toujours la première immatriculation'], correct: 1, exp: 'SQLite accepte une colonne non regroupée et non agrégée ; sa valeur n’est pas déterministe. D’autres dialectes ou réglages peuvent la refuser.' },
-      { stem: 'HAVING filtre…', opts: ['les lignes avant regroupement', 'les groupes après regroupement', 'les colonnes'], correct: 1, exp: 'WHERE filtre les lignes, HAVING filtre les groupes.' },
+      { stem: 'En SQLite, que fait SELECT marque, immat, COUNT(*) FROM Voiture GROUP BY marque ?', opts: ["SQLite accepte et choisit une immatriculation du groupe sans garantir laquelle","SQLite refuse systématiquement cette écriture et renvoie une erreur","SQLite choisit toujours la première immatriculation du groupe"], correct: 0, exp: 'SQLite accepte une colonne non regroupée et non agrégée ; sa valeur n’est pas déterministe. D’autres dialectes ou réglages peuvent la refuser.' },
+      { stem: 'HAVING filtre…', opts: ['les lignes avant regroupement', 'les colonnes', 'les groupes après regroupement'], correct: 2, exp: 'WHERE filtre les lignes, HAVING filtre les groupes.' },
       { stem: 'Dans une même requête agrégée, où placer le filtre COUNT(*) > 2 ?', opts: ['Dans WHERE', 'Dans HAVING', 'Dans LIMIT'], correct: 1, exp: 'WHERE filtre les lignes avant le calcul de cet agrégat ; HAVING filtre les groupes après.' }
     ],
 
@@ -554,11 +554,11 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que fait UPDATE sans clause WHERE ?', opts: ['Rien', 'Il modifie toutes les lignes de la table', 'Il modifie la première ligne'], correct: 1, exp: 'Sans condition, la modification s’applique à toute la table.' },
+      { stem: 'Que fait UPDATE sans clause WHERE ?', opts: ["Il modifie toutes les lignes de la table","Rien, la commande est refusée","Il modifie uniquement la première ligne"], correct: 0, exp: 'Sans condition, la modification s’applique à toute la table.' },
       { stem: 'DELETE FROM Voiture; (sans WHERE)…', opts: ['supprime la table', 'vide la table de ses lignes', 'est une erreur'], correct: 1, exp: 'La structure reste ; seule DROP TABLE supprime la table.' },
-      { stem: 'Quelle commande ajoute une colonne à une table existante ?', opts: ['UPDATE', 'ALTER TABLE … ADD COLUMN', 'INSERT'], correct: 1, exp: 'ALTER TABLE fait évoluer la structure.' },
-      { stem: 'En MySQL, un compte nouvellement créé avant tout GRANT possède…', opts: ['le droit de lire toutes les bases', 'aucun privilège par défaut', 'le droit de créer des tables'], correct: 1, exp: 'Le compte ne reçoit aucun privilège par défaut ; la connexion dépend aussi de l’authentification.' },
-      { stem: 'En MySQL 8.4 avec le joker actif, \'leader\'@\'192.168.66.%\' désigne…', opts: ['un hôte uniquement : 192.168.66.9', 'un motif d’hôte commençant par 192.168.66.', 'un joker sur le login'], correct: 1, exp: '% élargit le motif d’hôte ; cet usage est déprécié dans MySQL 8.4.' },
+      { stem: 'Quelle commande ajoute une colonne à une table existante ?', opts: ['UPDATE', 'INSERT', 'ALTER TABLE … ADD COLUMN'], correct: 2, exp: "Seul ALTER TABLE modifie la structure : ADD COLUMN ajoute la colonne ; UPDATE change des valeurs et INSERT ajoute des lignes." },
+      { stem: 'En MySQL, un compte nouvellement créé avant tout GRANT possède…', opts: ['le droit de lire toutes les bases', 'le droit de créer des tables', 'aucun privilège par défaut'], correct: 2, exp: 'Le compte ne reçoit aucun privilège par défaut ; la connexion dépend aussi de l’authentification.' },
+      { stem: 'En MySQL 8.4 avec le joker actif, \'leader\'@\'192.168.66.%\' désigne…', opts: ['un motif d’hôte commençant par 192.168.66.', 'un hôte uniquement : 192.168.66.9', 'un joker sur le login'], correct: 0, exp: '% élargit le motif d’hôte ; cet usage est déprécié dans MySQL 8.4.' },
       { stem: 'En MySQL, GRANT OPTION permet de…', opts: ['tout faire sur la base', 'transmettre à d’autres les privilèges qu’on possède', 'créer des utilisateurs sans mot de passe'], correct: 1, exp: 'C’est le droit de déléguer — jamais inclus dans ALL.' }
     ],
 

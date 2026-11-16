@@ -14,7 +14,7 @@ module.exports = [
     language: 'powershell',
     title: 'Durée de vie d’un snapshot',
     goal: 'Décider si un instantané doit être purgé selon son ancienneté.',
-    brief: '<p>Le script lit l’<strong>âge</strong> d’un snapshot en jours. Un snapshot ne doit pas ' +
+    brief: '<p>En audit d’instantanés Hyper-V (<code>Get-VMSnapshot</code>) ou vSphere, le script lit l’<strong>âge</strong> d’un snapshot en jours. Un snapshot ne doit pas ' +
       'rester longtemps en production : au-delà de 7 jours, affichez <code>snapshot : a purger</code> ; ' +
       'sinon <code>snapshot : conserve</code>.</p>',
     starter: `$age = [int][Console]::In.ReadLine()
@@ -23,8 +23,9 @@ module.exports = [
 # sinon "snapshot : conserve".
 `,
     hints: [
-      'Comparez avec -gt : ($age -gt 7).',
-      'Un snapshot récent (<= 7 jours) reste tolérable en production.'
+      "Comparez avec -gt : ($age -gt 7).",
+      "Un snapshot récent (<= 7 jours) reste tolérable en production.",
+      "Étapes : lire l’âge ; au-delà de 7 → « a purger » ; 7 ou moins → « conserve »."
     ],
     examples: [
       { stdin: '3', expected: 'snapshot : conserve', note: 'Trois jours : encore récent.' }
@@ -41,7 +42,8 @@ if ($age -gt 7) {
 } else {
     Write-Output "snapshot : conserve"
 }
-`
+`,
+    takeaway: "Conserver des snapshots VMware/Hyper-V trop longtemps gonfle les disques delta et dégrade fortement les IOPS."
   },
   {
     id: 'ws2-c6-e2',
@@ -61,8 +63,9 @@ $sourceSupprimee = [Console]::In.ReadLine()
 # selon le type et la suppression de la source.
 `,
     hints: [
-      'Un clone complet fonctionne toujours, même source supprimée.',
-      'Un clone lié ne fonctionne plus si la source est supprimée.'
+      "Un clone complet fonctionne toujours, même source supprimée.",
+      "Un clone lié ne fonctionne plus si la source est supprimée.",
+      "Étapes : lire le type puis la réponse ; clone complet → fonctionne ; sinon, source supprimée → hors service ; sinon il fonctionne."
     ],
     examples: [
       { stdin: 'lie\nnon', expected: 'clone : fonctionne', note: 'Clone lié, source toujours présente.' }
@@ -82,7 +85,8 @@ if ($type -eq "complet") {
 } else {
     Write-Output "clone : fonctionne"
 }
-`
+`,
+    takeaway: "Un clone complet est autonome alors qu un clone lié dépend du disque parent et devient inutilisable s il disparaît."
   },
   {
     id: 'ws2-c6-e3',
@@ -105,8 +109,9 @@ for ($i = 0; $i -lt $n; $i++) {
 # À compléter : afficher le total, puis comparer à la capacité.
 `,
     hints: [
-      'Lisez chaque taille avec [int][Console]::In.ReadLine().',
-      'La sauvegarde tient si `($total -le $capacite)`.'
+      "Lisez chaque taille avec [int][Console]::In.ReadLine().",
+      "La sauvegarde tient si `($total -le $capacite)`.",
+      "Étapes : lire capacité, n et les tailles ; totaliser ; afficher « total : » ; si total ≤ capacité, « sauvegarde : planifiee », sinon « capacite insuffisante »."
     ],
     examples: [
       { stdin: '1000\n2\n300\n400', expected: 'total : 700 Go\nsauvegarde : planifiee', note: '700 Go sur une cible de 1000 Go.' }
@@ -129,6 +134,7 @@ if ($total -le $capacite) {
 } else {
     Write-Output "sauvegarde : capacite insuffisante"
 }
-`
+`,
+    takeaway: "Valider l addition des disques VM contre la capacité de rétention prévient la saturation du dépôt Veeam."
   }
 ];

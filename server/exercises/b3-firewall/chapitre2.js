@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c2-e1) — Machine à états TCP conntrack (NEW, ESTABLISHED, INVALID)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]\n# Données : PACKET id=1 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=SYN\n# Données : PACKET id=2 src=203.0.113.1 dst=10.0.0.5 sport=443 dport=4000 flags=SYN_ACK\n# Données : PACKET id=3 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=ACK\n# Données : PACKET id=4 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=DATA\n# Données : PACKET id=5 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=FIN\n# Données : PACKET id=6 src=10.0.0.5 dst=203.0.113.1 sport=4000 dport=443 flags=DATA\nA_COMPLETER\n\n[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]\n# Données : PACKET id=10 src=198.51.100.22 dst=10.0.0.1 sport=60000 dport=22 flags=ACK\n# Données : PACKET id=11 src=198.51.100.22 dst=10.0.0.1 sport=60000 dport=22 flags=RST\nA_COMPLETER\n\n[Cas 3 — Multiples sessions concurrentes avec rejet hors session]\n# Données : PACKET id=A1 src=10.1.1.1 dst=8.8.8.8 sport=1000 dport=53 flags=SYN\n# Données : PACKET id=B1 src=10.2.2.2 dst=1.1.1.1 sport=2000 dport=80 flags=SYN\n# Données : PACKET id=A2 src=8.8.8.8 dst=10.1.1.1 sport=53 dport=1000 flags=SYN_ACK\n# Données : PACKET id=A3 src=10.1.1.1 dst=8.8.8.8 sport=1000 dport=53 flags=ACK\n# Données : PACKET id=C1 src=172.16.0.4 dst=10.1.1.1 sport=3000 dport=22 flags=DATA\nA_COMPLETER\n",
     "hints": [
       "Normaliser la clé de session pour identifier la connexion dans les deux sens.",
-      "Suivre les étapes du handshake : SYN -> SYN_ACK -> ACK avant de passer en ESTABLISHED."
+      "Suivre les étapes du handshake : SYN -> SYN_ACK -> ACK avant de passer en ESTABLISHED.",
+      "Pour chaque paquet : un SYN inédit crée NEW ; le SYN_ACK en sens inverse maintient NEW ; l’ACK final fait passer en ESTABLISHED ; tout paquet hors session attendue est INVALID."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "CONNTRACK id=A1 state=NEW\nCONNTRACK id=B1 state=NEW\nCONNTRACK id=A2 state=NEW\nCONNTRACK id=A3 state=ESTABLISHED\nCONNTRACK id=C1 state=INVALID"
       }
     ],
-    "solution": "[Exemple]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\n\n[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\nCONNTRACK id=4 state=ESTABLISHED\nCONNTRACK id=5 state=ESTABLISHED\nCONNTRACK id=6 state=INVALID\n\n[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]\nCONNTRACK id=10 state=INVALID\nCONNTRACK id=11 state=INVALID\n\n[Cas 3 — Multiples sessions concurrentes avec rejet hors session]\nCONNTRACK id=A1 state=NEW\nCONNTRACK id=B1 state=NEW\nCONNTRACK id=A2 state=NEW\nCONNTRACK id=A3 state=ESTABLISHED\nCONNTRACK id=C1 state=INVALID"
+    "solution": "[Exemple]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\n\n[Cas 1 — Paquet DATA légitime après handshake puis fermeture FIN]\nCONNTRACK id=1 state=NEW\nCONNTRACK id=2 state=NEW\nCONNTRACK id=3 state=ESTABLISHED\nCONNTRACK id=4 state=ESTABLISHED\nCONNTRACK id=5 state=ESTABLISHED\nCONNTRACK id=6 state=INVALID\n\n[Cas 2 — Attaque par paquets orphelins ACK et RST sans handshake]\nCONNTRACK id=10 state=INVALID\nCONNTRACK id=11 state=INVALID\n\n[Cas 3 — Multiples sessions concurrentes avec rejet hors session]\nCONNTRACK id=A1 state=NEW\nCONNTRACK id=B1 state=NEW\nCONNTRACK id=A2 state=NEW\nCONNTRACK id=A3 state=ESTABLISHED\nCONNTRACK id=C1 state=INVALID",
+    "takeaway": "La table conntrack associe chaque paquet à un état (NEW, ESTABLISHED, RELATED, INVALID) pour autoriser automatiquement le trafic retour."
   },
   {
     "id": "fw3-c2-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c2-e2) — Purge et gestion des délais d’expiration (Timeouts) conntrack\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]\n# Données : SESSION id=S10 proto=TCP state=ESTABLISHED last_seen=3000\n# Données : SESSION id=S11 proto=ICMP state=ECHO last_seen=7195\n# Données : SESSION id=S12 proto=TCP state=SYN_SENT last_seen=7100\n# Données : PURGE now=7200\nA_COMPLETER\n\n[Cas 2 — Aucune session expirée]\n# Données : SESSION id=A1 proto=TCP state=ESTABLISHED last_seen=1000\n# Données : SESSION id=A2 proto=UDP state=GENERIC last_seen=1020\n# Données : PURGE now=1030\nA_COMPLETER\n\n[Cas 3 — Toutes les sessions conservées et expirées en chaîne]\n# Données : SESSION id=U1 proto=UDP state=GENERIC last_seen=100\n# Données : SESSION id=T1 proto=TCP state=SYN_SENT last_seen=100\n# Données : SESSION id=I1 proto=ICMP state=ECHO last_seen=100\n# Données : PURGE now=200\nA_COMPLETER\n",
     "hints": [
       "Associer chaque couple (proto, state) à sa durée limite.",
-      "Calculer l’inactivité : now - last_seen."
+      "Calculer l’inactivité : now - last_seen.",
+      "Pour chaque session : si now - last_seen dépasse le timeout du couple (protocole, état), la purger ; compter ensuite les sessions purgées et les sessions restantes."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "PURGED: U1, T1, I1\nREMAINING: 0 sessions actives"
       }
     ],
-    "solution": "[Exemple]\nPURGED: S1, S2\nREMAINING: 0 sessions actives\n\n[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]\nPURGED: S10, S12\nREMAINING: 1 sessions actives\n\n[Cas 2 — Aucune session expirée]\nPURGED: NONE\nREMAINING: 2 sessions actives\n\n[Cas 3 — Toutes les sessions conservées et expirées en chaîne]\nPURGED: U1, T1, I1\nREMAINING: 0 sessions actives"
+    "solution": "[Exemple]\nPURGED: S1, S2\nREMAINING: 0 sessions actives\n\n[Cas 1 — Sessions mixtes avec conservation ICMP active et TCP expirés]\nPURGED: S10, S12\nREMAINING: 1 sessions actives\n\n[Cas 2 — Aucune session expirée]\nPURGED: NONE\nREMAINING: 2 sessions actives\n\n[Cas 3 — Toutes les sessions conservées et expirées en chaîne]\nPURGED: U1, T1, I1\nREMAINING: 0 sessions actives",
+    "takeaway": "Des timeouts conntrack trop longs sur les connexions inactives exposent la table d’états à l’épuisement lors d’inondations TCP."
   },
   {
     "id": "fw3-c2-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c2-e3) — Détecteur de balayages furtifs (Scans Xmas, Null, FIN & Syn-Fin)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Détection Null scan et Syn-Fin anomaly]\n# Données : PROBE src=198.51.100.5 dst=10.0.0.10 dport=80 flags=NONE\n# Données : PROBE src=198.51.100.6 dst=10.0.0.10 dport=443 flags=SYN,FIN\nA_COMPLETER\n\n[Cas 2 — Détection FIN scan isolé et trafic standard]\n# Données : PROBE src=203.0.113.8 dst=10.0.0.2 dport=3306 flags=FIN\n# Données : PROBE src=10.0.0.20 dst=172.16.0.5 dport=80 flags=SYN\nA_COMPLETER\n\n[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]\n# Données : PROBE src=192.0.2.1 dst=192.168.1.1 dport=8080 flags=URG,FIN,PSH\nA_COMPLETER\n",
     "hints": [
       "Découper la chaîne flags par virgule et manipuler un set de flags.",
-      "Comparer les ensembles pour gérer l’ordre des flags dans Xmas Scan."
+      "Comparer les ensembles pour gérer l’ordre des flags dans Xmas Scan.",
+      "Convertir les flags en ensemble : SYN et FIN réunis donnent anomalie ; FIN, PSH et URG réunis donnent Xmas ; aucun flag donne Null ; FIN seul donne FIN ; l’ordre est indifférent."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "SCAN_ALERT: 192.0.2.1 -> 192.168.1.1:8080 [URG,FIN,PSH] => XMAS_TREE_SCAN"
       }
     ],
-    "solution": "[Exemple]\nSCAN_ALERT: 192.168.1.100 -> 10.0.0.1:22 [FIN,PSH,URG] => XMAS_TREE_SCAN\n\n[Cas 1 — Détection Null scan et Syn-Fin anomaly]\nSCAN_ALERT: 198.51.100.5 -> 10.0.0.10:80 [NONE] => NULL_SCAN\nSCAN_ALERT: 198.51.100.6 -> 10.0.0.10:443 [SYN,FIN] => SYN_FIN_ANOMALY\n\n[Cas 2 — Détection FIN scan isolé et trafic standard]\nSCAN_ALERT: 203.0.113.8 -> 10.0.0.2:3306 [FIN] => FIN_SCAN\nSCAN_ALERT: 10.0.0.20 -> 172.16.0.5:80 [SYN] => TRAFIC_STANDARD\n\n[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]\nSCAN_ALERT: 192.0.2.1 -> 192.168.1.1:8080 [URG,FIN,PSH] => XMAS_TREE_SCAN"
+    "solution": "[Exemple]\nSCAN_ALERT: 192.168.1.100 -> 10.0.0.1:22 [FIN,PSH,URG] => XMAS_TREE_SCAN\n\n[Cas 1 — Détection Null scan et Syn-Fin anomaly]\nSCAN_ALERT: 198.51.100.5 -> 10.0.0.10:80 [NONE] => NULL_SCAN\nSCAN_ALERT: 198.51.100.6 -> 10.0.0.10:443 [SYN,FIN] => SYN_FIN_ANOMALY\n\n[Cas 2 — Détection FIN scan isolé et trafic standard]\nSCAN_ALERT: 203.0.113.8 -> 10.0.0.2:3306 [FIN] => FIN_SCAN\nSCAN_ALERT: 10.0.0.20 -> 172.16.0.5:80 [SYN] => TRAFIC_STANDARD\n\n[Cas 3 — Variante Xmas scan avec ordre désordonné des flags]\nSCAN_ALERT: 192.0.2.1 -> 192.168.1.1:8080 [URG,FIN,PSH] => XMAS_TREE_SCAN",
+    "takeaway": "Les combinaisons illégales de drapeaux TCP (Null, Xmas, SYN+FIN) trahissent des scans furtifs et doivent être rejetées d’emblée."
   }
 ];

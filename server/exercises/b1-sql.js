@@ -153,7 +153,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT immat FROM Voiture;",
     "hints": [
       "Faut-il afficher uniquement l’immatriculation ou toutes les colonnes ?",
-      "Triez les lignes par immatriculation avec ORDER BY."
+      "Triez les lignes par immatriculation avec ORDER BY.",
+      "Étapes : lire toutes les colonnes de Voiture, retenir toutes les lignes, trier par immat croissante, puis afficher le résultat."
     ],
     "examples": [
       {
@@ -167,7 +168,8 @@ const SQ_EXERCISES = [
       { "label": "Insertion dans un autre ordre", "stdin": PARC_LIMITES, "expected": resultatTable(COLONNES_VOITURE, VOITURES_LIMITES) },
       { "label": "Deux voitures", "stdin": PARC_MINI, "expected": resultatTable(COLONNES_VOITURE, VOITURES_MINI) }
     ],
-    "solution": "SELECT * FROM Voiture ORDER BY immat ASC;"
+    "solution": "SELECT * FROM Voiture ORDER BY immat ASC;",
+    "takeaway": "SELECT * FROM table lit toutes les colonnes ; c est pratique en exploration mais trop lourd en production."
   },
   {
     "id": "sq-c1-e2",
@@ -180,7 +182,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT * FROM Voiture;",
     "hints": [
       "Comment demander plusieurs colonnes tout en conservant leur ordre dans le résultat ?",
-      "Triez par immat avec ORDER BY."
+      "Triez par immat avec ORDER BY.",
+      "Étapes : ne projeter que immat puis marque dans cet ordre, écarter les autres colonnes, trier par immat croissante, puis afficher."
     ],
     "examples": [
       {
@@ -194,7 +197,8 @@ const SQ_EXERCISES = [
       { "label": "Ordre d’insertion différent", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'marque'], VOITURES_LIMITES.map(ligne => ligne.slice(0, 2))) },
       { "label": "Deux marques", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'marque'], VOITURES_MINI.map(ligne => ligne.slice(0, 2))) }
     ],
-    "solution": "SELECT immat, marque FROM Voiture ORDER BY immat ASC;"
+    "solution": "SELECT immat, marque FROM Voiture ORDER BY immat ASC;",
+    "takeaway": "Lister explicitement les colonnes dans SELECT limite le transfert réseau et reste insensible à l ajout de colonnes."
   },
   {
     "id": "sq-c1-e3",
@@ -207,7 +211,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT moteur FROM Voiture;",
     "hints": [
       "Quel mot-clé de SELECT élimine les valeurs répétées ?",
-      "Triez le résultat par moteur."
+      "Triez le résultat par moteur.",
+      "Étapes : lire la colonne moteur, éliminer les doublons, trier les valeurs restantes par ordre alphabétique croissant, puis afficher."
     ],
     "examples": [
       {
@@ -221,7 +226,8 @@ const SQ_EXERCISES = [
       { "label": "Plusieurs doublons", "stdin": PARC_LIMITES, "expected": resultatTable(['moteur'], [['DIESEL'], ['ESSENCE'], ['HYBRIDE']]) },
       { "label": "Deux motorisations", "stdin": PARC_MINI, "expected": resultatTable(['moteur'], [['DIESEL'], ['ESSENCE']]) }
     ],
-    "solution": "SELECT DISTINCT moteur FROM Voiture ORDER BY moteur ASC;"
+    "solution": "SELECT DISTINCT moteur FROM Voiture ORDER BY moteur ASC;",
+    "takeaway": "SELECT DISTINCT déduplique l ensemble des colonnes projetées, et non pas une seule colonne isolément."
   },
   {
     "id": "sq-c2-e1",
@@ -270,7 +276,8 @@ const SQ_EXERCISES = [
           resultatModification(1, ['codemarque', 'nommarque', 'paysmarque'], [['BMW', 'BMW', 'ALLEMAGNE'], ['TOY', 'TOYOTA', 'JAPON']])
       }
     ],
-    "solution": `${MARQUE_DEFINITION}\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('BMW', 'BMW', 'ALLEMAGNE');`
+    "solution": `${MARQUE_DEFINITION}\nINSERT INTO Marque (codemarque, nommarque, paysmarque) VALUES ('BMW', 'BMW', 'ALLEMAGNE');`,
+    "takeaway": "CREATE TABLE définit schéma et clés primaires avant toute insertion de tuples respectant ces contraintes."
   },
   {
     "id": "sq-c2-e2",
@@ -317,7 +324,8 @@ const SQ_EXERCISES = [
           resultatModification(1, ['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0], ['GPS', 'Navigation GPS', 450000]])
       }
     ],
-    "solution": `${EQUIPEMENT_DEFINITION}\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AIR', 'Climatisation');`
+    "solution": `${EQUIPEMENT_DEFINITION}\nINSERT INTO Equipement (codeequipement, nomequipement) VALUES ('AIR', 'Climatisation');`,
+    "takeaway": "NOT NULL interdit la valeur absente tandis que DEFAULT fournit automatiquement une valeur si la colonne est omise à l INSERT."
   },
   {
     "id": "sq-c2-e3",
@@ -330,7 +338,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT codeequipement, nomequipement FROM Equipement;",
     "hints": [
       "Modifiez la table existante avec ALTER TABLE et ADD COLUMN, sans la recréer.",
-      "Définissez la colonne prix avec le type et la valeur par défaut demandés."
+      "Définissez la colonne prix avec le type et la valeur par défaut demandés.",
+      "Étapes : viser la table Equipement existante sans la recréer, ajouter la colonne prix de type entier, lui donner 0 comme valeur par défaut, puis exécuter l’altération."
     ],
     "examples": [
       {
@@ -360,7 +369,8 @@ const SQ_EXERCISES = [
         "expected": 'Instruction exécutée avec succès (0 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n' + resultatModification(1, ['codeequipement', 'nomequipement', 'prix'], [['AIR', 'Climatisation', 0], ['RAD', 'Autoradio', null]])
       }
     ],
-    "solution": "ALTER TABLE Equipement ADD COLUMN prix INTEGER DEFAULT 0;"
+    "solution": "ALTER TABLE Equipement ADD COLUMN prix INTEGER DEFAULT 0;",
+    "takeaway": "ALTER TABLE ... ADD COLUMN fait évoluer un schéma existant sans détruire ni recréer les données déjà stockées."
   },
   {
     "id": "sq-c3-e1",
@@ -373,7 +383,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT immat, km FROM Voiture;",
     "hints": [
       "Une clause WHERE permet de conserver les kilométrages à partir de 5 inclus.",
-      "Utilisez deux critères dans ORDER BY : km décroissant, puis immat croissante."
+      "Utilisez deux critères dans ORDER BY : km décroissant, puis immat croissante.",
+      "Étapes : filtrer les lignes dont km atteint 5 ou plus, projeter immat et km, trier par km décroissant puis par immat croissante."
     ],
     "examples": [
       {
@@ -387,7 +398,8 @@ const SQ_EXERCISES = [
       { "label": "Égalité au seuil et départage", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'km'], [['TG-9006-AX', 10], ['TG-9003-AX', 6], ['TG-9001-AX', 5], ['TG-9002-AX', 5]]) },
       { "label": "Une voiture retenue", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'km'], [['TG-5220-BA', 6700]]) }
     ],
-    "solution": "SELECT immat, km FROM Voiture WHERE km >= 5 ORDER BY km DESC, immat ASC;"
+    "solution": "SELECT immat, km FROM Voiture WHERE km >= 5 ORDER BY km DESC, immat ASC;",
+    "takeaway": "La clause WHERE filtre chaque ligne AVANT la projection et le tri ORDER BY."
   },
   {
     "id": "sq-c3-e2",
@@ -400,7 +412,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT immat, marque, pxachat FROM Voiture;",
     "hints": [
       "BETWEEN inclut ses deux bornes ; combinez cette condition avec LIKE et AND.",
-      "Avec LIKE, le caractère % représente une suite quelconque de caractères."
+      "Avec LIKE, le caractère % représente une suite quelconque de caractères.",
+      "Étapes : filtrer les prix de 6 à 50 millions inclus, garder les marques commençant par M, projeter immat, marque et pxachat, trier par prix puis immat."
     ],
     "examples": [
       {
@@ -418,7 +431,8 @@ const SQ_EXERCISES = [
         "expected": resultatTable(['immat', 'marque', 'pxachat'], [])
       }
     ],
-    "solution": "SELECT immat, marque, pxachat FROM Voiture WHERE pxachat BETWEEN 6000000 AND 50000000 AND marque LIKE 'M%' ORDER BY pxachat ASC, immat ASC;"
+    "solution": "SELECT immat, marque, pxachat FROM Voiture WHERE pxachat BETWEEN 6000000 AND 50000000 AND marque LIKE 'M%' ORDER BY pxachat ASC, immat ASC;",
+    "takeaway": "BETWEEN a AND b est inclusif aux deux bornes, et LIKE utilise % (zéro ou plusieurs caractères) et _ (un caractère)."
   },
   {
     "id": "sq-c3-e3",
@@ -431,7 +445,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT immat, marque FROM Voiture;",
     "hints": [
       "L’absence de valeur se teste avec IS NULL et non avec = NULL.",
-      "Triez par immat, puis limitez le nombre de lignes."
+      "Triez par immat, puis limitez le nombre de lignes.",
+      "Étapes : repérer les lignes dont datecirc est absente, projeter immat et marque, trier par immat croissante, ne garder que les trois premières."
     ],
     "examples": [
       {
@@ -446,7 +461,8 @@ const SQ_EXERCISES = [
       { "label": "Aucune date absente", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'marque'], []) },
       { "label": "Chaîne vide distincte de NULL", "stdin": PARC_DATES_MIXTES, "expected": resultatTable(['immat', 'marque'], [['TG-9003-AX', 'BMW'], ['TG-9004-AX', 'TOYOTA'], ['TG-9005-AX', 'BMW']]) }
     ],
-    "solution": "SELECT immat, marque FROM Voiture WHERE datecirc IS NULL ORDER BY immat ASC LIMIT 3;"
+    "solution": "SELECT immat, marque FROM Voiture WHERE datecirc IS NULL ORDER BY immat ASC LIMIT 3;",
+    "takeaway": "NULL ne s égale jamais avec = : utilisez toujours IS NULL / IS NOT NULL, et LIMIT borne les résultats après ORDER BY."
   },
   {
     "id": "sq-c4-e1",
@@ -459,7 +475,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT nommarque FROM Marque;",
     "hints": [
       "Utilisez INNER JOIN et reliez les deux colonnes codemarque dans la condition ON.",
-      "Qualifiez les colonnes avec les alias des tables, puis triez sur les deux colonnes demandées."
+      "Qualifiez les colonnes avec les alias des tables, puis triez sur les deux colonnes demandées.",
+      "Étapes : apparier chaque voiture à sa marque sur le code commun, écarter les marques sans voiture, projeter nom de marque et immat, trier par nom puis immat."
     ],
     "examples": [
       {
@@ -490,7 +507,8 @@ const SQ_EXERCISES = [
       },
       { "label": "Deux voitures de marques différentes", "stdin": PARC_MINI, "expected": resultatTable(['nommarque', 'immat'], [['NISSAN', 'TG-5220-BA'], ['RENAULT', 'TG-2222-BC']]) }
     ],
-    "solution": "SELECT M.nommarque, V.immat FROM Marque M INNER JOIN Voiture V ON M.codemarque = V.codemarque ORDER BY M.nommarque ASC, V.immat ASC;"
+    "solution": "SELECT M.nommarque, V.immat FROM Marque M INNER JOIN Voiture V ON M.codemarque = V.codemarque ORDER BY M.nommarque ASC, V.immat ASC;",
+    "takeaway": "INNER JOIN ne conserve que les paires de lignes dont la condition ON (clé étrangère = clé primaire) correspond."
   },
   {
     "id": "sq-c4-e2",
@@ -503,7 +521,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT nommarque FROM Marque;",
     "hints": [
       "Placez Marque à gauche d’une jointure LEFT JOIN vers Voiture.",
-      "Reliez les codes de marque, puis triez par nom et par immatriculation."
+      "Reliez les codes de marque, puis triez par nom et par immatriculation.",
+      "Étapes : garder toutes les marques, compléter par les voitures correspondantes ou l’absence de valeur, projeter nom et immat, trier par nom puis immat."
     ],
     "examples": [
       {
@@ -534,7 +553,8 @@ const SQ_EXERCISES = [
       },
       { "label": "Une marque absente du parc", "stdin": PARC_MINI, "expected": resultatTable(['nommarque', 'immat'], [['KIA', null], ['NISSAN', 'TG-5220-BA'], ['RENAULT', 'TG-2222-BC']]) }
     ],
-    "solution": "SELECT M.nommarque, V.immat FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque ORDER BY M.nommarque ASC, V.immat ASC;"
+    "solution": "SELECT M.nommarque, V.immat FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque ORDER BY M.nommarque ASC, V.immat ASC;",
+    "takeaway": "LEFT JOIN préserve toutes les lignes de la table de gauche et complète par NULL les colonnes droites sans correspondance."
   },
   {
     "id": "sq-c4-e3",
@@ -547,7 +567,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT immat FROM Voiture;",
     "hints": [
       "La première jointure relie l’immatriculation de Voiture à celle de VoitureEquipement.",
-      "La seconde relie le code d’équipement de VoitureEquipement à celui d’Equipement."
+      "La seconde relie le code d’équipement de VoitureEquipement à celui d’Equipement.",
+      "Étapes : partir de la table d’association, joindre Voiture sur l’immatriculation, joindre Equipement sur le code, projeter immat et nom d’équipement, puis trier."
     ],
     "examples": [
       {
@@ -580,7 +601,8 @@ const SQ_EXERCISES = [
       },
       { "label": "Un équipement pour deux voitures", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'nomequipement'], [['TG-2222-BC', 'Attelage'], ['TG-2222-BC', 'GPS'], ['TG-5220-BA', 'GPS']]) }
     ],
-    "solution": "SELECT V.immat, E.nomequipement FROM Voiture V INNER JOIN VoitureEquipement VE ON V.immat = VE.immat INNER JOIN Equipement E ON VE.codeequipement = E.codeequipement ORDER BY V.immat ASC, E.nomequipement ASC;"
+    "solution": "SELECT V.immat, E.nomequipement FROM Voiture V INNER JOIN VoitureEquipement VE ON V.immat = VE.immat INNER JOIN Equipement E ON VE.codeequipement = E.codeequipement ORDER BY V.immat ASC, E.nomequipement ASC;",
+    "takeaway": "Une relation N–N relie deux tables maîtresses via une table associative contenant leurs deux clés étrangères."
   },
   {
     "id": "sq-c5-e1",
@@ -593,7 +615,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT M.paysmarque FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque;",
     "hints": [
       "La jointure gauche conserve les marques sans voiture ; distinguez le nombre de lignes et le nombre d’immatriculations non NULL.",
-      "Calculez les agrégats demandés, regroupez par pays et triez le résultat."
+      "Calculez les agrégats demandés, regroupez par pays et triez le résultat.",
+      "Étapes : joindre à gauche toutes les marques, regrouper par pays, compter les lignes puis les immatriculations non nulles, sommer les prix, trier par pays."
     ],
     "examples": [
       {
@@ -628,7 +651,8 @@ const SQ_EXERCISES = [
       },
       { "label": "Aucune marque", "stdin": PARC_SCHEMA, "expected": resultatTable(['paysmarque', 'nb_lignes', 'nb_voitures', 'total_achat'], []) }
     ],
-    "solution": "SELECT M.paysmarque, COUNT(*) AS nb_lignes, COUNT(V.immat) AS nb_voitures, SUM(V.pxachat) AS total_achat FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque GROUP BY M.paysmarque ORDER BY M.paysmarque ASC;"
+    "solution": "SELECT M.paysmarque, COUNT(*) AS nb_lignes, COUNT(V.immat) AS nb_voitures, SUM(V.pxachat) AS total_achat FROM Marque M LEFT JOIN Voiture V ON M.codemarque = V.codemarque GROUP BY M.paysmarque ORDER BY M.paysmarque ASC;",
+    "takeaway": "Avec GROUP BY, toute colonne sélectionnée non agrégée doit figurer dans la clause GROUP BY."
   },
   {
     "id": "sq-c5-e2",
@@ -641,7 +665,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT marque, SUM(pxachat) AS total FROM Voiture GROUP BY marque;",
     "hints": [
       "WHERE filtre les lignes avant le regroupement ; HAVING filtre les groupes après le calcul des agrégats.",
-      "Conservez les groupes dont la somme atteint le seuil, puis triez sur le total et la marque."
+      "Conservez les groupes dont la somme atteint le seuil, puis triez sur le total et la marque.",
+      "Étapes : regrouper les voitures par marque, sommer les prix d’achat, ne garder que les groupes dont le total atteint 50 millions, trier par total décroissant puis marque."
     ],
     "examples": [
       {
@@ -655,7 +680,8 @@ const SQ_EXERCISES = [
       { "label": "Total exact et total supérieur", "stdin": PARC_LIMITES, "expected": resultatTable(['marque', 'total'], [['TOYOTA', 56000000], ['MITSUBISHI', 50000000]]) },
       { "label": "Aucun groupe au seuil", "stdin": PARC_MINI, "expected": resultatTable(['marque', 'total'], []) }
     ],
-    "solution": "SELECT marque, SUM(pxachat) AS total FROM Voiture GROUP BY marque HAVING SUM(pxachat) >= 50000000 ORDER BY total DESC, marque ASC;"
+    "solution": "SELECT marque, SUM(pxachat) AS total FROM Voiture GROUP BY marque HAVING SUM(pxachat) >= 50000000 ORDER BY total DESC, marque ASC;",
+    "takeaway": "WHERE filtre les lignes brutes avant regroupement ; HAVING filtre les groupes après calcul des agrégats COUNT/SUM."
   },
   {
     "id": "sq-c5-e3",
@@ -668,7 +694,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT marque FROM Voiture GROUP BY marque;",
     "hints": [
       "Appelez COUNT(*), MIN(km) et MAX(km) dans SELECT.",
-      "Regroupez et triez par marque."
+      "Regroupez et triez par marque.",
+      "Étapes : regrouper par marque, compter les voitures du groupe, relever son kilométrage minimal et maximal, trier les groupes par marque croissante."
     ],
     "examples": [
       {
@@ -697,7 +724,8 @@ const SQ_EXERCISES = [
       },
       { "label": "Une voiture par marque", "stdin": PARC_MINI, "expected": resultatTable(['marque', 'effectif', 'km_min', 'km_max'], [['NISSAN', 1, 6700, 6700], ['RENAULT', 1, 0, 0]]) }
     ],
-    "solution": "SELECT marque, COUNT(*) AS effectif, MIN(km) AS km_min, MAX(km) AS km_max FROM Voiture GROUP BY marque ORDER BY marque ASC;"
+    "solution": "SELECT marque, COUNT(*) AS effectif, MIN(km) AS km_min, MAX(km) AS km_max FROM Voiture GROUP BY marque ORDER BY marque ASC;",
+    "takeaway": "COUNT(*), MIN() et MAX() peuvent se combiner dans un même SELECT pour profiler chaque groupe en une passe."
   },
   {
     "id": "sq-c6-e1",
@@ -710,7 +738,8 @@ const SQ_EXERCISES = [
     "starter": "UPDATE Voiture SET km = km;",
     "hints": [
       "La nouvelle valeur peut être calculée à partir de l’ancienne : km + 10.",
-      "Utilisez WHERE pour ne conserver que les kilométrages strictement inférieurs à 5."
+      "Utilisez WHERE pour ne conserver que les kilométrages strictement inférieurs à 5.",
+      "Étapes : cibler la copie de Voiture, ne retenir que les lignes de km strictement inférieur à 5, remplacer km par km + 10, laisser tout le reste intact."
     ],
     "examples": [
       {
@@ -724,7 +753,8 @@ const SQ_EXERCISES = [
       { "label": "Valeurs 0, 4, 5 et 6", "stdin": `${PARC_LIMITES}\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;`, "expected": resultatModification(2, COLONNES_VOITURE, voituresApresEssai(VOITURES_LIMITES)) },
       { "label": "Une seule voiture à modifier", "stdin": `${PARC_MINI}\n-- VERIFY:\nSELECT * FROM Voiture ORDER BY immat ASC;`, "expected": resultatModification(1, COLONNES_VOITURE, voituresApresEssai(VOITURES_MINI)) }
     ],
-    "solution": "UPDATE Voiture SET km = km + 10 WHERE km < 5;"
+    "solution": "UPDATE Voiture SET km = km + 10 WHERE km < 5;",
+    "takeaway": "Un UPDATE sans clause WHERE modifie toute la table : testez d abord votre filtre avec un SELECT équivalent."
   },
   {
     "id": "sq-c6-e2",
@@ -737,7 +767,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT * FROM Voiture;",
     "hints": [
       "DELETE FROM supprime des lignes ; la clause WHERE limite la suppression.",
-      "Testez l’absence de date avec IS NULL."
+      "Testez l’absence de date avec IS NULL.",
+      "Étapes : cibler Voiture, retenir uniquement les lignes dont datecirc est absente, supprimer ces lignes, conserver toutes les autres."
     ],
     "examples": [
       {
@@ -760,7 +791,8 @@ const SQ_EXERCISES = [
         "expected": resultatModification(4, COLONNES_VOITURE, [VOITURES_LIMITES[0], ['TG-9002-AX', 'MITSUBISHI', 'MIT', 'ESSENCE', '', 5, 50000000, 7]]) + '\n\n' + resultatTable(['immat', 'codeequipement'], [['TG-9002-AX', 'CAM']])
       }
     ],
-    "solution": "DELETE FROM Voiture WHERE datecirc IS NULL;"
+    "solution": "DELETE FROM Voiture WHERE datecirc IS NULL;",
+    "takeaway": "DELETE FROM ... WHERE cible précisément les lignes à supprimer tout en restant soumis aux contraintes de clés étrangères."
   },
   {
     "id": "sq-c6-e3",
@@ -773,7 +805,8 @@ const SQ_EXERCISES = [
     "starter": "SELECT immat, marque FROM Voiture;",
     "hints": [
       "Une sous-requête sur Marque peut renvoyer les codes de toutes les marques japonaises.",
-      "Utilisez IN pour comparer le code de chaque voiture à cet ensemble, puis triez par immat."
+      "Utilisez IN pour comparer le code de chaque voiture à cet ensemble, puis triez par immat.",
+      "Étapes : chercher dans Marque les codes de pays JAPON, retenir les voitures dont le code y figure, projeter immat et marque, trier par immat croissante."
     ],
     "examples": [
       {
@@ -787,7 +820,8 @@ const SQ_EXERCISES = [
       { "label": "Trois marques japonaises représentées", "stdin": PARC_LIMITES, "expected": resultatTable(['immat', 'marque'], [['TG-9001-AX', 'TOYOTA'], ['TG-9002-AX', 'MITSUBISHI'], ['TG-9004-AX', 'TOYOTA'], ['TG-9006-AX', 'MAZDA']]) },
       { "label": "Une seule voiture japonaise", "stdin": PARC_MINI, "expected": resultatTable(['immat', 'marque'], [['TG-5220-BA', 'NISSAN']]) }
     ],
-    "solution": "SELECT immat, marque FROM Voiture WHERE codemarque IN (SELECT codemarque FROM Marque WHERE paysmarque = 'JAPON') ORDER BY immat ASC;"
+    "solution": "SELECT immat, marque FROM Voiture WHERE codemarque IN (SELECT codemarque FROM Marque WHERE paysmarque = 'JAPON') ORDER BY immat ASC;",
+    "takeaway": "Une sous-requête dans WHERE IN (...) résout dynamiquement l ensemble de critères à partir d une seconde requête."
   }
 ];
 

@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c3-e1) — Moteur de filtrage de paquets de pare-feu stateless (First-Match)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : DROP tcp 23|ACCEPT tcp 80|ACCEPT tcp 443|DROP all all\n# Données : tcp 23\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : DROP tcp 23|ACCEPT tcp 80|ACCEPT tcp 443|DROP all all\n# Données : udp 53\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : ACCEPT udp 53|ACCEPT tcp 22|DROP all all\n# Données : tcp 22\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : ACCEPT tcp all|DROP all all\n# Données : tcp 8080\nA_COMPLETER\n",
     "hints": [
       "Les règles de pare-feu sont ordonnées : la première règle correspondante (First-Match) détermine le sort du paquet.",
-      "En l’absence de règle explicite correspondante, appliquez la politique par défaut de filtrage."
+      "En l’absence de règle explicite correspondante, appliquez la politique par défaut de filtrage.",
+      "Pour chaque paquet : parcourir les règles dans l ordre, appliquer la première dont protocole et port correspondent, sinon conclure selon la politique par défaut."
     ],
     "examples": [
       {
@@ -43,7 +44,8 @@ module.exports = [
         "expected": "Action: ACCEPT (regle: ACCEPT tcp all)"
       }
     ],
-    "solution": "[Exemple]\nAction: ACCEPT (regle: ACCEPT tcp 80)\n\n[Cas 1 — Test de validation 1]\nAction: DROP (regle: DROP tcp 23)\n\n[Cas 2 — Test de validation 2]\nAction: DROP (regle: DROP all all)\n\n[Cas 3 — Test de validation 3]\nAction: ACCEPT (regle: ACCEPT tcp 22)\n\n[Cas 4 — Test de validation 4]\nAction: ACCEPT (regle: ACCEPT tcp all)"
+    "solution": "[Exemple]\nAction: ACCEPT (regle: ACCEPT tcp 80)\n\n[Cas 1 — Test de validation 1]\nAction: DROP (regle: DROP tcp 23)\n\n[Cas 2 — Test de validation 2]\nAction: DROP (regle: DROP all all)\n\n[Cas 3 — Test de validation 3]\nAction: ACCEPT (regle: ACCEPT tcp 22)\n\n[Cas 4 — Test de validation 4]\nAction: ACCEPT (regle: ACCEPT tcp all)",
+    "takeaway": "Un pare-feu stateless applique strictement le premier motif correspondant (First-Match) et rejette par défaut (Implicit Deny)."
   },
   {
     "id": "cs2-c3-e2",
@@ -56,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c3-e2) — Audit de rapport de scan Nmap et détection de services en clair\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 22/ssh,443/https,53/dns\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 23/telnet\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 80/http,3306/mysql\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 21/ftp,80/http\nA_COMPLETER\n",
     "hints": [
       "Repérez les protocoles non chiffrés vulnérables à l’écoute réseau : Telnet (23), FTP (21) ou HTTP (80).",
-      "Préconisez la migration systématique vers leurs alternatives chiffrées sécurisées (SSH, SFTP, HTTPS)."
+      "Préconisez la migration systématique vers leurs alternatives chiffrées sécurisées (SSH, SFTP, HTTPS).",
+      "Pour chaque port et service : vérifier s il figure dans la liste des services vulnérables, émettre l alerte associée, sinon conclure à l absence de vulnérabilité critique."
     ],
     "examples": [
       {
@@ -87,7 +90,8 @@ module.exports = [
         "expected": "ALERTE: port 21 (ftp) -> authentification et donnees en clair\nALERTE: port 80 (http) -> absence de chiffrement TLS"
       }
     ],
-    "solution": "[Exemple]\nALERTE: port 21 (ftp) -> authentification et donnees en clair\nALERTE: port 80 (http) -> absence de chiffrement TLS\nALERTE: port 23 (telnet) -> console d administration non chiffree\n\n[Cas 1 — Test de validation 1]\nAUCUNE VULNERABILITE CRITIQUE DETECTEE\n\n[Cas 2 — Test de validation 2]\nALERTE: port 23 (telnet) -> console d administration non chiffree\n\n[Cas 3 — Test de validation 3]\nALERTE: port 80 (http) -> absence de chiffrement TLS\n\n[Cas 4 — Test de validation 4]\nALERTE: port 21 (ftp) -> authentification et donnees en clair\nALERTE: port 80 (http) -> absence de chiffrement TLS"
+    "solution": "[Exemple]\nALERTE: port 21 (ftp) -> authentification et donnees en clair\nALERTE: port 80 (http) -> absence de chiffrement TLS\nALERTE: port 23 (telnet) -> console d administration non chiffree\n\n[Cas 1 — Test de validation 1]\nAUCUNE VULNERABILITE CRITIQUE DETECTEE\n\n[Cas 2 — Test de validation 2]\nALERTE: port 23 (telnet) -> console d administration non chiffree\n\n[Cas 3 — Test de validation 3]\nALERTE: port 80 (http) -> absence de chiffrement TLS\n\n[Cas 4 — Test de validation 4]\nALERTE: port 21 (ftp) -> authentification et donnees en clair\nALERTE: port 80 (http) -> absence de chiffrement TLS",
+    "takeaway": "Repérer Telnet (23), FTP (21) ou HTTP (80) ouverts en clair dans un scan identifie des flux exposés à l écoute réseau."
   },
   {
     "id": "cs2-c3-e3",
@@ -100,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (cs2-c3-e3) — Détecteur d’attaque par empoisonnement de table ARP (ARP Poisoning)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Test de validation 1]\n# Données : 192.168.1.1:aa:bb:cc:dd:ee:ff;is-at 192.168.1.1 aa:bb:cc:dd:ee:ff\nA_COMPLETER\n\n[Cas 2 — Test de validation 2]\n# Données : 192.168.1.1:AA:BB:CC:DD:EE:FF;is-at 192.168.1.1 aa:bb:cc:dd:ee:ff\nA_COMPLETER\n\n[Cas 3 — Test de validation 3]\n# Données : 10.0.0.1:02:42:ac:11:00:02;is-at 10.0.0.1 de:ad:be:ef:00:01\nA_COMPLETER\n\n[Cas 4 — Test de validation 4]\n# Données : 192.168.1.1:aa:bb:cc:dd:ee:ff;is-at 192.168.1.50 99:88:77:66:55:44\nA_COMPLETER\n",
     "hints": [
       "L’usurpation ARP (ARP Spoofing) détourne le trafic en associant frauduleusement une IP à une fausse adresse MAC.",
-      "Détectez les réponses ARP incohérentes ou les conflits d’adresses MAC pour une même passerelle."
+      "Détectez les réponses ARP incohérentes ou les conflits d’adresses MAC pour une même passerelle.",
+      "Pour chaque réponse : chercher l adresse IP annoncée dans la table, comparer l adresse MAC ; la concordance donne un paquet légitime, la divergence un empoisonnement."
     ],
     "examples": [
       {
@@ -131,6 +136,7 @@ module.exports = [
         "expected": "PAQUET ARP LEGITIME"
       }
     ],
-    "solution": "[Exemple]\nALERTE ARP SPOOFING: IP 192.168.1.1 associee a aa:bb:cc:dd:ee:ff tente d etre detournee par 00:11:22:33:44:55\n\n[Cas 1 — Test de validation 1]\nPAQUET ARP LEGITIME\n\n[Cas 2 — Test de validation 2]\nPAQUET ARP LEGITIME\n\n[Cas 3 — Test de validation 3]\nALERTE ARP SPOOFING: IP 10.0.0.1 associee a 02:42:ac:11:00:02 tente d etre detournee par de:ad:be:ef:00:01\n\n[Cas 4 — Test de validation 4]\nPAQUET ARP LEGITIME"
+    "solution": "[Exemple]\nALERTE ARP SPOOFING: IP 192.168.1.1 associee a aa:bb:cc:dd:ee:ff tente d etre detournee par 00:11:22:33:44:55\n\n[Cas 1 — Test de validation 1]\nPAQUET ARP LEGITIME\n\n[Cas 2 — Test de validation 2]\nPAQUET ARP LEGITIME\n\n[Cas 3 — Test de validation 3]\nALERTE ARP SPOOFING: IP 10.0.0.1 associee a 02:42:ac:11:00:02 tente d etre detournee par de:ad:be:ef:00:01\n\n[Cas 4 — Test de validation 4]\nPAQUET ARP LEGITIME",
+    "takeaway": "Une adresse MAC associée à plusieurs IP — ou une IP de passerelle qui change d adresse MAC — révèle un potentiel ARP spoofing."
   }
 ];

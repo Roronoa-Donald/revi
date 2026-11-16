@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -182,28 +180,28 @@
      data-exercise="sup3-c2-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="SNMP_DECODE OID=1.3.6.1.2.1.2.2.1.10.2 VALUE=45892100">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c2-e1) — Décodeur d’OID SNMP et Résolution Symbolique MIB-2
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le centre hospitalier Saint-Roch raccorde son parc : 20 commutateurs, 5 routeurs,&#10;40 serveurs, 60 imprimantes réseau et 10 onduleurs. Tous parlent SNMP ; les serveurs&#10;acceptent en plus un agent de supervision.&#10;&#10;1) Protocole commun : SNMP.&#10;2) Parc total : 20 + 5 + 40 + 60 + 10 = 135 équipements.&#10;3) La version 3 apporte authentification et chiffrement.&#10;4) Les requêtes partent vers le port UDP 161.&#10;5) Les traps arrivent sur le port UDP 162.">
+  <script type="text/plain" data-lab-starter># Exercice — Les protocoles de collecte du nouveau campus de ValRomane
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 3 : un mot ou une version. Questions 4 et 5 : le numéro de port.
 
-[Cas 1 — Statut opérationnel interface 1 (up)]
-# Données : SNMP_DECODE OID=1.3.6.1.2.1.2.2.1.8.1 VALUE=1
+[Question 1 — Protocole commun à tout le parc]
 A_COMPLETER
 
-[Cas 2 — Temps de fonctionnement sysUpTime scalaire 0]
-# Données : SNMP_DECODE OID=1.3.6.1.2.1.1.3.0 VALUE=8640000
+[Question 2 — Nombre total d'équipements]
 A_COMPLETER
 
-[Cas 3 — Nom de machine sysName]
-# Données : SNMP_DECODE OID=1.3.6.1.2.1.1.5.0 VALUE=gw-edge-core
+[Question 3 — Version de SNMP chiffrée et authentifiée]
 A_COMPLETER
 
-[Cas 4 — OID propriétaire entreprise inconnu]
-# Données : SNMP_DECODE OID=1.3.6.1.4.1.9.9.23.1 VALUE=proprietary_data
+[Question 4 — Port UDP des requêtes du superviseur]
+A_COMPLETER
+
+[Question 5 — Port UDP des traps]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Décodeur d’OID SNMP et Résolution Symbolique MIB-2</h3>
+    <h3 class="lab__title">Exercice 1 — Les protocoles de collecte du nouveau campus de ValRomane</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -212,28 +210,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c2-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Résoudre un identifiant d'objet SNMP (OID) vers son nom symbolique dans la MIB-2 standard et formater la valeur retournée.</p>
-    <div class="lab__brief"><p>SNMP structure ses informations dans une arborescence hiérarchique (*Management Information Base* ou MIB).<br><br>
-Table des préfixes MIB-2 standards à supporter :<br>
-- <code>1.3.6.1.2.1.1.1</code> : <code>sysDescr</code> (DisplayString)<br>
-- <code>1.3.6.1.2.1.1.3</code> : <code>sysUpTime</code> (TimeTicks)<br>
-- <code>1.3.6.1.2.1.1.5</code> : <code>sysName</code> (DisplayString)<br>
-- <code>1.3.6.1.2.1.2.2.1.2</code> : <code>ifDescr</code> (DisplayString)<br>
-- <code>1.3.6.1.2.1.2.2.1.8</code> : <code>ifOperStatus</code> (Integer : <code>1</code>='up', <code>2</code>='down')<br>
-- <code>1.3.6.1.2.1.2.2.1.10</code> : <code>ifInOctets</code> (Counter32)<br>
-- <code>1.3.6.1.2.1.2.2.1.16</code> : <code>ifOutOctets</code> (Counter32)<br><br>
-L'OID reçu commence par un préfixe MIB suivi d'un point et de l'index d'instance (ou <code>.0</code> pour les scalaires système).<br><br>
-Données du cas : <code>SNMP_DECODE OID=&lt;oid&gt; VALUE=&lt;val&gt;</code>.<br>
-Résultat d’analyse attendu : <code>SNMP_OBJ: symbol=&lt;name&gt; instance=&lt;idx&gt; type=&lt;type&gt; value=&lt;valeur_formatée&gt;</code>.<br>
-(Si le préfixe est inconnu : <code>SNMP_OBJ: symbol=UNKNOWN instance=NONE type=UNKNOWN value=&lt;val&gt;</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir le protocole de collecte adapté à chaque famille d'équipement et connaître les bases de SNMP.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'université ValRomane ouvre un campus neuf et l'équipe réseau doit raccorder tout le parc à la supervision centralisée. Le recensement des équipements donne :</p><table><tr><th>Famille d'équipement</th><th>Quantité</th><th>Protocoles disponibles</th></tr><tr><th>Commutateurs d'accès et de cœur</th><td>12</td><td>SNMP v2c et v3</td></tr><tr><th>Routeurs WAN</th><td>4</td><td>SNMP v2c et v3</td></tr><tr><th>Serveurs Debian</th><td>80</td><td>agent de supervision et SNMP</td></tr><tr><th>Imprimantes réseau</th><td>150</td><td>SNMP uniquement</td></tr><tr><th>Onduleurs de salle serveurs</th><td>18</td><td>SNMP uniquement</td></tr></table><p>Rappel du cours : SNMP fonctionne sur UDP ; les requêtes du superviseur interrogent l'agent de l'équipement, tandis que les interruptions (traps) sont envoyées par l'équipement vers le superviseur. SNMP v1 et v2c s'appuient sur une communauté transmise en clair ; seule la version 3 ajoute l'authentification et le chiffrement.</p><ol><li>Quel est le seul protocole de supervision disponible sur l'ensemble du parc ?</li><li>Combien d'équipements le campus compte-t-il au total ?</li><li>Quelle version de SNMP apporte l'authentification et le chiffrement des échanges ?</li><li>Sur quel port UDP le superviseur interroge-t-il un agent SNMP par défaut ?</li><li>Sur quel port UDP un équipement envoie-t-il ses traps au superviseur par défaut ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMP_DECODE OID=1.3.6.1.2.1.2.2.1.10.2 VALUE=45892100</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le centre hospitalier Saint-Roch raccorde son parc : 20 commutateurs, 5 routeurs,
+40 serveurs, 60 imprimantes réseau et 10 onduleurs. Tous parlent SNMP ; les serveurs
+acceptent en plus un agent de supervision.
+
+1) Protocole commun : SNMP.
+2) Parc total : 20 + 5 + 40 + 60 + 10 = 135 équipements.
+3) La version 3 apporte authentification et chiffrement.
+4) Les requêtes partent vers le port UDP 161.
+5) Les traps arrivent sur le port UDP 162.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez le préfixe MIB et le suffixe d'instance après le dernier point.</li>
-        <li>Pour ifOperStatus, remplacez '1' par 'up' et '2' par 'down'.</li>
+        <li>Listez les protocoles disponibles famille par famille : celui qui figure sur toutes les lignes du tableau est le socle commun du parc.</li>
+        <li>SNMP v1 et v2c n'offrent aucun chiffrement et transportent la communauté en clair ; seul SNMP v3 ajoute authentification et confidentialité.</li>
+        <li>1. Cherchez le protocole présent dans chaque ligne du tableau. 2. Additionnez les quantités. 3. Comparez les garanties de v1, v2c et v3. 4. et 5. Requêtes et traps utilisent deux ports UDP distincts, 161 et 162.</li>
       </ol>
     </details>
   </div>
@@ -243,24 +238,28 @@ Résultat d’analyse attendu : <code>SNMP_OBJ: symbol=&lt;name&gt; instance=&lt
      data-exercise="sup3-c2-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="SYSLOG_PARSE &lt;134&gt;1 2026-10-11T02:00:00Z srv-web01 nginx 1234 ID47 - Service restarted successfully">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c2-e2) — Parseur de Trames Syslog RFC 5424 et Décodeur PRI
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le routeur de la station des Trois-Pics est interrogé par snmpget.&#10;sysUpTime.0 = Timeticks: (21 600 000) 2 days, 12:00:00&#10;ifOperStatus.2 = Integer: 2 (down)&#10;ifInOctets.3 = Counter32: 4 294 967 295&#10;&#10;1) Sous-arbre : mib-2 (1.3.6.1.2.1).&#10;2) 21 600 000 / 100 = 216 000 secondes = 60 heures.&#10;3) ifOperStatus.2 vaut 2 : l'interface est down, hors service.&#10;4) Le Counter32 arrive à son maximum et repart à zéro : le calcul de débit doit compenser ce repliement.&#10;5) ifInOctets.3 mesure les octets reçus, c'est-à-dire le trafic entrant de l'interface.">
+  <script type="text/plain" data-lab-starter># Exercice — Décoder les OIDs MIB-2 du commutateur de la mairie de Portval
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 2 : le nombre d'heures seul. Les autres questions appellent un court libellé.
 
-[Cas 1 — Erreur d authentification sshd]
-# Données : SYSLOG_PARSE <27>1 2026-10-11T04:12:00Z gw-edge sshd 8901 AUTH01 - Failed password for root from 192.168.1.50
+[Question 1 — Sous-arbre MIB standard]
 A_COMPLETER
 
-[Cas 2 — Panique critique noyau kernel]
-# Données : SYSLOG_PARSE <2>1 2026-10-11T05:00:00Z core-router kernel - - [sdid@123] Kernel panic - out of memory
+[Question 2 — Durée de fonctionnement en heures]
 A_COMPLETER
 
-[Cas 3 — Alerte sécurité auth facility 4]
-# Données : SYSLOG_PARSE <33>1 2026-10-11T06:30:00Z srv-auth sudo 4567 AUDIT - User admin ran /bin/su
+[Question 3 — État opérationnel de l'interface]
+A_COMPLETER
+
+[Question 4 — Type de compteur et comportement à saturation]
+A_COMPLETER
+
+[Question 5 — Ce que mesure ifOutOctets.1]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Parseur de Trames Syslog RFC 5424 et Décodeur PRI</h3>
+    <h3 class="lab__title">Exercice 2 — Décoder les OIDs MIB-2 du commutateur de la mairie de Portval</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -269,26 +268,26 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c2-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Extraire les composants structurés d'une trame Syslog et calculer la facilité et la sévérité à partir de la valeur de priorité PRI.</p>
-    <div class="lab__brief"><p>La RFC 5424 standardise le format des messages Syslog avec une priorité <code>&lt;PRI&gt;</code> initiale :<br><br>
-Formule :<br>
-- <code>Facility = PRI // 8</code><br>
-- <code>Severity = PRI % 8</code><br><br>
-Table des facilités :<br>
-<code>0: kernel, 1: user, 3: daemon, 4: auth, 16: local0, 17: local1, 18: local2, 19: local3, 20: local4, 21: local5, 22: local6, 23: local7</code>.<br><br>
-Table des sévérités :<br>
-<code>0: Emergency, 1: Alert, 2: Critical, 3: Error, 4: Warning, 5: Notice, 6: Informational, 7: Debug</code>.<br><br>
-Format de la ligne à analyser :<br>
-<code>SYSLOG_PARSE &lt;PRI&gt;VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID STRUCTURED-DATA MSG</code><br>
-Résultat d’analyse attendu : <code>SYSLOG: pri=&lt;PRI&gt; facility=&lt;fac_name&gt; severity=&lt;sev_name&gt; host=&lt;hostname&gt; app=&lt;app_name&gt; msg=&lt;message&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire des OIDs du sous-arbre mib-2, interpréter sysUpTime, ifOperStatus et les compteurs d'octets.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La mairie de Portval supervise le commutateur de sa salle technique par des interrogations <code>snmpget</code>. Toutes les valeurs lues proviennent du sous-arbre standard <code>1.3.6.1.2.1</code>. Le tableau ci-dessous rassemble les dernières interrogations :</p><table><tr><th>OID interrogé</th><th>Nom symbolique</th><th>Réponse de l'agent</th></tr><tr><th>1.3.6.1.2.1.1.3.0</th><td>sysUpTime.0</td><td>Timeticks: (12 960 000) 1 day, 12:00:00</td></tr><tr><th>1.3.6.1.2.1.2.2.1.8.1</th><td>ifOperStatus.1</td><td>Integer: 1 (up)</td></tr><tr><th>1.3.6.1.2.1.2.2.1.10.1</th><td>ifInOctets.1</td><td>Counter32: 4 294 967 295</td></tr><tr><th>1.3.6.1.2.1.2.2.1.16.1</th><td>ifOutOctets.1</td><td>Counter32: 1 842 033</td></tr></table><p>Rappels du cours : sysUpTime s'exprime en centièmes de seconde ; ifInOctets comptabilise les octets reçus par l'interface et ifOutOctets les octets émis ; un Counter32 compte modulo 4 294 967 296.</p><ol><li>À quel sous-arbre standard de la MIB appartiennent ces OIDs ?</li><li>L'agent affiche 12 960 000 centièmes de seconde de fonctionnement : cela représente combien d'heures ?</li><li>ifOperStatus.1 renvoie 1 : dans quel état opérationnel l'interface se trouve-t-elle ?</li><li>Quel type de données SNMP ifInOctets utilise-t-il, et que se passe-t-il quand il atteint 4 294 967 295 ?</li><li>Que mesure ifOutOctets.1 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SYSLOG_PARSE &lt;134&gt;1 2026-10-11T02:00:00Z srv-web01 nginx 1234 ID47 - Service restarted successfully</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le routeur de la station des Trois-Pics est interrogé par snmpget.
+sysUpTime.0 = Timeticks: (21 600 000) 2 days, 12:00:00
+ifOperStatus.2 = Integer: 2 (down)
+ifInOctets.3 = Counter32: 4 294 967 295
+
+1) Sous-arbre : mib-2 (1.3.6.1.2.1).
+2) 21 600 000 / 100 = 216 000 secondes = 60 heures.
+3) ifOperStatus.2 vaut 2 : l'interface est down, hors service.
+4) Le Counter32 arrive à son maximum et repart à zéro : le calcul de débit doit compenser ce repliement.
+5) ifInOctets.3 mesure les octets reçus, c'est-à-dire le trafic entrant de l'interface.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Extrayez l'entier entre chevrons &lt;PRI&gt;.</li>
-        <li>Le message final contient tout le texte après les métadonnées et la section STRUCTURED-DATA (représentée par '-' ou entre crochets).</li>
+        <li>L'OID 1.3.6.1.2.1 est la racine du sous-arbre standard : toute interrogation qui commence par cette suite lit la même branche de la MIB.</li>
+        <li>Un Timeticks compte les centièmes de seconde : divisez par 100 pour obtenir des secondes, puis par 3 600 pour des heures.</li>
+        <li>1. La racine commune aux quatre OIDs se lit dans le tableau. 2. 12 960 000 / 100 = 129 600 secondes, puis divisez par 3 600. 3. ifOperStatus vaut 1 pour l'état nominal. 4. Un compteur 32 bits boucle. 5. ifOutOctets regarde le sens de sortie de l'interface.</li>
       </ol>
     </details>
   </div>
@@ -298,28 +297,28 @@ Résultat d’analyse attendu : <code>SYSLOG: pri=&lt;PRI&gt; facility=&lt;fac_n
      data-exercise="sup3-c2-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="SNMPV3_AUTH LEVEL=authPriv USER=secmon AUTH_PROTO=SHA PRIV_PROTO=AES AUTH_PASS=SecretAuth123 PRIV_PASS=SecretPriv456">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c2-e3) — Validateur de Sécurité SNMPv3 USM
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La messagerie de la ville d'Oze envoie deux trames au collecteur :&#10;trame X, PRI 19 : « smtp : file d'attente saturée »&#10;trame Y, PRI 86 : « authentification de l'administrateur réussie »&#10;&#10;1) PRI 19 = 2 × 8 + 3 : facility 2 (messagerie), sévérité 3 (erreur).&#10;2) PRI 86 = 10 × 8 + 6 : facility 10 (authpriv), sévérité 6 (informationnel).&#10;3) La trame X mérite un ticket sans réveiller l'astreinte ; la trame Y alimente seulement l'historique.">
+  <script type="text/plain" data-lab-starter># Exercice — Facility et sévérité : les trames syslog du pare-feu de FortVille
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 2 et 4 : la valeur ou le mot exact. Question 3 : un court libellé. Question 5 : la lettre de la trame.
 
-[Cas 1 — Accès public sans auth noAuthNoPriv]
-# Données : SNMPV3_AUTH LEVEL=noAuthNoPriv USER=public AUTH_PROTO=NONE PRIV_PROTO=NONE AUTH_PASS=NONE PRIV_PASS=NONE
+[Question 1 — Facility de la trame A (PRI 34)]
 A_COMPLETER
 
-[Cas 2 — Niveau authNoPriv valide avec SHA]
-# Données : SNMPV3_AUTH LEVEL=authNoPriv USER=operator AUTH_PROTO=SHA PRIV_PROTO=NONE AUTH_PASS=GoodPassword123 PRIV_PASS=NONE
+[Question 2 — Sévérité de la trame A]
 A_COMPLETER
 
-[Cas 3 — Niveau authNoPriv rejeté mot de passe trop court]
-# Données : SNMPV3_AUTH LEVEL=authNoPriv USER=baduser AUTH_PROTO=SHA PRIV_PROTO=NONE AUTH_PASS=short PRIV_PASS=NONE
+[Question 3 — Famille de services de la facility 3]
 A_COMPLETER
 
-[Cas 4 — Niveau authPriv rejeté protocole de chiffrement invalide]
-# Données : SNMPV3_AUTH LEVEL=authPriv USER=admin AUTH_PROTO=SHA PRIV_PROTO=RC4 AUTH_PASS=GoodPassword123 PRIV_PASS=GoodPassword123
+[Question 4 — Niveau de sévérité de la trame C (PRI 0)]
+A_COMPLETER
+
+[Question 5 — Trame à traiter en urgence]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Validateur de Sécurité SNMPv3 USM</h3>
+    <h3 class="lab__title">Exercice 3 — Facility et sévérité : les trames syslog du pare-feu de FortVille</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -328,23 +327,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c2-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Auditer la conformité d'une requête SNMPv3 selon les trois niveaux de sécurité du User-based Security Model.</p>
-    <div class="lab__brief"><p>SNMPv3 remplace les chaînes de communauté en clair par le modèle USM (*User-based Security Model*) :<br><br>
-Niveaux de sécurité :<br>
-1. <code>noAuthNoPriv</code> : Pas d'authentification ni de chiffrement. Toujours autorisé.<br>
-2. <code>authNoPriv</code> : Authentification obligatoire (<code>AUTH_PROTO</code> dans <code>MD5, SHA</code> et mot de passe <code>AUTH_PASS</code> &gt;= 8 caractères). Trames non chiffrées.<br>
-3. <code>authPriv</code> : Authentification (MD5 ou SHA &gt;= 8 car.) ET chiffrement de la payload (<code>PRIV_PROTO</code> dans <code>DES, AES</code> et <code>PRIV_PASS</code> &gt;= 8 caractères).<br><br>
-Données du cas : <code>SNMPV3_AUTH LEVEL=&lt;lvl&gt; USER=&lt;user&gt; AUTH_PROTO=&lt;p&gt; PRIV_PROTO=&lt;p&gt; AUTH_PASS=&lt;pass&gt; PRIV_PASS=&lt;pass&gt;</code>.<br>
-Résultat d’analyse attendu : <code>SNMPV3: level=&lt;LEVEL&gt; user=&lt;USER&gt; status=&lt;AUTHORIZED|DENIED&gt; reason=&lt;REASON&gt;</code>.<br>
-Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, <code>SECURE_PRIVACY</code>, <code>INVALID_AUTH</code>, <code>INVALID_PRIVACY</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Décomposer une valeur PRI syslog en facility et sévérité, puis en déduire le traitement par le NOC.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le collecteur syslog du NOC reçoit les journaux du pare-feu de la ville de FortVille. Au format RFC 3164, chaque trame commence par une valeur PRI = facility × 8 + sévérité. Facilités utiles ici : 0 noyau, 3 démons (services système), 4 sécurité et authentification, 20 local4 (réservé aux équipements réseau). Échelle de sévérité : 0 urgence, 1 alerte, 2 critique, 3 erreur, 4 avertissement, 5 notification, 6 informationnel, 7 débogage. Trames reçues cette nuit :</p><table><tr><th>Trame</th><th>PRI</th><th>Message</th></tr><tr><th>A</th><td>34</td><td>pare-feu : table de sessions saturée</td></tr><tr><th>B</th><td>27</td><td>service httpd : impossible de se lier au port 80</td></tr><tr><th>C</th><td>0</td><td>kernel : panique noyau sur le routeur</td></tr><tr><th>D</th><td>165</td><td>supervision : sauvegarde de configuration terminée</td></tr></table><ol><li>Pour la trame A (PRI 34), quelle est la valeur de la facility ?</li><li>Pour la trame A, quelle est la valeur de la sévérité ?</li><li>Pour la trame B (PRI 27), à quelle famille de services la facility 3 correspond-elle ?</li><li>La trame C porte PRI 0 : quel niveau de sévérité ce message transporte-t-il ?</li><li>Quelle trame doit réveiller l'astreinte immédiatement ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SNMPV3_AUTH LEVEL=authPriv USER=secmon AUTH_PROTO=SHA PRIV_PROTO=AES AUTH_PASS=SecretAuth123 PRIV_PASS=SecretPriv456</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La messagerie de la ville d'Oze envoie deux trames au collecteur :
+trame X, PRI 19 : « smtp : file d'attente saturée »
+trame Y, PRI 86 : « authentification de l'administrateur réussie »
+
+1) PRI 19 = 2 × 8 + 3 : facility 2 (messagerie), sévérité 3 (erreur).
+2) PRI 86 = 10 × 8 + 6 : facility 10 (authpriv), sévérité 6 (informationnel).
+3) La trame X mérite un ticket sans réveiller l'astreinte ; la trame Y alimente seulement l'historique.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez d'abord si le niveau est noAuthNoPriv.</li>
-        <li>Pour authPriv, l'authentification ET la confidentialité doivent être valides.</li>
+        <li>Décomposez PRI = facility × 8 + sévérité : la facility est le quotient de la division euclidienne par 8, la sévérité en est le reste.</li>
+        <li>Une sévérité 0 (urgence) signale un système inutilisable : c'est le niveau le plus grave de l'échelle syslog.</li>
+        <li>1. PRI 34 = 4 × 8 + 2. 2. Le reste 2 correspond à critique. 3. PRI 27 = 3 × 8 + 3 : la facility 3 couvre les services système. 4. PRI 0 = 0 × 8 + 0, gravité maximale. 5. Comparez les sévérités des quatre trames.</li>
       </ol>
     </details>
   </div>
@@ -357,8 +356,8 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
     <div class="q">
       <p class="q__stem">Sur quel port de transport et quel protocole un agent SNMP écoute-t-il les requêtes de scrutation Get / Walk envoyées par le serveur de supervision ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Port 161 en UDP</button>
         <button class="opt">Port 162 en TCP</button>
+        <button class="opt" data-correct="1">Port 161 en UDP</button>
         <button class="opt">Port 514 en UDP</button>
         <button class="opt">Port 10050 en TCP</button>
       </div>
@@ -367,9 +366,9 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
     <div class="q">
       <p class="q__stem">Quel niveau de sécurité SNMPv3 USM assure à la fois l'authentification cryptographique par hachage ET le chiffrement symétrique des données (confidentialité) ?</p>
       <div class="opts">
-        <button class="opt">noAuthNoPriv</button>
-        <button class="opt">authNoPriv</button>
         <button class="opt" data-correct="1">authPriv</button>
+        <button class="opt">authNoPriv</button>
+        <button class="opt">noAuthNoPriv</button>
         <button class="opt">CommunityStringV2</button>
       </div>
       <div class="q__exp">Le niveau authPriv combine l'authentification (SHA/MD5) et le chiffrement (AES/DES) pour garantir la confidentialité et l'intégrité totale des échanges.</div>
@@ -379,17 +378,17 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
       <div class="opts">
         <button class="opt">Au nom de machine sysName</button>
         <button class="opt">À la description matérielle sysDescr</button>
-        <button class="opt" data-correct="1">Au temps de fonctionnement sysUpTime</button>
         <button class="opt">À l'adresse IP de la passerelle</button>
+        <button class="opt" data-correct="1">Au temps de fonctionnement sysUpTime</button>
       </div>
       <div class="q__exp">sysUpTime mesure les centièmes de seconde depuis la réinitialisation de la gestion réseau, pas nécessairement depuis le démarrage de l’OS ; TimeTicks est modulo 2^32.</div>
     </div>
     <div class="q">
       <p class="q__stem">Une trame Syslog RFC 5424 débute par la priorité &lt;30&gt;. Quels sont la Facility et la Severity correspondantes ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Facility 3 (daemon), Severity 6 (Informational)</button>
-        <button class="opt">Facility 3 (daemon), Severity 0 (Emergency)</button>
         <button class="opt">Facility 4 (auth), Severity 2 (Critical)</button>
+        <button class="opt">Facility 3 (daemon), Severity 0 (Emergency)</button>
+        <button class="opt" data-correct="1">Facility 3 (daemon), Severity 6 (Informational)</button>
         <button class="opt">Facility 30 (local), Severity 0 (Emergency)</button>
       </div>
       <div class="q__exp">Facility = 30 // 8 = 3 (daemon). Severity = 30 % 8 = 6 (Informational).</div>
@@ -397,50 +396,50 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
     <div class="q">
       <p class="q__stem">Pourquoi une architecture de supervision distribuée utilise-t-elle des proxys locaux sur des sites distants ?</p>
       <div class="opts">
-        <button class="opt">Pour remplacer définitivement le serveur de supervision central</button>
+        <button class="opt">Pour remplacer définitivement le serveur de supervision central par des instances locales</button>
         <button class="opt" data-correct="1">Pour exécuter les scrutations locales sans saturer le lien WAN et tamponner les données en cas de coupure</button>
-        <button class="opt">Pour supprimer l'obligation d'utiliser des adresses IP</button>
-        <button class="opt">Pour bloquer les alertes par email</button>
+        <button class="opt">Pour supprimer l'obligation d'utiliser des adresses IP sur les équipements supervisés</button>
+        <button class="opt">Pour bloquer automatiquement toutes les alertes par email envoyées depuis le site distant</button>
       </div>
       <div class="q__exp">Les proxys effectuent les interrogations localement, évitant des milliers de requêtes UDP sur le lien WAN, et conservent les métriques si la liaison internet est temporairement coupée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle différence existe-t-il entre un SNMP Trap et un SNMP Inform ?</p>
       <div class="opts">
-        <button class="opt">Le Trap utilise TCP alors que l'Inform utilise ICMP</button>
         <button class="opt" data-correct="1">L'Inform exige un accusé de réception applicatif de la part du serveur, contrairement au Trap qui est non acquitté</button>
-        <button class="opt">Le Trap chiffre les données alors que l'Inform est en clair</button>
-        <button class="opt">L'Inform ne fonctionne que sous Linux</button>
+        <button class="opt">Le Trap repose sur le protocole TCP orienté connexion, alors que l'Inform s'appuie exclusivement sur ICMP</button>
+        <button class="opt">Le Trap chiffre nativement les données transportées alors que l'Inform circule en clair</button>
+        <button class="opt">L'Inform ne fonctionne que sur les équipements exécutant un système Linux ou Unix</button>
       </div>
       <div class="q__exp">SNMP Inform (introduit en SNMPv2c/v3) fiabilise les alertes en exigeant une réponse de confirmation du gestionnaire, renvoyant l'alerte en cas de non-réception.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans la table Syslog, quelle sévérité correspond au code 0 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Emergency (système inutilisable)</button>
+        <button class="opt">Informational (information courante)</button>
         <button class="opt">Debug (débogage détaillé)</button>
         <button class="opt">Warning (avertissement)</button>
-        <button class="opt">Informational (information courante)</button>
+        <button class="opt" data-correct="1">Emergency (système inutilisable)</button>
       </div>
       <div class="q__exp">La sévérité 0 est Emergency, le niveau le plus critique signalant une panique totale du système d'exploitation.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle différence entre TCP 514 sans TLS et Syslog sur TLS 6514 ?</p>
       <div class="opts">
+        <button class="opt">TCP seul chiffre les échanges et apporte la preuve de non-répudiation</button>
+        <button class="opt">TLS garantit systématiquement la sécurité du stockage final des journaux</button>
         <button class="opt" data-correct="1">TLS correctement configuré protège la confidentialité en transit ; TCP seul ne chiffre pas</button>
-        <button class="opt">TCP seul chiffre et prouve la non-répudiation</button>
-        <button class="opt">TLS garantit toujours le stockage final</button>
-        <button class="opt">Les deux transports sont nécessairement chiffrés</button>
+        <button class="opt">Les deux transports sont nécessairement chiffrés par défaut dans la RFC</button>
       </div>
       <div class="q__exp">TLS peut protéger et authentifier les pairs en transit ; la livraison durable et la non-répudiation exigent d’autres mesures.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l'inconvénient majeur du transport Syslog historique sur UDP 514 ?</p>
       <div class="opts">
-        <button class="opt">Il consomme trop de bande passante</button>
+        <button class="opt">Il consomme une part excessive de la bande passante du réseau local</button>
         <button class="opt" data-correct="1">Il ne garantit pas la livraison des paquets et n'offre aucun chiffrement en transit</button>
-        <button class="opt">Il nécessite une licence payante</button>
-        <button class="opt">Il est limité à 10 messages par heure</button>
+        <button class="opt">Il nécessite impérativement l'achat d'une licence logicielle payante</button>
+        <button class="opt">Il est artificiellement limité à dix messages par heure et par équipement</button>
       </div>
       <div class="q__exp">UDP est un protocole sans connexion : en cas de saturation réseau, des paquets de logs critiques peuvent être perdus sans qu'aucun avertissement ne soit émis.</div>
     </div>
@@ -562,7 +561,7 @@ Raisons possibles : <code>NO_AUTH_REQUIRED</code>, <code>AUTH_VALIDATED</code>, 
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

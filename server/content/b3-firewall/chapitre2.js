@@ -131,32 +131,32 @@ module.exports = {
     {
       stem: 'Quel événement déclenche le passage d’une session TCP à l’état conntrack ESTABLISHED ?',
       opts: [
-        'La réception du paquet ACK final du client concluant le 3-Way Handshake',
+        'La fermeture de la connexion par un paquet RST',
         'L’émission du premier paquet SYN par le client',
         'La réception de la réponse SYN-ACK émise par le serveur',
-        'La fermeture de la connexion par un paquet RST'
+        'La réception du paquet ACK final du client concluant le 3-Way Handshake'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'C’est la réception de l’ACK de confirmation confirmant que le client et le serveur sont synchronisés qui fait basculer la session en ESTABLISHED.'
     },
     {
       stem: 'Pourquoi place-t-on la règle autorisant l’état ESTABLISHED,RELATED en toute première ligne d’un pare-feu ?',
       opts: [
-        'Pour optimiser les performances : plus de 90% des paquets en transit appartiennent à des sessions déjà validées et sont traités immédiatement',
-        'Parce que le noyau Linux refuse de démarrer si cette règle n’est pas en position 1',
-        'Pour permettre aux paquets SYN de traverser sans être filtrés',
-        'Pour désactiver le chiffrement TLS sur les paquets de retour'
+        "Parce que le noyau Linux refuse formellement de démarrer si cette règle d’acceptation n’occupe pas la première position",
+        "Pour permettre aux nouveaux paquets SYN d’initier des connexions sans aucune vérification du pare-feu",
+        "Pour optimiser les performances : plus de 90% des paquets en transit appartiennent à des sessions déjà validées et sont traités immédiatement",
+        "Pour désactiver systématiquement le chiffrement TLS appliqué aux paquets de retour des sessions déjà établies"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Placer cette règle en tête évite d’évaluer la liste complète des règles pour chaque paquet d’une session établie, ce qui réduit drastiquement l’utilisation du CPU.'
     },
     {
       stem: 'À quoi correspond l’état conntrack RELATED ?',
       opts: [
-        'À une nouvelle connexion logiquement liée à une session existante (ex: canal de données passif FTP ou erreur ICMP)',
-        'À une connexion suspecte qui doit être mise en quarantaine',
-        'À un paquet ayant subi une altération de somme de contrôle (Checksum)',
-        'À une session redirigée vers un proxy de cache web'
+        "À une nouvelle connexion logiquement liée à une session existante (ex: canal de données passif FTP ou erreur ICMP)",
+        "À une connexion jugée suspecte par l’administrateur et qui doit être mise en quarantaine",
+        "À un paquet ayant subi une altération de sa somme de contrôle (Checksum) en cours de routage",
+        "À une session client volontairement redirigée vers un proxy de cache web intermédiaire"
       ],
       correct: 0,
       exp: 'L’état RELATED identifie les flux secondaires associés à une connexion maître autorisée (géré par les helpers du noyau).'
@@ -164,12 +164,12 @@ module.exports = {
     {
       stem: 'Que se passe-t-il si la table conntrack d’un pare-feu atteint sa capacité maximale (nf_conntrack_max) ?',
       opts: [
-        'Le pare-feu rejette les nouvelles connexions (« table full, dropping packet ») provoquant un déni de service global',
-        'Le pare-feu bascule automatiquement en mode routage non filtré',
-        'Le système redémarre instantanément sans sauvegarder les logs',
-        'Les paquets sont compressés pour libérer de la mémoire'
+        "Le pare-feu bascule automatiquement en mode routage non filtré pour préserver la continuité de service",
+        "Le pare-feu rejette les nouvelles connexions (« table full, dropping packet ») provoquant un déni de service global",
+        "Le système d’exploitation redémarre instantanément sans prendre le temps de sauvegarder les journaux",
+        "Les paquets en attente sont compressés à la volée afin de libérer de la mémoire vive"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Lorsque la table est saturée, le noyau ne peut plus allouer de mémoire pour de nouvelles sessions et rejette tous les paquets entrants non enregistrés.'
     },
     {
@@ -186,34 +186,34 @@ module.exports = {
     {
       stem: 'Quel est l’objectif de la commande sysctl net.ipv4.tcp_syncookies = 1 ?',
       opts: [
-        'Mitiger les attaques SYN Flood en encodant les informations de session dans le numéro de séquence initial sans allouer d’état mémoire',
-        'Autoriser le stockage de cookies HTTP dans le pare-feu',
-        'Augmenter la taille du tampon d’émission des cartes réseau',
-        'Forcer la déconnexion automatique des utilisateurs inactifs'
+        "Autoriser le stockage et la gestion centralisée des cookies HTTP sessions directement dans la mémoire du pare-feu",
+        "Mitiger les attaques SYN Flood en encodant les informations de session dans le numéro de séquence initial sans allouer d’état mémoire",
+        "Augmenter considérablement la taille du tampon d’émission des cartes réseau physiques du serveur",
+        "Forcer la déconnexion automatique de tous les utilisateurs inactifs au bout de quelques minutes d’inactivité"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Les SYN Cookies permettent au serveur de répondre aux demandes d’ouverture TCP sans consommer de mémoire conntrack tant que le client n’a pas renvoyé l’ACK final.'
     },
     {
       stem: 'Comment le pare-feu stateful classe-t-il un paquet TCP contenant uniquement le drapeau FIN reçu en dehors de toute connexion active ?',
       opts: [
-        'INVALID',
-        'ESTABLISHED',
         'NEW',
+        'ESTABLISHED',
+        'INVALID',
         'RELATED'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Un paquet de fermeture reçu sans connexion préalable ne correspond à aucune session connue et doit être classé INVALID.'
     },
     {
       stem: 'Combien de mémoire vive consomme approximativement une entrée dans la table conntrack du noyau Linux ?',
       opts: [
-        'Environ 300 octets',
+        'Plus de 64 kilo-octets',
         'Environ 4 mégaoctets',
         'Exactement 1 bit',
-        'Plus de 64 kilo-octets'
+        'Environ 300 octets'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Une entrée conntrack (structure nf_conn) occupe environ 300 octets de mémoire noyau non swappable.'
     }
   ],

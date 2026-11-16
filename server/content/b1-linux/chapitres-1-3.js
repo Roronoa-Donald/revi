@@ -147,14 +147,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Qui a créé le noyau Linux, et quand ?', opts: ['Ken Thompson, 1969', 'Richard Stallman, 1984', 'Linus Torvalds, 1991'], correct: 2, exp: 'Linus Torvalds, étudiant finlandais, a créé le noyau en 1991&nbsp;; le noyau passe sous licence GPL en 1992.' },
-      { stem: 'En quel langage UNIX a-t-il été réécrit en 1973 ?', opts: ['En assembleur', 'En langage C', 'En Pascal'], correct: 1, exp: 'Dennis Ritchie a réécrit UNIX en C pour sa version 4, ce qui l’a rendu portable en principe.' },
-      { stem: 'Que signifie l’acronyme GNU ?', opts: ['Gnu is not Unix', 'General New Unix', 'GNU Network Utility'], correct: 0, exp: '« Gnu is not Unix » : un acronyme récursif, signature du projet de Stallman (1984).' },
-      { stem: 'Combien de libertés la licence GPL garantit-elle ?', opts: ['Trois, numérotées 1 à 3', 'Quatre, numérotées 0 à 3', 'Cinq, numérotées 0 à 4'], correct: 1, exp: 'Libertés 0 (utiliser), 1 (étudier), 2 (redistribuer), 3 (améliorer) — comme les indices d’un tableau.' },
-      { stem: 'Quelle différence entre licence GPL et licence BSD ?', opts: ['La GPL est payante', 'La GPL interdit les versions propriétaires (copyleft), la BSD l’autorise', 'Aucune, ce sont les mêmes'], correct: 1, exp: 'Le copyleft de la GPL impose les mêmes conditions à toute redistribution ; la BSD permet des versions propriétaires.' },
-      { stem: 'Dans l’architecture logique, que fait le shell ?', opts: ['Il gère la mémoire', 'Il interprète les commandes de l’utilisateur', 'Il remplace le noyau'], correct: 1, exp: 'Le shell lit la commande, l’interprète et transmet les demandes au système via les bibliothèques et le noyau.' },
-      { stem: 'Qu’est-ce qu’une distribution Linux ?', opts: ['Une version payante de Linux', 'Un assemblage complet : noyau, utilitaires, commandes, applications', 'Un gestionnaire de téléchargement'], correct: 1, exp: 'Une distribution forme après installation un système complet ; Debian, RedHat et Slackware en sont des exemples.' },
-      { stem: 'Quel shell utilise l’atelier de ce cours ?', opts: ['csh', 'bash', 'ksh'], correct: 1, exp: 'Les scripts de cet atelier utilisent Bash ; d’autres shells existent et aucun n’est imposé à toutes les distributions.' }
+      { stem: 'Qui a créé le noyau Linux, et quand ?', opts: ['Ken Thompson, 1969', 'Linus Torvalds, 1991', 'Richard Stallman, 1984'], correct: 1, exp: 'Linus Torvalds, étudiant finlandais, a créé le noyau en 1991&nbsp;; le noyau passe sous licence GPL en 1992.' },
+      { stem: 'En quel langage UNIX a-t-il été réécrit en 1973 ?', opts: ['En langage C', 'En assembleur', 'En Pascal'], correct: 0, exp: 'Dennis Ritchie a réécrit UNIX en C pour sa version 4, ce qui l’a rendu portable en principe.' },
+      { stem: 'Que signifie l’acronyme GNU ?', opts: ['GNU Network Utility', 'General New Unix', 'Gnu is not Unix'], correct: 2, exp: '« Gnu is not Unix » : un acronyme récursif, signature du projet de Stallman (1984).' },
+      { stem: 'Combien de libertés la licence GPL garantit-elle ?', opts: ['Trois, numérotées 1 à 3', 'Cinq, numérotées 0 à 4', 'Quatre, numérotées 0 à 3'], correct: 2, exp: 'Libertés 0 (utiliser), 1 (étudier), 2 (redistribuer), 3 (améliorer) — comme les indices d’un tableau.' },
+      { stem: 'Quelle différence entre licence GPL et licence BSD ?', opts: ["La GPL est une licence payante réservée aux entreprises","La GPL interdit les versions propriétaires (copyleft), la BSD l’autorise","Aucune : GPL et BSD protègent les logiciels de la même façon"], correct: 1, exp: 'Le copyleft de la GPL impose les mêmes conditions à toute redistribution ; la BSD permet des versions propriétaires.' },
+      { stem: 'Dans l’architecture logique, que fait le shell ?', opts: ["Il interprète les commandes de l’utilisateur","Il gère la mémoire vive et les processus","Il remplace le noyau lors des démarrages"], correct: 0, exp: 'Le shell lit la commande, l’interprète et transmet les demandes au système via les bibliothèques et le noyau.' },
+      { stem: 'Qu’est-ce qu’une distribution Linux ?', opts: ["Une version payante de Linux vendue par des sociétés","Un simple gestionnaire de téléchargement de logiciels","Un assemblage complet : noyau, utilitaires, commandes, applications"], correct: 2, exp: 'Une distribution forme après installation un système complet ; Debian, RedHat et Slackware en sont des exemples.' },
+      { stem: 'Quel shell utilise l’atelier de ce cours ?', opts: ['bash', 'csh', 'ksh'], correct: 0, exp: 'Les scripts de cet atelier utilisent Bash ; d’autres shells existent et aucun n’est imposé à toutes les distributions.' }
     ],
 
     pitfalls: [
@@ -328,15 +328,15 @@ module.exports = [
 
     questions: [
       { stem: 'Comment note-t-on la racine de l’arborescence Linux ?', opts: ['C:\\', '/', '/root'], correct: 1, exp: 'Un seul arbre part de la racine notée / ; C:\\ est la convention Windows.' },
-      { stem: 'Quel répertoire contient les fichiers de configuration du système ?', opts: ['/var', '/etc', '/usr'], correct: 1, exp: '/etc concentre les configurations système et des démons : il est à inclure dans un plan avec les données.' },
+      { stem: 'Quel répertoire contient les fichiers de configuration du système ?', opts: ['/etc', '/var', '/usr'], correct: 0, exp: '/etc concentre les configurations système et des démons : il est à inclure dans un plan avec les données.' },
       { stem: 'Que contient /tmp, et quelle est sa particularité ?', opts: ['Les comptes utilisateurs ; il est chiffré', 'Des fichiers temporaires susceptibles d’être supprimés', 'Les journaux ; il grandit sans limite'], correct: 1, exp: 'La conservation des fichiers de /tmp n’est pas garantie ; leur suppression au démarrage est possible, mais pas obligatoire.' },
-      { stem: 'Où se trouve le répertoire personnel de root ?', opts: ['/home/root', '/root', '/'], correct: 1, exp: '/root est la maison du super-utilisateur, hors de /home.' },
-      { stem: 'Que signifie « tout est fichier » sous Linux ?', opts: ['Une formule sans portée', 'Périphériques, partitions, processus sont représentés par des fichiers', 'Les dossiers sont des fichiers texte'], correct: 1, exp: 'Fichiers, périphériques, partitions, programmes en cours, répertoires : tout prend la forme d’un fichier.' },
+      { stem: 'Où se trouve le répertoire personnel de root ?', opts: ['/home/root', '/', '/root'], correct: 2, exp: '/root est la maison du super-utilisateur, hors de /home.' },
+      { stem: 'Que signifie « tout est fichier » sous Linux ?', opts: ["Une simple formule de communication sans portée technique","Seuls les dossiers sont considérés comme des fichiers","Périphériques, partitions, processus sont représentés par des fichiers"], correct: 2, exp: 'Fichiers, périphériques, partitions, programmes en cours, répertoires : tout prend la forme d’un fichier.' },
       { stem: 'Quel est le rôle de l’inode ?', opts: ['Stocker le nom dans chaque répertoire', 'Décrire les métadonnées du fichier', 'Journaliser les écritures'], correct: 1, exp: 'L’inode porte les métadonnées (droits, propriétaire, taille…) ; le nom est associé à l’inode dans une entrée de répertoire.' },
-      { stem: 'Quelle est la principale différence entre ext2 et ext3 ?', opts: ['La vitesse', 'La journalisation', 'Le support des clefs USB'], correct: 1, exp: 'ext3 est la version journalisée d’ext2 ; les deux partagent commandes et manipulations.' },
+      { stem: 'Quelle est la principale différence entre ext2 et ext3 ?', opts: ['La journalisation', 'La vitesse', 'Le support des clefs USB'], correct: 0, exp: 'ext3 est la version journalisée d’ext2 ; les deux partagent commandes et manipulations.' },
       { stem: 'Combien de partitions principales au maximum dans une table MBR ?', opts: ['Deux', 'Quatre', 'Seize'], correct: 1, exp: 'MBR possède quatre entrées au maximum ; une partition étendue occupe l’une d’elles. GPT suit d’autres limites.' },
-      { stem: 'Que fait mount /dev/sda1 /mnt/flashdisk ?', opts: ['Formate la partition', 'Monte le FS de sda1 sur le point /mnt/flashdisk', 'Copie sda1 dans /mnt'], correct: 1, exp: 'Monter rend le contenu accessible comme un simple répertoire de l’arborescence.' },
-      { stem: 'Quelle commande affiche l’espace occupé par une arborescence ?', opts: ['df -h', 'du -ks', 'mount'], correct: 1, exp: 'du (disk usage) avec -k (kilo-octets) et -s (total) ; df liste, elle, les partitions montées.' }
+      { stem: 'Que fait mount /dev/sda1 /mnt/flashdisk ?', opts: ["Formate la partition avant tout montage","Copie le contenu de sda1 dans /mnt","Monte le FS de sda1 sur le point /mnt/flashdisk"], correct: 2, exp: 'Monter rend le contenu accessible comme un simple répertoire de l’arborescence.' },
+      { stem: 'Quelle commande affiche l’espace occupé par une arborescence ?', opts: ['du -ks', 'df -h', 'mount'], correct: 0, exp: 'du (disk usage) avec -k (kilo-octets) et -s (total) ; df liste, elle, les partitions montées.' }
     ],
 
     pitfalls: [
@@ -506,20 +506,44 @@ module.exports = [
           'trouver tous les fichiers (<code>find /tmp -type f</code>). À la maison, l’atelier rejoue ces ' +
           'filtres en Bash sur une arborescence simulée.</p>'
         ].join('\n')
+      },
+      {
+        title: 'Motifs Bash, unités binaires et /etc/passwd pour l’atelier',
+        html: [
+          '<p>Les exercices de fin de chapitre simulent ces opérations en Bash sans toucher au disque réel. ' +
+          'Quatre réflexes permettent de les aborder sans bloquer sur la syntaxe :</p>',
+          '<ul>\n' +
+          '    <li><strong>Découper un chemin ou un champ sans boucle</strong> : en Bash, ' +
+          '<code>${chemin##*/}</code> retire tout jusqu’au dernier <code>/</code> (comme <code>basename</code>), ' +
+          '<code>${motif%%:*}</code> extrait ce qui précède <code>:</code> et <code>${motif#*:}</code> ce qui suit.</li>\n' +
+          '    <li><strong>Lire plusieurs champs séparés par <code>:</code></strong> : un fichier comme ' +
+          '<code>/etc/passwd</code> range les comptes sur le modèle <code>login:UID:GID:shell</code>. ' +
+          'L’idiome <code>IFS=":" read -r login uid gid shell &lt;&lt;&lt; "$ligne"</code> sépare directement les quatre variables.</li>\n' +
+          '    <li><strong>Convention des comptes sous Debian</strong> : les comptes système ont un <code>UID &lt; 1000</code> ' +
+          '(ex. <code>root</code> à 0) et les comptes utilisateurs humains commencent à <code>UID ≥ 1000</code>.</li>\n' +
+          '    <li><strong>Unités binaires et zéros initiaux</strong> : dans les calculs de taille de l’atelier, ' +
+          '<code>1 K = 1024</code> octets (1 Kio) et <code>1 M = 1048576</code> octets (1 Mio, à ne pas confondre avec le kilo décimal à 1000). ' +
+          'Si un entier peut commencer par <code>0</code> (ex. <code>08</code>), écrire <code>$((10#$n))</code> force la base 10 et évite l’erreur octale.</li>\n' +
+          '  </ul>',
+          '<pre><code># Extraire nom de base et décoder une ligne passwd :\n' +
+          'chemin="/var/log/syslog"\n' +
+          'base="${chemin##*/}"     # → syslog\n' +
+          'IFS=":" read -r login uid gid shell &lt;&lt;&lt; "alice:1000:1000:/bin/bash"</code></pre>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Dans ls -a /home, quelle forme fréquente de commande est illustrée ?', opts: ['OPTIONS ARGUMENTS COMMANDE', 'COMMANDE OPTIONS ARGUMENTS', 'ARGUMENTS COMMANDE OPTIONS'], correct: 1, exp: 'Ici, ls est la commande, -a une option et /home un argument ; l’ordre et les éléments requis varient selon la commande.' },
+      { stem: 'Dans ls -a /home, quelle forme fréquente de commande est illustrée ?', opts: ['COMMANDE OPTIONS ARGUMENTS', 'OPTIONS ARGUMENTS COMMANDE', 'ARGUMENTS COMMANDE OPTIONS'], correct: 0, exp: 'Ici, ls est la commande, -a une option et /home un argument ; l’ordre et les éléments requis varient selon la commande.' },
       { stem: 'Que fait pwd ?', opts: ['Change de répertoire', 'Affiche l’emplacement courant', 'Liste les fichiers'], correct: 1, exp: 'pwd (print working directory) affiche l’emplacement où l’on se situe dans la hiérarchie.' },
-      { stem: 'Quelle commande crée un fichier vide ?', opts: ['mkdir', 'touch', 'cat'], correct: 1, exp: 'touch change la date de modification d’un fichier — et le crée vide s’il n’existe pas.' },
-      { stem: 'echo "x" > f et echo "x" >> f : quelle différence ?', opts: ['Aucune', '> écrase, >> ajoute à la fin', '> ajoute, >> écrase'], correct: 1, exp: 'Un chevron écrase le contenu, deux chevrons suffisent au fichier.' },
-      { stem: 'Que fait mv fichier3 /home/fichier4 ?', opts: ['Copie fichier3', 'Renomme et déplace fichier3 en /home/fichier4 en une seule fois', 'Supprime fichier3'], correct: 1, exp: 'mv renomme ou déplace : renommer est un déplacement dans le même répertoire.' },
-      { stem: 'Pourquoi rm -rf est-elle dangereuse ?', opts: ['Elle est lente', 'Elle peut supprimer tout le système de fichiers, irréversiblement', 'Elle chiffre les fichiers'], correct: 1, exp: 'Le cours l’avertit : avec -f ou -rf, rm peut endommager voire détruire le système de fichiers sans retour.' },
+      { stem: 'Quelle commande crée un fichier vide ?', opts: ['mkdir', 'cat', 'touch'], correct: 2, exp: 'touch change la date de modification d’un fichier — et le crée vide s’il n’existe pas.' },
+      { stem: 'echo "x" > f et echo "x" >> f : quelle différence ?', opts: ['> écrase, >> ajoute à la fin', 'Aucune', '> ajoute, >> écrase'], correct: 0, exp: 'Un chevron écrase le contenu, deux chevrons suffisent au fichier.' },
+      { stem: 'Que fait mv fichier3 /home/fichier4 ?', opts: ["Copie fichier3 vers /home en laissant l’original en place","Supprime fichier3 du répertoire courant","Renomme et déplace fichier3 en /home/fichier4 en une seule fois"], correct: 2, exp: 'mv renomme ou déplace : renommer est un déplacement dans le même répertoire.' },
+      { stem: 'Pourquoi rm -rf est-elle dangereuse ?', opts: ["Elle est lente et consomme beaucoup de ressources","Elle peut supprimer tout le système de fichiers, irréversiblement","Elle chiffre définitivement les fichiers supprimés"], correct: 1, exp: 'Le cours l’avertit : avec -f ou -rf, rm peut endommager voire détruire le système de fichiers sans retour.' },
       { stem: 'Quelle option de ln crée un lien symbolique ?', opts: ['-a', '-s', '-l'], correct: 1, exp: 'ln -s crée un lien symbolique (raccourci) au lieu d’un lien physique ; c’est documenté dans man ln.' },
-      { stem: 'Après modification de la source, que voit-on via le lien symbolique ?', opts: ['L’ancien contenu', 'Le contenu mis à jour de la source', 'Une erreur'], correct: 1, exp: 'La cible n’est pas un fichier stocké : elle pointe vers la source et reflète son contenu courant.' },
-      { stem: 'Que fait find /tmp -type f ?', opts: ['Liste les répertoires de /tmp', 'Trouve tous les fichiers de /tmp', 'Vide /tmp'], correct: 1, exp: '-type f filtre sur les fichiers ordinaires ; sans critère, find listerait tout.' },
-      { stem: 'Quel critère de find filtre par propriétaire ?', opts: ['-name', '-user', '-perm'], correct: 1, exp: '-user filtre par propriétaire (-group par groupe, -perm par permissions).' }
+      { stem: 'Après modification de la source, que voit-on via le lien symbolique ?', opts: ['Le contenu mis à jour de la source', 'L’ancien contenu', 'Une erreur'], correct: 0, exp: 'La cible n’est pas un fichier stocké : elle pointe vers la source et reflète son contenu courant.' },
+      { stem: 'Que fait find /tmp -type f ?', opts: ['Liste les répertoires de /tmp', 'Vide /tmp', 'Trouve tous les fichiers de /tmp'], correct: 2, exp: '-type f filtre sur les fichiers ordinaires ; sans critère, find listerait tout.' },
+      { stem: 'Quel critère de find filtre par propriétaire ?', opts: ['-name', '-perm', '-user'], correct: 2, exp: '-user filtre par propriétaire (-group par groupe, -perm par permissions).' }
     ],
 
     pitfalls: [

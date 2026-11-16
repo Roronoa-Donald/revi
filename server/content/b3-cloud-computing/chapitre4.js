@@ -130,66 +130,66 @@ module.exports = {
       stem: 'Quelle formule définit rigoureusement le Power Usage Effectiveness (PUE) d’un centre de données ?',
       opts: [
         'Énergie IT / Énergie Totale',
-        'Énergie Totale / Énergie IT',
+        'Nombre de serveurs / Consommation en Watts',
         'Énergie Climatisation / Énergie Serveurs',
-        'Nombre de serveurs / Consommation en Watts'
+        'Énergie Totale / Énergie IT'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le PUE est le quotient de l’énergie totale consommée par le bâtiment du datacenter divisée par l’énergie utile consommée par les équipements informatiques (IT).'
     },
     {
       stem: 'Si un centre de données enregistre une consommation totale de 200 000 kWh dont 100 000 kWh dédiés aux serveurs IT, que vaut son DCiE ?',
       opts: [
         '2.00%',
-        '50.0%',
         '80.0%',
+        '50.0%',
         '100.0%'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'PUE = 200 000 / 100 000 = 2.0. DCiE = (1 / PUE) * 100% = (1 / 2.0) * 100% = 50.0%.'
     },
     {
       stem: 'Quel est l’objectif fondamental du confinement d’allées (hot/cold aisle containment) dans un datacenter ?',
       opts: [
-        'Empêcher l’air froid soufflé en façade de se mélanger à l’air chaud rejeté à l’arrière des serveurs',
         'Empêcher les techniciens de pénétrer dans les travées sans badge',
+        'Empêcher l’air froid soufflé en façade de se mélanger à l’air chaud rejeté à l’arrière des serveurs',
         'Bloquer les ondes électromagnétiques émises par les serveurs',
         'Augmenter la vitesse de rotation des ventilateurs internes'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le confinement sépare hermétiquement l’air frais et l’air chaud pour maximiser le rendement thermodynamique des systèmes de refroidissement.'
     },
     {
       stem: 'À quelle catégorie d’émissions (selon le protocole GHG) appartient l’électricité achetée sur le réseau public pour faire tourner les serveurs d’un datacenter ?',
       opts: [
-        'Scope 1 (Émissions directes)',
         'Scope 2 (Émissions indirectes liées à l’énergie)',
+        'Scope 1 (Émissions directes)',
         'Scope 3 (Autres émissions indirectes)',
         'Scope 0 (Émissions négligeables)'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Scope 2 englobe toutes les émissions indirectes liées à la production de l’électricité, de la chaleur ou de la vapeur acquise et consommée par l’organisation.'
     },
     {
       stem: 'Combien d’heures de fonctionnement hebdomadaires permet d’économiser l’extinction automatique des environnements de développement le soir et le week-end (base 50h ouvrées par semaine) ?',
       opts: [
         '50 heures',
-        '118 heures',
+        '70 heures',
         '168 heures',
-        '70 heures'
+        '118 heures'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Une semaine compte 168 heures (7 * 24). Si les instances ne tournent que pendant les 50 heures ouvrées, l’économie est de 168 - 50 = 118 heures par semaine (soit 70.2% d’heures évitées).'
     },
     {
       stem: 'En quoi consiste la technique de refroidissement appelée « Free-Cooling » ?',
       opts: [
-        'Utiliser des ventilateurs gratuits fournis par les fabricants',
-        'Exploiter l’air frais extérieur ou des cours d’eau naturels sans recourir aux compresseurs frigorifiques énergivores',
-        'Couper la climatisation et tolérer une surchauffe des composants',
-        'Plonger les serveurs dans de la glace sèche'
+        "Utiliser des ventilateurs gratuits fournis par les fabricants lors de l’achat des baies",
+        "Couper la climatisation et tolérer une surchauffe ponctuelle des composants électroniques",
+        "Exploiter l’air frais extérieur ou des cours d’eau naturels sans recourir aux compresseurs frigorifiques énergivores",
+        "Plonger les serveurs dans de la glace sèche renouvelée chaque nuit par l’équipe technique"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le free-cooling exploite les conditions météorologiques extérieures favorables (air froid ambiant) pour refroidir les salles sans enclencher les groupes de froid frigorifiques.'
     },
     {
@@ -206,10 +206,10 @@ module.exports = {
     {
       stem: 'Pourquoi une charge de travail exécutée dans une région Cloud en Suède ou en Norvège a-t-elle généralement une empreinte carbone opérationnelle bien plus faible qu’en Pologne ?',
       opts: [
-        'Les serveurs y sont plus récents et moins chers',
-        'Le mix électrique scandinave repose sur l’hydraulique décarboné, tandis que le mix polonais est dominé par le charbon',
-        'La bande passante réseau y est plus rapide',
-        'Le système d’exploitation Linux y consomme moins d’instructions'
+        "Les serveurs y sont plus récents et moins chers à l’achat pour les entreprises locales",
+        "Le mix électrique scandinave repose sur l’hydraulique décarboné, tandis que le mix polonais est dominé par le charbon",
+        "La bande passante réseau y est plus rapide grâce aux câbles sous-marins transfrontaliers",
+        "Le système d’exploitation Linux y consomme moins d’instructions machine pour chaque requête"
       ],
       correct: 1,
       exp: 'L’intensité carbone de l’électricité (gCO2e/kWh) varie selon les pays : les régions alimentées par des énergies renouvelables émettent infiniment moins de GES que celles tributaires d’énergies fossiles.'

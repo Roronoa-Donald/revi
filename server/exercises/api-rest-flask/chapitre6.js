@@ -78,7 +78,8 @@ for elem in collection:
 
 print(f"Trouves: {len(resultats)}")
 print(json.dumps(resultats, sort_keys=True))
-`
+`,
+    takeaway: "Filtrer une collection en mémoire par prédicat clé=valeur reproduit la logique WHERE d un endpoint de recherche REST."
   },
   {
     id: 'fl2-c6-e2',
@@ -137,7 +138,8 @@ else:
 
 nouvel_item['id'] = nouvel_id
 print(f"201 Created: {json.dumps(nouvel_item, sort_keys=True)}")
-`
+`,
+    takeaway: "Attribuer max(id)+1 et renvoyer 201 assure l unicité des nouveaux enregistrements même après des suppressions."
   },
   {
     id: 'fl2-c6-e3',
@@ -212,6 +214,7 @@ else:
         modifs = json.loads(parties[2])
         trouve.update(modifs)
         print(f"200 OK: {json.dumps(trouve, sort_keys=True)}")
-`
+`,
+    takeaway: "PATCH ne met à jour que les champs fournis tandis que DELETE retourne 404 si l identifiant ciblé n existe pas."
   }
 ];

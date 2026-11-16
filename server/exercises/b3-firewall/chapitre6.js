@@ -38,7 +38,8 @@ module.exports = [
         "expected": "IPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule inet filter input counter drop"
       }
     ],
-    "solution": "[Exemple]\nIPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\nIPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule inet filter forward ip saddr 192.168.1.50 udp dport 53 counter drop\n\n[Cas 2 — Règle simple sans port spécifique]\nIPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule inet filter output ip daddr 198.51.100.2 ip protocol tcp counter accept\n\n[Cas 3 — Règle globale tout trafic]\nIPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule inet filter input counter drop"
+    "solution": "[Exemple]\nIPTABLES: iptables -A INPUT -p tcp -d 10.0.0.1 --dport 22 -j ACCEPT\nNFTABLES: nft add rule inet filter input ip daddr 10.0.0.1 tcp dport 22 counter accept\n\n[Cas 1 — Règle de transfert FORWARD avec blocage complet]\nIPTABLES: iptables -A FORWARD -p udp -s 192.168.1.50 --dport 53 -j DROP\nNFTABLES: nft add rule inet filter forward ip saddr 192.168.1.50 udp dport 53 counter drop\n\n[Cas 2 — Règle simple sans port spécifique]\nIPTABLES: iptables -A OUTPUT -p tcp -d 198.51.100.2 -j ACCEPT\nNFTABLES: nft add rule inet filter output ip daddr 198.51.100.2 ip protocol tcp counter accept\n\n[Cas 3 — Règle globale tout trafic]\nIPTABLES: iptables -A INPUT -j DROP\nNFTABLES: nft add rule inet filter input counter drop",
+    "takeaway": "Traduire une intention métier en règles iptables/nftables propres impose de spécifier interface, état conntrack, port cible et journalisation."
   },
   {
     "id": "fw3-c6-e2",
@@ -51,7 +52,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c6-e2) — Parseur et agrégateur statistique de journaux de pare-feu (Logs)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Scans massifs multi-ports avec une IP dominante]\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.88 DST=10.0.0.1 PROTO=TCP SPT=1000 DPT=23\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.88 DST=10.0.0.1 PROTO=TCP SPT=1001 DPT=23\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=198.51.100.99 DST=10.0.0.1 PROTO=TCP SPT=2000 DPT=445\n# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=10.0.0.50 DST=8.8.8.8 PROTO=UDP SPT=5300 DPT=53\nA_COMPLETER\n\n[Cas 2 — Trafic 100% accepté sans aucun drop]\n# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.1 DST=10.0.0.1 PROTO=TCP SPT=3000 DPT=443\n# Données : firewall: [ACCEPT] IN=eth0 OUT=eth1 SRC=192.168.1.2 DST=10.0.0.1 PROTO=TCP SPT=3001 DPT=443\nA_COMPLETER\n\n[Cas 3 — Départage d’égalité entre ports bloqués]\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=1.1.1.1 DST=10.0.0.1 PROTO=TCP SPT=10 DPT=80\n# Données : firewall: [DROP] IN=eth0 OUT= SRC=2.2.2.2 DST=10.0.0.1 PROTO=TCP SPT=11 DPT=22\nA_COMPLETER\n",
     "hints": [
       "Utiliser des dictionnaires pour compter les occurrences de SRC et DPT pour les lignes DROP.",
-      "Trier par fréquence décroissante puis par la clé secondaire pour départager les égalités."
+      "Trier par fréquence décroissante puis par la clé secondaire pour départager les égalités.",
+      "1. Compter le total des lignes et les DROP. 2. Agréger par IP source et par port destination les paquets rejetés. 3. Élire le port le plus bloqué et l’IP la plus attaquante."
     ],
     "examples": [
       {
@@ -77,7 +79,8 @@ module.exports = [
         "expected": "LOG_SUMMARY total=2 dropped=2 accepted=0 top_blocked_port=22 top_attacker_ip=1.1.1.1"
       }
     ],
-    "solution": "[Exemple]\nLOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5\n\n[Cas 1 — Scans massifs multi-ports avec une IP dominante]\nLOG_SUMMARY total=4 dropped=3 accepted=1 top_blocked_port=23 top_attacker_ip=198.51.100.88\n\n[Cas 2 — Trafic 100% accepté sans aucun drop]\nLOG_SUMMARY total=2 dropped=0 accepted=2 top_blocked_port=NONE top_attacker_ip=NONE\n\n[Cas 3 — Départage d’égalité entre ports bloqués]\nLOG_SUMMARY total=2 dropped=2 accepted=0 top_blocked_port=22 top_attacker_ip=1.1.1.1"
+    "solution": "[Exemple]\nLOG_SUMMARY total=3 dropped=2 accepted=1 top_blocked_port=22 top_attacker_ip=203.0.113.5\n\n[Cas 1 — Scans massifs multi-ports avec une IP dominante]\nLOG_SUMMARY total=4 dropped=3 accepted=1 top_blocked_port=23 top_attacker_ip=198.51.100.88\n\n[Cas 2 — Trafic 100% accepté sans aucun drop]\nLOG_SUMMARY total=2 dropped=0 accepted=2 top_blocked_port=NONE top_attacker_ip=NONE\n\n[Cas 3 — Départage d’égalité entre ports bloqués]\nLOG_SUMMARY total=2 dropped=2 accepted=0 top_blocked_port=22 top_attacker_ip=1.1.1.1",
+    "takeaway": "Agréger les journaux DROP par source et port cible fait émerger balayages massifs et tentatives d’exploitation récurrentes."
   },
   {
     "id": "fw3-c6-e3",
@@ -90,7 +93,8 @@ module.exports = [
     "starter": "# Grille d'analyse (fw3-c6-e3) — Détecteur de force brute et bannissement dynamique (Fail2ban SIEM)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Événement ultérieur sur une IP déjà bannie]\n# Données : AUTH_FAIL ts=10 ip=198.51.100.1 service=ssh\n# Données : AUTH_FAIL ts=20 ip=198.51.100.1 service=ssh\n# Données : AUTH_FAIL ts=30 ip=198.51.100.1 service=ssh\n# Données : AUTH_FAIL ts=40 ip=198.51.100.1 service=ssh\nA_COMPLETER\n\n[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]\n# Données : AUTH_FAIL ts=10 ip=10.0.0.5 service=ssh\n# Données : AUTH_FAIL ts=80 ip=10.0.0.5 service=ssh\n# Données : AUTH_FAIL ts=150 ip=10.0.0.5 service=ssh\nA_COMPLETER\n\n[Cas 3 — Deux adresses IP attaquantes distinctes]\n# Données : AUTH_FAIL ts=50 ip=1.1.1.1 service=ssh\n# Données : AUTH_FAIL ts=51 ip=2.2.2.2 service=rdp\n# Données : AUTH_FAIL ts=52 ip=1.1.1.1 service=ssh\n# Données : AUTH_FAIL ts=53 ip=1.1.1.1 service=ssh\nA_COMPLETER\n",
     "hints": [
       "Garder la trace des IPs déjà bannies dans un ensemble (set).",
-      "Pour les IPs non bannies, filtrer les échecs récents où t >= ts - 59."
+      "Pour les IPs non bannies, filtrer les échecs récents où t >= ts - 59.",
+      "Pour chaque ligne : si l’IP est déjà bannie, afficher ALREADY_BANNED ; sinon compter ses échecs dans les 60 dernières secondes ; au troisième, bannir, sinon surveiller."
     ],
     "examples": [
       {
@@ -116,6 +120,7 @@ module.exports = [
         "expected": "BAN_ACTION ip=1.1.1.1 status=MONITORING attempts=1\nBAN_ACTION ip=2.2.2.2 status=MONITORING attempts=1\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=2\nBAN_ACTION ip=1.1.1.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 1.1.1.1 }\""
       }
     ],
-    "solution": "[Exemple]\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2\nBAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 203.0.113.50 }\"\n\n[Cas 1 — Événement ultérieur sur une IP déjà bannie]\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=1\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=2\nBAN_ACTION ip=198.51.100.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 198.51.100.1 }\"\nBAN_ACTION ip=198.51.100.1 status=ALREADY_BANNED\n\n[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\n\n[Cas 3 — Deux adresses IP attaquantes distinctes]\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=1\nBAN_ACTION ip=2.2.2.2 status=MONITORING attempts=1\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=2\nBAN_ACTION ip=1.1.1.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 1.1.1.1 }\""
+    "solution": "[Exemple]\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=1\nBAN_ACTION ip=203.0.113.50 status=MONITORING attempts=2\nBAN_ACTION ip=203.0.113.50 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 203.0.113.50 }\"\n\n[Cas 1 — Événement ultérieur sur une IP déjà bannie]\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=1\nBAN_ACTION ip=198.51.100.1 status=MONITORING attempts=2\nBAN_ACTION ip=198.51.100.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 198.51.100.1 }\"\nBAN_ACTION ip=198.51.100.1 status=ALREADY_BANNED\n\n[Cas 2 — Échecs espacés de plus de 60 secondes sans bannissement]\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\nBAN_ACTION ip=10.0.0.5 status=MONITORING attempts=1\n\n[Cas 3 — Deux adresses IP attaquantes distinctes]\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=1\nBAN_ACTION ip=2.2.2.2 status=MONITORING attempts=1\nBAN_ACTION ip=1.1.1.1 status=MONITORING attempts=2\nBAN_ACTION ip=1.1.1.1 status=TRIGGER_BAN rule=\"nft add element inet filter blocklist { 1.1.1.1 }\"",
+    "takeaway": "Corréler les échecs répétés d’authentification dans les logs déclenche un bannissement temporaire ciblé sans bloquer les utilisateurs légitimes."
   }
 ];

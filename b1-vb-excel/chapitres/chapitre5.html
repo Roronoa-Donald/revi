@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapitre 5 — Structures de contrôle (If...Then...ElseIf...End If, Select Case, boucles For...Next, For Each...In, Do While/Until...Loop) | VB Excel B1</title>
+<meta name="description" content="Chapitre 5 du cours de Programmation VBA sous Excel B1 : Branchements conditionnels If...Then...ElseIf...Else...End If et Select Case (To, Is, Case Else) ; boucles à compteur For...Next et Step -1 ; boucles de collection For Each...In ; boucles conditionnelles Do While / Do Until ; sorties anticipées Exit For, Exit Do, Exit Sub. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<link rel="canonical" href="https://revi-mu.vercel.app/b1-vb-excel/chapitres/chapitre5.html">
+<meta property="og:title" content="Chapitre 5 — Structures de contrôle (If...Then...ElseIf...End If, Select Case, boucles For...Next, For Each...In, Do While/Until...Loop) | VB Excel B1">
+<meta property="og:description" content="Chapitre 5 du cours de Programmation VBA sous Excel B1 : Branchements conditionnels If...Then...ElseIf...Else...End If et Select Case (To, Is, Case Else) ; boucles à compteur For...Next et Step -1 ; boucles de collection For Each...In ; boucles conditionnelles Do While / Do Until ; sorties anticipées Exit For, Exit Do, Exit Sub. Théorie, exemples détaillés, études de cas d’application, QCM corrigés.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/fonts.css">
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/cours.css">
+<link rel="stylesheet" href="/assets/css/code-lab.css">
+<link rel="stylesheet" href="/assets/vendor/katex/katex.min.css">
+<script src="/assets/js/theme.js"></script>
+</head>
+<body data-chapter="5" class="page page--chapter">
+
+<nav class="skip-nav" aria-label="Accès rapide"><a href="#content" class="skip-link">Aller au contenu</a></nav>
+
+<header class="vbanav"><div class="vbanav__in">
+  <a class="vbanav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
+    <span class="vbanav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg></span>
+    <span class="vbanav__word">cours.interactifs</span>
+  </a>
+  <div class="vbanav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="vbanav__chip" href="../index.html">VB Excel B1</a></div>
+  <nav class="vbanav__links" aria-label="Navigation du cours">
+      <a href="../sommaire.html">Sommaire</a>
+      <a href="../chapitres/chapitre1.html">Ch. 1</a>
+      <a href="../chapitres/chapitre2.html">Ch. 2</a>
+      <a href="../chapitres/chapitre3.html">Ch. 3</a>
+      <a href="../chapitres/chapitre4.html">Ch. 4</a>
+      <a href="../chapitres/chapitre5.html" class="is-active">Ch. 5</a>
+      <a href="../chapitres/chapitre6.html">Ch. 6</a>
+      <a href="../chapitres/cartes.html">Cartes</a>
+      <a href="../chapitres/formules.html">Mémo</a>
+      <a href="../exercices/exercices.html">Exercices</a>
+      <a href="../atelier.html">Atelier</a>
+      <a href="../chapitres/simulateur-examen.html">Examen</a>
+  </nav>
+  <div class="vbanav__actions">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Basculer le mode sombre" title="Basculer le thème clair / sombre">
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </div>
+</div></header>
+
+<main id="content" class="vbawrap">
+<p class="crumb"><a href="../index.html">VB Excel B1</a> › <a href="../sommaire.html">Sommaire</a> › Chapitre 5</p>
+
+<div class="chapmeta">
+    <span class="tag tag--module">Module 5</span>
+    <span class="tag tag--time">≈ 3 h de travail</span>
+    <span class="tag tag--lock">Réservé B1 et plus</span>
+  </div>
+
+<h1>Chapitre 5 — Structures de contrôle (If...Then...ElseIf...End If, Select Case, boucles For...Next, For Each...In, Do While/Until...Loop)</h1>
+
+<div class="lead">  <div class="box box--situation">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
+    <p>Une macro enregistrée est purement linéaire : elle répète toujours les mêmes lignes du début à la fin. Pour traiter un tableau de 500 factures où seules les factures impayées doivent être relancées, ou pour s’arrêter automatiquement dès qu’une cellule vide est rencontrée, il faut doter notre programme des structures de contrôle du chapitre 5 du support : les conditions et les boucles.</p>
+  </div></div>
+
+  <div class="box box--objectifs">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
+    <p>À la fin de ce chapitre, vous serez capable de :</p>
+    <ol>
+      <li>écrire des tests conditionnels complets avec If...Then...ElseIf...Else...End If en ordonnant correctement les seuils ;</li>
+      <li>remplacer une cascade de tests sur une même expression par un bloc Select Case (valeurs multiples, plage To, comparaison Is &gt;=, Case Else) ;</li>
+      <li>parcourir une plage de lignes avec For i = début To fin [Step pas]...Next i et utiliser Step -1 pour supprimer des lignes sans décalage ;</li>
+      <li>parcourir une collection d’objets (cellules d’un Range ou feuilles d’un classeur) avec For Each élément In collection...Next ;</li>
+      <li>maîtriser les boucles Do While...Loop et Do Until...Loop (test en entrée vs test en sortie) et éviter les boucles infinies.</li>
+    </ol>
+  </div>
+
+<section class="sec">
+
+<h2>1. Les structures conditionnelles : If...Then...ElseIf...End If et Select Case</h2>
+
+<p>Le test <strong><code>If ... Then ... ElseIf ... Else ... End If</code></strong> permet d’exécuter des blocs d’instructions différents selon qu’une condition booléenne est vraie (<code>True</code>) ou fausse (<code>False</code>). Dès qu’une branche est vérifiée, VBA exécute ses instructions puis saute directement à <code>End If</code> : comme avec la fonction <code>SI</code> d’Excel, il faut donc toujours tester les paliers <strong>du plus strict au plus large</strong>.</p>
+<pre><code>If montant &gt;= 50000 Then
+    tauxRemise = 0.15
+ElseIf montant &gt;= 10000 Then
+    tauxRemise = 0.08
+Else
+    tauxRemise = 0
+End If</code></pre>
+<p>Lorsqu’on évalue une <strong>même variable</strong> par rapport à plusieurs valeurs, intervalles ou seuils, la structure <strong><code>Select Case</code></strong> est beaucoup plus lisible qu’une suite de <code>ElseIf</code>. Le support détaille ses trois syntaxes de cas : liste de valeurs séparées par des virgules (<code>Case 1, 3, 5</code>), intervalle borné avec le mot-clé <strong><code>To</code></strong> (<code>Case 10 To 14</code>), comparaison ouverte avec le mot-clé <strong><code>Is</code></strong> (<code>Case Is &gt;= 15</code>), et cas par défaut <strong><code>Case Else</code></strong> :</p>
+<pre><code>Select Case note
+    Case Is &gt;= 16
+        mention = "Très Bien"
+    Case 14 To 15.99
+        mention = "Bien"
+    Case 12 To 13.99
+        mention = "Assez Bien"
+    Case 10 To 11.99
+        mention = "Passable"
+    Case Else
+        mention = "Ajourné"
+End Select</code></pre>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Les boucles à compteur (For...Next, Step) et de collection (For Each...In)</h2>
+
+<p>Lorsque le nombre d’itérations est connu, on utilise la boucle <strong><code>For compteur = début To fin [Step pas] ... Next compteur</code></strong>. Par défaut, le pas d’incrémentation (<code>Step</code>) vaut <code>+1</code>. On peut préciser un pas de <code>2</code> (<code>Step 2</code> pour traiter une ligne sur deux) ou un <strong>pas négatif (<code>Step -1</code>)</strong> pour parcourir un tableau de bas en haut :</p>
+<pre><code>Dim i As Long
+' Parcourir les lignes 2 à 20 pour calculer le montant TTC en colonne C :
+For i = 2 To 20
+    Cells(i, 3).Value = Cells(i, 2).Value * 1.18
+Next i</code></pre>
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> Pourquoi supprimer des lignes exige toujours For i = fin To début Step -1</div>
+    <p>Si vous supprimez la ligne <code>i</code> (<code>Rows(i).Delete</code>) dans une boucle croissante <code>For i = 2 To 20</code>, l’ancienne ligne <code>i + 1</code> remonte immédiatement au numéro <code>i</code>, tandis que le compteur passe à <code>i + 1</code> : la ligne qui vient de remonter est <strong>sautée et jamais contrôlée</strong> ! Pour supprimer des lignes sous condition, on parcourt <strong>toujours du bas vers le haut</strong> : <code>For i = 20 To 2 Step -1</code>.</p>
+  </div>
+<p>Pour parcourir tous les objets d’une collection (toutes les cellules d’une plage ou toutes les feuilles d’un classeur) sans gérer de numéro d’indice, VBA offre la boucle <strong><code>For Each élément In collection ... Next élément</code></strong> :</p>
+<pre><code>Dim cel As Range
+For Each cel In Range("B2:B50")
+    If cel.Value &lt; 0 Then
+        cel.Interior.Color = RGB(255, 200, 200) ' Surligne les négatifs en rouge clair
+    End If
+Next cel</code></pre>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Les boucles conditionnelles Do While / Do Until et les sorties anticipées (Exit)</h2>
+
+<p>Lorsque le nombre de lignes du tableau est inconnu à l’avance (par exemple : lire une colonne jusqu’à la première cellule vide), on utilise une boucle conditionnelle <strong><code>Do ... Loop</code></strong>, qui se décline selon deux critères :</p>
+<ul>
+  <li><strong><code>While</code> (tant que) vs <code>Until</code> (jusqu’à ce que)</strong> : <code>Do While Cells(i, 1).Value &lt;&gt; ""</code> continue <em>tant que</em> la cellule n’est pas vide ; <code>Do Until Cells(i, 1).Value = ""</code> continue <em>jusqu’à ce que</em> la cellule soit vide. Ces deux écritures sont logiquement équivalentes.</li>
+  <li><strong>Condition en tête (<code>Do While...Loop</code>) vs condition en pied (<code>Do...Loop While</code>)</strong> : placée après <code>Do</code>, la condition est vérifiée <strong>avant</strong> la première itération (si la première cellule est déjà vide, le corps s’exécute <strong>0 fois</strong>). Placée après <code>Loop</code>, la condition est vérifiée <strong>à la fin</strong> : le corps de la boucle s’exécute donc <strong>au moins une fois</strong>.</li>
+</ul>
+<pre><code>Dim lig As Long
+lig = 2
+Do While Cells(lig, 1).Value &lt;&gt; ""
+    Cells(lig, 4).Value = "Vérifié"
+    lig = lig + 1  ' INDISPENSABLE pour éviter une boucle infinie !
+Loop</code></pre>
+<p>Enfin, VBA permet de quitter prématurément une boucle ou une procédure dès qu’un objectif est atteint (par exemple, dès que le client recherché a été trouvé) grâce aux instructions de sortie anticipée : <strong><code>Exit For</code></strong> (sort de la boucle <code>For</code> ou <code>For Each</code>), <strong><code>Exit Do</code></strong> (sort de la boucle <code>Do...Loop</code>), <strong><code>Exit Sub</code></strong> et <strong><code>Exit Function</code></strong> (quitte immédiatement la procédure ou la fonction).</p>
+
+</section>
+
+  <section class="sec">
+
+<!-- code-labs:start -->
+  <div id="exercices">
+  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
+  <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
+  <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
+<div class="lab" id="vba-c5-e1" data-lab
+     data-exercise="vba-c5-e1"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Test de tonnage = 12 :&#10;- tonnage &gt;= 50 (faux)&#10;- tonnage &gt;= 20 (faux)&#10;- Branche Else / Case Else -&gt; prime = 10000">
+  <script type="text/plain" data-lab-starter># Exercice — Barème de remises avec If...Then...ElseIf et Select Case
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Valeur de prime pour tonnage = 35]
+A_COMPLETER
+
+[Question 2 — Valeur de prime pour tonnage = 50]
+A_COMPLETER
+
+[Question 3 — Mot-clé devant >= dans Case ___ >= 50]
+A_COMPLETER
+
+[Question 4 — Mot-clé d'intervalle dans Case 20 ___ 49.99]
+A_COMPLETER
+
+[Question 5 — Clause par défaut d'un Select Case]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 1 — Barème de remises avec If...Then...ElseIf et Select Case</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n1">Niveau 1 — Acquisition</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer l’exécution d’un bloc If...ElseIf...Else et maîtriser les mots-clés To, Is et Case Else d’un Select Case.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Une coopérative agricole applique une prime de fidélité selon le tonnage annuel livré par chaque producteur, codée en VBA de deux façons équivalentes :</p><pre><code>' Version 1 : If...Then...ElseIf
+If tonnage &gt;= 50 Then
+    prime = 100000
+ElseIf tonnage &gt;= 20 Then
+    prime = 40000
+Else
+    prime = 10000
+End If
+
+' Version 2 : Select Case
+Select Case tonnage
+    Case Is &gt;= 50 : prime = 100000
+    Case 20 To 49.99 : prime = 40000
+    Case Else : prime = 10000
+End Select</code></pre><ol>  <li>Quelle est la valeur de <code>prime</code> pour un producteur qui a livré <code>tonnage = 35</code> ?</li>  <li>Quelle est la valeur de <code>prime</code> pour un producteur qui a livré exactement <code>tonnage = 50</code> ?</li>  <li>Dans <code>Select Case</code>, quel mot-clé de 2 lettres précède l’opérateur de comparaison dans <code>Case ___ &gt;= 50</code> ?</li>  <li>Quel mot-clé de 2 lettres exprime l’intervalle fermé dans <code>Case 20 ___ 49.99</code> ?</li>  <li>Quelle clause du <code>Select Case</code> récupère tous les cas qui n’ont correspondu à aucun des cas précédents ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Test de tonnage = 12 :
+- tonnage &gt;= 50 (faux)
+- tonnage &gt;= 20 (faux)
+- Branche Else / Case Else -&gt; prime = 10000</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Suivez les tests dans l’ordre : pour 35, le premier test (&gt;= 50) est faux, mais le second (&gt;= 20) est vrai.</li>
+        <li>Pour 50, le signe &gt;= signifie « supérieur ou égal » : la borne 50 est donc incluse dans le premier palier.</li>
+        <li>Étapes : trouver 40000 pour tonnage = 35 ; trouver 100000 pour tonnage = 50 ; relever le mot-clé Is devant &gt;= ; relever le mot-clé To entre 20 et 49.99 ; noter Case Else pour le cas par défaut.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c5-e2" data-lab
+     data-exercise="vba-c5-e2"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Suppression à rebours sur les lignes 6 à 2 (Step -1) :&#10;- i = 6 (stock 0) -&gt; supprimée&#10;- i = 5 (stock 8) -&gt; conservée&#10;- i = 4 (stock 0) -&gt; supprimée&#10;- i = 3 (stock 0) -&gt; supprimée&#10;- i = 2 (stock 15) -&gt; conservée">
+  <script type="text/plain" data-lab-starter># Exercice — Boucles For...Next, Step -1 et For Each sur une feuille de stock
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Nombre de cellules où cel.Value = 0]
+A_COMPLETER
+
+[Question 2 — Somme totale des quantités en stock]
+A_COMPLETER
+
+[Question 3 — Première valeur de i dans For i = 6 To 2 Step -1]
+A_COMPLETER
+
+[Question 4 — Valeur du pas après Step pour descendre]
+A_COMPLETER
+
+[Question 5 — Numéro de la ligne en rupture sautée en boucle croissante]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 2 — Boucles For...Next, Step -1 et For Each sur une feuille de stock</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n2">Niveau 2 — Application</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Tracer l’exécution d’une boucle For...Next, appliquer Step -1 pour la suppression de lignes et utiliser For Each.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le gestionnaire de stock souhaite d’abord compter les articles en rupture sur la plage <code>C2:C6</code>, puis supprimer les lignes correspondantes :</p><table>  <tr><th>Ligne Excel</th><th>Article (Colonne B)</th><th>Quantité en stock (Colonne C)</th></tr>  <tr><td>Ligne 2</td><td>Clavier USB</td><td>15</td></tr>  <tr><td>Ligne 3</td><td>Souris optique</td><td>0</td></tr>  <tr><td>Ligne 4</td><td>Câble HDMI</td><td>0</td></tr>  <tr><td>Ligne 5</td><td>Écran 24 pouces</td><td>8</td></tr>  <tr><td>Ligne 6</td><td>Onduleur</td><td>0</td></tr></table><ol>  <li>Si l’on parcourt la plage avec <code>For Each cel In Range("C2:C6")</code>, combien de cellules vérifient <code>cel.Value = 0</code> ?</li>  <li>Quelle est la somme totale des quantités en stock sur les lignes 2 à 6 ?</li>  <li>Pour supprimer les lignes où le stock vaut 0 avec <code>For i = 6 To 2 Step -1</code>, quelle est la première valeur prise par le compteur <code>i</code> ?</li>  <li>Dans cette boucle de suppression à rebours, quel est le pas précisé après le mot-clé <code>Step</code> ?</li>  <li>Si l’on utilisait à tort une boucle croissante <code>For i = 2 To 6</code> pour faire <code>Rows(i).Delete</code>, quelle ligne en rupture (juste après la ligne 3) serait sautée par décalage : la ligne <code>4</code> ou la ligne <code>5</code> ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Suppression à rebours sur les lignes 6 à 2 (Step -1) :
+- i = 6 (stock 0) -&gt; supprimée
+- i = 5 (stock 8) -&gt; conservée
+- i = 4 (stock 0) -&gt; supprimée
+- i = 3 (stock 0) -&gt; supprimée
+- i = 2 (stock 15) -&gt; conservée</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Comptez les zéros dans la colonne C (lignes 3, 4 et 6), puis additionnez 15 + 0 + 0 + 8 + 0.</li>
+        <li>Quand la ligne 3 est supprimée en boucle croissante, l’ancienne ligne 4 (Câble HDMI, stock 0) remonte à la ligne 3 alors que le compteur passe à i = 4.</li>
+        <li>Étapes : compter 3 articles à 0 ; sommer 15 + 8 = 23 ; partir de i = 6 ; utiliser le pas -1 ; identifier la ligne 4 comme la ligne sautée après la suppression de la ligne 3.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="lab" id="vba-c5-e3" data-lab
+     data-exercise="vba-c5-e3"
+     data-language="analyse"
+     data-height="300"
+     data-stdin="Si A2 est déjà vide au départ (lig = 2) :&#10;- Do While Cells(2, 1).Value &lt;&gt; &quot;&quot; est faux dès le premier test&#10;- Nombre de passages : 0, cumul = 0, lig reste à 2.">
+  <script type="text/plain" data-lab-starter># Exercice — Parcours conditionnel Do While...Loop et arrêt sur cellule vide
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+
+[Question 1 — Nombre d'itérations exécutées]
+A_COMPLETER
+
+[Question 2 — Valeur finale de cumul]
+A_COMPLETER
+
+[Question 3 — Valeur finale de lig à la sortie de la boucle]
+A_COMPLETER
+
+[Question 4 — Mot-clé remplaçant While devant Cells(lig, 1).Value = ""]
+A_COMPLETER
+
+[Question 5 — Instruction de sortie anticipée d'une boucle Do]
+A_COMPLETER
+</script>
+  <div class="lab__head">
+    <h3 class="lab__title">Exercice 3 — Parcours conditionnel Do While...Loop et arrêt sur cellule vide</h3>
+    <div class="lab__meta">
+      <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
+      <span class="lab__formative">Formative</span>
+      <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
+    </div>
+  </div>
+  <div class="lab__body">
+    <p class="lab__formative-notice" id="vba-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre l’évolution des variables dans une boucle Do While...Loop et utiliser Exit Do.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Une macro parcourt la colonne A à partir de la ligne 2 jusqu’à rencontrer une cellule vide :</p><pre><code>Dim lig As Long, cumul As Long
+lig = 2
+cumul = 0
+Do While Cells(lig, 1).Value &lt;&gt; ""
+    cumul = cumul + Cells(lig, 1).Value
+    lig = lig + 1
+Loop</code></pre><p>Les valeurs de la colonne A sont : <code>A2 = 100</code>, <code>A3 = 250</code>, <code>A4 = 150</code>, et <code>A5</code> est <strong>vide</strong> (<code>""</code>).</p><ol>  <li>Combien de fois le corps de la boucle <code>Do While</code> est-il exécuté avant de s’arrêter ?</li>  <li>Quelle est la valeur finale de la variable <code>cumul</code> à la sortie de la boucle ?</li>  <li>Quelle est la valeur finale de la variable <code>lig</code> au moment où la condition <code>Cells(lig, 1).Value &lt;&gt; ""</code> devient fausse ?</li>  <li>Si l’on remplaçait <code>Do While Cells(lig, 1).Value &lt;&gt; ""</code> par <code>Do _____ Cells(lig, 1).Value = ""</code>, quel mot-clé (signifiant « jusqu’à ce que ») faudrait-il écrire ?</li>  <li>Quelle instruction de deux mots permettrait de quitter immédiatement la boucle <code>Do</code> si <code>cumul</code> dépassait un plafond d’alerte ?</li></ol></div>
+    <div class="lab__sample">
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Si A2 est déjà vide au départ (lig = 2) :
+- Do While Cells(2, 1).Value &lt;&gt; "" est faux dès le premier test
+- Nombre de passages : 0, cumul = 0, lig reste à 2.</pre></div>
+    </div>
+    <details class="lab__hints">
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
+      <ol>
+        <li>Suivez lig tour par tour : lig=2 (A2=100, cumul=100, lig passe à 3) ; lig=3 (A3=250, cumul=350, lig passe à 4) ; lig=4 (A4=150, cumul=500, lig passe à 5).</li>
+        <li>Au test suivant, lig vaut 5 et A5 est vide : la condition &lt;&gt; "" est fausse et on sort de la boucle.</li>
+        <li>Étapes : compter 3 tours (lignes 2, 3, 4) ; additionner 100 + 250 + 150 = 500 ; noter lig = 5 à la sortie ; écrire Until pour « jusqu’à ce que » ; citer Exit Do pour la sortie anticipée.</li>
+      </ol>
+    </details>
+  </div>
+</div>
+  </div>
+  <!-- code-labs:end -->
+  <h2>5. QCM — niveau examen</h2>
+
+  <div class="qcm">
+    <div class="q">
+      <p class="q__stem">Dans un bloc If...Then...ElseIf...Else multi-lignes en VBA, quelle instruction est obligatoire pour fermer la structure ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">End If</button>
+        <button class="opt">End Sub</button>
+        <button class="opt">Next If</button>
+        <button class="opt">Loop</button>
+      </div>
+      <div class="q__exp">Tout bloc If...Then écrit sur plusieurs lignes doit impérativement se terminer par End If (seul le If condensé sur une seule ligne ne prend pas de End If).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans une structure Select Case, quelle syntaxe permet de tester si la variable est supérieure ou égale à 100 ?</p>
+      <div class="opts">
+        <button class="opt">Case &gt;= 100 To Max</button>
+        <button class="opt" data-correct="1">Case Is &gt;= 100</button>
+        <button class="opt">Case Where &gt;= 100</button>
+        <button class="opt">Case Else &gt;= 100</button>
+      </div>
+      <div class="q__exp">Avec un opérateur de comparaison (&lt;, &gt;, &lt;=, &gt;=, &lt;&gt;) dans un Select Case, VBA utilise le mot-clé Is : Case Is &gt;= 100 (et le mot-clé To pour un intervalle fermé comme Case 50 To 99).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Pourquoi utilise-t-on For i = 50 To 2 Step -1 plutôt que For i = 2 To 50 lorsqu’une macro supprime des lignes avec Rows(i).Delete ?</p>
+      <div class="opts">
+        <button class="opt">Parce que Rows(i).Delete ne fonctionne que sur les numéros pairs</button>
+        <button class="opt">Parce que Step -1 consomme deux fois moins de mémoire RAM</button>
+        <button class="opt" data-correct="1">Parce que supprimer une ligne en avançant décale vers le haut la ligne suivante, qui se retrouve sautée par le compteur</button>
+        <button class="opt">Parce que VBA interdit Rows(i).Delete avec un pas positif</button>
+      </div>
+      <div class="q__exp">Quand la ligne i est supprimée, l’ancienne ligne i+1 prend immédiatement le numéro i. Si le compteur monte à i+1, cette ligne n’est jamais examinée. En descendant avec Step -1, le décalage n’affecte que les lignes déjà traitées.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle boucle est la plus adaptée pour parcourir directement chaque feuille de calcul d’un classeur sans gérer de compteur numérique ?</p>
+      <div class="opts">
+        <button class="opt">Do Until Worksheets.End</button>
+        <button class="opt">Select Case ActiveSheet</button>
+        <button class="opt">While Workbooks.Count &gt; 0</button>
+        <button class="opt" data-correct="1">For Each f In ThisWorkbook.Worksheets ... Next f</button>
+      </div>
+      <div class="q__exp">La boucle For Each élément In collection ... Next parcourt automatiquement tous les objets d’une collection (ici chaque objet Worksheet f de ThisWorkbook.Worksheets).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle est la différence entre Do While condition ... Loop et Do ... Loop While condition ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">Do While...Loop teste la condition avant d’entrer (0 passage possible), tandis que Do...Loop While teste à la fin (au moins 1 passage garanti)</button>
+        <button class="opt">Do...Loop While s’exécute deux fois plus vite</button>
+        <button class="opt">Do While...Loop ne peut pas contenir d’instruction If</button>
+        <button class="opt">Il n’existe aucune différence de comportement même si la condition est fausse au départ</button>
+      </div>
+      <div class="q__exp">Lorsque le test est placé en tête (Do While condition), le corps ne s’exécute jamais si la condition est fausse d’emblée. Placé en pied (Loop While condition), le corps est exécuté une première fois avant le test.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Que se passe-t-il dans une boucle Do While Cells(i, 1).Value &lt;&gt; "" ... Loop si le programmeur oublie l’instruction i = i + 1 ?</p>
+      <div class="opts">
+        <button class="opt">VBA incrémente automatiquement i de 1 à chaque tour</button>
+        <button class="opt" data-correct="1">La macro entre dans une boucle infinie en relisant indéfiniment la même ligne i (blocage d’Excel)</button>
+        <button class="opt">La boucle s’arrête immédiatement après le premier tour</button>
+        <button class="opt">Excel supprime la colonne A</button>
+      </div>
+      <div class="q__exp">Contrairement à For...Next qui incrémente son compteur automatiquement, Do While...Loop exige que le programmeur fasse avancer la variable de parcours (i = i + 1), faute de quoi la condition reste éternellement vraie sur la même cellule.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quelle instruction permet de quitter immédiatement une boucle For...Next dès que la valeur recherchée a été trouvée, sans attendre la fin du compteur ?</p>
+      <div class="opts">
+        <button class="opt">Break</button>
+        <button class="opt">Stop For</button>
+        <button class="opt" data-correct="1">Exit For</button>
+        <button class="opt">End For</button>
+      </div>
+      <div class="q__exp">En VBA, Exit For interrompt immédiatement la boucle For (ou For Each) en cours et poursuit l’exécution après le Next (de même, Exit Do quitte une boucle Do...Loop).</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Combien de fois le corps de la boucle For k = 2 To 10 Step 2 ... Next k est-il exécuté ?</p>
+      <div class="opts">
+        <button class="opt">10 fois</button>
+        <button class="opt">8 fois</button>
+        <button class="opt">4 fois</button>
+        <button class="opt" data-correct="1">5 fois (pour k = 2, 4, 6, 8 et 10)</button>
+      </div>
+      <div class="q__exp">Avec un départ à 2, une fin à 10 incluse et un pas Step 2, la variable k prend successivement les 5 valeurs : 2, 4, 6, 8 et 10.</div>
+    </div>
+  </div>
+
+  </section>
+
+<section class="sec">
+
+<h2>6. Erreurs classiques — récapitulatif</h2>
+
+  <div class="box box--pitfall">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
+    <ul>
+      <li>Oublier d’incrémenter le compteur (i = i + 1) dans une boucle Do While / Do Until, provoquant une boucle infinie.</li>
+      <li>Supprimer des lignes dans une boucle croissante For i = 2 To N au lieu de décroître avec Step -1.</li>
+      <li>Oublier le mot-clé Is devant un opérateur de comparaison dans un Select Case (écrire Case Is &gt;= 10 et non Case &gt;= 10).</li>
+      <li>Confondre Do While (continue tant que c’est vrai) et Do Until (continue jusqu’à ce que cela devienne vrai).</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>7. Méthodologie de résolution</h2>
+
+  <div class="box box--method">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — choisir la bonne boucle pour chaque tâche Excel</div>
+    <ol>
+      <li>Nombre de lignes connu et fixe (ex. lignes 2 à 100) : utiliser For i = 2 To 100 ... Next i.</li>
+      <li>Suppression de lignes sous condition : utiliser impérativement For i = derniereLigne To 2 Step -1.</li>
+      <li>Traitement de chaque cellule d’une plage ou de chaque feuille d’un classeur : utiliser For Each obj In collection.</li>
+      <li>Parcours jusqu’à la première cellule vide (longueur inconnue) : utiliser Do While Cells(i, 1).Value &lt;&gt; "" avec i = i + 1.</li>
+    </ol>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>8. Révision active</h2>
+
+  <div class="box box--revision">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
+    <ul>
+      <li>If...Then...ElseIf...Else...End If et Select Case (To, Is, Case Else) dirigent le flux selon des conditions.</li>
+      <li>For i = début To fin [Step pas]...Next i répète à compteur ; Step -1 parcourt à l’envers (indispensable pour supprimer des lignes).</li>
+      <li>For Each élément In collection...Next parcourt chaque objet d’un Range ou de Worksheets.</li>
+      <li>Do While / Do Until...Loop boucle selon une condition (en entrée ou en sortie) ; Exit For / Exit Do / Exit Sub permettent de sortir immédiatement.</li>
+    </ul>
+    <h3>Checklist de maîtrise</h3>
+    <ul class="check">
+      <li>Je sais écrire un Select Case utilisant des valeurs multiples, To, Is &gt;= et Case Else.</li>
+      <li>Je sais expliquer pourquoi la suppression de lignes requiert Step -1.</li>
+      <li>Je sais parcourir une plage avec For Each cel In Range("...").</li>
+      <li>Je sais écrire une boucle Do While qui s’arrête à la première cellule vide sans boucler à l’infini.</li>
+    </ul>
+    <h3>Les 8 notions à connaître absolument</h3>
+    <ol>
+      <li><strong><code>If ... Then ... ElseIf ... Else ... End If</code></strong> : structure conditionnelle à branchements multiples.</li><li><strong><code>Select Case ... End Select</code></strong> : aiguillage multi-cas utilisant <code>To</code> (intervalle), <code>Is</code> (comparaison) et <code>Case Else</code>.</li><li><strong><code>For ... To ... [Step pas] ... Next</code></strong> : boucle à compteur automatique (croissant ou décroissant avec <code>Step -1</code>).</li><li><strong><code>For Each ... In ... Next</code></strong> : boucle parcourant tous les objets d’une collection (cellules, feuilles, classeurs).</li><li><strong><code>Do While ... Loop</code></strong> : boucle répétée <em>tant que</em> la condition est vraie.</li><li><strong><code>Do Until ... Loop</code></strong> : boucle répétée <em>jusqu’à ce que</em> la condition devienne vraie.</li><li><strong><code>Exit For</code> / <code>Exit Do</code></strong> : sortie anticipée immédiate de la boucle en cours.</li><li><strong>Boucle infinie</strong> : erreur logique où la condition d’arrêt d’un <code>Do...Loop</code> n’est jamais atteinte (oubli de <code>i = i + 1</code>).</li>
+    </ol>
+    <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
+       <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>9. Test de maîtrise</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
+    <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
+    <div class="bands">
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>reprenez la syntaxe de If...End If, Select Case et For...Next.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>vérifiez la différence entre Do While et Do Until ainsi que l’usage de Step -1.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>bon niveau, S’entraîner sur les parcours de tableaux des études de cas.</div>
+      <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>maîtrise complète des structures conditionnelles et des boucles VBA.</div>
+    </div>
+    <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
+  </div>
+
+</section>
+
+  <div class="chnav">
+    <a class="btn" href="../sommaire.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-left"></use></svg> Sommaire</a>
+    <a class="btn btn--primary" href="chapitre6.html">Chapitre 6 — Boîtes de dialogue (MsgBox, InputBox), Gestion des erreurs (On Error GoTo) et Formulaires (UserForm) <svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-arrow-right"></use></svg></a>
+  </div>
+
+  <p class="disclaimer">Objectif de maîtrise 19/20 — votre note réelle dépend aussi de votre travail.
+  Sources : Programmation VBA sous Excel (Dr TCHAZINO Tchamiè, 47 pages, support1.pdf — programme officiel B1 IT).</p>
+</main>
+
+<footer class="cfoot">
+  <div class="cfoot__in">
+    <a class="cfoot__brand" href="/">cours.interactifs</a>
+    <p class="cfoot__copy">© 2025-2026 Cours Interactifs — RD4SLOQ · VB Excel B1</p>
+    <nav class="cfoot__links" aria-label="Liens utiles">
+      <a href="/">Tous les cours</a>
+      <a href="/epreuves/index.html">Épreuves</a>
+      <a href="/preparation-web/index.html">Atelier Web</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../assets/js/cours.js"></script>
+<script src="/assets/vendor/katex/katex.min.js" defer></script>
+<script src="/assets/vendor/katex/auto-render.min.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    function initMath() {
+      if (typeof renderMathInElement === "function") {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
+          throwOnError: false
+        });
+      } else {
+        setTimeout(initMath, 50);
+      }
+    }
+    initMath();
+  });
+</script>
+<script src="/assets/js/code-lab.js" defer></script>
+</body>
+</html>

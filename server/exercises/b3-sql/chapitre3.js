@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Calculez cout_seq_scan pour chaque table de pg_class_sim\nSELECT relname FROM pg_class_sim;",
     "hints": [
       "Appliquez ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan.",
-      "Triez par cout_seq_scan ASC."
+      "Triez par cout_seq_scan ASC.",
+      "1. Appliquer la formule pages × 1.0 + lignes × 0.01 à chaque table. 2. Arrondir le résultat à 2 décimales. 3. Ordonner par coût croissant."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "+-----------+---------------+\n| relname   | cout_seq_scan |\n+-----------+---------------+\n| audit_log | 1800          |\n+-----------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;"
+    "solution": "SELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;",
+    "takeaway": "L’optimiseur par coûts (CBO) estime le parcours séquentiel en sommant pages lues multipliées par seq_page_cost et coût CPU par tuple."
   },
   {
     "id": "sql3-c3-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Calculez datname et hit_ratio_pct\nSELECT datname FROM pg_stat_database_sim;",
     "hints": [
       "Multipliez par 100.0 (flottant) avant de diviser par (blks_hit + blks_read).",
-      "Enveloppez dans ROUND(..., 2) AS hit_ratio_pct."
+      "Enveloppez dans ROUND(..., 2) AS hit_ratio_pct.",
+      "1. Diviser les lectures en cache par le total des accès, puis multiplier par 100. 2. Arrondir à 2 décimales. 3. Ordonner par ratio décroissant."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| test_db | 50            |\n+---------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "SELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;"
+    "solution": "SELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;",
+    "takeaway": "Un Cache Hit Ratio proche de 99 % indique que l’ensemble de travail chaud tient dans les shared_buffers sans saturer les disques."
   },
   {
     "id": "sql3-c3-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Créez l’index couvrant idx_cmd_annee_montant puis calculez SUM(montant) AS total_2025\nSELECT SUM(montant) FROM commandes;",
     "hints": [
       "Créez d’abord CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);",
-      "Puis exécutez SELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
+      "Puis exécutez SELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;",
+      "1. Créer l’index couvrant sur (annee, montant) dans cet ordre. 2. Filtrer les lignes sur l’année 2025. 3. Agréger la somme des montants."
     ],
     "examples": [
       {
@@ -121,6 +126,7 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)\n\n+---------------+---------+\n| ordre_index   | partiel |\n+---------------+---------+\n| annee,montant | 0       |\n+---------------+---------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
+    "solution": "CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;",
+    "takeaway": "Éviter d’envelopper une colonne indexée dans une fonction rend le prédicat SARGable et permet un Index Scan voire Index-Only Scan."
   }
 ];

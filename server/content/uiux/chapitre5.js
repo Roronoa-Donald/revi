@@ -239,78 +239,78 @@ module.exports = {
     {
       stem: 'Dans un système de grille responsive standardisé, combien de colonnes utilise-t-on habituellement sur un viewport mobile inférieur à 640 px ?',
       opts: [
-        '12 colonnes très serrées',
         '4 colonnes avec gouttières de 16 px',
+        '12 colonnes très serrées',
         'Aucune colonne, le CSS l’interdit',
         '24 colonnes'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Sur écran mobile étroit (&lt; 640 px), la grille standard se compose de 4 colonnes, ce qui permet d’agencer des cartes pleine largeur ou en demi-largeur proprement.'
     },
     {
       stem: 'Selon les travaux de Steven Hoober sur la Thumb Zone, où se situe la «Zone Naturelle» d’un smartphone tenu à une seule main ?',
       opts: [
         'Tout en haut à gauche de l’écran',
-        'Dans le tiers inférieur et central de l’écran (proche de la base du pouce)',
+        'En plein centre géométrique exact à 1 pixel près',
         'Uniquement sur la bordure droite du téléphone',
-        'En plein centre géométrique exact à 1 pixel près'
+        'Dans le tiers inférieur et central de l’écran (proche de la base du pouce)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le pouce pivote autour de son articulation carpienne : la zone la plus naturelle d’accès sans effort s’étend dans le bas de l’écran, d’où l’efficacité des barres de navigation inférieures.'
     },
     {
       stem: 'Que prévoit le critère WCAG 2.5.5 pour la taille d’une cible, en l’absence d’exception ?',
       opts: [
-        '12 x 12 px',
-        'Un carré de 44 x 44 pixels CSS dans la cible',
-        '100 x 100 px obligatoirement',
-        '8 x 8 px'
+        "Un carré de 12 x 12 pixels CSS au minimum",
+        "Une zone de 100 x 100 pixels CSS obligatoirement",
+        "Un carré de 44 x 44 pixels CSS dans la cible",
+        "Un carré de 8 x 8 pixels CSS, comme sur mobile"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'WCAG 2.5.5 est un critère AAA prévoyant des exceptions ; Android recommande 48 x 48 dp, dans une unité différente.'
     },
     {
       stem: 'Pourquoi est-il fortement déconseillé de placer le menu de navigation principal (burger) en haut à gauche sur un grand smartphone ?',
       opts: [
-        'Parce que le coin supérieur gauche est en Zone Difficile pour un utilisateur tenant son téléphone de la main droite',
-        'Parce que le navigateur Safari masque systématiquement ce coin',
-        'Parce que cela consomme trop de batterie',
-        'Parce que le format SVG n’est pas supporté à cet endroit'
+        "Parce que le navigateur Safari masque systématiquement ce coin de l’écran sur les iPhone récents",
+        "Parce que le coin supérieur gauche est en Zone Difficile pour un utilisateur tenant son téléphone de la main droite",
+        "Parce que l’affichage d’un menu à cet endroit consomme trop de batterie du terminal",
+        "Parce que le format SVG des icônes n’est pas supporté dans cette zone d’affichage"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Pour un droitier manipulant son téléphone à une main, le coin haut gauche exige une extension pénible du pouce ou l’emploi de la seconde main, nuisant à l’ergonomie.'
     },
     {
       stem: 'Dans un modèle visant une cible de 48 x 48 pixels CSS, comment agrandir la zone interactive d’une icône de 24 x 24 pixels CSS ?',
       opts: [
-        'En quadruplant la résolution de son fichier PNG',
-        'En lui appliquant une zone de clic invisible élargie (padding de 12 px ou pseudo-élément transparent) atteignant 48 x 48 px',
-        'C’est impossible, l’icône doit obligatoirement être agrandie visuellement',
-        'En forçant l’utilisateur à double-cliquer'
+        "En lui appliquant une zone de clic invisible élargie (padding de 12 px ou pseudo-élément transparent) atteignant 48 x 48 px",
+        "En quadruplant la résolution de son fichier PNG pour que le graphisme occupe toute la surface",
+        "C’est impossible, l’icône doit obligatoirement être agrandie visuellement jusqu’à 48 pixels",
+        "En forçant l’utilisateur à effectuer un double-clic prolongé pour valider la sélection de l’icône"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La cible tactile (touch target) est la surface interactive cliquable, qui peut être plus large que le graphisme visible grâce à un padding adapté.'
     },
     {
       stem: 'Pourquoi applique-t-on un «max-width» sur le conteneur principal lors de l’affichage sur un écran Ultra-Wide (ex: 2560 px) ?',
       opts: [
-        'Pour éviter que les lignes de texte ne deviennent trop longues (au-delà de 75-80 caractères), ce qui rendrait la lecture pénible',
-        'Pour réduire la facture d’électricité du moniteur',
-        'Parce que le langage HTML ne supporte pas les largeurs supérieures à 1920 px',
-        'Pour masquer les bords de l’image de fond'
+        "Pour réduire la facture d’électricité du moniteur lors des longues sessions de travail nocturnes",
+        "Parce que le langage HTML ne supporte tout simplement pas les largeurs supérieures à 1920 pixels",
+        "Pour masquer proprement les bords de l’image de fond qui rognent sur le contenu principal",
+        "Pour éviter que les lignes de texte ne deviennent trop longues (au-delà de 75-80 caractères), ce qui rendrait la lecture pénible"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Si une ligne de texte s’étale sur 2000 pixels, l’œil humain perd le fil à chaque retour à la ligne. Un max-width (ex: 1280 px centré) préserve la lisibilité typographique.'
     },
     {
       stem: 'Quel problème d’interaction critique survient fréquemment sur mobile lors de la saisie d’un formulaire si la vue n’est pas optimisée ?',
       opts: [
-        'La batterie se décharge instantanément',
-        'Le clavier virtuel surgissant du bas de l’écran masque le champ de saisie actif ou le bouton de soumission',
-        'Le processeur du téléphone redémarre systématiquement',
-        'L’écran passe automatiquement en noir et blanc'
+        "La batterie du téléphone se décharge instantanément à l’ouverture du formulaire",
+        "Le processeur du téléphone redémarre systématiquement à chaque changement de champ",
+        "Le clavier virtuel surgissant du bas de l’écran masque le champ de saisie actif ou le bouton de soumission",
+        "L’écran passe automatiquement en noir et blanc pour économiser l’énergie"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le clavier virtuel occupe environ 40 à 50 % de la hauteur du viewport : l’interface doit scroller automatiquement pour maintenir le champ actif et le bouton de validation visibles.'
     }
   ],

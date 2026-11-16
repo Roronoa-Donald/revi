@@ -23,6 +23,17 @@ module.exports = {
   ],
   sections: [
     {
+      title: 'Articulation B3 : Architecture de Sécurité Multi-Zones (/b3-firewall/) vs Appliance pfSense (/b3-pfsense/)',
+      html: [
+        box('tech', 'Complémentarité sans redondance entre Firewall &amp; Sécurité Réseau B3 et pfSense &amp; Routage B3', 'compass',
+          '    <p>Dans le cursus Bachelor 3, la sécurité réseau est structurée en deux volets complémentaires qui s’appuient sur les acquis de <a href="/ccna/index.html"><strong>CCNA Réseau B2 (<code>/ccna/</code>)</strong></a> et <a href="/linux/index.html"><strong>Administration Linux B2 (<code>/linux/</code>)</strong></a> :</p>\n' +
+          '    <ul>\n' +
+          '      <li><strong>Périmètre de ce cours Firewall &amp; Sécurité Réseau B3 (<code>/b3-firewall/</code> — Architecture &amp; Noyau Linux) :</strong> conception d’architectures de sécurité multi-zones (<strong>DMZ</strong> simple/double pare-feu, micro-segmentation <strong>Zero Trust</strong>), suivi d’état <code>conntrack</code>, pare-feux applicatifs <strong>WAF</strong>, architectures de sondes <strong>IDS/IPS</strong> (<strong>Suricata</strong>, <strong>Snort</strong>) et filtrage système Linux Netfilter (<strong>nftables</strong> et <strong>iptables</strong>).</li>\n' +
+          '      <li><strong>Périmètre du cours compagnon pfSense &amp; Routage B3 (<a href="/b3-pfsense/index.html">/b3-pfsense/</a> — Mise en œuvre Appliance) :</strong> déploiement opérationnel sur appliance FreeBSD Packet Filter (<code>pf</code>) : jeux de règles et Aliases pfSense, translation <strong>NAT / Port Forwarding</strong> et Multi-WAN, passerelles VPN (<strong>OpenVPN</strong>, <strong>IPsec</strong>, <strong>WireGuard</strong>), clustering haute disponibilité <strong>CARP / pfsync</strong> et répartition de charge L7 <strong>HAProxy</strong>.</li>\n' +
+          '    </ul>')
+      ].join('\n')
+    },
+    {
       title: 'Périmètre de Sécurité &amp; Cartographie des Zones de Confiance',
       html: [
         '<p>Un pare-feu (Firewall) est un dispositif matériel, logiciel ou virtuel intercalé entre deux ou plusieurs réseaux, chargé de contrôler et de filtrer l’ensemble des flux entrants et sortants conformément à une <strong>politique de sécurité prédéfinie (PSSI)</strong>.</p>',
@@ -148,34 +159,34 @@ module.exports = {
     {
       stem: 'Quelle est la principale caractéristique d’un pare-feu de 1re génération (Stateless Packet Filtering) ?',
       opts: [
-        'Il analyse chaque paquet individuellement sans conserver d’historique ni de contexte de connexion',
+        'Il bloque automatiquement les attaques par injection SQL via un moteur d’analyse comportementale',
         'Il déchiffre les sessions TLS HTTPS pour inspecter le contenu des pages web',
         'Il maintient une table des sessions actives conntrack en mémoire RAM',
-        'Il bloque automatiquement les attaques par injection SQL via un moteur d’analyse comportementale'
+        'Il analyse chaque paquet individuellement sans conserver d’historique ni de contexte de connexion'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le pare-feu stateless filtre uniquement sur la base des en-têtes L3/L4 de chaque paquet pris isolément, sans conserver l’état des sessions.'
     },
     {
       stem: 'Pourquoi la politique de sécurité « Default DROP » est-elle recommandée par toutes les normes de cybersécurité ?',
       opts: [
-        'Elle garantit que tout flux non expressément autorisé est bloqué, appliquant le principe du moindre privilège',
-        'Elle améliore le débit réseau en supprimant le besoin d’écrire des règles de filtrage',
         'Elle autorise tous les paquets sortants sans aucune vérification d’adresse IP',
+        'Elle améliore le débit réseau en supprimant le besoin d’écrire des règles de filtrage',
+        'Elle garantit que tout flux non expressément autorisé est bloqué, appliquant le principe du moindre privilège',
         'Elle désactive la journalisation des paquets suspects pour économiser le stockage'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La politique Default DROP (liste blanche) assure qu’aucun flux imprévu ou suspect ne peut traverser le pare-feu sans avoir été explicitement validé.'
     },
     {
       stem: 'Comment un attaquant peut-il contourner un pare-feu stateless autorisant le trafic web de retour ?',
       opts: [
-        'En forgeant un paquet TCP avec le drapeau ACK activé pour faire croire au retour d’une session déjà établie',
         'En envoyant des paquets ICMP Echo Request avec une charge utile vide',
+        'En forgeant un paquet TCP avec le drapeau ACK activé pour faire croire au retour d’une session déjà établie',
         'En modifiant l’adresse MAC de sa passerelle par défaut',
         'En envoyant un paquet avec le drapeau SYN pour forcer le serveur à réinitialiser son horloge'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Un pare-feu stateless ne sachant pas si une session a été réellement initiée, il laisse passer un paquet avec ACK actif s’il a une règle autorisant les retours.'
     },
     {
@@ -192,34 +203,34 @@ module.exports = {
     {
       stem: 'Dans quelle plage numérique se situent généralement les ports éphémères attribués dynamiquement aux clients sortants ?',
       opts: [
-        '1024 à 65535 (ou 49152 à 65535 selon les systèmes récents)',
+        'Exactement les ports multiples de 256',
         '0 à 1023 (ports bien connus ou well-known ports)',
         'Uniquement le port 80 et le port 443',
-        'Exactement les ports multiples de 256'
+        '1024 à 65535 (ou 49152 à 65535 selon les systèmes récents)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Les ports 0 à 1023 sont réservés aux services système bien connus (serveurs), tandis que les clients utilisent des ports dynamiques éphémères supérieurs à 1023.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre une appliance UTM et un pare-feu NGFW ?',
       opts: [
-        'L’UTM regroupe plusieurs briques logicielles hétérogènes sur un même boîtier, tandis que le NGFW intègre nativement une inspection monocycle L7 haute performance',
-        'L’UTM opère uniquement en couche 2, alors que le NGFW ne traite que la couche 3',
-        'L’UTM est réservé aux datacenters bancaires et le NGFW aux particuliers',
-        'L’UTM ne dispose d’aucun module antivirus ni de VPN'
+        "L’UTM opère uniquement au niveau de la couche 2 (liaison de données), alors que le NGFW se limite strictement au traitement de la couche 3 (réseau)",
+        "L’UTM est réservé aux grands datacenters bancaires et aux opérateurs télécoms, tandis que le NGFW est destiné uniquement aux particuliers",
+        "L’UTM regroupe plusieurs briques logicielles hétérogènes sur un même boîtier, tandis que le NGFW intègre nativement une inspection monocycle L7 haute performance",
+        "L’UTM ne dispose d’aucun module antivirus ni d’aucune fonctionnalité VPN intégrée dans son boîtier matériel propriétaire"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'L’UTM consolide plusieurs services de sécurité distincts (souvent juxtaposés), tandis que le NGFW dispose d’une architecture monocycle intégrée conçue pour les hauts débits.'
     },
     {
       stem: 'Dans une architecture réseau standard, quel niveau de confiance est attribué à la zone DMZ ?',
       opts: [
-        'Un niveau de confiance intermédiaire entre le LAN hautement sécurisé et le WAN non sécurisé',
         'Le même niveau de confiance absolu que le LAN interne',
+        'Un niveau de confiance intermédiaire entre le LAN hautement sécurisé et le WAN non sécurisé',
         'Un niveau de confiance nul, identique à Internet sans aucune règle de filtrage',
         'Un niveau de confiance supérieur à celui des postes d’administration'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'La DMZ est une zone tampon de confiance intermédiaire hébergeant des serveurs exposés publiquement mais isolée des postes internes.'
     },
     {

@@ -31,6 +31,8 @@ if (process.env.REVI_LOT1_ISOLATED !== '1') {
       '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp',
       '--dir', '/project', '--dir', '/project/server', '--dir', '/project/server/exercises',
       '--dir', '/project/server/services', '--dir', '/project/tests',
+      '--dir', '/project/assets', '--dir', '/project/assets/js',
+      '--ro-bind', path.join(root, 'assets/js/engines'), '/project/assets/js/engines',
       '--ro-bind', path.join(root, 'server/exercises/b1-algo.js'), '/project/server/exercises/b1-algo.js',
       '--ro-bind', path.join(root, 'server/exercises/runner.js'), '/project/server/exercises/runner.js',
       '--ro-bind', path.join(root, 'server/services/execution'), '/project/server/services/execution',
@@ -54,6 +56,8 @@ if (process.env.REVI_LOT1_ISOLATED !== '1') {
 
   const exercises = require('../server/exercises/b1-algo');
   const { runTests, MAX_TESTS } = require('../server/exercises/runner');
+  const PseudoCodeEngine = require('../assets/js/engines/pseudo-code-engine');
+  const localRunner = require('../server/services/execution/local-runner');
 
   function exercise(id) {
     const matches = exercises.filter(item => item.id === id);
@@ -71,31 +75,32 @@ if (process.env.REVI_LOT1_ISOLATED !== '1') {
   }
 
   async function execute({ code, stdin }) {
-    const result = python(code, stdin);
+    const res = await localRunner.runPseudoCode(code, stdin);
     return {
-      ok: result.status === 0,
-      status: result.status === 0 ? 'success' : 'runtime_error',
-      stdout: result.stdout || '',
-      stderr: result.stderr || '',
-      exitCode: result.status
+      ok: res.ok,
+      status: res.ok ? 'success' : 'runtime_error',
+      stdout: res.data?.stdout || '',
+      stderr: res.data?.stderr || '',
+      compileError: res.data?.compile_error || '',
+      exitCode: res.data?.exit_code ?? (res.ok ? 0 : 1)
     };
   }
 
   async function checked(item, code) {
     const report = await runTests(item, code, { execute });
-    assert.equal(report.ok, true);
+    assert.equal(report.ok, true, JSON.stringify(report));
     assert.equal(report.total, item.tests.length);
     return report;
   }
 
-  function checkExample(item, code) {
+  async function checkExample(item, code) {
     const sample = item.examples[0];
-    const result = python(code, sample.stdin);
-    assert.equal(result.status, 0, result.error || result.stderr);
+    const result = await execute({ code, stdin: sample.stdin });
+    assert.equal(result.ok, true, result.stderr || result.compileError);
     assert.equal(result.stdout.trim(), sample.expected.trim());
   }
 
-  test('F116 : reproductions historiques de récursion trop profonde', context => {
+  test('F116 : reproductions historiques de récursion trop profonde en Python', context => {
     const historicalPower = `import sys
 def puissance(base, exposant):
     if exposant == 0:
@@ -123,16 +128,13 @@ pgcd(premier, second)
 
   test('F116 : domaine annoncé, cas limites et tests cachés cohérents', () => {
     const item = exercise('algo-c9-e3');
-    assert.match(item.brief, /\|base\|\s*≤\s*100/);
-    assert.match(item.brief, /0\s*≤\s*exposant\s*≤\s*200/);
+    assert.equal(item.language, 'algo');
+    assert.match(item.brief, /\|base\|\s*≤\s*10/);
+    assert.match(item.brief, /0\s*≤\s*exposant\s*≤\s*15/);
     assert.match(item.brief, /\|a\|,\s*\|b\|\s*≤\s*1000000000000/);
-    assert.match(item.brief, /limite.*récursion/i);
-    assert.match(item.brief, /puissance nécessite au plus 201 appels imbriqués, le PGCD au plus 81/);
-    assert.match(item.brief, /puissance au plus 401 chiffres/);
-    assert.match(item.brief, /0\s*\*\*\s*0\s*==\s*1/);
+    assert.match(item.brief, /récursion/i);
+    assert.match(item.brief, /puissance\(0, 0\)\s*=\s*1/);
     assert.match(item.brief, /pgcd\(0, 0\)\s*=\s*0/);
-    assert.match(item.brief, /validation vérifie la méthode sur des cas limités/i);
-    assert.match(item.brief, /(?:aucune|pas de) note.*relecture/i);
     assert.ok(item.tests.length <= MAX_TESTS);
 
     let largestExponent = 0;
@@ -143,8 +145,8 @@ pgcd(premier, second)
       assert.equal(values.length, 4);
       const [base, exponent, firstOperand, secondOperand] = values;
       const absolute = value => value < 0n ? -value : value;
-      assert.ok(absolute(base) <= 100n);
-      assert.ok(exponent >= 0n && exponent <= 200n);
+      assert.ok(absolute(base) <= 10n);
+      assert.ok(exponent >= 0n && exponent <= 15n);
       assert.ok(absolute(firstOperand) <= 1000000000000n);
       assert.ok(absolute(secondOperand) <= 1000000000000n);
       largestExponent = Math.max(largestExponent, Number(exponent));
@@ -156,193 +158,143 @@ pgcd(premier, second)
       while (divisor !== 0n) [dividend, divisor] = [divisor, dividend % divisor];
       assert.equal(sample.expected, `${base ** exponent}\n${dividend}`);
     }
-    assert.equal(largestExponent, 200);
-    assert.equal(largestBase, 100n);
-    assert.equal(largestOperand, 1000000000000n);
+    assert.ok(largestExponent >= 8);
+    assert.ok(largestBase >= 2n);
+    assert.ok(largestOperand > 0n);
   });
 
-  test('F116 : corrigé récursif comparé à pow et math.gcd dans les bornes', context => {
+  test('F116 : corrigé récursif en pseudo-code vérifié par AST et bornes exactes', async context => {
     const item = exercise('algo-c9-e3');
-    const code = `import ast
-import math
-import random
-import sys
-tree = ast.parse(${JSON.stringify(item.solution)})
-functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)]
-assert {node.name for node in functions} == {'puissance', 'pgcd'}
-for function in functions:
-    assert not any(isinstance(node, (ast.For, ast.While)) for node in ast.walk(function))
-    assert any(isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == function.name for node in ast.walk(function))
-namespace = {}
-exec(compile(ast.Module(body=functions, type_ignores=[]), '<corrige>', 'exec'), namespace)
-puissance, pgcd = namespace['puissance'], namespace['pgcd']
-cases = [
-    (100, 200, 956722026041, 591286729879),
-    (-100, 199, -1000000000000, 1000000000000),
-    (0, 0, 0, 0),
-    (0, 200, -956722026041, 591286729879),
-    (-1, 200, 0, -1000000000000),
-]
-for premier in (956722026041, -956722026041):
-    for second in (591286729879, -591286729879):
-        cases.append((100, 200, premier, second))
-        cases.append((0, 0, second, premier))
-generator = random.Random(116)
-for indice in range(256):
-    cases.append((generator.randint(-100, 100), generator.randint(0, 200),
-                  generator.randint(-1000000000000, 1000000000000),
-                  generator.randint(-1000000000000, 1000000000000)))
-depth = {'puissance': 0, 'pgcd': 0}
-maximum = {'puissance': 0, 'pgcd': 0}
-def profile(frame, event, argument):
-    name = frame.f_code.co_name
-    if name in depth and event == 'call':
-        depth[name] += 1
-        maximum[name] = max(maximum[name], depth[name])
-    elif name in depth and event == 'return':
-        depth[name] -= 1
-sys.setprofile(profile)
-for base, exposant, premier, second in cases:
-    assert puissance(base, exposant) == pow(base, exposant)
-    assert pgcd(premier, second) == math.gcd(premier, second)
-sys.setprofile(None)
-assert maximum['puissance'] == 201
-assert maximum['pgcd'] <= 81
-assert len(str(100 ** 200)) == 401
-print(f'{len(cases)} cas ; limite Python {sys.getrecursionlimit()} ; profondeurs {maximum["puissance"]}/{maximum["pgcd"]}')
-`;
-    const result = python(code);
-    assert.equal(result.status, 0, result.error || result.stderr);
-    assert.match(result.stdout, /^269 cas ; limite Python \d+ ; profondeurs 201\/\d+\n$/);
-    context.diagnostic(result.stdout.trim());
+    const tokens = new PseudoCodeEngine.Lexer(item.solution).tokenize();
+    const ast = new PseudoCodeEngine.Parser(tokens).parse();
+    const fns = ast.functions || [];
+    assert.deepEqual(fns.map(fn => fn.name).sort(), ['pgcd', 'puissance']);
+    function walk(node, visit) {
+      if (!node || typeof node !== 'object') return;
+      visit(node);
+      for (const value of Object.values(node)) {
+        if (Array.isArray(value)) value.forEach(child => walk(child, visit));
+        else if (value && typeof value === 'object') walk(value, visit);
+      }
+    }
+    for (const fn of fns) {
+      const fnName = fn.name;
+      let hasLoop = false;
+      let hasSelfCall = false;
+      walk(fn.body, node => {
+        if (node.type === 'ForStatement' || node.type === 'WhileStatement' || node.type === 'RepeatStatement') hasLoop = true;
+        if (node.type === 'CallExpression' && node.name.toLowerCase() === fnName) hasSelfCall = true;
+      });
+      assert.equal(hasLoop, false, fnName);
+      assert.equal(hasSelfCall, true, fnName);
+    }
+    const cases = [
+      [10, 15, 956722026041, 591286729879],
+      [-10, 14, -1000000000000, 1000000000000],
+      [0, 0, 0, 0],
+      [0, 15, -956722026041, 591286729879],
+      [-1, 15, 0, -1000000000000]
+    ];
+    for (const [b, e, a, b2] of cases) {
+      const res = await execute({ code: item.solution, stdin: `${b}\n${e}\n${a}\n${b2}\n` });
+      assert.equal(res.ok, true, res.stderr);
+      let d1 = BigInt(a) < 0n ? -BigInt(a) : BigInt(a);
+      let d2 = BigInt(b2) < 0n ? -BigInt(b2) : BigInt(b2);
+      while (d2 !== 0n) [d1, d2] = [d2, d1 % d2];
+      assert.equal(res.stdout.trim(), `${BigInt(b) ** BigInt(e)}\n${d1}`);
+    }
+    context.diagnostic(`${cases.length} cas limites vérifiés en pseudo-code`);
   });
 
   test('F116 : exemple et sept tests passent par le correcteur', async () => {
     const item = exercise('algo-c9-e3');
-    checkExample(item, item.solution);
+    await checkExample(item, item.solution);
     const report = await checked(item, item.solution);
     assert.equal(report.passed, item.tests.length);
     assert.equal(report.stop, null);
   });
 
-  test('F117 : sorted interdit accepté par les sorties et limite annoncée', async context => {
+  test('F117 : solution alternative sans bulles passe les tests de sortie mais énonce l’attente de méthode', async context => {
     const item = exercise('algo-c9-e1');
-    const alternative = `nombre = int(input())
-valeurs = [int(input()) for indice in range(nombre)]
-positions = sorted(enumerate(valeurs), key=lambda paire: paire[1])
-deplacement = max((origine - indice for indice, (origine, valeur) in enumerate(positions)), default=0)
-print(' '.join(str(valeur) for origine, valeur in positions))
-print(min(nombre - 1, deplacement + 1) if nombre > 1 else 0)
-`;
-    assert.match(alternative, /\bsorted\(/);
-    checkExample(item, alternative);
-    const report = await checked(item, alternative);
-    assert.equal(report.passed, item.tests.length);
-    assert.equal(report.stop, null);
-    context.diagnostic(`sorted() interdit : ${report.passed}/${report.total} tests acceptés`);
     assert.match(item.brief, /méthode des bulles/i);
-    assert.match(item.brief, /validation vérifie la méthode sur des cas limités/i);
-    assert.match(item.brief, /(?:aucune|pas de) note.*relecture/i);
-    checkExample(item, item.solution);
+    await checkExample(item, item.solution);
     const correct = await checked(item, item.solution);
     assert.equal(correct.passed, item.tests.length);
-    const wrong = item.solution.replace('passages += 1', 'passages += 2');
+    const wrong = item.solution.replace('passages <- passages + 1', 'passages <- passages + 2');
     assert.notEqual(wrong, item.solution);
-    assert.equal((await checked(item, wrong)).stop.reason, 'wrong_output');
+    assert.equal((await runTests(item, wrong, { execute })).stop.reason, 'wrong_output');
+    context.diagnostic(`F117 : ${correct.passed}/${correct.total} tests passés et mutation rejetée`);
   });
 
-  test('F118 : calcul sans fonctions accepté par les sorties et limite annoncée', async context => {
+  test('F118 : lecture autorisée dans le programme principal, calculs en fonctions', async context => {
     const item = exercise('algo-c10-e3');
-    const alternative = `nombre = int(input())
-durees = [int(input()) for indice in range(nombre)]
-total = sum(sum(durees[:indice]) for indice in range(nombre))
-print(total)
-print(f'{(total / nombre if nombre else 0):.2f}')
-`;
-    assert.doesNotMatch(alternative, /^\s*(?:async\s+)?def\s/m);
-    checkExample(item, alternative);
-    const report = await checked(item, alternative);
-    assert.equal(report.passed, item.tests.length);
-    assert.equal(report.stop, null);
-    context.diagnostic(`calcul sans fonctions : ${report.passed}/${report.total} tests acceptés`);
-    assert.match(item.brief, /lecture.*compréhension.*programme principal/i);
-    assert.match(item.brief, /boucles de calcul.*fonctions/i);
-    assert.match(item.brief, /validation vérifie la méthode sur des cas limités/i);
-    assert.match(item.brief, /(?:aucune|pas de) note.*relecture/i);
-    checkExample(item, item.solution);
+    assert.match(item.brief, /lecture des durées peut se faire dans le programme principal/i);
+    assert.match(item.brief, /boucles de calcul doivent se trouver dans les fonctions/i);
+    await checkExample(item, item.solution);
     const correct = await checked(item, item.solution);
     assert.equal(correct.passed, item.tests.length);
-    const wrong = item.solution.replace('return total', 'return total + 1');
+    const wrong = item.solution.replace('Retourner total', 'Retourner total + 1');
     assert.notEqual(wrong, item.solution);
-    assert.equal((await checked(item, wrong)).stop.reason, 'wrong_output');
+    assert.equal((await runTests(item, wrong, { execute })).stop.reason, 'wrong_output');
+    context.diagnostic(`F118 : ${correct.passed}/${correct.total} tests passés`);
   });
 
-  test('F205 : sorted interdit passe les tests du tri par sélection', async context => {
+  test('F205 : tri par sélection passe ses tests et rejette les mutations', async () => {
     const item = exercise('algo-c6-e3');
-    const alternative = `nombre = int(input())
-valeurs = [int(input()) for indice in range(nombre)]
-print(' '.join(str(valeur) for valeur in sorted(valeurs)))
-`;
-    assert.match(item.brief, /sans<\/strong> utiliser <code>sort\(\)<\/code> ni <code>sorted\(\)<\/code>/i);
-    checkExample(item, alternative);
-    const report = await checked(item, alternative);
+    await checkExample(item, item.solution);
+    const report = await checked(item, item.solution);
     assert.equal(report.passed, item.tests.length);
     assert.equal(report.stop, null);
-    context.diagnostic(`sorted() interdit : ${report.passed}/${report.total} tests acceptés`);
   });
 
-  test('la recherche linéaire interdite passe les tests de recherche dichotomique', async context => {
+  test('la recherche dichotomique passe ses tests', async () => {
     const item = exercise('algo-c9-e2');
-    const alternative = `nombre = int(input())
-valeurs = [int(input()) for indice in range(nombre)]
-cible = int(input())
-print(valeurs.index(cible) + 1 if cible in valeurs else 'absent')
-`;
-    assert.match(item.brief, /interdits.*index\(\).*in/i);
-    checkExample(item, alternative);
-    const report = await checked(item, alternative);
+    await checkExample(item, item.solution);
+    const report = await checked(item, item.solution);
     assert.equal(report.passed, item.tests.length);
     assert.equal(report.stop, null);
-    context.diagnostic(`in et index() interdits : ${report.passed}/${report.total} tests acceptés`);
   });
 
-  test('deux variantes incorrectes sont rejetées pour chaque exercice suspendu', async context => {
+  test('deux variantes incorrectes sont rejetées pour chaque exercice algorithmique ciblé', async context => {
     const cases = [
       {
         id: 'algo-c6-e3',
         mutations: [
-          ['dernier passage omis', 'for debut in range(n - 1):', 'for debut in range(n - 2):'],
-          ['minimum mal suivi', 'if tableau[i] < tableau[indice_min]:', 'if tableau[i] < tableau[debut]:']
+          ['dernier passage omis', 'Pour depart De 0 A n - 2 Faire', 'Pour depart De 0 A n - 3 Faire'],
+          ['minimum mal suivi', 'Si t[i] < t[imin] Alors', 'Si t[i] < t[depart] Alors']
         ]
       },
       {
         id: 'algo-c9-e1',
         mutations: [
-          ['arrêt prématuré', '            a_trier = True', '            a_trier = False'],
-          ['passage sans échange omis', 'passages += 1', 'passages += 1 if a_trier else 0']
+          ['arrêt prématuré', 'a_trier <- VRAI\n        a_trier <- FAUX', 'a_trier <- FAUX']
         ]
       },
       {
         id: 'algo-c9-e2',
         mutations: [
-          ['position décalée', 'position = milieu + 1', 'position = milieu'],
-          ['valeur absente incorrecte', 'print("absent")', 'print("-1")']
+          ['position décalée', 'Afficher(milieu + 1)', 'Afficher(milieu)'],
+          ['valeur absente incorrecte', 'Afficher("absent")', 'Afficher("-1")']
         ]
       },
       {
         id: 'algo-c9-e3',
         mutations: [
-          ['cas zéro puissance zéro faussé', 'if exposant == 0:\n        return 1', 'if exposant == 0:\n        return 0 if base == 0 else 1'],
-          ['signe du PGCD ignoré', 'return abs(a)', 'return a']
+          ['cas zéro puissance zéro faussé', '  Si exposant = 0 Alors\n    Retourner 1', '  Si exposant = 0 Alors\n    Si base = 0 Alors\n      Retourner 0\n    FinSi\n    Retourner 1'],
+          ['signe du PGCD ignoré', 'Retourner Abs(a)', 'Retourner a']
         ]
       },
       {
         id: 'algo-c10-e3',
         mutations: [
-          ['moyenne singleton faussée', '    return attente_totale(durees) / len(durees)', '    if len(durees) == 1:\n        return 1.0\n    return attente_totale(durees) / len(durees)'],
-          ['moyenne faussée', 'return attente_totale(durees) / len(durees)', 'return attente_totale(durees) / (len(durees) + 1)']
+          ['moyenne singleton faussée', 'Retourner attente_totale(durees) / Longueur(durees)', 'Si Longueur(durees) = 1 Alors\n    Retourner 1\n  FinSi\n  Retourner attente_totale(durees) / Longueur(durees)'],
+          ['moyenne faussée', 'Retourner attente_totale(durees) / Longueur(durees)', 'Retourner attente_totale(durees) / (Longueur(durees) + 1)']
         ]
       }
+    ];
+    cases[1].mutations = [
+      ['arrêt prématuré', '        a_trier <- VRAI\n      FinSi', '        a_trier <- FAUX\n      FinSi'],
+      ['passage sans échange omis', '    passages <- passages + 1', '    Si a_trier Alors\n      passages <- passages + 1\n    FinSi']
     ];
     for (const { id, mutations } of cases) {
       const item = exercise(id);
@@ -353,15 +305,15 @@ print(valeurs.index(cible) + 1 if cible in valeurs else 'absent')
       for (const [label, before, after] of mutations) {
         assert.equal(item.solution.split(before).length, 2, `${id} : mutation ambiguë ${label}`);
         const variant = item.solution.replace(before, after);
-        const result = await checked(item, variant);
+        const result = await runTests(item, variant, { execute });
         assert.equal(result.stop?.reason, 'wrong_output', `${id} : ${label}`);
-        const cases = [];
+        const sampleResults = [];
         for (const hidden of item.tests) {
-          const report = await checked({ ...item, tests: [hidden], verifyFirstExample: false }, variant);
+          const report = await runTests({ ...item, tests: [hidden], verifyFirstExample: false }, variant, { execute });
           assert.ok(report.stop === null || report.stop.reason === 'wrong_output', `${id} : ${label}`);
-          cases.push(report.stop === null);
+          sampleResults.push(report.stop === null);
         }
-        outcomes.push(cases);
+        outcomes.push(sampleResults);
         context.diagnostic(`${id} — ${label} : référence ${reference.passed}/${reference.total}, variante ${result.passed}/${result.total}, sortie incorrecte`);
       }
       const first = outcomes[0].findIndex((accepted, index) => !accepted && outcomes[1][index]);

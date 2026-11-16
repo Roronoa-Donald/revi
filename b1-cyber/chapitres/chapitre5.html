@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -158,34 +156,28 @@ SUCCES 03:03:00  45.61.10.9     ← la force brute a abouti</code></pre>
      data-exercise="cy-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="6&#10;CRITIQUE exfiltration&#10;INFO rotation_cles&#10;AVERTISSEMENT echecs_connexion&#10;CRITIQUE ransomware&#10;INFO sauvegarde&#10;AVERTISSEMENT trafic_sortant&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c5-e1) — Triage des alertes
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Hôtel Beauregard, journal de la nuit :&#10;23:01:10 échec — 88.12.44.9&#10;23:01:14 échec — 88.12.44.9&#10;23:01:19 échec — 88.12.44.9&#10;23:01:22 échec — 88.12.44.9&#10;23:01:25 échec — 88.12.44.9&#10;23:01:31 succès — 88.12.44.9&#10;23:15:00 échec — 192.168.0.10 (poste interne)&#10;&#10;1) Cinq échecs puis un succès depuis la même IP : force brute aboutie.&#10;2) Le poste interne 192.168.0.10 avec un seul échec : rien à déclarer.&#10;3) Le poste compromis est isolé du réseau, sans être éteint.">
+  <script type="text/plain" data-lab-starter># Exercice — Le journal de la nuit chez Transport Lemoine
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 1 : un nombre. Questions 3 : oui ou non. Questions 2 et 5 : deux mots.
 
-[Cas 1 — Une info, une critique]
-# Données : 2
-# Données : INFO rotation_cles
-# Données : CRITIQUE intrusion
+[Question 1 — Échecs accumulés par 45.61.10.9]
 A_COMPLETER
 
-[Cas 2 — Deux avertissements]
-# Données : 3
-# Données : AVERTISSEMENT trafic_sortant
-# Données : AVERTISSEMENT echecs_connexion
-# Données : INFO sauvegarde
+[Question 2 — Attaque révélée par la séquence]
 A_COMPLETER
 
-[Cas 3 — Cinq alertes]
-# Données : 5
-# Données : CRITIQUE ransomware
-# Données : CRITIQUE exfiltration
-# Données : INFO sauvegarde
-# Données : AVERTISSEMENT echecs_connexion
-# Données : INFO rotation_cles
+[Question 3 — Faut-il répondre au seul échec de 192.168.1.24 (oui/non)]
+A_COMPLETER
+
+[Question 4 — Éteindre ou isoler]
+A_COMPLETER
+
+[Question 5 — Ce que la coupure effacerait]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Triage des alertes</h3>
+    <h3 class="lab__title">Exercice 1 — Le journal de la nuit chez Transport Lemoine</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -194,23 +186,28 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="cy-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Router chaque alerte du SIEM vers le canal qui correspond à sa gravité.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « niveau evenement ». Route par ligne <code>niveau evenement : canal</code> : <code>pager</code> (CRITIQUE), <code>ticket</code> (AVERTISSEMENT), <code>journal</code> (INFO). Enfin <code>pager : a, ticket : b, journal : c</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Détecter une force brute dans un journal d'authentification et choisir le bon premier geste.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Transport Lemoine (60 chauffeurs) consulte le <strong>journal d'authentification</strong> de son serveur de gestion des tournées. Voici les lignes de la nuit du 3 au 4 :</p><table><tr><th>Heure</th><th>Événement</th><th>Adresse source</th></tr><tr><td>02:14:03</td><td>échec de connexion</td><td>45.61.10.9</td></tr><tr><td>02:14:07</td><td>échec de connexion</td><td>45.61.10.9</td></tr><tr><td>02:14:12</td><td>échec de connexion</td><td>45.61.10.9</td></tr><tr><td>02:14:15</td><td>connexion réussie</td><td>45.61.10.9</td></tr><tr><td>02:20:00</td><td>échec de connexion</td><td>192.168.1.24</td></tr></table><p>Le seuil d'alerte du cours est de <strong>3 échecs ou plus pour une même IP</strong> ; 192.168.1.24 est le poste interne du dispatcheur.</p><ol><li>Combien d'échecs de connexion l'adresse 45.61.10.9 a-t-elle accumulés avant de réussir ?</li><li>Quelle attaque la séquence « échecs en rafale puis un succès » révèle-t-elle ? Répondez par deux mots.</li><li>L'adresse 192.168.1.24 (un poste interne, un seul échec) doit-elle déclencher une réponse à incident ? Répondez par oui ou non.</li><li>Après confirmation de la compromission, faut-il éteindre la machine ou l'isoler du réseau ? Répondez par un seul mot.</li><li>Qu'est-ce que la coupure électrique effacerait, détruisant ainsi une preuve ? Répondez par deux mots.</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>6
-CRITIQUE exfiltration
-INFO rotation_cles
-AVERTISSEMENT echecs_connexion
-CRITIQUE ransomware
-INFO sauvegarde
-AVERTISSEMENT trafic_sortant
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Hôtel Beauregard, journal de la nuit :
+23:01:10 échec — 88.12.44.9
+23:01:14 échec — 88.12.44.9
+23:01:19 échec — 88.12.44.9
+23:01:22 échec — 88.12.44.9
+23:01:25 échec — 88.12.44.9
+23:01:31 succès — 88.12.44.9
+23:15:00 échec — 192.168.0.10 (poste interne)
+
+1) Cinq échecs puis un succès depuis la même IP : force brute aboutie.
+2) Le poste interne 192.168.0.10 avec un seul échec : rien à déclarer.
+3) Le poste compromis est isolé du réseau, sans être éteint.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case à trois branches exactes, un canal par niveau : l’aiguillage et le comptage vivent ensemble.</li>
-        <li>Le récapitulatif s’affiche une seule fois, après la boucle — jamais à l’intérieur.</li>
+        <li>Un journal se lit ligne par ligne : résultat (échec ou succès), horodatage, source — puis on corrèle les lignes voisines d'une même adresse.</li>
+        <li>Comptez les échecs de l'adresse externe et regardez ce qui les suit : la rafale d'échecs n'est pas l'incident, c'est le succès qui la suit qu'il faut qualifier.</li>
+        <li>Pour la réponse, la règle du cours est de stopper la propagation sans détruire les preuves — et la mémoire vive n'aime pas les coupures.</li>
       </ol>
     </details>
   </div>
@@ -220,34 +217,31 @@ AVERTISSEMENT trafic_sortant
      data-exercise="cy-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="6&#10;ECHEC 03:02:11 45.61.10.9&#10;ECHEC 03:02:15 45.61.10.9&#10;ECHEC 03:02:20 45.61.10.9&#10;SUCCES 03:03:00 45.61.10.9&#10;SUCCES 09:14:32 10.0.4.15&#10;ECHEC 09:15:01 10.0.4.15&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c5-e2) — Journal d’authentification
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'hebdomadaire Le Val libre subit un vol d'identifiants :&#10;1) L'équipe confirme le vol et son étendue : étape identifier.&#10;2) Le poste compromis est coupé du réseau : étape contenir.&#10;3) Le poste est réinstallé, les identifiants réinitialisés : étape éradiquer.&#10;4) Le service repart sous surveillance renforcée : étape rétablir.">
+  <script type="text/plain" data-lab-starter># Exercice — Le SIEM sonne à trois heures du matin
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : un seul mot (une étape). Questions 5 et 6 : un sigle ou un mot.
 
-[Cas 1 — Un seul échec]
-# Données : 2
-# Données : SUCCES 08:00:01 10.0.4.15
-# Données : ECHEC 08:00:10 10.0.4.15
+[Question 1 — Première étape de la réponse]
 A_COMPLETER
 
-[Cas 2 — Que des succès]
-# Données : 3
-# Données : SUCCES 08:00:01 10.0.4.15
-# Données : SUCCES 08:00:02 10.0.4.15
-# Données : SUCCES 08:00:03 10.0.4.15
+[Question 2 — Étape : couper le poste du réseau]
 A_COMPLETER
 
-[Cas 3 — Deux IP concurrentes]
-# Données : 5
-# Données : ECHEC 23:59:01 198.51.100.7
-# Données : SUCCES 23:59:30 198.51.100.7
-# Données : ECHEC 23:59:45 198.51.100.7
-# Données : ECHEC 23:59:50 198.51.100.7
-# Données : SUCCES 00:00:10 10.0.4.15
+[Question 3 — Étape : réinstaller et réinitialiser]
+A_COMPLETER
+
+[Question 4 — Étape : restaurer et remettre en service]
+A_COMPLETER
+
+[Question 5 — Sigle de l'outil qui corrèle les journaux]
+A_COMPLETER
+
+[Question 6 — Chaîne de ___ (forensique)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Journal d’authentification</h3>
+    <h3 class="lab__title">Exercice 2 — Le SIEM sonne à trois heures du matin</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -256,23 +250,21 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="cy-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Détecter une attaque par force brute dans un journal : compter les échecs par adresse IP.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « resultat heure ip » (resultat = SUCCES ou ECHEC). Il réIndiquez chaque ligne au format <code>heure ip : resultat</code>, puis deux lignes finales : <code>bilan : X echecs sur IP</code> (IP la plus fautive, échecs cumulés) et <code>alerte : oui</code> si elle en totalise 3 ou plus, <code>alerte : non</code> sinon. Sans aucun échec, l’IP rapportée est celle de la première ligne.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Ordonner les étapes de la réponse à incident (ICER) sur un cas concret et citer les acteurs de la détection.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La boutique en ligne Sablon vend des cosmétiques. À 3 h 02, son <strong>SIEM</strong> alerte : 300 échecs de connexion depuis une même adresse IP, puis un succès, puis la création d'un compte administrateur inconnu. L'équipe de garde applique la méthode du cours :</p><ol><li>Quelle est la première étape de la réponse à incident ? Répondez par un seul mot.</li><li>L'équipe coupe le poste compromis du réseau, sans l'éteindre : de quelle étape s'agit-il ?</li><li>Le re-imageage du poste et la réinitialisation de tous les identifiants volés : de quelle étape s'agit-il ?</li><li>La restauration depuis une sauvegarde saine, puis la remise en service sous surveillance renforcée : de quelle étape s'agit-il ?</li><li>Quel type d'outil a agrégé les journaux, les a normalisés et les a corrélés pour détecter l'attaque ? Répondez par son sigle de quatre lettres.</li><li>La forensique exige des images disque, des journaux horodatés et une chaîne de ___ : complétez (un mot).</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>6
-ECHEC 03:02:11 45.61.10.9
-ECHEC 03:02:15 45.61.10.9
-ECHEC 03:02:20 45.61.10.9
-SUCCES 03:03:00 45.61.10.9
-SUCCES 09:14:32 10.0.4.15
-ECHEC 09:15:01 10.0.4.15
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'hebdomadaire Le Val libre subit un vol d'identifiants :
+1) L'équipe confirme le vol et son étendue : étape identifier.
+2) Le poste compromis est coupé du réseau : étape contenir.
+3) Le poste est réinstallé, les identifiants réinitialisés : étape éradiquer.
+4) Le service repart sous surveillance renforcée : étape rétablir.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Comptabilisez le nombre d’échecs d’authentification pour chaque adresse IP source.</li>
-        <li>Identifiez l’adresse IP présentant le nombre maximal de tentatives infructueuses.</li>
+        <li>La réponse à incident suit un ordre qui ne se discute pas : identifier, contenir, éradiquer, rétablir — ICER.</li>
+        <li>Pour chaque action de l'équipe, demandez-vous si elle confirme l'incident, stoppe la propagation, supprime la cause, ou remet le service en production.</li>
+        <li>L'outil qui collecte, normalise et corrèle les journaux porte un sigle de quatre lettres ; la forensique, elle, exige que chaque preuve soit documentée du prélèvement au tribunal.</li>
       </ol>
     </details>
   </div>
@@ -282,36 +274,31 @@ ECHEC 09:15:01 10.0.4.15
      data-exercise="cy-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="4&#10;identifier 2&#10;contenir 3&#10;eradiquer 6&#10;retablir 13&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (cy-c5-e3) — Les étapes de la réponse
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le camping Les Pins sauvegarde sa base de réservations toutes les 4 heures.&#10;En haute saison, 6 heures d'arrêt maximum sont supportables.&#10;Une panne tombe à 10 h 20 ; l'équipe restaure la sauvegarde de 8 h 00.&#10;&#10;1) Six heures d'arrêt maximum : c'est le RTO.&#10;2) Avec des sauvegardes toutes les 4 heures, la perte maximale est de 4 heures : c'est le RPO.&#10;3) 10 h 20 − 8 h 00 = 2 h 20, soit 140 minutes de réservations perdues.">
+  <script type="text/plain" data-lab-starter># Exercice — Le plan de reprise de la chocolaterie Aubry
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : un sigle (PCA, PRA, RTO ou RPO). Questions 5 et 6 : un nombre.
 
-[Cas 1 — Un motif inconnu au passage]
-# Données : 4
-# Données : identifier 1
-# Données : cache 2
-# Données : contenir 3
-# Données : retablir 5
+[Question 1 — Plan de continuité pendant la crise]
 A_COMPLETER
 
-[Cas 2 — Zéro minute et nuit blanche]
-# Données : 4
-# Données : identifier 0
-# Données : contenir 12
-# Données : eradiquer 9
-# Données : retablir 5
+[Question 2 — Plan de retour à la normale]
 A_COMPLETER
 
-[Cas 3 — Étapes dans le désordre]
-# Données : 4
-# Données : contenir 1
-# Données : identifier 1
-# Données : eradiquer 1
-# Données : retablir 1
+[Question 3 — Sigle de la durée d'arrêt maximale]
+A_COMPLETER
+
+[Question 4 — Sigle de la perte de données maximale]
+A_COMPLETER
+
+[Question 5 — Perte maximale possible en heures]
+A_COMPLETER
+
+[Question 6 — Minutes de commandes perdues le 14 décembre]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Les étapes de la réponse</h3>
+    <h3 class="lab__title">Exercice 3 — Le plan de reprise de la chocolaterie Aubry</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -320,21 +307,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="cy-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Dérouler la réponse à incident dans l’ordre, chronométrée, avec rejet des étapes inconnues.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « motif duree ». Les motifs valides sont <code>identifier</code>, <code>contenir</code>, <code>eradiquer</code>, <code>retablir</code>. Pour la ligne K (à partir de 1) : <code>etape K : motif (duree h)</code> et cumul de la durée ; motif inconnu : <code>etape K : motif inconnu (identifier, contenir, eradiquer, retablir attendus)</code> sans cumul. La numérotation continue même après un rejet. Enfin <code>total : X h</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer PCA et PRA, relier RTO et RPO à la fréquence des sauvegardes et calculer une perte réelle.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La chocolaterie Aubry réalise le tiers de son chiffre d'affaires en décembre, sur son site de vente en ligne. Sa direction de la sécurité documente la reprise :</p><ul><li>le service client estime que <strong>4 heures</strong> d'arrêt maximum sont supportables en pleine saison ;</li><li>les sauvegardes de la base de commandes sont <strong>automatiques, toutes les 2 heures</strong> ;</li><li>le 14 décembre à <strong>14 h 45</strong>, une panne bloque toute prise de commande ; l'équipe restaure la dernière sauvegarde exploitable, celle de <strong>14 h 00</strong>.</li></ul><ol><li>Comment s'appelle le plan qui décrit comment l'activité essentielle continue pendant la crise ? Répondez par son sigle.</li><li>Comment s'appelle le plan qui décrit comment les systèmes reviennent à la normale ? Répondez par son sigle.</li><li>La durée d'interruption maximale tolérée — 4 heures ici — porte quel sigle ?</li><li>La quantité de données que l'on peut se permettre de perdre porte quel sigle ?</li><li>Avec des sauvegardes toutes les 2 heures, quelle est la perte maximale de données possible, en heures ?</li><li>Combien de minutes de commandes la panne du 14 décembre a-t-elle fait perdre ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>4
-identifier 2
-contenir 3
-eradiquer 6
-retablir 13
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le camping Les Pins sauvegarde sa base de réservations toutes les 4 heures.
+En haute saison, 6 heures d'arrêt maximum sont supportables.
+Une panne tombe à 10 h 20 ; l'équipe restaure la sauvegarde de 8 h 00.
+
+1) Six heures d'arrêt maximum : c'est le RTO.
+2) Avec des sauvegardes toutes les 4 heures, la perte maximale est de 4 heures : c'est le RPO.
+3) 10 h 20 − 8 h 00 = 2 h 20, soit 140 minutes de réservations perdues.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Le numéro d’étape est l’index i de la boucle : un motif rejeté ne doit ni le reculer ni le faire sauter.</li>
-        <li>Le case accepte quatre motifs : identifier|contenir|eradiquer|retablir) fait les quatre d’un coup, *) rejette.</li>
+        <li>Deux sigles gouvernent la reprise : le temps d'arrêt maximal d'un côté, la perte de données maximale de l'autre ; deux plans : continuité pendant la crise, reprise après.</li>
+        <li>Reliez la fréquence des sauvegardes à la perte maximale possible, puis soustrayez l'heure de la sauvegarde restaurée de l'heure de la panne.</li>
+        <li>Le PCA fait tourner l'essentiel pendant la crise, le PRA rétablit ensuite ; ne les inversez pas, et rappelez-vous qu'un plan non testé vaut zéro.</li>
       </ol>
     </details>
   </div>
@@ -348,8 +337,8 @@ retablir 13
       <p class="q__stem">Un SIEM apporte surtout…</p>
       <div class="opts">
         <button class="opt">du stockage de fichiers</button>
-        <button class="opt" data-correct="1">de la corrélation d'événements</button>
         <button class="opt">du chiffrement</button>
+        <button class="opt" data-correct="1">de la corrélation d'événements</button>
       </div>
       <div class="q__exp">Il agrège et corrèle les sources pour détecter les scénarios d'attaque.</div>
     </div>
@@ -357,8 +346,8 @@ retablir 13
       <p class="q__stem">3 échecs puis 1 succès depuis la même IP : c'est…</p>
       <div class="opts">
         <button class="opt">un faux positif à ignorer</button>
-        <button class="opt" data-correct="1">une force brute probablement réussie</button>
         <button class="opt">une panne réseau</button>
+        <button class="opt" data-correct="1">une force brute probablement réussie</button>
       </div>
       <div class="q__exp">Rafale d'échecs suivie d'un succès : signature de force brute aboutie, à traiter.</div>
     </div>
@@ -366,16 +355,16 @@ retablir 13
       <p class="q__stem">Première étape de la réponse ?</p>
       <div class="opts">
         <button class="opt">éradiquer</button>
-        <button class="opt">contenir</button>
         <button class="opt" data-correct="1">identifier</button>
+        <button class="opt">contenir</button>
       </div>
       <div class="q__exp">On confirme d'abord l'incident et son étendue avant d'agir.</div>
     </div>
     <div class="q">
       <p class="q__stem">Contenir, c'est…</p>
       <div class="opts">
-        <button class="opt">éteindre la machine</button>
         <button class="opt" data-correct="1">isoler la machine du réseau</button>
+        <button class="opt">éteindre la machine</button>
         <button class="opt">formater le disque</button>
       </div>
       <div class="q__exp">Isoler stoppe la propagation en préservant la mémoire vive et les preuves.</div>
@@ -384,16 +373,16 @@ retablir 13
       <p class="q__stem">La forensique exige…</p>
       <div class="opts">
         <button class="opt">d'éteindre immédiatement</button>
-        <button class="opt" data-correct="1">de préserver les preuves</button>
         <button class="opt">de réinstaller vite</button>
+        <button class="opt" data-correct="1">de préserver les preuves</button>
       </div>
       <div class="q__exp">Images disque, journaux horodatés, chaîne de conservation : la preuve disparaît si l'on bricole.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le RPO mesure…</p>
       <div class="opts">
-        <button class="opt">la durée d'arrêt maximale</button>
         <button class="opt" data-correct="1">la perte de données maximale</button>
+        <button class="opt">la durée d'arrêt maximale</button>
         <button class="opt">le coût de reprise</button>
       </div>
       <div class="q__exp">RPO = combien de données on peut perdre ; RTO = combien de temps on peut s'arrêter.</div>
@@ -401,17 +390,17 @@ retablir 13
     <div class="q">
       <p class="q__stem">Le PCA décrit…</p>
       <div class="opts">
+        <button class="opt">la restauration des systèmes après la crise</button>
         <button class="opt" data-correct="1">la continuité de l'activité pendant la crise</button>
-        <button class="opt">la restauration des systèmes</button>
-        <button class="opt">le budget sécurité</button>
+        <button class="opt">le budget annuel de la sécurité</button>
       </div>
       <div class="q__exp">Le PCA fait tourner l'essentiel pendant la crise ; le PRA rétablit ensuite.</div>
     </div>
     <div class="q">
       <p class="q__stem">Un PRA utile est…</p>
       <div class="opts">
-        <button class="opt">rangé dans un classeur</button>
         <button class="opt" data-correct="1">documenté et testé</button>
+        <button class="opt">rangé dans un classeur</button>
         <button class="opt">connu du seul administrateur</button>
       </div>
       <div class="q__exp">En crise, la procédure doit être actionnable par un tiers : documentée et testée.</div>
@@ -535,7 +524,7 @@ retablir 13
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

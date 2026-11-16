@@ -474,7 +474,7 @@ function examens(course) {
     sujets.map(sujet => '  <h2>' + sujet.title + '</h2>\n\n  <p class="lead">' + sujet.intro + '</p>\n\n' +
       sujet.items.map(itemHtml).join('\n\n')).join('\n\n'),
     '  <h2>QCM final — toutes notions</h2>',
-    '  ' + qcm(mastery, { mastery: true }),
+    '  ' + qcm(mastery, { mastery: true, secure: true }),
     box('method', 'Barème de maîtrise', 'compass', '    ' + bands([
       { cls: 'low', text: '&lt; 50 % — reprends les chapitres concernés avant un nouveau sujet.' },
       { cls: 'mid', text: '50–69 % — refais les exercices des chapitres faibles.' },

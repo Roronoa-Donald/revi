@@ -171,22 +171,22 @@ module.exports = {
       stem: 'Pourquoi utilise-t-on souvent des triangles non dégénérés pour représenter une surface 3D ?',
       opts: [
         'Parce que les triangles consomment moins d’électricité que les carrés',
-        'Parce que trois sommets non alignés définissent un plan unique et une face sans torsion',
+        'Pour des raisons purement esthétiques',
         'Parce que les cartes mères ne savent compter que jusqu’à 3',
-        'Pour des raisons purement esthétiques'
+        'Parce que trois sommets non alignés définissent un plan unique et une face sans torsion'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Trois points non alignés définissent un plan unique. Des points alignés produisent un triangle dégénéré sans normale unitaire ; les API graphiques gèrent aussi des points et des lignes.'
     },
     {
       stem: 'Quel est le rôle du mécanisme de « Back-Face Culling » dans un moteur de rendu 3D ?',
       opts: [
-        'Changer la couleur du fond d’écran',
-        'Rejeter avant le calcul d’ombrage tous les triangles dont la normale pointe à l’opposé de la caméra, éliminant environ 50 % des faces invisibles',
-        'Augmenter le volume sonore des dialogues',
-        'Sauvegarder la partie sur disque dur'
+        "Changer dynamiquement la couleur du fond d’écran du jeu en fonction de la position de la caméra dans la scène 3D",
+        "Augmenter automatiquement le volume sonore des dialogues des personnages chaque fois que la caméra s’éloigne d’eux",
+        "Rejeter avant le calcul d’ombrage tous les triangles dont la normale pointe à l’opposé de la caméra, éliminant environ 50 % des faces invisibles",
+        "Sauvegarder automatiquement la partie en cours sur le disque dur à chaque nouvelle image calculée par le moteur"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Sur un objet fermé (sphère, personnage, véhicule), les faces arrière sont masquées par les faces avant. Les éliminer d’emblée divise le travail de rasterisation par deux.'
     },
     {
@@ -203,45 +203,45 @@ module.exports = {
     {
       stem: 'Dans quel ordre canonique les transformations affines doivent-elles être composées matriciellement pour transformer un sommet P sans déformation orbitale parasite ?',
       opts: [
-        'P\' = Scale · Translation · Rotation · P',
         'P\' = Translation · Rotation · Scale · P',
+        'P\' = Scale · Translation · Rotation · P',
         'P\' = Rotation · Scale · Translation · P',
         'L’ordre n’a aucune importance car la multiplication matricielle est commutative'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les matrices s’appliquent de droite à gauche : d’abord l’échelle (S) par rapport à l’origine, puis la rotation (R) autour des axes locaux, et enfin la translation (T) vers la position monde.'
     },
     {
       stem: 'Que se passe-t-il si un programmeur applique une translation T AVANT d’appliquer une rotation R sur un objet 3D ?',
       opts: [
-        'Le programme plante immédiatement',
-        'L’objet pivote autour de l’origine du monde (révolution orbitale) au lieu de pivoter sur son propre centre de gravité',
-        'L’objet devient invisible',
-        'La résolution de l’écran diminue'
+        "Le programme de rendu plante immédiatement avec une erreur de dépassement de mémoire vidéo",
+        "L’objet devient totalement invisible car ses coordonnées sortent du volume de projection",
+        "La résolution native de l’écran diminue progressivement à chaque image affichée par le moteur",
+        "L’objet pivote autour de l’origine du monde (révolution orbitale) au lieu de pivoter sur son propre centre de gravité"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Si la translation est effectuée en premier, le centre de l’objet s’éloigne de l’origine ; la rotation ultérieure le fait alors décrire un grand cercle autour de l’origine.'
     },
     {
       stem: 'Pourquoi utilise-t-on des coordonnées homogènes à 4 composantes (X, Y, Z, W=1) et des matrices 4x4 plutôt que des matrices 3x3 en géométrie 3D ?',
       opts: [
-        'Pour pouvoir représenter les translations et les projections perspectives sous forme de simples multiplications matricielles linéaires',
-        'Parce que le chiffre 4 porte chance',
-        'Pour doubler la mémoire vive consommée',
-        'Pour empêcher les attaques par injection SQL'
+        "Parce que le chiffre 4 porte chance aux développeurs de moteurs de rendu depuis les débuts de l’informatique graphique",
+        "Pour doubler volontairement la mémoire vive consommée par les tampons de sommets et ralentir les calculs",
+        "Pour pouvoir représenter les translations et les projections perspectives sous forme de simples multiplications matricielles linéaires",
+        "Pour empêcher les attaques par injection SQL sur les bases de données des jeux en ligne massivement multijoueurs"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'En 3D euclidienne (3x3), la translation est une addition (P + T). En coordonnées homogènes 4x4, elle devient une multiplication linéaire unifiée avec la rotation et le scale.'
     },
     {
       stem: 'Quel est l’objectif principal des Niveaux de Détail (LOD - Level of Detail) dans un jeu vidéo 3D ?',
       opts: [
-        'Changer la musique selon la zone',
-        'Substituer un maillage allégé comptant moins de polygones lorsque l’objet s’éloigne de la caméra, réduisant la charge géométrique du GPU',
-        'Empêcher le joueur de tricher',
-        'Ajouter des armes supplémentaires'
+        "Substituer un maillage allégé comptant moins de polygones lorsque l’objet s’éloigne de la caméra, réduisant la charge géométrique du GPU",
+        "Changer automatiquement la musique d’ambiance en fonction de la zone géographique explorée par le joueur",
+        "Empêcher techniquement le joueur de tricher en masquant entièrement les objets éloignés jugés trop petits à l’écran",
+        "Ajouter automatiquement des armes supplémentaires à l’inventaire du joueur lorsqu’il s’éloigne des zones de combat"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'À grande distance, un objet occupe très peu de pixels. Utiliser un modèle simplifié de quelques centaines de polygones au lieu de 50 000 économise massivement le temps de calcul.'
     },
     {

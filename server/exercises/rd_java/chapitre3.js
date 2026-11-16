@@ -31,8 +31,9 @@ public class Main {
 }
 `,
     hints: [
-      'Initialisez le maximum avec la première valeur (valeurs[0]), pas avec 0 : des valeurs négatives seraient mal comparées.',
-      'Boucle à partir de l’indice 1 et remplace le maximum dès qu’une valeur est plus grande.'
+      "Initialisez le maximum avec la première valeur (valeurs[0]), pas avec 0 : des valeurs négatives seraient mal comparées.",
+      "Boucle à partir de l’indice 1 et remplace le maximum dès qu’une valeur est plus grande.",
+      "Étapes : lire n puis les n valeurs ; initialiser le maximum à la première valeur ; le remplacer dès qu’une valeur est plus grande ; afficher « max : » suivi du maximum."
     ],
     examples: [
       { stdin: '5\n3\n9\n2\n7\n4', expected: 'max : 9', note: 'La plus grande valeur est 9.' }
@@ -62,7 +63,8 @@ public class Main {
         System.out.println("max : " + max);
     }
 }
-`
+`,
+    takeaway: "Un tableau Java a une taille fixe arr.length ; initialiser max = arr[0] couvre correctement les valeurs négatives."
   },
   {
     id: 'java2-c3-e2',
@@ -90,8 +92,9 @@ public class Main {
 }
 `,
     hints: [
-      'Parcourez le tableau de n-1 à 0 avec une boucle décrémentée.',
-      'Un StringBuilder accumule la sortie ; n’ajoute l’espace qu’après le premier élément écrit.'
+      "Parcourez le tableau de n-1 à 0 avec une boucle décrémentée.",
+      "Un StringBuilder accumule la sortie ; n’ajoute l’espace qu’après le premier élément écrit.",
+      "Étapes : lire n puis les valeurs ; parcourir le tableau du dernier indice au premier ; afficher les valeurs séparées par un espace."
     ],
     examples: [
       { stdin: '3\n1\n2\n3', expected: '3 2 1', note: 'Ordre inversé.' }
@@ -121,7 +124,8 @@ public class Main {
         System.out.println(sb.toString());
     }
 }
-`
+`,
+    takeaway: "Échanger arr[i] et arr[n - 1 - i] jusqu à n / 2 inverse un tableau en place sans allouer de copie."
   },
   {
     id: 'java2-c3-e3',
@@ -148,8 +152,9 @@ public class Main {
 }
 `,
     hints: [
-      'Un nombre est premier s’il est supérieur ou égal à 2 et n’a aucun diviseur jusqu’à sa racine.',
-      'Une boucle d = 2 ; d * d <= n teste les diviseurs ; si n % d == 0, le nombre n’est pas premier.'
+      "Un nombre est premier s’il est supérieur ou égal à 2 et n’a aucun diviseur jusqu’à sa racine.",
+      "Une boucle d = 2 ; d * d <= n teste les diviseurs ; si n % d == 0, le nombre n’est pas premier.",
+      "Étapes : lire n ; si n < 2, non premier ; sinon tester les diviseurs d à partir de 2 tant que d² ≤ n ; aucun diviseur trouvé, le nombre est premier."
     ],
     examples: [
       { stdin: '17', expected: 'premier', note: '17 n’a aucun diviseur autre que 1 et lui-même.' }
@@ -181,6 +186,7 @@ public class Main {
         System.out.println(estPremier(n) ? "premier" : "non premier");
     }
 }
-`
+`,
+    takeaway: "Tester les diviseurs impairs de 3 jusqu à (long) Math.sqrt(n) décide la primalité en O(sqrt(n))."
   }
 ];

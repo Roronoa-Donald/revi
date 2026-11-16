@@ -74,13 +74,13 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Qu’est-ce qu’une classe ?', opts: ['Un moule à objets', 'Une valeur', 'Une boucle'], correct: 0, exp: 'La classe décrit attributs et méthodes ; new produit des instances.' },
-    { stem: 'Comment s’appelle le constructeur ?', opts: ['Comme la classe', 'main', 'new'], correct: 0, exp: 'Le constructeur porte le nom de la classe.' },
+    { stem: 'Qu’est-ce qu’une classe ?', opts: ['Une boucle', 'Une valeur', 'Un moule à objets'], correct: 2, exp: 'La classe décrit attributs et méthodes ; new produit des instances.' },
+    { stem: 'Comment s’appelle le constructeur ?', opts: ['main', 'Comme la classe', 'new'], correct: 1, exp: 'Le constructeur porte le nom de la classe.' },
     { stem: 'Que fait new ?', opts: ['Crée un objet', 'Détruit un objet', 'Copie une classe'], correct: 0, exp: 'new instancie et appelle le constructeur.' },
-    { stem: 'Que désigne this ?', opts: ['L’objet courant', 'La classe', 'Le constructeur'], correct: 0, exp: 'this référence l’instance en cours.' },
-    { stem: 'Que fait private ?', opts: ['Réserve l’accès à la classe', 'Ouvre à tous', 'Interdit la classe'], correct: 0, exp: 'private n’est accessible que depuis la classe elle-même.' },
-    { stem: 'À quoi sert un setter ?', opts: ['Lire l’état', 'Écrire l’état en validant', 'Détruire l’objet'], correct: 1, exp: 'Le setter contrôle la valeur avant de l’affecter.' },
-    { stem: 'Que fait @Override sur toString ?', opts: ['Redéfinit l’affichage de l’objet', 'Supprime la méthode', 'Crée un getter'], correct: 0, exp: 'println appelle alors cette version de toString.' },
+    { stem: 'Que désigne this ?', opts: ['La classe', 'L’objet courant', 'Le constructeur'], correct: 1, exp: "this référence l’instance qui reçoit l’appel de méthode. Ce n’est ni la classe ni le constructeur : c’est un objet déjà créé." },
+    { stem: 'Que fait private ?', opts: ['Interdit la classe', 'Ouvre à tous', 'Réserve l’accès à la classe'], correct: 2, exp: 'private n’est accessible que depuis la classe elle-même.' },
+    { stem: 'À quoi sert un setter ?', opts: ['Écrire l’état en validant', 'Lire l’état', 'Détruire l’objet'], correct: 0, exp: 'Le setter contrôle la valeur avant de l’affecter.' },
+    { stem: 'Que fait @Override sur toString ?', opts: ['Supprime la méthode', 'Redéfinit l’affichage de l’objet', 'Crée un getter'], correct: 1, exp: 'println appelle alors cette version de toString.' },
     { stem: 'Que signifie final sur un attribut ?', opts: ['Il ne peut plus être réaffecté', 'Il est public', 'Il est statique'], correct: 0, exp: 'final fige la valeur une fois le constructeur passé.' }
   ],
 

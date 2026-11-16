@@ -12,7 +12,8 @@ module.exports = [
     "starter": "-- Créez la table collaborateurs avec ses contraintes\nSELECT 'A_COMPLETER';",
     "hints": [
       "Ajoutez UNIQUE NOT NULL sur la colonne email.",
-      "Ajoutez CHECK (salaire >= 100000) sur la colonne salaire."
+      "Ajoutez CHECK (salaire >= 100000) sur la colonne salaire.",
+      "Assemblez la déclaration : nom de la table, colonnes typées, puis contraintes de colonnes ; terminez par un point-virgule avant exécution."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+---------+------+---------+------------+----+\n| name    | type | notnull | dflt_value | pk |\n+---------+------+---------+------------+----+\n| id      | INT  | 0       | NULL       | 1  |\n| email   | TEXT | 1       | NULL       | 0  |\n| salaire | INT  | 0       | NULL       | 0  |\n+---------+------+---------+------------+----+\n(3 lignes retournées)"
       }
     ],
-    "solution": "CREATE TABLE collaborateurs (\n  id INT PRIMARY KEY,\n  email TEXT UNIQUE NOT NULL,\n  salaire INT CHECK (salaire >= 100000)\n);"
+    "solution": "CREATE TABLE collaborateurs (\n  id INT PRIMARY KEY,\n  email TEXT UNIQUE NOT NULL,\n  salaire INT CHECK (salaire >= 100000)\n);",
+    "takeaway": "PRIMARY KEY garantit l unicité non nulle de chaque ligne tandis que UNIQUE et CHECK font appliquer les invariants par le SGBD."
   },
   {
     "id": "sql2-c1-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "-- Créez la table projets référençant services(id)\nSELECT 'A_COMPLETER';",
     "hints": [
       "Utilisez service_id INT REFERENCES services(id) ou FOREIGN KEY (service_id) REFERENCES services(id).",
-      "Déclarez code TEXT PRIMARY KEY."
+      "Déclarez code TEXT PRIMARY KEY.",
+      "Assemblez la déclaration de projets : code en clé primaire, titre obligatoire, puis la référence vers services en dernière colonne."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+------------+------+---------+------------+----+\n| name       | type | notnull | dflt_value | pk |\n+------------+------+---------+------------+----+\n| code       | TEXT | 0       | NULL       | 1  |\n| titre      | TEXT | 1       | NULL       | 0  |\n| service_id | INT  | 0       | NULL       | 0  |\n+------------+------+---------+------------+----+\n(3 lignes retournées)"
       }
     ],
-    "solution": "CREATE TABLE projets (\n  code TEXT PRIMARY KEY,\n  titre TEXT NOT NULL,\n  service_id INT REFERENCES services(id)\n);"
+    "solution": "CREATE TABLE projets (\n  code TEXT PRIMARY KEY,\n  titre TEXT NOT NULL,\n  service_id INT REFERENCES services(id)\n);",
+    "takeaway": "Une clé étrangère FOREIGN KEY empêche l insertion de références orphelines et encadre le comportement en suppression."
   },
   {
     "id": "sql2-c1-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "-- Créez la table affectations avec clé primaire composite\nSELECT 'A_COMPLETER';",
     "hints": [
       "Ajoutez PRIMARY KEY (employe_id, projet_id) en fin de déclaration de table.",
-      "N’oubliez pas la colonne heures INT NOT NULL."
+      "N’oubliez pas la colonne heures INT NOT NULL.",
+      "Assemblez la table : les deux colonnes identifiantes, la colonne heures obligatoire, puis la clé primaire composite en fin de déclaration."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "Instruction exécutée avec succès (0 lignes modifiées).\n\n+------------+------+---------+------------+----+\n| name       | type | notnull | dflt_value | pk |\n+------------+------+---------+------------+----+\n| employe_id | INT  | 0       | NULL       | 1  |\n| projet_id  | INT  | 0       | NULL       | 2  |\n| heures     | INT  | 1       | NULL       | 0  |\n+------------+------+---------+------------+----+\n(3 lignes retournées)"
       }
     ],
-    "solution": "CREATE TABLE affectations (\n  employe_id INT,\n  projet_id INT,\n  heures INT NOT NULL,\n  PRIMARY KEY (employe_id, projet_id)\n);"
+    "solution": "CREATE TABLE affectations (\n  employe_id INT,\n  projet_id INT,\n  heures INT NOT NULL,\n  PRIMARY KEY (employe_id, projet_id)\n);",
+    "takeaway": "Une clé primaire composite (col1, col2) interdit les associations dupliquées dans une table de liaison N–N."
   }
 ];

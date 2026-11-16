@@ -169,10 +169,10 @@ module.exports = {
     {
       stem: 'Quel est le bénéfice principal de l’approche « API-First » dans un projet logiciel moderne ?',
       opts: [
-        'Elle permet de supprimer totalement l’équipe de test',
-        'Le contrat d’interface OpenAPI est validé avant le codage, permettant le développement parallèle du front-end et du back-end via des serveurs de mocks',
-        'Elle rend le serveur dix fois plus rapide lors des requêtes SQL',
-        'Elle interdit l’utilisation du format JSON'
+        "Elle permet de supprimer totalement l’équipe de test, la spécification OpenAPI tenant lieu de campagne de recette complète",
+        "Le contrat d’interface OpenAPI est validé avant le codage, permettant le développement parallèle du front-end et du back-end via des serveurs de mocks",
+        "Elle rend le serveur applicatif dix fois plus rapide lors de l’exécution des requêtes SQL complexes en base",
+        "Elle interdit définitivement l’utilisation du format JSON dans les échanges entre le client web et le serveur"
       ],
       correct: 1,
       exp: 'API-First contractualise les interfaces en amont : les intégrateurs n’attendent plus la fin du back-end pour commencer à développer leurs applications clientes.'
@@ -180,43 +180,43 @@ module.exports = {
     {
       stem: 'Quel code de statut HTTP une API REST conforme doit-elle retourner lors de la création réussie d’un nouvel utilisateur via une méthode POST ?',
       opts: [
-        '200 OK',
-        '201 Created (avec l’en-tête Location désignant la nouvelle ressource)',
-        '204 No Content',
-        '302 Found'
+        "201 Created (avec l’en-tête Location désignant la nouvelle ressource)",
+        "200 OK, simple succès générique sans signaler la création de la ressource",
+        "204 No Content, succès sans corps de réponse renvoyé au client appelant",
+        "302 Found, redirection temporaire vers une autre URL du serveur"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le code 201 Created est le code standard désignant la création effective d’une ressource nouvelle, idéalement accompagné de l’en-tête Location précisant son URI.'
     },
     {
       stem: 'Pour une API qui choisit des collections au pluriel et des méthodes HTTP pour les actions, quelle URI suit cette convention ?',
       opts: [
-        '/api/getUserById?id=12',
-        '/api/v1/deleteUser/12',
-        '/api/v1/users/12 (avec la méthode HTTP appropriée GET ou DELETE)',
-        '/api/user_action.php?action=view&uid=12'
+        "/api/getUserById?id=12, action encodée dans le nom de la route",
+        "/api/v1/deleteUser/12, verbe d’action inscrit dans le chemin de l’URI",
+        "/api/user_action.php?action=view&uid=12, style RPC legacy côté serveur",
+        "/api/v1/users/12 (avec la méthode HTTP appropriée GET ou DELETE)"
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Dans cette convention, /users désigne une collection. Le pluriel n’est pas imposé par REST : l’API GitHub propose par exemple GET /user.'
     },
     {
       stem: 'Dans la spécification OpenAPI 3.0, à quoi sert la section « components/schemas » ?',
       opts: [
-        'À lister les noms des employés de l’entreprise',
-        'À centraliser les définitions réutilisables des modèles de données JSON via des références $ref pour éviter la duplication',
-        'À enregistrer les adresses IP physiques des commutateurs réseau',
-        'À stocker le code source en langage binaire'
+        "À lister les noms et les rôles des employés de l’entreprise autorisés à consulter l’API interne",
+        "À enregistrer les adresses IP physiques et les configurations des commutateurs réseau de la salle serveur",
+        "À centraliser les définitions réutilisables des modèles de données JSON via des références $ref pour éviter la duplication",
+        "À stocker le code source de l’application compilé sous forme de langage binaire exécutable"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La section components/schemas est le dictionnaire des types de données : un même schéma (ex. User ou ErrorPayload) est référencé partout via `$ref`.'
     },
     {
       stem: 'Quelle différence formelle sépare le code d’erreur HTTP 401 Unauthorized du code 403 Forbidden ?',
       opts: [
-        'Il n’y a aucune différence, ils sont strictement interchangeables',
-        'Le code 401 signale l’absence ou l’invalidité d’authentification (identité non prouvée), tandis que le code 403 indique que l’identité est connue mais que les droits d’accès sont insuffisants',
-        'Le code 401 concerne les bases de données et le 403 les serveurs DNS',
-        'Le code 403 n’existe pas dans les standards du W3C'
+        "Il n’y a aucune différence réelle : les deux codes sont strictement interchangeables et relèvent d’un choix arbitraire de l’équipe de développement",
+        "Le code 401 signale l’absence ou l’invalidité d’authentification (identité non prouvée), tandis que le code 403 indique que l’identité est connue mais que les droits d’accès sont insuffisants",
+        "Le code 401 signale des erreurs des bases de données relationnelles, tandis que le code 403 signale des pannes des serveurs DNS du nom de domaine",
+        "Le code 403 n’existe pas dans les standards du W3C : seul le code 401 y est officiellement normalisé pour les API web modernes"
       ],
       correct: 1,
       exp: '401 est un problème d’authentification (« Qui êtes-vous ? »). 403 est un problème d’autorisation (« Je sais qui vous êtes, mais vous n’avez pas le droit »).'
@@ -224,10 +224,10 @@ module.exports = {
     {
       stem: 'Pourquoi est-il considéré comme une faute majeure de renvoyer un code 200 OK pour une requête ayant échoué (ex: `{"status": 200, "error": "Compte introuvable"}`) ?',
       opts: [
-        'Car cela brise la couche protocolaire HTTP, empêchant les passerelles, proxys, équilibreurs de charge et bibliothèques clientes de détecter l’erreur',
-        'Car le navigateur web s’arrête immédiatement de fonctionner',
-        'Car cela supprime la base de données',
-        'Car cela consomme le double de mémoire vive'
+        "Car cela brise la couche protocolaire HTTP, empêchant les passerelles, proxys, équilibreurs de charge et bibliothèques clientes de détecter l’erreur",
+        "Car le navigateur web du client s’arrête immédiatement de fonctionner dès qu’il reçoit ce type de réponse incohérente",
+        "Car cela supprime automatiquement la base de données de production lors de la sérialisation de la réponse d’erreur",
+        "Car cela consomme le double de mémoire vive sur le serveur applicatif lors de la génération du corps JSON"
       ],
       correct: 0,
       exp: 'Les couches intermédiaires (API Gateways, clients HTTP) inspectent le code statut : masquer une erreur sous un 200 OK oblige à parser chaque corps JSON et neutralise la supervision.'
@@ -235,23 +235,23 @@ module.exports = {
     {
       stem: 'Dans une docstring Python au format standard Google, quelles sont les trois sections fondamentales couramment attendues ?',
       opts: [
-        'Introduction, Conclusion, Remerciements',
-        'Args (arguments d’entrée), Returns (valeur de retour) et Raises (exceptions levées)',
-        'Budget, Facturation, Bénéfices',
-        'Hardware, Software, Firmware'
+        "Introduction, Conclusion et Remerciements, comme dans un mémoire universitaire",
+        "Budget, Facturation et Bénéfices, selon le modèle économique du projet",
+        "Args (arguments d’entrée), Returns (valeur de retour) et Raises (exceptions levées)",
+        "Hardware, Software et Firmware, les trois couches matérielles du système"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le format Google structure l’explication technique en documentant les arguments (Args), la valeur produite (Returns) et les erreurs potentielles (Raises).'
     },
     {
       stem: 'Quel outil permet de transformer une spécification OpenAPI 3.0 en une interface web interactive avec formulaire de test « Try it out » ?',
       opts: [
         'Microsoft Excel',
-        'Swagger UI',
+        'Le compilateur GCC',
         'Vim en ligne de commande',
-        'Le compilateur GCC'
+        'Swagger UI'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Swagger UI analyse le fichier OpenAPI YAML/JSON et génère dynamiquement une page web ergonomique permettant aux développeurs de tester les requêtes en temps réel.'
     }
   ],

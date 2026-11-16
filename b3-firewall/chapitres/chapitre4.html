@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -215,10 +213,11 @@ Pour chaque flux, afficher :<br>
 FLOW id=F2 src_zone=DMZ dst_zone=LAN dport=3306</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Traiter en priorité les violations absolues (DMZ-&gt;LAN et WAN-&gt;LAN).</li>
         <li>Vérifier si le port destination fait partie de la liste blanche autorisée pour le couple (src, dst).</li>
+        <li>Traiter chaque flux : interdictions absolues d’abord (DMZ vers LAN, WAN vers LAN), puis contrôle du port destination contre la liste blanche du couple de zones pour statuer CONFORME ou non.</li>
       </ol>
     </details>
   </div>
@@ -271,10 +270,11 @@ Pour chaque ligne, afficher :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TOPOLOGY nom=Siege_Banque firewalls=2 zones=LAN,DMZ,WAN constructeurs=2</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Compter le nombre de pare-feux et la présence de la zone DMZ.</li>
         <li>Distinguer les topologies Back-to-Back selon le nombre de constructeurs différents.</li>
+        <li>Identifier le modèle : un pare-feu sans DMZ = dual-homed ; un pare-feu avec DMZ = triple-homed ; deux pare-feux = back-to-back, homogène ou hétérogène selon le nombre de constructeurs.</li>
       </ol>
     </details>
   </div>
@@ -330,10 +330,11 @@ Pour chaque ligne, afficher :<br>
 ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=OUI</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifier d’abord le port SSH (22).</li>
         <li>Exiger obligatoirement le passage par le bastion et le MFA valide pour la zone PROD.</li>
+        <li>1. Port différent de 22 : refus. 2. Zone PROD : exiger le passage par le bastion et un MFA valide. 3. Autres zones : appliquer les règles restantes du brief avant de trancher.</li>
       </ol>
     </details>
   </div>
@@ -346,19 +347,19 @@ ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=O
     <div class="q">
       <p class="q__stem">Quelle est la règle d’or absolue concernant les flux réseau entre la DMZ et le réseau local interne LAN ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Aucune connexion ne doit jamais être initiée depuis la DMZ vers le LAN</button>
+        <button class="opt">Les serveurs DMZ doivent partager les mêmes adresses IP que les postes LAN</button>
         <button class="opt">Le LAN ne doit jamais pouvoir accéder à la DMZ</button>
         <button class="opt">Tous les flux entre DMZ et LAN doivent être configurés en protocole UDP</button>
-        <button class="opt">Les serveurs DMZ doivent partager les mêmes adresses IP que les postes LAN</button>
+        <button class="opt" data-correct="1">Aucune connexion ne doit jamais être initiée depuis la DMZ vers le LAN</button>
       </div>
       <div class="q__exp">Si un serveur web en DMZ est piraté, l’interdiction d’initier des flux vers le LAN l’empêche de pivoter vers le réseau interne d’entreprise.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’inconvénient principal d’une architecture pare-feu Triple-Homed (un seul boîtier à trois interfaces) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le pare-feu constitue un point unique de défaillance matériel et logiciel (SPOF)</button>
-        <button class="opt">Elle ne permet pas de naviguer sur Internet en HTTPS</button>
         <button class="opt">Elle exige obligatoirement trois adresses IP publiques différentes</button>
+        <button class="opt">Elle ne permet pas de naviguer sur Internet en HTTPS</button>
+        <button class="opt" data-correct="1">Le pare-feu constitue un point unique de défaillance matériel et logiciel (SPOF)</button>
         <button class="opt">Elle est incompatible avec le protocole TCP</button>
       </div>
       <div class="q__exp">Si le boîtier unique tombe en panne ou subit une faille de sécurité majeure, l’ensemble des trois zones (LAN, DMZ, WAN) est impacté.</div>
@@ -366,10 +367,10 @@ ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=O
     <div class="q">
       <p class="q__stem">Pourquoi recommande-t-on d’utiliser deux constructeurs différents dans une architecture pare-feu Back-to-Back en cascade ?</p>
       <div class="opts">
+        <button class="opt">Pour diviser exactement par deux le coût global des licences logicielles achetées par l’entreprise</button>
         <button class="opt" data-correct="1">Pour qu’une vulnérabilité zero-day touchant le pare-feu frontal n’impacte pas le pare-feu interne (défense en profondeur)</button>
-        <button class="opt">Pour diviser par deux le coût des licences logicielles</button>
-        <button class="opt">Pour doubler automatiquement la vitesse de transmission des câbles</button>
-        <button class="opt">Pour éviter d’avoir à configurer des adresses IP privées</button>
+        <button class="opt">Pour doubler automatiquement la vitesse de transmission des câbles réseau reliant les deux boîtiers</button>
+        <button class="opt">Pour s’affranchir complètement de la configuration d’adresses IP privées sur les interfaces internes</button>
       </div>
       <div class="q__exp">L’hétérogénéité logicielle et matérielle empêche un pirate d’utiliser le même exploit pour franchir successivement les deux barrières défensives.</div>
     </div>
@@ -377,28 +378,28 @@ ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=O
       <p class="q__stem">Quel équipement doit-on intercaler pour administrer en toute sécurité des serveurs de production sans accès SSH direct depuis les postes de travail ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Un Bastion SSH (Jump Host) avec authentification forte et traçabilité des sessions</button>
-        <button class="opt">Un commutateur non administrable de niveau 2</button>
-        <button class="opt">Un point d’accès Wi-Fi ouvert</button>
-        <button class="opt">Un répéteur Ethernet passif</button>
+        <button class="opt">Un simple commutateur de niveau 2 non administrable, sans VLAN ni journalisation</button>
+        <button class="opt">Un point d’accès Wi-Fi ouvert diffusant le réseau d’administration sans mot de passe</button>
+        <button class="opt">Un répéteur Ethernet passif recopiant les trames entre les deux segments réseau</button>
       </div>
       <div class="q__exp">Le Bastion SSH centralise les accès d’administration, applique le MFA, isole la zone critique et enregistre les sessions pour audit.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans quelle zone réseau doit idéalement être situé le serveur de base de données contenant les données sensibles de l’entreprise ?</p>
       <div class="opts">
+        <button class="opt">Directement sur le routeur frontière Internet exposé aux attaques externes</button>
+        <button class="opt">En DMZ publique avec son port 3306 exposé et accessible à l’ensemble des internautes</button>
+        <button class="opt">Sur une clé USB branchée en permanence sur la passerelle réseau de l’entreprise</button>
         <button class="opt" data-correct="1">Dans une zone interne protégée (LAN ou zone BDD dédiée), jamais directement en DMZ publique</button>
-        <button class="opt">Directement sur le routeur frontière Internet</button>
-        <button class="opt">En DMZ publique avec le port 3306 exposé à tous les internautes</button>
-        <button class="opt">Sur une clé USB branchée sur la passerelle</button>
       </div>
       <div class="q__exp">La base de données critique doit être abritée au cœur du réseau interne ou dans un sous-réseau dédié ; seul le serveur applicatif autorisé peut y accéder.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel protocole réseau est typiquement autorisé dans le sens WAN vers DMZ pour un serveur web public sécurisé ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">TCP sur le port 443 (HTTPS)</button>
-        <button class="opt">TCP sur le port 23 (Telnet)</button>
         <button class="opt">TCP sur le port 3389 (RDP direct)</button>
+        <button class="opt">TCP sur le port 23 (Telnet)</button>
+        <button class="opt" data-correct="1">TCP sur le port 443 (HTTPS)</button>
         <button class="opt">UDP sur le port 69 (TFTP)</button>
       </div>
       <div class="q__exp">Le port 443 (HTTPS) est le standard sécurisé universellement ouvert vers les serveurs web situés en DMZ.</div>
@@ -407,19 +408,19 @@ ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=O
       <p class="q__stem">Si un serveur web en DMZ doit envoyer des données vers une base de données du LAN, comment concevoir l’architecture conformément aux bonnes pratiques ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Le serveur web dépose les données sur une file de messages intermédiaire ou c’est un service interne du LAN qui vient régulièrement interroger la DMZ</button>
-        <button class="opt">On désactive temporairement le pare-feu chaque nuit</button>
-        <button class="opt">On ouvre tous les ports entre la DMZ et le LAN sans aucune restriction</button>
-        <button class="opt">On installe un serveur DHCP sur le poste de l’administrateur</button>
+        <button class="opt">On désactive temporairement l’intégralité du service pare-feu chaque nuit, durant la fenêtre de maintenance planifiée de l’entreprise</button>
+        <button class="opt">On ouvre l’intégralité des ports entre la DMZ et le LAN, sans la moindre restriction ni journalisation des flux traversants</button>
+        <button class="opt">On installe un serveur DHCP directement sur le poste de travail de l’administrateur réseau de l’entreprise</button>
       </div>
       <div class="q__exp">Pour respecter la règle d’or, on privilégie l’interrogation initiée depuis le LAN vers la DMZ (Pull) ou une passerelle intermédiaire étanche.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une architecture Dual-Homed (pare-feu à 2 pattes), où se trouvent nécessairement les serveurs d’entreprise ?</p>
       <div class="opts">
+        <button class="opt">Dans une zone DMZ dédiée, intégrée au boîtier du pare-feu via une troisième interface</button>
         <button class="opt" data-correct="1">Directement sur le réseau local interne LAN (créant un risque majeur) ou externalisés chez un hébergeur</button>
-        <button class="opt">Dans la zone DMZ dédiée intégrée au boîtier</button>
-        <button class="opt">Dans le nuage sans aucune adresse IP</button>
-        <button class="opt">Sur l’interface de bouclage local 127.0.0.1</button>
+        <button class="opt">Dans le nuage informatique, sans leur attribuer la moindre adresse IP routable</button>
+        <button class="opt">Sur l’interface de bouclage local 127.0.0.1 du pare-feu dual-homed lui-même</button>
       </div>
       <div class="q__exp">Le modèle Dual-Homed ne possédant que 2 interfaces (LAN et WAN), il ne dispose d’aucun troisième segment pour héberger une DMZ isolée.</div>
     </div>
@@ -544,7 +545,7 @@ ACCESS_REQ id=R2 user=alice target_zone=PROD port=22 via_bastion=OUI mfa_valid=O
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

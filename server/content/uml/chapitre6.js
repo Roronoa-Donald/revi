@@ -177,78 +177,78 @@ module.exports = {
     {
       stem: 'Quelle est la caractéristique fondamentale d’une activité déclarée avec le mot-clé «do /» au sein d’un état ?',
       opts: [
-        'Elle s’exécute en une fraction de seconde de façon instantanée',
-        'Elle s’exécute en continu tant que l’objet reste dans l’état et peut être interrompue dès qu’une transition sortante est tirée',
-        'Elle est exécutée uniquement lorsque l’état est détruit',
-        'Elle nécessite obligatoirement une connexion Internet'
+        "Elle s’exécute en continu tant que l’objet reste dans l’état et peut être interrompue dès qu’une transition sortante est tirée",
+        "Elle s’exécute en une fraction de seconde seulement, de façon instantanée et définitive",
+        "Elle est uniquement exécutée au moment précis où l’état est définitivement détruit et supprimé",
+        "Elle nécessite obligatoirement une connexion Internet permanente pour pouvoir fonctionner"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’activité «do /» représente un travail durable en tâche de fond qui se poursuit tant que l’état est actif, et qui est stoppé dès le déclenchement d’une transition sortante.'
     },
     {
       stem: 'Quelle est la différence entre l’historique superficiel (H) et l’historique profond (H*) dans un état composite ?',
       opts: [
-        'H sauvegarde sur disque dur et H* en mémoire RAM',
-        'H mémorise uniquement le sous-état immédiat de premier niveau, alors que H* rétablit récursivement tous les sous-états imbriqués au niveau le plus profond',
-        'H ne fonctionne qu’une seule fois',
-        'H* est réservé aux architectures microservices'
+        "H sauvegarde l’état courant de l’objet sur le disque dur de la machine, tandis que H* le conserve en mémoire RAM vive",
+        "H ne fonctionne qu’une seule et unique fois, puis le pseudo-état d’historique se désactive définitivement",
+        "H* est un pseudo-état exclusivement réservé aux architectures distribuées et conteneurisées de type microservices",
+        "H mémorise uniquement le sous-état immédiat de premier niveau, alors que H* rétablit récursivement tous les sous-états imbriqués au niveau le plus profond"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’historique superficiel H ne restaure que le niveau direct au sein de l’état composite. L’historique profond H* plonge récursivement jusqu’au sous-état le plus imbriqué.'
     },
     {
       stem: 'Dans un diagramme de composants, comment est notée une «interface fournie» (service offert par le composant) ?',
       opts: [
-        'Une tige terminée par un demi-cercle creux (Socket)',
-        'Une tige terminée par un petit disque plein (Lollipop / sucette)',
-        'Une flèche rouge clignotante',
-        'Un losange noir plein'
+        "Une tige terminée par un demi-cercle creux (Socket)",
+        "Une flèche rouge clignotante pointant vers le composant fournisseur",
+        "Une tige terminée par un petit disque plein (Lollipop / sucette)",
+        "Un losange noir plein relié au composant fournisseur de service"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La notation «Lollipop» (disque plein au bout d’une ligne) symbolise formellement une interface fournie par le composant (Provided Interface).'
     },
     {
       stem: 'Comment s’appelle l’assemblage où le réceptacle (Socket) d’un composant client vient s’emboîter dans la boule (Lollipop) d’un composant fournisseur ?',
       opts: [
-        'Un connecteur d’assemblage (Assembly Connector)',
         'Un pont de routage VPN',
+        'Un connecteur d’assemblage (Assembly Connector)',
         'Une agrégation forte composite',
         'Une liaison de dépendance circulaire'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’OMG nomme «connecteur d’assemblage» la liaison qui associe une interface requise (Socket) et une interface fournie compatible (Lollipop).'
     },
     {
       stem: 'Dans un diagramme de déploiement, comment représente-t-on graphiquement un nœud physique («device») ?',
       opts: [
-        'Un cercle concentrique',
-        'Un parallélépipède / cube en perspective tridimensionnelle portant le stéréotype «device»',
-        'Un losange horizontal',
-        'Un rectangle à coins arrondis'
+        "Un parallélépipède / cube en perspective tridimensionnelle portant le stéréotype «device»",
+        "Un cercle concentrique double, de couleur sombre, placé au centre du diagramme",
+        "Un losange horizontal relié à ses composants voisins par des traits continus",
+        "Un rectangle à coins arrondis, identique à celui des états UML"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les nœuds de déploiement (matériels et environnements) sont formellement modélisés par des boîtes tridimensionnelles (cubes en perspective).'
     },
     {
       stem: 'Qu’est-ce qu’un «artefact» («artifact») dans un diagramme de déploiement ?',
       opts: [
-        'Un bogue logiciel non résolu',
-        'Un élément physique concret produit par le développement (fichier binaire, WAR, JAR, exécutable, conteneur) déployé sur un nœud',
-        'Un câble réseau à fibre optique',
-        'Une réunion de sprint Scrum'
+        "Un bogue logiciel critique non résolu, découvert tardivement en phase de recette du projet final",
+        "Un câble réseau à fibre optique reliant physiquement deux nœuds matériels du système déployé",
+        "Une réunion de sprint Scrum planifiée par le Scrum Master avec toute l’équipe de développement",
+        "Un élément physique concret produit par le développement (fichier binaire, WAR, JAR, exécutable, conteneur) déployé sur un nœud"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un artefact représente l’entité concrète issue de la compilation ou du packaging (JAR, DLL, image Docker, script) qui est matérialisée et exécutée sur un nœud.'
     },
     {
       stem: 'Quel stéréotype utilise-t-on pour désigner une machine virtuelle ou un runtime logiciel (ex: JVM, Docker Engine, Linux OS) hébergé dans un équipement physique ?',
       opts: [
         '«device»',
-        '«executionEnvironment»',
         '«hardware»',
+        '«executionEnvironment»',
         '«storage»'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le stéréotype officiel «executionEnvironment» caractérise un environnement logiciel d’exécution offrant des services de plateforme au sein d’un équipement physique.'
     }
   ],

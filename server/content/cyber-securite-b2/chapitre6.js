@@ -152,43 +152,43 @@ module.exports = {
     {
       stem: 'Quelle est la principale différence opérationnelle entre un NIDS (ex. Snort en écoute passive) et un NIPS ?',
       opts: [
-        'Le NIDS analyse les flux en copie sans bloquer le trafic, alors que le NIPS est placé en coupure (in-line) et peut rejeter les paquets malveillants',
-        'Le NIDS déchiffre automatiquement le trafic HTTPS, contrairement au NIPS',
-        'Le NIDS ne fonctionne que sur le réseau local, alors que le NIPS ne protège que le cloud',
-        'Le NIDS remplace un pare-feu matériel, alors que le NIPS ne surveille que les emails'
+        "Le NIDS déchiffre automatiquement l’intégralité du trafic HTTPS entrant, contrairement au NIPS qui en est incapable",
+        "Le NIDS analyse les flux en copie sans bloquer le trafic, alors que le NIPS est placé en coupure (in-line) et peut rejeter les paquets malveillants",
+        "Le NIDS ne fonctionne que sur le réseau local physique, alors que le NIPS ne protège que les environnements cloud",
+        "Le NIDS remplace intégralement un pare-feu matériel, alors que le NIPS ne surveille que les seuls emails entrants"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Le NIDS écoute passivement le trafic (via un port miroir SPAN ou un TAP) pour alerter sans impacter la latence réseau, tandis que le NIPS intercepte le trafic en coupure directe et neutralise les attaques en temps réel.'
     },
     {
       stem: 'Comment la contre-mesure « SYN Cookies » protège-t-elle un serveur contre une attaque DDoS par SYN Flood ?',
       opts: [
-        'En encodant les informations de connexion dans le numéro de séquence initial TCP (ISN) sans allouer de mémoire noyau tant que le ACK final n’est pas reçu',
-        'En bloquant automatiquement toutes les adresses IP d’origine asiatique ou américaine',
-        'En forçant le client à utiliser un cookie HTTP avant d’autoriser la négociation TCP',
-        'En augmentant la taille de la mémoire vive allouée au pare-feu d’entreprise'
+        "En bloquant automatiquement toutes les adresses IP d’origine asiatique ou américaine jugées dangereuses pour le serveur",
+        "En forçant le client navigateur à présenter un cookie HTTP valide avant d’autoriser la moindre négociation TCP",
+        "En encodant les informations de connexion dans le numéro de séquence initial TCP (ISN) sans allouer de mémoire noyau tant que le ACK final n’est pas reçu",
+        "En augmentant massivement la taille de la mémoire vive allouée au pare-feu périmétrique d’entreprise"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Les SYN Cookies évitent la saturation de la table des demi-connexions : le serveur calcule un ISN cryptographique contenant les paramètres de la connexion. La structure mémoire n’est allouée que si le client renvoie un paquet ACK valide contenant ce cookie.'
     },
     {
       stem: 'Lors du confinement d’un incident, quelle action vise à limiter sa propagation tout en tenant compte des preuves ?',
       opts: [
-        'Limiter la propagation de l’attaque à d’autres machines du système d’information sans altérer les preuves numériques volatiles',
-        'Réinstaller immédiatement le système d’exploitation de la machine infectée à neuf',
-        'Rédiger le rapport de leçons apprises pour la direction générale',
-        'Contacter les attaquants pour négocier le montant de la rançon'
+        "Réinstaller immédiatement le système d’exploitation de la machine infectée à neuf, sans conservation de sauvegarde",
+        "Rédiger immédiatement le rapport de leçons apprises pour la direction générale de l’entreprise",
+        "Contacter directement les attaquants pour négocier le montant de la rançon demandée",
+        "Limiter la propagation de l’attaque à d’autres machines du système d’information sans altérer les preuves numériques volatiles"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le confinement vise à circonscrire l’incident (ex. isolement réseau d’une machine ou coupure d’un VLAN) pour empêcher la contamination latérale, tout en préservant l’état mémoire pour l’analyse médico-légale.'
     },
     {
       stem: 'Quelle caractéristique distingue une attaque DDoS par amplification DNS d’une inondation classique ?',
       opts: [
-        'L’attaquant usurpe l’adresse IP de la victime dans des requêtes UDP vers des serveurs récursifs ouverts qui renvoient des réponses beaucoup plus massives à la cible',
-        'L’attaquant prend le contrôle physique du routeur frontière de la victime',
-        'Le trafic est entièrement encapsulé dans un tunnel SSH sécurisé',
-        'L’attaque s’arrête automatiquement dès que la victime redémarre son serveur DNS'
+        "L’attaquant usurpe l’adresse IP de la victime dans des requêtes UDP vers des serveurs récursifs ouverts qui renvoient des réponses beaucoup plus massives à la cible",
+        "L’attaquant parvient à prendre physiquement le contrôle du routeur frontière de la victime pour en dévier l’intégralité du trafic",
+        "L’intégralité du trafic de l’attaque est encapsulée dans un tunnel SSH chiffré, et reste donc totalement indétectable",
+        "L’attaque cesse automatiquement et définitivement dès que la victime redémarre l’intégralité de son serveur DNS local"
       ],
       correct: 0,
       exp: 'L’amplification UDP tire parti de l’absence de connexion en UDP : en forgeant l’IP source (spoofing) et en envoyant des requêtes provoquant de très grosses réponses DNS, le volume de trafic reçu par la victime est multiplié par un facteur de 50 à 70.'

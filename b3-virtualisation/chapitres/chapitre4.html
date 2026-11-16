@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -208,6 +206,11 @@ A_COMPLETER
 [Cas 2 — VLAN limite 4094 en mode VST]
 # Données : PG=Guest-Trunk VLAN=4094 UPLINKS=vmnic0,vmnic1,vmnic2 MTU=1500
 A_COMPLETER
+
+[Cas 3 — VLAN 1 en VST et trunk VGT sans redondance]
+# Données : PG=MGMT-NET VLAN=1 UPLINKS=vmnic0,vmnic1 MTU=1500
+# Données : PG=vMotion-Guest VLAN=4095 UPLINKS=vmnic3 MTU=9000
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Validateur de Configuration vSwitch &amp; Modes de Balisage VLAN (VST, EST, VGT)</h3>
@@ -242,10 +245,11 @@ PG=Management VLAN=0 UPLINKS=vmnic0 MTU=1500
 PG=vMotion-IP VLAN=4095 UPLINKS=vmnic2,vmnic3 MTU=9000</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez les valeurs réservées 0 (EST) et 4095 (VGT).</li>
         <li>Comptez le nombre de cartes dans la chaîne séparée par des virgules pour évaluer la redondance.</li>
+        <li>1. VLAN 0 : EST ; 1 à 4094 : VST ; 4095 : VGT ; autre : INVALID_VLAN. 2. MTU &gt;= 9000 : JUMBO_ENABLED, sinon STANDARD_MTU. 3. Deux uplinks ou plus : REDUNDANT, sinon SINGLE_UPLINK_WARNING.</li>
       </ol>
     </details>
   </div>
@@ -265,6 +269,11 @@ A_COMPLETER
 
 [Cas 2 — Toutes les options permissives à 0% de durcissement]
 # Données : PG=Zero-Sec PROMISC=ACCEPT MAC_CHANGE=ACCEPT FORGED_TX=ACCEPT ACTIONS=SEND_SPOOFED_MAC
+A_COMPLETER
+
+[Cas 3 — Durcissement intégral et configuration à deux tiers]
+# Données : PG=Prod-Secure PROMISC=REJECT MAC_CHANGE=REJECT FORGED_TX=REJECT ACTIONS=SNIFF,RECV_NEW_MAC,SEND_SPOOFED_MAC
+# Données : PG=Half-Open PROMISC=ACCEPT MAC_CHANGE=REJECT FORGED_TX=REJECT ACTIONS=SNIFF
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -303,10 +312,11 @@ Format de sortie :<br>
 PG=Lab-Monitor PROMISC=ACCEPT MAC_CHANGE=ACCEPT FORGED_TX=REJECT ACTIONS=SNIFF,RECV_NEW_MAC,SEND_SPOOFED_MAC</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Calculez le score en accordant (100.0 / 3.0) pour chaque règle configurée à REJECT.</li>
         <li>Vérifiez pour chaque action si la règle correspondante est à ACCEPT (PERMITTED) ou REJECT (BLOCKED).</li>
+        <li>1. Compter les REJECT : score = 100 / 3 par règle. 2. Statut : &gt;= 99 HARDENED, &gt;= 50 PERMISSIVE, sinon VULNERABLE. 3. Chaque action : PERMITTED si sa règle vaut ACCEPT, sinon BLOCKED.</li>
       </ol>
     </details>
   </div>
@@ -326,6 +336,11 @@ A_COMPLETER
 
 [Cas 2 — Très gros transfert dominé par le débit moyen]
 # Données : PROFILE=Heavy-Transfer AVG_KBPS=20000 PEAK_KBPS=80000 BURST_KB=10000 TRANSFER_MB=200
+A_COMPLETER
+
+[Cas 3 — Régulation équilibrée et pic égal au débit moyen]
+# Données : PROFILE=Balanced-Flow AVG_KBPS=10000 PEAK_KBPS=40000 BURST_KB=5000 TRANSFER_MB=100
+# Données : PROFILE=Mini-Burst AVG_KBPS=1000 PEAK_KBPS=1000 BURST_KB=1000 TRANSFER_MB=10
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -361,10 +376,11 @@ Format de sortie :<br>
 PROFILE=DB-Replication AVG_KBPS=50000 PEAK_KBPS=100000 BURST_KB=10000 TRANSFER_MB=50</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Convertissez les Mo en kilobits réseau : total_kbits = TRANSFER_MB * 8000.0.</li>
         <li>La rafale n'absorbe qu'au plus min(total_kbits, BURST_KB * 8.0) avant retour au débit moyen.</li>
+        <li>1. total_kbits = TRANSFER_MB * 8000. 2. burst = min(total, BURST_KB * 8) ; burst_time = burst / PEAK_KBPS. 3. avg_time = (total - burst) / AVG_KBPS. 4. total_time = burst_time + avg_time ; effective = total / total_time.</li>
       </ol>
     </details>
   </div>
@@ -377,19 +393,19 @@ PROFILE=DB-Replication AVG_KBPS=50000 PEAK_KBPS=100000 BURST_KB=10000 TRANSFER_M
     <div class="q">
       <p class="q__stem">Quel est l'avantage architectural majeur d'un vSphere Distributed Switch (VDS) par rapport à un vSwitch Standard (VSS) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">La configuration réseau est centralisée dans vCenter et conserve l'état des ports virtuels lors des migrations vMotion.</button>
+        <button class="opt">Le VDS ne fonctionne qu'avec des disques durs mécaniques de type SAS.</button>
         <button class="opt">Le VDS supprime complètement le besoin d'avoir des câbles réseau physiques et des cartes Ethernet.</button>
         <button class="opt">Le VDS permet de transformer automatiquement les adresses IPv4 en adresses IPv6 sans routeur.</button>
-        <button class="opt">Le VDS ne fonctionne qu'avec des disques durs mécaniques de type SAS.</button>
+        <button class="opt" data-correct="1">La configuration réseau est centralisée dans vCenter et conserve l'état des ports virtuels lors des migrations vMotion.</button>
       </div>
       <div class="q__exp">Le commutateur distribué (VDS) sépare le plan de contrôle (centralisé sur vCenter) du plan de données (sur les VMkernels), maintenant la persistance des ports, des statistiques et des règles lors des vMotions.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans le mode de tagging VST (Virtual Switch Tagging), qui est chargé d'insérer et de retirer les étiquettes VLAN 802.1Q ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le commutateur virtuel (vSwitch) au niveau du Port Group.</button>
-        <button class="opt">Le système d'exploitation invité de chaque machine virtuelle.</button>
         <button class="opt">La carte graphique virtuelle émulée par l'hyperviseur.</button>
+        <button class="opt">Le système d'exploitation invité de chaque machine virtuelle.</button>
+        <button class="opt" data-correct="1">Le commutateur virtuel (vSwitch) au niveau du Port Group.</button>
         <button class="opt">Le serveur DNS de l'Active Directory d'entreprise.</button>
       </div>
       <div class="q__exp">En mode VST (le plus répandu en Datacenter), le vSwitch tague les trames sortantes vers le commutateur physique et débalise les trames entrantes destinées aux VM de façon transparente pour l'OS invité.</div>
@@ -397,8 +413,8 @@ PROFILE=DB-Replication AVG_KBPS=50000 PEAK_KBPS=100000 BURST_KB=10000 TRANSFER_M
     <div class="q">
       <p class="q__stem">Quel identifiant de VLAN particulier doit être configuré sur un Port Group pour activer le mode VGT (Virtual Guest Tagging) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">VLAN ID 4095.</button>
         <button class="opt">VLAN ID 0.</button>
+        <button class="opt" data-correct="1">VLAN ID 4095.</button>
         <button class="opt">VLAN ID 1.</button>
         <button class="opt">VLAN ID 1024.</button>
       </div>
@@ -417,19 +433,19 @@ PROFILE=DB-Replication AVG_KBPS=50000 PEAK_KBPS=100000 BURST_KB=10000 TRANSFER_M
     <div class="q">
       <p class="q__stem">Quelle interface VMkernel assure par défaut la communication entre l'hyperviseur ESXi et la console de gestion vCenter Server ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">L'interface de management (généralement vmk0).</button>
+        <button class="opt">L'interface de boucle locale 127.0.0.1.</button>
         <button class="opt">L'interface de vMotion (vmk1).</button>
         <button class="opt">Le contrôleur SCSI paravirtualisé PVSCSI.</button>
-        <button class="opt">L'interface de boucle locale 127.0.0.1.</button>
+        <button class="opt" data-correct="1">L'interface de management (généralement vmk0).</button>
       </div>
       <div class="q__exp">L'interface VMkernel Management Network (vmk0 par défaut) porte l'adresse IP de l'hôte utilisée par vCenter Server pour piloter l'agent vpxa et par les administrateurs pour joindre le client web ESXi Host Client.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quels sont les trois paramètres d'un profil de régulation de débit (Traffic Shaping) sur un vSwitch ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Average Bandwidth (débit moyen), Peak Bandwidth (débit crête) et Burst Size (taille de rafale).</button>
-        <button class="opt">Adresse IP, masque de sous-réseau et passerelle par défaut.</button>
         <button class="opt">Latence minimale, gigue maximale et pourcentage de paquets perdus.</button>
+        <button class="opt">Adresse IP, masque de sous-réseau et passerelle par défaut.</button>
+        <button class="opt" data-correct="1">Average Bandwidth (débit moyen), Peak Bandwidth (débit crête) et Burst Size (taille de rafale).</button>
         <button class="opt">Taille du cache L2, fréquence CPU et nombre de sockets virtuels.</button>
       </div>
       <div class="q__exp">Le Traffic Shaping sous vSphere régule les flux selon l'algorithme Token Bucket configuré par le débit moyen alloué (kbps), le débit maximal en pic (kbps) et la réserve de données émise à vitesse crête (Ko).</div>
@@ -447,8 +463,8 @@ PROFILE=DB-Replication AVG_KBPS=50000 PEAK_KBPS=100000 BURST_KB=10000 TRANSFER_M
     <div class="q">
       <p class="q__stem">Quelle méthode de répartition de charge (Load Balancing) de Port Group ne nécessite AUCUNE configuration sur le commutateur physique ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Route based on originating virtual port ID.</button>
         <button class="opt">Route based on IP hash avec agrégat LACP statique.</button>
+        <button class="opt" data-correct="1">Route based on originating virtual port ID.</button>
         <button class="opt">LACP dynamique IEEE 802.3ad.</button>
         <button class="opt">BGP multipath routing.</button>
       </div>
@@ -572,7 +588,7 @@ PROFILE=DB-Replication AVG_KBPS=50000 PEAK_KBPS=100000 BURST_KB=10000 TRANSFER_M
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

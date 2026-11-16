@@ -98,14 +98,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La communication se définit comme…', opts: ['l\'action de transmettre, d\'informer', 'la seule parole orale', 'un échange d\'emails'], correct: 0, exp: 'Transmettre, informer — et agir sur autrui.' },
-      { q: 'Selon Mehrabian, l\'intonation appartient…', opts: ['au verbal', 'au para-verbal', 'au non-verbal'], correct: 1, exp: 'La voix (rythme, intonation, volume) est para-verbale.' },
+      { q: 'La communication se définit comme…', opts: ['un échange d\'emails', 'la seule parole orale', 'l\'action de transmettre, d\'informer'], correct: 2, exp: 'Transmettre, informer — et agir sur autrui.' },
+      { q: 'Selon Mehrabian, l\'intonation appartient…', opts: ['au para-verbal', 'au verbal', 'au non-verbal'], correct: 0, exp: 'La voix (rythme, intonation, volume) est para-verbale.' },
       { q: 'La tenue vestimentaire relève…', opts: ['du para-verbal', 'du non-verbal', 'du référentiel'], correct: 1, exp: 'Gestion de l\'espace, tenue, mimo-gestuelle : non-verbal.' },
-      { q: 'Le logos d\'Aristote est…', opts: ['l\'émotion', 'la crédibilité', 'la raison et l\'argumentation'], correct: 2, exp: 'Pathos = émotion ; éthos = crédibilité ; logos = raison.' },
-      { q: '« Allô ? M\'entend-on ? » illustre la fonction…', opts: ['phatique', 'poétique', 'métalinguistique'], correct: 0, exp: 'Phatique : établir et maintenir le contact.' },
+      { q: 'Le logos d\'Aristote est…', opts: ['la raison et l\'argumentation', 'la crédibilité', 'l\'émotion'], correct: 0, exp: 'Pathos = émotion ; éthos = crédibilité ; logos = raison.' },
+      { q: '« Allô ? M\'entend-on ? » illustre la fonction…', opts: ['métalinguistique', 'poétique', 'phatique'], correct: 2, exp: 'Phatique : établir et maintenir le contact.' },
       { q: 'La communication intrapersonnelle est…', opts: ['un dialogue à deux', 'se parler à soi-même', 'un discours public'], correct: 1, exp: 'Penser, raisonner, se juger : le dialogue intérieur.' },
       { q: '« Il fait chaud dans votre chambre » est…', opts: ['explicite : une information météo', 'implicite : une demande d\'allumer la clim', 'une fonction poétique'], correct: 1, exp: 'Le dit masque le voulu : c\'est l\'implicite.' },
-      { q: 'La fonction conative vise à…', opts: ['faire agir, convaincre', 'parler de la langue', 'se plaindre'], correct: 0, exp: 'Conative : inciter l\'auditeur à agir.' }
+      { q: 'La fonction conative vise à…', opts: ['se plaindre', 'parler de la langue', 'faire agir, convaincre'], correct: 2, exp: "La fonction conative oriente le message vers le destinataire pour le faire agir ; parler de la langue relève de la fonction métalinguistique." }
     ],
 
     pitfalls: [
@@ -242,14 +242,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le niveau courant est celui…', opts: ['de l\'argot', 'de la presse et du journal télévisé', 'de la tragédie classique'], correct: 1, exp: 'Usage standard : lexique usuel, syntaxe respectée, passé simple exclu.' },
-      { q: '« Il s\'marrait » appartient au registre…', opts: ['familier', 'courant', 'soutenu'], correct: 0, exp: 'Syntaxe relâchée et mot tronqué : familier (il se marrait).' },
-      { q: '« Se sustenter » signifie, en courant…', opts: ['se battre', 'se nourrir', 'se coucher'], correct: 1, exp: 'Soutenu pour « manger » — à côté de « bouffer » (familier).' },
-      { q: 'Le trio correct pour « regarder » est…', opts: ['zyeuter / regarder / considérer', 'rosser / battre / frapper', 'dégoter / trouver / perdre'], correct: 0, exp: 'Familier, courant, soutenu — dans l\'ordre.' },
-      { q: '« La boue » au niveau soutenu devient…', opts: ['la gadoue', 'la vase', 'la bouette'], correct: 1, exp: 'Gadoue (fam.) / boue (cour.) / vase (sout.).' },
-      { q: '« Il a cassé sa pipe » signifie, en soutenu…', opts: ['il a trépassé', 'il a démissionné', 'il a déménagé'], correct: 0, exp: 'Casser sa pipe (fam.) / mourir (cour.) / trépasser (sout.).' },
-      { q: '« Donner des conseils » se précise en…', opts: ['prodiguer des conseils', 'confectionner des conseils', 'subir des conseils'], correct: 0, exp: 'Prodiguer : le verbe précis du support.' },
-      { q: '« La ville a mille habitants » se précise en…', opts: ['la ville détient mille habitants', 'la ville compte mille habitants', 'la ville fait mille habitants'], correct: 1, exp: 'Compter : le verbe exact des statistiques.' }
+      { q: 'Le niveau courant est celui…', opts: ['de la presse et du journal télévisé', 'de l\'argot', 'de la tragédie classique'], correct: 0, exp: 'Usage standard : lexique usuel, syntaxe respectée, passé simple exclu.' },
+      { q: '« Il s\'marrait » appartient au registre…', opts: ['soutenu', 'courant', 'familier'], correct: 2, exp: 'Syntaxe relâchée et mot tronqué : familier (il se marrait).' },
+      { q: '« Se sustenter » signifie, en courant…', opts: ['se nourrir', 'se battre', 'se coucher'], correct: 0, exp: 'Soutenu pour « manger » — à côté de « bouffer » (familier).' },
+      { q: 'Le trio correct pour « regarder » est…', opts: ['rosser / battre / frapper', 'zyeuter / regarder / considérer', 'dégoter / trouver / perdre'], correct: 1, exp: 'Familier, courant, soutenu — dans l\'ordre.' },
+      { q: '« La boue » au niveau soutenu devient…', opts: ['la vase', 'la gadoue', 'la bouette'], correct: 0, exp: 'Gadoue (fam.) / boue (cour.) / vase (sout.).' },
+      { q: '« Il a cassé sa pipe » signifie, en soutenu…', opts: ['il a démissionné', 'il a trépassé', 'il a déménagé'], correct: 1, exp: 'Casser sa pipe (fam.) / mourir (cour.) / trépasser (sout.).' },
+      { q: '« Donner des conseils » se précise en…', opts: ['subir des conseils', 'confectionner des conseils', 'prodiguer des conseils'], correct: 2, exp: "Le support retient « prodiguer des conseils » comme équivalent précis de « donner » ; « confectionner » s'applique à un objet fabriqué et « subir » renverse le rapport." },
+      { q: '« La ville a mille habitants » se précise en…', opts: ['la ville détient mille habitants', 'la ville fait mille habitants', 'la ville compte mille habitants'], correct: 2, exp: 'Compter : le verbe exact des statistiques.' }
     ],
 
     pitfalls: [
@@ -389,14 +389,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'La date correcte s\'écrit…', opts: ['Mercredi 26 Juillet 2023', 'mercredi 26 juillet 2023', 'Mercredi 26 juillet 2023'], correct: 1, exp: 'Jours et mois : noms communs, minuscules.' },
-      { q: 'Etc. se ponctue…', opts: ['etc…', 'etc', 'etc.'], correct: 2, exp: 'Un point, toujours — jamais de points de suspension.' },
-      { q: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'invariable', 'pluriel'], correct: 1, exp: 'Entre virgules : invariable.' },
-      { q: '« Les statistiques ci-annexées » : ci-annexées est…', opts: ['fautif', 'invariable', 'accordé'], correct: 2, exp: 'Après le nom : valeur d\'adjectif, accord.' },
-      { q: '« Veillez croire, Monsieur… » : la correction est…', opts: ['Veillez bien croire', 'Veuillez croire', 'Veiller à croire'], correct: 1, exp: 'Veuillez vient de vouloir ; veillez, de veiller.' },
-      { q: 'Au sens de « quoi qu\'il en soit », on écrit…', opts: ['de toutes les façons', 'de toute façon', 'de toutes façons'], correct: 1, exp: 'Singulier imposé ; le pluriel signifie « par tous les moyens ».' },
-      { q: 'Que dire de « Je suis chercheur » et « Je suis un chercheur passionné » ?', opts: ['Les deux sont possibles ; la seconde caractérise la personne.', 'La première est incorrecte : un article est toujours obligatoire.', 'La seconde est incorrecte : un article est toujours interdit.'], correct: 0, exp: 'Sans article, on énonce couramment le métier ; avec « un » et un qualificatif, on peut caractériser la personne.' },
-      { q: 'Monsieur s\'abrège…', opts: ['Mr', 'Mr.', 'M.'], correct: 2, exp: 'M. en français ; Mr est l\'anglais Mister.' }
+      { q: 'La date correcte s\'écrit…', opts: ['mercredi 26 juillet 2023', 'Mercredi 26 Juillet 2023', 'Mercredi 26 juillet 2023'], correct: 0, exp: 'Jours et mois : noms communs, minuscules.' },
+      { q: 'Etc. se ponctue…', opts: ['etc…', 'etc.', 'etc'], correct: 1, exp: 'Un point, toujours — jamais de points de suspension.' },
+      { q: '« Veuillez trouver, ci-joint, les requêtes » : ci-joint est…', opts: ['accordé', 'pluriel', 'invariable'], correct: 2, exp: "Placé entre virgules, ci-joint reste invariable ; il ne s'accorde que placé après le nom, comme dans « les statistiques ci-annexées »." },
+      { q: '« Les statistiques ci-annexées » : ci-annexées est…', opts: ['fautif', 'accordé', 'invariable'], correct: 1, exp: 'Après le nom : valeur d\'adjectif, accord.' },
+      { q: '« Veillez croire, Monsieur… » : la correction est…', opts: ['Veuillez croire', 'Veillez bien croire', 'Veiller à croire'], correct: 0, exp: 'Veuillez vient de vouloir ; veillez, de veiller.' },
+      { q: 'Au sens de « quoi qu\'il en soit », on écrit…', opts: ['de toutes les façons', 'de toutes façons', 'de toute façon'], correct: 2, exp: 'Singulier imposé ; le pluriel signifie « par tous les moyens ».' },
+      { q: 'Que dire de « Je suis chercheur » et « Je suis un chercheur passionné » ?', opts: ['La première est incorrecte : un article est toujours obligatoire.', 'Les deux sont possibles ; la seconde caractérise la personne.', 'La seconde est incorrecte : un article est toujours interdit.'], correct: 1, exp: 'Sans article, on énonce couramment le métier ; avec « un » et un qualificatif, on peut caractériser la personne.' },
+      { q: 'Monsieur s\'abrège…', opts: ['M.', 'Mr.', 'Mr'], correct: 0, exp: 'M. en français ; Mr est l\'anglais Mister.' }
     ],
 
     pitfalls: [

@@ -16,7 +16,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c4-e1) — Construction du problème Dual canonique\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Primal standard 2 variables 2 contraintes]\n# Données : 4,6;2,1,10;1,3,15\nA_COMPLETER\n\n[Cas 2 — Coefficients décimaux]\n# Données : 1.5,2.5;0.5,1.0,4;1.0,0.5,5\nA_COMPLETER\n\n[Cas 3 — Primal avec coefficients dissymétriques]\n# Données : 10,20;4,2,40;1,5,30\nA_COMPLETER\n",
     "hints": [
       "Remarque la transposition : la première contrainte duale utilise a11 et a21 (première colonne de A).",
-      "La fonction objectif duale utilise les seconds membres b1 et b2 du primal."
+      "La fonction objectif duale utilise les seconds membres b1 et b2 du primal.",
+      "Échangez objectif MAX/MIN, transformez les c_j primaux en membres de droite duaux, les b_i primaux en coefficients de W, et transposez la matrice A."
     ],
     "examples": [
       {
@@ -42,7 +43,8 @@ module.exports = [
         "expected": "MIN W=40*y1 + 30*y2\nCONTRAINTES: 4*y1 + 1*y2 >= 10 | 2*y1 + 5*y2 >= 20"
       }
     ],
-    "solution": "[Exemple]\nMIN W=6*y1 + 9*y2\nCONTRAINTES: 1*y1 + 3*y2 >= 3 | 2*y1 + 1*y2 >= 5\n\n[Cas 1 — Primal standard 2 variables 2 contraintes]\nMIN W=10*y1 + 15*y2\nCONTRAINTES: 2*y1 + 1*y2 >= 4 | 1*y1 + 3*y2 >= 6\n\n[Cas 2 — Coefficients décimaux]\nMIN W=4*y1 + 5*y2\nCONTRAINTES: 0.5*y1 + 1.0*y2 >= 1.5 | 1.0*y1 + 0.5*y2 >= 2.5\n\n[Cas 3 — Primal avec coefficients dissymétriques]\nMIN W=40*y1 + 30*y2\nCONTRAINTES: 4*y1 + 1*y2 >= 10 | 2*y1 + 5*y2 >= 20\n"
+    "solution": "[Exemple]\nMIN W=6*y1 + 9*y2\nCONTRAINTES: 1*y1 + 3*y2 >= 3 | 2*y1 + 1*y2 >= 5\n\n[Cas 1 — Primal standard 2 variables 2 contraintes]\nMIN W=10*y1 + 15*y2\nCONTRAINTES: 2*y1 + 1*y2 >= 4 | 1*y1 + 3*y2 >= 6\n\n[Cas 2 — Coefficients décimaux]\nMIN W=4*y1 + 5*y2\nCONTRAINTES: 0.5*y1 + 1.0*y2 >= 1.5 | 1.0*y1 + 0.5*y2 >= 2.5\n\n[Cas 3 — Primal avec coefficients dissymétriques]\nMIN W=40*y1 + 30*y2\nCONTRAINTES: 4*y1 + 1*y2 >= 10 | 2*y1 + 5*y2 >= 20\n",
+    "takeaway": "À retenir : Transposer un programme primal MAX en son programme dual MIN symétrique.\nRepère : Objectif MIN W = 6*y1 + 9*y2. Transposée de [[1,2],[3,1]] = [[1,3],[2,1]]."
   },
   {
     "id": "ro2-c4-e2",
@@ -55,7 +57,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c4-e2) — Théorème fort de la dualité & Gap de dualité\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\n# Données : 3,5;7,2;16,11;0.333333,2.333333\nA_COMPLETER\n\n[Cas 2 — Points sous-optimaux avec gap net]\n# Données : 2,3;2,1;10,8;1.5,1.0\nA_COMPLETER\n\n[Cas 3 — Autre optimum parfait]\n# Données : 10,12;5,5;50,30;1.0,2.0\nA_COMPLETER\n",
     "hints": [
       "Calculez z = c1*x1 + c2*x2 et w = b1*y1 + b2*y2.",
-      "Si abs(w - z) < 1e-5, le gap est nul et l’optimum est prouvé."
+      "Si abs(w - z) < 1e-5, le gap est nul et l’optimum est prouvé.",
+      "Calculez Z et W puis le gap W - Z : par dualité faible Z <= W, l optimalité n est certifiée que lorsque le gap est nul."
     ],
     "examples": [
       {
@@ -81,7 +84,8 @@ module.exports = [
         "expected": "OPTIMUM_ATTEINT Z=W=110.00 GAP=0.00"
       }
     ],
-    "solution": "[Exemple]\nNON_OPTIMAL Z=22.00 W=30.91 GAP=8.91\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\nOPTIMUM_ATTEINT Z=W=31.00 GAP=0.00\n\n[Cas 2 — Points sous-optimaux avec gap net]\nNON_OPTIMAL Z=7.00 W=23.00 GAP=16.00\n\n[Cas 3 — Autre optimum parfait]\nOPTIMUM_ATTEINT Z=W=110.00 GAP=0.00\n"
+    "solution": "[Exemple]\nNON_OPTIMAL Z=22.00 W=30.91 GAP=8.91\n\n[Cas 1 — Optimum parfait sans gap (Z = W)]\nOPTIMUM_ATTEINT Z=W=31.00 GAP=0.00\n\n[Cas 2 — Points sous-optimaux avec gap net]\nNON_OPTIMAL Z=7.00 W=23.00 GAP=16.00\n\n[Cas 3 — Autre optimum parfait]\nOPTIMUM_ATTEINT Z=W=110.00 GAP=0.00\n",
+    "takeaway": "À retenir : Vérifier l’égalité des optimums primal et dual et calculer le gap de dualité.\nRepère : Z = 3*4 + 5*2 = 22.0. W = 16*0.33 + 11*2.33 = 30.91. Gap de dualité = 8.91."
   },
   {
     "id": "ro2-c4-e3",
@@ -94,7 +98,8 @@ module.exports = [
     "starter": "# Grille de calcul (ro2-c4-e3) — Théorème des écarts complémentaires (Slackness)\n# Complétez la résolution mathématique demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Toutes les conditions respectées]\n# Données : 0.0,0.0,2.0,0.0;3.0,1.5,0.0,4.2\nA_COMPLETER\n\n[Cas 2 — Violation sur la deuxième contrainte]\n# Données : 0.0,3.0,0.0;2.0,1.0,4.0\nA_COMPLETER\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\n# Données : 1.5,0.0,2.0;2.0,0.0,1.0\nA_COMPLETER\n",
     "hints": [
       "Découpez par \";\" puis sépare les valeurs s et y.",
-      "Une violation apparaît si abs(s * y) > 1e-5."
+      "Une violation apparaît si abs(s * y) > 1e-5.",
+      "Vérifiez deux jeux de produits nuls : u_i * s_i = 0 (variable duale ou écart primal nul) et v_j * x_j = 0 (variable primale ou coût réduit dual nul)."
     ],
     "examples": [
       {
@@ -120,6 +125,7 @@ module.exports = [
         "expected": "VIOLATION_CONTRAINTE_1 VIOLATION_CONTRAINTE_3"
       }
     ],
-    "solution": "[Exemple]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 1 — Toutes les conditions respectées]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 2 — Violation sur la deuxième contrainte]\nVIOLATION_CONTRAINTE_2\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\nVIOLATION_CONTRAINTE_1 VIOLATION_CONTRAINTE_3\n"
+    "solution": "[Exemple]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 1 — Toutes les conditions respectées]\nCOMPLEMENTARITE_VERIFIEE\n\n[Cas 2 — Violation sur la deuxième contrainte]\nVIOLATION_CONTRAINTE_2\n\n[Cas 3 — Violations multiples (contraintes 1 et 3)]\nVIOLATION_CONTRAINTE_1 VIOLATION_CONTRAINTE_3\n",
+    "takeaway": "À retenir : Vérifier les conditions d’écarts complémentaires entre solutions primale et duale.\nRepère : C1: 0*1.2=0, C2: 4.5*0=0, C3: 0*3.5=0. Tout est nul."
   }
 ];

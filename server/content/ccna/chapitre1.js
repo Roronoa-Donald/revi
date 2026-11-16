@@ -174,20 +174,20 @@ module.exports = {
   questions: [
     {
       stem: 'Quel est le nom correct de l’unité de données de protocole (PDU) manipulée au niveau de la couche 3 (Réseau) ?',
-      opts: ['Le segment', 'Le paquet', 'La trame', 'Le datagramme physique'],
-      correct: 1,
+      opts: ['Le segment', 'La trame', 'Le paquet', 'Le datagramme physique'],
+      correct: 2,
       exp: 'Au niveau de la couche 3 (Réseau / Internet), le PDU s’appelle un paquet (packet). En couche 4 on parle de segment (ou datagramme UDP), et en couche 2 de trame (frame).'
     },
     {
       stem: 'Quelle valeur hexadécimale contient le champ EtherType d’une trame Ethernet II transportant un paquet IPv4 ?',
-      opts: ['0x0806', '0x86DD', '0x0800', '0x8100'],
-      correct: 2,
+      opts: ['0x0806', '0x86DD', '0x8100', '0x0800'],
+      correct: 3,
       exp: 'La valeur standard de l’EtherType pour IPv4 est 0x0800. 0x0806 correspond au protocole ARP, 0x86DD à IPv6, et 0x8100 au balisage VLAN 802.1Q.'
     },
     {
       stem: 'Quelle adresse MAC correspond à une diffusion générale (Broadcast) de niveau 2 ?',
-      opts: ['00:00:00:00:00:00', 'FF:FF:FF:FF:FF:FF', '01:00:5E:00:00:01', '33:33:00:00:00:01'],
-      correct: 1,
+      opts: ['FF:FF:FF:FF:FF:FF', '00:00:00:00:00:00', '01:00:5E:00:00:01', '33:33:00:00:00:01'],
+      correct: 0,
       exp: 'L’adresse de diffusion générale Ethernet est FF:FF:FF:FF:FF:FF (les 48 bits fixés à 1). Elle est traitée par toutes les cartes réseau du même domaine de broadcast.'
     },
     {
@@ -204,33 +204,33 @@ module.exports = {
     {
       stem: 'Comment est transmise une requête initiale ARP (ARP Request) sur le réseau local ?',
       opts: [
-        'En diffusion générale Broadcast avec la MAC destination FF:FF:FF:FF:FF:FF',
-        'En Unicast direct vers la passerelle par défaut',
         'En Multicast réservé 224.0.0.1',
+        'En Unicast direct vers la passerelle par défaut',
+        'En diffusion générale Broadcast avec la MAC destination FF:FF:FF:FF:FF:FF',
         'En Anycast à travers le routeur le plus proche'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Puisque l’émetteur ignore l’adresse MAC de la cible, il transmet la requête en broadcast (FF:FF:FF:FF:FF:FF). Tous les hôtes reçoivent la requête, mais seule la machine possédant l’IP demandée répondra en unicast.'
     },
     {
       stem: 'Combien d’octets mesure l’en-tête Ethernet II standard (sans compter le préambule ni le FCS) ?',
-      opts: ['14 octets', '20 octets', '12 octets', '32 octets'],
-      correct: 0,
+      opts: ['32 octets', '20 octets', '12 octets', '14 octets'],
+      correct: 3,
       exp: 'L’en-tête Ethernet II comprend 6 octets de MAC destination + 6 octets de MAC source + 2 octets d’EtherType, soit exactement 14 octets.'
     },
     {
       stem: 'À quelle couche du modèle OSI se situent les numéros de port (ex: port 80 pour HTTP, port 443 pour HTTPS) ?',
-      opts: ['Couche 2 — Liaison de données', 'Couche 3 — Réseau', 'Couche 4 — Transport', 'Couche 7 — Application'],
-      correct: 2,
+      opts: ['Couche 4 — Transport', 'Couche 3 — Réseau', 'Couche 2 — Liaison de données', 'Couche 7 — Application'],
+      correct: 0,
       exp: 'Les numéros de port (TCP et UDP) sont définis au niveau de la couche 4 (Transport). Ils permettent de multiplexer et démultiplexer les flux applicatifs sur une même adresse IP.'
     },
     {
       stem: 'Que se passe-t-il si la charge utile (payload) d’une trame Ethernet II fait moins de 46 octets ?',
       opts: [
-        'La trame est rejetée pour erreur de taille minimale',
-        'Un bourrage (padding) d’octets à zéro est automatiquement ajouté pour atteindre 64 octets avec le FCS',
-        'La carte réseau découpe la trame en demi-segments',
-        'L’EtherType est remplacé par le code 0x0000'
+        "La trame est immédiatement rejetée pour erreur de taille minimale",
+        "Un bourrage (padding) d’octets à zéro est automatiquement ajouté pour atteindre 64 octets avec le FCS",
+        "La carte réseau découpe automatiquement la trame en deux demi-segments",
+        "Le champ EtherType est entièrement remplacé par le code 0x0000 de la trame"
       ],
       correct: 1,
       exp: 'Pour que la détection de collision CSMA/CD fonctionne sur Ethernet historique, la taille minimale d’une trame est de 64 octets. Si le payload fait moins de 46 octets, des octets de bourrage (padding) sont insérés.'

@@ -142,21 +142,21 @@ module.exports = {
     {
       stem: 'Pourquoi une boucle de commutation de niveau 2 est-elle plus destructrice qu’une boucle de routage de niveau 3 ?',
       opts: [
-        'Parce que les trames Ethernet sont chiffrées par défaut',
         'Parce que l’en-tête Ethernet ne contient aucun champ de durée de vie (TTL) pour détruire les paquets en boucle',
+        'Parce que les trames Ethernet sont chiffrées par défaut',
         'Parce que le câble Ethernet s’échauffe physiquement sous l’effet des boucles',
         'Parce que les routeurs n’acceptent pas les adresses MAC impaires'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’en-tête Ethernet 802.3 ne comporte aucun champ TTL. En cas de boucle physique sans STP, les trames tournent indéfiniment jusqu’à saturation totale des liaisons.'
     },
     {
       stem: 'Dans la norme IEEE 802.1t, comment la priorité de pont est-elle structurée sur les 2 octets de poids fort du BID ?',
       opts: [
-        '16 bits continus de priorité sans distinction de VLAN',
-        '4 bits de priorité (multiples de 4096) et 12 bits d’identifiant de système étendu (VLAN ID)',
-        '8 bits de priorité et 8 bits d’adresse IP',
-        '1 bit de polarité et 15 bits de numéro de port'
+        "16 bits continus de priorité, sans aucun identifiant de VLAN intégré au BID",
+        "4 bits de priorité (multiples de 4096) et 12 bits d’identifiant de système étendu (VLAN ID)",
+        "8 bits de priorité suivis de 8 bits d’adresse IP du commutateur racine",
+        "1 bit de polarité suivi de 15 bits de numéro de port descendant"
       ],
       correct: 1,
       exp: 'La norme 802.1t dédie 4 bits à la priorité (valeurs multiples de 4096 : 0, 4096, 8192, ..., 61440) et 12 bits au VLAN ID (Extended System ID).'
@@ -165,42 +165,42 @@ module.exports = {
       stem: 'En cas d’égalité stricte de priorité totale entre deux commutateurs, quel critère physique détermine le Root Bridge ?',
       opts: [
         'L’adresse IP la plus élevée',
-        'L’adresse MAC la plus basse numériquement',
         'Le nombre de ports physiques connectés',
+        'L’adresse MAC la plus basse numériquement',
         'La vitesse du processeur central'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En cas d’égalité de priorité, le commutateur dont l’adresse MAC est la plus basse (plus petite valeur hexadécimale) remporte l’élection de Root Bridge.'
     },
     {
       stem: 'Quel est le premier critère examiné par un commutateur non-racine pour sélectionner son Root Port ?',
       opts: [
-        'Le Port ID le plus faible',
-        'Le coût cumulé du chemin vers la racine (Root Path Cost) le plus bas',
-        'Le Bridge ID du commutateur voisin le plus bas',
-        'Le débit maximal de la carte mère'
+        "Le Port ID du voisin le plus faible, critère de départage final",
+        "Le Bridge ID du commutateur voisin le plus bas, examiné après le coût",
+        "Le débit maximal de la carte mère du commutateur local",
+        "Le coût cumulé du chemin vers la racine (Root Path Cost) le plus bas"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le commutateur compare en priorité le coût cumulé de la liaison vers le Root Bridge. Les autres critères (BID voisin, PID voisin) ne servent qu’en cas d’égalité de coût.'
     },
     {
       stem: 'Dans RSTP 802.1w, quel rôle de port correspond à un port de secours prêt à remplacer immédiatement le Root Port en cas de coupure ?',
       opts: [
-        'Designated Port',
         'Alternate Port',
+        'Designated Port',
         'Backup Port',
         'Disabled Port'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’Alternate Port est en attente (Discarding) et offre un chemin alternatif vers le Root Bridge, prêt à basculer immédiatement en état Forwarding.'
     },
     {
       stem: 'Comment le protocole RSTP 802.1w parvient-il à converger en quelques dizaines de millisecondes sans attendre les timers passifs ?',
       opts: [
-        'En désactivant temporairement tous les VLANs du réseau',
-        'Grâce au mécanisme de synchronisation active par poignée de main Proposal / Agreement sur liaisons point-à-point',
-        'En forçant le redémarrage électrique de tous les commutateurs voisins',
-        'En utilisant des paquets ICMP Echo réguliers'
+        "En désactivant temporairement tous les VLANs du réseau pendant toute la phase de reprise",
+        "Grâce au mécanisme de synchronisation active par poignée de main Proposal / Agreement sur liaisons point-à-point",
+        "En forçant le redémarrage électrique complet de tous les commutateurs voisins concernés",
+        "En utilisant des paquets ICMP Echo réguliers pour sonder l’état des liaisons"
       ],
       correct: 1,
       exp: 'RSTP utilise une poignée de main explicite Proposal / Agreement qui négocie directement la transition vers l’état Forwarding sans délai de minuterie.'
@@ -209,22 +209,22 @@ module.exports = {
       stem: 'Quelle action la fonctionnalité BPDU Guard entreprend-elle si une trame BPDU est reçue sur un port configuré en PortFast ?',
       opts: [
         'Elle ignore simplement la trame BPDU',
-        'Elle désactive immédiatement le port et le place en état err-disable',
         'Elle modifie la priorité du commutateur distant',
+        'Elle désactive immédiatement le port et le place en état err-disable',
         'Elle route le paquet vers la passerelle par défaut'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'BPDU Guard considère la réception d’un BPDU sur un port d’accès utilisateur comme une anomalie critique et désactive le port en état err-disable.'
     },
     {
       stem: 'Dans quel état un port protégé par Root Guard est-il placé s’il reçoit un BPDU revendiquant une priorité supérieure à celle de la racine actuelle ?',
       opts: [
-        'Forwarding immédiat',
-        'Root-inconsistent (blocage du trafic sur le port)',
-        'Shutdown électrique',
-        'Loop-free mirroring'
+        "Forwarding immédiat : le port relaie les trames sans contrôle",
+        "Shutdown électrique du port jusqu’à intervention",
+        "Loop-free mirroring : copie des trames vers un miroir",
+        "Root-inconsistent (blocage du trafic sur le port)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Root Guard protège la hiérarchie en basculant le port en état root-inconsistent (écoute bloquée) jusqu’à ce que les BPDUs illégitimes cessent d’être émis.'
     }
   ],

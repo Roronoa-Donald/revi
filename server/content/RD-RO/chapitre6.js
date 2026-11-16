@@ -137,43 +137,43 @@ module.exports = {
     {
       q: 'Dans un graphe d’ordonnancement MPM ou PERT, comment calcule-t-on la date au plus tôt ES d’une tâche ayant plusieurs prédécesseurs ?',
       opts: [
-        'En prenant le MAXIMUM des dates de fin au plus tôt de tous ses prédécesseurs',
+        'En additionnant les durées de toutes les tâches du graphe',
         'En prenant la moyenne arithmétique de ses prédécesseurs',
         'En prenant le minimum de ses prédécesseurs',
-        'En additionnant les durées de toutes les tâches du graphe'
+        'En prenant le MAXIMUM des dates de fin au plus tôt de tous ses prédécesseurs'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Une tâche ne peut débuter que lorsque le dernier de ses prédécesseurs s’achève, d’où le calcul du maximum : $ES = \\max (ES_p + d_p)$.'
     },
     {
       q: 'Qu’appelle-t-on le « chemin critique » dans un projet ?',
       opts: [
-        'Le chemin continu de la source au puits dont toutes les tâches ont une marge totale nulle (MT = 0)',
-        'Le chemin qui utilise le plus grand nombre d’ordinateurs',
-        'Le chemin le plus court en nombre de tâches',
-        'Le chemin dont le budget financier est le plus élevé'
+        "Le chemin qui mobilise le plus grand nombre d’ordinateurs et de ressources",
+        "Le chemin le plus court en nombre de tâches entre le début et la fin",
+        "Le chemin continu de la source au puits dont toutes les tâches ont une marge totale nulle (MT = 0)",
+        "Le chemin dont le budget financier cumulé est le plus élevé du projet"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le chemin critique détermine la durée incompressible du projet : ses tâches n’ont aucune marge de retard.'
     },
     {
       q: 'Que vaut la marge totale (MT) d’une tâche dont la date au plus tôt est ES = 4, la date au plus tard de fin est LF = 12 et la durée est d = 5 ?',
       opts: [
-        '3 jours',
         '8 jours',
+        '3 jours',
         '0 jour',
         '1 jour'
       ],
-      correct: 0,
+      correct: 1,
       exp: '$MT = LF - ES - d = 12 - 4 - 5 = 3$ jours de battement.'
     },
     {
       q: 'Dans l’algorithme de Ford-Fulkerson, comment détermine-t-on la quantité de flot supplémentaire que l’on peut injecter le long d’une chaîne augmentante ?',
       opts: [
-        'Par la capacité résiduelle minimale parmi tous les arcs de la chaîne (goulot d’étranglement Δ)',
-        'Par la capacité du premier arc de la source',
-        'Par la somme des capacités de la chaîne',
-        'Par la moyenne des capacités résiduelles'
+        "Par la capacité résiduelle minimale parmi tous les arcs de la chaîne (goulot d’étranglement Δ)",
+        "Par la capacité du premier arc rencontré en sortie de la source uniquement",
+        "Par la somme cumulée des capacités de tous les arcs de la chaîne",
+        "Par la moyenne arithmétique des capacités résiduelles des arcs de la chaîne"
       ],
       correct: 0,
       exp: 'Le flot est bridé par l’arc le plus étroit de la chaîne, c’est le principe du goulot d’étranglement : $\\Delta = \\min r(u, v)$.'
@@ -181,43 +181,43 @@ module.exports = {
     {
       q: 'D’après le théorème de Ford-Fulkerson, à quoi la valeur du flot maximal dans un réseau est-elle exactement égale ?',
       opts: [
-        'À la capacité de la coupe minimale séparant la source du puits',
-        'Au nombre total d’arcs du graphe',
-        'À la somme des capacités de tous les arcs',
-        'À la capacité du puits'
+        "Au nombre total d’arcs présents dans le graphe de flots",
+        "À la somme des capacités de tous les arcs du réseau entier",
+        "À la capacité propre du puits, indépendamment des coupes",
+        "À la capacité de la coupe minimale séparant la source du puits"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Le théorème Max-Flow Min-Cut stipule l’égalité parfaite entre la valeur du flot max et la capacité de la coupe la plus étroite du réseau.'
     },
     {
       q: 'Quelle est la différence fondamentale entre la marge totale (MT) et la marge libre (ML) d’une tâche ?',
       opts: [
-        'La marge totale tolère de repousser le début des successeurs, tandis que la marge libre ne retarde aucun successeur',
-        'La marge totale est toujours plus petite que la marge libre',
-        'La marge libre s’exprime en euros',
-        'Il n’y a aucune différence, ce sont deux synonymes'
+        "La marge totale est toujours strictement plus petite que la marge libre d’une tâche",
+        "La marge libre s’exprime en euros alors que la marge totale s’exprime en jours",
+        "La marge totale tolère de repousser le début des successeurs, tandis que la marge libre ne retarde aucun successeur",
+        "Il n’existe aucune différence réelle : les deux termes désignent exactement le même concept de marge"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La marge libre préserve le début au plus tôt de tous les successeurs directs ($ML \\le MT$).'
     },
     {
       q: 'Dans un graphe de flots, que stipule la loi de conservation pour un sommet intermédiaire (ni source, ni puits) ?',
       opts: [
-        'La somme des flots entrant dans le sommet égale exactement la somme des flots en sortant',
-        'Le flot entrant doit être supérieur au flot sortant',
-        'Le flot sortant doit être nul',
-        'Le sommet accumule 50 % du trafic'
+        "Le flot entrant doit toujours être strictement supérieur au flot sortant",
+        "La somme des flots entrant dans le sommet égale exactement la somme des flots en sortant",
+        "Le flot sortant du sommet doit obligatoirement rester nul en permanence",
+        "Le sommet intermédiaire accumule la moitié du trafic qui le traverse"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'C’est l’analogue de la loi des nœuds de Kirchhoff : aucun flot ne peut être créé ni détruit sur un nœud intermédiaire.'
     },
     {
       q: 'Pourquoi l’implémentation d’Edmonds-Karp est-elle préférée à la version naïve de Ford-Fulkerson ?',
       opts: [
-        'Elle recherche la chaîne augmentante la plus courte en nombre d’arcs par un parcours en largeur (BFS), garantissant une complexité polynomiale O(V * E²)',
-        'Elle supprime le besoin d’avoir une source et un puits',
-        'Elle ne fonctionne qu’avec des flots infinis',
-        'Elle évite d’utiliser la mémoire vive'
+        "Elle recherche la chaîne augmentante la plus courte en nombre d’arcs par un parcours en largeur (BFS), garantissant une complexité polynomiale O(V * E²)",
+        "Elle choisit systématiquement la chaîne augmentante de capacité maximale, ce qui garantirait une convergence immédiate",
+        "Elle supprime entièrement le besoin de définir une source et un puits distincts dans le réseau de transport",
+        "Elle n’utilise absolument aucune mémoire vive lors du calcul des chaînes augmentantes successives du réseau"
       ],
       correct: 0,
       exp: 'Le choix de la chaîne de plus courte distance (BFS) évite les itérations infinies avec des capacités irrationnelles et borne le temps en $O(V \\cdot E^2)$.'

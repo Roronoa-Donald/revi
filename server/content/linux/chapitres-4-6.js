@@ -82,18 +82,33 @@ module.exports = [
             'd’automatiser des tâches. On garde la <strong>clé privée</strong> secrète ; seule la ' +
             '<strong>publique</strong> est déposée sur le serveur.</p>')
         ].join('\n')
+      },
+      {
+        title: 'Volumes logiques LVM (pvcreate, vgcreate, lvextend) et réseau avancé (nmcli, ip route)',
+        html: [
+          '<p>En administration serveur B2, le partitionnement statique cède la place à <strong>LVM (Logical Volume Manager)</strong>, qui permet d’agrandir les volumes à chaud sans coupure de service :</p>',
+          '<pre><code>pvcreate /dev/sdb /dev/sdc                 # 1. Initialiser les volumes physiques (PV)\n' +
+          'vgcreate vg_data /dev/sdb /dev/sdc         # 2. Assembler le groupe de volumes (VG)\n' +
+          'lvcreate -L 20G -n lv_app vg_data          # 3. Découper un volume logique (LV)\n' +
+          'lvextend -L +10G -r /dev/vg_data/lv_app    # 4. Étendre le LV et le système de fichiers (-r) à chaud</code></pre>',
+          '<p>Côté réseau, l’administrateur B2 pilote les interfaces et la table de routage via <strong>NetworkManager (<code>nmcli</code>)</strong> et la suite <strong>iproute2 (<code>ip addr</code>, <code>ip route</code>)</strong> :</p>',
+          '<pre><code>nmcli connection modify eth0 ipv4.addresses 10.10.20.15/24 ipv4.gateway 10.10.20.1 ipv4.method manual\n' +
+          'nmcli connection up eth0\n' +
+          'ip route show                              # Inspecter la table de routage active\n' +
+          'ip route add 192.168.50.0/24 via 10.10.20.254 dev eth0</code></pre>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Combien d’octets dans une adresse IPv4 valide ?', opts: ['2', '4', '6'], correct: 1, exp: 'IPv4 s’écrit en quatre octets séparés par des points, chacun de 0 à 255.' },
+      { stem: 'Combien d’octets dans une adresse IPv4 valide ?', opts: ['2', '6', '4'], correct: 2, exp: 'IPv4 s’écrit en quatre octets séparés par des points, chacun de 0 à 255.' },
       { stem: 'Quelle adresse est privée ?', opts: ['192.168.10.20', '203.0.113.7', '8.8.8.8'], correct: 0, exp: '192.168.0.0/16 est une plage privée réservée aux réseaux internes.' },
       { stem: '172.32.1.1 est-elle privée ?', opts: ['oui', 'non', 'seulement en IPv6'], correct: 1, exp: 'Seules les plages 172.16 à 172.31 sont privées ; 172.32 est publique.' },
-      { stem: 'À quoi sert la passerelle ?', opts: ['à traduire les noms', 'à sortir du réseau local', 'à chiffrer'], correct: 1, exp: 'La passerelle (default via) est la sortie vers les réseaux extérieurs.' },
-      { stem: 'Port SSH par défaut ?', opts: ['21', '22', '443'], correct: 1, exp: 'SSH écoute sur le port 22 par défaut ; 21 est FTP et 443 HTTPS.' },
-      { stem: 'Quelle commande SSH utilise le port 2222 pour sam@serveur ?', opts: ['ssh -p 2222 sam@serveur', 'ssh sam@serveur:2222', 'ssh -p sam 2222@serveur'], correct: 0, exp: 'L’option -p indique le port ; sans préfixe ssh://, le suffixe :2222 n’est pas interprété comme le port de la cible.' },
-      { stem: 'Que fait ssh-copy-id ?', opts: ['copie un fichier', 'installe la clé publique sur le serveur', 'génère une clé'], correct: 1, exp: 'Il dépose la clé publique dans le fichier authorized_keys du serveur.' },
-      { stem: 'Pourquoi un serveur en IP fixe ?', opts: ['pour économiser', 'pour rester joignable à la même adresse', 'c’est obligatoire'], correct: 1, exp: 'Les clients doivent retrouver le serveur à une adresse stable.' }
+      { stem: 'À quoi sert la passerelle ?', opts: ['à sortir du réseau local', 'à traduire les noms', 'à chiffrer'], correct: 0, exp: 'La passerelle (default via) est la sortie vers les réseaux extérieurs.' },
+      { stem: 'Port SSH par défaut ?', opts: ['21', '443', '22'], correct: 2, exp: 'SSH écoute sur le port 22 par défaut ; 21 est FTP et 443 HTTPS.' },
+      { stem: 'Quelle commande SSH utilise le port 2222 pour sam@serveur ?', opts: ['ssh sam@serveur:2222', 'ssh -p 2222 sam@serveur', 'ssh -p sam 2222@serveur'], correct: 1, exp: 'L’option -p indique le port ; sans préfixe ssh://, le suffixe :2222 n’est pas interprété comme le port de la cible.' },
+      { stem: 'Que fait ssh-copy-id ?', opts: ["installe la clé publique sur le serveur","génère une paire de clés si elle n’existe pas","copie un fichier quelconque vers le serveur"], correct: 0, exp: "Il dépose la clé publique dans le fichier authorized_keys du serveur. La génération des clés relève de ssh-keygen, pas de ssh-copy-id." },
+      { stem: 'Pourquoi un serveur en IP fixe ?', opts: ["pour économiser des adresses du sous-réseau","pour rester joignable à la même adresse","parce que c’est obligatoire pour un serveur"], correct: 1, exp: "Les clients doivent retrouver le serveur à une adresse stable. Une IP fixe n’est pas une obligation technique : un bail DHCP réservé resterait joignable aussi." }
     ],
 
     pitfalls: [
@@ -240,14 +255,14 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que vaut $# dans un script ?', opts: ['le nom du script', 'le nombre d’arguments', 'le premier argument'], correct: 1, exp: '<code>$#</code> contient le nombre de paramètres positionnels ; <code>$0</code> est le nom du script.' },
-      { stem: 'Quel paramètre est le premier argument ?', opts: ['$0', '$1', '$#'], correct: 1, exp: '<code>$1</code> est le premier argument ; <code>$0</code> est le nom du script.' },
+      { stem: 'Que vaut $# dans un script ?', opts: ['le nom du script', 'le premier argument', 'le nombre d’arguments'], correct: 2, exp: '<code>$#</code> contient le nombre de paramètres positionnels ; <code>$0</code> est le nom du script.' },
+      { stem: 'Quel paramètre est le premier argument ?', opts: ['$0', '$#', '$1'], correct: 2, exp: '<code>$1</code> est le premier argument ; <code>$0</code> est le nom du script.' },
       { stem: 'Une boucle for ((i=0; i<n; i++)) est de…', opts: ['style C', 'style shell simple', 'non valide'], correct: 0, exp: 'bash supporte la syntaxe arithmétique dite « style C ».' },
       { stem: 'Comparaison numérique pour « supérieur ou égal » ?', opts: ['-gt', '-ge', '-eq'], correct: 1, exp: '-ge = greater or equal ; -gt = strictement supérieur.' },
-      { stem: 'Que signifie un code de retour 0 ?', opts: ['échec', 'succès', 'avertissement'], correct: 1, exp: 'En shell, 0 = succès, toute autre valeur = échec.' },
-      { stem: 'Que fait read -r n ?', opts: ['lit une ligne dans n', 'écrit n', 'supprime n'], correct: 0, exp: '-r empêche l’interprétation des barres obliques inverses ; la ligne est rangée dans n.' },
-      { stem: 'Le bilan d’un compteur s’affiche…', opts: ['dans la boucle', 'après la boucle', 'avant la lecture'], correct: 1, exp: 'Affiché après la boucle, il sort une seule fois, avec le total final.' },
-      { stem: 'Que vaut $@ ?', opts: ['la liste des arguments', 'l’adresse IP', 'le nom du shell'], correct: 0, exp: '$@ déroule tous les paramètres positionnels.' }
+      { stem: 'Que signifie un code de retour 0 ?', opts: ['échec', 'avertissement', 'succès'], correct: 2, exp: 'En shell, 0 = succès, toute autre valeur = échec.' },
+      { stem: 'Que fait read -r n ?', opts: ['écrit n', 'lit une ligne dans n', 'supprime n'], correct: 1, exp: '-r empêche l’interprétation des barres obliques inverses ; la ligne est rangée dans n.' },
+      { stem: 'Le bilan d’un compteur s’affiche…', opts: ['après la boucle', 'dans la boucle', 'avant la lecture'], correct: 0, exp: 'Affiché après la boucle, il sort une seule fois, avec le total final.' },
+      { stem: 'Que vaut $@ ?', opts: ['l’adresse IP', 'la liste des arguments', 'le nom du shell'], correct: 1, exp: '$@ déroule tous les paramètres positionnels.' }
     ],
 
     pitfalls: [
@@ -382,18 +397,40 @@ module.exports = [
             '3) <code>ps</code> pour vérifier le processus ; 4) décider de l’action. Le réflexe d’ordre évite ' +
             'de redémarrer à l’aveugle.</p>')
         ].join('\n')
+      },
+      {
+        title: 'Unités et timers systemd, filtrage journalctl, durcissement SSH et fail2ban',
+        html: [
+          '<p>Au niveau B2, l’administrateur conçoit ses propres unités <strong>systemd</strong> dans <code>/etc/systemd/system/</code> : un fichier <code>backup.service</code> (sections <code>[Unit]</code>, <code>[Service]</code> avec <code>Type=oneshot</code>, <code>User=</code>, <code>ExecStart=</code>) déclenché par un fichier <code>backup.timer</code> (directive <code>OnCalendar=*-*-* 02:30:00</code> et <code>Persistent=true</code>, inspecté via <code>systemctl list-timers</code> après <code>systemctl daemon-reload</code>).</p>',
+          '<p>L’investigation des pannes combine les filtres temporels et de sévérité de <code>journalctl</code> :</p>',
+          '<pre><code>journalctl -u ssh -p warning --since "2 hours ago" --no-pager\n' +
+          'journalctl -b -1 -p err                    # Erreurs critiques du démarrage précédent</code></pre>',
+          '<p>Enfin, tout serveur Linux exposé est verrouillé par le <strong>durcissement OpenSSH</strong> (<code>/etc/ssh/sshd_config</code> validé via <code>sshd -t</code>) et la protection active <strong>fail2ban</strong> :</p>',
+          '<pre><code># /etc/ssh/sshd_config — Durcissement bastion B2\n' +
+          'PermitRootLogin no\n' +
+          'PasswordAuthentication no\n' +
+          'PubkeyAuthentication yes\n' +
+          'MaxAuthTries 3\n\n' +
+          '# /etc/fail2ban/jail.local — Bannissement automatique après échecs SSH\n' +
+          '[sshd]\n' +
+          'enabled  = true\n' +
+          'maxretry = 4\n' +
+          'findtime = 10m\n' +
+          'bantime  = 1h\n' +
+          '# Vérification : fail2ban-client status sshd</code></pre>'
+        ].join('\n')
       }
     ],
 
     questions: [
-      { stem: 'Que fait systemctl restart nginx ?', opts: ['arrête le service', 'redémarre le service', 'désactive le service'], correct: 1, exp: 'restart relance le service, utile quand son état est failed.' },
-      { stem: 'État d’un service arrêté mais installé ?', opts: ['active', 'inactive', 'failed'], correct: 1, exp: 'inactive signifie arrêté ; failed signifie en échec après une tentative.' },
-      { stem: 'Un processus zombie…', opts: ['consomme le processeur', 'est terminé mais non récupéré', 'est un virus'], correct: 1, exp: 'Il est fini mais son parent n’a pas récupéré son code de retour.' },
-      { stem: 'Que fait kill -9 ?', opts: ['arrête proprement', 'force l’arrêt immédiat', 'redémarre'], correct: 1, exp: '-9 envoie SIGKILL : arrêt forcé, sans nettoyage, en dernier recours.' },
-      { stem: 'Combien de champs dans une entrée crontab ?', opts: ['3', '5', '7'], correct: 1, exp: 'Cinq champs de temps, puis la commande.' },
+      { stem: 'Que fait systemctl restart nginx ?', opts: ['redémarre le service', 'arrête le service', 'désactive le service'], correct: 0, exp: 'restart relance le service, utile quand son état est failed.' },
+      { stem: 'État d’un service arrêté mais installé ?', opts: ['active', 'failed', 'inactive'], correct: 2, exp: 'inactive signifie arrêté ; failed signifie en échec après une tentative.' },
+      { stem: 'Un processus zombie…', opts: ['consomme le processeur', 'est un virus', 'est terminé mais non récupéré'], correct: 2, exp: 'Il est fini mais son parent n’a pas récupéré son code de retour.' },
+      { stem: 'Que fait kill -9 ?', opts: ['force l’arrêt immédiat', 'arrête proprement', 'redémarre'], correct: 0, exp: '-9 envoie SIGKILL : arrêt forcé, sans nettoyage, en dernier recours.' },
+      { stem: 'Combien de champs dans une entrée crontab ?', opts: ['3', '5', '7'], correct: 1, exp: "Une ligne crontab ouvre sur cinq champs d’ordonnancement (minute, heure, jour du mois, mois, jour de la semaine) puis la commande : ni 3 ni 7." },
       { stem: '0 6 * * * s’exécute…', opts: ['tous les jours à 6 h', 'à 6 h le 1er', 'chaque minute'], correct: 0, exp: 'minute 0, heure 6, tous les jours : chaque matin à 6 h.' },
-      { stem: 'Quelle commande lit le journal d’un service ?', opts: ['journalctl -u nginx', 'ls -l', 'crontab -e'], correct: 0, exp: 'journalctl -u filtre le journal par unité de service.' },
-      { stem: 'Quelle action pour un service failed ?', opts: ['rien', 'start', 'restart'], correct: 2, exp: 'Un service en échec se redémarre (restart) ; inactive se démarre (start).' }
+      { stem: 'Quelle commande lit le journal d’un service ?', opts: ['crontab -e', 'ls -l', 'journalctl -u nginx'], correct: 2, exp: 'journalctl -u filtre le journal par unité de service.' },
+      { stem: 'Quelle action pour un service failed ?', opts: ['rien', 'restart', 'start'], correct: 1, exp: 'Un service en échec se redémarre (restart) ; inactive se démarre (start).' }
     ],
 
     pitfalls: [

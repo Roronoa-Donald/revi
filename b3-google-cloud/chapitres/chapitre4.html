@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -220,20 +218,31 @@
      data-exercise="gcp3-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="SUBNET_CALC cidr=10.10.0.0/24">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c4-e1) — Calculateur de Sous-réseaux VPC et Adresses IP Réservées GCP
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="RivieraSoft, éditeur niçois de logiciels, crée son VPC en mode personnalisé avec le bloc&#10;10.70.0.0/23, découpé en sous-réseaux /24. Google Cloud réserve 4 adresses par sous-réseau.&#10;&#10;1) Le /23 contient 2 puissance 9 = 512 adresses.&#10;2) Il fournit 2 sous-réseaux /24 (256 adresses chacun).&#10;3) Un /24 offre 256 − 4 = 252 adresses utilisables.&#10;4) Première utilisable de 10.70.0.0/24 : 10.70.0.3 (.0 réseau, .1 passerelle, .2 DNS).&#10;5) Dernière utilisable : 10.70.0.254 (.255 réservée pour la diffusion).&#10;6) Passerelle de 10.70.1.0/24 : 10.70.1.1.">
+  <script type="text/plain" data-lab-starter># Exercice — Le plan d'adressage VPC de Voltalys
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 3 : le nombre seul. Questions 4 à 6 : l'adresse IP.
 
-[Cas 1 — Sous-réseau de production plus large /20]
-# Données : SUBNET_CALC cidr=172.16.0.0/20
+[Question 1 — Nombre d'adresses du bloc /22]
 A_COMPLETER
 
-[Cas 2 — Sous-réseau compact /28]
-# Données : SUBNET_CALC cidr=192.168.1.32/28
+[Question 2 — Nombre de sous-réseaux /24]
+A_COMPLETER
+
+[Question 3 — Adresses utilisables d'un /24]
+A_COMPLETER
+
+[Question 4 — Première adresse utilisable de 10.40.1.0/24]
+A_COMPLETER
+
+[Question 5 — Dernière adresse utilisable de 10.40.1.0/24]
+A_COMPLETER
+
+[Question 6 — Passerelle de 10.40.2.0/24]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur de Sous-réseaux VPC et Adresses IP Réservées GCP</h3>
+    <h3 class="lab__title">Exercice 1 — Le plan d'adressage VPC de Voltalys</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -242,26 +251,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le nombre d'adresses IP totales et utilisables dans un sous-réseau VPC Google Cloud en tenant compte des 4 adresses réservées.</p>
-    <div class="lab__brief"><p>Dans un sous-réseau Google Cloud VPC, 4 adresses IP sont systématiquement réservées par l'infrastructure :<br>
-- <code>première (.0)</code> : Adresse réseau (Network)<br>
-- <code>seconde (.1)</code> : Passerelle par défaut du sous-réseau (Default Gateway)<br>
-- <code>troisième (.2)</code> : Réservée par Google (DNS interne)<br>
-- <code>dernière (.255 pour /24)</code> : Réservée par Google (Diffusion/Broadcast)<br><br>
-Adresses utilisables pour les instances = <code>2^(32 - prefix) - 4</code>.<br><br>
-Paramètres soumis à l’analyse :<br>
-<code>SUBNET_CALC cidr=&lt;IP/prefix&gt;</code>.<br>
-Résultat d’analyse attendu :<br>
-<code>SUBNET: cidr=&lt;cidr&gt; total_ips=&lt;T&gt; usable_ips=&lt;U&gt; gateway=&lt;gw_ip&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Découper un bloc CIDR en sous-réseaux et identifier les adresses réservées par Google Cloud.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Voltalys, gestionnaire grenoblois de compteurs d'énergie connectés, crée son VPC en mode personnalisé avec le bloc <strong>10.40.0.0/22</strong>, à découper en sous-réseaux régionaux. Rappel du cours : Google Cloud réserve <strong>4 adresses par sous-réseau</strong> — la première (.0, adresse du réseau), la suivante (.1, passerelle), la troisième (.2, DNS interne) et la dernière (diffusion).</p><ol><li>Combien d'adresses IP contient le bloc 10.40.0.0/22 ?</li><li>Combien de sous-réseaux /24 peut-on découper dans ce bloc /22 ?</li><li>Combien d'adresses utilisables offre un sous-réseau /24, réservations déduites ?</li><li>Quelle est la première adresse utilisable du sous-réseau 10.40.1.0/24 ?</li><li>Quelle est la dernière adresse utilisable du sous-réseau 10.40.1.0/24 ?</li><li>Quelle est l'adresse de la passerelle du sous-réseau 10.40.2.0/24 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBNET_CALC cidr=10.10.0.0/24</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RivieraSoft, éditeur niçois de logiciels, crée son VPC en mode personnalisé avec le bloc
+10.70.0.0/23, découpé en sous-réseaux /24. Google Cloud réserve 4 adresses par sous-réseau.
+
+1) Le /23 contient 2 puissance 9 = 512 adresses.
+2) Il fournit 2 sous-réseaux /24 (256 adresses chacun).
+3) Un /24 offre 256 − 4 = 252 adresses utilisables.
+4) Première utilisable de 10.70.0.0/24 : 10.70.0.3 (.0 réseau, .1 passerelle, .2 DNS).
+5) Dernière utilisable : 10.70.0.254 (.255 réservée pour la diffusion).
+6) Passerelle de 10.70.1.0/24 : 10.70.1.1.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez le module standard la notation CIDR du réseau.</li>
-        <li>Le nombre total d’adresses du bloc CIDR /n vaut 2^(32 - n).</li>
-        <li>L’adresse de passerelle par défaut (gateway) est la deuxième adresse du sous-réseau (.1).</li>
+        <li>Un bloc /n contient 2 puissance (32 − n) adresses : un /22 en contient 2 puissance 10, un /24 en contient 2 puissance 8.</li>
+        <li>Chaque sous-réseau perd 4 adresses réservées : retranchez-les du total pour obtenir les adresses utilisables.</li>
+        <li>1. Le /22 couvre le troisième octet de 0 à 3. 2. Comparez les tailles : un /24 est quatre fois plus petit qu'un /22. 3. 256 − 4. 4. Les adresses .0, .1 et .2 sont réservées. 5. La dernière adresse est réservée pour la diffusion. 6. La passerelle est la deuxième adresse du sous-réseau.</li>
       </ol>
     </details>
   </div>
@@ -271,24 +279,31 @@ Résultat d’analyse attendu :<br>
      data-exercise="gcp3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="RULE priority=1000 action=ALLOW proto=tcp port=443&#10;RULE priority=1000 action=ALLOW proto=tcp port=80&#10;RULE priority=2000 action=DENY proto=tcp port=all&#10;TEST_PACKET proto=tcp port=443&#10;TEST_PACKET proto=tcp port=22">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c4-e2) — Évaluateur et Linter de Règles de Pare-feu VPC (VPC Firewall Rules)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="TransOcéan, opérateur de ferries, audite son VPC :&#10;- allow-api : priorité 600, ingress, ALLOW, tcp:443, tag « api » ;&#10;- deny-api : priorité 1500, ingress, DENY, tcp:443, tag « api » ;&#10;- allow-ssh : priorité 250, ingress, ALLOW, tcp:22, tag « admin ».&#10;&#10;1) HTTPS sur une VM « api » : allow-api (600) l'emporte sur deny-api (1500) → autorisée.&#10;2) Le départage se fait par la priorité la plus basse.&#10;3) SSH sur une VM « api » : aucune règle ne correspond → bloquée (refus implicite).&#10;4) allow-ssh ne s'applique pas à une VM sans tag.&#10;5) Priorité par défaut : 1000.&#10;6) Les étiquettes de ciblage : les tags réseau.">
+  <script type="text/plain" data-lab-starter># Exercice — Les règles de pare-feu du VPC de Claravue
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1, 3 et 4 : oui ou non. Questions 2, 5 et 6 : réponses courtes.
 
-[Cas 1 — Application de la règle de refus implicite 65535]
-# Données : RULE priority=500 action=ALLOW proto=udp port=53
-# Données : TEST_PACKET proto=tcp port=8080
+[Question 1 — Requête HTTP autorisée sur la VM web ?]
 A_COMPLETER
 
-[Cas 2 — Règle de blocage prioritaire écrasant une règle permissive de priorité plus basse]
-# Données : RULE priority=100 action=DENY proto=tcp port=22
-# Données : RULE priority=1000 action=ALLOW proto=tcp port=all
-# Données : TEST_PACKET proto=tcp port=22
-# Données : TEST_PACKET proto=tcp port=80
+[Question 2 — Principe départageant deux règles contradictoires]
+A_COMPLETER
+
+[Question 3 — Requête SSH autorisée sur la VM web ?]
+A_COMPLETER
+
+[Question 4 — allow-ssh-bastion s'applique-t-elle à une VM sans tag ?]
+A_COMPLETER
+
+[Question 5 — Priorité par défaut d'une règle sans option de priorité]
+A_COMPLETER
+
+[Question 6 — Étiquettes ciblant les VM (deux mots)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Évaluateur et Linter de Règles de Pare-feu VPC (VPC Firewall Rules)</h3>
+    <h3 class="lab__title">Exercice 2 — Les règles de pare-feu du VPC de Claravue</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -297,28 +312,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer le filtrage de flux réseau face à une liste ordonnée de règles de pare-feu VPC Google Cloud.</p>
-    <div class="lab__brief"><p>Les règles de pare-feu VPC appliquent un filtrage avec état (stateful) ordonné par priorité (0 à 65535, la priorité la plus petite s'appliquant en premier) :<br>
-Chaque règle est définie par :<br>
-<code>RULE priority=&lt;p&gt; action=&lt;ALLOW|DENY&gt; proto=&lt;tcp|udp|icmp&gt; port=&lt;port&gt;</code>.<br>
-(port peut valoir un entier ou 'all').<br><br>
-Commande de test :<br>
-<code>TEST_PACKET proto=&lt;proto&gt; port=&lt;port&gt;</code>.<br>
-Parcourt les règles chargées dans l'ordre de priorité croissante :<br>
-- La première règle correspondante décide : <code>PACKET: proto=&lt;proto&gt; port=&lt;port&gt; action=&lt;ALLOW|DENY&gt; matched_priority=&lt;p&gt;</code>.<br>
-- Si aucune règle ne correspond, la règle implicite s'applique : <code>PACKET: proto=&lt;proto&gt; port=&lt;port&gt; action=DENY matched_priority=65535 (implicit_deny)</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les priorités et les tags réseau des règles de pare-feu VPC pour prévoir le sort d'un flux.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Claravue, éditeur strasbourgeois de SaaS juridique, audite les règles de pare-feu de son VPC <code>claravue-vpc</code>. Quatre règles sont en place :</p><table><tr><th>Règle</th><th>Priorité</th><th>Sens</th><th>Action</th><th>Protocole/Port</th><th>Cible</th></tr><tr><th>allow-web</th><td>500</td><td>ingress</td><td>ALLOW</td><td>tcp:80</td><td>tag « web »</td></tr><tr><th>deny-web</th><td>1000</td><td>ingress</td><td>DENY</td><td>tcp:80</td><td>tag « web »</td></tr><tr><th>allow-ssh-bastion</th><td>100</td><td>ingress</td><td>ALLOW</td><td>tcp:22</td><td>tag « bastion »</td></tr><tr><th>allow-internal</th><td>65535</td><td>ingress</td><td>ALLOW</td><td>icmp</td><td>toutes les VM</td></tr></table><p>Rappel du cours : en cas de chevauchement, la règle à la priorité numérique la plus basse l'emporte ; le trafic entrant non couvert par une règle est refusé implicitement.</p><ol><li>Une requête HTTP (tcp:80) arrive d'Internet sur une VM taguée « web » : est-elle autorisée ?</li><li>Quel principe départage les deux règles contradictoires qui correspondent à cette requête ?</li><li>Une requête SSH (tcp:22) arrive d'Internet sur cette même VM « web » : est-elle autorisée ?</li><li>La règle allow-ssh-bastion s'applique-t-elle à une VM sans aucun tag ?</li><li>Quelle est la priorité par défaut d'une règle créée sans préciser l'option de priorité ?</li><li>Comment nomme-t-on les étiquettes appliquées aux VM pour cibler les règles de pare-feu (deux mots) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE priority=1000 action=ALLOW proto=tcp port=443
-RULE priority=1000 action=ALLOW proto=tcp port=80
-RULE priority=2000 action=DENY proto=tcp port=all
-TEST_PACKET proto=tcp port=443
-TEST_PACKET proto=tcp port=22</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>TransOcéan, opérateur de ferries, audite son VPC :
+- allow-api : priorité 600, ingress, ALLOW, tcp:443, tag « api » ;
+- deny-api : priorité 1500, ingress, DENY, tcp:443, tag « api » ;
+- allow-ssh : priorité 250, ingress, ALLOW, tcp:22, tag « admin ».
+
+1) HTTPS sur une VM « api » : allow-api (600) l'emporte sur deny-api (1500) → autorisée.
+2) Le départage se fait par la priorité la plus basse.
+3) SSH sur une VM « api » : aucune règle ne correspond → bloquée (refus implicite).
+4) allow-ssh ne s'applique pas à une VM sans tag.
+5) Priorité par défaut : 1000.
+6) Les étiquettes de ciblage : les tags réseau.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Stockez les règles et triez-les par priorité croissante.</li>
-        <li>Une règle correspond si rule_proto == test_proto et (rule_port == "all" ou int(rule_port) == int(test_port)).</li>
+        <li>Listez les règles qui correspondent au flux (port, sens, cible) : si aucune ne correspond, le refus implicite s'applique.</li>
+        <li>Entre deux règles applicables, celle qui a la valeur de priorité la plus petite est évaluée en premier et l'emporte.</li>
+        <li>1. Deux règles couvrent tcp:80 sur le tag « web ». 2. Comparez 500 et 1000. 3. Aucune règle ne couvre tcp:22 pour le tag « web ». 4. La cible de allow-ssh-bastion est un tag précis. 5. Sans option de priorité, Google Cloud applique une valeur standard. 6. On les appelle des tags... réseau.</li>
       </ol>
     </details>
   </div>
@@ -328,22 +342,31 @@ TEST_PACKET proto=tcp port=22</pre></div>
      data-exercise="gcp3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ROUTE_MAP host=api.cloud.corp path_prefix=/v1/users backend=user-service-backend protocol=HTTPS&#10;ROUTE_MAP host=api.cloud.corp path_prefix=/ backend=default-api-backend protocol=HTTPS&#10;DISPATCH_REQUEST host=api.cloud.corp path=/v1/users/list&#10;DISPATCH_REQUEST host=api.cloud.corp path=/health">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (gcp3-c4-e3) — Simulateur de Répartiteur de Charge Global HTTP(S) et URL Maps
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="NoctuaData, hébergeur brestois, relie son VPC à son datacenter :&#10;(a) sauvegarde nocturne de 2 Gbps chiffrée, à déployer aujourd'hui → Cloud VPN ;&#10;(b) flux continu de 100 Gbps sur réseau privé avec engagement de disponibilité → Dedicated Interconnect ;&#10;le peering entre deux VPC ne transite pas vers un troisième ;&#10;le répartiteur mondial anycast route vers le point de présence le plus proche ;&#10;sans règle de health checks, les backends passent unhealthy ;&#10;les utilisateurs reçoivent alors des erreurs : le service est indisponible.&#10;&#10;1) (a) : Cloud VPN.&#10;2) (b) : Dedicated Interconnect.&#10;3) Non, le peering n'est pas transitif.&#10;4) Vers le point de présence (et le backend) le plus proche.&#10;5) Les backends passent unhealthy.&#10;6) Le service devient indisponible.">
+  <script type="text/plain" data-lab-starter># Exercice — Interconnexions et répartiteur global : HeliosPay
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 2 : le nom de l'option. Question 3 : oui ou non. Questions 4 à 6 : réponses courtes.
 
-[Cas 1 — Routage générique avec hôte wildcard]
-# Données : ROUTE_MAP host=* path_prefix=/static backend=cdn-static-backend protocol=HTTPS
-# Données : DISPATCH_REQUEST host=web.store.com path=/static/logo.svg
+[Question 1 — Option pour le besoin (a)]
 A_COMPLETER
 
-[Cas 2 — Rejet requête sans backend configuré 404]
-# Données : ROUTE_MAP host=secure.bank.corp path_prefix=/api backend=banking-backend protocol=HTTPS
-# Données : DISPATCH_REQUEST host=other.site.org path=/index.html
+[Question 2 — Option pour le besoin (b)]
+A_COMPLETER
+
+[Question 3 — Transit possible via un VPC appairé ?]
+A_COMPLETER
+
+[Question 4 — Destination du routage anycast]
+A_COMPLETER
+
+[Question 5 — État des backends sans règle de health checks (mot anglais)]
+A_COMPLETER
+
+[Question 6 — Conséquence pour les utilisateurs]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de Répartiteur de Charge Global HTTP(S) et URL Maps</h3>
+    <h3 class="lab__title">Exercice 3 — Interconnexions et répartiteur global : HeliosPay</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -352,27 +375,30 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="gcp3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Simuler le routage de requêtes Anycast d'un Global External HTTP(S) Load Balancer selon les règles d'URL Map.</p>
-    <div class="lab__brief"><p>Un répartiteur de charge mondial Cloud Load Balancing utilise une URL Map pour acheminer le trafic :<br>
-Règles de routage chargées :<br>
-<code>ROUTE_MAP host=&lt;host&gt; path_prefix=&lt;prefix&gt; backend=&lt;service&gt; protocol=&lt;HTTP|HTTPS&gt;</code>.<br>
-(host peut être un domaine exact ou wildcard <code>*</code>).<br><br>
-Commande de requête :<br>
-<code>DISPATCH_REQUEST host=&lt;host&gt; path=&lt;path&gt;</code>.<br>
-Recherche de la correspondance la plus spécifique (préfixe de chemin le plus long correspondant) :<br>
-- Si trouvé : <code>DISPATCH: host=&lt;host&gt; path=&lt;path&gt; backend=&lt;service&gt; protocol=&lt;proto&gt; status=FORWARDED</code><br>
-- Si aucun backend ne correspond : <code>DISPATCH: host=&lt;host&gt; path=&lt;path&gt; status=404_NOT_FOUND</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir l'interconnexion réseau selon le débit et les contraintes, et raisonner sur le répartiteur de charge mondial.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> HeliosPay, processeur de paiements basé au Luxembourg, exploite son VPC principal en europe-west3 et doit le relier à son datacenter sur site. Les trois options étudiées :</p><table><tr><th>Option</th><th>Débit</th><th>Mise en place</th><th>Coût</th></tr><tr><th>Cloud VPN</th><td>quelques Gbps par tunnel, sur Internet public chiffré</td><td>minutes</td><td>modeste</td></tr><tr><th>Dedicated Interconnect</th><td>10 à 200 Gbps, réseau privé</td><td>plusieurs semaines</td><td>élevé</td></tr><tr><th>VPC Peering</th><td>liaison entre deux VPC, sans transit</td><td>minutes</td><td>modeste</td></tr></table><p>Deux besoins se présentent : (a) une réplication continue de 1,5 Gbps chiffrée, à déployer cette semaine avec un budget serré ; (b) un flux de marché de 40 Gbps en continu, sur réseau privé avec engagement de haute disponibilité. Par ailleurs, le frontal public est servi par un répartiteur de charge HTTP(S) mondial, dont les health checks sondent le port 8080 des backends.</p><ol><li>Quelle option retenir pour le besoin (a) ?</li><li>Quelle option retenir pour le besoin (b) ?</li><li>Le trafic entre deux VPC appairés peut-il transiter vers un troisième VPC via le premier ?</li><li>Grâce à son adresse IP anycast unique, vers quoi le répartiteur mondial route-t-il chaque requête ?</li><li>La règle de pare-feu autorisant les plages de health checks a été supprimée : dans quel état passent les backends alors qu'ils fonctionnent parfaitement (mot anglais) ?</li><li>Quelle est la conséquence pour les utilisateurs si tous les backends passent dans cet état ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ROUTE_MAP host=api.cloud.corp path_prefix=/v1/users backend=user-service-backend protocol=HTTPS
-ROUTE_MAP host=api.cloud.corp path_prefix=/ backend=default-api-backend protocol=HTTPS
-DISPATCH_REQUEST host=api.cloud.corp path=/v1/users/list
-DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>NoctuaData, hébergeur brestois, relie son VPC à son datacenter :
+(a) sauvegarde nocturne de 2 Gbps chiffrée, à déployer aujourd'hui → Cloud VPN ;
+(b) flux continu de 100 Gbps sur réseau privé avec engagement de disponibilité → Dedicated Interconnect ;
+le peering entre deux VPC ne transite pas vers un troisième ;
+le répartiteur mondial anycast route vers le point de présence le plus proche ;
+sans règle de health checks, les backends passent unhealthy ;
+les utilisateurs reçoivent alors des erreurs : le service est indisponible.
+
+1) (a) : Cloud VPN.
+2) (b) : Dedicated Interconnect.
+3) Non, le peering n'est pas transitif.
+4) Vers le point de présence (et le backend) le plus proche.
+5) Les backends passent unhealthy.
+6) Le service devient indisponible.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Stockez les règles et filtrez d abord par correspondance d hôte (exact ou "*").</li>
-        <li>Sélectionnez la règle dont path_prefix correspond au début de path avec la longueur maximale.</li>
+        <li>Classez les besoins sur trois axes : débit réellement requis, réseau privé ou Internet, et contrainte de délai de mise en place.</li>
+        <li>Le peering relie deux VPC mais n'est pas transitif : il ne remplace ni un VPN ni une interconnexion avec un site externe.</li>
+        <li>1. 1,5 Gbps chiffré, vite et pas cher. 2. 40 Gbps privé et garanti. 3. Un appariement est un lien direct entre deux réseaux. 4. L'anycast diffuse la même IP partout dans le monde. 5. Les sondes bloquées font croire les backends défaillants. 6. Un répartiteur sans backend sain ne peut plus servir.</li>
       </ol>
     </details>
   </div>
@@ -385,9 +411,9 @@ DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
     <div class="q">
       <p class="q__stem">Combien d'adresses IP sont utilisables pour assigner à des machines virtuelles dans un sous-réseau Google Cloud VPC avec un masque /24 (256 adresses totales) ?</p>
       <div class="opts">
-        <button class="opt">256</button>
-        <button class="opt">254</button>
         <button class="opt" data-correct="1">252</button>
+        <button class="opt">254</button>
+        <button class="opt">256</button>
         <button class="opt">250</button>
       </div>
       <div class="q__exp">Google Cloud réserve obligatoirement 4 adresses IP par sous-réseau (.0 réseau, .1 passerelle, .2 DNS interne, .255 broadcast). Il reste donc 256 - 4 = 252 adresses IP assignables.</div>
@@ -395,10 +421,10 @@ DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
     <div class="q">
       <p class="q__stem">Dans le pare-feu Google Cloud VPC, entre une règle A de priorité 100 qui refuse le port 22 et une règle B de priorité 1000 qui autorise tous les ports, quelle règle s'applique pour le port 22 ?</p>
       <div class="opts">
-        <button class="opt">La règle B (1000) car elle est plus permissive</button>
+        <button class="opt">La règle B (1000) car elle est plus permissive et donc prioritaire dans la chaîne</button>
+        <button class="opt">Les deux règles s'annulent mutuellement et le trafic est bloqué par défaut</button>
+        <button class="opt">La règle la plus récente créée dans la console Cloud prévaut sur les autres</button>
         <button class="opt" data-correct="1">La règle A (100) car les priorités les plus petites sont évaluées en premier</button>
-        <button class="opt">Les deux règles s'annulent</button>
-        <button class="opt">La règle la plus récente créée</button>
       </div>
       <div class="q__exp">Dans Google Cloud, les priorités de pare-feu vont de 0 à 65535, et les chiffres les plus petits sont les plus prioritaires. La règle de priorité 100 s'applique donc avant celle de priorité 1000.</div>
     </div>
@@ -406,8 +432,8 @@ DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
       <p class="q__stem">Quel service managé permet à des machines virtuelles sans adresse IP publique d'accéder à Internet pour télécharger des mises à jour de sécurité ?</p>
       <div class="opts">
         <button class="opt">Cloud Interconnect</button>
-        <button class="opt" data-correct="1">Cloud NAT</button>
         <button class="opt">Cloud CDN</button>
+        <button class="opt" data-correct="1">Cloud NAT</button>
         <button class="opt">Cloud Armor</button>
       </div>
       <div class="q__exp">Cloud NAT fournit la traduction d'adresses réseau sortante sécurisée sans attribuer d'adresses IP externes aux VMs, empêchant toute intrusion directe depuis l'extérieur.</div>
@@ -416,8 +442,8 @@ DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
       <p class="q__stem">Dans un Global External HTTP(S) Load Balancer Google Cloud, quel composant inspecte le chemin de la requête (/api/* ou /images/*) pour router vers le bon backend ?</p>
       <div class="opts">
         <button class="opt">La Global Forwarding Rule</button>
-        <button class="opt">Le Target HTTPS Proxy</button>
         <button class="opt" data-correct="1">L'URL Map</button>
+        <button class="opt">Le Target HTTPS Proxy</button>
         <button class="opt">Le Cloud Router</button>
       </div>
       <div class="q__exp">L'URL Map est la table de correspondance qui analyse les noms d'hôtes et les préfixes d'URL pour acheminer les flux vers les différents Backend Services.</div>
@@ -425,8 +451,8 @@ DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
     <div class="q">
       <p class="q__stem">Deux réseaux VPC A et B sont interconnectés par VPC Peering. B est également interconnecté par VPC Peering avec C. A peut-il communiquer avec C sans lien supplémentaire ?</p>
       <div class="opts">
-        <button class="opt">Oui, le peering est toujours transitif</button>
         <button class="opt" data-correct="1">Non, le VPC Peering n'est pas transitif dans Google Cloud</button>
+        <button class="opt">Oui, le peering est toujours transitif</button>
         <button class="opt">Oui, uniquement si le protocole BGP est activé</button>
         <button class="opt">Oui, si les deux VPC sont dans la même région</button>
       </div>
@@ -550,7 +576,7 @@ DISPATCH_REQUEST host=api.cloud.corp path=/health</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -199,6 +197,11 @@ A_COMPLETER
 [Cas 2 — Datastore franchissant pile le seuil d'alerte 80%]
 # Données : DATASTORE=ds-limit DS_SIZE_GB=1000 DISKS=vm1:820:THICK_EAGER
 A_COMPLETER
+
+[Cas 3 — Mélange de disques Thin et Thick sur deux datastores]
+# Données : DATASTORE=ds-mixed DS_SIZE_GB=2000 DISKS=vmX:1000:THIN:40,vmY:1500:THIN:60,vmZ:500:THICK_EAGER
+# Données : DATASTORE=ds-thin DS_SIZE_GB=1000 DISKS=vmA:1200:THIN:50,vmB:800:THIN:25
+A_COMPLETER
 </script>
   <div class="lab__head">
     <h3 class="lab__title">Exercice 1 — Dimensionneur de Datastores VMFS &amp; Provisionnement de Disques (Thin vs Thick)</h3>
@@ -234,10 +237,11 @@ Format de sortie :<br>
 DATASTORE=ds-nfs-02 DS_SIZE_GB=500 DISKS=vm4:400:THICK_LAZY,vm5:200:THIN:50</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Pour les disques THIN, multipliez la taille par (pct / 100.0) pour obtenir l'espace physique.</li>
         <li>Pour les disques THICK, l'espace physique est exactement égal à la taille déclarée.</li>
+        <li>1. THICK : physique = taille ; THIN : physique = taille * pct / 100. 2. Sommer logique et physique. 3. phy &gt; DS_SIZE : OVERFLOW ; phy_pct &gt; 80 : ALERTE ; log &gt; DS_SIZE : OVERCOMMITTED_OK ; sinon NOMINAL.</li>
       </ol>
     </details>
   </div>
@@ -258,6 +262,12 @@ A_COMPLETER
 
 [Cas 2 — Hôtes insuffisants pour FTT=2 RAID-6]
 # Données : HOSTS=5 RAW_CAPACITY_TB=100.0 POLICY=FTT=2_RAID6 VM_DATA_TB=20.0
+A_COMPLETER
+
+[Cas 3 — Miroir triple et RAID-6 sous le seuil de slack]
+# Données : HOSTS=5 RAW_CAPACITY_TB=50.0 POLICY=FTT=2_RAID1 VM_DATA_TB=11.0
+# Données : HOSTS=6 RAW_CAPACITY_TB=40.0 POLICY=FTT=2_RAID6 VM_DATA_TB=18.0
+# Données : HOSTS=3 RAW_CAPACITY_TB=20.0 POLICY=FTT=1_RAID1 VM_DATA_TB=8.0
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -298,10 +308,11 @@ HOSTS=3 RAW_CAPACITY_TB=60.0 POLICY=FTT=1_RAID1 VM_DATA_TB=20.0
 HOSTS=3 RAW_CAPACITY_TB=40.0 POLICY=FTT=1_RAID5 VM_DATA_TB=10.0</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez le nombre minimal d'hôtes requis par chaque politique avant les calculs.</li>
         <li>La réserve de Slack Space (20%) réduit la capacité utilisable à RAW_CAPACITY_TB * 0.80.</li>
+        <li>1. Contrôler le nombre minimal d’hôtes. 2. usable = RAW * 0.8 ; consumed = DATA * multiplicateur. 3. remaining = usable - consumed ; négatif : CAPACITY_EXCEEDED. 4. consumed &gt; 85 % de usable : WARNING_SLACK.</li>
       </ol>
     </details>
   </div>
@@ -330,6 +341,13 @@ A_COMPLETER
 # Données : IO=100
 # Données : FAIL=p3
 # Données : IO=200
+A_COMPLETER
+
+[Cas 3 — Round Robin symétrique avec bascules successives]
+# Données : POLICY=RR PATHS=naa1,naa2 PREFERRED=naa1 THRESHOLD=500
+# Données : IO=500
+# Données : IO=500
+# Données : IO=1000
 A_COMPLETER
 </script>
   <div class="lab__head">
@@ -361,10 +379,11 @@ IO=1000
 IO=500</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>En Round Robin, gérez un compteur d'I/O sur le chemin courant pour basculer dès que THRESHOLD est atteint.</li>
         <li>En cas d'événement FAIL, retirez le chemin des actifs ; s'il s'agissait du chemin courant, basculez vers le suivant.</li>
+        <li>1. RR : compter les I/O du chemin courant, basculer à chaque THRESHOLD. 2. FAIL : retirer le chemin des actifs. 3. FIXED : tout vers PREFERRED ; panne : premier actif ; retour au rétabli.</li>
       </ol>
     </details>
   </div>
@@ -387,8 +406,8 @@ IO=500</pre></div>
     <div class="q">
       <p class="q__stem">Quelle primitive matérielle VAAI remplace le verrouillage global de LUN (SCSI reservation) par un verrouillage ultra-fin bloc par bloc ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ATS (Atomic Test and Set).</button>
         <button class="opt">XCOPY (Extended Copy).</button>
+        <button class="opt" data-correct="1">ATS (Atomic Test and Set).</button>
         <button class="opt">UNMAP (Block Space Reclamation).</button>
         <button class="opt">Write Same (Zeroing Offload).</button>
       </div>
@@ -397,9 +416,9 @@ IO=500</pre></div>
     <div class="q">
       <p class="q__stem">Pourquoi configure-t-on un MTU de 9000 octets (Jumbo Frames) sur les interfaces réseau dédiées au stockage iSCSI ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Pour réduire le nombre de paquets par seconde, diminuant la charge CPU et augmentant le débit utile.</button>
-        <button class="opt">Pour crypter automatiquement les échanges de trames avec l'algorithme AES-256.</button>
         <button class="opt">Pour empêcher les attaques par déni de service SYN flood sur le port 3260.</button>
+        <button class="opt">Pour crypter automatiquement les échanges de trames avec l'algorithme AES-256.</button>
+        <button class="opt" data-correct="1">Pour réduire le nombre de paquets par seconde, diminuant la charge CPU et augmentant le débit utile.</button>
         <button class="opt">Pour permettre le routage des paquets sur Internet sans passerelle par défaut.</button>
       </div>
       <div class="q__exp">Transporter 9000 octets par trame au lieu de 1500 réduit par six le nombre d'en-têtes et d'interruptions système traitées par les processeurs, optimisant considérablement le débit d'E/S.</div>
@@ -407,29 +426,29 @@ IO=500</pre></div>
     <div class="q">
       <p class="q__stem">Combien d'hôtes physiques distincts sont au minimum requis pour déployer la politique de stockage vSAN `FTT=1_RAID5` (Erasure Coding 3+1) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">4 hôtes minimum.</button>
+        <button class="opt">6 hôtes minimum.</button>
         <button class="opt">2 hôtes avec un disque témoin externe.</button>
         <button class="opt">3 hôtes physiques.</button>
-        <button class="opt">6 hôtes minimum.</button>
+        <button class="opt" data-correct="1">4 hôtes minimum.</button>
       </div>
       <div class="q__exp">La règle vSAN FTT=1 RAID-5 distribue les blocs selon un schéma 3+1 (3 blocs de données et 1 bloc de parité). Chacun des 4 composants devant résider sur un hôte différent, 4 hôtes sont obligatoires.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est le multiplicateur de consommation brute pour une machine virtuelle dont le disque utile fait 10 To sous la politique vSAN `FTT=1_RAID1` ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">2.00x (soit 20 To bruts consommés).</button>
+        <button class="opt">3.00x (soit 30 To bruts consommés).</button>
         <button class="opt">1.33x (soit 13.3 To bruts consommés).</button>
         <button class="opt">1.00x (aucun surcoût d'espace).</button>
-        <button class="opt">3.00x (soit 30 To bruts consommés).</button>
+        <button class="opt" data-correct="1">2.00x (soit 20 To bruts consommés).</button>
       </div>
       <div class="q__exp">La politique FTT=1 RAID-1 applique un miroir classique à deux copies identiques (plus un témoin). Le volume brut consommé sur les disques est exactement le double du volume utile (multiplicateur 2.0x).</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi VMware impose-t-il une réserve opérationnelle de 20% (Slack Space) sur un cluster de stockage vSAN ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Pour permettre la reconstruction automatique des données en cas de défaillance d'un hôte ou d'un disque.</button>
-        <button class="opt">Pour héberger les fichiers ISO d'installation des systèmes d'exploitation invités.</button>
         <button class="opt">Pour stocker les logs d'audit de vCenter Server en cas de perte de connectivité.</button>
+        <button class="opt">Pour héberger les fichiers ISO d'installation des systèmes d'exploitation invités.</button>
+        <button class="opt" data-correct="1">Pour permettre la reconstruction automatique des données en cas de défaillance d'un hôte ou d'un disque.</button>
         <button class="opt">Pour allouer la mémoire swap de l'hyperviseur sur les disques mécaniques.</button>
       </div>
       <div class="q__exp">Le Slack Space de 20% garantit qu'en cas de perte physique d'un serveur ou d'un disque de capacité, le cluster dispose de l'espace libre nécessaire pour resynchroniser et restaurer le niveau de protection configuré.</div>
@@ -437,8 +456,8 @@ IO=500</pre></div>
     <div class="q">
       <p class="q__stem">Quelle politique de sélection de chemins NMP (PSP) distribue les E/S sur l'ensemble des liens de stockage pour maximiser la bande passante ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Round Robin (VMW_PSP_RR).</button>
         <button class="opt">Fixed (VMW_PSP_FIXED).</button>
+        <button class="opt" data-correct="1">Round Robin (VMW_PSP_RR).</button>
         <button class="opt">Most Recently Used (VMW_PSP_MRU).</button>
         <button class="opt">Single Path Direct.</button>
       </div>
@@ -572,7 +591,7 @@ IO=500</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

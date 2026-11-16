@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -83,7 +81,22 @@
 
 <section class="sec">
 
-<h2>1. Architecture Système : Du Noyau FreeBSD au Moteur Packet Filter (pf)</h2>
+<h2>1. Articulation B3 : Mise en œuvre Appliance (/b3-pfsense/) vs Architecture Multi-Zones (/b3-firewall/)</h2>
+
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Répartition des périmètres entre pfSense &amp; Routage B3 (/b3-pfsense/) et Firewall &amp; Sécurité Réseau B3 (/b3-firewall/)</div>
+    <p>Ce cours se concentre sur l’<strong>implémentation opérationnelle d’une appliance pare-feu/routeur d’entreprise</strong> en complément direct du cours d’architecture <a href="/b3-firewall/index.html"><strong>Firewall &amp; Sécurité Réseau B3 (<code>/b3-firewall/</code>)</strong></a> :</p>
+    <ul>
+      <li><strong>Fondations architecturales (<a href="/b3-firewall/">/b3-firewall/</a>) :</strong> modélisation des zones de confiance (DMZ, Zero Trust), inspection WAF/DPI et filtrage noyau Linux (<code>nftables</code> / <code>iptables</code>).</li>
+      <li><strong>Périmètre exclusif de ce cours pfSense B3 (<code>/b3-pfsense/</code>) :</strong> maîtrise de l’appliance FreeBSD Packet Filter (<code>pf</code>), ordonnancement des jeux de règles et Aliases pfSense, <strong>NAT / Port Forwarding</strong> et bascule Multi-WAN, tunnels chiffrés (<strong>OpenVPN</strong>, <strong>IPsec IKEv2</strong>, <strong>WireGuard</strong>), haute disponibilité actif/passif (<strong>CARP / pfsync / XMLRPC</strong>) et reverse proxy L7 (<strong>HAProxy</strong>).</li>
+    </ul>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Architecture Système : Du Noyau FreeBSD au Moteur Packet Filter (pf)</h2>
 
 <div class="box box--intuition">
   <div class="box__title">Niveau 1 — Intuition : L’architecte (WebGUI) et le garde-frontière (noyau pf)</div>
@@ -116,7 +129,7 @@
 
 <section class="sec">
 
-<h2>2. Assignation des Interfaces Réseau &amp; Modèle de Routage</h2>
+<h2>3. Assignation des Interfaces Réseau &amp; Modèle de Routage</h2>
 
 <p>La topologie de base d’un pare-feu pfSense distingue trois grands types d’interfaces réseau logiques associées aux cartes physiques :</p>
 <div class="grid grid-3">
@@ -146,7 +159,7 @@
 
 <section class="sec">
 
-<h2>3. Services d’Infrastructure Indispensables : DHCP &amp; DNS Resolver Unbound</h2>
+<h2>4. Services d’Infrastructure Indispensables : DHCP &amp; DNS Resolver Unbound</h2>
 
 <p>Pour qu’un sous-réseau local fonctionne de manière autonome, pfSense intègre nativement les services d’infrastructure de couche applicative indispensables :</p>
 <div class="grid grid-2">
@@ -174,7 +187,7 @@
 
 <section class="sec">
 
-<h2>4. Calcul de Plans d’Adressage CIDR (IPv4 / IPv6) &amp; Syntaxe Native pf.conf</h2>
+<h2>5. Calcul de Plans d’Adressage CIDR (IPv4 / IPv6) &amp; Syntaxe Native pf.conf</h2>
 
 <div class="box box--intuition">
   <div class="box__title">Niveau 1 — Intuition : Pourquoi découper en CIDR et comment lit le moteur pf ?</div>
@@ -211,7 +224,7 @@
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -261,10 +274,11 @@ Pour chaque interface analysée, indiquez le bilan au format :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>IFACE_CONFIG iface=lan ip=192.168.1.1/24</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Pour un préfixe /n avec n &lt;= 30, le bloc compte 2^(32-n) adresses totales, dont 2^(32-n) - 2 adresses d’hôtes utilisables entre l’adresse réseau et l’adresse de diffusion.</li>
         <li>Appliquez les cas particuliers normés de la section 4 : en /31 (RFC 3021) les 2 adresses sont utilisables (hosts=2), et en /32 l’adresse désigne 1 hôte unique (hosts=1).</li>
+        <li>1. Séparer l’IP et le préfixe n. 2. Mettre les 32-n bits de poids faible à 0 pour net, à 1 pour bcast. 3. hosts : 2^(32-n)-2 si n&lt;=30, 2 si /31, 1 si /32.</li>
       </ol>
     </details>
   </div>
@@ -312,10 +326,11 @@ Pour chaque cas analysé, indiquez la directive générée sous la forme :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>GUI_RULE action=pass iface=lan proto=tcp src=192.168.1.0/24 dst=any port=443</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>N’incluez la clause « proto &lt;protocole&gt; » que lorsqu’un protocole spécifique (tcp, udp, icmp) est imposé.</li>
         <li>N’incluez la clause « port &lt;port&gt; » après la destination que lorsqu’un numéro de port précis est imposé.</li>
+        <li>1. Recopier action, « in on » et l’interface. 2. Insérer « proto » sauf si any. 3. Ajouter « from src to dst ». 4. Terminer par « port » sauf si any.</li>
       </ol>
     </details>
   </div>
@@ -365,35 +380,36 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DHCP_CHECK subnet=192.168.1.0/24 pool_start=192.168.1.100 pool_end=192.168.1.200 static_ip=192.168.1.50</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vérifiez d’abord que les octets réseau des adresses du pool et du bail statique correspondent au préfixe CIDR du sous-réseau.</li>
         <li>Comparez ensuite le dernier octet de l’adresse statique aux bornes inférieure et supérieure de la plage dynamique.</li>
+        <li>1. Vérifier l’appartenance des trois adresses au sous-réseau. 2. Sinon INVALID_SUBNET_OUT_OF_BOUNDS. 3. Statique entre bornes du pool : CONFLICT. 4. Sinon VALID_SCOPE.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Quel moteur de filtrage noyau est utilisé sous pfSense pour inspecter les paquets ?</p>
       <div class="opts">
-        <button class="opt">Netfilter / iptables (noyau Linux)</button>
+        <button class="opt">Netfilter / iptables, le pare-feu du noyau Linux</button>
         <button class="opt" data-correct="1">Packet Filter (pf, intégré au noyau FreeBSD)</button>
-        <button class="opt">Unbound DNS Resolver</button>
-        <button class="opt">ISC DHCPD / Kea</button>
+        <button class="opt">Unbound, le résolveur DNS récursif de pfSense</button>
+        <button class="opt">ISC DHCPD / Kea, les serveurs DHCP du système</button>
       </div>
       <div class="q__exp">pfSense s’appuie sur le moteur Packet Filter (pf) intégré au noyau FreeBSD, tandis que Netfilter/iptables relève du noyau Linux.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel fichier maître stocke l’intégralité de la configuration persistante de pfSense ?</p>
       <div class="opts">
-        <button class="opt">/etc/pf.conf</button>
-        <button class="opt">/var/log/filter.log</button>
         <button class="opt" data-correct="1">/cf/conf/config.xml</button>
+        <button class="opt">/var/log/filter.log</button>
+        <button class="opt">/etc/pf.conf</button>
         <button class="opt">/tmp/rules.debug</button>
       </div>
       <div class="q__exp">Toute la configuration persistante de pfSense (interfaces, règles, certificats, services) est centralisée dans /cf/conf/config.xml, tandis que /tmp/rules.debug est le fichier temporaire généré pour pfctl.</div>
@@ -401,10 +417,10 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
     <div class="q">
       <p class="q__stem">Quelle commande CLI permet d’activer le moteur de filtrage pf sous FreeBSD ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">pfctl -e</button>
+        <button class="opt">systemctl enable iptables</button>
         <button class="opt">pfctl -d</button>
         <button class="opt">service firewall start</button>
-        <button class="opt">systemctl enable iptables</button>
+        <button class="opt" data-correct="1">pfctl -e</button>
       </div>
       <div class="q__exp">La commande pfctl -e (enable) active le moteur de filtrage pf dans le noyau, alors que pfctl -d (disable) le désactive.</div>
     </div>
@@ -412,9 +428,9 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
       <p class="q__stem">Quel est le comportement de filtrage par défaut d’une nouvelle interface optionnelle (OPT1) qui vient d’être activée sur pfSense ?</p>
       <div class="opts">
         <button class="opt">Tout le trafic entrant sur l’interface OPT1 (émis par les machines du réseau OPT1) est autorisé vers Internet uniquement</button>
+        <button class="opt">Le trafic inter-segments entre OPT1 et le LAN est d’office autorisé, mais l’accès vers le WAN reste bloqué tant qu’aucune règle NAT n’est déclarée</button>
         <button class="opt" data-correct="1">Aucune règle n’est créée par défaut : tout trafic arrivant sur l’interface OPT1 (émis par les hôtes du segment OPT1) est bloqué par la politique implicite Default Deny</button>
-        <button class="opt">Le trafic entre OPT1 et LAN est autorisé, mais l’accès vers le WAN est bloqué</button>
-        <button class="opt">L’interface OPT1 hérite automatiquement des règles de filtrage de l’interface LAN</button>
+        <button class="opt">L’interface OPT1 hérite automatiquement de la règle « Default allow LAN to any » de l’interface LAN, ce qui autorise tout son trafic sortant</button>
       </div>
       <div class="q__exp">Contrairement à l’interface LAN qui reçoit la règle initiale « Default allow LAN to any », une interface OPT nouvellement créée possède une table de règles vide : tout paquet entrant sur la patte OPT1 depuis les hôtes du segment OPT1 est donc rejeté tant qu’aucune règle pass explicite n’y est ajoutée.</div>
     </div>
@@ -431,20 +447,20 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
     <div class="q">
       <p class="q__stem">Où doivent être positionnées les adresses IP des réservations DHCP statiques (Static Mappings) ?</p>
       <div class="opts">
-        <button class="opt">Obligatoirement dans la plage du pool dynamique</button>
         <button class="opt" data-correct="1">En dehors de la plage d’adresses du pool dynamique, mais dans le même sous-réseau CIDR que l’interface</button>
-        <button class="opt">Dans un sous-réseau différent de l’interface</button>
-        <button class="opt">Sur l’adresse IP de broadcast du réseau</button>
+        <button class="opt">Obligatoirement à l’intérieur de la plage du pool dynamique, pour que le serveur puisse réserver l’adresse</button>
+        <button class="opt">Dans un sous-réseau différent de celui de l’interface, afin d’isoler les hôtes à bail fixe du réseau local</button>
+        <button class="opt">Sur l’adresse IP de diffusion du sous-réseau, qui n’est jamais attribuable à un hôte</button>
       </div>
       <div class="q__exp">Pour éviter tout conflit d’attribution dans le serveur DHCP, les baux statiques doivent appartenir au sous-réseau de l’interface mais être situés hors de la plage dynamique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est le rôle principal du service DNS Unbound dans pfSense ?</p>
       <div class="opts">
-        <button class="opt">Transférer les fichiers d’amorçage réseau par TFTP</button>
+        <button class="opt">Transférer les fichiers d’amorçage réseau (boot) aux postes du LAN par le protocole TFTP</button>
+        <button class="opt">Attribuer dynamiquement les adresses IP aux postes du LAN grâce à un pool de baux DHCP</button>
+        <button class="opt">Synchroniser l’horloge système du pare-feu avec des serveurs NTP de stratum 1</button>
         <button class="opt" data-correct="1">Résolveur DNS récursif local avec validation cryptographique DNSSEC (vérification des signatures RRSIG)</button>
-        <button class="opt">Attribuer dynamiquement les adresses IP aux postes du LAN</button>
-        <button class="opt">Synchroniser l’horloge système par NTP</button>
       </div>
       <div class="q__exp">Unbound est un résolveur DNS récursif complet qui interroge les serveurs racines et valide les signatures DNSSEC (RRSIG) pour prévenir l’empoisonnement de cache.</div>
     </div>
@@ -452,8 +468,8 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
       <p class="q__stem">Quel protocole est utilisé par Unbound pour relayer des requêtes DNS chiffrées en TLS sur le port TCP 853 ?</p>
       <div class="opts">
         <button class="opt">DHCP (Dynamic Host Configuration Protocol)</button>
-        <button class="opt" data-correct="1">DoT (DNS over TLS)</button>
         <button class="opt">BPF (Berkeley Packet Filter)</button>
+        <button class="opt" data-correct="1">DoT (DNS over TLS)</button>
         <button class="opt">NTP (Network Time Protocol)</button>
       </div>
       <div class="q__exp">DNS over TLS (DoT) encapsule et chiffre les requêtes DNS dans un tunnel TLS sur le port TCP standard 853.</div>
@@ -464,7 +480,7 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -480,7 +496,7 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Démarche d’ingénierie pas à pas</div>
@@ -498,7 +514,7 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -531,7 +547,7 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -580,7 +596,7 @@ Pour chaque cas analysé, indiquez le diagnostic sous la forme :<br>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

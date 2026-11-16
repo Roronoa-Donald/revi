@@ -13,7 +13,7 @@ module.exports = [
     language: 'powershell',
     title: 'Quorum d’un cluster',
     goal: 'Comparer deux valeurs pour décider si un cluster conserve la majorité.',
-    brief: '<p>Le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds ' +
+    brief: '<p>Avant d’ajuster le témoin de quorum WSFC (<code>Get-ClusterQuorum</code>), le script lit le nombre total de <strong>nœuds</strong>, puis le nombre de nœuds ' +
       '<strong>en ligne</strong>. Le quorum est atteint si les nœuds en ligne représentent plus de la ' +
       'moitié du cluster. Affichez <code>quorum : atteint</code> ou <code>quorum : perdu</code>.</p>',
     starter: `$total = [int][Console]::In.ReadLine()
@@ -23,8 +23,9 @@ $enLigne = [int][Console]::In.ReadLine()
 # puis afficher "quorum : atteint" ou "quorum : perdu".
 `,
     hints: [
-      'La condition « plus de la moitié » s’écrit `($enLigne * 2 -gt $total)`.',
-      'Évitez la division : multiplier par 2 garde des entiers exacts.'
+      "La condition « plus de la moitié » s’écrit `($enLigne * 2 -gt $total)`.",
+      "Évitez la division : multiplier par 2 garde des entiers exacts.",
+      "Étapes : lire total puis enLigne ; si enLigne × 2 dépasse strictement total, « quorum : atteint », sinon « quorum : perdu »."
     ],
     examples: [
       { stdin: '4\n3', expected: 'quorum : atteint', note: '3 nœuds sur 4 : majorité.' }
@@ -42,7 +43,8 @@ if ($enLigne * 2 -gt $total) {
 } else {
     Write-Output "quorum : perdu"
 }
-`
+`,
+    takeaway: "Un cluster de N nœuds conserve le quorum tant que strictement plus de N/2 votes (avec témoin éventuel) sont en ligne."
   },
   {
     id: 'ws2-c3-e2',
@@ -65,8 +67,9 @@ for ($i = 0; $i -lt $n; $i++) {
 # À compléter : afficher "actifs : X", puis le type de cluster.
 `,
     hints: [
-      'Le test d’égalité de chaînes s’écrit ($etat -eq "actif").',
-      'Tous les nœuds sont actifs si `$actifs -eq $n`.'
+      "Le test d’égalité de chaînes s’écrit ($etat -eq \"actif\").",
+      "Tous les nœuds sont actifs si `$actifs -eq $n`.",
+      "Étapes : lire n ; compter les nœuds « actif » ; afficher « actifs : » ; si le compte égale n, « type : active-active », sinon « type : active-passive »."
     ],
     examples: [
       { stdin: '3\nactif\nactif\nactif', expected: 'actifs : 3\ntype : active-active', note: 'Trois nœuds actifs.' }
@@ -90,7 +93,8 @@ if ($actifs -eq $n) {
 } else {
     Write-Output "type : active-passive"
 }
-`
+`,
+    takeaway: "Un cluster actif-actif répartit le trafic continu alors qu un actif-passif réserve un nœud de secours au basculement."
   },
   {
     id: 'ws2-c3-e3',
@@ -108,8 +112,9 @@ $serveurs = [int][Console]::In.ReadLine()
 # À compléter : calculer la part entière et le reste, puis les afficher.
 `,
     hints: [
-      'La part entière vaut `[int]([math]::Floor($requetes / $serveurs))`.',
-      'Le reste se calcule avec l’opérateur modulo % ou par soustraction.'
+      "La part entière vaut `[int]([math]::Floor($requetes / $serveurs))`.",
+      "Le reste se calcule avec l’opérateur modulo % ou par soustraction.",
+      "Étapes : lire requêtes puis serveurs ; par serveur = partie entière du quotient ; reste = requêtes modulo serveurs ; afficher les deux lignes."
     ],
     examples: [
       { stdin: '10\n3', expected: 'par serveur : 3\nnon reparties : 1', note: '10 requêtes sur 3 serveurs.' }
@@ -126,6 +131,7 @@ $par = [int]([math]::Floor($requetes / $serveurs))
 $reste = $requetes % $serveurs
 Write-Output ("par serveur : " + $par)
 Write-Output ("non reparties : " + $reste)
-`
+`,
+    takeaway: "L opérateur modulo % isole exactement les requêtes excédentaires après une répartition uniforme sur les nœuds."
   }
 ];

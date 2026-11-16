@@ -129,21 +129,21 @@ module.exports = {
     {
       q: 'Pourquoi introduit-on des variables artificielles dans un problème de programmation linéaire ?',
       opts: [
-        'Pour obtenir une base identité initiale quand l’origine (0, 0) n’est pas réalisable',
         'Pour accélérer la vitesse de calcul du processeur',
+        'Pour obtenir une base identité initiale quand l’origine (0, 0) n’est pas réalisable',
         'Pour transformer un problème non linéaire en problème linéaire',
         'Pour augmenter artificiellement le bénéfice de l’entreprise'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Les contraintes $\\ge$ et $=$ ne fournissent pas de variable d’écart positive pour démarrer le simplexe ; les artificielles comblent ce manque.'
     },
     {
       q: 'Quel est l’objectif mathématique poursuivi lors de la Phase 1 de la méthode des Deux Phases ?',
       opts: [
-        'Minimiser la somme des variables artificielles (trouver Min W = ∑ a_i = 0)',
-        'Maximiser la fonction objectif Z d’origine',
-        'Éliminer toutes les variables d’écart',
-        'Calculer le déterminant de la matrice'
+        "Minimiser la somme des variables artificielles (trouver Min W = ∑ a_i = 0)",
+        "Maximiser directement la fonction objectif Z du problème d’origine",
+        "Éliminer toutes les variables d’écart du système de contraintes",
+        "Calculer le déterminant de la matrice des coefficients techniques"
       ],
       correct: 0,
       exp: 'La Phase 1 cherche à faire tomber toutes les variables artificielles à zéro pour atteindre un premier sommet réalisable.'
@@ -151,32 +151,32 @@ module.exports = {
     {
       q: 'Que conclut-on si, à la fin de la Phase 1 du simplexe, la valeur minimale obtenue pour W est strictement positive (Min W > 0) ?',
       opts: [
-        'Le problème d’origine est irréalisable (le système de contraintes est contradictoire)',
-        'Le problème est non borné',
-        'La solution est dégénérée',
-        'Il faut relancer la Phase 1 en changeant de pivot'
+        "Le problème d’origine est non borné, son optimum croît vers l’infini",
+        "La solution obtenue est dégénérée mais reste tout de même réalisable",
+        "Il faut relancer la Phase 1 depuis le début en changeant de variable entrante",
+        "Le problème d’origine est irréalisable (le système de contraintes est contradictoire)"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'S’il est impossible d’annuler les variables artificielles, cela prouve qu’aucun point ne vérifie les contraintes réelles.'
     },
     {
       q: 'Si le programme primal est un MAX avec m contraintes et n variables, quelle est la structure de son programme dual canonique ?',
       opts: [
-        'Un problème MIN avec n contraintes et m variables',
-        'Un problème MAX avec m contraintes et n variables',
         'Un problème MIN avec m contraintes et m variables',
+        'Un problème MAX avec m contraintes et n variables',
+        'Un problème MIN avec n contraintes et m variables',
         'Un problème quadratique à n dimensions'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La dualité inverse le sens d’optimisation (MAX devient MIN) et transpose les dimensions ($m$ contraintes deviennent $m$ variables, $n$ variables deviennent $n$ contraintes).'
     },
     {
       q: 'D’après le théorème fort de la dualité, que vaut la valeur optimale de la fonction objectif duale W(y*) par rapport à l’optimum primal Z(x*) ?',
       opts: [
-        'W(y*) = Z(x*) (égalité parfaite des valeurs optimales)',
-        'W(y*) > Z(x*)',
-        'W(y*) = 0',
-        'W(y*) = -Z(x*)'
+        "W(y*) = Z(x*) (égalité parfaite des valeurs optimales)",
+        "W(y*) > Z(x*) : le dual surpasse toujours le primal",
+        "W(y*) = 0 : la valeur optimale duale est toujours nulle",
+        "W(y*) = -Z(x*) : les deux optima sont opposés par le signe"
       ],
       correct: 0,
       exp: 'À l’optimum, le gap de dualité est nul : la valeur maximale du primal égale exactement la valeur minimale du dual.'
@@ -184,34 +184,34 @@ module.exports = {
     {
       q: 'Que stipule le théorème des écarts complémentaires si une ressource i est excédentaire à l’optimum (s_i* > 0) ?',
       opts: [
-        'Son prix d’ombre dual associé est nul : y_i* = 0',
         'Son prix d’ombre dual est infini',
+        'Son prix d’ombre dual associé est nul : y_i* = 0',
         'La contrainte est redondante et doit être effacée',
         'Le produit s_i* * y_i* vaut 1'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'L’orthogonalité impose $s_i^* \\times y_i^* = 0$. Si une ressource n’est pas pleinement utilisée, disposer d’une unité supplémentaire n’apporte aucun gain marginal ($y_i^* = 0$).'
     },
     {
       q: 'Que représente concrètement pour un directeur d’usine le prix d’ombre (shadow price) d’une heure d’atelier de découpe ?',
       opts: [
-        'Le montant maximal qu’il est économiquement rentable de payer pour obtenir une heure supplémentaire de découpe',
-        'Le salaire horaire brut de l’ouvrier',
-        'Le coût de maintenance de la machine',
-        'La marge unitaire du produit le plus vendu'
+        "Le salaire horaire brut effectivement versé à l’ouvrier qui opère cette machine de découpe",
+        "Le coût annuel complet de maintenance et d’entretien de la machine de découpe concernée",
+        "Le montant maximal qu’il est économiquement rentable de payer pour obtenir une heure supplémentaire de découpe",
+        "La marge unitaire du produit le plus vendu dans le catalogue commercial de l’usine"
       ],
-      correct: 0,
+      correct: 2,
       exp: 'Le prix d’ombre mesure le surcroît de profit apporté par une unité marginale de ressource.'
     },
     {
       q: 'Si le programme primal est non borné (Z → +∞), que peut-on affirmer sur son programme dual d’après le théorème faible de la dualité ?',
       opts: [
-        'Le programme dual est irréalisable (aucun vecteur y ne satisfait les contraintes duales)',
-        'Le programme dual est également non borné',
-        'Le programme dual admet une infinité d’optimums',
-        'Le programme dual vaut 0'
+        "Le programme dual est également non borné, avec W qui tend vers l’infini",
+        "Le programme dual admet une infinité de solutions optimales équivalentes",
+        "Le programme dual possède une valeur optimale exactement égale à zéro",
+        "Le programme dual est irréalisable (aucun vecteur y ne satisfait les contraintes duales)"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'Puisque tout $y$ dual devrait être un plafond supérieur pour $Z$, si $Z \\to +\\infty$, aucun plafond fini ne peut exister, donc le dual est vide.'
     }
   ],

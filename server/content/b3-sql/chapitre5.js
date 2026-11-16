@@ -189,56 +189,56 @@ module.exports = {
     {
       stem: 'Que vaut la variable OLD dans une fonction déclencheur interceptant un INSERT ?',
       opts: [
-        'La valeur par défaut de la colonne',
-        'Une chaîne vide',
         'NULL',
+        'Une chaîne vide',
+        'La valeur par défaut de la colonne',
         'Une copie de NEW'
       ],
-      correct: 2,
+      correct: 0,
       exp: 'Lors d’un INSERT, aucune ligne préalable n’existait dans la table : la variable OLD vaut donc strictement NULL.'
     },
     {
       stem: 'Dans PostgreSQL, quel type de déclencheur permet de modifier ou normaliser une ligne avant son insertion ou sa mise à jour ?',
       opts: [
-        'BEFORE INSERT OR UPDATE FOR EACH ROW',
         'AFTER INSERT FOR EACH STATEMENT',
+        'BEFORE INSERT OR UPDATE FOR EACH ROW',
         'INSTEAD OF TABLE',
         'DEFERRED TRANSACTION TRIGGER'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Dans PostgreSQL, une fonction BEFORE FOR EACH ROW peut modifier NEW puis le retourner avant l’opération ; la persistance dépend ensuite du COMMIT.'
     },
     {
       stem: 'Si une fonction déclencheur BEFORE INSERT retourne NULL, que se passe-t-il pour la ligne en cours d’insertion ?',
       opts: [
         'La ligne est insérée avec des valeurs nulles',
-        'L’opération d’insertion pour cette ligne est silencieusement annulée',
         'Une erreur fatale est levée et le serveur plante',
+        'L’opération d’insertion pour cette ligne est silencieusement annulée',
         'La ligne est insérée dans la table de log'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Retourner NULL dans un trigger BEFORE interrompt immédiatement l’opération pour le tuple courant, l’ignorant sans lever d’exception.'
     },
     {
       stem: 'Dans une politique PostgreSQL Row-Level Security, quel est le rôle de la clause WITH CHECK ?',
       opts: [
-        'Vérifier que la table possède un index primaire',
-        'Valider que les nouvelles lignes insérées ou mises à jour respectent la condition de sécurité',
-        'Filtrer les lignes retournées par un SELECT',
-        'Chiffrer le mot de passe de l’utilisateur'
+        "Vérifier préalablement que la table protégée possède bien un index primaire valide",
+        "Filtrer les lignes retournées par les requêtes SELECT de lecture",
+        "Chiffrer automatiquement le mot de passe de l’utilisateur courant",
+        "Valider que les nouvelles lignes insérées ou mises à jour respectent la condition de sécurité"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'La clause WITH CHECK valide les données en entrée lors d’un INSERT ou UPDATE, rejetant toute ligne violant la condition.'
     },
     {
       stem: 'Par défaut, pourquoi le super-utilisateur postgres n’est-il pas filtré par les politiques Row-Level Security ?',
       opts: [
-        'Parce qu’il a un mot de passe trop long',
-        'Parce que les superusers ont le droit de bypasser RLS afin de pouvoir administrer et sauvegarder la base',
-        'Parce que RLS est désactivé sur le port 5432',
-        'C’est un bogue connu corrigé en version 17'
+        "Parce que les superusers ont le droit de bypasser RLS afin de pouvoir administrer et sauvegarder la base",
+        "Parce que son mot de passe est réputé trop long pour être vérifié par RLS",
+        "Parce que le mécanisme RLS est désactivé sur le port d’écoute 5432 du serveur",
+        "C’est un bogue connu de PostgreSQL officiellement corrigé depuis la version 17"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Les super-utilisateurs et les rôles BYPASSRLS contournent toujours RLS. FORCE soumet le propriétaire ordinaire aux politiques, mais ne limite pas ces rôles privilégiés.'
     },
     {
@@ -255,23 +255,23 @@ module.exports = {
     {
       stem: 'Que contient la variable spéciale TG_OP dans un trigger PL/pgSQL ?',
       opts: [
-        'Le temps d’exécution de la requête',
-        'Une chaîne de caractères indiquant l’opération déclencheuse (\'INSERT\', \'UPDATE\', \'DELETE\')',
-        'L’identifiant du processus PostgreSQL',
-        'Le nom de l’index utilisé'
+        "Le temps d’exécution total de la requête déclencheuse exprimé en millisecondes",
+        "L’identifiant numérique du processus serveur PostgreSQL en cours d’exécution",
+        "Une chaîne de caractères indiquant l’opération déclencheuse ('INSERT', 'UPDATE', 'DELETE')",
+        "Le nom de l’index utilisé par la requête ayant déclenché le trigger"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'TG_OP contient sous forme de chaîne de caractères l’événement SQL ayant déclenché l’exécution (INSERT, UPDATE, DELETE ou TRUNCATE).'
     },
     {
       stem: 'Quel trigger permet de journaliser chaque ligne après sa modification, dans la même transaction ?',
       opts: [
         'BEFORE ... FOR EACH STATEMENT',
-        'AFTER ... FOR EACH ROW',
+        'BEFORE ... FOR EACH ROW',
         'INSTEAD OF VIEW',
-        'BEFORE ... FOR EACH ROW'
+        'AFTER ... FOR EACH ROW'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Dans PostgreSQL, AFTER ... FOR EACH ROW trace la ligne après sa modification. BEFORE peut aussi écrire dans la même transaction : un ROLLBACK annule les écritures des deux, et une contrainte différée peut encore faire échouer le COMMIT.'
     }
   ],

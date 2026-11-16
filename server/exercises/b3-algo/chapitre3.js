@@ -20,8 +20,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : vérifier la propriété de Tas-Max sur la représentation tabulaire
 `,
     hints: [
-      'Parcourir i de 0 jusqu’à (taille - 2) // 2.',
-      'Tester d’abord le fils gauche (2*i + 1), puis le fils droit (2*i + 2).'
+      "Parcourir i de 0 jusqu’à (taille - 2) // 2.",
+      "Tester d’abord le fils gauche (2*i + 1), puis le fils droit (2*i + 2).",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (vérifier si un tableau 1D indexé à 0 représentant un arbre binaire presque complet respecte la propriété structurelle de Tas-Max), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -86,7 +87,8 @@ for lig in lignes:
     else:
         i, p_val, f_val, f_idx = violation
         print(f"TAS_MAX: {nom} | VALIDE : NON | VIOLATION: index={i} (pere={p_val}) < fils={f_val} (index={f_idx})")
-`
+`,
+    takeaway: "Dans un Tas-Max représenté en tableau à partir de l’indice 0, chaque parent i dépasse ses enfants 2i+1 et 2i+2."
   },
   {
     id: 'al3-c3-e2',
@@ -103,8 +105,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter les opérations sift-up et sift-down
 `,
     hints: [
-      'Pour le sift-up : tant que index > 0 et val > parent, permuter avec parent = (index - 1) // 2.',
-      'Pour le sift-down : comparer avec les deux enfants et permuter avec le maximum des deux tant que nécessaire.'
+      "Pour le sift-up : tant que index > 0 et val > parent, permuter avec parent = (index - 1) // 2.",
+      "Pour le sift-down : comparer avec les deux enfants et permuter avec le maximum des deux tant que nécessaire.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (implémenter les mécanismes fondamentaux d’une file de priorité : insertion avec tamisage ascendant et extraction du maximum avec tamisage descendant), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -237,7 +240,8 @@ while i < len(lignes):
         i += 1
     i += 1
     print(f"BILAN: nom={nom} | TAILLE: {len(heap)}")
-`
+`,
+    takeaway: "L’insertion en file de priorité remonte l’élément par sift-up, tandis que l’extraction du maximum répare le tas vers le bas par sift-down."
   },
   {
     id: 'al3-c3-e3',
@@ -254,8 +258,9 @@ lignes = [l.strip() for l in sys.stdin.read().splitlines() if l.strip()]
 # À compléter : implémenter Heapsort in-place avec comptage rigoureux des échanges
 `,
     hints: [
-      'Le tamisage descendant de la phase de tri doit être borné par la taille résiduelle i.',
-      'Chaque échange entre la racine et A[i] compte pour 1 dans les échanges de tri.'
+      "Le tamisage descendant de la phase de tri doit être borné par la taille résiduelle i.",
+      "Chaque échange entre la racine et A[i] compte pour 1 dans les échanges de tri.",
+      "Étapes : lire l'entrée au format décrit dans l'énoncé, décomposer le traitement (implémenter le tri par tas (Heapsort) in-place en deux phases : construction linéaire du tas-max (heapify) puis extraction successive des éléments), puis formater exactement la sortie attendue."
     ],
     examples: [
       {
@@ -329,6 +334,7 @@ for lig in lignes:
     trie_state = ", ".join(str(x) for x in arr)
     total_swaps = swaps_heapify + swaps_sort
     print(f"HEAPSORT: nom={nom} | HEAPIFY: {heapify_state} | SWAPS_HEAPIFY: {swaps_heapify} | TRIE: {trie_state} | SWAPS_TOTAUX: {total_swaps}")
-`
+`,
+    takeaway: "Heapsort construit d’abord un tas-max en O(n) puis extrait n fois la racine à la fin du tableau, garantissant O(n log n) en place."
   }
 ];

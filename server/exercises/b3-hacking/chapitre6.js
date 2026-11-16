@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (hk3-c6-e1) — Recherche illustrative de signatures textuelles\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois familles textuelles]\n# Données : SCAN_SCRIPT code=<?php eval(base64_decode($_POST[\"payload\"])); ?>\nA_COMPLETER\n\n[Cas 2 — Une seule famille textuelle]\n# Données : SCAN_SCRIPT code=<?php $logo = base64_decode(\"iVBORw0KGgoAAAANSUhEUg==\"); ?>\nA_COMPLETER\n\n[Cas 3 — Aucune des chaînes recherchées]\n# Données : SCAN_SCRIPT code=<?php echo \"<h1>Bienvenue sur le portail</h1>\"; ?>\nA_COMPLETER\n",
     "hints": [
       "Compter chaque famille au maximum une fois.",
-      "Le résultat ne classe pas le script comme bénin ou malveillant."
+      "Le résultat ne classe pas le script comme bénin ou malveillant.",
+      "Additionnez les points des signatures de fonctions sensibles détectées sans jamais conclure automatiquement à la malveillance réelle du fichier."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "WEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 1 — Trois familles textuelles]\nWEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 2 — Une seule famille textuelle]\nWEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE\n\n[Cas 3 — Aucune des chaînes recherchées]\nWEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE\n"
+    "solution": "[Exemple]\nWEBSHELL_SCAN: score=60 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 1 — Trois familles textuelles]\nWEBSHELL_SCAN: score=70 status=INDICES_FORTS risk=NON_EVALUE\n\n[Cas 2 — Une seule famille textuelle]\nWEBSHELL_SCAN: score=20 status=INDICES risk=NON_EVALUE\n\n[Cas 3 — Aucune des chaînes recherchées]\nWEBSHELL_SCAN: score=0 status=AUCUN_INDICE risk=NON_EVALUE\n",
+    "takeaway": "À retenir : Relever des familles de chaînes sans certifier la nature ou le risque d’un script.\nRepère : Deux familles sont présentes dans le texte ; le score ne remplace pas l’analyse."
   },
   {
     "id": "hk3-c6-e2",
@@ -78,46 +80,64 @@ module.exports = [
         "expected": "PERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
       }
     ],
-    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE"
+    "solution": "[Exemple]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=BASH_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 1 — Reverse shell netcat avec redirection de binaire shell]\nPERSIST_RESULT: type=SERVICE malicious=NON_EVALUE signature=NETCAT_REVERSE_SHELL risk=NON_EVALUE\n\n[Cas 2 — Persistance par téléchargement et exécution de script distant]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=DOWNLOAD_EXECUTE risk=NON_EVALUE\n\n[Cas 3 — Tâche cron de sauvegarde et synchronisation]\nPERSIST_RESULT: type=CRON malicious=NON_EVALUE signature=AUCUNE_CORRESPONDANCE risk=NON_EVALUE",
+    "takeaway": "À retenir : Repérer des motifs textuels associés à des techniques de persistance, sans conclure sur leur intention ou leur risque.\nRepère : La commande contient les motifs textuels de la famille BASH_REVERSE_SHELL."
   },
   {
     "id": "hk3-c6-e3",
     "chapter": 6,
-    "title": "Générateur de Synthèse Managériale et Matrice de Risque de Pentest",
     "level": "n3",
     "language": "analyse",
-    "goal": "Agréger les vulnérabilités découvertes, calculer le score de risque global et qualifier la posture de sécurité.",
-    "brief": "<p>Le rapport d'intrusion conclut chaque mandat de pentest par une synthèse managériale (Executive Summary) et une matrice de sévérité.<br><br>\nPondération du score de risque :<br>\n- <code>CRITICAL</code> : 10 points chacun.<br>\n- <code>HIGH</code> : 5 points chacun.<br>\n- <code>MEDIUM</code> : 2 points chacun.<br>\n- <code>LOW</code> : 1 point chacun.<br>\n<code>risk_score = (C * 10) + (H * 5) + (M * 2) + (L * 1)</code>.<br><br>\nQualification de la posture globale de l'organisation :<br>\n1. Si <code>C &gt;= 1</code> ou <code>risk_score &gt;= 25</code> : <code>posture=COMPROMISED_CRITICAL</code>.<br>\n2. Sinon si <code>H &gt;= 2</code> ou <code>risk_score &gt;= 15</code> : <code>posture=HIGH_EXPOSURE</code>.<br>\n3. Sinon si <code>risk_score &gt;= 5</code> : <code>posture=MODERATE_EXPOSURE</code>.<br>\n4. Sinon : <code>posture=SECURE_RESILIENT</code>.<br><br>\nDonnées du cas : <code>PENTEST_SYNTHESIS findings=&lt;f1:sev1,f2:sev2,...&gt;</code>.<br>\nRésultat d’analyse attendu :<br>\n<code>PENTEST_SUMMARY: total_findings=&lt;N&gt; critical=&lt;C&gt; high=&lt;H&gt; medium=&lt;M&gt; low=&lt;L&gt; risk_score=&lt;score&gt; posture=&lt;posture&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (hk3-c6-e3) — Générateur de Synthèse Managériale et Matrice de Risque de Pentest\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Infrastructure avec failles élevées multiples sans faille critique]\n# Données : PENTEST_SYNTHESIS findings=xss_stored:HIGH,idor_api:HIGH,weak_password_policy:MEDIUM\nA_COMPLETER\n\n[Cas 2 — Environnement sain avec deux failles mineures d'en-tête]\n# Données : PENTEST_SYNTHESIS findings=missing_csp:LOW,server_banner:LOW\nA_COMPLETER\n\n[Cas 3 — Cumul de failles moyennes atteignant le seuil d'exposition modérée]\n# Données : PENTEST_SYNTHESIS findings=cors_wildcard:MEDIUM,rate_limit_bypass:MEDIUM,directory_listing:MEDIUM\nA_COMPLETER\n",
+    "title": "La matrice des risques du rapport de l'hôpital Ventalis",
+    "exampleTitle": "Exemple résolu — le rapport de la bibliothèque de Sanzel",
+    "goal": "Exploiter la table des vulnérabilités d'un rapport de pentest pour prioriser la remédiation et rédiger la synthèse.",
+    "brief": "<p><strong>Énoncé.</strong> Le test d'intrusion de l'hôpital privé Ventalis touche à sa fin : l'auditeur consigne dans son rapport les cinq vulnérabilités retenues et prépare la restitution :</p><table><tr><th>Vulnérabilité</th><th>Score CVSS</th><th>Sévérité</th></tr><tr><th>Injection SQL sur le portail patient</th><td>9,8</td><td>Critique</td></tr><tr><th>IDOR sur les factures</th><td>8,6</td><td>Élevée</td></tr><tr><th>XSS stocké dans la messagerie interne</th><td>6,1</td><td>Moyenne</td></tr><tr><th>Absence d'en-tête HSTS</th><td>5,9</td><td>Moyenne</td></tr><tr><th>Divulgation de la version du serveur</th><td>3,1</td><td>Faible</td></tr></table><ol><li>Combien de vulnérabilités le rapport recense-t-il ?</li><li>Combien sont de sévérité moyenne ?</li><li>Quel est le score CVSS de la vulnérabilité à traiter en priorité absolue ?</li><li>Quel est le score de la deuxième vulnérabilité la plus grave ?</li><li>Quelle section du rapport, destinée à la direction, résume les risques sans jargon technique ?</li><li>Quelle vulnérabilité occupe la deuxième ligne du plan de remédiation : l'IDOR, le XSS, l'absence de HSTS ou la divulgation de version ?</li></ol>",
+    "starter": "# Exercice — La matrice des risques du rapport de l'hôpital Ventalis\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 et 2 : un nombre. Questions 3 et 4 : un score. Questions 5 et 6 : un terme.\n\n[Question 1 — Vulnérabilités recensées]\nA_COMPLETER\n\n[Question 2 — Vulnérabilités de sévérité moyenne]\nA_COMPLETER\n\n[Question 3 — Score de la priorité absolue]\nA_COMPLETER\n\n[Question 4 — Score de la deuxième vulnérabilité la plus grave]\nA_COMPLETER\n\n[Question 5 — Section du rapport destinée à la direction]\nA_COMPLETER\n\n[Question 6 — Deuxième vulnérabilité du plan de remédiation]\nA_COMPLETER\n",
     "hints": [
-      "Comptez les occurrences de CRITICAL, HIGH, MEDIUM, LOW dans findings.",
-      "Calculez le score pondéré (10, 5, 2, 1).",
-      "Appliquez les conditions de qualification de posture."
+      "Parcourez la colonne Sévérité : les moyennes se comptent ligne par ligne ; les scores se rangent par ordre décroissant pour la priorisation.",
+      "La priorité absolue va au score le plus élevé ; la deuxième ligne suit immédiatement ce score dans le classement.",
+      "Le rapport destiné à un public non technique porte un nom normalisé : la synthèse (ou résumé) exécutive, placée en tête du document."
     ],
     "examples": [
       {
-        "stdin": "PENTEST_SYNTHESIS findings=sqli_auth:CRITICAL,weak_cipher:MEDIUM,missing_hsts:LOW",
-        "expected": "PENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL",
-        "note": "Une vulnérabilité critique déclenche immédiatement la posture COMPROMISED_CRITICAL."
+        "stdin": "Le rapport du pentest de la bibliothèque de Sanzel retient :\nRCE sur le module d'import (9,1 — critique) ; injection SQL (8,8 — élevée) ;\nabsence de double authentification (7,5 — élevée) ; CSRF sur le formulaire d'inscription (4,3 — moyenne) ;\nlisting de répertoire (3,7 — faible).\n\n1) 5 vulnérabilités. 2) 1 seule de sévérité moyenne (le CSRF). 3) Priorité absolue : score 9,1.\n4) Deuxième score : 8,8. 5) Section pour la direction : la synthèse exécutive. 6) Deuxième du plan : l'injection SQL.",
+        "expected": "5 vulnérabilités — 1 moyenne — 9,1 — 8,8 — synthèse exécutive — l'injection SQL",
+        "note": "Le plan de remédiation suit l'ordre des scores décroissants : 9,1 puis 8,8 puis 7,5, les sévérités ne servent qu'à communiquer."
       }
     ],
     "tests": [
       {
-        "label": "Infrastructure avec failles élevées multiples sans faille critique",
-        "stdin": "cas:1",
-        "expected": "PENTEST_SUMMARY: total_findings=3 critical=0 high=2 medium=1 low=0 risk_score=12 posture=HIGH_EXPOSURE"
+        "label": "Question 1 — Vulnérabilités recensées",
+        "stdin": "q:1",
+        "expected": "5||cinq"
       },
       {
-        "label": "Environnement sain avec deux failles mineures d'en-tête",
-        "stdin": "cas:2",
-        "expected": "PENTEST_SUMMARY: total_findings=2 critical=0 high=0 medium=0 low=2 risk_score=2 posture=SECURE_RESILIENT"
+        "label": "Question 2 — Sévérité moyenne",
+        "stdin": "q:2",
+        "expected": "2||deux"
       },
       {
-        "label": "Cumul de failles moyennes atteignant le seuil d'exposition modérée",
-        "stdin": "cas:3",
-        "expected": "PENTEST_SUMMARY: total_findings=3 critical=0 high=0 medium=3 low=0 risk_score=6 posture=MODERATE_EXPOSURE"
+        "label": "Question 3 — Score de la priorité absolue",
+        "stdin": "q:3",
+        "expected": "9,8||9.8"
+      },
+      {
+        "label": "Question 4 — Deuxième score le plus grave",
+        "stdin": "q:4",
+        "expected": "8,6||8.6"
+      },
+      {
+        "label": "Question 5 — Section pour la direction",
+        "stdin": "q:5",
+        "expected": "la synthèse exécutive||synthèse exécutive||le résumé exécutif||résumé exécutif||executive summary"
+      },
+      {
+        "label": "Question 6 — Deuxième du plan de remédiation",
+        "stdin": "q:6",
+        "expected": "l'idor||idor||l'idor sur les factures"
       }
     ],
-    "solution": "[Exemple]\nPENTEST_SUMMARY: total_findings=3 critical=1 high=0 medium=1 low=1 risk_score=13 posture=COMPROMISED_CRITICAL\n\n[Cas 1 — Infrastructure avec failles élevées multiples sans faille critique]\nPENTEST_SUMMARY: total_findings=3 critical=0 high=2 medium=1 low=0 risk_score=12 posture=HIGH_EXPOSURE\n\n[Cas 2 — Environnement sain avec deux failles mineures d'en-tête]\nPENTEST_SUMMARY: total_findings=2 critical=0 high=0 medium=0 low=2 risk_score=2 posture=SECURE_RESILIENT\n\n[Cas 3 — Cumul de failles moyennes atteignant le seuil d'exposition modérée]\nPENTEST_SUMMARY: total_findings=3 critical=0 high=0 medium=3 low=0 risk_score=6 posture=MODERATE_EXPOSURE"
+    "solution": "[Question 1 — Vulnérabilités recensées]\n5\n\n[Question 2 — Vulnérabilités de sévérité moyenne]\n2\n\n[Question 3 — Score de la priorité absolue]\n9,8\n\n[Question 4 — Score de la deuxième vulnérabilité la plus grave]\n8,6\n\n[Question 5 — Section du rapport destinée à la direction]\nla synthèse exécutive\n\n[Question 6 — Deuxième vulnérabilité du plan de remédiation]\nl'idor",
+    "takeaway": "1) Le rapport recense 5 vulnérabilités.\n2) Deux sont de sévérité moyenne : le XSS stocké (6,1) et l'absence d'HSTS (5,9).\n3) La priorité absolue est l'injection SQL sur le portail patient, score 9,8.\n4) La deuxième vulnérabilité la plus grave est l'IDOR sur les factures, score 8,6.\n5) La section destinée à la direction est la synthèse exécutive : risques, impacts et priorités, sans jargon technique.\n6) La deuxième ligne du plan de remédiation revient à l'IDOR, immédiatement derrière l'injection SQL dans l'ordre des scores décroissants.\nContrôle : 1 critique (9,8) + 1 élevée (8,6) + 2 moyennes (6,1 et 5,9) + 1 faible (3,1) = 5 vulnérabilités, et le classement 9,8 &gt; 8,6 &gt; 6,1 &gt; 5,9 &gt; 3,1 fixe l'ordre exact du plan de remédiation."
   }
 ];

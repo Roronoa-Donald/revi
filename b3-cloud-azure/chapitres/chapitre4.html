@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -220,10 +218,11 @@ Format de sortie attendu :<br>
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>SUBNET name=snet-web cidr=10.0.1.0/24</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Déterminez d’abord l’adresse réseau du CIDR, puis calculez les décalages à partir de cette adresse.</li>
         <li>La passerelle est à réseau + 1, les correspondances DNS à + 2 et + 3, et la première adresse assignable à + 4.</li>
+        <li>Déterminez réseau, broadcast et passerelle Azure (.1), puis soustrayez les 5 IP réservées par Azure (.0, .1, .2, .3 et dernière) pour compter les hôtes utilisables.</li>
       </ol>
     </details>
   </div>
@@ -233,29 +232,28 @@ Format de sortie attendu :<br>
      data-exercise="az3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="RULE prio=100 name=Allow-HTTP direction=INBOUND source=Internet port=80 proto=TCP action=ALLOW&#10;RULE prio=200 name=Deny-SSH direction=INBOUND source=* port=22 proto=TCP action=DENY&#10;TEST_PACKET source=Internet port=80 proto=TCP&#10;TEST_PACKET source=Internet port=22 proto=TCP">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c4-e2) — Moteur d'évaluation de règles de sécurité NSG
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'imprimerie Rivoire filtre la machine virtuelle de son site avec un NSG :&#10;- priorité 150 : Allow-HTTPS, port 443, Internet, Autoriser ;&#10;- priorité 400 : Deny-All-Inbound, tous ports, quelconque, Refuser ;&#10;- règles par défaut : AllowVnetInBound (65000), DenyAllInbound (65500).&#10;&#10;1) Un paquet Internet sur 443 correspond à Allow-HTTPS (priorité 150) : autorisé.&#10;2) Un paquet Internet sur le port 8080 atteint Deny-All-Inbound (400) : refusé.&#10;3) La priorité 150 est évaluée avant la priorité 400.&#10;4) La règle par défaut DenyAllInbound porte le numéro 65500.">
+  <script type="text/plain" data-lab-starter># Exercice — Le filtrage du portail des Ateliers Norvian
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Question 1 : le nom de la règle. Question 3 : autorisé ou refusé.
 
-[Cas 1 — Règles personnalisées DNS et Telnet]
-# Données : RULE prio=150 name=Allow-DNS direction=INBOUND source=CorpDNS port=53 proto=UDP action=ALLOW
-# Données : RULE prio=250 name=Deny-Telnet direction=INBOUND source=* port=23 proto=TCP action=DENY
-# Données : TEST_PACKET source=CorpDNS port=53 proto=UDP
-# Données : TEST_PACKET source=AnyHost port=23 proto=TCP
+[Question 1 — Règle appliquée à un paquet TCP 443 depuis Internet]
 A_COMPLETER
 
-[Cas 2 — Chute sur les règles par défaut Azure VNet et DenyAll]
-# Données : RULE prio=300 name=Allow-HTTPS direction=INBOUND source=Internet port=443 proto=TCP action=ALLOW
-# Données : TEST_PACKET source=VirtualNetwork port=3389 proto=TCP
-# Données : TEST_PACKET source=ExternalHacker port=4444 proto=UDP
+[Question 2 — Action du NSG sur un paquet TCP 3389 depuis Internet]
 A_COMPLETER
 
-[Cas 3 — Règle par défaut AzureLoadBalancer]
-# Données : TEST_PACKET source=AzureLoadBalancer port=80 proto=TCP
+[Question 3 — Sort d'un paquet TCP 22 depuis AzureBastionSubnet]
+A_COMPLETER
+
+[Question 4 — Règle évaluée en premier entre les priorités 100 et 200]
+A_COMPLETER
+
+[Question 5 — Priorité de la règle par défaut DenyAllInbound]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur d'évaluation de règles de sécurité NSG</h3>
+    <h3 class="lab__title">Exercice 2 — Le filtrage du portail des Ateliers Norvian</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -264,34 +262,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Évaluer le traitement d’un paquet réseau entrant par un groupe de sécurité réseau (NSG) selon l’ordre de priorité des règles et les règles par défaut Azure.</p>
-    <div class="lab__brief"><p>Un groupe de sécurité réseau (NSG) filtre le trafic entrant et sortant. Les règles sont traitées par ordre croissant de priorité (de 100 à 4096). La première règle correspondant au paquet s'applique immédiatement.<br><br>
-Règles par défaut Azure (INBOUND) automatiques en fin de chaîne :<br>
-- Priorité <code>65000</code> : <code>AllowVNetInBound</code>, source=<code>VirtualNetwork</code>, port=<code>*</code>, proto=<code>ANY</code>, action=<code>ALLOW</code><br>
-- Priorité <code>65001</code> : <code>AllowAzureLoadBalancerInBound</code>, source=<code>AzureLoadBalancer</code>, port=<code>*</code>, proto=<code>ANY</code>, action=<code>ALLOW</code><br>
-- Priorité <code>65500</code> : <code>DenyAllInBound</code>, source=<code>*</code>, port=<code>*</code>, proto=<code>ANY</code>, action=<code>DENY</code><br><br>
-Format d'entrée :<br>
-Déclaration de règles personnalisées :<br>
-<code>RULE prio=&lt;int&gt; name=&lt;nom&gt; direction=INBOUND source=&lt;SRC&gt; port=&lt;PORT&gt; proto=&lt;TCP|UDP|ANY&gt; action=&lt;ALLOW|DENY&gt;</code><br>
-Puis paquets à évaluer :<br>
-<code>TEST_PACKET source=&lt;SRC&gt; port=&lt;PORT&gt; proto=&lt;TCP|UDP&gt;</code><br><br>
-Critères de correspondance d'un paquet :<br>
-- <code>source</code> : matche si la règle a <code>*</code> ou la même valeur exacte.<br>
-- <code>port</code> : matche si la règle a <code>*</code> ou le même numéro de port.<br>
-- <code>proto</code> : matche si la règle a <code>ANY</code> ou le même protocole exact.<br><br>
-Format de sortie attendu :<br>
-<code>PACKET: matched_rule=&lt;name&gt; (prio=&lt;prio&gt;) -&gt; RESULT=&lt;ALLOW|DENY&gt;</code></p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Évaluer des règles de sécurité d'un groupe de sécurité réseau (NSG) selon leur priorité et connaître les règles par défaut.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Ateliers Norvian, PME industrielle, publie son portail fournisseur sur une machine virtuelle protégée par un groupe de sécurité réseau (NSG). Rappel du cours : les règles sont évaluées de la priorité la plus basse à la plus haute (la règle de priorité 100 passe avant celle de priorité 200) ; la première règle qui correspond au paquet détermine l'action.</p><p>Règles personnalisées du NSG (trafic entrant) :</p><table><tr><th>Priorité</th><th>Nom</th><th>Port</th><th>Source</th><th>Action</th></tr><tr><th>100</th><td>Allow-HTTP</td><td>80</td><td>Internet</td><td>Autoriser</td></tr><tr><th>110</th><td>Allow-HTTPS</td><td>443</td><td>Internet</td><td>Autoriser</td></tr><tr><th>200</th><td>Allow-SSH-Bastion</td><td>22</td><td>AzureBastionSubnet</td><td>Autoriser</td></tr><tr><th>1000</th><td>Deny-All-Inbound</td><td>tous</td><td>quelconque</td><td>Refuser</td></tr></table><p>Le NSG conserve aussi ses règles par défaut : AllowVnetInBound (priorité 65000), AllowAzureLoadBalancerInBound (65001) et DenyAllInbound (65500).</p><ol><li>Un paquet TCP arrive d'Internet sur le port 443 : quelle règle s'applique ?</li><li>Un paquet TCP arrive d'Internet sur le port 3389 (RDP) : quelle action le NSG applique-t-il ?</li><li>Un paquet TCP arrive du sous-réseau AzureBastionSubnet sur le port 22 : est-il autorisé ou refusé ?</li><li>Deux règles correspondent à un même paquet, l'une de priorité 100, l'autre de priorité 200 : laquelle est évaluée en premier ?</li><li>Quel numéro de priorité porte la règle par défaut DenyAllInbound ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>RULE prio=100 name=Allow-HTTP direction=INBOUND source=Internet port=80 proto=TCP action=ALLOW
-RULE prio=200 name=Deny-SSH direction=INBOUND source=* port=22 proto=TCP action=DENY
-TEST_PACKET source=Internet port=80 proto=TCP
-TEST_PACKET source=Internet port=22 proto=TCP</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'imprimerie Rivoire filtre la machine virtuelle de son site avec un NSG :
+- priorité 150 : Allow-HTTPS, port 443, Internet, Autoriser ;
+- priorité 400 : Deny-All-Inbound, tous ports, quelconque, Refuser ;
+- règles par défaut : AllowVnetInBound (65000), DenyAllInbound (65500).
+
+1) Un paquet Internet sur 443 correspond à Allow-HTTPS (priorité 150) : autorisé.
+2) Un paquet Internet sur le port 8080 atteint Deny-All-Inbound (400) : refusé.
+3) La priorité 150 est évaluée avant la priorité 400.
+4) La règle par défaut DenyAllInbound porte le numéro 65500.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Ajouter les 3 règles par défaut Azure dans la liste des règles avec leurs priorités 65000, 65001 et 65500.</li>
-        <li>Trier l'ensemble des règles par priorité croissante et trouver la première règle correspondante.</li>
+        <li>Pour chaque paquet, parcourez les règles par priorité croissante et arrêtez-vous à la première qui correspond au port et à la source.</li>
+        <li>La priorité est un numéro : plus il est petit, plus la règle est évaluée tôt ; 100 passe avant 200, qui passe avant 1000.</li>
+        <li>1. Port 443 : cherchez la règle dédiée. 2. Aucune règle d'autorisation ne couvre le port 3389 : la règle de refus générale s'applique. 3. La règle 200 couvre le port 22 depuis le sous-réseau Bastion. 4. Comparez les deux numéros. 5. Relisez les trois règles par défaut.</li>
       </ol>
     </details>
   </div>
@@ -301,31 +290,28 @@ TEST_PACKET source=Internet port=22 proto=TCP</pre></div>
      data-exercise="az3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="VNET id=vnet-hub cidr=10.0.0.0/16&#10;VNET id=vnet-spoke1 cidr=10.1.0.0/16&#10;PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=false">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (az3-c4-e3) — Validateur de Peering VNet & Topologie Hub-and-Spoke
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le réseau de cliniques Axelys construit un hub vnet-hub-axelys (10.50.0.0/16) relié à&#10;deux spokes : vnet-imagerie (10.60.0.0/16) et vnet-admin (10.70.0.0/16).&#10;&#10;1) La topologie compte 2 peerings hub-spoke.&#10;2) Il faut 2 liaisons par peering, soit 4 liaisons au total.&#10;3) 10.50.0.0/16 et 10.60.0.0/16 ne se chevauchent pas.&#10;4) Le trafic imagerie-admin transite par le hub.&#10;5) Un spoke supplémentaire en 10.60.0.0/16 serait refusé : chevauchement avec vnet-imagerie.">
+  <script type="text/plain" data-lab-starter># Exercice — La topologie hub-and-spoke du groupe Palissy
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 3 et 5 : oui ou non. Question 4 : le nom du réseau virtuel.
 
-[Cas 1 — Peering valide entre VNet Core et VNet App sans transit]
-# Données : VNET id=vnet-core cidr=172.16.0.0/16
-# Données : VNET id=vnet-app cidr=172.17.0.0/16
-# Données : PEERING vnet1=vnet-core vnet2=vnet-app allow_gw_transit=false use_remote_gw=false
+[Question 1 — Nombre de peerings hub-spoke]
 A_COMPLETER
 
-[Cas 2 — Échec dû au chevauchement CIDR]
-# Données : VNET id=vnet-a cidr=10.0.0.0/16
-# Données : VNET id=vnet-b cidr=10.0.1.0/24
-# Données : PEERING vnet1=vnet-a vnet2=vnet-b allow_gw_transit=false use_remote_gw=false
+[Question 2 — Nombre total de liaisons à configurer]
 A_COMPLETER
 
-[Cas 3 — Conflit de flags de passerelle et VNet inconnu]
-# Données : VNET id=vnet-hub cidr=10.0.0.0/16
-# Données : VNET id=vnet-spoke2 cidr=10.2.0.0/16
-# Données : PEERING vnet1=vnet-hub vnet2=vnet-spoke2 allow_gw_transit=true use_remote_gw=true
-# Données : PEERING vnet1=vnet-hub vnet2=vnet-ghost allow_gw_transit=false use_remote_gw=false
+[Question 3 — Chevauchement entre 10.10.0.0/16 et 10.20.0.0/16]
+A_COMPLETER
+
+[Question 4 — Réseau virtuel de transit entre les deux spokes]
+A_COMPLETER
+
+[Question 5 — Peering possible avec un espace 10.20.0.0/16 supplémentaire]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Validateur de Peering VNet &amp; Topologie Hub-and-Spoke</h3>
+    <h3 class="lab__title">Exercice 3 — La topologie hub-and-spoke du groupe Palissy</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -334,33 +320,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="az3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la validité de liens d’interconnexion (VNet Peering) en détectant les chevauchements de plages CIDR et les incohérences de passerelles de transit.</p>
-    <div class="lab__brief"><p>L'interconnexion de réseaux virtuels par Peering Azure permet une communication privée à haute performance. Toutefois, Azure refuse catégoriquement l'établissement d'un peering si les plages d'adresses IP se chevauchent, ou si la configuration de passerelle est incohérente.<br><br>
-Format d'entrée :<br>
-1. Déclaration des VNets :<br>
-   <code>VNET id=&lt;nom&gt; cidr=&lt;plage_ip&gt;</code><br>
-2. Demande d'établissement de Peering :<br>
-   <code>PEERING vnet1=&lt;nom1&gt; vnet2=&lt;nom2&gt; allow_gw_transit=&lt;true|false&gt; use_remote_gw=&lt;true|false&gt;</code><br><br>
-Règles de validation :<br>
-- Si l'un des deux VNets n'a pas été déclaré au préalable :<br>
-  <code>PEERING_ERROR: Unknown VNet in peering &lt;nom1&gt; &lt;-&gt; &lt;nom2&gt;</code><br>
-- Si les plages CIDR des deux réseaux se chevauchent :<br>
-  <code>PEERING_FAILED: Overlapping CIDR between &lt;nom1&gt; (&lt;cidr1&gt;) and &lt;nom2&gt; (&lt;cidr2&gt;)</code><br>
-- Si <code>allow_gw_transit=true</code> ET <code>use_remote_gw=true</code> simultanément :<br>
-  <code>PEERING_FAILED: Incompatible gateway flags on peering &lt;nom1&gt; &lt;-&gt; &lt;nom2&gt;</code><br>
-- Si toutes les conditions sont remplies :<br>
-  <code>PEERING_SUCCESS: &lt;nom1&gt; &lt;-&gt; &lt;nom2&gt; status=CONNECTED gateway_transit=&lt;ENABLED|DISABLED&gt;</code><br>
-  (avec <code>ENABLED</code> si au moins l'un des deux flags est à true, sinon <code>DISABLED</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Concevoir un maillage de peerings entre réseaux virtuels Azure (hub-and-spoke) et vérifier la compatibilité des espaces d'adressage.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Le groupe Palissy, distributeur disposant de quatre sites, déploie une topologie hub-and-spoke :</p><table><tr><th>Réseau virtuel</th><th>Rôle</th><th>Espace d'adressage</th></tr><tr><th>vnet-hub</th><td>hub (héberge le pare-feu)</td><td>10.10.0.0/16</td></tr><tr><th>vnet-entrepot-est</th><td>spoke</td><td>10.20.0.0/16</td></tr><tr><th>vnet-entrepot-ouest</th><td>spoke</td><td>10.30.0.0/16</td></tr><tr><th>vnet-bureaux</th><td>spoke</td><td>10.40.0.0/16</td></tr></table><p>Rappels du cours : un peering entre deux réseaux virtuels exige deux liaisons, une configurée dans chaque sens ; un peering est impossible entre deux réseaux dont les espaces d'adressage se chevauchent ; dans une topologie hub-and-spoke, le trafic entre deux spokes traverse le hub, qui le route.</p><ol><li>Combien de peerings (liaisons hub-spoke) la topologie établit-elle entre le hub et les trois spokes ?</li><li>Chaque peering exige une liaison par sens : combien de liaisons faut-il configurer au total ?</li><li>Les espaces 10.10.0.0/16 et 10.20.0.0/16 se chevauchent-ils ?</li><li>Par quel réseau virtuel transite le trafic entre vnet-entrepot-est et vnet-entrepot-ouest ?</li><li>Un nouveau site souhaite rejoindre la topologie avec l'espace 10.20.0.0/16 : le peering est-il possible ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>VNET id=vnet-hub cidr=10.0.0.0/16
-VNET id=vnet-spoke1 cidr=10.1.0.0/16
-PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=false</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le réseau de cliniques Axelys construit un hub vnet-hub-axelys (10.50.0.0/16) relié à
+deux spokes : vnet-imagerie (10.60.0.0/16) et vnet-admin (10.70.0.0/16).
+
+1) La topologie compte 2 peerings hub-spoke.
+2) Il faut 2 liaisons par peering, soit 4 liaisons au total.
+3) 10.50.0.0/16 et 10.60.0.0/16 ne se chevauchent pas.
+4) Le trafic imagerie-admin transite par le hub.
+5) Un spoke supplémentaire en 10.60.0.0/16 serait refusé : chevauchement avec vnet-imagerie.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Vérifiez si les deux plages d’adresses CIDR se chevauchent (intersection non vide).</li>
-        <li>Vérifier que allow_gw_transit et use_remote_gw ne sont pas tous les deux actifs en même temps.</li>
+        <li>Comptez les paires hub-spoke : un peering relie le hub à un spoke, pas les spokes entre eux.</li>
+        <li>Chaque paire demande deux liaisons : une déclarée depuis chaque réseau virtuel.</li>
+        <li>1. Un peering par spoke. 2. Multipliez par deux. 3. Comparez les blocs /16 : le deuxième octet suffit à les distinguer. 4. En hub-and-spoke, les spokes ne se parlent pas directement. 5. Vérifiez si la plage demandée existe déjà dans la topologie.</li>
       </ol>
     </details>
   </div>
@@ -384,19 +361,19 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
       <p class="q__stem">À quoi servent les adresses réservées aux décalages +2 et +3 dans un sous-réseau Azure ?</p>
       <div class="opts">
         <button class="opt">Deux résolveurs DNS primaire et secondaire du sous-réseau</button>
-        <button class="opt" data-correct="1">La correspondance des adresses Azure DNS dans l'espace du VNet</button>
-        <button class="opt">La passerelle par défaut et l'adresse de diffusion</button>
         <button class="opt">Les deux premières machines virtuelles créées</button>
+        <button class="opt">La passerelle par défaut et l'adresse de diffusion</button>
+        <button class="opt" data-correct="1">La correspondance des adresses Azure DNS dans l'espace du VNet</button>
       </div>
       <div class="q__exp">Ces deux adresses servent à la correspondance Azure DNS ; elles ne désignent pas deux résolveurs. Le DNS fourni par Azure utilise 168.63.129.16, sauf configuration DNS personnalisée.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment s'effectue l'évaluation de deux règles contradictoires au sein d'un même Network Security Group (NSG) ?</p>
       <div class="opts">
-        <button class="opt">La règle Deny l'emporte toujours sur la règle Allow</button>
         <button class="opt" data-correct="1">La règle ayant le numéro de priorité le plus faible est évaluée en premier et s'applique immédiatement</button>
-        <button class="opt">La règle la plus récemment modifiée s'applique</button>
-        <button class="opt">Les deux règles fusionnent</button>
+        <button class="opt">La règle Deny l'emporte toujours sur la règle Allow quel que soit leur numéro de priorité respectif</button>
+        <button class="opt">La règle la plus récemment modifiée s'applique prioritairement aux connexions entrantes</button>
+        <button class="opt">Les deux règles fusionnent automatiquement en une seule règle composite</button>
       </div>
       <div class="q__exp">Les règles NSG sont traitées par ordre strictement croissant de priorité (100 à 4096). La première règle qui correspond aux critères du paquet s'applique et arrête le processus d'évaluation.</div>
     </div>
@@ -404,19 +381,19 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
       <p class="q__stem">Quelle est la priorité de la règle par défaut Inbound d'un NSG qui bloque tout le trafic entrant non explicitement autorisé (DenyAllInBound) ?</p>
       <div class="opts">
         <button class="opt">100</button>
-        <button class="opt">1000</button>
-        <button class="opt">65000</button>
         <button class="opt" data-correct="1">65500</button>
+        <button class="opt">65000</button>
+        <button class="opt">1000</button>
       </div>
       <div class="q__exp">La règle par défaut DenyAllInBound possède la priorité 65500, garantissant qu'elle s'applique en toute fin de chaîne si aucune règle personnalisée précédente n'a matché.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi Azure Bastion est-il considéré comme une pratique d'excellence pour l'administration de machines virtuelles ?</p>
       <div class="opts">
-        <button class="opt">Il augmente la mémoire RAM des serveurs de 50%</button>
+        <button class="opt">Il augmente la mémoire RAM des serveurs de 50% via une extension matérielle automatique</button>
+        <button class="opt">Il supprime totalement le besoin de mots de passe administrateur sur les machines virtuelles</button>
         <button class="opt" data-correct="1">Il permet la connexion RDP et SSH depuis un navigateur web via HTTPS sans attribuer d'adresse IP publique à la VM</button>
-        <button class="opt">Il supprime le besoin de mots de passe administrateur</button>
-        <button class="opt">Il remplace le système d'exploitation par Linux</button>
+        <button class="opt">Il remplace automatiquement le système d'exploitation de la VM par une distribution Linux</button>
       </div>
       <div class="q__exp">Azure Bastion établit une session RDP/SSH sécurisée au travers d'une connexion web chiffrée (port 443), éliminant l'exposition des ports 22 et 3389 sur Internet et évitant d'assigner des IPs publiques aux serveurs.</div>
     </div>
@@ -424,9 +401,9 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
       <p class="q__stem">Quelle condition technique stricte est obligatoire pour pouvoir établir un VNet Peering entre deux réseaux virtuels Azure ?</p>
       <div class="opts">
         <button class="opt">Les deux VNets doivent être situés dans le même pays</button>
-        <button class="opt" data-correct="1">Les espaces d'adressage IP (CIDR) des deux VNets ne doivent comporter aucun chevauchement</button>
-        <button class="opt">Les deux VNets doivent être gérés par le même abonnement</button>
         <button class="opt">Les machines doivent utiliser le même système d'exploitation</button>
+        <button class="opt">Les deux VNets doivent être gérés par le même abonnement</button>
+        <button class="opt" data-correct="1">Les espaces d'adressage IP (CIDR) des deux VNets ne doivent comporter aucun chevauchement</button>
       </div>
       <div class="q__exp">Le peering entre deux réseaux virtuels est strictement impossible si leurs plages d'adresses IP (espaces d'adressage CIDR) se chevauchent, afin d'éviter toute collision de routage.</div>
     </div>
@@ -443,10 +420,10 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
     <div class="q">
       <p class="q__stem">Quelle est la portée géographique du service Global VNet Peering sous Azure ?</p>
       <div class="opts">
-        <button class="opt">Uniquement entre deux datacenters de la même ville</button>
         <button class="opt" data-correct="1">Entre n'importe quelles régions Azure à travers le monde entier via le réseau fédérateur privé de Microsoft</button>
-        <button class="opt">Uniquement au sein de l'Union Européenne</button>
-        <button class="opt">Uniquement entre régions jumelées</button>
+        <button class="opt">Uniquement entre deux datacenters situés dans la même ville ou la même zone métropolitaine</button>
+        <button class="opt">Uniquement au sein des régions Azure implantées sur le territoire de l'Union Européenne</button>
+        <button class="opt">Uniquement entre deux régions jumelées (paired regions) d'une même zone géographique</button>
       </div>
       <div class="q__exp">Global VNet Peering permet d'interconnecter des VNets situés dans des régions Azure différentes (ex: France Central et East US) avec un chiffrement matériel natif sur le réseau privé Microsoft.</div>
     </div>
@@ -568,7 +545,7 @@ PEERING vnet1=vnet-hub vnet2=vnet-spoke1 allow_gw_transit=true use_remote_gw=fal
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

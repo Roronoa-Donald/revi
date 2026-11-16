@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -157,15 +155,62 @@
 
 </section>
 
+<section class="sec">
+
+<h2>5. Implémentation Flask complète : ressources REST, PUT vs PATCH et test_client()</h2>
+
+<p>Traduisons directement la modélisation REST et la distinction entre remplacement complet (<code>PUT</code>) et modification partielle (<code>PATCH</code>) dans une route Flask authentique :</p>
+<pre><code class="language-python">from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+PRODUITS = {
+    10: {"id": 10, "nom": "Clavier mécanique", "prix": 89.0, "stock": 15}
+}
+
+@app.route("/api/v1/produits/&lt;int:pid&gt;", methods=["GET", "PUT", "PATCH"])
+def gerer_produit(pid):
+    if pid not in PRODUITS:
+        return jsonify({"error": "Produit introuvable"}), 404
+    if request.method == "GET":
+        return jsonify(PRODUITS[pid]), 200
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Payload JSON invalide"}), 400
+
+    if request.method == "PUT":
+        if not {"nom", "prix", "stock"}.issubset(data.keys()):
+            return jsonify({"error": "PUT exige la représentation complète (nom, prix, stock)"}), 422
+        PRODUITS[pid] = {"id": pid, "nom": data["nom"], "prix": float(data["prix"]), "stock": int(data["stock"])}
+        return jsonify(PRODUITS[pid]), 200
+
+    # Méthode PATCH : mise à jour partielle idempotente sur les clés fournies
+    for cle in ("nom", "prix", "stock"):
+        if cle in data:
+            PRODUITS[pid][cle] = data[cle]
+    return jsonify(PRODUITS[pid]), 200
+
+if __name__ == "__main__":
+    client = app.test_client()
+    res_patch = client.patch("/api/v1/produits/10", json={"stock": 12})
+    assert res_patch.status_code == 200 and res_patch.get_json()["stock"] == 12
+    res_put_incomplet = client.put("/api/v1/produits/10", json={"stock": 5})
+    assert res_put_incomplet.status_code == 422</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="fl2-c2-e1" data-lab
      data-exercise="fl2-c2-e1"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="/API//V1/Students//">
@@ -177,13 +222,11 @@
     <h3 class="lab__title">Exercice 1 — Normalisation d’un chemin REST</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Formater et nettoyer un chemin d’accès REST en supprimant les doublons de slashes et les majuscules.</p>
-    <p class="lab__note" id="fl2-c2-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une bonne pratique de conception REST consiste à utiliser des chemins en minuscules, sans slashes superflus, et sans slash final (sauf pour la racine <code>/</code>).</p><p>Lit une chaîne de chemin sur l’entrée standard. Nettoie la chaîne :<br>1. Convertissez en minuscules.<br>2. Remplacer les séquences de slashes multiples par un slash unique.<br>3. Retirer le slash final s’il y en a un et que le chemin ne se réduit pas à <code>/</code>.<br>4. S’assurer que le chemin commence bien par un slash <code>/</code>.<br>Affichez le chemin normalisé.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>/API//V1/Students//</pre></div>
@@ -191,10 +234,11 @@
     </div>
     <p class="lab__note">Slashes multiples et majuscules nettoyés.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Vous pouvez découper la chaîne avec .split("/") et filtrer les segments non vides avec [s for s in ... if s].</li>
         <li>Reconstitue le chemin avec "/" + "/".join(segments).</li>
+        <li>Étapes : découper le chemin sur les slashes en ignorant les segments vides ; tout passer en minuscules ; aucun segment → « / » ; sinon « / » suivi des segments joints par « / ».</li>
       </ol>
     </details>
   </div>
@@ -202,7 +246,6 @@
 
 <div class="lab" id="fl2-c2-e2" data-lab
      data-exercise="fl2-c2-e2"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="creer">
@@ -214,13 +257,11 @@
     <h3 class="lab__title">Exercice 2 — Choix du verbe HTTP canonique</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Associer une intention métier en français à son verbe HTTP REST canonique.</p>
-    <p class="lab__note" id="fl2-c2-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Les principes REST associent les opérations sur les ressources aux verbes du protocole HTTP : <code>GET</code> pour lire ou lister, <code>POST</code> pour créer, <code>PUT</code> pour remplacer complètement, <code>PATCH</code> pour modifier partiellement, et <code>DELETE</code> pour supprimer.</p><p>Lit une action métier sur l’entrée standard (en ignorant la casse et les espaces) et affiche le verbe HTTP correspondant :<br>- <code>creer</code> ou <code>ajouter</code> &rarr; <code>POST</code><br>- <code>lister</code> ou <code>recuperer</code> &rarr; <code>GET</code><br>- <code>remplacer</code> &rarr; <code>PUT</code><br>- <code>modifier</code> &rarr; <code>PATCH</code><br>- <code>supprimer</code> &rarr; <code>DELETE</code><br>Pour toute autre action non reconnue, affiche <code>INCONNU</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>creer</pre></div>
@@ -228,10 +269,11 @@
     </div>
     <p class="lab__note">Création d’une nouvelle ressource.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Utilisez un dictionnaire Python associant chaque mot-clé à son verbe HTTP.</li>
         <li>Utilisez .get(action, "INCONNU") pour gérer les valeurs hors table.</li>
+        <li>Étapes : lire l’action et la passer en minuscules ; la chercher dans la table des verbes ; trouvée → afficher le verbe ; inconnue → afficher « INCONNU ».</li>
       </ol>
     </details>
   </div>
@@ -239,7 +281,6 @@
 
 <div class="lab" id="fl2-c2-e3" data-lab
      data-exercise="fl2-c2-e3"
-     data-grading-suspended="1"
      data-language="python"
      data-height="300"
      data-stdin="/utilisateurs/42">
@@ -251,13 +292,11 @@
     <h3 class="lab__title">Exercice 3 — Structure d’URI : Collection vs Ressource</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Python</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Identifier si une URI REST cible une collection ou une ressource spécifique.</p>
-    <p class="lab__note" id="fl2-c2-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Une URI REST bien conçue suit une hiérarchie alternant nom de collection (au pluriel) et identifiant unique. Si le dernier segment est un identifiant (numérique), l’URI cible une ressource individuelle ; si le dernier segment est un nom, l’URI cible une collection.</p><p>Lit une URI sur l’entrée standard (ex: <code>/api/clients/42</code> ou <code>/api/clients/42/commandes</code>).<br>- Si le dernier segment est un entier (identifiant) : affiche <code>Type: ressource | Cible: &lt;nom_collection&gt; | ID: &lt;id&gt;</code>.<br>- Si le dernier segment est textuel : affiche <code>Type: collection | Cible: &lt;nom_collection&gt;</code>.<br>Ignore les préfixes éventuels comme <code>/api</code> ou <code>/v1</code> pour trouver la collection ciblée.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>/utilisateurs/42</pre></div>
@@ -265,42 +304,43 @@
     </div>
     <p class="lab__note">Cible l’utilisateur 42.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Découpez l’URI en segments non vides avec [s for s in uri.split("/") if s].</li>
         <li>Vérifiez si le dernier segment est composé uniquement de chiffres avec segment.isdigit().</li>
+        <li>Étapes : découper l’URI en segments non vides ; dernier segment numérique → ressource (cible = segment précédent, ID = dernier) ; sinon → collection (cible = dernier segment).</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Qui a théorisé l’architecture REST en l’an 2000 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Roy Fielding</button>
-        <button class="opt">Tim Berners-Lee</button>
         <button class="opt">Linus Torvalds</button>
+        <button class="opt">Tim Berners-Lee</button>
+        <button class="opt" data-correct="1">Roy Fielding</button>
       </div>
       <div class="q__exp">Roy Fielding a présenté les principes fondamentaux de REST dans sa thèse doctorale.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que signifie la contrainte Stateless dans une API REST ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Le serveur ne conserve aucun état client entre deux requêtes successives</button>
-        <button class="opt">Le serveur ne possède aucune base de données</button>
         <button class="opt">Les requêtes n’ont pas le droit de modifier les données</button>
+        <button class="opt">Le serveur ne possède aucune base de données</button>
+        <button class="opt" data-correct="1">Le serveur ne conserve aucun état client entre deux requêtes successives</button>
       </div>
       <div class="q__exp">Chaque requête doit être auto-suffisante et fournir toutes les informations nécessaires à son traitement.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle URI respecte le mieux les conventions de nommage REST ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">/api/v1/etudiants/42</button>
         <button class="opt">/api/v1/recupererEtudiant?id=42</button>
+        <button class="opt" data-correct="1">/api/v1/etudiants/42</button>
         <button class="opt">/api/v1/get_etudiant_42</button>
       </div>
       <div class="q__exp">Les URI REST utilisent des noms au pluriel et séparent l’identifiant par un slash.</div>
@@ -317,9 +357,9 @@
     <div class="q">
       <p class="q__stem">Une méthode HTTP est dite idempotente si…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">La répéter plusieurs fois produit le même résultat sur le serveur</button>
-        <button class="opt">Elle ne renvoie jamais de code d’erreur 404</button>
         <button class="opt">Elle est obligatoirement chiffrée en HTTPS</button>
+        <button class="opt">Elle ne renvoie jamais de code d’erreur 404</button>
+        <button class="opt" data-correct="1">La répéter plusieurs fois produit le même résultat sur le serveur</button>
       </div>
       <div class="q__exp">L’idempotence garantit qu’une répétition d’appels identiques ne modifie pas l’état du serveur au-delà du premier.</div>
     </div>
@@ -335,8 +375,8 @@
     <div class="q">
       <p class="q__stem">Quelle méthode HTTP modifie partiellement certains attributs d’une ressource ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">PATCH</button>
         <button class="opt">PUT</button>
+        <button class="opt" data-correct="1">PATCH</button>
         <button class="opt">GET</button>
       </div>
       <div class="q__exp">PATCH est conçu spécifiquement pour les modifications différentielles ou partielles.</div>
@@ -356,7 +396,7 @@
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -373,7 +413,7 @@
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Modéliser une ressource et ses points d’accès REST</div>
@@ -390,7 +430,7 @@
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -421,7 +461,7 @@
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -470,7 +510,7 @@
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

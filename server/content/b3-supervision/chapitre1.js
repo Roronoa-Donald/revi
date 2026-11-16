@@ -161,20 +161,20 @@ module.exports = {
   questions: [
     {
       stem: 'Quelle démarche informatique a pour objet principal la mesure et l\'historisation de données quantitatives en vue du Capacity Planning ?',
-      opts: ['L\'audit de conformité', 'La métrologie', 'La supervision réactive', 'Le pentest offensif'],
-      correct: 1,
+      opts: ['La métrologie', 'L\'audit de conformité', 'La supervision réactive', 'Le pentest offensif'],
+      correct: 0,
       exp: 'La métrologie collecte et conserve les séries temporelles de performance (CPU, disque, trafic) pour analyser les tendances et dimensionner les évolutions matérielles.'
     },
     {
       stem: 'Sur un mois de 720 heures, un serveur subit 2 pannes de 30 minutes chacune. Quel est son MTTR (Mean Time To Repair) ?',
-      opts: ['1.0 heure', '0.5 heure', '359.5 heures', '719.0 heures'],
-      correct: 1,
+      opts: ['1.0 heure', '719.0 heures', '359.5 heures', '0.5 heure'],
+      correct: 3,
       exp: 'La durée totale d\'indisponibilité est de 60 minutes (1.0 heure). Le MTTR est l\'indisponibilité divisée par le nombre de pannes : 1.0 h / 2 = 0.5 heure (soit 30 minutes).'
     },
     {
       stem: 'Dans le scénario précédent (720 heures totales, 2 pannes totalisant 1 heure), quel est le MTBF (Mean Time Between Failures) ?',
-      opts: ['0.5 heure', '359.5 heures', '719.0 heures', '720.0 heures'],
-      correct: 1,
+      opts: ['0.5 heure', '719.0 heures', '359.5 heures', '720.0 heures'],
+      correct: 2,
       exp: 'Le temps de fonctionnement effectif (uptime) est 720 - 1 = 719 heures. Le MTBF est le temps d\'uptime divisé par le nombre de pannes : 719 / 2 = 359.5 heures.'
     },
     {
@@ -185,26 +185,26 @@ module.exports = {
     },
     {
       stem: 'Parmi les composants suivants, lequel relève typiquement de la supervision des équipements réseaux ?',
-      opts: ['Taux d\'inodes occupés sur /var', 'Erreurs de trames CRC et ifOperStatus sur un commutateur', 'Latence de requête SQL sur MySQL', 'Nombre de baux DHCP expirés'],
-      correct: 1,
+      opts: ["Erreurs de trames CRC et ifOperStatus sur un commutateur","Le taux d'inodes occupés sur le système de fichiers /var","La latence des requêtes SQL sur le serveur MySQL applicatif","Le nombre de baux DHCP expirés sur le serveur de noms"],
+      correct: 0,
       exp: 'L\'état opérationnel des interfaces (ifOperStatus) et les erreurs CRC sur les paquets sont des métriques fondamentales de la couche réseau.'
     },
     {
       stem: 'Dans la terminologie SRE, quelle action est recommandée lorsque le budget d\'erreur (Error Budget) d\'un service est entièrement consommé avant la fin du mois ?',
-      opts: ['Augmenter immédiatement le prix du contrat client', 'Geler temporairement les déploiements de nouvelles fonctionnalités au profit de la fiabilisation', 'Arrêter définitivement le serveur de production', 'Supprimer les sondes de supervision pour masquer les pannes'],
+      opts: ["Augmenter immédiatement le prix du contrat client pour financer la fiabilité","Geler temporairement les déploiements de nouvelles fonctionnalités au profit de la fiabilisation","Arrêter définitivement le serveur de production jusqu'à la fin du mois","Supprimer les sondes de supervision afin de masquer les pannes aux clients"],
       correct: 1,
       exp: 'Lorsque le budget d\'erreur est épuisé, les équipes gèlent les livraisons applicatives à risque pour concentrer leurs efforts sur la résilience et la correction des bugs d\'infrastructure.'
     },
     {
       stem: 'Que mesure l\'indicateur IPMI / iLO / iDRAC sur un serveur physique ?',
-      opts: ['Les requêtes HTTP entrantes', 'L\'état matériel hors-bande (température, alimentations, ventilateurs, disques)', 'Le temps de parsing des requêtes DNS', 'Le nombre de lignes de logs générées par minute'],
-      correct: 1,
+      opts: ["Le volume de requêtes HTTP entrantes traitées par le serveur web","Le temps de parsing des requêtes DNS par le résolveur local","L'état matériel hors-bande (température, alimentations, ventilateurs, disques)","Le nombre de lignes de journaux générées par le serveur chaque minute"],
+      correct: 2,
       exp: 'Ces interfaces d\'administration hors-bande (out-of-band) surveillent directement les composants physiques du serveur, même lorsque le système d\'exploitation est éteint ou planté.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre un audit et une opération de supervision ?',
-      opts: ['L\'audit est permanent alors que la supervision est annuelle', 'La supervision est continue en temps réel pour détecter les pannes, alors que l\'audit est ponctuel pour évaluer la conformité', 'La supervision ne concerne que les logiciels libres', 'L\'audit ne s\'applique qu\'au matériel réseau'],
-      correct: 1,
+      opts: ["L'audit est une démarche permanente et continue, alors que la supervision reste strictement annuelle","La supervision ne s'applique qu'aux logiciels libres et aux solutions open source du SI","L'audit ne concerne exclusivement que le matériel réseau de l'infrastructure informatique","La supervision est continue en temps réel pour détecter les pannes, alors que l'audit est ponctuel pour évaluer la conformité"],
+      correct: 3,
       exp: 'La supervision opère en continu 24/7 pour réagir immédiatement aux incidents, tandis que l\'audit est une évaluation planifiée et ponctuelle de conformité.'
     }
   ],

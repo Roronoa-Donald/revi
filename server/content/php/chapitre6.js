@@ -85,14 +85,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Que signifie PDO ?', opts: ['PHP Data Objects', 'Private Data Output', 'PHP Direct Object'], correct: 0, exp: 'PDO est la couche d’accès aux bases de données de PHP.' },
-    { stem: 'Qu’est-ce qu’un DSN ?', opts: ['Une requête', 'Un descripteur de connexion', 'Un mot de passe'], correct: 1, exp: 'Le DSN décrit le driver et la cible de la connexion.' },
-    { stem: 'Pourquoi ERRORMODE_EXCEPTION ?', opts: ['Pour aller plus vite', 'Pour que les erreurs lèvent une exception', 'Pour se connecter'], correct: 1, exp: 'Sans ce mode, une requête échouée renvoie false en silence.' },
-    { stem: 'Que protège une requête préparée ?', opts: ['La vitesse', 'De l’injection SQL', 'La mémoire'], correct: 1, exp: 'Elle sépare les valeurs liées de l’instruction SQL : ces valeurs ne deviennent pas du code SQL.' },
-    { stem: 'Comment lie-t-on un paramètre nommé ?', opts: ['<code>$stmt->execute([":nom" => $v])</code>', 'echo $v', '<code>$pdo->link($v)</code>'], correct: 0, exp: 'On passe un tableau associatif à execute().' },
-    { stem: 'À quoi sert un dépôt (repository) ?', opts: ['À afficher', 'À isoler l’accès aux données', 'À valider les formulaires'], correct: 1, exp: 'Il centralise les accès à la base pour un type d’entité.' },
+    { stem: 'Que signifie PDO ?', opts: ['Private Data Output', 'PHP Data Objects', 'PHP Direct Object'], correct: 1, exp: 'PDO est la couche d’accès aux bases de données de PHP.' },
+    { stem: 'Qu’est-ce qu’un DSN ?', opts: ['Un descripteur de connexion', 'Une requête', 'Un mot de passe'], correct: 0, exp: 'Le DSN décrit le driver et la cible de la connexion.' },
+    { stem: 'Pourquoi ERRORMODE_EXCEPTION ?', opts: ["Pour accélérer les requêtes du serveur","Pour que les erreurs lèvent une exception","Pour ouvrir la connexion au SGBD"], correct: 1, exp: "Sans ce mode, une requête échouée renvoie false en silence ; ERRMODE_EXCEPTION transforme l’échec en exception attrapable." },
+    { stem: 'Que protège une requête préparée ?', opts: ['De l’injection SQL', 'La vitesse', 'La mémoire'], correct: 0, exp: 'Elle sépare les valeurs liées de l’instruction SQL : ces valeurs ne deviennent pas du code SQL.' },
+    { stem: 'Comment lie-t-on un paramètre nommé ?', opts: ["<code>echo $stmt->execute($v)</code>","<code>$pdo->link($v, \":nom\")</code>","<code>$stmt->execute([\":nom\" => $v])</code>"], correct: 2, exp: "On passe un tableau associatif à execute(). Un echo ne lie rien, et link n’existe pas en PDO : le marqueur se lie via le tableau d’exécution." },
+    { stem: 'À quoi sert un dépôt (repository) ?', opts: ['À afficher', 'À valider les formulaires', 'À isoler l’accès aux données'], correct: 2, exp: 'Il centralise les accès à la base pour un type d’entité.' },
     { stem: 'Que reçoit un dépôt à sa construction ?', opts: ['Un utilisateur', 'L’objet PDO', 'Une requête'], correct: 1, exp: 'On lui injecte la connexion PDO, qu’il utilise en interne.' },
-    { stem: 'Combien de couches distingue-t-on ici ?', opts: ['Une', 'Entités, dépôt, service, affichage', 'Aucune'], correct: 1, exp: 'Chaque couche ne connaît que la suivante : entités, dépôt, service, affichage.' }
+    { stem: 'Combien de couches distingue-t-on ici ?', opts: ['Entités, dépôt, service, affichage', 'Une', 'Aucune'], correct: 0, exp: 'Chaque couche ne connaît que la suivante : entités, dépôt, service, affichage.' }
   ],
 
   pitfalls: [

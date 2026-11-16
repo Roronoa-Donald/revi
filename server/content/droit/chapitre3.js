@@ -93,13 +93,13 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Cambridge Analytica a détourné…', opts: ['Des données personnelles', 'Des brevets', 'Des logiciels libres'], correct: 0, exp: 'Utilisation non autorisée de données.' },
-    { stem: 'Le profilage électoral pose…', opts: ['Un enjeu de manipulation', 'Un problème de stockage', 'Un bug réseau'], correct: 0, exp: 'Manipulation électorale par profilage.' },
-    { stem: 'Un contenu à réguler ?', opts: ['Le discours de haine', 'Le code source libre', 'La poésie'], correct: 0, exp: 'Haine, désinformation, diffamation.' },
-    { stem: 'Le blocage non réglementaire de contenus peut…', opts: ['Restreindre la liberté d’expression', 'Améliorer la sécurité', 'Réduire la facture'], correct: 0, exp: 'C’est une restriction potentielle.' },
-    { stem: 'La nomophobie est…', opts: ['La peur d’être sans téléphone', 'Une marque de téléphone', 'Un type de virus'], correct: 0, exp: 'Une addiction numérique.' },
-    { stem: 'Le FOMO désigne…', opts: ['La peur de rater une information', 'Un protocole réseau', 'Un format d’image'], correct: 0, exp: 'Fear of missing out.' },
-    { stem: 'Le selfitisme est…', opts: ['Le culte de l’autoportrait', 'Un modèle de caméra', 'Un droit d’auteur'], correct: 0, exp: 'Addiction liée à l’image de soi.' },
+    { stem: 'Cambridge Analytica a détourné…', opts: ['Des données personnelles', 'Des brevets', 'Des logiciels libres'], correct: 0, exp: "Cambridge Analytica a détourné des données personnelles pour cibler des électeurs — une utilisation non autorisée. Ni brevets ni logiciels libres en cause." },
+    { stem: 'Le profilage électoral pose…', opts: ['Un problème de stockage', 'Un enjeu de manipulation', 'Un bug réseau'], correct: 1, exp: "Le profilage électoral pose un enjeu de manipulation : cibler chaque électeur selon son profil psychologique. Ce n’est ni un problème de stockage ni un bug réseau." },
+    { stem: 'Un contenu à réguler ?', opts: ['La poésie', 'Le code source libre', 'Le discours de haine'], correct: 2, exp: "Le discours de haine, avec la désinformation et la diffamation, est un contenu à réguler. Le code source libre et la poésie ne relèvent pas de cette régulation." },
+    { stem: 'Le blocage non réglementaire de contenus peut…', opts: ['Améliorer la sécurité', 'Restreindre la liberté d’expression', 'Réduire la facture'], correct: 1, exp: "Le blocage non réglementaire peut restreindre la liberté d’expression : sans cadre légal, la suppression est arbitraire. Ce n’est ni une sécurité ni une économie." },
+    { stem: 'La nomophobie est…', opts: ['La peur d’être sans téléphone', 'Une marque de téléphone', 'Un type de virus'], correct: 0, exp: "La nomophobie est la peur d’être sans téléphone : une addiction numérique. Ce n’est ni une marque ni un virus — c’est un trouble du comportement." },
+    { stem: 'Le FOMO désigne…', opts: ['Un format d’image', 'Un protocole réseau', 'La peur de rater une information'], correct: 2, exp: "Le FOMO (fear of missing out) est la peur de rater une information ou un événement. Ni protocole réseau ni format d’image : c’est une anxiété sociale." },
+    { stem: 'Le selfitisme est…', opts: ['Un modèle de caméra', 'Le culte de l’autoportrait', 'Un droit d’auteur'], correct: 1, exp: "Le selfitisme est le culte de l’autoportrait : une addiction liée à l’image de soi. Ni un modèle de caméra ni un droit d’auteur." },
     { stem: 'Internet pose un problème de…', opts: ['Véritable identité des utilisateurs', 'Prix du papier', 'Imprimerie'], correct: 0, exp: 'L’identité en ligne est un défi juridique.' }
   ],
 

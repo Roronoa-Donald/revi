@@ -117,12 +117,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que vaut la borne intérieure du tri à bulles au passage i ?', opts: ['n − 1', 'n − 1 − i', 'i'], correct: 1, exp: 'Les i dernières places sont déjà triées : inutile de les re-tester.' },
-      { stem: 'Combien de comparaisons pour n = 5 avec le double parcours complet ?', opts: ['5', '10', '25'], correct: 1, exp: '4 + 3 + 2 + 1 = 10, soit n(n − 1)/2.' },
+      { stem: 'Que vaut la borne intérieure du tri à bulles au passage i ?', opts: ['n − 1', 'i', 'n − 1 − i'], correct: 2, exp: 'Les i dernières places sont déjà triées : inutile de les re-tester.' },
+      { stem: 'Combien de comparaisons pour n = 5 avec le double parcours complet ?', opts: ['10', '5', '25'], correct: 0, exp: "Le double parcours compare chaque paire une fois : 4 + 3 + 2 + 1 = 10, soit n(n − 1)/2 ; 25 confondrait avec n²." },
       { stem: 'Quand incrémente-t-on le compteur de comparaisons ?', opts: ['Quand il y a échange', 'À chaque test, échange ou non', 'Après la boucle'], correct: 1, exp: 'La comparaison a lieu même sans échange : le test coûte.' },
-      { stem: 'Que renvoie min(registre, key=lambda m: m["age"]) ?', opts: ['Le plus petit âge', 'Le dictionnaire du membre le plus jeune', 'La position du minimum'], correct: 1, exp: 'min/max avec key renvoient l’élément entier, comparé via la clé.' },
+      { stem: 'Que renvoie min(registre, key=lambda m: m["age"]) ?', opts: ["Le plus petit âge du registre","La position du minimum dans la liste","Le dictionnaire du membre le plus jeune"], correct: 2, exp: 'min/max avec key renvoient l’élément entier, comparé via la clé.' },
       { stem: 'Une ligne "Awa 22" arrive de donnees_actionneur. Que vaut parties après l’extraction des champs ?', opts: ['["Awa 22"]', '["Awa", "22"]', '["Awa", 22]'], correct: 1, exp: 'l’extraction des champs découpe la chaîne aux espaces : deux morceaux, tous deux du texte.' },
-      { stem: 'La dichotomie exige que le tableau soit…', opts: ['rempli', 'trié', 'de taille paire'], correct: 1, exp: 'Comparer au milieu n’élimine une moitié que si l’ordre est garanti.' }
+      { stem: 'La dichotomie exige que le tableau soit…', opts: ['trié', 'rempli', 'de taille paire'], correct: 0, exp: 'Comparer au milieu n’élimine une moitié que si l’ordre est garanti.' }
     ],
 
     pitfalls: [
@@ -269,12 +269,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Que vaut NOT(1) sur un bit ?', opts: ['0', '1', 'Non défini'], correct: 0, exp: 'NON inverse le bit : 1 donne 0.' },
-      { stem: 'XOR vaut 1 exactement quand…', opts: ['les deux bits valent 1', 'les bits diffèrent', 'au moins un bit vaut 1'], correct: 1, exp: 'XOR est l’exclusivité : un seul des deux bits à 1.' },
+      { stem: 'Que vaut NOT(1) sur un bit ?', opts: ['Non défini', '1', '0'], correct: 2, exp: "L’opérateur NON inverse le bit : NOT(1) vaut 0 ; 1 serait l’identité et « Non défini » ne s’applique pas à un bit." },
+      { stem: 'XOR vaut 1 exactement quand…', opts: ['les bits diffèrent', 'les deux bits valent 1', 'au moins un bit vaut 1'], correct: 0, exp: 'XOR est l’exclusivité : un seul des deux bits à 1.' },
       { stem: 'Que vaut Cout pour a = 1, b = 1, cin = 0 ?', opts: ['0', '1', '2'], correct: 1, exp: '(1 ET 1) OU (0 ET x) = 1 OU 0 = 1 : 1 + 1 = 10 en binaire.' },
-      { stem: 'Que vaut 2 ^ 3 de manière méthodique ?', opts: ['8', '1', '5'], correct: 1, exp: '^ est le XOR : 10 XOR 11 = 01. La puissance se note **.' },
-      { stem: 'Pourquoi (position + k) % 26 ?', opts: ['Pour arrondir', 'Pour rebondir après z et revenir à a', 'Pour éviter les négatifs'], correct: 1, exp: 'Le modulo 26 enroule l’alphabet : 25 + 1 retombe sur 0.' },
-      { stem: 'Dans le chiffre de César, que devient le tiret de « Robot-2026 » ?', opts: ['Il est décalé', 'Il est supprimé', 'Il reste un tiret'], correct: 2, exp: 'Seules les lettres se décalent ; chiffres et ponctuation passent par le else inchangés.' }
+      { stem: 'Que vaut 2 ^ 3 de manière méthodique ?', opts: ['1', '8', '5'], correct: 0, exp: '^ est le XOR : 10 XOR 11 = 01. La puissance se note **.' },
+      { stem: 'Pourquoi (position + k) % 26 ?', opts: ["Pour arrondir le décalage","Pour éviter les indices négatifs","Pour rebondir après z et revenir à a"], correct: 2, exp: 'Le modulo 26 enroule l’alphabet : 25 + 1 retombe sur 0.' },
+      { stem: 'Dans le chiffre de César, que devient le tiret de « Robot-2026 » ?', opts: ['Il est décalé', 'Il reste un tiret', 'Il est supprimé'], correct: 1, exp: 'Seules les lettres se décalent ; chiffres et ponctuation passent par le else inchangés.' }
     ],
 
     pitfalls: [
@@ -424,12 +424,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quels segments s’allument pour le chiffre 8 ?', opts: ['a b c d e f', 'a b c d e f g', 'b c'], correct: 1, exp: 'Le 8 allume les sept segments.' },
+      { stem: 'Quels segments s’allument pour le chiffre 8 ?', opts: ['a b c d e f g', 'a b c d e f', 'b c'], correct: 0, exp: "Le chiffre 8 allume les sept segments a b c d e f g ; sans le g on obtiendrait 0, et b c seul afficherait 1." },
       { stem: 't = 30 exactement avec le test t > 30 : quel état ?', opts: ['ALERTE CHALEUR', 'normale', 'ALERTE FROID'], correct: 1, exp: 'Seuil strict : 30 n’est pas strictement supérieur à 30, il reste normal.' },
-      { stem: 'Que vaut 135 // 6 ?', opts: ['22,5', '22', '23'], correct: 1, exp: 'La division entière tronque : 22. Le reste serait 3.' },
-      { stem: 'Que produit f"{12.5:g}" ?', opts: ['12.5', '13', '12.50'], correct: 0, exp: ':g affiche sans zéros inutiles : la décimale utile reste.' },
-      { stem: 'Dans if / elif / else, le relevé 20 des seuils 30 et 15 tombe dans…', opts: ['la branche if', 'la branche elif', 'la branche else'], correct: 2, exp: 'Ni > 30 ni < 15 : c’est le else qui le classe normal.' },
-      { stem: 'min() sur une liste vide…', opts: ['renvoie 0', 'renvoie None', 'lève une erreur'], correct: 2, exp: 'Il n’y a pas de minimum à une liste vide : l’énoncé garantit n ≥ 1.' }
+      { stem: 'Que vaut 135 // 6 ?', opts: ['22,5', '23', '22'], correct: 2, exp: 'La division entière tronque : 22. Le reste serait 3.' },
+      { stem: 'Que produit f"{12.5:g}" ?', opts: ['12.50', '13', '12.5'], correct: 2, exp: ':g affiche sans zéros inutiles : la décimale utile reste.' },
+      { stem: 'Dans if / elif / else, le relevé 20 des seuils 30 et 15 tombe dans…', opts: ['la branche else', 'la branche elif', 'la branche if'], correct: 0, exp: 'Ni > 30 ni < 15 : c’est le else qui le classe normal.' },
+      { stem: 'min() sur une liste vide…', opts: ['renvoie 0', 'lève une erreur', 'renvoie None'], correct: 1, exp: 'Il n’y a pas de minimum à une liste vide : l’énoncé garantit n ≥ 1.' }
     ],
 
     pitfalls: [

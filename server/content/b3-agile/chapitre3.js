@@ -156,42 +156,42 @@ module.exports = {
       stem: 'Quel est le principe d’un système en « flux tiré » (Pull System) dans la méthode Kanban ?',
       opts: [
         'Le manager assigne tous les lundis matin une liste de 10 tâches obligatoires à chaque collaborateur',
-        'Une nouvelle tâche n’est engagée par un membre de l’équipe que lorsqu’une tâche précédente est terminée et qu’une capacité WIP est disponible',
         'Le client code lui-même les fonctionnalités en tirant la branche Git',
+        'Une nouvelle tâche n’est engagée par un membre de l’équipe que lorsqu’une tâche précédente est terminée et qu’une capacité WIP est disponible',
         'Toutes les tâches du backlog sont lancées simultanément en développement'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En flux tiré, l’opérateur tire une nouvelle tâche de la colonne amont uniquement lorsqu’il a libéré de la capacité en aval.'
     },
     {
       stem: 'Que stipule l’équation fondamentale de la Loi de Little dans un système Kanban stable ?',
       opts: [
-        'WIP = Throughput x Cycle_Time',
+        'Throughput = Coût x Délai',
         'WIP = Bugs / Développeurs',
         'Cycle_Time = Throughput x WIP',
-        'Throughput = Coût x Délai'
+        'WIP = Throughput x Cycle_Time'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'La Loi de Little établit que WIP = Throughput x Cycle_Time, ce qui signifie que Cycle_Time = WIP / Throughput.'
     },
     {
       stem: 'D’après la Loi de Little, quel est le moyen le plus simple et direct de réduire le temps de cycle (Cycle Time) sans recruter de personnel ?',
       opts: [
-        'Supprimer toutes les réunions de l’entreprise',
-        'Réduire les limites de travail en cours (WIP) pour se concentrer sur la finition des tâches',
-        'Augmenter le nombre d’heures de travail par semaine',
-        'Doubler le nombre de tickets dans le backlog'
+        "Réduire les limites de travail en cours (WIP) pour se concentrer sur la finition des tâches",
+        "Supprimer toutes les réunions de l’entreprise pour libérer du temps de développement",
+        "Augmenter le nombre d’heures de travail hebdomadaires de toute l’équipe de développement",
+        "Doubler le nombre de tickets entrant dans le backlog pour amortir les temps morts"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Puisque Cycle_Time = WIP / Throughput, abaisser le WIP à débit constant diminue mécaniquement et immédiatement le Cycle Time.'
     },
     {
       stem: 'Quelle est la différence fondamentale entre le Lead Time et le Cycle Time ?',
       opts: [
-        'Le Lead Time est mesuré en heures et le Cycle Time en années',
-        'Le Lead Time mesure la durée totale depuis la création de la demande par le client jusqu’à sa livraison, tandis que le Cycle Time mesure le temps effectif de développement',
-        'Le Lead Time concerne les managers et le Cycle Time les stagiaires',
-        'Il n’y a aucune différence, ce sont deux termes synonymes'
+        "Le Lead Time débute à la prise en charge de la demande par l’équipe, tandis que le Cycle Time démarre dès l’expression du besoin client initial",
+        "Le Lead Time mesure la durée totale depuis la création de la demande par le client jusqu’à sa livraison, tandis que le Cycle Time mesure le temps effectif de développement",
+        "Le Lead Time est un indicateur réservé aux managers, tandis que le Cycle Time ne concerne que les tâches confiées aux stagiaires",
+        "Il n’y a aucune différence réelle : les deux termes désignent la même durée et restent interchangeables selon les équipes"
       ],
       correct: 1,
       exp: 'Lead Time = t_done - t_created (vision client globale). Cycle Time = t_done - t_started (vision réalisation technique).'
@@ -210,34 +210,34 @@ module.exports = {
     {
       stem: 'Sur un Diagramme de Flux Cumulé (CFD), que traduit une bande d’état qui s’élargit verticalement au fil du temps ?',
       opts: [
-        'Une accélération fulgurante de l’équipe',
-        'Une accumulation de travail en cours (WIP) et un goulot d’étranglement à cette étape',
-        'Une diminution du nombre de bugs',
-        'Une fermeture prochaine du projet'
+        "Une accumulation de travail en cours (WIP) et un goulot d’étranglement à cette étape",
+        "Une accélération fulgurante du débit de l’équipe en aval de cette étape",
+        "Une diminution notable du nombre de bugs remontés par les tests",
+        "Une fermeture prochaine du projet faute de financement suffisant"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’élargissement vertical indique que le nombre de tickets accumulés dans cet état augmente : les tâches entrent plus vite qu’elles n’en sortent (engorgement).'
     },
     {
       stem: 'Quelle action une équipe Kanban doit-elle entreprendre si la colonne « Revue de Code » atteint sa limite maximale WIP de 3 cartes ?',
       opts: [
-        'Créer une nouvelle colonne « Revue Urgente » pour contourner la règle',
-        'Les développeurs cessent d’entamer de nouvelles fonctionnalités et se mobilisent pour relire et valider les 3 cartes en attente',
-        'Supprimer la limite WIP du tableau',
-        'Envoyer les cartes directement en production sans revue'
+        "Créer une nouvelle colonne « Revue Urgente » pour contourner la limite sans bloquer le flux de travail",
+        "Supprimer purement et simplement la limite WIP du tableau pour libérer l’ensemble du flux",
+        "Envoyer les cartes directement en production sans revue afin de respecter le délai promis au client",
+        "Les développeurs cessent d’entamer de nouvelles fonctionnalités et se mobilisent pour relire et valider les 3 cartes en attente"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’esprit de Kanban impose de stopper le flux amont pour aider à résorber le blocage aval : « Stop starting, start finishing ».'
     },
     {
       stem: 'Selon la Théorie des Contraintes, qu’advient-il si l’on optimise la productivité d’une étape qui n’est PAS le goulot d’étranglement ?',
       opts: [
-        'Le débit global du système augmente proportionnellement',
-        'Le débit global reste inchangé et l’on crée un empilement de stocks inutiles devant le goulot',
-        'Le coût du projet est divisé par deux',
-        'Le goulot disparaît spontanément'
+        "Le débit global du système augmente proportionnellement à l’effort fourni",
+        "Le coût du projet est automatiquement divisé par deux grâce aux gains de productivité",
+        "Le débit global reste inchangé et l’on crée un empilement de stocks inutiles devant le goulot",
+        "Le goulot d’étranglement disparaît spontanément sous l’effet de la pression"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La cadence du système tout entier est bridée par son goulot : accélérer une étape en amont ne fait qu’engorger davantage la file d’attente du goulot.'
     }
   ],

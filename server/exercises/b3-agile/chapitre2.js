@@ -6,123 +6,174 @@
 
 module.exports = [
   {
-    id: "ag3-c2-e1",
-    chapter: 2,
-    level: "n1",
-    language: 'analyse',
-    title: "Validateur d’incrément de produit et Definition of Done (DoD)",
-    goal: "Vérifier la conformité d’une User Story aux critères stricts de la Definition of Done avant livraison.",
-    brief: "<p>Dans le cadre Scrum, un incrément ne peut être considéré comme terminé que s'il satisfait l'intégralité des critères de la <strong>Definition of Done (DoD)</strong> convenue par l'équipe.<br><br>\nPour chaque cas d’application des vérifications au format :<br>\n<code>DOD_CHECK item=&lt;nom&gt; tests=&lt;PASS|FAIL&gt; review=&lt;PASS|FAIL&gt; doc=&lt;PASS|FAIL&gt; staging=&lt;PASS|FAIL&gt;</code>.<br><br>\nRègles :<br>\n- Si tous les 4 critères sont <code>PASS</code> : <code>status=POTENTIALLY_SHIPPABLE missing=NONE</code><br>\n- Sinon : <code>status=REJECTED</code> et <code>missing=&lt;critères_en_échec_séparés_par_virgule&gt;</code> (dans l'ordre : tests, review, doc, staging).<br><br>\nPour chaque ligne, afficher :<br>\n<code>DOD_EVAL item={item} status={status} missing={missing}</code></p>",
-    starter: "# Grille d'analyse (ag3-c2-e1) — Validateur d’incrément de produit et Definition of Done (DoD)\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Documentation et déploiement staging manquants]\n# Données : DOD_CHECK item=US-202 tests=PASS review=PASS doc=FAIL staging=FAIL\nA_COMPLETER\n\n[Cas 2 — Échec des tests automatisés]\n# Données : DOD_CHECK item=US-303 tests=FAIL review=PASS doc=PASS staging=PASS\nA_COMPLETER\n\n[Cas 3 — Tous les critères en échec]\n# Données : DOD_CHECK item=US-404 tests=FAIL review=FAIL doc=FAIL staging=FAIL\nA_COMPLETER\n",
-    hints: [
-          "Constituer une liste des critères qui valent FAIL.",
-          "Si la liste est vide, status vaut POTENTIALLY_SHIPPABLE et missing vaut NONE.",
-          "Sinon, joindre les noms des critères avec une virgule."
+    "id": "ag3-c2-e1",
+    "chapter": 2,
+    "level": "n1",
+    "language": "analyse",
+    "title": "Le sprint 12 de l'équipe mobile de BankPlus",
+    "exampleTitle": "Exemple résolu — le sprint 5 de l'équipe web d'AssurVie",
+    "goal": "Distinguer les responsabilités du Product Owner, du Scrum Master et des développeurs, et appliquer la Definition of Done.",
+    "brief": "<p><strong>Énoncé.</strong> L'équipe mobile de BankPlus développe l'application bancaire du groupe. Elle compte sept personnes : Sarah, <strong>Product Owner</strong> ; Marc, <strong>Scrum Master</strong> ; et cinq développeurs. Elle travaille en sprints de deux semaines et vient de terminer le sprint 12, engagé pour 34 points.</p><p>La <strong>Definition of Done</strong> (DoD) de l'équipe comporte cinq critères : code revu par un pair, tests unitaires écrits, tests d'acceptation passés, documentation mise à jour, déployé en environnement de recette. À la fin du sprint, l'état de la story « Virement instantané » (8 points) est le suivant :</p><table><tr><th>Critère de la DoD</th><th>Atteint ?</th></tr><tr><th>Code revu par un pair</th><td>Oui</td></tr><tr><th>Tests unitaires écrits</th><td>Oui</td></tr><tr><th>Tests d'acceptation passés</th><td>Non (2 tests en échec)</td></tr><tr><th>Documentation mise à jour</th><td>Oui</td></tr><tr><th>Déployé en environnement de recette</th><td>Non</td></tr></table><p>Pour les questions 4 et 5, répondez par oui ou non.</p><ol><li>Qui est seul responsable de l'ordonnancement du Product Backlog et de la maximisation de la valeur du produit ? Répondez par le nom du rôle.</li><li>Combien de critères de la DoD ne sont pas atteints pour la story « Virement instantané » ?</li><li>Quel événement Scrum permet d'inspecter l'incrément avec les parties prenantes en fin de sprint ? Répondez par son nom.</li><li>La story « Virement instantané » peut-elle être comptée comme terminée dans la vélocité du sprint 12 ?</li><li>Le rôle de Marc consiste-t-il à assigner chaque tâche aux développeurs au quotidien ?</li><li>Dans quel artefact les éléments sélectionnés pour le sprint en cours sont-ils consignés ? Répondez par son nom.</li></ol>",
+    "starter": "# Exercice — Le sprint 12 de l'équipe mobile de BankPlus\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 4 et 5 : répondez par oui ou non.\n\n[Question 1 — Responsable de l'ordonnancement du Product Backlog]\nA_COMPLETER\n\n[Question 2 — Critères de la DoD non atteints]\nA_COMPLETER\n\n[Question 3 — Événement d'inspection de l'incrément avec les parties prenantes]\nA_COMPLETER\n\n[Question 4 — La story compte-t-elle dans la vélocité ?]\nA_COMPLETER\n\n[Question 5 — Marc assigne-t-il les tâches au quotidien ?]\nA_COMPLETER\n\n[Question 6 — Artefact des éléments sélectionnés pour le sprint]\nA_COMPLETER\n",
+    "hints": [
+      "Le Scrum Guide sépare les pouvoirs : le PO arbitre le quoi (valeur), les développeurs organisent le comment, le Scrum Master sert le processus.",
+      "Une story n'est « terminée » que si elle satisfait toute la DoD, critère par critère : un seul échec suffit à l'exclure de la vélocité.",
+      "1. Relisez la répartition des rôles : qui arbitre la valeur, qui sert le processus, qui construit l'incrément. 2. Comptez les lignes « Non » du tableau. 3. Cherchez l'événement de fin de sprint ouvert aux parties prenantes. 4. La DoD s'applique en entier ou pas du tout. 5. Le Scrum Master facilite et lève les obstacles, il ne dirige pas. 6. Cherchez l'artefact qui porte le nom du sprint."
     ],
-    examples: [
-          {
-                "stdin": "DOD_CHECK item=US-101 tests=PASS review=PASS doc=PASS staging=PASS",
-                "expected": "DOD_EVAL item=US-101 status=POTENTIALLY_SHIPPABLE missing=NONE",
-                "note": "Tous les critères sont validés : incrément livrable."
-          }
+    "examples": [
+      {
+        "stdin": "L'équipe web d'AssurVie (Léa PO, Tom SM, 4 développeurs) termine le sprint 5.\nSa DoD : tests passés, revue de code, démo validée par le PO.\nLa story « Devis en ligne » (5 points) satisfait les trois critères ; la story « Import CSV » (3 points) n'a pas eu sa démo.\n\n1) Léa, la Product Owner, ordonne le Product Backlog.\n2) « Devis en ligne » : 0 critère en échec.\n3) « Import CSV » : 1 critère en échec, elle ne compte pas dans la vélocité.\n4) Tom facilite les événements mais n'assigne pas les tâches.",
+        "expected": "le PO ordonne le backlog — « Devis en ligne » terminée — « Import CSV » exclue de la vélocité — le SM n'assigne pas",
+        "note": "Une story n'entre dans la vélocité que si elle satisfait toute la DoD, critère par critère."
+      }
     ],
-    tests: [
-          {
-                "label": "Documentation et déploiement staging manquants",
-                "stdin": "cas:1",
-                "expected": "DOD_EVAL item=US-202 status=REJECTED missing=doc,staging"
-          },
-          {
-                "label": "Échec des tests automatisés",
-                "stdin": "cas:2",
-                "expected": "DOD_EVAL item=US-303 status=REJECTED missing=tests"
-          },
-          {
-                "label": "Tous les critères en échec",
-                "stdin": "cas:3",
-                "expected": "DOD_EVAL item=US-404 status=REJECTED missing=tests,review,doc,staging"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Responsable de l'ordonnancement du Product Backlog",
+        "stdin": "q:1",
+        "expected": "product owner||le product owner||po"
+      },
+      {
+        "label": "Question 2 — Critères de la DoD non atteints",
+        "stdin": "q:2",
+        "expected": "2||2 critères||deux"
+      },
+      {
+        "label": "Question 3 — Événement d'inspection de l'incrément avec les parties prenantes",
+        "stdin": "q:3",
+        "expected": "la sprint review||sprint review||la revue de sprint||revue de sprint"
+      },
+      {
+        "label": "Question 4 — La story compte-t-elle dans la vélocité ?",
+        "stdin": "q:4",
+        "expected": "non"
+      },
+      {
+        "label": "Question 5 — Marc assigne-t-il les tâches au quotidien ?",
+        "stdin": "q:5",
+        "expected": "non"
+      },
+      {
+        "label": "Question 6 — Artefact des éléments sélectionnés pour le sprint",
+        "stdin": "q:6",
+        "expected": "le sprint backlog||sprint backlog||le backlog de sprint"
+      }
     ],
-    solution: "[Exemple]\nDOD_EVAL item=US-101 status=POTENTIALLY_SHIPPABLE missing=NONE\n\n[Cas 1 — Documentation et déploiement staging manquants]\nDOD_EVAL item=US-202 status=REJECTED missing=doc,staging\n\n[Cas 2 — Échec des tests automatisés]\nDOD_EVAL item=US-303 status=REJECTED missing=tests\n\n[Cas 3 — Tous les critères en échec]\nDOD_EVAL item=US-404 status=REJECTED missing=tests,review,doc,staging\n"
+    "solution": "[Question 1 — Responsable de l'ordonnancement du Product Backlog]\nproduct owner\n\n[Question 2 — Critères de la DoD non atteints]\n2\n\n[Question 3 — Événement d'inspection de l'incrément avec les parties prenantes]\nla sprint review\n\n[Question 4 — La story compte-t-elle dans la vélocité ?]\nnon\n\n[Question 5 — Marc assigne-t-il les tâches au quotidien ?]\nnon\n\n[Question 6 — Artefact des éléments sélectionnés pour le sprint]\nle sprint backlog",
+    "takeaway": "1) C'est le Product Owner (Sarah) : seul responsable de l'ordonnancement du Product Backlog et de la maximisation de la valeur.\n2) Deux critères échouent : tests d'acceptation (2 en échec) et déploiement en recette.\n3) La Sprint Review (revue de sprint) inspecte l'incrément avec les parties prenantes en fin de sprint.\n4) Non : deux critères de la DoD ne sont pas atteints, la story n'est pas « terminée » et sort de la vélocité du sprint 12.\n5) Non : le Scrum Master facilite le processus et lève les obstacles ; les développeurs s'organisent seuls (auto-organisation).\n6) Les éléments sélectionnés pour le sprint forment le Sprint Backlog, engagement des développeurs pour le sprint.\nContrôle : 3 critères atteints + 2 en échec = 5 critères, la totalité de la DoD."
   },
   {
-    id: "ag3-c2-e2",
-    chapter: 2,
-    level: "n2",
-    language: 'analyse',
-    title: "Ordonnanceur de Product Backlog par ROI et Réduction de Risque",
-    goal: "Classer les éléments du Product Backlog selon un ratio pondéré Valeur Métier / Effort de développement.",
-    brief: "<p>Le <strong>Product Owner</strong> priorise continuellement le Product Backlog afin de maximiser le retour sur investissement (ROI) délivré aux utilisateurs à chaque Sprint.<br><br>\nPour chaque cas d’application des éléments de backlog au format :<br>\n<code>BACKLOG_ITEM id=&lt;nom&gt; value=&lt;int&gt; risk_bonus=&lt;int&gt; effort=&lt;int&gt;</code>.<br><br>\nCalcul du score de priorité :<br>\n- <code>score = round((value + risk_bonus) / effort, 2)</code><br><br>\nOrdonnancement :<br>\nTrier les éléments par <strong>score décroissant</strong>. En cas d'égalité stricte de score, trier par ordre alphabétique de l'identifiant <code>id</code>.<br><br>\nAfficher pour chaque élément ordonné :<br>\n<code>RANK rank={rang_1_based} id={id} score={score} effort={effort}</code></p>",
-    starter: "# Grille d'analyse (ag3-c2-e2) — Ordonnanceur de Product Backlog par ROI et Réduction de Risque\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois éléments avec égalité départagée par l’identifiant]\n# Données : BACKLOG_ITEM id=US-EXPORT value=40 risk_bonus=10 effort=5\n# Données : BACKLOG_ITEM id=US-DASHBOARD value=40 risk_bonus=10 effort=5\n# Données : BACKLOG_ITEM id=US-AUTH value=90 risk_bonus=10 effort=5\nA_COMPLETER\n\n[Cas 2 — Tâches techniques de réduction de dette]\n# Données : BACKLOG_ITEM id=TECH-CACHE value=20 risk_bonus=80 effort=8\n# Données : BACKLOG_ITEM id=UI-THEME value=30 risk_bonus=0 effort=6\nA_COMPLETER\n\n[Cas 3 — Liste à élément unique]\n# Données : BACKLOG_ITEM id=SINGLE-ITEM value=100 risk_bonus=20 effort=3\nA_COMPLETER\n",
-    hints: [
-          "Calculer le score avec float(value + risk_bonus) / float(effort).",
-          "Trier la liste avec la clé lambda x: (-x[\"score\"], x[\"id\"])."
+    "id": "ag3-c2-e2",
+    "chapter": 2,
+    "level": "n2",
+    "language": "analyse",
+    "title": "La priorisation MoSCoW du backlog d'AssuranceDirect",
+    "exampleTitle": "Exemple résolu — la priorisation de la plateforme Modulo",
+    "goal": "Prioriser un Product Backlog avec la méthode MoSCoW et départager les candidats par le rapport valeur/effort.",
+    "brief": "<p><strong>Énoncé.</strong> La Product Owner d'AssuranceDirect, application d'assurance en ligne, prépare la version 2.0. Elle a noté chaque élément du backlog avec une <strong>valeur métier</strong> (sur 100) et un <strong>effort</strong> estimé en story points, puis l'a classé selon la méthode <strong>MoSCoW</strong> : Must have (indispensable à la version), Should have (important mais négociable), Could have (souhaitable), Won't have (volontairement exclu de cette version).</p><table><tr><th>ID</th><th>Élément</th><th>Valeur</th><th>Effort (points)</th><th>Classe MoSCoW</th></tr><tr><th>ST-01</th><td>Déclaration de sinistre en ligne</td><td>90</td><td>9</td><td>Must</td></tr><tr><th>ST-02</th><td>Paiement en trois fois</td><td>72</td><td>8</td><td>Should</td></tr><tr><th>ST-03</th><td>Mode sombre de l'interface</td><td>18</td><td>3</td><td>Could</td></tr><tr><th>ST-04</th><td>Conformité RGPD du formulaire</td><td>95</td><td>5</td><td>Must</td></tr><tr><th>ST-05</th><td>Chatbot de premier contact</td><td>39</td><td>13</td><td>Won't</td></tr><tr><th>ST-06</th><td>Espace client hors ligne</td><td>56</td><td>8</td><td>Should</td></tr></table><p>Le rapport valeur/effort d'un élément s'obtient en divisant sa valeur métier par son effort. Pour les questions 3, 4 et 5, répondez par l'identifiant (par exemple ST-09).</p><ol><li>Combien d'éléments sont classés Must have ?</li><li>Quel est le rapport valeur/effort de ST-04 ?</li><li>Quel élément présente le meilleur rapport valeur/effort ?</li><li>Le sprint 8 offre une capacité de 22 points. La PO retient d'abord tous les Must have, puis le Should au meilleur rapport valeur/effort qui entre dans la capacité restante. Quel élément ajoute-t-elle ?</li><li>Quel élément la PO a-t-elle volontairement exclu de la version 2.0 ?</li><li>Quelle est la valeur métier totale des éléments Must have ?</li></ol>",
+    "starter": "# Exercice — La priorisation MoSCoW du backlog d'AssuranceDirect\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 3, 4 et 5 : répondez par l'identifiant (par exemple ST-09).\n\n[Question 1 — Nombre d'éléments Must have]\nA_COMPLETER\n\n[Question 2 — Rapport valeur/effort de ST-04]\nA_COMPLETER\n\n[Question 3 — Meilleur rapport valeur/effort]\nA_COMPLETER\n\n[Question 4 — Should ajouté au sprint 8]\nA_COMPLETER\n\n[Question 5 — Élément exclu de la version 2.0]\nA_COMPLETER\n\n[Question 6 — Valeur métier totale des Must have]\nA_COMPLETER\n",
+    "hints": [
+      "La catégorie MoSCoW commande la priorité : un Must passe toujours avant un Should, même moins bien noté.",
+      "Au sein d'une même catégorie, le rapport valeur/effort départage les candidats : valeur divisée par effort.",
+      "1. Comptez les lignes Must du tableau. 2. Rapport de ST-04 : 95 / 5. 3. Calculez les six rapports et prenez le maximum. 4. Retirez d'abord l'effort des Must de la capacité, puis comparez les rapports des deux Should. 5. Cherchez la ligne Won't. 6. Additionnez les valeurs des Must."
     ],
-    examples: [
-          {
-                "stdin": "BACKLOG_ITEM id=US-LOGIN value=80 risk_bonus=20 effort=5\nBACKLOG_ITEM id=US-PAYMENT value=100 risk_bonus=50 effort=10",
-                "expected": "RANK rank=1 id=US-LOGIN score=20.0 effort=5\nRANK rank=2 id=US-PAYMENT score=15.0 effort=10",
-                "note": "US-LOGIN : score (80+20)/5 = 20.0 > US-PAYMENT (100+50)/10 = 15.0."
-          }
+    "examples": [
+      {
+        "stdin": "La plateforme de cours Modulo prépare une version. Backlog :\nEL-1 Notifications e-mail, valeur 60, effort 5, Must.\nEL-2 Recherche plein texte, valeur 48, effort 6, Should.\nEL-3 Thème personnalisable, valeur 10, effort 5, Could.\n\n1) Un seul Must : EL-1.\n2) Rapport de EL-1 : 60 / 5 = 12.\n3) Meilleur rapport : EL-1 (12, contre 8 pour EL-2 et 2 pour EL-3).\n4) Valeur totale des Must : 60.",
+        "expected": "1 Must — rapport de EL-1 : 12 — meilleur rapport : EL-1 — valeur des Must : 60",
+        "note": "Le rapport valeur/effort départage les éléments d'une même catégorie, mais un Must have reste prioritaire sur un Should, même mieux noté."
+      }
     ],
-    tests: [
-          {
-                "label": "Trois éléments avec égalité départagée par l’identifiant",
-                "stdin": "cas:1",
-                "expected": "RANK rank=1 id=US-AUTH score=20.0 effort=5\nRANK rank=2 id=US-DASHBOARD score=10.0 effort=5\nRANK rank=3 id=US-EXPORT score=10.0 effort=5"
-          },
-          {
-                "label": "Tâches techniques de réduction de dette",
-                "stdin": "cas:2",
-                "expected": "RANK rank=1 id=TECH-CACHE score=12.5 effort=8\nRANK rank=2 id=UI-THEME score=5.0 effort=6"
-          },
-          {
-                "label": "Liste à élément unique",
-                "stdin": "cas:3",
-                "expected": "RANK rank=1 id=SINGLE-ITEM score=40.0 effort=3"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Nombre d'éléments Must have",
+        "stdin": "q:1",
+        "expected": "2||2 éléments||deux"
+      },
+      {
+        "label": "Question 2 — Rapport valeur/effort de ST-04",
+        "stdin": "q:2",
+        "expected": "19"
+      },
+      {
+        "label": "Question 3 — Meilleur rapport valeur/effort",
+        "stdin": "q:3",
+        "expected": "st-04||ST-04"
+      },
+      {
+        "label": "Question 4 — Should ajouté au sprint 8",
+        "stdin": "q:4",
+        "expected": "st-02||ST-02"
+      },
+      {
+        "label": "Question 5 — Élément exclu de la version 2.0",
+        "stdin": "q:5",
+        "expected": "st-05||ST-05"
+      },
+      {
+        "label": "Question 6 — Valeur métier totale des Must have",
+        "stdin": "q:6",
+        "expected": "185"
+      }
     ],
-    solution: "[Exemple]\nRANK rank=1 id=US-LOGIN score=20.0 effort=5\nRANK rank=2 id=US-PAYMENT score=15.0 effort=10\n\n[Cas 1 — Trois éléments avec égalité départagée par l’identifiant]\nRANK rank=1 id=US-AUTH score=20.0 effort=5\nRANK rank=2 id=US-DASHBOARD score=10.0 effort=5\nRANK rank=3 id=US-EXPORT score=10.0 effort=5\n\n[Cas 2 — Tâches techniques de réduction de dette]\nRANK rank=1 id=TECH-CACHE score=12.5 effort=8\nRANK rank=2 id=UI-THEME score=5.0 effort=6\n\n[Cas 3 — Liste à élément unique]\nRANK rank=1 id=SINGLE-ITEM score=40.0 effort=3\n"
+    "solution": "[Question 1 — Nombre d'éléments Must have]\n2\n\n[Question 2 — Rapport valeur/effort de ST-04]\n19\n\n[Question 3 — Meilleur rapport valeur/effort]\nst-04\n\n[Question 4 — Should ajouté au sprint 8]\nst-02\n\n[Question 5 — Élément exclu de la version 2.0]\nst-05\n\n[Question 6 — Valeur métier totale des Must have]\n185",
+    "takeaway": "1) Deux éléments sont classés Must : ST-01 et ST-04.\n2) Rapport de ST-04 : 95 / 5 = 19.\n3) Rapports : ST-01 : 10 ; ST-02 : 9 ; ST-03 : 6 ; ST-04 : 19 ; ST-05 : 3 ; ST-06 : 7. Le meilleur est ST-04 (19).\n4) Les Must pèsent 9 + 5 = 14 points ; il reste 22 − 14 = 8 points. Entre les Should, ST-02 (72/8 = 9) bat ST-06 (56/8 = 7) et son effort de 8 points entre exactement : la PO ajoute ST-02.\n5) ST-05 (chatbot) est classé Won't : volontairement exclu de la version 2.0.\n6) Valeur des Must : 90 + 95 = 185.\nContrôle : 14 points de Must + 8 points de ST-02 = 22 points, exactement la capacité du sprint 8."
   },
   {
-    id: "ag3-c2-e3",
-    chapter: 2,
-    level: "n3",
-    language: 'analyse',
-    title: "Contrôleur de Timeboxing des événements Scrum selon le Scrum Guide",
-    goal: "Vérifier la stricte conformité de la durée des réunions Scrum par rapport aux limites temporelles maximales officielles.",
-    brief: "<p>Le <strong>Scrum Guide</strong> définit des boîtes de temps (timeboxes) maximales proportionnelles à la durée du Sprint (pour un Sprint de référence de 4 semaines, réduit proportionnellement pour 2 semaines) :<br>\n- <code>DAILY</code> (Daily Scrum) : <strong>15 minutes maximum</strong>, quelle que soit la durée du sprint.<br>\n- <code>PLANNING</code> (Sprint Planning) : <strong>2 heures par semaine de sprint</strong> (ex: 4h pour 2 sem, 8h pour 4 sem).<br>\n- <code>REVIEW</code> (Sprint Review) : <strong>1 heure par semaine de sprint</strong> (ex: 2h pour 2 sem, 4h pour 4 sem).<br>\n- <code>RETRO</code> (Sprint Retrospective) : <strong>45 minutes par semaine de sprint</strong> (ex: 90 min pour 2 sem, 180 min pour 4 sem).<br><br>\nPour chaque cas d’application des événements au format :<br>\n<code>CEREMONY type=&lt;DAILY|PLANNING|REVIEW|RETRO&gt; sprint_weeks=&lt;int&gt; actual_min=&lt;int&gt;</code>.<br><br>\nRègles :<br>\n- Calculer <code>allowed_min</code> selon le type et <code>sprint_weeks</code>.<br>\n- Si <code>actual_min &lt;= allowed_min</code> : <code>status=COMPLIANT delta=0</code>.<br>\n- Si <code>actual_min &gt; allowed_min</code> : <code>status=TIMEBOX_BREACH delta={actual_min - allowed_min}</code>.<br><br>\nPour chaque ligne, afficher :<br>\n<code>TIMEBOX_AUDIT type={type} actual={actual_min}m max={allowed_min}m status={status} delta={delta}m</code></p>",
-    starter: "# Grille d'analyse (ag3-c2-e3) — Contrôleur de Timeboxing des événements Scrum selon le Scrum Guide\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Planning conforme pour un sprint de deux semaines]\n# Données : CEREMONY type=PLANNING sprint_weeks=2 actual_min=210\nA_COMPLETER\n\n[Cas 2 — Rétrospective dépassant la limite autorisée]\n# Données : CEREMONY type=RETRO sprint_weeks=2 actual_min=110\nA_COMPLETER\n\n[Cas 3 — Revue de sprint conforme de 4 semaines]\n# Données : CEREMONY type=REVIEW sprint_weeks=4 actual_min=240\nA_COMPLETER\n",
-    hints: [
-          "Pour DAILY, max vaut toujours 15 minutes.",
-          "Pour PLANNING, max vaut 120 * sprint_weeks.",
-          "Pour REVIEW, max vaut 60 * sprint_weeks.",
-          "Pour RETRO, max vaut 45 * sprint_weeks."
+    "id": "ag3-c2-e3",
+    "chapter": 2,
+    "level": "n3",
+    "language": "analyse",
+    "title": "L'audit des timeboxes du sprint 7 de MediaStream",
+    "exampleTitle": "Exemple résolu — l'audit du sprint 3 de Cybershop",
+    "goal": "Contrôler la durée des événements Scrum par rapport aux timeboxes maximales du Scrum Guide pour un sprint de deux semaines.",
+    "brief": "<p><strong>Énoncé.</strong> MediaStream, plateforme de vidéo à la demande, organise ses développements en sprints de <strong>deux semaines</strong>. Un coach Scrum audite la tenue des événements du sprint 7 et relève :</p><table><tr><th>Événement</th><th>Durée relevée</th></tr><tr><th>Sprint Planning</th><td>3 h 30</td></tr><tr><th>Daily Scrum</th><td>20 minutes</td></tr><tr><th>Sprint Review</th><td>1 h 30</td></tr><tr><th>Sprint Retrospective</th><td>1 h 45</td></tr></table><p>Timeboxes maximales du cours pour un sprint de deux semaines : Sprint Planning <strong>4 heures</strong> ; Daily Scrum <strong>15 minutes</strong>, quelle que soit la durée du sprint ; Sprint Review <strong>2 heures</strong> ; Sprint Retrospective <strong>90 minutes</strong> (45 minutes par semaine de sprint).</p><p>Pour les questions 1 à 4, répondez par le mot : conforme ou dépassée.</p><ol><li>Le Sprint Planning respecte-t-il sa timebox ?</li><li>Le Daily Scrum respecte-t-il sa timebox ?</li><li>La Sprint Review respecte-t-elle sa timebox ?</li><li>La Sprint Retrospective respecte-t-elle sa timebox ?</li><li>De combien de minutes la cérémonie la plus hors timebox dépasse-t-elle sa limite ?</li><li>Le sprint 8 durera exceptionnellement quatre semaines. Quelle sera, en heures, la timebox maximale de sa Sprint Review ?</li></ol>",
+    "starter": "# Exercice — L'audit des timeboxes du sprint 7 de MediaStream\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Questions 1 à 4 : répondez par conforme ou dépassée.\n\n[Question 1 — Timebox du Sprint Planning]\nA_COMPLETER\n\n[Question 2 — Timebox du Daily Scrum]\nA_COMPLETER\n\n[Question 3 — Timebox de la Sprint Review]\nA_COMPLETER\n\n[Question 4 — Timebox de la Sprint Retrospective]\nA_COMPLETER\n\n[Question 5 — Dépassement maximal, en minutes]\nA_COMPLETER\n\n[Question 6 — Timebox de la Review d'un sprint de 4 semaines, en heures]\nA_COMPLETER\n",
+    "hints": [
+      "Une timebox est un maximum, pas une cible : atteindre exactement la limite reste conforme.",
+      "Le Daily est le seul événement à timebox fixe (15 minutes) ; les autres se calculent au prorata des semaines de sprint.",
+      "1. Planning : comparez 3 h 30 à 4 h. 2. Daily : 20 min contre 15 min. 3. Review : 1 h 30 contre 2 h. 4. Rétrospective : 1 h 45 = 105 min contre 90 min. 5. Cherchez le plus grand écart positif en minutes. 6. Review = 1 heure par semaine de sprint."
     ],
-    examples: [
-          {
-                "stdin": "CEREMONY type=DAILY sprint_weeks=2 actual_min=25",
-                "expected": "TIMEBOX_AUDIT type=DAILY actual=25m max=15m status=TIMEBOX_BREACH delta=10m",
-                "note": "Daily de 25 minutes dépassant la limite stricte de 15 min de 10 minutes."
-          }
+    "examples": [
+      {
+        "stdin": "Cybershop, sprint de 2 semaines, relève : Planning 4 h 30, Daily 15 min,\nReview 2 h, Rétrospective 80 min.\n\n1) Planning : 4 h 30 > 4 h : dépassée de 30 minutes.\n2) Daily : 15 min ≤ 15 min : conforme.\n3) Review : 2 h ≤ 2 h : conforme (à la limite exacte).\n4) Rétrospective : 80 min ≤ 90 min : conforme.\n5) Pour un sprint de 4 semaines, la Review monterait à 4 heures.",
+        "expected": "Planning dépassée de 30 min — Daily, Review et Rétrospective conformes — Review d'un sprint de 4 semaines : 4 heures",
+        "note": "Une timebox est un plafond, pas un objectif : tomber exactement sur la limite reste conforme."
+      }
     ],
-    tests: [
-          {
-                "label": "Planning conforme pour un sprint de deux semaines",
-                "stdin": "cas:1",
-                "expected": "TIMEBOX_AUDIT type=PLANNING actual=210m max=240m status=COMPLIANT delta=0m"
-          },
-          {
-                "label": "Rétrospective dépassant la limite autorisée",
-                "stdin": "cas:2",
-                "expected": "TIMEBOX_AUDIT type=RETRO actual=110m max=90m status=TIMEBOX_BREACH delta=20m"
-          },
-          {
-                "label": "Revue de sprint conforme de 4 semaines",
-                "stdin": "cas:3",
-                "expected": "TIMEBOX_AUDIT type=REVIEW actual=240m max=240m status=COMPLIANT delta=0m"
-          }
+    "tests": [
+      {
+        "label": "Question 1 — Timebox du Sprint Planning",
+        "stdin": "q:1",
+        "expected": "conforme"
+      },
+      {
+        "label": "Question 2 — Timebox du Daily Scrum",
+        "stdin": "q:2",
+        "expected": "dépassée||depassee"
+      },
+      {
+        "label": "Question 3 — Timebox de la Sprint Review",
+        "stdin": "q:3",
+        "expected": "conforme"
+      },
+      {
+        "label": "Question 4 — Timebox de la Sprint Retrospective",
+        "stdin": "q:4",
+        "expected": "dépassée||depassee"
+      },
+      {
+        "label": "Question 5 — Dépassement maximal, en minutes",
+        "stdin": "q:5",
+        "expected": "15||15 minutes"
+      },
+      {
+        "label": "Question 6 — Timebox de la Review d'un sprint de 4 semaines, en heures",
+        "stdin": "q:6",
+        "expected": "4||4 heures"
+      }
     ],
-    solution: "[Exemple]\nTIMEBOX_AUDIT type=DAILY actual=25m max=15m status=TIMEBOX_BREACH delta=10m\n\n[Cas 1 — Planning conforme pour un sprint de deux semaines]\nTIMEBOX_AUDIT type=PLANNING actual=210m max=240m status=COMPLIANT delta=0m\n\n[Cas 2 — Rétrospective dépassant la limite autorisée]\nTIMEBOX_AUDIT type=RETRO actual=110m max=90m status=TIMEBOX_BREACH delta=20m\n\n[Cas 3 — Revue de sprint conforme de 4 semaines]\nTIMEBOX_AUDIT type=REVIEW actual=240m max=240m status=COMPLIANT delta=0m\n"
+    "solution": "[Question 1 — Timebox du Sprint Planning]\nconforme\n\n[Question 2 — Timebox du Daily Scrum]\ndépassée\n\n[Question 3 — Timebox de la Sprint Review]\nconforme\n\n[Question 4 — Timebox de la Sprint Retrospective]\ndépassée\n\n[Question 5 — Dépassement maximal, en minutes]\n15\n\n[Question 6 — Timebox de la Review d'un sprint de 4 semaines, en heures]\n4",
+    "takeaway": "1) Sprint Planning : 3 h 30 ≤ 4 h : conforme.\n2) Daily Scrum : 20 min > 15 min : dépassée (de 5 minutes).\n3) Sprint Review : 1 h 30 ≤ 2 h : conforme.\n4) Sprint Retrospective : 1 h 45 = 105 min > 90 min : dépassée (de 15 minutes).\n5) Le plus grand dépassement est celui de la rétrospective : 105 − 90 = 15 minutes (contre 5 pour le Daily).\n6) La Sprint Review est timeboxée à 1 heure par semaine de sprint : 4 semaines donnent 4 heures.\nContrôle : seuls deux événements sur quatre respectent leur timebox ; la rétrospective, seule cérémonie dépassée de plus de 10 minutes, est la première à recadrer."
   }
 ];

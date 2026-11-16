@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -273,10 +271,11 @@ Pour chaque règle déclarée, afficher :<br>
 RULE id=R2 action=PERMIT proto=TCP src=10.0.0.1 dst=10.0.0.2 dport=80</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Parcourir chaque règle i et vérifier si une règle j antérieure (j &lt; i) englobe tous ses critères.</li>
         <li>S’arrêter au premier antécédent j qui englobe la règle i.</li>
+        <li>Pour chaque règle i, chercher un antécédent j dont protocole, source, destination et port l’englobent (égalité ou ANY) ; noter SHADOWED by j, sinon OK.</li>
       </ol>
     </details>
   </div>
@@ -339,10 +338,11 @@ Pour chaque paquet, afficher :<br>
 PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Gérer un compteur incrémental pour les ports SNAT dynamiques.</li>
         <li>Mémoriser les sessions SNAT : port_alloué -&gt; (src_interne_ip, src_interne_port).</li>
+        <li>Sortant : allouer séquentiellement le port public suivant et mémoriser la correspondance ; entrant : chercher la règle DNAT (ext_ip, ext_port) et réécrire vers (int_ip, int_port).</li>
       </ol>
     </details>
   </div>
@@ -365,49 +365,49 @@ PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
     <div class="q">
       <p class="q__stem">Qu’est-ce que l’anomalie de configuration appelée « Rule Shadowing » ?</p>
       <div class="opts">
+        <button class="opt">Une règle qui masque automatiquement le mot de passe de l’administrateur technique dans l’ensemble des journaux d’audit du pare-feu</button>
         <button class="opt" data-correct="1">Une règle antérieure englobe totalement les critères d’une règle postérieure avec une action contraire, empêchant cette dernière d’être jamais exécutée</button>
-        <button class="opt">Une règle qui masque le mot de passe de l’administrateur dans les logs</button>
-        <button class="opt">Une règle qui s’applique uniquement pendant la nuit</button>
-        <button class="opt">Un bogue de mémoire vive faisant disparaître les règles après un redémarrage</button>
+        <button class="opt">Une règle programmée pour ne s’appliquer que pendant les plages horaires nocturnes de l’entreprise, en dehors des heures d’ouverture</button>
+        <button class="opt">Un bogue de mémoire vive du boîtier matériel faisant disparaître certaines règles de filtrage après chaque redémarrage complet</button>
       </div>
       <div class="q__exp">Le Rule Shadowing survient lorsqu’une règle plus générale placée plus haut intercepte tout le trafic destiné à une règle plus spécifique située plus bas.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel est l’ordre logique recommandé pour organiser les règles au sein d’une ACL ?</p>
       <div class="opts">
+        <button class="opt">De la règle la plus générale (sous-réseau large, ANY) vers la règle la plus spécifique (hôte unique)</button>
+        <button class="opt">Par ordre alphabétique strict des noms de serveurs concernés par les règles</button>
         <button class="opt" data-correct="1">De la règle la plus spécifique (hôte, port précis) vers la règle la plus générale (sous-réseau, ANY)</button>
-        <button class="opt">De la règle la plus générale vers la plus spécifique</button>
-        <button class="opt">Par ordre alphabétique des noms de serveurs</button>
-        <button class="opt">Toutes les règles DENY d’abord puis toutes les règles PERMIT à la fin</button>
+        <button class="opt">Toutes les règles DENY regroupées en tête d’ACL, puis toutes les règles PERMIT rejetées en fin de liste</button>
       </div>
       <div class="q__exp">Placer le spécifique avant le général permet de traiter les exceptions d’abord avant d’appliquer la politique globale.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel mécanisme réseau permet à plusieurs milliers d’ordinateurs internes de naviguer sur Internet avec une seule adresse IP publique ?</p>
       <div class="opts">
+        <button class="opt">Le routage statique mis en œuvre sans passerelle par défaut configurée sur les postes internes</button>
+        <button class="opt">Le protocole ARP gratuit diffusé périodiquement par les commutateurs d’accès du réseau local</button>
+        <button class="opt">Le protocole Spanning Tree (STP) exécuté entre les commutateurs de la couche d’accès</button>
         <button class="opt" data-correct="1">Le PAT (Port Address Translation / SNAT dynamique) qui associe chaque flux à un port source éphémère unique</button>
-        <button class="opt">Le routage statique sans passerelle</button>
-        <button class="opt">Le protocole ARP gratuit</button>
-        <button class="opt">Le protocole Spanning Tree (STP)</button>
       </div>
       <div class="q__exp">Le PAT multiplexe de nombreuses connexions privées sur une seule adresse IP publique en modifiant dynamiquement le port source de chaque session.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans quel scénario met-on en œuvre une règle de Destination NAT (DNAT / Port Forwarding) ?</p>
       <div class="opts">
+        <button class="opt">Pour permettre aux utilisateurs internes du LAN d’accéder à un site web public hébergé sur Internet</button>
+        <button class="opt">Pour chiffrer intégralement les disques durs des serveurs de bases de données de l’entreprise</button>
+        <button class="opt">Pour attribuer automatiquement une adresse IP privée à chaque poste de travail via le protocole DHCP</button>
         <button class="opt" data-correct="1">Pour rediriger une requête arrivant sur l’adresse IP publique du pare-feu vers un serveur web ou applicatif interne en DMZ</button>
-        <button class="opt">Pour permettre aux utilisateurs internes de consulter un site web public</button>
-        <button class="opt">Pour chiffrer les disques durs des serveurs de bases de données</button>
-        <button class="opt">Pour attribuer automatiquement une adresse IP par DHCP</button>
       </div>
       <div class="q__exp">Le DNAT modifie l’adresse IP destination publique du paquet pour l’acheminer vers l’IP privée du serveur interne hébergeant le service.</div>
     </div>
     <div class="q">
       <p class="q__stem">Si une règle R1 PERMIT ANY -&gt; 10.0.0.1:80 précède une règle R2 PERMIT 192.168.1.10 -&gt; 10.0.0.1:80, comment qualifie-t-on la règle R2 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Redondante (Redundant)</button>
-        <button class="opt">Masquée (Shadowed)</button>
         <button class="opt">Invalide (Invalid Syntax)</button>
+        <button class="opt">Masquée (Shadowed)</button>
+        <button class="opt" data-correct="1">Redondante (Redundant)</button>
         <button class="opt">Prioritaire</button>
       </div>
       <div class="q__exp">R1 autorisant déjà tout le monde vers ce service, R2 produit exactement le même effet pour un sous-ensemble : elle est redondante et inutile.</div>
@@ -415,8 +415,8 @@ PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
     <div class="q">
       <p class="q__stem">Quelle adresse IP est modifiée dans l’en-tête du paquet lors de l’application d’une translation SNAT sur le trafic sortant ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">L’adresse IP source (remplacée par l’IP publique du pare-feu)</button>
         <button class="opt">L’adresse IP destination (remplacée par 127.0.0.1)</button>
+        <button class="opt" data-correct="1">L’adresse IP source (remplacée par l’IP publique du pare-feu)</button>
         <button class="opt">L’adresse MAC du commutateur de distribution</button>
         <button class="opt">Le numéro de réseau de diffusion (Broadcast)</button>
       </div>
@@ -553,7 +553,7 @@ PACKET dir=OUTBOUND src=192.168.1.50:52001 dst=93.184.216.34:80</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

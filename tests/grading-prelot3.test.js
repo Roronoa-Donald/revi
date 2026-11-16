@@ -11,14 +11,14 @@ const execution = require('../server/services/execution');
 const budget = require('../server/services/execution/budget');
 const labs = require('../scripts/generate-code-labs');
 
-test('la notation de code reste active pour 62 fiches initiales et quatre méthodes contrôlées', () => {
+test('la notation de code est active pour 100 % du catalogue vérifié (0 suspendu)', () => {
   const items = catalogue.listExercises();
   const code = items.filter(item => item.language !== 'analyse');
   const grids = items.filter(item => item.language === 'analyse');
   assert.equal(code.length, 420);
-  assert.equal(grids.length, 830);
-  assert.equal(code.filter(item => !policy.isGradingSuspended(item.course, item.id)).length, 66);
-  assert.equal(code.filter(item => policy.isGradingSuspended(item.course, item.id)).length, 354);
+  assert.equal(grids.length, 848);
+  assert.equal(code.filter(item => !policy.isGradingSuspended(item.course, item.id)).length, 420);
+  assert.equal(code.filter(item => policy.isGradingSuspended(item.course, item.id)).length, 0);
   assert.equal(grids.filter(item => policy.isGradingSuspended(item.course, item.id)).length, 0);
   assert.equal(policy.isGradingSuspended('b1-python', 'nouvel-exercice'), true);
   assert.equal(policy.isGradingSuspended('b1-python', 'gt-c1-e1'), true);
@@ -38,28 +38,46 @@ test('toute modification de la fiche invalide sa preuve', () => {
 });
 
 test('les exercices sans preuve montrent leur suspension dans le rendu', () => {
-  const suspended = labs.renderSection('b1-python', 1);
-  const approved = labs.renderSection('b1-git', 1);
-  assert.match(suspended, /data-exercise="py-c1-e1"\s+data-grading-suspended="1"/);
-  assert.match(suspended, /preuves de fiabilité des tests sont incomplètes ou périmées/);
+  const approved = labs.renderSection('b1-python', 1);
   assert.doesNotMatch(approved, /data-grading-suspended="1"/);
+
+  const exercise = catalogue.getExercise('py-c1-e1');
+  const original = exercise.solution;
+  let rendered = '';
+  try {
+    exercise.solution = `${original}\n# mutation non prouvée`;
+    rendered = labs.renderSection('b1-python', 1);
+  } finally {
+    exercise.solution = original;
+  }
+  assert.match(rendered, /data-exercise="py-c1-e1"\s+data-grading-suspended="1"/);
+  assert.match(rendered, /preuves de fiabilité des tests sont incomplètes ou périmées/);
 });
 
-test('les 289 fiches ont un inventaire individuel vérifié', () => {
-  const script = path.join(__dirname, '../corrections/outils/verifier-preuves-prelot3.js');
-  const report = execFileSync(process.execPath, [script], { encoding: 'utf8' }).trimEnd().split('\n');
-  assert.equal(report.length, 290);
-  assert.equal(report.slice(1).filter(line => line.split('\t')[2] === 'active').length, 62);
-  assert.equal(report.slice(1).filter(line => line.split('\t')[2] === 'suspendue').length, 227);
+test('les 420 fiches de code et les empreintes runtime ont une preuve à jour', () => {
+  const evidence = require('../server/exercises/grading-evidence.json');
+  const runtimeEvidence = require('../server/exercises/grading-runtime-evidence.json');
+  const code = catalogue.listExercises().filter(item => item.language !== 'analyse');
+  assert.equal(Object.keys(evidence).length, 420);
+  assert.equal(code.length, 420);
+  for (const ex of code) {
+    assert.equal(evidence[ex.id], policy.exerciseFingerprint(ex), ex.id);
+    assert.equal(policy.isGradingSuspended(ex.course, ex.id), false, ex.id);
+  }
+  assert.ok(runtimeEvidence.common && Object.keys(runtimeEvidence.common).length > 0);
+  assert.ok(runtimeEvidence.method && Object.keys(runtimeEvidence.method).length > 0);
 });
 
-test('l’API refuse une fiche sans preuve avant appel ou consommation du quota', async () => {
+test('l’API refuse une fiche sans preuve (mutée) avant appel ou consommation du quota', async () => {
   const original = execution.execute;
   let calls = 0;
   execution.execute = async () => { calls++; throw new Error('Appel interdit'); };
   budget.reset();
+  const exercise = catalogue.getExercise('py-c1-e1');
+  const originalSolution = exercise.solution;
   const app = buildApp({ logger: false });
   try {
+    exercise.solution = `${originalSolution}\n# mutation non prouvée`;
     const response = await app.inject({
       method: 'POST', url: '/api/exercise/submit', remoteAddress: '10.41.0.1',
       payload: { exerciseId: 'py-c1-e1', code: 'print(0)' }
@@ -71,6 +89,7 @@ test('l’API refuse une fiche sans preuve avant appel ou consommation du quota'
     assert.equal(calls, 0);
     assert.equal(budget.snapshot('ip:10.41.0.1').used, 0);
   } finally {
+    exercise.solution = originalSolution;
     execution.execute = original;
     budget.reset();
     await app.close();

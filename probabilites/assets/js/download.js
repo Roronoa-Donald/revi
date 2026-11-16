@@ -44,7 +44,7 @@ class CourseDownloader {
 
     extractText(el) {
         const clone = el.cloneNode(true);
-        clone.querySelectorAll('script, style, .exercise-tabs, button, .quiz-options, .MathJax').forEach(e => e.remove());
+        clone.querySelectorAll('script, style, .exercise-tabs, button, .quiz-options, .katex').forEach(e => e.remove());
         return clone.innerText || clone.textContent;
     }
 

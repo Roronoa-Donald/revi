@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -184,28 +182,28 @@
      data-exercise="na2-c1-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="ff:ff:ff:ff:ff:ff 00:1a:2b:3c:4d:5e 0806 28">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c1-e1) — Décodeur d'en-tête Ethernet II
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'imprimimerie CopyPrint surveille son réseau 192.168.4.0/24. Trois trames sortent du poste de facturation (192.168.4.21) : une requête de résolution vers ff:ff:ff:ff:ff:ff (EtherType 0x0806, payload 28), puis la réponse du serveur de devis en unicast (0x0800, payload 120), enfin une annonce IPv6 vers 33:33:00:00:00:01 (0x86dd, payload 64).&#10;&#10;1) La requête part en diffusion (broadcast) : le poste ignore encore la MAC du serveur. Taille : 28 + 14 = 42 octets.&#10;2) La réponse est un unicast IPv4 : 120 + 14 = 134 octets.&#10;3) L'annonce vers 33:33:00:00:00:01 est un multicast IPv6 : 64 + 14 = 78 octets.">
+  <script type="text/plain" data-lab-starter># Exercice — La capture Wireshark du poste de comptabilité
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot ou le nombre exact attendu.
 
-[Cas 1 — Trame IPv4 unicast]
-# Données : 00:11:22:33:44:55 00:aa:bb:cc:dd:ee 0800 64
+[Question 1 — Type d'adressage de la trame 1]
 A_COMPLETER
 
-[Cas 2 — Trame IPv6 multicast]
-# Données : 33:33:00:00:00:01 02:42:ac:11:00:02 86dd 120
+[Question 2 — Protocole des trames 1 et 2]
 A_COMPLETER
 
-[Cas 3 — Trame protocole inconnu]
-# Données : 00:50:56:c0:00:08 00:0c:29:12:34:56 88cc 40
+[Question 3 — Protocole de niveau 3 de la trame 3]
 A_COMPLETER
 
-[Cas 4 — Trame multicast IPv4 standard]
-# Données : 01:00:5e:00:00:05 00:10:94:ab:cd:ef 0800 80
+[Question 4 — Taille totale de la trame 3 (en octets)]
+A_COMPLETER
+
+[Question 5 — Type d'adressage de la trame 4]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Décodeur d'en-tête Ethernet II</h3>
+    <h3 class="lab__title">Exercice 1 — La capture Wireshark du poste de comptabilité</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -214,20 +212,21 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c1-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser les champs d'une trame Ethernet II : adresses MAC source et destination, EtherType et classification du trafic.</p>
-    <div class="lab__brief"><p>Analysez les paramètres du problème pour chaque cas. <code>01:00:5e:...</code> ou <code>33:33:...</code>, Unicast sinon)<br>
-- <code>SRC: &lt;MAC&gt;</code><br>
-- <code>TYPE: 0x&lt;HEX&gt; (&lt;IPv4|ARP|IPv6|Inconnu&gt;)</code> (0800=IPv4, 0806=ARP, 86dd=IPv6)<br>
-- <code>TAILLE: &lt;TOTAL&gt; octets</code> (Payload + 14 octets d'en-tête Ethernet)</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Lire une trame Ethernet II : classer l'adressage MAC, identifier le protocole par l'EtherType et calculer la taille totale.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La menuiserie AluPlus, 45 salariés, occupe un atelier et un étage administratif reliés par le même réseau local <code>192.168.8.0/24</code>. Le serveur de fichiers, à l'adresse <code>192.168.8.60</code> (MAC <code>00:1b:44:66:77:88</code>), est installé à l'étage. Le poste de la comptable (<code>192.168.8.12</code>, MAC <code>00:1b:44:11:22:33</code>) vient d'être réimageré. Pour vérifier qu'il dialogue correctement, l'administrateur y installe Wireshark et capture les quatre premières trames sortant du poste :</p><table><tr><th>#</th><th>Description</th><th>MAC destination</th><th>MAC source</th><th>EtherType</th><th>Payload (octets)</th></tr><tr><th>1</th><td>Requête de résolution d'adresse</td><td>ff:ff:ff:ff:ff:ff</td><td>00:1b:44:11:22:33</td><td>0x0806</td><td>28</td></tr><tr><th>2</th><td>Réponse du serveur de fichiers</td><td>00:1b:44:11:22:33</td><td>00:1b:44:66:77:88</td><td>0x0806</td><td>28</td></tr><tr><th>3</th><td>Transfert du fichier de paie</td><td>00:1b:44:66:77:88</td><td>00:1b:44:11:22:33</td><td>0x0800</td><td>64</td></tr><tr><th>4</th><td>Flux de supervision</td><td>01:00:5e:00:00:0d</td><td>00:1b:44:11:22:33</td><td>0x0800</td><td>80</td></tr></table><p>Rappels du cours : l'en-tête Ethernet II fait 14 octets (6 + 6 + 2) ; <code>0x0800</code> désigne IPv4, <code>0x0806</code> désigne ARP et <code>0x86DD</code> désigne IPv6. La taille totale d'une trame s'obtient en ajoutant les 14 octets d'en-tête au payload. Répondez par le mot ou le nombre exact.</p><ol><li>Quel type d'adressage la MAC destination de la trame 1 représente-t-elle : unicast, multicast ou diffusion ?</li><li>Quel protocole les trames 1 et 2 mettent-elles en œuvre ?</li><li>Quel protocole de niveau 3 est encapsulé dans la trame 3 ?</li><li>Quelle est la taille totale de la trame 3, en-tête Ethernet de 14 octets inclus ?</li><li>La trame 4 est-elle unicast ou multicast ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ff:ff:ff:ff:ff:ff 00:1a:2b:3c:4d:5e 0806 28</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'imprimimerie CopyPrint surveille son réseau 192.168.4.0/24. Trois trames sortent du poste de facturation (192.168.4.21) : une requête de résolution vers ff:ff:ff:ff:ff:ff (EtherType 0x0806, payload 28), puis la réponse du serveur de devis en unicast (0x0800, payload 120), enfin une annonce IPv6 vers 33:33:00:00:00:01 (0x86dd, payload 64).
+
+1) La requête part en diffusion (broadcast) : le poste ignore encore la MAC du serveur. Taille : 28 + 14 = 42 octets.
+2) La réponse est un unicast IPv4 : 120 + 14 = 134 octets.
+3) L'annonce vers 33:33:00:00:00:01 est un multicast IPv6 : 64 + 14 = 78 octets.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>L'en-tête Ethernet II standard fait 14 octets (6 octets MAC Dest + 6 octets MAC Src + 2 octets EtherType).</li>
-        <li>Le premier octet d'une MAC s'obtient par int(l’extraction des champs[0], 16). Le bit 0 indique multicast/broadcast.</li>
-        <li>La MAC ff:ff:ff:ff:ff:ff est spécifiquement BROADCAST.</li>
+        <li>Dans une trame Ethernet II, les 6 premiers octets sont la MAC destination, les 6 suivants la MAC source, puis l'EtherType sur 2 octets : la lecture se fait toujours dans cet ordre.</li>
+        <li>ff:ff:ff:ff:ff:ff (tous les bits à 1) est la diffusion ; les préfixes 01:00:5e:... et 33:33:... sont réservés au multicast ; toute autre MAC est unicast.</li>
+        <li>EtherType : 0x0800 = IPv4, 0x0806 = ARP, 0x86DD = IPv6. Taille totale = payload + 14 octets : pour la trame 3, 64 + 14 = 78 octets.</li>
       </ol>
     </details>
   </div>
@@ -237,38 +236,31 @@ A_COMPLETER
      data-exercise="na2-c1-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="ENCAPSULER&#10;GET /api/status&#10;TCP 49152 443&#10;10.0.0.5 10.0.0.1&#10;00:11:22:33:44:55 aa:bb:cc:dd:ee:ff">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c1-e2) — Simulateur d'encapsulation et désencapsulation PDU OSI
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Au lycée Carnot, un poste de documentation (10.20.0.15) interroge le serveur DNS du lycée (10.20.0.1) en émettant la requête « RESOLV www.onisep.fr ». La résolution passe par UDP, port source 49152, port destination 53.&#10;&#10;1) Protocole de transport : UDP.&#10;2) Port destination : 53.&#10;3) Port source : 49152.&#10;4) PDU de la couche 4 : le segment (datagramme UDP).&#10;5) PDU de la couche 3 : le paquet IP (10.20.0.15 vers 10.20.0.1).&#10;6) PDU de la couche 2 : la trame Ethernet vers la MAC du serveur DNS.">
+  <script type="text/plain" data-lab-starter># Exercice — L'encapsulation de la session SSH du technicien
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot ou le nombre exact attendu.
 
-[Cas 1 — Encapsulation requête UDP DNS]
-# Données : ENCAPSULER
-# Données : query:example.com
-# Données : UDP 53000 53
-# Données : 192.168.1.50 8.8.8.8
-# Données : 11:22:33:44:55:66 cc:dd:ee:ff:00:11
+[Question 1 — Protocole de transport utilisé par SSH]
 A_COMPLETER
 
-[Cas 2 — Désencapsulation trame Web]
-# Données : DESENCAPSULER
-# Données : ETH[aa:11:bb:22:cc:33->dd:44:ee:55:ff:66]|IP[172.16.0.2->172.16.0.1]|TCP[5000->80]|DATA[PING]
+[Question 2 — Port destination]
 A_COMPLETER
 
-[Cas 3 — Désencapsulation paquet Syslog UDP]
-# Données : DESENCAPSULER
-# Données : ETH[00:aa:bb:cc:dd:ee->11:22:33:44:55:66]|IP[192.168.0.200->192.168.0.1]|UDP[514->514]|DATA[AUTH_FAIL]
+[Question 3 — Port source]
 A_COMPLETER
 
-[Cas 4 — Encapsulation commande SSH]
-# Données : ENCAPSULER
-# Données : ls -la /var/log
-# Données : TCP 60100 22
-# Données : 10.20.30.40 10.20.30.1
-# Données : fa:16:3e:01:02:03 fa:16:3e:aa:bb:cc
+[Question 4 — Nom de la PDU de la couche 4]
+A_COMPLETER
+
+[Question 5 — Nom de la PDU de la couche 3]
+A_COMPLETER
+
+[Question 6 — Nom de la PDU de la couche 2]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Simulateur d'encapsulation et désencapsulation PDU OSI</h3>
+    <h3 class="lab__title">Exercice 2 — L'encapsulation de la session SSH du technicien</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -277,31 +269,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c1-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Modéliser la pile protocolaire OSI/TCP-IP en empilant (encapsulation) ou en retirant (désencapsulation) les en-têtes.</p>
-    <div class="lab__brief"><p>Analysez les données fournies pour chaque cas.<br>
-Pour <code>ENCAPSULER</code>, les 4 lignes suivantes fournissent :<br>
-- Ligne 2 : Donnée applicative (L7 Data)<br>
-- Ligne 3 : <code>&lt;PROTO_L4&gt; &lt;PORT_SRC&gt; &lt;PORT_DST&gt;</code> (ex: <code>TCP 54321 80</code>)<br>
-- Ligne 4 : <code>&lt;IP_SRC&gt; &lt;IP_DST&gt;</code> (ex: <code>192.168.1.10 93.184.216.34</code>)<br>
-- Ligne 5 : <code>&lt;MAC_SRC&gt; &lt;MAC_DST&gt;</code><br>
-Indiquez chaque étape avec son nom de PDU :<br>
-<code>[L7 Data] &lt;donnee&gt;</code><br>
-<code>[L4 Segment &lt;proto&gt;] Port &lt;src&gt;-&gt;&lt;dst&gt; | Payload: &lt;donnee&gt;</code><br>
-<code>[L3 Paquet IP] &lt;ip_src&gt;-&gt;&lt;ip_dst&gt; | Proto: &lt;proto&gt;</code><br>
-<code>[L2 Trame Eth] &lt;mac_src&gt;-&gt;&lt;mac_dst&gt; | EtherType: 0x0800</code></p>
-<p>Pour <code>DESENCAPSULER</code>, Analysez les données fournies pour chaque cas.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Suivre une commande d'administration dans la pile TCP/IP et nommer la PDU construite à chaque couche.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'agence de voyages VelaTravel administre son unique routeur depuis le siège. Le réseau local est <code>192.168.20.0/24</code> : le poste de la technicienne réseau est <code>192.168.20.10</code> (MAC <code>00:2c:54:0a:0b:10</code>), le routeur est <code>192.168.20.254</code> (MAC <code>00:2c:54:0a:0b:fe</code>). Depuis son poste, elle ouvre une session SSH d'administration vers le routeur et envoie la commande <code>show ip interface brief</code>. On relève, couche par couche, ce que la pile construit :</p><table><tr><th>Couche</th><th>Contenu ajouté</th></tr><tr><th>7 — Application</th><td>Donnée : « show ip interface brief »</td></tr><tr><th>4 — Transport</th><td>TCP, port source 51234, port destination 22</td></tr><tr><th>3 — Réseau</th><td>IP source 192.168.20.10, IP destination 192.168.20.254</td></tr><tr><th>2 — Liaison</th><td>MAC source 00:2c:54:0a:0b:10, MAC destination 00:2c:54:0a:0b:fe</td></tr></table><p>Répondez par le mot ou le nombre exact attendu.</p><ol><li>Quel protocole de transport SSH utilise-t-il ?</li><li>Quel est le port destination du segment ?</li><li>Quel est le port source du segment ?</li><li>Comment se nomme la PDU construite à la couche 4 ?</li><li>Comment se nomme la PDU construite à la couche 3 ?</li><li>Comment se nomme la PDU construite à la couche 2 ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ENCAPSULER
-GET /api/status
-TCP 49152 443
-10.0.0.5 10.0.0.1
-00:11:22:33:44:55 aa:bb:cc:dd:ee:ff</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Au lycée Carnot, un poste de documentation (10.20.0.15) interroge le serveur DNS du lycée (10.20.0.1) en émettant la requête « RESOLV www.onisep.fr ». La résolution passe par UDP, port source 49152, port destination 53.
+
+1) Protocole de transport : UDP.
+2) Port destination : 53.
+3) Port source : 49152.
+4) PDU de la couche 4 : le segment (datagramme UDP).
+5) PDU de la couche 3 : le paquet IP (10.20.0.15 vers 10.20.0.1).
+6) PDU de la couche 2 : la trame Ethernet vers la MAC du serveur DNS.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>En encapsulation, on descend de L7 vers L2 en ajoutant successivement les métadonnées de transport, réseau puis liaison.</li>
-        <li>En désencapsulation, chaque couche analyse et retire son propre en-tête avant de passer la charge utile à la couche supérieure.</li>
+        <li>SSH est une application interactive fiable : elle s'appuie sur le protocole de transport orienté connexion de la pile TCP/IP.</li>
+        <li>Les ports se lisent dans le tableau de l'énoncé : le port destination est celui du service joint, le port source celui choisi par l'émetteur dans la plage éphémère.</li>
+        <li>En descendant la pile, la PDU change de nom : donnée (couche 7), segment (couche 4), paquet (couche 3), trame (couche 2).</li>
       </ol>
     </details>
   </div>
@@ -311,39 +296,31 @@ TCP 49152 443
      data-exercise="na2-c1-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="REQUEST 192.168.1.1 192.168.1.10 00:11:22:33:44:55&#10;REPLY 192.168.1.1 aa:bb:cc:dd:ee:01&#10;REQUEST 192.168.1.1 192.168.1.20 00:22:33:44:55:66&#10;SHOW">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (na2-c1-e3) — Simulateur de table et résolution ARP
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Au garage MécaSwift (172.16.9.0/24), le terminal de réception (172.16.9.30) vient de démarrer, cache ARP vide.&#10;1) Il ping le serveur d'atelier 172.16.9.5 : requête ARP en diffusion (« Qui a 172.16.9.5 ? »).&#10;2) Le serveur répond en unicast ; le terminal met l'entrée en cache pour 300 secondes.&#10;3) Il ping ensuite la passerelle 172.16.9.1 : nouvelle requête en diffusion, puis réponse unicast.&#10;4) À 08:30, il repinge le serveur d'atelier : aucune requête émise, l'entrée est encore valide (moins de 300 s depuis 08:01).&#10;&#10;Bilan : 2 requêtes en diffusion, réponses en unicast, TTL de 300 s.">
+  <script type="text/plain" data-lab-starter># Exercice — Le diagnostic ARP du lundi matin chez BatiPlus
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Répondez par le mot, l'adresse ou le nombre exact attendu.
 
-[Cas 1 — Expiration de TTL par TICK]
-# Données : REPLY 10.0.0.1 00:aa:bb:cc:dd:01
-# Données : TICK 250
-# Données : SHOW
-# Données : TICK 60
-# Données : SHOW
+[Question 1 — MAC destination des requêtes en diffusion]
 A_COMPLETER
 
-[Cas 2 — Rafraîchissement TTL sur nouvelle annonce]
-# Données : REPLY 172.16.0.5 aa:bb:cc:00:11:22
-# Données : TICK 200
-# Données : REQUEST 172.16.0.1 172.16.0.5 aa:bb:cc:00:11:22
-# Données : SHOW
+[Question 2 — Forme de la réponse du serveur]
 A_COMPLETER
 
-[Cas 3 — Résolution immédiate sans broadcast]
-# Données : REPLY 192.168.1.254 00:00:0c:07:ac:01
-# Données : REQUEST 192.168.1.254 192.168.1.50 11:11:11:11:11:11
+[Question 3 — MAC enregistrée pour 192.168.15.60]
 A_COMPLETER
 
-[Cas 4 — Tri numérique correct des adresses IP]
-# Données : REPLY 192.168.1.10 00:00:00:00:00:10
-# Données : REPLY 192.168.1.2 00:00:00:00:00:02
-# Données : REPLY 192.168.1.100 00:00:00:00:01:00
-# Données : SHOW
+[Question 4 — Nombre de requêtes diffusées entre 08:01 et 08:06]
+A_COMPLETER
+
+[Question 5 — Nouvelles requêtes entre 08:10 et 08:12]
+A_COMPLETER
+
+[Question 6 — Durée de vie typique d'une entrée ARP (en secondes)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Simulateur de table et résolution ARP</h3>
+    <h3 class="lab__title">Exercice 3 — Le diagnostic ARP du lundi matin chez BatiPlus</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -352,23 +329,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="na2-c1-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Implémenter la table de correspondance IP vers MAC (cache ARP) avec gestion de requêtes, apprentissage et expiration TTL.</p>
-    <div class="lab__brief"><p>Le script gère une table ARP initialement vide. Analysez les paramètres du problème pour chaque cas. La table apprend immédiatement la correspondance <code>IP_EMETTEUR -&gt; MAC_EMETTEUR</code> avec un TTL de 300s. Si l'IP demandée est connue dans le cache, afficher <code>REPLY: &lt;IP_DEMANDEE&gt; est a &lt;MAC_CONNUE&gt;</code>, sinon afficher <code>BROADCAST: Qui a &lt;IP_DEMANDEE&gt; ?</code>.<br>
-- <code>REPLY &lt;IP_CIBLE&gt; &lt;MAC_CIBLE&gt;</code> : réponse ARP reçue, enregistrée avec TTL de 300s.<br>
-- <code>TICK &lt;SECONDES&gt;</code> : fait avancer le temps de N secondes. Les entrées dont le TTL tombe à 0 ou moins sont purgées.<br>
-- <code>SHOW</code> : Indiquez les entrées du cache triées par IP croissante au format :<br>
-<code>&lt;IP&gt; -&gt; &lt;MAC&gt; (TTL: &lt;ttl&gt;s)</code>. Si vide, Indiquez <code>CACHE VIDE</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Interpréter une séquence ARP réelle : diffusion, réponse unicast, mise en cache et économie de requêtes.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> BatiPlus, entreprise de construction de 60 salariés, a installé vendredi le poste de la dessinatrice principale (<code>192.168.15.50</code>, MAC <code>a4:bb:6d:12:34:56</code>) sur le réseau <code>192.168.15.0/24</code>. Lundi à 8 heures, le cache ARP du poste est vide. L'administrateur observe avec un analyseur les événements suivants :</p><table><tr><th>Heure</th><th>Événement observé sur le segment</th></tr><tr><th>08:01</th><td>Le poste émet en diffusion : « Qui a 192.168.15.60 ? Répondez à a4:bb:6d:12:34:56 »</td></tr><tr><th>08:01</th><td>Le serveur de fichiers (192.168.15.60) répond en unicast : « 192.168.15.60 est à 00:50:56:aa:bb:cc »</td></tr><tr><th>08:02</th><td>Le poste transmet le plan directement au serveur, en unicast</td></tr><tr><th>08:05</th><td>Le poste émet en diffusion : « Qui a 192.168.15.1 ? Répondez à a4:bb:6d:12:34:56 »</td></tr><tr><th>08:06</th><td>La passerelle (192.168.15.1) répond en unicast : « 192.168.15.1 est à 00:1c:57:dd:00:01 »</td></tr></table><p>À 08:10, le poste joint pour la première fois l'imprimante 3D (<code>192.168.15.99</code>), jamais contactée depuis son démarrage. À 08:12, il relance le même transfert vers le serveur de fichiers. Répondez par le mot, l'adresse ou le nombre exact attendu.</p><ol><li>Quelle est l'adresse MAC destination des requêtes de 08:01 et de 08:05 ?</li><li>Sous quelle forme le serveur de fichiers répond-il : unicast ou diffusion ?</li><li>Quelle adresse MAC le poste enregistre-t-il dans son cache pour 192.168.15.60 ?</li><li>Combien de requêtes ARP en diffusion le poste a-t-il émises entre 08:01 et 08:06 ?</li><li>Entre 08:10 et 08:12, combien de nouvelles requêtes ARP sont-elles nécessaires ?</li><li>Quelle est la durée de vie typique d'une entrée du cache ARP, en secondes ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>REQUEST 192.168.1.1 192.168.1.10 00:11:22:33:44:55
-REPLY 192.168.1.1 aa:bb:cc:dd:ee:01
-REQUEST 192.168.1.1 192.168.1.20 00:22:33:44:55:66
-SHOW</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Au garage MécaSwift (172.16.9.0/24), le terminal de réception (172.16.9.30) vient de démarrer, cache ARP vide.
+1) Il ping le serveur d'atelier 172.16.9.5 : requête ARP en diffusion (« Qui a 172.16.9.5 ? »).
+2) Le serveur répond en unicast ; le terminal met l'entrée en cache pour 300 secondes.
+3) Il ping ensuite la passerelle 172.16.9.1 : nouvelle requête en diffusion, puis réponse unicast.
+4) À 08:30, il repinge le serveur d'atelier : aucune requête émise, l'entrée est encore valide (moins de 300 s depuis 08:01).
+
+Bilan : 2 requêtes en diffusion, réponses en unicast, TTL de 300 s.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Toute requête ARP permet à la cible d'apprendre la MAC de l'émetteur (gratuitous ARP / learning).</li>
-        <li>Le tri par adresse IP s'effectue idéalement sur les 4 entiers numériques du tuple pour éviter l'ordre alphabétique faux (ex: 192.168.1.2 avant 192.168.1.10).</li>
+        <li>Une requête ARP part toujours en diffusion car l'émetteur ignore l'adresse MAC du détenteur de l'IP ; seule la réponse revient en unicast.</li>
+        <li>Le poste qui a appris une correspondance la conserve dans son cache pendant toute la durée de vie de l'entrée : pas de nouvelle requête tant qu'elle est valide.</li>
+        <li>À 08:10 l'imprimante n'a jamais été résolue (une requête), mais à 08:12 le serveur est encore en cache depuis 08:01 : la TTL de 300 secondes n'est pas écoulée.</li>
       </ol>
     </details>
   </div>
@@ -382,8 +359,8 @@ SHOW</pre></div>
       <p class="q__stem">Quel est le nom correct de l’unité de données de protocole (PDU) manipulée au niveau de la couche 3 (Réseau) ?</p>
       <div class="opts">
         <button class="opt">Le segment</button>
-        <button class="opt" data-correct="1">Le paquet</button>
         <button class="opt">La trame</button>
+        <button class="opt" data-correct="1">Le paquet</button>
         <button class="opt">Le datagramme physique</button>
       </div>
       <div class="q__exp">Au niveau de la couche 3 (Réseau / Internet), le PDU s’appelle un paquet (packet). En couche 4 on parle de segment (ou datagramme UDP), et en couche 2 de trame (frame).</div>
@@ -393,16 +370,16 @@ SHOW</pre></div>
       <div class="opts">
         <button class="opt">0x0806</button>
         <button class="opt">0x86DD</button>
-        <button class="opt" data-correct="1">0x0800</button>
         <button class="opt">0x8100</button>
+        <button class="opt" data-correct="1">0x0800</button>
       </div>
       <div class="q__exp">La valeur standard de l’EtherType pour IPv4 est 0x0800. 0x0806 correspond au protocole ARP, 0x86DD à IPv6, et 0x8100 au balisage VLAN 802.1Q.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle adresse MAC correspond à une diffusion générale (Broadcast) de niveau 2 ?</p>
       <div class="opts">
-        <button class="opt">00:00:00:00:00:00</button>
         <button class="opt" data-correct="1">FF:FF:FF:FF:FF:FF</button>
+        <button class="opt">00:00:00:00:00:00</button>
         <button class="opt">01:00:5E:00:00:01</button>
         <button class="opt">33:33:00:00:00:01</button>
       </div>
@@ -421,9 +398,9 @@ SHOW</pre></div>
     <div class="q">
       <p class="q__stem">Comment est transmise une requête initiale ARP (ARP Request) sur le réseau local ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">En diffusion générale Broadcast avec la MAC destination FF:FF:FF:FF:FF:FF</button>
-        <button class="opt">En Unicast direct vers la passerelle par défaut</button>
         <button class="opt">En Multicast réservé 224.0.0.1</button>
+        <button class="opt">En Unicast direct vers la passerelle par défaut</button>
+        <button class="opt" data-correct="1">En diffusion générale Broadcast avec la MAC destination FF:FF:FF:FF:FF:FF</button>
         <button class="opt">En Anycast à travers le routeur le plus proche</button>
       </div>
       <div class="q__exp">Puisque l’émetteur ignore l’adresse MAC de la cible, il transmet la requête en broadcast (FF:FF:FF:FF:FF:FF). Tous les hôtes reçoivent la requête, mais seule la machine possédant l’IP demandée répondra en unicast.</div>
@@ -431,19 +408,19 @@ SHOW</pre></div>
     <div class="q">
       <p class="q__stem">Combien d’octets mesure l’en-tête Ethernet II standard (sans compter le préambule ni le FCS) ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">14 octets</button>
+        <button class="opt">32 octets</button>
         <button class="opt">20 octets</button>
         <button class="opt">12 octets</button>
-        <button class="opt">32 octets</button>
+        <button class="opt" data-correct="1">14 octets</button>
       </div>
       <div class="q__exp">L’en-tête Ethernet II comprend 6 octets de MAC destination + 6 octets de MAC source + 2 octets d’EtherType, soit exactement 14 octets.</div>
     </div>
     <div class="q">
       <p class="q__stem">À quelle couche du modèle OSI se situent les numéros de port (ex: port 80 pour HTTP, port 443 pour HTTPS) ?</p>
       <div class="opts">
-        <button class="opt">Couche 2 — Liaison de données</button>
-        <button class="opt">Couche 3 — Réseau</button>
         <button class="opt" data-correct="1">Couche 4 — Transport</button>
+        <button class="opt">Couche 3 — Réseau</button>
+        <button class="opt">Couche 2 — Liaison de données</button>
         <button class="opt">Couche 7 — Application</button>
       </div>
       <div class="q__exp">Les numéros de port (TCP et UDP) sont définis au niveau de la couche 4 (Transport). Ils permettent de multiplexer et démultiplexer les flux applicatifs sur une même adresse IP.</div>
@@ -451,10 +428,10 @@ SHOW</pre></div>
     <div class="q">
       <p class="q__stem">Que se passe-t-il si la charge utile (payload) d’une trame Ethernet II fait moins de 46 octets ?</p>
       <div class="opts">
-        <button class="opt">La trame est rejetée pour erreur de taille minimale</button>
+        <button class="opt">La trame est immédiatement rejetée pour erreur de taille minimale</button>
         <button class="opt" data-correct="1">Un bourrage (padding) d’octets à zéro est automatiquement ajouté pour atteindre 64 octets avec le FCS</button>
-        <button class="opt">La carte réseau découpe la trame en demi-segments</button>
-        <button class="opt">L’EtherType est remplacé par le code 0x0000</button>
+        <button class="opt">La carte réseau découpe automatiquement la trame en deux demi-segments</button>
+        <button class="opt">Le champ EtherType est entièrement remplacé par le code 0x0000 de la trame</button>
       </div>
       <div class="q__exp">Pour que la détection de collision CSMA/CD fonctionne sur Ethernet historique, la taille minimale d’une trame est de 64 octets. Si le payload fait moins de 46 octets, des octets de bourrage (padding) sont insérés.</div>
     </div>
@@ -579,7 +556,7 @@ SHOW</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

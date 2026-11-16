@@ -144,67 +144,67 @@ module.exports = {
     {
       stem: 'Quelle formule de salutation est la plus appropriée pour un premier email adressé au directeur technique d’un partenaire externe ?',
       opts: [
-        'Yo mate,',
-        'Dear Mr. Davis, ou Dear Technical Team,',
-        'Hey dude,',
-        'Sup folks,'
+        "Dear Mr. Davis, ou Dear Technical Team,",
+        "Yo mate, got a quick question for you,",
+        "Hey dude, hope you are doing well,",
+        "Sup folks, here are today’s updates,"
       ],
-      correct: 1,
+      correct: 0,
       exp: '« Dear Mr. Davis » ou « Dear Team » adopte le registre formel indispensable dans les correspondances d’affaires et partenariats extérieurs.'
     },
     {
       stem: 'Dans un rapport de bug (Bug Report), pourquoi la section « Steps to Reproduce » doit-elle être rédigée sous forme d’étapes numérotées ?',
       opts: [
-        'Pour satisfaire aux contraintes d’indexation de la base de données SQL de Jira.',
-        'Pour permettre à n’importe quel ingénieur d’exécuter pas à pas la séquence exacte et reproduire l’anomalie sans ambiguïté.',
-        'Parce que les développeurs ne savent pas lire les paragraphes continus.',
-        'C’est une exigence légale imposée par le RGPD.'
+        "Pour satisfaire aux contraintes d’indexation et de recherche de la base de données SQL sous-jacente de l’outil Jira.",
+        "Parce que les développeurs seraient incapables de lire correctement des paragraphes continus d’explication.",
+        "Parce qu’une exigence légale du RGPD impose un format numéroté pour toute déclaration d’anomalie logicielle.",
+        "Pour permettre à n’importe quel ingénieur d’exécuter pas à pas la séquence exacte et reproduire l’anomalie sans ambiguïté."
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les étapes numérotées fournissent une procédure reproductible et déterministe indispensable pour diagnostiquer et corriger un bogue.'
     },
     {
       stem: 'Que désigne l’expression « Blast Radius » lors de l’analyse d’un incident technique en production ?',
       opts: [
         'La distance physique entre deux centres de données géographiques.',
-        'Le périmètre des services, données et utilisateurs impactés par la défaillance d’un composant.',
         'La vitesse de rotation des ventilateurs du serveur lors d’une surchauffe.',
+        'Le périmètre des services, données et utilisateurs impactés par la défaillance d’un composant.',
         'Le coût financier total des réparations matérielles.'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le « Blast Radius » (rayon d’impact) évalue l’étendue des dégâts ou des composants touchés par la propagation d’une panne.'
     },
     {
       stem: 'Parmi les expressions suivantes, laquelle relève de l’argot ou d’un registre familier à proscrire dans un bulletin d’incident ?',
       opts: [
         'The database cluster is experiencing high query latency.',
-        'The auth stuff is completely broken, we gotta reboot it asap.',
         'The failover mechanism successfully redirected ingress traffic.',
+        'The auth stuff is completely broken, we gotta reboot it asap.',
         'Mitigation procedures are currently underway.'
       ],
-      correct: 1,
+      correct: 2,
       exp: '« stuff », « broken », « gotta » et « asap » sont des termes familiers et imprécis incompatibles avec un rapport d’incident professionnel.'
     },
     {
       stem: 'Dans un ticket d’anomalie, que doit contenir la rubrique « Actual Result » ?',
       opts: [
         'Le comportement que le logiciel aurait dû afficher selon le cahier des charges.',
-        'La description factuelle exacte de ce qui s’est réellement produit, traces d’erreurs et captures à l’appui.',
+        'La date prévisionnelle de déploiement de la prochaine version.',
         'La liste des développeurs ayant écrit la fonctionnalité incriminée.',
-        'La date prévisionnelle de déploiement de la prochaine version.'
+        'La description factuelle exacte de ce qui s’est réellement produit, traces d’erreurs et captures à l’appui.'
       ],
-      correct: 1,
+      correct: 3,
       exp: '« Actual Result » relate objectivement le résultat observé lors du test, par opposition à « Expected Result » (résultat souhaité).'
     },
     {
       stem: 'Quelle est la formulation la plus professionnelle pour clore un email technique formel ?',
       opts: [
-        'Thx & cya,',
         'Best regards,',
+        'Thx & cya,',
         'Later,',
         'Cheers buddy,'
       ],
-      correct: 1,
+      correct: 0,
       exp: '« Best regards, » ou « Sincerely, » est la formule de politesse standard recommandée en anglais professionnel international.'
     },
     {

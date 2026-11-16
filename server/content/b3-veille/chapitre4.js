@@ -139,21 +139,21 @@ module.exports = {
     {
       stem: 'Dans la chaîne de traitement NLP, quel est le rôle principal de l’étape de tokenisation ?',
       opts: [
-        'Chiffrer le document avec une clé RSA',
-        'Découper la chaîne de caractères brute en une séquence d’unités lexicales distinctes (tokens ou mots)',
-        'Traduire le texte en espagnol',
-        'Compacter le fichier au format ZIP'
+        "Découper la chaîne de caractères brute en une séquence d’unités lexicales distinctes (tokens ou mots)",
+        "Chiffrer le document avec une clé RSA afin d’en protéger la confidentialité",
+        "Traduire l’intégralité du texte en espagnol vers la langue cible du corpus",
+        "Compacter le fichier au format ZIP pour en réduire la taille sur le disque"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La tokenisation segmente le flux textuel continu en éléments lexicaux indépendants appelés tokens.'
     },
     {
       stem: 'Que désigne le terme « stopword » en ingénierie documentaire ?',
       opts: [
-        'Un virus informatique bloquant le processeur',
-        'Un mot grammatical vide de sens sémantique spécifique (articles, conjonctions) filtré avant analyse',
-        'Le mot le plus long du dictionnaire',
-        'Une commande d’arrêt du serveur Linux'
+        "Un virus informatique bloquant le processeur pendant toute la durée de l’indexation",
+        "Un mot grammatical vide de sens sémantique spécifique (articles, conjonctions) filtré avant analyse",
+        "Le mot le plus long du dictionnaire technique de la langue française du corpus",
+        "Une commande d’arrêt d’urgence du serveur Linux hébergeant la base documentaire"
       ],
       correct: 1,
       exp: 'Les stopwords sont les mots très fréquents (le, la, de, et, the, with) qui n’apportent aucune information discriminante.'
@@ -173,53 +173,53 @@ module.exports = {
       stem: 'Quelle formule correspond au calcul du Term Frequency (TF) d’un mot q dans un document d ?',
       opts: [
         'TF = nombre de documents dans le corpus',
-        'TF = occurrences(q, d) / nombre total de mots dans d',
+        'TF = longueur du mot en caractères',
         'TF = log(occurrences) * 100',
-        'TF = longueur du mot en caractères'
+        'TF = occurrences(q, d) / nombre total de mots dans d'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le TF normalise le nombre d’occurrences d’un terme par la longueur totale en mots du document.'
     },
     {
       stem: 'Pourquoi utilise-t-on la somme des logarithmes népériens plutôt que le produit direct des probabilités en Naive Bayes ?',
       opts: [
-        'Parce que les ordinateurs ne savent pas multiplier',
-        'Pour éviter le sous-dépassement arithmétique (underflow) lors de la multiplication de probabilités très proches de zéro',
-        'Pour rendre le calcul payant',
-        'Pour supprimer la ponctuation'
+        "Pour éviter le sous-dépassement arithmétique (underflow) lors de la multiplication de probabilités très proches de zéro",
+        "Parce que les ordinateurs ne savent pas multiplier deux nombres décimaux entre eux correctement",
+        "Pour rendre le calcul payant auprès du fournisseur de la bibliothèque statistique utilisée",
+        "Pour supprimer automatiquement la ponctuation et les chiffres présents dans le corpus analysé"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Multiplier des dizaines de probabilités très faibles produit un nombre inférieur à la précision machine (0.0). Sommer leurs logs évite ce problème.'
     },
     {
       stem: 'Dans l’algorithme TF-IDF lissé standard, pourquoi ajoute-t-on 1 au numérateur et au dénominateur de l’IDF ?',
       opts: [
         'Pour arrondir le résultat à l’entier supérieur',
-        'Pour éviter la division par zéro si DF=0 et éviter un log nul si N=DF',
         'C’est une constante universelle de Planck',
+        'Pour éviter la division par zéro si DF=0 et éviter un log nul si N=DF',
         'Pour doubler la vitesse d’exécution'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'L’ajout de constantes de lissage (+1) empêche les divisions par zéro et garantit la stabilité mathématique du logarithme.'
     },
     {
       stem: 'Quelle hypothèse fondatrice est qualifiée de « naïve » dans le classificateur Naive Bayes ?',
       opts: [
         'L’hypothèse que tous les textes sont écrits en anglais',
-        'L’hypothèse d’indépendance conditionnelle des mots sachant la classe',
+        'L’hypothèse que la base de données est vide',
         'L’hypothèse que tous les articles sont vrais',
-        'L’hypothèse que la base de données est vide'
+        'L’hypothèse d’indépendance conditionnelle des mots sachant la classe'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le modèle est dit « naïf » car il postule que chaque mot apparaît indépendamment des autres dans une classe donnée, ce qui simplifie le calcul.'
     },
     {
       stem: 'Quel est l’impact de la suppression des stopwords sur un corpus d’ingénierie de 10 000 articles ?',
       opts: [
-        'Aucun impact mesurable',
-        'Une réduction de 40 à 60 % du nombre de tokens sans dégrader la précision de recherche',
-        'La destruction irrémédiable de la base de données',
-        'Un blocage du réseau local'
+        "Aucun impact mesurable sur la taille comme sur la vitesse des requêtes",
+        "Une réduction de 40 à 60 % du nombre de tokens sans dégrader la précision de recherche",
+        "La destruction irrémédiable de la base de données documentaire du service",
+        "Un blocage complet du réseau local pendant toute la durée du traitement"
       ],
       correct: 1,
       exp: 'Éliminer les mots vides allège le corpus de 40 à 60 % de sa masse textuelle tout en conservant l’intégralité des concepts techniques.'

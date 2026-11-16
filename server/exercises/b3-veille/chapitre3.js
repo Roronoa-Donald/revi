@@ -6,118 +6,165 @@ module.exports = [
     "chapter": 3,
     "level": "n1",
     "language": "analyse",
-    "title": "Parseur de flux de syndication RSS 2.0 / Atom",
-    "goal": "Extraire et structurer les métadonnées techniques (titre, lien, date, identifiant GUID) d’un flux XML de veille.",
-    "brief": "Dans la collecte automatisée en mode Push/Pull, les flux RSS 2.0 et Atom constituent le standard d’interopérabilité pour agréger les nouveautés sans polluer les serveurs cibles.\n\nChaque élément `<item>` contient les balises :\n- `<title>` : titre de la dépêche ou publication\n- `<link>` : URL canonique de la source\n- `<pubDate>` : date de publication au format RFC 822 ou ISO (ex: `2025-10-15`)\n- `<guid>` : identifiant unique de l’élément\n\nEntrée :\nLignes contenant des balises XML au format standardisé :\n`<item><guid>G</guid><title>T</title><link>L</link><pubDate>D</pubDate></item>`\n\nRésultat d’analyse attendu :\n- Pour chaque article :\n  `ARTICLE id=<G> title=<T> link=<L> date=<D>`\n- Bilan :\n  `SUMMARY total_articles=<N> latest_date=<D>`",
-    "starter": "# Grille d'analyse (vt3-c3-e1) — Parseur de flux de syndication RSS 2.0 / Atom\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois articles avec dates variées]\n# Données : <item><guid>cve-1</guid><title>Alerte CERT-FR sur routeurs</title><link>https://cert.ssi.gouv.fr/1</link><pubDate>2025-09-20</pubDate></item>\n# Données : <item><guid>cve-2</guid><title>Mise à jour noyau Linux 6.12</title><link>https://kernel.org/612</link><pubDate>2025-10-05</pubDate></item>\n# Données : <item><guid>cve-3</guid><title>Rapport Gartner Cloud 2025</title><link>https://gartner.com/cloud</link><pubDate>2025-10-12</pubDate></item>\nA_COMPLETER\n\n[Cas 2 — Un seul article]\n# Données : <item><guid>art-99</guid><title>Déploiement fibre 10G</title><link>https://telecom.fr/10g</link><pubDate>2025-11-01</pubDate></item>\nA_COMPLETER\n\n[Cas 3 — Ordre inversé des balises dans l item]\n# Données : <item><title>Brevet microprocesseur supraconducteur</title><guid>pat-888</guid><pubDate>2025-08-15</pubDate><link>https://epo.org/888</link></item>\nA_COMPLETER\n",
+    "title": "Le flux RSS de la compagnie aérienne TransAéro",
+    "exampleTitle": "Exemple résolu — le flux RSS de l'éditeur de logiciels Néoware",
+    "goal": "Lire un flux de syndication RSS, repérer l'item le plus récent et distinguer collecte Push et Pull.",
+    "brief": "<p><strong>Énoncé.</strong> L'agence de voyages Escapade, 12 salariés, revend les billets de la compagnie régionale TransAéro. L'assistante de l'agence s'est abonnée au flux RSS des communiqués de TransAéro. Ce matin, le flux contenait exactement :</p><p><code>&lt;item&gt;&lt;guid&gt;ta-101&lt;/guid&gt;&lt;title&gt;TransAéro ouvre une liaison directe vers Funchal&lt;/title&gt;&lt;link&gt;https://transaero.example/communiques/101&lt;/link&gt;&lt;pubDate&gt;2025-11-03&lt;/pubDate&gt;&lt;/item&gt;</code><br><code>&lt;item&gt;&lt;guid&gt;ta-102&lt;/guid&gt;&lt;title&gt;TransAéro baisse ses tarifs dernière minute de 12 %&lt;/title&gt;&lt;link&gt;https://transaero.example/communiques/102&lt;/link&gt;&lt;pubDate&gt;2025-11-18&lt;/pubDate&gt;&lt;/item&gt;</code><br><code>&lt;item&gt;&lt;guid&gt;ta-103&lt;/guid&gt;&lt;title&gt;TransAéro remplace ses Boeing par des Airbus A320neo&lt;/title&gt;&lt;link&gt;https://transaero.example/communiques/103&lt;/link&gt;&lt;pubDate&gt;2025-11-10&lt;/pubDate&gt;&lt;/item&gt;</code></p><p>Consignes : les dates s'écrivent au format AAAA-MM-JJ ; les questions 4 et 5 se répondent par un seul mot.</p><ol><li>Combien d'items compte le flux ?</li><li>Quel est le guid de l'item le plus récent ?</li><li>Quelle est la date de publication de l'item ta-103 ?</li><li>S'abonner à ce flux plutôt que de consulter le site chaque matin relève-t-il d'une collecte PUSH ou PULL ?</li><li>La surveillance des tarifs du partenaire aérien relève de quel domaine sectoriel de veille ?</li></ol>",
+    "starter": "# Exercice — Le flux RSS de la compagnie aérienne TransAéro\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Nombre d'items du flux]\nA_COMPLETER\n\n[Question 2 — Guid de l'item le plus récent]\nA_COMPLETER\n\n[Question 3 — Date de publication de l'item ta-103]\nA_COMPLETER\n\n[Question 4 — Mode de collecte PUSH ou PULL]\nA_COMPLETER\n\n[Question 5 — Domaine sectoriel concerné]\nA_COMPLETER\n",
     "hints": [
-      "Utiliser des expressions régulières (re.search) ou un découpage pour extraire le contenu entre balises <tag> et </tag>.",
-      "Identifier la date la plus récente au format lexicographique YYYY-MM-DD.",
-      "Gérer les espaces superflus autour du titre et des liens."
+      "Comptez les balises <item> : chacune décrit un communiqué, avec son guid, son titre et sa date.",
+      "L'ordre d'apparition dans un flux ne dit rien de la fraîcheur : comparez les pubDate entre elles.",
+      "Dans une collecte Push, l'information vient vers le veilleur (alertes, flux) ; en Pull, le veilleur va la chercher. Un partenaire commercial se surveille côté relation clients et fournisseurs."
     ],
     "examples": [
       {
-        "stdin": "<item><guid>art-101</guid><title>Sortie de Python 3.14</title><link>https://python.org/news/101</link><pubDate>2025-10-01</pubDate></item>\n<item><guid>art-102</guid><title>Vulnérabilité OpenSSL critique</title><link>https://cve.mitre.org/2025-02</link><pubDate>2025-10-14</pubDate></item>",
-        "expected": "ARTICLE id=art-101 title=Sortie de Python 3.14 link=https://python.org/news/101 date=2025-10-01\nARTICLE id=art-102 title=Vulnérabilité OpenSSL critique link=https://cve.mitre.org/2025-02 date=2025-10-14\nSUMMARY total_articles=2 latest_date=2025-10-14",
-        "note": "Le parseur extrait les 4 champs et repère la date la plus récente (2025-10-14)."
+        "stdin": "L'éditeur de logiciels Néoware publie un flux RSS :\n<item><guid>sw-11</guid><title>Néoware publie la version 4.0 de sa suite</title><pubDate>2026-01-05</pubDate></item>\n<item><guid>sw-12</guid><title>Correctif de sécurité critique sur la suite 4.0</title><pubDate>2026-01-12</pubDate></item>\n\nRésolution :\n1) Le flux compte 2 items.\n2) Le plus récent est sw-12 (publié le 2026-01-12, après le 2026-01-05).\n3) La date de sw-11 est le 2026-01-05.\n4) L'abonnement au flux est une collecte PUSH.\n5) Le correctif de sécurité relève de la veille TECHNOLOGIQUE.",
+        "expected": "2 items — plus récent sw-12 — PUSH — TECHNOLOGIQUE",
+        "note": "Le premier item du flux n'est pas forcément le plus ancien ni le plus récent : la balise pubDate tranche toujours."
       }
     ],
     "tests": [
       {
-        "label": "Trois articles avec dates variées",
-        "stdin": "cas:1",
-        "expected": "ARTICLE id=cve-1 title=Alerte CERT-FR sur routeurs link=https://cert.ssi.gouv.fr/1 date=2025-09-20\nARTICLE id=cve-2 title=Mise à jour noyau Linux 6.12 link=https://kernel.org/612 date=2025-10-05\nARTICLE id=cve-3 title=Rapport Gartner Cloud 2025 link=https://gartner.com/cloud date=2025-10-12\nSUMMARY total_articles=3 latest_date=2025-10-12"
+        "label": "Question 1 — Nombre d'items du flux",
+        "stdin": "q:1",
+        "expected": "3||trois"
       },
       {
-        "label": "Un seul article",
-        "stdin": "cas:2",
-        "expected": "ARTICLE id=art-99 title=Déploiement fibre 10G link=https://telecom.fr/10g date=2025-11-01\nSUMMARY total_articles=1 latest_date=2025-11-01"
+        "label": "Question 2 — Guid de l'item le plus récent",
+        "stdin": "q:2",
+        "expected": "ta-102"
       },
       {
-        "label": "Ordre inversé des balises dans l item",
-        "stdin": "cas:3",
-        "expected": "ARTICLE id=pat-888 title=Brevet microprocesseur supraconducteur link=https://epo.org/888 date=2025-08-15\nSUMMARY total_articles=1 latest_date=2025-08-15"
+        "label": "Question 3 — Date de publication de l'item ta-103",
+        "stdin": "q:3",
+        "expected": "2025-11-10"
+      },
+      {
+        "label": "Question 4 — Mode de collecte PUSH ou PULL",
+        "stdin": "q:4",
+        "expected": "PUSH||push"
+      },
+      {
+        "label": "Question 5 — Domaine sectoriel concerné",
+        "stdin": "q:5",
+        "expected": "COMMERCIALE||commerciale||COMMERCIALE ET FOURNISSEURS||commerciale et fournisseurs"
       }
     ],
-    "solution": "[Exemple]\nARTICLE id=art-101 title=Sortie de Python 3.14 link=https://python.org/news/101 date=2025-10-01\nARTICLE id=art-102 title=Vulnérabilité OpenSSL critique link=https://cve.mitre.org/2025-02 date=2025-10-14\nSUMMARY total_articles=2 latest_date=2025-10-14\n\n[Cas 1 — Trois articles avec dates variées]\nARTICLE id=cve-1 title=Alerte CERT-FR sur routeurs link=https://cert.ssi.gouv.fr/1 date=2025-09-20\nARTICLE id=cve-2 title=Mise à jour noyau Linux 6.12 link=https://kernel.org/612 date=2025-10-05\nARTICLE id=cve-3 title=Rapport Gartner Cloud 2025 link=https://gartner.com/cloud date=2025-10-12\nSUMMARY total_articles=3 latest_date=2025-10-12\n\n[Cas 2 — Un seul article]\nARTICLE id=art-99 title=Déploiement fibre 10G link=https://telecom.fr/10g date=2025-11-01\nSUMMARY total_articles=1 latest_date=2025-11-01\n\n[Cas 3 — Ordre inversé des balises dans l item]\nARTICLE id=pat-888 title=Brevet microprocesseur supraconducteur link=https://epo.org/888 date=2025-08-15\nSUMMARY total_articles=1 latest_date=2025-08-15\n"
+    "solution": "[Question 1 — Nombre d'items du flux]\n3\n\n[Question 2 — Guid de l'item le plus récent]\nta-102\n\n[Question 3 — Date de publication de l'item ta-103]\n2025-11-10\n\n[Question 4 — Mode de collecte PUSH ou PULL]\nPUSH\n\n[Question 5 — Domaine sectoriel concerné]\nCOMMERCIALE",
+    "takeaway": "1) Le flux contient 3 items : ta-101, ta-102 et ta-103.\n2) Dates : ta-101 le 2025-11-03, ta-102 le 2025-11-18, ta-103 le 2025-11-10. Le plus récent est ta-102.\n3) L'item ta-103 est publié le 2025-11-10.\n4) L'abonnement au flux pousse l'information vers l'agence : collecte PUSH.\n5) TransAéro est un partenaire fournisseur dont Escapade revend les billets : la surveillance de ses tarifs relève de la veille COMMERCIALE.\nContrôle : les trois dates sont distinctes ; 2025-11-18 (ta-102) est postérieure à 2025-11-10 (ta-103), donc le guid le plus récent n'est pas le dernier de la liste."
   },
   {
     "id": "vt3-c3-e2",
     "chapter": 3,
     "level": "n2",
     "language": "analyse",
-    "title": "Moteur de déduplication multi-sources et nettoyage de liens UTM",
-    "goal": "Éliminer les doublons stricts et quasi-doublons de flux via normalisation d’URL et similarité lexicale de Jaccard.",
-    "brief": "Lorsqu’un veilleur agrège des dizaines de flux RSS et lettres d’information, une même actualité apparaît sous plusieurs URLs avec des paramètres de pistage (UTM) ou des titres légèrement reformulés.\n\nRègles de traitement séquentiel pour chaque article entrant :\n1. **Nettoyage d’URL** : Supprimer tous les paramètres commençant par `utm_` ainsi que `ref` et `source` de la chaîne de requête (séparateurs `?` et `&`).\n   Si l’URL canonique nettoyée a déjà été vue : marquer `DOUBLON_URL` et rejeter.\n2. **Similarité de Jaccard sur les titres** : Comparer l’ensemble des mots minuscules du titre avec les titres des articles *déjà conservés* :\n   $$J(A, B) = \\frac{|A \\cap B|}{|A \\cup B|}$$\n   Si pour un article conservé $J(A, B) \\ge 0.60$ : marquer `DOUBLON_TITRE` et rejeter.\n3. Sinon : marquer `CONSERVE` et enregistrer l’article.\n\nEntrée :\n`ITEM id=<ID> url=<URL> title=<TITRE>`\n\nRésultat d’analyse attendu :\n- Pour chaque élément :\n  `STATUS id=<ID> action=<CONSERVE|DOUBLON_URL|DOUBLON_TITRE>`\n- Bilan :\n  `SUMMARY recus=<N> conserves=<C> doublons=<D>`",
-    "starter": "# Grille d'analyse (vt3-c3-e2) — Moteur de déduplication multi-sources et nettoyage de liens UTM\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Trois articles distincts conservés]\n# Données : ITEM id=A url=https://site1.fr/art1?id=10 title=Architecture micro-services cloud\n# Données : ITEM id=B url=https://site2.fr/art2?id=20 title=Sécurité des conteneurs docker\n# Données : ITEM id=C url=https://site3.fr/art3?id=30 title=Réseau 5G et antennes intelligentes\nA_COMPLETER\n\n[Cas 2 — Doublon strict d URL avec multiples paramètres de tracking]\n# Données : ITEM id=10 url=https://blog.com/post?ref=rss&utm_campaign=launch title=Nouvel algorithme IA\n# Données : ITEM id=11 url=https://blog.com/post?utm_source=feedly&ref=feed title=Titre tout à fait différent\nA_COMPLETER\n\n[Cas 3 — Doublon de titre quasi-identique avec mots permutés]\n# Données : ITEM id=X1 url=https://lemonde.fr/it1 title=Lancement de la fusée Ariane 6 en Guyane\n# Données : ITEM id=X2 url=https://lefigaro.fr/it2 title=Lancement réussi de la fusée Ariane 6 en Guyane\nA_COMPLETER\n",
+    "title": "Le dédoublonnage du portail Villes & Mobilités",
+    "exampleTitle": "Exemple résolu — le dédoublonnage du portail Mer & Littoral",
+    "goal": "Appliquer l'indice de Jaccard pour détecter des quasi-doublons de titres et nettoyer une URL de ses paramètres de suivi.",
+    "brief": "<p><strong>Énoncé.</strong> Le portail d'actualité Villes & Mobilités agrège des flux RSS et des newsletters. Ce matin, trois articles sont arrivés :</p><table><tr><th>Article</th><th>Titre</th></tr><tr><td>A1</td><td>« Lille installe 80 bornes de recharge en centre-ville »</td></tr><tr><td>A2</td><td>« Lille installe 80 bornes de recharge »</td></tr><tr><td>A3</td><td>« Le gouvernement accélère le déploiement des bornes de recharge »</td></tr></table><p>Règles : l'indice de Jaccard compare les ensembles de mots des titres, en minuscules, ponctuation retirée, chaque mot compté une seule fois : J(A, B) = |A ∩ B| / |A ∪ B|. À partir de 0,60, les deux articles sont des quasi-doublons (DOUBLON_TITRE). Par ailleurs, l'URL canonique d'un article supprime les paramètres de suivi utm_*, ref et source, mais conserve les autres paramètres.</p><p>Consignes : les indices s'écrivent avec une virgule, arrondis à deux décimales (par exemple 0,67) ; la question 4 attend le code exact ; la question 6 est une URL exacte.</p><ol><li>Combien de mots distincts compte le titre A1 ?</li><li>Quel est l'indice de Jaccard J(A1, A2) ?</li><li>Quel est l'indice de Jaccard J(A1, A3) ?</li><li>A1 et A2 sont-ils DOUBLON_TITRE ou des articles distincts ?</li><li>Combien d'articles le portail publiera-t-il au final ?</li><li>Écrivez l'URL canonique de « https://villes-mobilites.example/bornes?utm_source=rss&amp;id=41 ».</li></ol>",
+    "starter": "# Exercice — Le dédoublonnage du portail Villes & Mobilités\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Nombre de mots distincts du titre A1]\nA_COMPLETER\n\n[Question 2 — Indice de Jaccard J(A1, A2)]\nA_COMPLETER\n\n[Question 3 — Indice de Jaccard J(A1, A3)]\nA_COMPLETER\n\n[Question 4 — Verdict sur A1 et A2]\nA_COMPLETER\n\n[Question 5 — Nombre d'articles publiés]\nA_COMPLETER\n\n[Question 6 — URL canonique nettoyée]\nA_COMPLETER\n",
     "hints": [
-      "Normalisez les URLs collectées en supprimant les paramètres de traçage superflus et les ancres.",
-      "L’indice de similarité de Jaccard mesure la proximité sémantique de deux sources par le quotient de l’intersection des mots par leur union."
+      "Listez d'abord les ensembles de mots : A1 = {lille, installe, 80, bornes, de, recharge, en, centre, ville} ; A2 = {lille, installe, 80, bornes, de, recharge}.",
+      "J(A1, A2) = 6 / 9 : l'ensemble de A2 est entièrement contenu dans celui de A1. Pour A1 et A3, seuls bornes, de et recharge sont communs.",
+      "Un indice au moins égal à 0,60 entraîne la suppression d'un des deux titres ; dans l'URL, seul id=41 est un paramètre métier, utm_source est un paramètre de suivi."
     ],
     "examples": [
       {
-        "stdin": "ITEM id=1 url=https://tech.com/news?utm_source=twitter&utm_medium=social title=Sortie officielle de Linux 6.12\nITEM id=2 url=https://tech.com/news?utm_source=newsletter title=Autre actu\nITEM id=3 url=https://autre.com/linux title=Sortie officielle et annonce de Linux 6.12",
-        "expected": "STATUS id=1 action=CONSERVE\nSTATUS id=2 action=DOUBLON_URL\nSTATUS id=3 action=DOUBLON_TITRE\nSUMMARY recus=3 conserves=1 doublons=2",
-        "note": "L’item 2 a la même URL nettoyée (https://tech.com/news). L’item 3 a un Jaccard de 5/7 = 0.71 avec l’item 1."
+        "stdin": "Le portail Mer & Littoral compare deux titres :\n— M1 : « Brest teste un ferry électrique sur la rade »\n— M2 : « Brest teste un ferry électrique »\n\nRésolution :\n1) M1 : 8 mots distincts {brest, teste, un, ferry, électrique, sur, la, rade}.\n2) M2 : 5 mots. J(M1, M2) = 5 / 8 = 0,63, au moins égal à 0,60 → DOUBLON_TITRE.\n3) L'article M1 est arrivé avec l'URL « https://mer-littoral.example/ferry?utm_campaign=nl&rubrique=5 » ; URL canonique : https://mer-littoral.example/ferry?rubrique=5.",
+        "expected": "J = 0,63 → DOUBLON_TITRE — URL canonique https://mer-littoral.example/ferry?rubrique=5",
+        "note": "Les paramètres de suivi disparaissent de l'URL canonique ; les paramètres métier, comme une rubrique, restent."
       }
     ],
     "tests": [
       {
-        "label": "Trois articles distincts conservés",
-        "stdin": "cas:1",
-        "expected": "STATUS id=A action=CONSERVE\nSTATUS id=B action=CONSERVE\nSTATUS id=C action=CONSERVE\nSUMMARY recus=3 conserves=3 doublons=0"
+        "label": "Question 1 — Nombre de mots distincts du titre A1",
+        "stdin": "q:1",
+        "expected": "9||neuf"
       },
       {
-        "label": "Doublon strict d URL avec multiples paramètres de tracking",
-        "stdin": "cas:2",
-        "expected": "STATUS id=10 action=CONSERVE\nSTATUS id=11 action=DOUBLON_URL\nSUMMARY recus=2 conserves=1 doublons=1"
+        "label": "Question 2 — Indice de Jaccard J(A1, A2)",
+        "stdin": "q:2",
+        "expected": "0,67||0.67||0,7"
       },
       {
-        "label": "Doublon de titre quasi-identique avec mots permutés",
-        "stdin": "cas:3",
-        "expected": "STATUS id=X1 action=CONSERVE\nSTATUS id=X2 action=DOUBLON_TITRE\nSUMMARY recus=2 conserves=1 doublons=1"
+        "label": "Question 3 — Indice de Jaccard J(A1, A3)",
+        "stdin": "q:3",
+        "expected": "0,21||0.21||0,214||0.214"
+      },
+      {
+        "label": "Question 4 — Verdict sur A1 et A2",
+        "stdin": "q:4",
+        "expected": "DOUBLON_TITRE||doublon titre||DOUBLON||doublon"
+      },
+      {
+        "label": "Question 5 — Nombre d'articles publiés",
+        "stdin": "q:5",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 6 — URL canonique nettoyée",
+        "stdin": "q:6",
+        "expected": "https://villes-mobilites.example/bornes?id=41"
       }
     ],
-    "solution": "[Exemple]\nSTATUS id=1 action=CONSERVE\nSTATUS id=2 action=DOUBLON_URL\nSTATUS id=3 action=DOUBLON_TITRE\nSUMMARY recus=3 conserves=1 doublons=2\n\n[Cas 1 — Trois articles distincts conservés]\nSTATUS id=A action=CONSERVE\nSTATUS id=B action=CONSERVE\nSTATUS id=C action=CONSERVE\nSUMMARY recus=3 conserves=3 doublons=0\n\n[Cas 2 — Doublon strict d URL avec multiples paramètres de tracking]\nSTATUS id=10 action=CONSERVE\nSTATUS id=11 action=DOUBLON_URL\nSUMMARY recus=2 conserves=1 doublons=1\n\n[Cas 3 — Doublon de titre quasi-identique avec mots permutés]\nSTATUS id=X1 action=CONSERVE\nSTATUS id=X2 action=DOUBLON_TITRE\nSUMMARY recus=2 conserves=1 doublons=1\n"
+    "solution": "[Question 1 — Nombre de mots distincts du titre A1]\n9\n\n[Question 2 — Indice de Jaccard J(A1, A2)]\n0,67\n\n[Question 3 — Indice de Jaccard J(A1, A3)]\n0,21\n\n[Question 4 — Verdict sur A1 et A2]\nDOUBLON_TITRE\n\n[Question 5 — Nombre d'articles publiés]\n2\n\n[Question 6 — URL canonique nettoyée]\nhttps://villes-mobilites.example/bornes?id=41",
+    "takeaway": "1) A1 = {lille, installe, 80, bornes, de, recharge, en, centre, ville} : 9 mots distincts.\n2) A2 = 6 mots, tous présents dans A1 : J(A1, A2) = 6 / 9 = 0,67.\n3) A3 = 8 mots ; mots communs avec A1 : {bornes, de, recharge} ; union = 9 + 8 − 3 = 14 ; J(A1, A3) = 3 / 14 = 0,21.\n4) J(A1, A2) = 0,67, au moins égal à 0,60 : DOUBLON_TITRE.\n5) A2 est écarté comme doublon ; le portail publie A1 et A3 : 2 articles.\n6) utm_source est un paramètre de suivi, id=41 est un paramètre métier : URL canonique https://villes-mobilites.example/bornes?id=41.\nContrôle : 6 / 9 = 0,667 et 3 / 14 = 0,214 ; seul le premier dépasse le seuil de 0,60."
   },
   {
     "id": "vt3-c3-e3",
     "chapter": 3,
     "level": "n3",
     "language": "analyse",
-    "title": "Simulateur d’ordonnanceur de collecte hybride Push/Pull avec Rate Limiter",
-    "goal": "Simuler la charge de collecte sur un parc hétérogène de sources en appliquant les quotas de limitation de requêtes.",
-    "brief": "Un robot de veille doit équilibrer ses requêtes sortantes pour respecter la bande passante et éviter d’être banni par les serveurs distants (Rate Limiting HTTP 429) :\n- `PUSH_WEBHOOK` : l’information est poussée par le serveur distant vers notre API. Le collecteur local émet 0 requête sortante (`requetes_emises = 0`, `statut = OPTIMAL`).\n- `PULL_RSS` ou `PULL_SCRAPING` : le collecteur interroge la source toutes les `periode_sec` secondes.\n\nSur une durée de simulation $S$ secondes :\n- Nombre de requêtes sollicitées : $R_{\\text{sollicitees}} = \\lfloor S / \\text{periode\\_sec} \\rfloor$\n- Quota maximal alloué par la limite : $Q_{\\text{max}} = \\lfloor \\text{rpm} \\times (S / 60) \\rfloor$\n- Requêtes effectives émises : $R_{\\text{emises}} = \\min(R_{\\text{sollicitees}}, Q_{\\text{max}})$\n- Si $R_{\\text{sollicitees}} > Q_{\\text{max}}$ : `statut = THROTTLED` (bridé par le rate limiter)\n- Sinon : `statut = OPTIMAL`\n\nEntrée :\n`DUREE_SIMU sec=<S>`\n`FLUX id=<ID> type=<PUSH_WEBHOOK|PULL_RSS|PULL_SCRAPING> periode_sec=<P> rpm=<RPM>`\n\nRésultat d’analyse attendu :\n- Pour chaque flux :\n  `COLLECT_JOB id=<ID> requetes_emises=<R> statut=<STATUT>`\n- Bilan :\n  `SUMMARY total_flux=<N> total_requetes=<R> flux_throttled=<T>`",
-    "starter": "# Grille d'analyse (vt3-c3-e3) — Simulateur d’ordonnanceur de collecte hybride Push/Pull avec Rate Limiter\n# Complétez la réponse attendue sous chaque cas ci-dessous :\n\n[Cas 1 — Simulation courte de 10 minutes avec sources optimales]\n# Données : DUREE_SIMU sec=600\n# Données : FLUX id=f1 type=PULL_RSS periode_sec=120 rpm=5\n# Données : FLUX id=f2 type=PUSH_WEBHOOK periode_sec=0 rpm=20\nA_COMPLETER\n\n[Cas 2 — Toutes les sources en scraping bridé]\n# Données : DUREE_SIMU sec=1800\n# Données : FLUX id=s1 type=PULL_SCRAPING periode_sec=10 rpm=2\n# Données : FLUX id=s2 type=PULL_SCRAPING periode_sec=5 rpm=3\nA_COMPLETER\n\n[Cas 3 — Simulation d’une heure avec plusieurs webhooks]\n# Données : DUREE_SIMU sec=3600\n# Données : FLUX id=wh1 type=PUSH_WEBHOOK periode_sec=0 rpm=50\n# Données : FLUX id=wh2 type=PUSH_WEBHOOK periode_sec=0 rpm=50\n# Données : FLUX id=rss1 type=PULL_RSS periode_sec=1800 rpm=2\nA_COMPLETER\n",
+    "title": "Le plan de collecte du robot de l'association Aurevie",
+    "exampleTitle": "Exemple résolu — le plan de collecte de la bibliothèque numérique Liréa",
+    "goal": "Planifier une collecte multi-sources, calculer la charge horaire et vérifier la conformité d'un pic sous plafond.",
+    "brief": "<p><strong>Énoncé.</strong> L'association Aurevie, observatoire des mobilités urbaines, programme son robot de collecte. Sources et périodes de relevé :</p><table><tr><th>Groupe</th><th>Nombre de sources</th><th>Période de relevé</th></tr><tr><td>A — presse quotidienne</td><td>30 flux</td><td>toutes les 30 minutes</td></tr><tr><td>B — blogs spécialisés</td><td>20 flux</td><td>toutes les heures</td></tr><tr><td>C — alertes hebdomadaires</td><td>10 flux</td><td>le lundi à 8 h 00</td></tr></table><p>Le serveur de l'association plafonne le robot à 100 requêtes par heure. Le lundi, le groupe C est déclenché à 8 h 00 en une seule salve.</p><p>Consignes : les réponses numériques s'écrivent en nombres seuls ; la question 4 attend OUI ou NON en majuscules.</p><ol><li>Combien de requêtes par heure le groupe A génère-t-il ?</li><li>Combien de requêtes par heure le groupe B génère-t-il ?</li><li>Combien de requêtes le robot adresse-t-il entre 8 h et 9 h le lundi ?</li><li>Le pic du lundi respecte-t-il le plafond de 100 requêtes par heure ?</li><li>Combien de requêtes par heure reçoit chaque source du groupe A ?</li><li>Si le groupe A passait à un relevé toutes les 15 minutes, combien de requêtes le pic du lundi 8 h–9 h atteindrait-il ?</li></ol>",
+    "starter": "# Exercice — Le plan de collecte du robot de l'association Aurevie\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n\n[Question 1 — Requêtes par heure du groupe A]\nA_COMPLETER\n\n[Question 2 — Requêtes par heure du groupe B]\nA_COMPLETER\n\n[Question 3 — Requêtes sur le créneau du lundi 8 h-9 h]\nA_COMPLETER\n\n[Question 4 — Respect du plafond de 100 requêtes/heure]\nA_COMPLETER\n\n[Question 5 — Requêtes par heure reçues par une source du groupe A]\nA_COMPLETER\n\n[Question 6 — Pic du lundi avec un relevé toutes les 15 minutes]\nA_COMPLETER\n",
     "hints": [
-      "Lire d’abord la ligne DUREE_SIMU pour connaître le temps de simulation S.",
-      "Pour les flux Push, les requêtes émises sont nulles.",
-      "Comparer les requêtes théoriques avec le quota autorisé calculé sur S."
+      "Un relevé toutes les 30 minutes, c'est 2 relevés par heure ; toutes les heures, c'est 1 ; toutes les 15 minutes, c'est 4.",
+      "Le pic du lundi cumule les trois groupes sur la même fenêtre d'une heure : additionnez les requêtes horaires de A et B, plus la salve de C.",
+      "Pour la question 6, recalculez uniquement le groupe A (30 flux × 4 relevés), puis recomposez le pic complet avant de conclure."
     ],
     "examples": [
       {
-        "stdin": "DUREE_SIMU sec=3600\nFLUX id=cert_webhook type=PUSH_WEBHOOK periode_sec=0 rpm=100\nFLUX id=rss_github type=PULL_RSS periode_sec=600 rpm=10\nFLUX id=scrape_forum type=PULL_SCRAPING periode_sec=30 rpm=1",
-        "expected": "COLLECT_JOB id=cert_webhook requetes_emises=0 statut=OPTIMAL\nCOLLECT_JOB id=rss_github requetes_emises=6 statut=OPTIMAL\nCOLLECT_JOB id=scrape_forum requetes_emises=60 statut=THROTTLED\nSUMMARY total_flux=3 total_requetes=66 flux_throttled=1",
-        "note": "Le scrape_forum voulait 3600/30 = 120 requêtes, mais le RPM de 1 le bride à 60 requêtes (THROTTLED)."
+        "stdin": "La bibliothèque numérique Liréa programme son robot :\n— Groupe X : 8 flux, relevés toutes les 20 minutes.\n— Groupe Y : 15 flux, relevés une fois par heure.\n— Hebdomadaire : 5 flux, déclenchés le lundi à 8 h.\nPlafond du serveur : 50 requêtes par heure.\n\nRésolution :\n1) Groupe X : 8 × 3 = 24 requêtes par heure.\n2) Groupe Y : 15 × 1 = 15 requêtes par heure.\n3) Pic du lundi : 24 + 15 + 5 = 44 requêtes.\n4) 44 ≤ 50 : le plafond est respecté.",
+        "expected": "X : 24 requêtes/heure — Y : 15 requêtes/heure — pic lundi 44 ≤ 50, conforme",
+        "note": "Le pic se calcule toujours sur la fenêtre horaire la plus chargée : le lundi matin cumule les trois groupes."
       }
     ],
     "tests": [
       {
-        "label": "Simulation courte de 10 minutes avec sources optimales",
-        "stdin": "cas:1",
-        "expected": "COLLECT_JOB id=f1 requetes_emises=5 statut=OPTIMAL\nCOLLECT_JOB id=f2 requetes_emises=0 statut=OPTIMAL\nSUMMARY total_flux=2 total_requetes=5 flux_throttled=0"
+        "label": "Question 1 — Requêtes par heure du groupe A",
+        "stdin": "q:1",
+        "expected": "60"
       },
       {
-        "label": "Toutes les sources en scraping bridé",
-        "stdin": "cas:2",
-        "expected": "COLLECT_JOB id=s1 requetes_emises=60 statut=THROTTLED\nCOLLECT_JOB id=s2 requetes_emises=90 statut=THROTTLED\nSUMMARY total_flux=2 total_requetes=150 flux_throttled=2"
+        "label": "Question 2 — Requêtes par heure du groupe B",
+        "stdin": "q:2",
+        "expected": "20"
       },
       {
-        "label": "Simulation d’une heure avec plusieurs webhooks",
-        "stdin": "cas:3",
-        "expected": "COLLECT_JOB id=wh1 requetes_emises=0 statut=OPTIMAL\nCOLLECT_JOB id=wh2 requetes_emises=0 statut=OPTIMAL\nCOLLECT_JOB id=rss1 requetes_emises=2 statut=OPTIMAL\nSUMMARY total_flux=3 total_requetes=2 flux_throttled=0"
+        "label": "Question 3 — Requêtes sur le créneau du lundi 8 h-9 h",
+        "stdin": "q:3",
+        "expected": "90"
+      },
+      {
+        "label": "Question 4 — Respect du plafond de 100 requêtes/heure",
+        "stdin": "q:4",
+        "expected": "OUI||oui"
+      },
+      {
+        "label": "Question 5 — Requêtes par heure reçues par une source du groupe A",
+        "stdin": "q:5",
+        "expected": "2||deux"
+      },
+      {
+        "label": "Question 6 — Pic du lundi avec un relevé toutes les 15 minutes",
+        "stdin": "q:6",
+        "expected": "150"
       }
     ],
-    "solution": "[Exemple]\nCOLLECT_JOB id=cert_webhook requetes_emises=0 statut=OPTIMAL\nCOLLECT_JOB id=rss_github requetes_emises=6 statut=OPTIMAL\nCOLLECT_JOB id=scrape_forum requetes_emises=60 statut=THROTTLED\nSUMMARY total_flux=3 total_requetes=66 flux_throttled=1\n\n[Cas 1 — Simulation courte de 10 minutes avec sources optimales]\nCOLLECT_JOB id=f1 requetes_emises=5 statut=OPTIMAL\nCOLLECT_JOB id=f2 requetes_emises=0 statut=OPTIMAL\nSUMMARY total_flux=2 total_requetes=5 flux_throttled=0\n\n[Cas 2 — Toutes les sources en scraping bridé]\nCOLLECT_JOB id=s1 requetes_emises=60 statut=THROTTLED\nCOLLECT_JOB id=s2 requetes_emises=90 statut=THROTTLED\nSUMMARY total_flux=2 total_requetes=150 flux_throttled=2\n\n[Cas 3 — Simulation d’une heure avec plusieurs webhooks]\nCOLLECT_JOB id=wh1 requetes_emises=0 statut=OPTIMAL\nCOLLECT_JOB id=wh2 requetes_emises=0 statut=OPTIMAL\nCOLLECT_JOB id=rss1 requetes_emises=2 statut=OPTIMAL\nSUMMARY total_flux=3 total_requetes=2 flux_throttled=0\n"
+    "solution": "[Question 1 — Requêtes par heure du groupe A]\n60\n\n[Question 2 — Requêtes par heure du groupe B]\n20\n\n[Question 3 — Requêtes sur le créneau du lundi 8 h-9 h]\n90\n\n[Question 4 — Respect du plafond de 100 requêtes/heure]\nOUI\n\n[Question 5 — Requêtes par heure reçues par une source du groupe A]\n2\n\n[Question 6 — Pic du lundi avec un relevé toutes les 15 minutes]\n150",
+    "takeaway": "1) Groupe A : 30 flux × 2 relevés par heure = 60 requêtes par heure.\n2) Groupe B : 20 flux × 1 = 20 requêtes par heure.\n3) Pic du lundi : 60 + 20 + 10 = 90 requêtes entre 8 h et 9 h.\n4) 90 ≤ 100 : le plafond est respecté, réponse OUI.\n5) Chaque source du groupe A est relevée 2 fois par heure (toutes les 30 minutes).\n6) Groupe A à 15 minutes : 30 × 4 = 120 requêtes par heure ; pic = 120 + 20 + 10 = 150.\nContrôle : à 15 minutes, 120 + 20 = 140 dépasse déjà le plafond avant même la salve hebdomadaire ; il faudrait décaler le groupe C ou espacer les relevés."
   }
 ];

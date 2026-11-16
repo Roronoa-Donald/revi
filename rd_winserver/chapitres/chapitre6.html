@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chapitre 6 — Snapshots, clones &amp; templates | Windows Server B2</title>
-<meta name="description" content="Chapitre 6 du cours Windows Server B2 : Snapshots, clones complet/lié, templates, vMotion, cluster HA et sauvegarde Veeam. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<title>Chapitre 6 — Windows Server Backup (wbadmin, VSS), FSRM, WSUS, Surveillance &amp;amp; Snapshots VM | Windows Server B2</title>
+<meta name="description" content="Chapitre 6 du cours Windows Server B2 : Windows Server Backup (wbadmin, Bare-Metal Recovery, clichés instantanés VSS), FSRM (quotas et filtrage de fichiers), WSUS, surveillance d’événements/performances, snapshots, clones, templates, vMotion et Veeam. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
 <link rel="canonical" href="https://revi-mu.vercel.app/rd_winserver/chapitres/chapitre6.html">
-<meta property="og:title" content="Chapitre 6 — Snapshots, clones &amp; templates | Windows Server B2">
-<meta property="og:description" content="Chapitre 6 du cours Windows Server B2 : Snapshots, clones complet/lié, templates, vMotion, cluster HA et sauvegarde Veeam. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
+<meta property="og:title" content="Chapitre 6 — Windows Server Backup (wbadmin, VSS), FSRM, WSUS, Surveillance &amp;amp; Snapshots VM | Windows Server B2">
+<meta property="og:description" content="Chapitre 6 du cours Windows Server B2 : Windows Server Backup (wbadmin, Bare-Metal Recovery, clichés instantanés VSS), FSRM (quotas et filtrage de fichiers), WSUS, surveillance d’événements/performances, snapshots, clones, templates, vMotion et Veeam. Théorie, exemples détaillés, exercices PowerShell exécutables, QCM corrigés.">
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -57,31 +55,63 @@
 
 <div class="chapmeta">
     <span class="tag tag--module">Module 6</span>
-    <span class="tag tag--time">≈ 2 h 30 de travail</span>
+    <span class="tag tag--time">≈ 2 h 45 de travail</span>
     <span class="tag tag--lock">Réservé B2 et plus</span>
   </div>
 
-<h1>Chapitre 6 — Snapshots, clones &amp; templates</h1>
+<h1>Chapitre 6 — Windows Server Backup (wbadmin, VSS), FSRM, WSUS, Surveillance &amp; Snapshots VM</h1>
 
 <div class="lead">  <div class="box box--situation">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-play"></use></svg> Mise en situation</div>
-    <p>Avant une mise à jour risquée, on prend un snapshot ; pour déployer dix serveurs identiques, on clone ou on part d’un template ; pour équilibrer la charge, on migre une VM à chaud. Ces gestes du quotidien de l’administrateur ont chacun leurs règles.</p>
+    <p>En production sous Windows Server B2, la continuité opérationnelle repose sur des outils natifs incontournables : sauvegarder l’état du système et le serveur nu avec Windows Server Backup (wbadmin) et les clichés instantanés VSS, maîtriser la volumétrie et bloquer les extensions dangereuses avec le Gestionnaire de ressources du serveur de fichiers (FSRM), orchestrer les correctifs via WSUS, corréler les événements et compteurs de performance, et encadrer les snapshots et migrations de VM.</p>
   </div></div>
 
   <div class="box box--objectifs">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-target"></use></svg> Objectifs pédagogiques</div>
     <p>À la fin de ce chapitre, vous serez capable de :</p>
     <ol>
-      <li>définir un snapshot et le distinguer d’une sauvegarde ;</li>
-      <li>comparer clone complet et clone lié ;</li>
-      <li>expliquer l’usage d’un template ;</li>
-      <li>situer vMotion, le cluster HA et la sauvegarde Veeam.</li>
+      <li>mettre en œuvre Windows Server Backup (wbadmin, System State, Bare-Metal Recovery et clichés instantanés VSS) ;</li>
+      <li>configurer le Gestionnaire de ressources du serveur de fichiers (FSRM : quotas stricts/souples et filtrage de fichiers actif/passif) ;</li>
+      <li>administrer le déploiement de correctifs avec WSUS et surveiller les événements (Event Viewer / Get-WinEvent) et performances (Performance Monitor) ;</li>
+      <li>définir un snapshot (checkpoint Hyper-V standard vs production) et le distinguer d’une sauvegarde ;</li>
+      <li>comparer clone complet et clone lié, expliquer l’usage d’un template et situer vMotion, le cluster HA et la sauvegarde Veeam.</li>
     </ol>
   </div>
 
 <section class="sec">
 
-<h2>1. Le snapshot</h2>
+<h2>1. Sauvegarde et restauration Windows Server Backup (wbadmin, Bare-Metal Recovery et clichés instantanés VSS)</h2>
+
+<p>La fonctionnalité native <strong>Windows Server Backup</strong> (installée via <code>Install-WindowsFeature Windows-Server-Backup</code>) s’appuie sur le service <strong>VSS (Volume Shadow Copy Service)</strong> pour réaliser des sauvegardes à chaud cohérentes sans interrompre Active Directory ni les bases de données :</p>
+<ul>
+  <li><strong>Architecture des clichés instantanés VSS :</strong> le <em>VSS Requestor</em> (<code>wbadmin</code> ou agent tiers) interroge les <em>VSS Writers</em> applicatifs (NTDS pour Active Directory, SQL Server, Hyper-V) afin de purger les tampons en mémoire et de geler brièvement les écritures pendant que le <em>VSS Provider</em> prend un cliché instantané (<em>Shadow Copy</em>) en lecture seule du volume. Sur les partages de fichiers, les clichés VSS permettent aussi aux utilisateurs de restaurer leurs <strong>Versions précédentes (Previous Versions)</strong> en autonomie.</li>
+  <li><strong>Sauvegarde System State (État du système) :</strong> <code>wbadmin start systemstatebackup -backupTarget:E: -quiet</code> sauvegarde la base Active Directory (<code>ntds.dit</code>), le dossier <code>SYSVOL</code>, le Registre, les fichiers système protégés et la base de certificats AD CS. En cas de suppression accidentelle d’une OU, on redémarre en mode <strong>DSRM (Directory Services Restore Mode)</strong> pour exécuter une restauration <em>non-autoritative</em> suivie d’un marquage <strong>autoritatif</strong> via <code>ntdsutil</code>.</li>
+  <li><strong>Bare-Metal Recovery (BMR — Restauration sur matériel vierge) :</strong> <code>wbadmin start backup -backupTarget:\\nas\backups -allCritical -systemState -vssFull -quiet</code> capture l’intégralité des volumes critiques, la partition EFI/boot et l’état système pour reconstruire le serveur à l’identique sur un nouveau serveur physique ou virtuel depuis l’environnement de récupération Windows RE.</li>
+</ul>
+  <div class="box box--tech">
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Commandes clés wbadmin et vssadmin en production</div>
+    <p>Lister les sauvegardes disponibles : <code>wbadmin get versions</code> ; consulter les éléments d’un jeu : <code>wbadmin get items -version:11/15/2026-02:00</code> ; inspecter les clichés instantanés VSS actifs : <code>vssadmin list shadows</code> et redimensionner l’espace réservé aux clichés : <code>vssadmin resize shadowstorage /for=D: /on=D: /maxsize=20%</code>.</p>
+  </div>
+
+</section>
+
+<section class="sec">
+
+<h2>2. Gestionnaire de ressources du serveur de fichiers (FSRM), WSUS et surveillance d’événements / performances</h2>
+
+<p>Le rôle <strong>FSRM (File Server Resource Manager — Gestionnaire de ressources du serveur de fichiers)</strong> protège les serveurs de fichiers SMB contre la saturation disque et les dépôts illicites ou malveillants :</p>
+<table><thead><tr><th>Brique d’administration</th><th>Mécanisme sous Windows Server</th><th>Commandes PowerShell &amp; bonnes pratiques</th></tr></thead><tbody>
+<tr><td><strong>Quotas FSRM</strong></td><td>Un quota <strong>strict (Hard Quota)</strong> bloque toute écriture dès la limite atteinte (ex. 10 Go par dossier de service) ; un quota <strong>souple (Soft Quota)</strong> laisse écrire mais déclenche des alertes e-mail, journaux d’événements ou scripts à 85 %, 95 % et 100 %.</td><td><code>New-FsrmQuotaTemplate</code>, <code>New-FsrmQuota -Path "D:\Partages\Compta" -Size 10GB</code></td></tr>
+<tr><td><strong>Filtrage de fichiers FSRM</strong> (<em>File Screening</em>)</td><td>Bloque des groupes d’extensions (exécutables <code>.exe/.ps1</code>, multimédias <code>.mp4/.iso</code>, ou extensions connues de rançongiciels). Le filtrage <strong>actif</strong> refuse l’écriture ; le filtrage <strong>passif</strong> autorise mais journalise pour audit.</td><td><code>New-FsrmFileGroup</code>, <code>New-FsrmFileScreen -Path "D:\Partages" -IncludeGroup @("Exécutables") -Active</code></td></tr>
+<tr><td><strong>WSUS</strong> (<em>Windows Server Update Services</em>)</td><td>Centralise le téléchargement des correctifs Microsoft, segmente les machines en <strong>groupes d’ordinateurs</strong> (<em>Anneau Pilote / Test</em> puis <em>Production</em>) pilotés par GPO et contrôle l’<strong>approbation</strong> (<em>Approve / Decline</em>) et les rapports de conformité.</td><td>GPO <code>Specify intranet Microsoft update service location</code>, <code>Get-WsusServer</code>, <code>Approve-WsusUpdate</code></td></tr>
+<tr><td><strong>Surveillance d’événements &amp; performances</strong></td><td>Corrélation des journaux dans l’<strong>observateur d’événements (Event Viewer)</strong> (IDs sécurité <code>4624</code> connexion, <code>4625</code> échec, <code>4720</code> création de compte, <code>4740</code> verrouillage, <code>1102</code> purge d’audit) et suivi des compteurs <strong>Performance Monitor (PerfMon)</strong> (CPU, <code>Available MBytes</code>, latence disque <code>Avg. Disk sec/Read</code> &lt; 15 ms).</td><td><code>Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625}</code>, <code>Get-Counter</code>, abonnements WEF.</td></tr>
+</tbody></table>
+
+</section>
+
+<section class="sec">
+
+<h2>3. Le snapshot</h2>
 
 <p>Un <strong>snapshot</strong> (instantané) permet un retour à un état antérieur de la VM, mais son contenu dépend du produit et du type choisi. Dans Hyper-V, un checkpoint <strong>standard</strong> capture aussi la mémoire ; un checkpoint de <strong>production</strong> est créé sans capture de la mémoire, avec VSS ou le gel du système de fichiers invité.</p>
 <p>Source : <a href="https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/checkpoints">documentation Microsoft des checkpoints Hyper-V</a>, consultée le 30 octobre 2026.</p>
@@ -100,7 +130,7 @@
 
 <section class="sec">
 
-<h2>2. Clones complet et lié</h2>
+<h2>4. Clones complet et lié</h2>
 
 <p>Un <strong>clone</strong> est une copie d’une VM existante. Deux variantes :</p>
 <ul>
@@ -117,7 +147,7 @@
 
 <section class="sec">
 
-<h2>3. Templates et vMotion</h2>
+<h2>5. Templates et vMotion</h2>
 
 <p>Un <strong>template</strong> est une VM préconfigurée et souvent figée en lecture seule : système installé, outils de base, paramètres réseau et sécurité prédéfinis. Il sert de <strong>modèle</strong> pour créer de nouvelles VM, ce qui standardise les déploiements, fait gagner du temps et garantit la cohérence.</p>
 <p><strong>vMotion</strong> migre une VM <strong>en cours d’exécution</strong> d’un hôte physique vers un autre en cherchant à limiter l’interruption. Une courte <strong>pause</strong> de bascule subsiste et peut perturber certaines applications sensibles ; le résultat dépend de la charge, du réseau et de la configuration.</p>
@@ -130,7 +160,7 @@
 
 <section class="sec">
 
-<h2>4. Cluster HA et sauvegarde Veeam</h2>
+<h2>6. Cluster HA et sauvegarde Veeam</h2>
 
 <p>La fonctionnalité essentielle pour la haute disponibilité des VM est le <strong>cluster de virtualisation</strong>. Avec un <strong>cluster HA</strong>, les VM redémarrent automatiquement sur un autre hôte disponible en cas de panne, ce qui minimise l’impact des défaillances matérielles.</p>
 <p><strong>Veeam</strong> est un outil de <strong>sauvegarde automatique</strong> des VM. Il configure des sauvegardes quotidiennes et permet de restaurer rapidement une VM supprimée par erreur.</p>
@@ -146,13 +176,12 @@
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
+  <h2>7. Exercices de code</h2>
   <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
   et la validation fait tourner des jeux de tests indépendants :
   réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
   <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
   s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
-  <p>La validation est suspendue pour les exercices signalés ci-dessous.</p>
 <div class="lab" id="ws2-c6-e1" data-lab
      data-exercise="ws2-c6-e1"
      data-language="powershell"
@@ -172,17 +201,18 @@
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décider si un instantané doit être purgé selon son ancienneté.</p>
-    <div class="lab__brief"><p>Le script lit l’<strong>âge</strong> d’un snapshot en jours. Un snapshot ne doit pas rester longtemps en production : au-delà de 7 jours, affichez <code>snapshot : a purger</code> ; sinon <code>snapshot : conserve</code>.</p></div>
+    <div class="lab__brief"><p>En audit d’instantanés Hyper-V (<code>Get-VMSnapshot</code>) ou vSphere, le script lit l’<strong>âge</strong> d’un snapshot en jours. Un snapshot ne doit pas rester longtemps en production : au-delà de 7 jours, affichez <code>snapshot : a purger</code> ; sinon <code>snapshot : conserve</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3</pre></div>
       <div class="lab__sample-part"><b>Sortie attendue</b><pre>snapshot : conserve</pre></div>
     </div>
     <p class="lab__note">Trois jours : encore récent.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Comparez avec -gt : ($age -gt 7).</li>
         <li>Un snapshot récent (&lt;= 7 jours) reste tolérable en production.</li>
+        <li>Étapes : lire l’âge ; au-delà de 7 → « a purger » ; 7 ou moins → « conserve ».</li>
       </ol>
     </details>
   </div>
@@ -190,7 +220,6 @@
 
 <div class="lab" id="ws2-c6-e2" data-lab
      data-exercise="ws2-c6-e2"
-     data-grading-suspended="1"
      data-language="powershell"
      data-height="300"
      data-stdin="lie&#10;non">
@@ -204,13 +233,11 @@ $sourceSupprimee = [Console]::In.ReadLine()
     <h3 class="lab__title">Exercice 2 — Clone complet ou lié</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> PowerShell</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n1">Niveau 1 — Acquisition</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Déterminer si un clone survit à la suppression de sa VM source.</p>
-    <p class="lab__note" id="ws2-c6-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit le <strong>type</strong> du clone (<code>complet</code> ou <code>lie</code>), puis si la VM <strong>source</strong> a été supprimée (<code>oui</code> ou <code>non</code>). Un clone complet reste autonome ; un clone lié dépend de la source. Affichez <code>clone : fonctionne</code> ou <code>clone : hors service</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>lie
@@ -219,10 +246,11 @@ non</pre></div>
     </div>
     <p class="lab__note">Clone lié, source toujours présente.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Un clone complet fonctionne toujours, même source supprimée.</li>
         <li>Un clone lié ne fonctionne plus si la source est supprimée.</li>
+        <li>Étapes : lire le type puis la réponse ; clone complet → fonctionne ; sinon, source supprimée → hors service ; sinon il fonctionne.</li>
       </ol>
     </details>
   </div>
@@ -262,17 +290,18 @@ sauvegarde : planifiee</pre></div>
     </div>
     <p class="lab__note">700 Go sur une cible de 1000 Go.</p>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Lisez chaque taille avec [int][Console]::In.ReadLine().</li>
         <li>La sauvegarde tient si <code>($total -le $capacite)</code>.</li>
+        <li>Étapes : lire capacité, n et les tailles ; totaliser ; afficher « total : » ; si total ≤ capacité, « sauvegarde : planifiee », sinon « capacite insuffisante ».</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>8. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -287,18 +316,18 @@ sauvegarde : planifiee</pre></div>
     <div class="q">
       <p class="q__stem">Durée de conservation d’un snapshot ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Temporaire</button>
-        <button class="opt">Long terme</button>
         <button class="opt">Permanente</button>
+        <button class="opt">Long terme</button>
+        <button class="opt" data-correct="1">Temporaire</button>
       </div>
       <div class="q__exp">Il ne doit pas rester longtemps en production.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait un clone complet ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Copie indépendante de la VM</button>
-        <button class="opt">Partage les disques</button>
         <button class="opt">Supprime la source</button>
+        <button class="opt">Partage les disques</button>
+        <button class="opt" data-correct="1">Copie indépendante de la VM</button>
       </div>
       <div class="q__exp">Il fonctionne même si la source est supprimée.</div>
     </div>
@@ -314,38 +343,56 @@ sauvegarde : planifiee</pre></div>
     <div class="q">
       <p class="q__stem">À quoi sert un template ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Standardiser les déploiements</button>
         <button class="opt">Sauvegarder les données</button>
+        <button class="opt" data-correct="1">Standardiser les déploiements</button>
         <button class="opt">Migrer à chaud</button>
       </div>
-      <div class="q__exp">C’est un modèle de VM préconfigurée.</div>
+      <div class="q__exp">Un template est un modèle de VM préconfigurée : il standardise les déploiements et garantit des machines identiques. Il ne sauvegarde rien et ne migre rien à chaud.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait vMotion ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Migrer une VM à chaud avec une pause de bascule</button>
-        <button class="opt">Éteindre un hôte</button>
-        <button class="opt">Cloner un template</button>
+        <button class="opt">Éteindre un hôte pour vider sa mémoire</button>
+        <button class="opt">Cloner un template vers un nouvel hôte</button>
       </div>
-      <div class="q__exp">La VM change d’hôte en limitant l’interruption, sans garantir son absence.</div>
+      <div class="q__exp">vMotion déplace la VM vers un autre hôte en limitant l’interruption — une courte pause de bascule, sans extinction d’hôte ni clonage.</div>
     </div>
     <div class="q">
       <p class="q__stem">En cas de panne, que fait un cluster HA ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Redémarre les VM sur un autre hôte</button>
-        <button class="opt">Efface les snapshots</button>
         <button class="opt">Réinstalle ESXi</button>
+        <button class="opt">Efface les snapshots</button>
+        <button class="opt" data-correct="1">Redémarre les VM sur un autre hôte</button>
       </div>
       <div class="q__exp">Les VM redémarrent automatiquement ailleurs.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que permet Veeam ?</p>
       <div class="opts">
+        <button class="opt">Compiler du code sur les machines virtuelles</button>
         <button class="opt" data-correct="1">Sauvegarde automatique et restauration rapide</button>
-        <button class="opt">Compiler du code</button>
-        <button class="opt">Créer des réseaux</button>
+        <button class="opt">Créer des réseaux virtuels entre machines</button>
       </div>
-      <div class="q__exp">Il sauvegarde les VM et restaure rapidement.</div>
+      <div class="q__exp">Veeam sauvegarde automatiquement les VM et restaure rapidement — restauration instantanée incluse. Il ne compile aucun code et ne crée aucun réseau.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Quel service Windows Server coordonne les Writers applicatifs (AD DS, SQL) pour capturer une sauvegarde wbadmin cohérente à chaud ?</p>
+      <div class="opts">
+        <button class="opt" data-correct="1">VSS (Volume Shadow Copy Service)</button>
+        <button class="opt">DHCP Relay Agent</button>
+        <button class="opt">Routing and Remote Access</button>
+      </div>
+      <div class="q__exp">Le service VSS (Volume Shadow Copy Service) orchestre les Writers applicatifs pour geler proprement les écritures et créer un cliché instantané cohérent.</div>
+    </div>
+    <div class="q">
+      <p class="q__stem">Dans FSRM, quelle est la différence entre un quota strict (Hard) et un quota souple (Soft) ?</p>
+      <div class="opts">
+        <button class="opt">Aucune différence fonctionnelle</button>
+        <button class="opt" data-correct="1">Le quota strict bloque l’écriture au seuil ; le quota souple autorise le dépassement et alerte</button>
+        <button class="opt">Le quota souple supprime automatiquement les fichiers anciens</button>
+      </div>
+      <div class="q__exp">Dans FSRM, un quota strict (Hard Quota) empêche immédiatement d’écrire au-delà de la limite, tandis qu’un quota souple (Soft Quota) laisse l’écriture aboutir mais génère des alertes et événements.</div>
     </div>
   </div>
 
@@ -353,16 +400,16 @@ sauvegarde : planifiee</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>9. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
     <ul>
+      <li>Oublier d’inclure l’état du système (System State) et l’option Bare-Metal Recovery dans la sauvegarde wbadmin des contrôleurs de domaine.</li>
+      <li>Appliquer un filtrage de fichiers FSRM actif en production sans l’avoir d’abord validé en mode passif (audit).</li>
       <li>Confondre snapshot et sauvegarde : le snapshot ne protège pas d’une perte du stockage.</li>
       <li>Conserver des snapshots pendant des semaines en production.</li>
       <li>Supprimer la VM source d’un clone lié, qui cesse alors de fonctionner.</li>
-      <li>Se servir d’un template obsolète, sans les mises à jour de sécurité.</li>
-      <li>Compter sur un cluster HA sans surveiller les hôtes.</li>
     </ul>
   </div>
 
@@ -370,16 +417,16 @@ sauvegarde : planifiee</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>10. Méthodologie de résolution</h2>
 
   <div class="box box--method">
-    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protéger et déployer des VM</div>
+    <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Sauvegarder, gouverner les ressources (FSRM / WSUS) et protéger les VM</div>
     <ol>
-      <li><strong>Prendre</strong> un snapshot avant tout changement critique, puis le purger.</li>
-      <li><strong>Distinguer</strong> snapshot (court terme) et sauvegarde (long terme).</li>
-      <li><strong>Cloner</strong> ou déployer depuis un template selon le besoin.</li>
-      <li><strong>Migrer</strong> à chaud avec vMotion pour équilibrer la charge.</li>
-      <li><strong>Protéger</strong> par le cluster HA et la sauvegarde automatique Veeam.</li>
+      <li><strong>Sauvegarder</strong> l’état du système et le serveur nu avec Windows Server Backup (<code>wbadmin</code>) et les clichés instantanés VSS.</li>
+      <li><strong>Encadrer</strong> les partages SMB via FSRM (quotas stricts/souples et filtrage d’extensions actif/passif) et piloter les correctifs par anneaux dans WSUS.</li>
+      <li><strong>Surveiller</strong> proactivement les journaux Event Viewer (<code>Get-WinEvent</code>) et les compteurs Performance Monitor (<code>Get-Counter</code>).</li>
+      <li><strong>Prendre</strong> un snapshot court terme avant tout changement critique, puis le purger après validation.</li>
+      <li><strong>Protéger</strong> durablement les machines virtuelles par les templates, le cluster HA et la sauvegarde Veeam.</li>
     </ol>
   </div>
 
@@ -387,27 +434,27 @@ sauvegarde : planifiee</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>11. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
     <ul>
+      <li>Windows Server Backup (wbadmin) : sauvegarde System State, Bare-Metal Recovery (BMR) et clichés instantanés VSS cohérents à chaud.</li>
+      <li>FSRM : quotas stricts (Hard) ou souples (Soft) et filtrage de fichiers (File Screening) actif ou passif sur les partages SMB.</li>
+      <li>WSUS et surveillance : groupes d’ordinateurs et approbation de correctifs ; Event Viewer (4624, 4625, 4740) et Performance Monitor.</li>
       <li>Checkpoint Hyper-V : standard avec mémoire ; production sans mémoire ; aucun ne remplace une sauvegarde.</li>
-      <li>Clone complet : indépendant ; clone lié : dépendant de la source.</li>
-      <li>Template : VM préconfigurée qui standardise les déploiements.</li>
-      <li>vMotion : migration à chaud avec une courte pause de bascule et un impact possible.</li>
-      <li>Cluster HA et Veeam : redémarrage automatique et sauvegarde des VM.</li>
+      <li>Clone complet vs lié, Template, vMotion (migration à chaud avec courte pause), Cluster HA et Veeam.</li>
     </ul>
     <h3>Checklist de maîtrise</h3>
     <ul class="check">
-      <li>Je distingue snapshot et sauvegarde.</li>
-      <li>Je compare clone complet et clone lié.</li>
-      <li>J’explique l’intérêt d’un template.</li>
-      <li>Je situe vMotion, cluster HA et Veeam.</li>
+      <li>Je sais sauvegarder et restaurer un serveur avec Windows Server Backup (wbadmin, BMR, System State et VSS).</li>
+      <li>Je configure des quotas et un filtrage de fichiers dans FSRM ainsi que les groupes d’approbation WSUS.</li>
+      <li>J’exploite Event Viewer (Get-WinEvent) et Performance Monitor pour diagnostiquer un serveur.</li>
+      <li>Je distingue snapshot et sauvegarde et je situe clone complet/lié, template, vMotion, cluster HA et Veeam.</li>
     </ul>
-    <h3>Les 11 notions à connaître absolument</h3>
+    <h3>Les 27 notions à connaître absolument</h3>
     <ol>
-      <li>snapshot</li><li>instantané</li><li>clone complet</li><li>clone lié</li><li>linked clone</li><li>template</li><li>vMotion</li><li>cluster HA</li><li>Veeam</li><li>restauration</li><li>bonnes pratiques</li>
+      <li>Windows Server Backup</li><li>wbadmin</li><li>Bare-Metal Recovery</li><li>BMR</li><li>System State</li><li>VSS</li><li>Volume Shadow Copy Service</li><li>FSRM</li><li>quotas</li><li>filtrage de fichiers</li><li>File Screening</li><li>WSUS</li><li>Event Viewer</li><li>Get-WinEvent</li><li>Performance Monitor</li><li>PerfMon</li><li>snapshot</li><li>instantané</li><li>clone complet</li><li>clone lié</li><li>linked clone</li><li>template</li><li>vMotion</li><li>cluster HA</li><li>Veeam</li><li>restauration</li><li>bonnes pratiques</li>
     </ol>
     <p><a class="btn" href="cartes.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-cards"></use></svg> Réviser avec les flashcards</a>
        <a class="btn" href="formules.html"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-file"></use></svg> Mémo syntaxe</a></p>
@@ -417,15 +464,15 @@ sauvegarde : planifiee</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>12. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
     <p>Le QCM ci-dessus est un test de maîtrise. Lisez votre pourcentage :</p>
     <div class="bands">
-      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez la différence snapshot / sauvegarde.</div>
-      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur les clones complet / lié.</div>
-      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous protégez et déployez des VM correctement.</div>
+      <div class="bandrow bandrow--low"><strong>&lt; 50 % — </strong>Reprenez le rôle de VSS/wbadmin, les quotas FSRM et la différence snapshot / sauvegarde.</div>
+      <div class="bandrow bandrow--mid"><strong>50–69 % — </strong>Entraînez-vous sur FSRM, WSUS et les clones complet / lié.</div>
+      <div class="bandrow bandrow--good"><strong>70–94 % — </strong>Solide : vous administrez wbadmin, FSRM, WSUS et la protection des VM.</div>
       <div class="bandrow bandrow--top"><strong>≥ 95 % — </strong>Maîtrise : le cours est bouclé, place aux examens blancs.</div>
     </div>
     <p style="margin-top:12px"><label class="checkbox"><input type="checkbox" data-mark-done> <span>Je considère ce chapitre maîtrisé (≥ 95 % au test de maîtrise).</span></label></p>
@@ -466,7 +513,7 @@ sauvegarde : planifiee</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

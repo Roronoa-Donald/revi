@@ -26,43 +26,45 @@ module.exports = [
     level: 'n1',
     language: 'c',
     title: 'Premier affichage personnalisé',
-    goal: 'Lire un mot sur l’entrée standard et l’insérer dans une phrase affichée par printf.',
-    brief: '<p>Le programme reçoit un prénom (un seul mot) sur l’entrée standard. Affichez la phrase <code>Bonjour, &lt;prénom&gt; !</code>.</p><p>L’exemple affiché doit vraiment venir de la lecture : une phrase écrite en dur ne passera pas les tests cachés.</p>',
+    goal: 'Lire un caractère scalaire sur l’entrée standard et l’insérer dans une phrase affichée par printf.',
+    brief: '<p>Le programme reçoit l’initiale d’un prénom (un seul caractère, type <code>char</code>) sur l’entrée standard. Affichez la phrase <code>Bonjour, &lt;initiale&gt; !</code>.</p><p>L’exemple affiché doit vraiment venir de la lecture avec <code>&amp;initiale</code> : une phrase écrite en dur ne passera pas les tests cachés.</p>',
     starter: `#include <stdio.h>
 
 int main(void) {
-    char nom[64];
-    scanf("%63s", nom);
+    char initiale;
+    scanf(" %c", &initiale);
 
-    /* À compléter : afficher « Bonjour, <nom> ! ». */
+    /* À compléter : afficher « Bonjour, <initiale> ! ». */
 
     return 0;
 }
 `,
     hints: [
-      'Quelle fonction du cours permet d’afficher un texte et d’y insérer une valeur ?',
-      'Quel spécificateur de printf permet d’insérer le mot lu dans la phrase ?'
+      "Quelle fonction du cours permet d’afficher un texte et d’y insérer un caractère scalaire ?",
+      "Quel spécificateur de printf correspond au type char lu avec « %c » ?",
+      "Construire une seule phrase où l’initiale lue remplace le spécificateur caractère, terminée par un point d’exclamation et un saut de ligne."
     ],
     examples: [
-      { stdin: 'Monde', expected: 'Bonjour, Monde !', note: 'Le prénom lu est inséré dans la phrase.' }
+      { stdin: 'M', expected: 'Bonjour, M !', note: 'L’initiale lue est insérée dans la phrase.' }
     ],
     tests: [
-      { label: 'Prénom court', stdin: 'Ali', expected: 'Bonjour, Ali !' },
-      { label: 'Autre prénom', stdin: 'Sara', expected: 'Bonjour, Sara !' },
-      { label: 'Prénom composé d’une majuscule', stdin: 'Z', expected: 'Bonjour, Z !' },
+      { label: 'Initiale A', stdin: 'A', expected: 'Bonjour, A !' },
+      { label: 'Initiale S', stdin: 'S', expected: 'Bonjour, S !' },
+      { label: 'Initiale Z', stdin: 'Z', expected: 'Bonjour, Z !' },
       { label: 'Entrée vide EOF', stdin: '', expected: '' }
     ],
     solution: `#include <stdio.h>
 
 int main(void) {
-    char nom[64];
-    if (scanf("%63s", nom) != 1) {
+    char initiale;
+    if (scanf(" %c", &initiale) != 1) {
         return 0;
     }
-    printf("Bonjour, %s !\\n", nom);
+    printf("Bonjour, %c !\\n", initiale);
     return 0;
 }
-`
+`,
+    takeaway: 'En C, le format %c lit un caractère unique dans un char scalaire passé par son adresse (&initiale) à scanf.'
   },
   {
     id: 'c-c1-e2',
@@ -84,8 +86,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Quelles étapes séparent la lecture des données de l’affichage du résultat ?',
-      'Le format d’affichage d’un entier est « %d » dans les deux cas — lecture comme écriture.'
+      "Quelles étapes séparent la lecture des données de l’affichage du résultat ?",
+      "Le format d’affichage d’un entier est « %d » dans les deux cas — lecture comme écriture.",
+      "Étapes : lire les deux entiers ; calculer leur somme ; afficher « Somme : » suivi du résultat au format entier."
     ],
     examples: [
       { stdin: '3 4', expected: 'Somme : 7', note: '3 + 4 = 7.' }
@@ -103,50 +106,53 @@ int main(void) {
     printf("Somme : %d\\n", a + b);
     return 0;
 }
-`
+`,
+    takeaway: "En C, scanf(\"%d\", &var) exige l adresse mémoire & et printf(\"%d\\n\", ...) termine la ligne sur stdout."
   },
   {
     id: 'c-c1-e3',
     chapter: 1,
     level: 'n2',
     language: 'c',
-    title: 'Deux valeurs dans une phrase',
-    goal: 'Lire une chaîne et un entier, puis les placer dans un même affichage.',
-    brief: '<p>Le programme reçoit un nom (un mot) puis un âge, séparés par un espace. Affichez <code>Nom : &lt;nom&gt;, age : &lt;age&gt;</code>.</p>',
+    title: 'Deux valeurs scalaires dans une phrase',
+    goal: 'Lire un entier et un décimal, puis les afficher avec leurs formats respectifs.',
+    brief: '<p>Le programme reçoit une quantité entière puis un prix unitaire décimal (<code>double</code>), séparés par un espace. Affichez <code>Articles : &lt;quantite&gt;, prix : &lt;prix&gt;</code> avec exactement deux décimales.</p>',
     starter: `#include <stdio.h>
 
 int main(void) {
-    char nom[64];
-    int age;
-    scanf("%63s %d", nom, &age);
+    int quantite;
+    double prix;
+    scanf("%d %lf", &quantite, &prix);
 
-    /* À compléter : afficher le nom et l'âge. */
+    /* À compléter : afficher la quantité et le prix avec 2 décimales. */
 
     return 0;
 }
 `,
     hints: [
-      'Dans quel ordre les valeurs doivent-elles correspondre aux éléments du format d’affichage ?',
-      'Deux trous de types différents cohabitent dans une même phrase : « %s » pour le nom, « %d » pour l’âge.'
+      "Dans quel ordre les valeurs doivent-elles correspondre aux éléments du format d’affichage ?",
+      "Associez « %d » à l’entier int et « %.2f » au décimal double dans le même printf.",
+      "Lire l’entier et le décimal via scanf(\"%d %lf\", &quantite, &prix) puis afficher « Articles : %d, prix : %.2f »."
     ],
     examples: [
-      { stdin: 'Monde 30', expected: 'Nom : Monde, age : 30', note: 'Le nom et l’âge lus sont affichés.' }
+      { stdin: '3 12.5', expected: 'Articles : 3, prix : 12.50', note: 'L’entier et le décimal formaté à 2 décimales sont affichés.' }
     ],
     tests: [
-      { label: 'Jeune utilisateur', stdin: 'Ali 20', expected: 'Nom : Ali, age : 20' },
-      { label: 'Âge élevé', stdin: 'Sara 45', expected: 'Nom : Sara, age : 45' },
-      { label: 'Âge nul', stdin: 'Paul 0', expected: 'Nom : Paul, age : 0' }
+      { label: 'Article unique', stdin: '1 9.9', expected: 'Articles : 1, prix : 9.90' },
+      { label: 'Quantité nulle', stdin: '0 4.5', expected: 'Articles : 0, prix : 4.50' },
+      { label: 'Lot entier', stdin: '12 20', expected: 'Articles : 12, prix : 20.00' }
     ],
     solution: `#include <stdio.h>
 
 int main(void) {
-    char nom[64];
-    int age;
-    scanf("%63s %d", nom, &age);
-    printf("Nom : %s, age : %d\\n", nom, age);
+    int quantite;
+    double prix;
+    scanf("%d %lf", &quantite, &prix);
+    printf("Articles : %d, prix : %.2f\\n", quantite, prix);
     return 0;
 }
-`
+`,
+    takeaway: 'Avec scanf, un double requiert %lf (long float) tandis que printf utilise %.2f pour formater un double à deux décimales.'
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -172,8 +178,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Une division entre deux entiers donne un résultat entier : pour conserver les décimales, les opérandes doivent être des nombres décimaux.',
-      'Le format décimal de lecture d’un double est « %lf » ; à l’affichage, on peut fixer le nombre de décimales entre le « % » et le « f ».'
+      "Une division entre deux entiers donne un résultat entier : pour conserver les décimales, les opérandes doivent être des nombres décimaux.",
+      "Le format décimal de lecture d’un double est « %lf » ; à l’affichage, on peut fixer le nombre de décimales entre le « % » et le « f ».",
+      "Étapes : lire le réel en Celsius ; appliquer F = C × 9/5 + 32 en veillant à une division décimale ; afficher avec exactement deux décimales."
     ],
     examples: [
       { stdin: '25', expected: 'F = 77.00', note: '25 °C correspondent à 77 °F.' }
@@ -191,7 +198,8 @@ int main(void) {
     printf("F = %.2f\\n", celsius * 9.0 / 5.0 + 32.0);
     return 0;
 }
-`
+`,
+    takeaway: "Un littéral comme 9.0 / 5.0 garantit une division flottante en C, formatée ensuite par %.2f ou %.1f."
   },
   {
     id: 'c-c2-e2',
@@ -213,8 +221,9 @@ int main(void) {
 }
 `,
     hints: [
-      'L’aire est le produit des deux dimensions ; le périmètre additionne deux fois chaque côté.',
-      'Chaque information demandée occupe sa propre ligne : deux appels d’affichage, chacun terminé par un passage à la ligne.'
+      "L’aire est le produit des deux dimensions ; le périmètre additionne deux fois chaque côté.",
+      "Chaque information demandée occupe sa propre ligne : deux appels d’affichage, chacun terminé par un passage à la ligne.",
+      "Étapes : lire les deux dimensions ; aire = largeur × hauteur ; périmètre = 2 × (largeur + hauteur) ; deux affichages, chacun sur sa ligne."
     ],
     examples: [
       { stdin: '2 7', expected: 'Aire : 14\nPerimetre : 18', note: 'Aire 2×7 = 14 ; périmètre 2×(2+7) = 18.' }
@@ -233,7 +242,8 @@ int main(void) {
     printf("Perimetre : %d\\n", 2 * (largeur + hauteur));
     return 0;
 }
-`
+`,
+    takeaway: "Séparez clairement le calcul de chaque grandeur avant d imprimer chaque résultat sur sa ligne attendue."
   },
   {
     id: 'c-c2-e3',
@@ -255,8 +265,9 @@ int main(void) {
 }
 `,
     hints: [
-      'La somme de trois entiers est un entier : c’est la division qui doit se faire en décimal, sans quoi la partie fractionnaire disparaît.',
-      'Pour un résultat décimal, l’un des deux nombres divisés doit être un nombre à virgule.'
+      "La somme de trois entiers est un entier : c’est la division qui doit se faire en décimal, sans quoi la partie fractionnaire disparaît.",
+      "Pour un résultat décimal, l’un des deux nombres divisés doit être un nombre à virgule.",
+      "Étapes : additionner les trois notes ; diviser la somme par trois en décimal (diviseur à virgule) ; afficher le résultat borné à deux décimales."
     ],
     examples: [
       { stdin: '12 15 9', expected: 'Moyenne : 12.00', note: '12 + 15 + 9 = 36 ; 36 / 3 = 12.00.' }
@@ -274,7 +285,8 @@ int main(void) {
     printf("Moyenne : %.2f\\n", (a + b + c) / 3.0);
     return 0;
 }
-`
+`,
+    takeaway: "Diviser deux int en C tronque la partie décimale : passez un opérande en double (ou divisez par 3.0)."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -300,8 +312,9 @@ int main(void) {
 }
 `,
     hints: [
-      'On peut garder un « candidat » et le remplacer chaque fois qu’une autre valeur le dépasse : deux comparaisons suffisent pour trois nombres.',
-      'Attention aux valeurs négatives : initialiser le candidat au premier nombre évite de le fixer à zéro par erreur.'
+      "On peut garder un « candidat » et le remplacer chaque fois qu’une autre valeur le dépasse : deux comparaisons suffisent pour trois nombres.",
+      "Attention aux valeurs négatives : initialiser le candidat au premier nombre évite de le fixer à zéro par erreur.",
+      "Étapes : candidat = premier entier ; si le deuxième le dépasse, le mémoriser ; si le troisième dépasse le candidat, le mémoriser ; afficher."
     ],
     examples: [
       { stdin: '4 8 2', expected: 'Max : 8', note: '8 est le plus grand.' }
@@ -327,7 +340,8 @@ int main(void) {
     printf("Max : %d\\n", maximum);
     return 0;
 }
-`
+`,
+    takeaway: "Initialiser max avec le premier nombre puis comparer séquentiellement reste plus simple et sûr que d imbriquer des if."
   },
   {
     id: 'c-c3-e2',
@@ -349,8 +363,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Un compteur qui va de 1 à 10 inclus se pilote par une boucle : veillez à ce que la borne de fin soit bien atteinte.',
-      'Chaque tour de boucle affiche sa ligne et se termine par un passage à la ligne ; le produit se calcule à l’intérieur du tour.'
+      "Un compteur qui va de 1 à 10 inclus se pilote par une boucle : veillez à ce que la borne de fin soit bien atteinte.",
+      "Chaque tour de boucle affiche sa ligne et se termine par un passage à la ligne ; le produit se calcule à l’intérieur du tour.",
+      "Étapes : pour chaque rang de 1 à 10 inclus, afficher « n x rang = produit » ; le produit se calcule à chaque tour et la ligne se termine par un saut."
     ],
     examples: [
       { stdin: '3', expected: '3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n3 x 4 = 12\n3 x 5 = 15\n3 x 6 = 18\n3 x 7 = 21\n3 x 8 = 24\n3 x 9 = 27\n3 x 10 = 30', note: 'Dix lignes, de 1 à 10.' }
@@ -371,7 +386,8 @@ int main(void) {
     }
     return 0;
 }
-`
+`,
+    takeaway: "Une boucle for (int i = 1; i <= n; i++) contrôle précisément la borne inclusive et évite les décalages d indice."
   },
   {
     id: 'c-c3-e3',
@@ -393,8 +409,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Un accumulateur se déclare et s’initialise avant la boucle, puis grandit à chaque tour.',
-      'La borne de fin d’une boucle compteur est incluse si la condition utilise « <= » : pour aller jusqu’à n, c’est cette forme qu’il faut.'
+      "Un accumulateur se déclare et s’initialise avant la boucle, puis grandit à chaque tour.",
+      "La borne de fin d’une boucle compteur est incluse si la condition utilise « <= » : pour aller jusqu’à n, c’est cette forme qu’il faut.",
+      "Étapes : somme à zéro avant la boucle ; pour chaque entier de 1 à n inclus, l’additionner à la somme ; afficher « Somme : » et le total."
     ],
     examples: [
       { stdin: '10', expected: 'Somme : 55', note: '1 + 2 + … + 10 = 55.' }
@@ -417,7 +434,8 @@ int main(void) {
     printf("Somme : %d\\n", somme);
     return 0;
 }
-`
+`,
+    takeaway: "Initialisez l accumulateur à 0 avant la boucle for et vérifiez l usage de long si la somme grandit vite."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -447,8 +465,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Comptez à partir de zéro : un tableau de n cases est indexé de 0 à n − 1.',
-      'Le maximum ne se devine pas : partez du premier élément et remplacez le candidat dès qu’un élément le dépasse.'
+      "Comptez à partir de zéro : un tableau de n cases est indexé de 0 à n − 1.",
+      "Le maximum ne se devine pas : partez du premier élément et remplacez le candidat dès qu’un élément le dépasse.",
+      "Étapes : somme à zéro, maximum au premier élément ; pour chaque case de 0 à n − 1, additionner sa valeur et remplacer le maximum si elle le dépasse."
     ],
     examples: [
       { stdin: '5\n12 15 14 9 18', expected: 'Somme : 68\nMax : 18', note: 'Somme 68 ; maximum 18.' }
@@ -481,7 +500,8 @@ int main(void) {
     printf("Max : %d\\n", maximum);
     return 0;
 }
-`
+`,
+    takeaway: "Un unique parcours d un tableau t[0..n-1] suffit à calculer simultanément la somme et le maximum à condition d initialiser max = t[0]."
   },
   {
     id: 'c-c4-e2',
@@ -503,8 +523,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Une chaîne se termine par un caractère de fin : c’est lui qui indique au parcours quand s’arrêter, pas la taille du tableau.',
-      'Pour ignorer la casse, ramenez chaque caractère en minuscule avant de le comparer à la liste des voyelles.'
+      "Une chaîne se termine par un caractère de fin : c’est lui qui indique au parcours quand s’arrêter, pas la taille du tableau.",
+      "Pour ignorer la casse, ramenez chaque caractère en minuscule avant de le comparer à la liste des voyelles.",
+      "Étapes : compteur à zéro ; parcourir la chaîne jusqu’au caractère de fin ; ramener chaque caractère en minuscule ; s’il est une voyelle, incrémenter."
     ],
     examples: [
       { stdin: 'python', expected: 'Voyelles : 2', note: 'y et o sont des voyelles.' }
@@ -534,7 +555,8 @@ int main(void) {
     printf("Voyelles : %d\\n", compte);
     return 0;
 }
-`
+`,
+    takeaway: "Une chaîne C se termine par le caractère nul \\0 : parcourez jusqu à s[i] != '\\0' en testant chaque caractère."
   },
   {
     id: 'c-c4-e3',
@@ -560,8 +582,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Le parcours à l’envers commence au dernier indice valide — n − 1 — et décroît jusqu’à zéro inclus.',
-      'Pour éviter une espace parasite après la dernière valeur, ne placez le séparateur qu’entre deux valeurs.'
+      "Le parcours à l’envers commence au dernier indice valide — n − 1 — et décroît jusqu’à zéro inclus.",
+      "Pour éviter une espace parasite après la dernière valeur, ne placez le séparateur qu’entre deux valeurs.",
+      "Étapes : partir de l’indice n − 1 et descendre jusqu’à zéro ; afficher la valeur de la case ; ajouter une espace seulement si une valeur suit encore."
     ],
     examples: [
       { stdin: '5\n10 20 30 40 50', expected: '50 40 30 20 10', note: 'L’ordre est inversé.' }
@@ -590,7 +613,8 @@ int main(void) {
     printf("\\n");
     return 0;
 }
-`
+`,
+    takeaway: "Pour inverser l affichage sans espace final en trop, traitez le premier ou dernier élément hors séparateur."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -619,8 +643,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Une fonction déclarée pour renvoyer un entier doit se terminer par l’instruction qui transmet cette valeur à l’appelant.',
-      'Le mot-clé de retour est suivi de l’expression à renvoyer, et non d’un affichage.'
+      "Une fonction déclarée pour renvoyer un entier doit se terminer par l’instruction qui transmet cette valeur à l’appelant.",
+      "Le mot-clé de retour est suivi de l’expression à renvoyer, et non d’un affichage.",
+      "Étapes : dans la fonction, renvoyer l’argument multiplié par lui-même ; l’affichage « Carre : » reste dans main, sans aucun affichage dans la fonction."
     ],
     examples: [
       { stdin: '7', expected: 'Carre : 49', note: '7² = 49.' }
@@ -642,7 +667,8 @@ int main(void) {
     printf("Carre : %d\\n", carre(valeur));
     return 0;
 }
-`
+`,
+    takeaway: "Le prototype et la définition C doivent faire concorder type de retour, type des paramètres et instruction return."
   },
   {
     id: 'c-c5-e2',
@@ -667,8 +693,9 @@ int main(void) {
 }
 `,
     hints: [
-      'En C, il n’existe pas de type booléen d’origine : un entier nul vaut faux, tout entier non nul vaut vrai.',
-      'La parité se teste avec le reste de la division par deux : un reste nul signifie que le nombre est pair.'
+      "En C, il n’existe pas de type booléen d’origine : un entier nul vaut faux, tout entier non nul vaut vrai.",
+      "La parité se teste avec le reste de la division par deux : un reste nul signifie que le nombre est pair.",
+      "Étapes : calculer le reste de la division par deux ; s’il est nul, la fonction renvoie un (vrai), sinon zéro (faux) ; l’affichage du mot reste dans main."
     ],
     examples: [
       { stdin: '10', expected: 'Pair', note: '10 est pair.' }
@@ -690,7 +717,8 @@ int main(void) {
     printf("%s\\n", est_pair(valeur) ? "Pair" : "Impair");
     return 0;
 }
-`
+`,
+    takeaway: "En C99+, <stdbool.h> fournit bool, true et false pour rendre explicite le retour d un prédicat."
   },
   {
     id: 'c-c5-e3',
@@ -715,8 +743,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Un produit s’accumule comme une somme, mais l’élément neutre n’est pas zéro : multiplier par zéro effacerait tout le résultat.',
-      'Pour n = 0, la boucle ne s’exécute pas : la valeur initiale de l’accumulateur est donc déjà le bon résultat.'
+      "Un produit s’accumule comme une somme, mais l’élément neutre n’est pas zéro : multiplier par zéro effacerait tout le résultat.",
+      "Pour n = 0, la boucle ne s’exécute pas : la valeur initiale de l’accumulateur est donc déjà le bon résultat.",
+      "Étapes : produit à un ; pour chaque entier de 1 à n inclus, multiplier le produit par cet entier ; renvoyer le produit — pour n nul, le résultat reste un."
     ],
     examples: [
       { stdin: '5', expected: 'Factorielle : 120', note: '1 × 2 × 3 × 4 × 5 = 120.' }
@@ -742,7 +771,8 @@ int main(void) {
     printf("Factorielle : %ld\\n", factorielle(valeur));
     return 0;
 }
-`
+`,
+    takeaway: "Initialiser le produit factoriel à 1 (élément neutre) traite naturellement le cas 0! = 1 dans la boucle."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -771,8 +801,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Une permutation réelle a besoin d’une troisième case : on y met l’une des deux valeurs avant de la remplacer, sinon elle est perdue.',
-      'Un paramètre de type pointeur ne contient pas une valeur mais une adresse : pour atteindre la valeur visée, il faut déréférencer.'
+      "Une permutation réelle a besoin d’une troisième case : on y met l’une des deux valeurs avant de la remplacer, sinon elle est perdue.",
+      "Un paramètre de type pointeur ne contient pas une valeur mais une adresse : pour atteindre la valeur visée, il faut déréférencer.",
+      "Étapes : sauvegarder la valeur pointée par le premier paramètre dans une temporaire ; copier la seconde valeur à sa place ; ranger la temporaire dans la seconde case."
     ],
     examples: [
       { stdin: '10 20', expected: 'a = 20, b = 10', note: 'Les deux valeurs ont été permutées.' }
@@ -797,7 +828,8 @@ int main(void) {
     printf("a = %d, b = %d\\n", a, b);
     return 0;
 }
-`
+`,
+    takeaway: "Passer &a et &b permet à une fonction void swap(int *x, int *y) de modifier les variables de l appelant via *x et *y."
   },
   {
     id: 'c-c6-e2',
@@ -823,8 +855,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Le rôle de la fonction est d’écrire à l’adresse reçue : c’est une affectation à travers le pointeur, pas un retour.',
-      'Les deux paramètres de sortie sont distincts : l’ordre de remplissage n’a pas d’importance, mais chacun doit recevoir le bon calcul.'
+      "Le rôle de la fonction est d’écrire à l’adresse reçue : c’est une affectation à travers le pointeur, pas un retour.",
+      "Les deux paramètres de sortie sont distincts : l’ordre de remplissage n’a pas d’importance, mais chacun doit recevoir le bon calcul.",
+      "Étapes : calculer la somme des deux entrées et l’écrire dans la case pointée par le premier pointeur de sortie ; idem pour le produit et le second."
     ],
     examples: [
       { stdin: '2 9', expected: 'Somme : 11\nProduit : 18', note: 'Somme 11 ; produit 18.' }
@@ -849,7 +882,8 @@ int main(void) {
     printf("Produit : %d\\n", produit);
     return 0;
 }
-`
+`,
+    takeaway: "Des pointeurs de sortie (int *min, int *max) renvoient plusieurs résultats là où C n autorise qu un seul return."
   },
   {
     id: 'c-c6-e3',
@@ -878,8 +912,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Le pointeur commence sur la première case ; après chaque ajout, il faut le faire avancer d’une case.',
-      'Le déréférencement donne la valeur contenue dans la case visée : c’est cette valeur qui entre dans l’accumulateur.'
+      "Le pointeur commence sur la première case ; après chaque ajout, il faut le faire avancer d’une case.",
+      "Le déréférencement donne la valeur contenue dans la case visée : c’est cette valeur qui entre dans l’accumulateur.",
+      "Étapes : répéter n fois — additionner à l’accumulateur la valeur pointée, puis faire avancer le pointeur d’une case ; afficher l’accumulateur."
     ],
     examples: [
       { stdin: '5\n1 1 1 1 1', expected: 'Somme : 5', note: 'Cinq cases valant 1.' }
@@ -908,7 +943,8 @@ int main(void) {
     printf("Somme : %d\\n", somme);
     return 0;
 }
-`
+`,
+    takeaway: "Avec p = tab, *(p + i) ou p++ parcourt linéairement la mémoire sans dépasser tab + n."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -939,8 +975,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Un champ de structure s’atteint en écrivant le nom de la variable, un point, puis le nom du champ.',
-      'Les deux champs sont lus sur une seule ligne : la lecture les sépare, l’affichage doit les recomposer dans l’ordre demandé.'
+      "Un champ de structure s’atteint en écrivant le nom de la variable, un point, puis le nom du champ.",
+      "Les deux champs sont lus sur une seule ligne : la lecture les sépare, l’affichage doit les recomposer dans l’ordre demandé.",
+      "Étapes : lire les deux coordonnées dans les champs de la structure ; afficher « Point( », l’abscisse, « , », l’ordonnée puis « ) » dans cet ordre."
     ],
     examples: [
       { stdin: '2 7', expected: 'Point(2, 7)', note: 'Coordonnées x = 2 et y = 7.' }
@@ -963,7 +1000,8 @@ int main(void) {
     printf("Point(%d, %d)\\n", p.x, p.y);
     return 0;
 }
-`
+`,
+    takeaway: "Une struct regroupe des champs hétérogènes accessibles par l opérateur point (.) sur une variable valeur."
   },
   {
     id: 'c-c7-e2',
@@ -990,8 +1028,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Un champ de type tableau de caractères n’a pas besoin du symbole d’adresse dans la lecture : il est déjà une adresse.',
-      'La note est un décimal : son affichage doit fixer le nombre de décimales pour être identique quelle que soit la valeur.'
+      "Un champ de type tableau de caractères n’a pas besoin du symbole d’adresse dans la lecture : il est déjà une adresse.",
+      "La note est un décimal : son affichage doit fixer le nombre de décimales pour être identique quelle que soit la valeur.",
+      "Étapes : lire le nom (sans adresse, le champ est déjà une adresse) et la note (avec adresse) ; afficher le nom sur une ligne, la note à deux décimales sur l’autre."
     ],
     examples: [
       { stdin: 'Marie 18.25', expected: 'Nom : Marie\nNote : 18.25', note: 'Nom et note affichés sur deux lignes.' }
@@ -1015,7 +1054,8 @@ int main(void) {
     printf("Note : %.2f\\n", e.note);
     return 0;
 }
-`
+`,
+    takeaway: "Déclarer un tableau char nom[...] assez grand dans une struct prévient tout débordement lors de scanf(\"%s\", ...)."
   },
   {
     id: 'c-c7-e3',
@@ -1045,8 +1085,9 @@ int main(void) {
 }
 `,
     hints: [
-      'Le paramètre est une copie complète de la structure : ses champs s’atteignent avec le point, exactement comme dans le programme principal.',
-      'La fonction doit renvoyer la valeur ; l’affichage, lui, reste à la charge de l’appelant.'
+      "Le paramètre est une copie complète de la structure : ses champs s’atteignent avec le point, exactement comme dans le programme principal.",
+      "La fonction doit renvoyer la valeur ; l’affichage, lui, reste à la charge de l’appelant.",
+      "Étapes : dans la fonction, multiplier le champ largeur par le champ hauteur (accès par le point) ; renvoyer le produit ; l’affichage reste dans main."
     ],
     examples: [
       { stdin: '6 7', expected: 'Aire : 42', note: '6 × 7 = 42.' }
@@ -1073,7 +1114,8 @@ int main(void) {
     printf("Aire : %d\\n", aire(rect));
     return 0;
 }
-`
+`,
+    takeaway: "Passer struct Point *p en paramètre évite de copier toute la structure et donne accès aux champs via p->champ."
   },
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -1100,8 +1142,9 @@ int main() {
 }
 `,
     hints: [
-      'L’opérateur d’insertion dans un flux s’enchaîne : on peut écrire un texte, puis une valeur, dans le même ordre qu’on veut les voir apparaître.',
-      'Le passage à la ligne a son propre symbole en C++ : il s’insère dans le flux après la valeur.'
+      "L’opérateur d’insertion dans un flux s’enchaîne : on peut écrire un texte, puis une valeur, dans le même ordre qu’on veut les voir apparaître.",
+      "Le passage à la ligne a son propre symbole en C++ : il s’insère dans le flux après la valeur.",
+      "Étapes : insérer dans le flux de sortie le texte « Carre : », puis le produit de l’entier par lui-même, puis le symbole de fin de ligne."
     ],
     examples: [
       { stdin: '7', expected: 'Carre : 49', note: '7² = 49.' }
@@ -1120,7 +1163,8 @@ int main() {
     cout << "Carre : " << n * n << endl;
     return 0;
 }
-`
+`,
+    takeaway: "En C++, std::cin et std::cout déduisent les types sans spécificateur %d/%s et std::fixed + setprecision fixent l arrondi."
   },
   {
     id: 'c-c8-e2',
@@ -1152,8 +1196,9 @@ int main() {
 }
 `,
     hints: [
-      'À l’intérieur d’une méthode, les attributs de l’objet sont accessibles directement par leur nom.',
-      'La méthode est déclarée const : elle promet de ne pas modifier l’objet, elle ne peut donc que lire les attributs et renvoyer un résultat.'
+      "À l’intérieur d’une méthode, les attributs de l’objet sont accessibles directement par leur nom.",
+      "La méthode est déclarée const : elle promet de ne pas modifier l’objet, elle ne peut donc que lire les attributs et renvoyer un résultat.",
+      "Étapes : dans la méthode, multiplier les deux attributs désignés par leur nom ; renvoyer le produit ; l’objet n’est modifié à aucun moment."
     ],
     examples: [
       { stdin: '6 7', expected: 'Aire : 42', note: '6 × 7 = 42.' }
@@ -1182,7 +1227,8 @@ int main() {
     cout << "Aire : " << r.aire() << endl;
     return 0;
 }
-`
+`,
+    takeaway: "L encapsulation C++ place les attributs en private et expose constructeur et méthodes publiques pour garantir les invariants."
   },
   {
     id: 'c-c8-e3',
@@ -1212,8 +1258,9 @@ int main() {
 }
 `,
     hints: [
-      'Un conteneur connaît sa taille : il se parcourt sans avoir à mémoriser n une seconde fois.',
-      'La forme moderne de parcours donne directement chaque valeur, sans passer par un indice.'
+      "Un conteneur connaît sa taille : il se parcourt sans avoir à mémoriser n une seconde fois.",
+      "La forme moderne de parcours donne directement chaque valeur, sans passer par un indice.",
+      "Étapes : accumulateur à zéro ; parcourir le conteneur valeur par valeur et additionner chacune ; afficher « Somme : » et l’accumulateur."
     ],
     examples: [
       { stdin: '5\n2 4 6 8 10', expected: 'Somme : 30', note: '2+4+6+8+10 = 30.' }
@@ -1243,6 +1290,7 @@ int main() {
     cout << "Somme : " << somme << endl;
     return 0;
 }
-`
+`,
+    takeaway: "std::vector<T> gère dynamiquement sa capacité via push_back() et size(), éliminant les tailles de tableaux codées en dur."
   }
 ];

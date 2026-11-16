@@ -181,43 +181,43 @@ module.exports = {
   questions: [
     {
       stem: 'Combien d’adresses hôtes exploitables offre un sous-réseau configuré avec un masque de préfixe /27 ?',
-      opts: ['32 hôtes', '30 hôtes', '62 hôtes', '14 hôtes'],
-      correct: 1,
+      opts: ['32 hôtes', '62 hôtes', '30 hôtes', '14 hôtes'],
+      correct: 2,
       exp: 'Pour un /27, il reste 32 - 27 = 5 bits d’hôte. Le nombre total d’adresses est 2^5 = 32, et le nombre d’adresses hôtes utiles est 2^5 - 2 = 30.'
     },
     {
       stem: 'Quelle est l’adresse de diffusion (broadcast) du sous-réseau contenant l’hôte 172.16.20.100/28 ?',
-      opts: ['172.16.20.111', '172.16.20.112', '172.16.20.127', '172.16.20.255'],
-      correct: 0,
+      opts: ['172.16.20.255', '172.16.20.112', '172.16.20.127', '172.16.20.111'],
+      correct: 3,
       exp: 'Pour un /28, la taille du bloc est 2^(32-28) = 16. Les multiples de 16 autour de 100 sont 96 et 112. Le réseau est 172.16.20.96 et l’adresse de broadcast est 172.16.20.111 (96 + 16 - 1).'
     },
     {
       stem: 'Quel est le masque générique (Wildcard mask) correspondant au masque de sous-réseau 255.255.255.240 (/28) ?',
-      opts: ['0.0.0.15', '0.0.0.31', '0.0.0.240', '255.255.255.15'],
-      correct: 0,
+      opts: ['0.0.0.31', '0.0.0.15', '0.0.0.240', '255.255.255.15'],
+      correct: 1,
       exp: 'Le masque générique s’obtient par soustraction octet par octet à 255 : (255-255).(255-255).(255-255).(255-240) = 0.0.0.15.'
     },
     {
       stem: 'Laquelle de ces adresses IPv4 appartient à une plage privée routable uniquement sur réseau d’entreprise selon la RFC 1918 ?',
-      opts: ['172.32.1.5', '192.169.10.1', '172.25.100.50', '169.254.10.20'],
-      correct: 2,
+      opts: ['172.25.100.50', '192.169.10.1', '172.32.1.5', '169.254.10.20'],
+      correct: 0,
       exp: 'La plage privée de classe B s’étend de 172.16.0.0 à 172.31.255.255. L’adresse 172.25.100.50 s’y trouve. 172.32.x est publique, 192.169.x est publique, et 169.254.x est une adresse de lien local APIPA.'
     },
     {
       stem: 'Pourquoi est-il impératif de trier les besoins par nombre décroissant d’hôtes lors d’une allocation VLSM ?',
       opts: [
-        'Pour des raisons purement esthétiques dans le tableur',
-        'Pour éviter que les petits sous-réseaux ne fragmentent l’espace et brisent l’alignement des puissances de 2 des grands réseaux',
-        'Parce que le routeur Cisco refuse d’enregistrer des routes avec des masques croissants',
-        'Pour garantir que la passerelle ait toujours l’adresse .1'
+        "Pour des raisons purement esthétiques de présentation des données dans le tableur du plan",
+        "Parce que le routeur Cisco refuse catégoriquement d’enregistrer des routes avec des masques croissants",
+        "Pour garantir que la passerelle obtienne toujours l’adresse .1 de chaque sous-réseau",
+        "Pour éviter que les petits sous-réseaux ne fragmentent l’espace et brisent l’alignement des puissances de 2 des grands réseaux"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Les sous-réseaux doivent être alignés sur des multiples de leur taille (puissances de 2). Commencer par les plus petits blocs fragmenterait l’espace et empêcherait d’allouer les blocs plus volumineux sans gaspiller de grandes plages d’adresses.'
     },
     {
       stem: 'Quel est le préfixe CIDR minimal permettant d’accueillir exactement 50 hôtes utiles sur un sous-réseau ?',
-      opts: ['/27', '/26', '/25', '/24'],
-      correct: 1,
+      opts: ['/27', '/25', '/26', '/24'],
+      correct: 2,
       exp: '/27 offre 2^5 - 2 = 30 hôtes (insuffisant pour 50). /26 offre 2^6 - 2 = 62 hôtes (suffisant). Le préfixe minimal est donc /26.'
     },
     {
@@ -228,8 +228,8 @@ module.exports = {
     },
     {
       stem: 'Pour deux routeurs sur une liaison point-à-point compatible RFC 3021, quel préfixe utilise exactement deux adresses ?',
-      opts: ['/28 (255.255.255.240)', '/29 (255.255.255.248)', '/31 (255.255.255.254)', '/32 (255.255.255.255)'],
-      correct: 2,
+      opts: ['/31 (255.255.255.254)', '/29 (255.255.255.248)', '/28 (255.255.255.240)', '/32 (255.255.255.255)'],
+      correct: 0,
       exp: '/31 utilise les deux adresses sur la liaison compatible ; /30 reste une option classique avec quatre adresses dont deux utilisables.'
     }
   ],

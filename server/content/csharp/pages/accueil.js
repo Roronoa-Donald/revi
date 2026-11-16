@@ -119,7 +119,7 @@ function atelier(course) {
     '       data-language="csharp"',
     '       data-height="420"',
     '       data-stdin="int a = 10; object o = a;">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : simulez, expérimentez avec C# ou les algorithmes POO.\nprint("Zone libre C# B2 : pret a executer.")\n</script>',
+    '    <script type="text/plain" data-lab-starter>// Zone libre : simulez et compilez vos programmes C# (.NET) directement dans la page.\nusing System;\n\nclass Program\n{\n    static void Main()\n    {\n        string input = Console.In.ReadToEnd().Trim();\n        Console.WriteLine("Zone libre C# B2 : " + (string.IsNullOrEmpty(input) ? "pret" : input));\n    }\n}\n</script>',
     '  </div>',
     '',
     '  <h2>Conseils pour progresser en C#</h2>',

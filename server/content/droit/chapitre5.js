@@ -89,14 +89,14 @@ module.exports = {
   ],
 
   questions: [
-    { stem: 'Le RGPD signifie…', opts: ['Règlement Général de Protection des Données', 'Régime Général de Protection des Données', 'Registre Général des Personnes'], correct: 0, exp: 'C’est un règlement, pas un régime.' },
-    { stem: 'Le RGPD est entré en vigueur dans l’Union européenne en…', opts: ['Mai 2018', 'Mai 2019', 'Octobre 2019'], correct: 0, exp: 'Mai 2018 en Europe, octobre 2019 au Togo.' },
-    { stem: 'Le principe de minimisation impose…', opts: ['De ne collecter que les données nécessaires', 'De conserver indéfiniment les données', 'De supprimer tout fichier client'], correct: 0, exp: 'Collecter peu, mais utile.' },
-    { stem: 'Le consentement doit être…', opts: ['Explicite', 'Implicite et automatique', 'Facultatif'], correct: 0, exp: 'L’internaute accepte, refuse ou choisit ses cookies.' },
-    { stem: 'Un droit des personnes concernées ?', opts: ['Le droit d’accès', 'Le droit de cuissage', 'Le droit de passage'], correct: 0, exp: 'Accès, rectification, suppression.' },
-    { stem: 'L’accountability, c’est…', opts: ['Une plus grande responsabilisation de l’entreprise', 'Un impôt sur les données', 'Un antivirus'], correct: 0, exp: 'L’entreprise démontre sa conformité.' },
-    { stem: 'Plafond de l’amende européenne :', opts: ['20 M€ ou 4 % du chiffre d’affaires, le plus lourd', '1 M€ fixe', '4 % du bénéfice net'], correct: 0, exp: 'On retient la plus lourde des deux sanctions.' },
-    { stem: 'Un antivirus suffit à sécuriser une plateforme.', opts: ['Faux', 'Vrai'], correct: 0, exp: 'La sécurité repose sur un ensemble de mesures, pas sur un seul outil.' }
+    { stem: 'Le RGPD signifie…', opts: ['Registre Général des Personnes', 'Régime Général de Protection des Données', 'Règlement Général de Protection des Données'], correct: 2, exp: "Le RGPD est le Règlement Général de Protection des Données : un règlement européen directement applicable. Ce n’est ni un régime ni un registre." },
+    { stem: 'Le RGPD est entré en vigueur dans l’Union européenne en…', opts: ['Octobre 2019', 'Mai 2019', 'Mai 2018'], correct: 2, exp: 'Mai 2018 en Europe, octobre 2019 au Togo.' },
+    { stem: 'Le principe de minimisation impose…', opts: ['De ne collecter que les données nécessaires', 'De conserver indéfiniment les données', 'De supprimer tout fichier client'], correct: 0, exp: "La minimisation impose de ne collecter que les données nécessaires à la finalité poursuivie. Conserver indéfiniment ou tout supprimer contredit ce principe." },
+    { stem: 'Le consentement doit être…', opts: ['Implicite et automatique', 'Explicite', 'Facultatif'], correct: 1, exp: 'L’internaute accepte, refuse ou choisit ses cookies.' },
+    { stem: 'Un droit des personnes concernées ?', opts: ['Le droit de passage', 'Le droit de cuissage', 'Le droit d’accès'], correct: 2, exp: "Le droit d’accès permet à la personne de consulter ses données ; avec rectification et suppression, il forme la palette des droits. Le « droit de cuissage » n’existe pas." },
+    { stem: 'L’accountability, c’est…', opts: ["Un impôt sur les données collectées en ligne","Une plus grande responsabilisation de l’entreprise","Un antivirus obligatoire pour les données"], correct: 1, exp: "L’accountability rend l’entreprise comptable de sa conformité : elle doit pouvoir la démontrer à tout moment. Ce n’est ni un impôt ni un logiciel." },
+    { stem: 'Plafond de l’amende européenne :', opts: ["20 M€ ou 4 % du chiffre d’affaires, le plus lourd","Une amende forfaitaire d’un million d’euros","Quatre pour cent du bénéfice net annuel"], correct: 0, exp: "Le plafond retient la plus lourde des deux : 20 M€ ou 4 % du chiffre d’affaires mondial. Ni un million fixe, ni un pourcentage du bénéfice net." },
+    { stem: 'Un antivirus suffit à sécuriser une plateforme.', opts: ['Vrai', 'Faux'], correct: 1, exp: 'La sécurité repose sur un ensemble de mesures, pas sur un seul outil.' }
   ],
 
   pitfalls: [

@@ -92,17 +92,56 @@ module.exports = {
         '<p>De même, pour les collections volumineuses, l’enveloppe de pagination fournit les repères indispensables :</p>',
         '<pre><code>{\n  "total": 150,\n  "page": 2,\n  "limit": 20,\n  "data": [\n    {"id": 21, "titre": "Article 21"},\n    {"id": 22, "titre": "Article 22"}\n  ]\n}</code></pre>'
       ].join('\n')
+    },
+    {
+      title: 'Implémentation Flask complète : middleware JWT (@token_required) et codes 200/201/400/401/404/422',
+      html: [
+        '<p>Voici comment protéger des routes Flask à l’aide d’un décorateur middleware JWT (vérifiant l’en-tête ' +
+        '<code>Authorization: Bearer &lt;token&gt;</code>) tout en renvoyant des tuples JSON normalisés :</p>',
+        '<pre><code class="language-python">from functools import wraps\n' +
+        'from flask import Flask, request, jsonify, g\n' +
+        'import hmac, hashlib, base64, json\n\n' +
+        'app = Flask(__name__)\n' +
+        'SECRET_KEY = b"cle-secrete-b2-flask"\n\n' +
+        'def verifier_jwt(token):\n' +
+        '    try:\n' +
+        '        header_b64, payload_b64, sig_b64 = token.split(".")\n' +
+        '        msg = f"{header_b64}.{payload_b64}".encode("utf-8")\n' +
+        '         attendu = base64.urlsafe_b64encode(hmac.new(SECRET_KEY, msg, hashlib.sha256).digest()).rstrip(b"=").decode("utf-8")\n' +
+        '        if not hmac.compare_digest(sig_b64, attendu):\n' +
+        '            return None\n' +
+        '        padding = "=" * (-len(payload_b64) % 4)\n' +
+        '        return json.loads(base64.urlsafe_b64decode(payload_b64 + padding).decode("utf-8"))\n' +
+        '    except Exception:\n' +
+        '        return None\n\n' +
+        'def token_required(f):\n' +
+        '    @wraps(f)\n' +
+        '    def decorated(*args, **kwargs):\n' +
+        '        auth_header = request.headers.get("Authorization", "")\n' +
+        '        if not auth_header.startswith("Bearer "):\n' +
+        '            return jsonify({"code": 401, "error": "Unauthorized", "message": "Jeton Bearer manquant"}), 401\n' +
+        '        claims = verifier_jwt(auth_header.split(" ", 1)[1].strip())\n' +
+        '        if not claims:\n' +
+        '            return jsonify({"code": 401, "error": "Unauthorized", "message": "Jeton JWT invalide ou expiré"}), 401\n' +
+        '        g.current_user = claims\n' +
+        '        return f(*args, **kwargs)\n' +
+        '    return decorated\n\n' +
+        '@app.route("/api/v1/profil", methods=["GET"])\n' +
+        '@token_required\n' +
+        'def lire_profil():\n' +
+        '    return jsonify({"utilisateur": g.current_user["sub"], "role": g.current_user.get("role", "lecteur")}), 200</code></pre>'
+      ].join('\n')
     }
   ],
 
   questions: [
     { stem: 'Quel code HTTP est retourné lors de la création réussie d’une nouvelle ressource ?', opts: ['201 Created', '200 OK', '204 No Content'], correct: 0, exp: '201 Created est le statut standard pour signaler une création réussie.' },
-    { stem: 'Quel code de statut indique un succès sans aucun contenu dans le corps de réponse ?', opts: ['204 No Content', '200 OK', '202 Accepted'], correct: 0, exp: '204 No Content est couramment employé après une suppression (DELETE).' },
-    { stem: 'Quelle est la différence entre 401 Unauthorized et 403 Forbidden ?', opts: ['401 concerne l’authentification (qui êtes-vous ?), 403 concerne les permissions (avez-vous le droit ?)', '401 est une erreur serveur, 403 une erreur client', 'Il n’y a aucune différence, ils sont synonymes'], correct: 0, exp: '401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit.' },
-    { stem: 'Quelle fonction Flask sérialise un dictionnaire en réponse HTTP JSON ?', opts: ['jsonify()', 'json.dumps()', 'flask.encode()'], correct: 0, exp: 'jsonify() génère un objet Response complet avec le Content-Type application/json.' },
+    { stem: 'Quel code de statut indique un succès sans aucun contenu dans le corps de réponse ?', opts: ['200 OK', '204 No Content', '202 Accepted'], correct: 1, exp: '204 No Content est couramment employé après une suppression (DELETE).' },
+    { stem: 'Quelle est la différence entre 401 Unauthorized et 403 Forbidden ?', opts: ["401 est une erreur du serveur interne, tandis que 403 provient du navigateur client","Il n’y a aucune différence : les deux codes sont parfaitement synonymes dans la norme","401 concerne l’authentification (qui êtes-vous ?), 403 concerne les permissions (avez-vous le droit ?)"], correct: 2, exp: "401 = non identifié ou jeton manquant ; 403 = identifié mais accès interdit. Tous deux sont des erreurs côté client, et ils ne sont pas synonymes." },
+    { stem: 'Quelle fonction Flask sérialise un dictionnaire en réponse HTTP JSON ?', opts: ['flask.encode()', 'json.dumps()', 'jsonify()'], correct: 2, exp: 'jsonify() génère un objet Response complet avec le Content-Type application/json.' },
     { stem: 'Quel code signale une ressource introuvable sur le serveur ?', opts: ['404 Not Found', '400 Bad Request', '502 Bad Gateway'], correct: 0, exp: '404 Not Found indique que la ressource demandée n’existe pas.' },
-    { stem: 'Quel code HTTP utilise-t-on lorsqu’un email à inscrire existe déjà en base ?', opts: ['409 Conflict', '404 Not Found', '500 Server Error'], correct: 0, exp: '409 Conflict signale une violation de contrainte d’intégrité ou d’unicité.' },
-    { stem: 'Dans un tuple de retour Flask (corps, 201, headers), quel est le rôle du 2e élément ?', opts: ['Le code de statut HTTP', 'Le nombre d’octets', 'Le temps de réponse en millisecondes'], correct: 0, exp: 'Le 2e élément du tuple Flask définit le code d’état HTTP de la réponse.' },
+    { stem: 'Quel code HTTP utilise-t-on lorsqu’un email à inscrire existe déjà en base ?', opts: ['404 Not Found', '409 Conflict', '500 Server Error'], correct: 1, exp: '409 Conflict signale une violation de contrainte d’intégrité ou d’unicité.' },
+    { stem: 'Dans un tuple de retour Flask (corps, 201, headers), quel est le rôle du 2e élément ?', opts: ['Le temps de réponse en millisecondes', 'Le nombre d’octets', 'Le code de statut HTTP'], correct: 2, exp: 'Le 2e élément du tuple Flask définit le code d’état HTTP de la réponse.' },
     { stem: 'Pourquoi est-il déconseillé de renvoyer 200 OK en cas d’erreur applicative ?', opts: ['Car le client considère la requête réussie et le traitement automatique échoue', 'Car cela consomme plus de bande passante', 'Car Flask plante si on utilise 200 pour une erreur'], correct: 0, exp: 'Les outils et librairies clientes s’appuient sur les codes d’état pour déclencher leurs blocs d’erreur.' }
   ],
 

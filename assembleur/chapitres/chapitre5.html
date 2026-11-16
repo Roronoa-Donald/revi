@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -148,11 +146,32 @@ LEA EAX, [EAX*8 + EAX]   ; Multiplie EAX par 9 en 1 cycle ! (8*EAX + EAX = 9*EAX
 
 </section>
 
+<section class="sec">
+
+<h2>5. Trace d’adressage indirect &amp; Simulateur de transfert x86-16</h2>
+
+<p>Pour copier une donnée mémoire vers une autre case mémoire sans violer l’interdiction de <code>MOV [dest], [src]</code>, on passe par un registre intermédiaire et l’adressage basé-indexé <code>[BX + SI]</code> :</p>
+<table class="table">
+  <thead><tr><th>Cycle</th><th>Instruction x86-16</th><th>BX</th><th>SI</th><th>AX</th><th>Mémoire [0x20..0x22]</th><th>Opération d’adressage</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>MOV BX, 0x0020</code></td><td><code>0x0020</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>00 00</code></td><td>Initialise le registre de base <code>BX = 0x20</code>.</td></tr>
+    <tr><td>2</td><td><code>MOV [BX], 0x002A</code></td><td><code>0x0020</code></td><td><code>0x0000</code></td><td><code>0x0000</code></td><td><code>2A 00</code></td><td>Écrit 42 (<code>0x002A</code>) à l’adresse <code>[0x20]</code>.</td></tr>
+    <tr><td>3</td><td><code>MOV SI, 0x0002</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x0000</code></td><td><code>2A 00</code></td><td>Définit l’index de décalage <code>SI = 2</code> octets.</td></tr>
+    <tr><td>4</td><td><code>MOV AX, [BX]</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x002A</code></td><td><code>2A 00</code></td><td>Lit la source mémoire dans le registre relais <code>AX</code>.</td></tr>
+    <tr><td>5</td><td><code>ADD AX, 0x0008</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x0032</code></td><td><code>2A 00</code></td><td>Ajoute 8 dans <code>AX</code> ($42 + 8 = 50 = 0\text{x0032}$).</td></tr>
+    <tr><td>6</td><td><code>MOV [BX+SI], AX</code></td><td><code>0x0020</code></td><td><code>0x0002</code></td><td><code>0x0032</code></td><td><code>2A 32</code></td><td>Écrit <code>AX</code> à l’adresse effective <code>[0x20 + 2] = [0x22]</code>.</td></tr>
+  </tbody>
+</table>
+<div class="asm-sim" data-asm-simulator data-asm-code="MOV BX, 0x0020\nMOV [BX], 0x002A\nMOV SI, 0x0002\nMOV AX, [BX]\nADD AX, 0x0008\nMOV [BX+SI], AX\nMOV DX, [0x22]\nHLT"></div>
+<script src="/assets/js/engines/asm-simulator.js" defer></script>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -246,10 +265,11 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>0x00401000;4;4;0x00000010</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>L’instruction LEA applique la formule d’adressage x86 : Adresse = Base + (Index × Facteur_Echelle) + Déplacement.</li>
         <li>L’instruction LEA calcule uniquement l’adresse arithmétique sans jamais lire le contenu de la mémoire.</li>
+        <li>Pour chaque cas : multiplier l index par le facteur d échelle, ajouter la base puis le déplacement, et afficher l adresse en hexadécimal et en décimal.</li>
       </ol>
     </details>
   </div>
@@ -295,24 +315,25 @@ A_COMPLETER
       <div class="lab__sample-part"><b>Cas d’exemple</b><pre>10;ADD 5, SUB 2, INC</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Sur un registre 32 bits, conservez les calculs modulo 2^32 (plage 0 à 0xFFFFFFFF).</li>
         <li>Pour interpréter la valeur signée, si le bit de poids fort vaut 1, appliquez la convention du complément à 2.</li>
+        <li>Pour chaque cas : partir de la valeur initiale, appliquer les opérations dans l ordre modulo 2 puissance 32, puis livrer la valeur signée et l hexadécimal.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Pourquoi l’instruction assembleur MOV [eax], [ebx] est-elle rejetée par l’assembleur x86 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Parce que les formes de MOV ne codent pas deux opérandes mémoire explicites</button>
         <button class="opt">Parce que les registres EAX et EBX sont réservés aux calculs flottants</button>
+        <button class="opt" data-correct="1">Parce que les formes de MOV ne codent pas deux opérandes mémoire explicites</button>
         <button class="opt">Parce que les crochets sont interdits en syntaxe Intel</button>
         <button class="opt">Parce que l’instruction MOV ne supporte que les constantes</button>
       </div>
@@ -322,28 +343,28 @@ A_COMPLETER
       <p class="q__stem">Quelle est la différence fondamentale entre MOV EAX, [EBX+4] et LEA EAX, [EBX+4] ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">MOV lit la valeur stockée en mémoire vive, tandis que LEA charge l’adresse arithmétique sans accéder à la RAM</button>
-        <button class="opt">MOV est plus rapide que LEA</button>
-        <button class="opt">LEA modifie les drapeaux EFLAGS et pas MOV</button>
-        <button class="opt">MOV est une instruction 64 bits et LEA une instruction 16 bits</button>
+        <button class="opt">MOV est systématiquement plus rapide que LEA sur tous les processeurs modernes</button>
+        <button class="opt">LEA modifie les drapeaux EFLAGS du processeur, contrairement à MOV qui les préserve</button>
+        <button class="opt">MOV est une instruction 64 bits, tandis que LEA serait une instruction 16 bits</button>
       </div>
       <div class="q__exp">LEA (Load Effective Address) calcule l’expression d’adresse et l’écrit dans le registre sans générer de cycle de bus mémoire.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel calcul mathématique l’instruction LEA EAX, [EAX + EAX*2] effectue-t-elle en réalité sur EAX ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Multiplication par 3 (EAX = 3 * EAX)</button>
+        <button class="opt">Division par 2</button>
         <button class="opt">Multiplication par 2</button>
         <button class="opt">Élévation au carré (EAX = EAX²)</button>
-        <button class="opt">Division par 2</button>
+        <button class="opt" data-correct="1">Multiplication par 3 (EAX = 3 * EAX)</button>
       </div>
       <div class="q__exp">EAX + (EAX * 2) = 1*EAX + 2*EAX = 3*EAX, réalisé en un seul cycle d’horloge sans altérer les drapeaux.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelles sont les valeurs autorisées pour le facteur d’échelle (scale) dans l’adressage x86 [Base + Index * Scale] ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">1, 2, 4 ou 8 uniquement</button>
-        <button class="opt">N’importe quel nombre entier de 1 à 255</button>
         <button class="opt">Uniquement les nombres impairs</button>
+        <button class="opt">N’importe quel nombre entier de 1 à 255</button>
+        <button class="opt" data-correct="1">1, 2, 4 ou 8 uniquement</button>
         <button class="opt">Toutes les puissances de 10</button>
       </div>
       <div class="q__exp">Le facteur d’échelle est codé sur 2 bits dans l’octet SIB : seules les valeurs 1 (octet), 2 (word), 4 (dword) et 8 (qword) sont possibles.</div>
@@ -351,8 +372,8 @@ A_COMPLETER
     <div class="q">
       <p class="q__stem">Sur microcontrôleur AVR, quelle instruction permet de charger une constante immédiate dans le registre R16 ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">LDI R16, 42</button>
         <button class="opt">LDS R16, 42</button>
+        <button class="opt" data-correct="1">LDI R16, 42</button>
         <button class="opt">STS 42, R16</button>
         <button class="opt">MOV R16, 42</button>
       </div>
@@ -362,28 +383,28 @@ A_COMPLETER
       <p class="q__stem">Que fait l’instruction NEG EAX ?</p>
       <div class="opts">
         <button class="opt" data-correct="1">Elle remplace le contenu de EAX par son opposé arithmétique en complément à 2 (EAX = -EAX)</button>
-        <button class="opt">Elle force le bit de signe à 1</button>
-        <button class="opt">Elle annule tous les bits négatifs</button>
-        <button class="opt">Elle teste si EAX est inférieur à zéro</button>
+        <button class="opt">Elle force uniquement le bit de signe à 1, sans rien changer d’autre au registre</button>
+        <button class="opt">Elle annule un par un tous les bits de poids négatif du registre EAX</button>
+        <button class="opt">Elle teste si EAX est inférieur à zéro, sans jamais le modifier</button>
       </div>
       <div class="q__exp">NEG calcule 0 - EAX, inversant le signe du nombre en complément à 2.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle instruction AVR permet d’envoyer une valeur sur le port de sortie matériel PORTB ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">OUT PORTB, R16</button>
+        <button class="opt">PUSH PORTB</button>
         <button class="opt">IN R16, PORTB</button>
         <button class="opt">LDS PORTB, R16</button>
-        <button class="opt">PUSH PORTB</button>
+        <button class="opt" data-correct="1">OUT PORTB, R16</button>
       </div>
       <div class="q__exp">OUT écrit la valeur d’un registre général vers un registre d’E/S périphérique.</div>
     </div>
     <div class="q">
       <p class="q__stem">Si EBX = 0x00401000 et ECX = 5, quelle adresse est calculée par LEA EAX, [EBX + ECX*4 + 0x10] ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">0x00401024</button>
-        <button class="opt">0x00401020</button>
         <button class="opt">0x00401036</button>
+        <button class="opt">0x00401020</button>
+        <button class="opt" data-correct="1">0x00401024</button>
         <button class="opt">0x00401015</button>
       </div>
       <div class="q__exp">0x00401000 + 5*4 (20 = 0x14) + 0x10 (16) = 0x00401000 + 0x24 = 0x00401024.</div>
@@ -394,7 +415,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -411,7 +432,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Protocole en 4 étapes pour traduire une affectation C complexe en x86</div>
@@ -427,7 +448,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -458,7 +479,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -507,7 +528,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

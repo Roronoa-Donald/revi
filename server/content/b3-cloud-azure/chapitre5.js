@@ -130,8 +130,8 @@ module.exports = {
   questions: [
     {
       stem: 'Quel protocole réseau standard Azure Files supporte-t-il nativement pour permettre le montage de lecteurs réseau partagés sur des postes Windows et serveurs Linux ?',
-      opts: ['FTP', 'SMB 3.0 / NFS', 'Telnet', 'TFTP'],
-      correct: 1,
+      opts: ['FTP', 'TFTP', 'Telnet', 'SMB 3.0 / NFS'],
+      correct: 3,
       exp: 'Azure Files fournit des partages de fichiers managés dans le Cloud accessibles directement via les protocoles standard SMB 3.0 (port 445) et NFS 4.1.'
     },
     {
@@ -142,43 +142,43 @@ module.exports = {
     },
     {
       stem: 'Quel palier de stockage offre le coût de stockage par Go le plus bas (moins de 0.001 $/Go/mois) mais nécessite une réhydratation de plusieurs heures pour être lu ?',
-      opts: ['Hot', 'Cool', 'Cold', 'Archive'],
-      correct: 3,
+      opts: ['Hot', 'Archive', 'Cold', 'Cool'],
+      correct: 1,
       exp: 'Le palier Archive stocke les données hors ligne au tarif le plus bas (≈ 0.00099 $/Go/mois), mais nécessite un délai de réhydratation de plusieurs heures pour redevenir lisible.'
     },
     {
       stem: 'Quel paramètre d\'un jeton de signature d\'accès partagé (SAS) permet de forcer l\'utilisation exclusive du protocole chiffré HTTPS ?',
-      opts: ['ssl=true', 'spr=https', 'tls=1.3', 'secure=yes'],
-      correct: 1,
+      opts: ['spr=https', 'ssl=true', 'tls=1.3', 'secure=yes'],
+      correct: 0,
       exp: 'Le paramètre spr est facultatif ; sans lui, le SAS de compte autorise par défaut https,http, sous réserve des règles du compte. spr=https limite ce SAS à HTTPS.'
     },
     {
       stem: 'Dans quelles circonstances devez-vous recommander Azure Cosmos DB plutôt qu\'Azure SQL Database ?',
       opts: [
-        'Pour héberger une application comptable nécessitant des jointures SQL complexes et des clés étrangères strictes',
-        'Pour une application mobile mondiale requérant une latence sub-10ms, un modèle de données semi-structuré JSON et une distribution multi-régions',
-        'Pour réduire la taille de la mémoire RAM d\'une VM',
-        'Uniquement pour les fichiers PDF archivés'
+        "Pour héberger une application comptable nécessitant des jointures SQL complexes et des clés étrangères strictes",
+        "Pour réduire la taille de la mémoire RAM allouée à une machine virtuelle hébergeant la base",
+        "Uniquement pour archiver des fichiers PDF et des documents bureautiques rarement consultés par les utilisateurs",
+        "Pour une application mobile mondiale requérant une latence sub-10ms, un modèle de données semi-structuré JSON et une distribution multi-régions"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Azure Cosmos DB est la base NoSQL par excellence pour les applications web et mobiles modernes distribuées mondialement nécessitant une latence ultra-faible garantie et un schéma JSON flexible.'
     },
     {
       stem: 'Quelle est la taille maximale d\'un seul Block Blob dans Azure Blob Storage ?',
-      opts: ['5 Go', '100 Go', '5 To', 'Environ 190.7 To'],
-      correct: 3,
+      opts: ['5 Go', '100 Go', 'Environ 190.7 To', '5 To'],
+      correct: 2,
       exp: 'Un Block Blob standard dans Azure Storage peut atteindre jusqu\'à environ 190.7 To (50 000 blocs de 4 000 Mo chacun).'
     },
     {
       stem: 'Quelle stratégie de réplication garantit la copie synchrone sur 3 zones de disponibilité locales, suivie d\'une réplication asynchrone dans la région jumelée ?',
-      opts: ['LRS', 'ZRS', 'GRS', 'GZRS (Geo-Zone-Redundant Storage)'],
-      correct: 3,
+      opts: ['LRS', 'GZRS (Geo-Zone-Redundant Storage)', 'GRS', 'ZRS'],
+      correct: 1,
       exp: 'GZRS (Geo-Zone-Redundant Storage) combine la haute disponibilité locale sur 3 zones (ZRS) avec la résilience géographique dans la région jumelée (GRS).'
     },
     {
       stem: 'Quel service Azure Storage devez-vous utiliser pour créer un système de découplage de tâches et de traitement asynchrone entre microservices ?',
-      opts: ['Blob Storage', 'Azure Files', 'Azure Queue Storage', 'Ultra Disk'],
-      correct: 2,
+      opts: ['Azure Queue Storage', 'Azure Files', 'Blob Storage', 'Ultra Disk'],
+      correct: 0,
       exp: 'Azure Queue Storage permet de stocker d\'immenses volumes de messages (jusqu\'à 64 Ko par message) pour découpler les microservices et absorber les pics de charge applicatifs.'
     }
   ],

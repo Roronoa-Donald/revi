@@ -108,13 +108,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Un pléonasme est…', opts: ['un mot déformé', 'une répétition inutile', 'une faute d\'accord'], correct: 1, exp: 'Double emploi : « projets d\'avenir », « allumer la lumière ».' },
-      { q: 'La périssologie désigne…', opts: ['la répétition inutile d\'une idée énoncée', 'un mot forgé', 'une inversion élégante'], correct: 0, exp: 'Le nom didactique du pléonasme.' },
+      { q: 'Un pléonasme est…', opts: ['un mot déformé', 'une faute d\'accord', 'une répétition inutile'], correct: 2, exp: 'Double emploi : « projets d\'avenir », « allumer la lumière ».' },
+      { q: 'La périssologie désigne…', opts: ["la répétition inutile d'une idée énoncée","un mot forgé ou déformé, un barbarisme","une inversion élégante du sujet et du verbe"], correct: 0, exp: "La périssologie est le nom savant du pléonasme : elle répète une idée déjà énoncée ; le mot forgé relève du barbarisme." },
       { q: 'La correction de « pécuniers » est…', opts: ['pécuniens', 'pécuniaires', 'financiers'], correct: 1, exp: 'De pecunia, argent : pécuniaire, au féminin comme au masculin.' },
-      { q: '« Un dilemne » s\'écrit…', opts: ['dilemne', 'dilemme', 'dileme'], correct: 1, exp: 'Dilemme, deux m.' },
-      { q: '« Pallier à cet incident » : la correction est…', opts: ['pallier cet incident', 'pallier sur cet incident', 'palier cet incident'], correct: 0, exp: 'Pallier est transitif direct : on pallie quelque chose.' },
-      { q: '« Je me rappelle de mon enfance » : la correction est…', opts: ['Je me rappelle mon enfance', 'Je me souviens mon enfance', 'Je me le rappelle de'], correct: 0, exp: 'On se rappelle quelque chose ; on se souvient de quelque chose.' },
-      { q: 'Après « après que », on emploie…', opts: ['le subjonctif', 'l\'indicatif', 'le conditionnel'], correct: 1, exp: 'Le fait s\'est produit : indicatif. Avant que : subjonctif.' },
+      { q: '« Un dilemne » s\'écrit…', opts: ['dilemme', 'dilemne', 'dileme'], correct: 0, exp: "Le nom s'écrit dilemme, avec deux m ; « dilemne » et « dileme » sont des barbarismes classiques à bannir." },
+      { q: '« Pallier à cet incident » : la correction est…', opts: ['palier cet incident', 'pallier sur cet incident', 'pallier cet incident'], correct: 2, exp: 'Pallier est transitif direct : on pallie quelque chose.' },
+      { q: '« Je me rappelle de mon enfance » : la correction est…', opts: ['Je me souviens mon enfance', 'Je me rappelle mon enfance', 'Je me le rappelle de'], correct: 1, exp: 'On se rappelle quelque chose ; on se souvient de quelque chose.' },
+      { q: 'Après « après que », on emploie…', opts: ['l\'indicatif', 'le subjonctif', 'le conditionnel'], correct: 0, exp: 'Le fait s\'est produit : indicatif. Avant que : subjonctif.' },
       { q: '« Si je pourrais obtenir… » : la correction est…', opts: ['Si je pourrai obtenir', 'Si je pouvais obtenir', 'Si j\'obtiendrais'], correct: 1, exp: 'Jamais de conditionnel après un si d\'hypothèse.' }
     ],
 
@@ -248,13 +248,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'L\'objet d\'une lettre de motivation…', opts: ['contient un verbe conjugué', 'est court, clair, sans verbe conjugué', 's\'écrit après la signature'], correct: 1, exp: '« Candidature au poste de vendeur » : un résumé nominal.' },
-      { q: 'Destinataire inconnu : l\'appel correct est…', opts: ['Bonjour Madame,', 'Madame, Monsieur,', 'Chère Madame,'], correct: 1, exp: '« Bonjour » est proscrit ; « Cher » réservé aux proches.' },
-      { q: 'Le corps de la lettre compte…', opts: ['un paragraphe unique', 'trois paragraphes maximum', 'cinq paragraphes'], correct: 1, exp: 'Entreprise, compétences, motivations personnelles.' },
-      { q: 'Le paragraphe 1 met en avant…', opts: ['l\'intérêt pour l\'entreprise', 'les compétences', 'les motivations personnelles'], correct: 0, exp: 'Puis compétences (2) et motivations (3).' },
-      { q: 'La lettre finit sur…', opts: ['une demande de rendez-vous', 'un remerciement bref', 'un rappel du salaire'], correct: 0, exp: '« Je me tiens à votre disposition » : la formule consacrée.' },
-      { q: '« J\'ai fait des études de… » : après, on écrit…', opts: ['du marketing', 'la marketing', 'marketing (sans article)'], correct: 2, exp: '« J\'ai étudié le marketing » mais « des études de marketing ».' },
-      { q: '« Avoir l\'esprit de… » se construit…', opts: ['avec un article', 'sans article (esprit de synthèse)', 'avec un adverbe'], correct: 1, exp: 'Esprit de synthèse, de groupe, d\'entreprise — sans article.' },
+      { q: 'L\'objet d\'une lettre de motivation…', opts: ['contient un verbe conjugué', 's\'écrit après la signature', 'est court, clair, sans verbe conjugué'], correct: 2, exp: '« Candidature au poste de vendeur » : un résumé nominal.' },
+      { q: 'Destinataire inconnu : l\'appel correct est…', opts: ['Bonjour Madame,', 'Chère Madame,', 'Madame, Monsieur,'], correct: 2, exp: '« Bonjour » est proscrit ; « Cher » réservé aux proches.' },
+      { q: 'Le corps de la lettre compte…', opts: ['trois paragraphes maximum', 'un paragraphe unique', 'cinq paragraphes'], correct: 0, exp: 'Entreprise, compétences, motivations personnelles.' },
+      { q: 'Le paragraphe 1 met en avant…', opts: ['les compétences', 'l\'intérêt pour l\'entreprise', 'les motivations personnelles'], correct: 1, exp: 'Puis compétences (2) et motivations (3).' },
+      { q: 'La lettre finit sur…', opts: ['un rappel du salaire', 'un remerciement bref', 'une demande de rendez-vous'], correct: 2, exp: '« Je me tiens à votre disposition » : la formule consacrée.' },
+      { q: '« J\'ai fait des études de… » : après, on écrit…', opts: ['du marketing', 'marketing (sans article)', 'la marketing'], correct: 1, exp: '« J\'ai étudié le marketing » mais « des études de marketing ».' },
+      { q: '« Avoir l\'esprit de… » se construit…', opts: ['sans article (esprit de synthèse)', 'avec un article', 'avec un adverbe'], correct: 0, exp: 'Esprit de synthèse, de groupe, d\'entreprise — sans article.' },
       { q: 'La formule de politesse d\'une lettre de motivation est…', opts: ['courte (Cordialement)', 'longue (« je vous prie d\'agréer… »)', 'facultative'], correct: 1, exp: 'Formule longue privilégiée ; Cordialement reste pour le courriel.' }
     ],
 
@@ -383,14 +383,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le passé composé se forme avec…', opts: ['avoir seul', 'être seul', 'avoir ou être au présent + participe passé'], correct: 2, exp: 'Auxiliaire au présent, puis participe passé.' },
-      { q: '« Elle est partie » et « elle a marché » : que conclure ?', opts: ['Partir prend être ici et marcher prend avoir.', 'Tous les verbes de mouvement prennent être.', 'Tous les verbes de mouvement prennent avoir.'], correct: 0, exp: 'Le mouvement seul ne détermine pas l\'auxiliaire : on examine le verbe et son emploi.' },
-      { q: '« J\'ai monté les bagages » : monter prend…', opts: ['avoir (avec COD)', 'être (toujours)', 'avoir (sans COD)'], correct: 0, exp: 'COD présent : avoir. Sans COD : « je suis monté ».' },
-      { q: 'Le participe de « écrire » est…', opts: ['écrivé', 'écrit', 'écris'], correct: 1, exp: 'Famille -it : dit, écrit, fait.' },
-      { q: 'Le participe de « prendre » est…', opts: ['prendu', 'prené', 'pris'], correct: 2, exp: 'Famille -is : acquis, appris, compris, mis, pris, soumis.' },
-      { q: 'Dans « elles sont allées », le participe s\'accorde…', opts: ['avec le COD', 'avec le sujet', 'jamais'], correct: 1, exp: 'Avec être et le verbe non pronominal aller, le participe s\'accorde avec le sujet : allées.' },
-      { q: '« Vous » de politesse adressé à une femme : « Vous êtes… »', opts: ['sorti', 'sortie', 'sorties'], correct: 1, exp: 'Politesse + femme : féminin singulier.' },
-      { q: 'Djamel et Malika disent : « Nous sommes… »', opts: ['allé', 'allée', 'allés'], correct: 2, exp: 'Groupe mixte : masculin pluriel.' }
+      { q: 'Le passé composé se forme avec…', opts: ["avoir ou être au présent + participe passé","l'auxiliaire avoir suivi du participe","l'auxiliaire être pour tous les verbes"], correct: 0, exp: "Le passé composé conjugue avoir ou être au présent, suivi du participe passé ; aucun des deux auxiliaires ne couvre à lui seul tous les verbes." },
+      { q: '« Elle est partie » et « elle a marché » : que conclure ?', opts: ['Tous les verbes de mouvement prennent avoir.', 'Tous les verbes de mouvement prennent être.', 'Partir prend être ici et marcher prend avoir.'], correct: 2, exp: 'Le mouvement seul ne détermine pas l\'auxiliaire : on examine le verbe et son emploi.' },
+      { q: '« J\'ai monté les bagages » : monter prend…', opts: ['avoir (sans COD)', 'être (toujours)', 'avoir (avec COD)'], correct: 2, exp: 'COD présent : avoir. Sans COD : « je suis monté ».' },
+      { q: 'Le participe de « écrire » est…', opts: ['écrit', 'écrivé', 'écris'], correct: 0, exp: "Le participe passé d'écrire est écrit, famille en -it comme dit, fait ou conduit ; « écrivé » et « écris » sont des déformations." },
+      { q: 'Le participe de « prendre » est…', opts: ['prendu', 'pris', 'prené'], correct: 1, exp: 'Famille -is : acquis, appris, compris, mis, pris, soumis.' },
+      { q: 'Dans « elles sont allées », le participe s\'accorde…', opts: ['avec le sujet', 'avec le COD', 'jamais'], correct: 0, exp: 'Avec être et le verbe non pronominal aller, le participe s\'accorde avec le sujet : allées.' },
+      { q: '« Vous » de politesse adressé à une femme : « Vous êtes… »', opts: ['sorti', 'sorties', 'sortie'], correct: 2, exp: "Le vous de politesse vaut un singulier : adressé à une femme, il commande sortie au féminin singulier, malgré le s du pronom." },
+      { q: 'Djamel et Malika disent : « Nous sommes… »', opts: ['allé', 'allés', 'allée'], correct: 1, exp: "Un groupe mixte, même majoritairement féminin, prend le masculin pluriel : nous sommes allés ; allée serait le féminin singulier." }
     ],
 
     pitfalls: [

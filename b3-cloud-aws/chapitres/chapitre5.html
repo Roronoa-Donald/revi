@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -212,24 +210,31 @@
      data-exercise="aws3-c5-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e1) — Calculateur de Coûts & Cycle de Vie Amazon S3 (Standard vs Glacier)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le podcast OndeBasse stocke 500 Go d'épisodes en S3 Standard (0,023 €/Go) et 2 000 Go d'archives en Glacier (0,0036 €/Go).&#10;Ce mois : 100 000 PUT (0,005 €/1 000) et 1 000 000 GET (0,0004 €/1 000).&#10;&#10;1) Standard : 500 × 0,023 = 11,50 €.&#10;2) Glacier : 2 000 × 0,0036 = 7,20 €.&#10;3) PUT : 100 × 0,005 = 0,50 €.&#10;4) GET : 1 000 × 0,0004 = 0,40 €.&#10;5) Total : 11,50 + 7,20 + 0,50 + 0,40 = 19,60 €.&#10;6) Cycle de vie de 100 Go vers Glacier : 100 × 0,0194 = 1,94 € d'économie.">
+  <script type="text/plain" data-lab-starter># Exercice — La facture S3 de l'agence photographique GrandAngle
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses : le montant en euros, le nombre seul suffit.
 
-[Cas 1 — Stockage Infrequent Access (10 000 GiB avec 200 GiB récupérés)]
-# Données : S3_COST SIZE_GIB=10000 CLASS=STANDARD_IA RETRIEVE_GIB=200
+[Question 1 — Coût mensuel du stockage Standard (en €)]
 A_COMPLETER
 
-[Cas 2 — Archivage Glacier Flexible (50 000 GiB avec 100 GiB récupérés)]
-# Données : S3_COST SIZE_GIB=50000 CLASS=GLACIER_FLEXIBLE RETRIEVE_GIB=100
+[Question 2 — Coût mensuel du stockage Glacier (en €)]
 A_COMPLETER
 
-[Cas 3 — Archivage froid profond Glacier Deep Archive (100 000 GiB sans extraction)]
-# Données : S3_COST SIZE_GIB=100000 CLASS=DEEP_ARCHIVE RETRIEVE_GIB=0
+[Question 3 — Coût des requêtes PUT (en €)]
+A_COMPLETER
+
+[Question 4 — Coût des requêtes GET (en €)]
+A_COMPLETER
+
+[Question 5 — Total de la facture S3 (en €)]
+A_COMPLETER
+
+[Question 6 — Économie de la règle de cycle de vie (en €)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Calculateur de Coûts &amp; Cycle de Vie Amazon S3 (Standard vs Glacier)</h3>
+    <h3 class="lab__title">Exercice 1 — La facture S3 de l'agence photographique GrandAngle</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -238,25 +243,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c5-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer les coûts de stockage mensuels d'un volume de données selon la classe de stockage S3 choisie.</p>
-    <div class="lab__brief"><p>Amazon S3 propose plusieurs classes de stockage avec un compromis entre coût au Go et frais d'accès :<br><br>
-Tarifs indicatifs de stockage par GiB et par mois :<br>
-- <code>STANDARD</code> : 0.023 $ / GiB (accès instantané, aucun frais de récupération).<br>
-- <code>STANDARD_IA</code> (Infrequent Access) : 0.0125 $ / GiB + 0.01 $ / GiB récupéré.<br>
-- <code>GLACIER_FLEXIBLE</code> : 0.0036 $ / GiB + 0.03 $ / GiB récupéré (restauration en quelques minutes à plusieurs heures).<br>
-- <code>DEEP_ARCHIVE</code> : 0.00099 $ / GiB + 0.05 $ / GiB récupéré (restauration en 12 à 48 heures).<br><br>
-Données du cas :<br>
-<code>S3_COST SIZE_GIB=&lt;g&gt; CLASS=&lt;CLASSE&gt; RETRIEVE_GIB=&lt;r&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-<code>S3_BILL: class=&lt;cls&gt; storage_cost=&lt;sc:.2f&gt;$ retrieval_cost=&lt;rc:.2f&gt;$ total_cost=&lt;tot:.2f&gt;$</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer une facture S3 : stockage par classe, requêtes et économie apportée par une règle de cycle de vie.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> GrandAngle est une agence photographique qui stocke ses reportages sur Amazon S3. Ce mois-ci, elle conserve <strong>2 000 Go</strong> de photos de production dans la classe <strong>S3 Standard</strong> (facturée <strong>0,023 € par Go et par mois</strong>) et <strong>1 000 Go</strong> d'archives dans <strong>S3 Glacier Flexible Retrieval</strong> (facturée <strong>0,0036 € par Go et par mois</strong>). L'activité du mois a généré <strong>200 000 requêtes PUT</strong> (à <strong>0,005 € pour 1 000 requêtes</strong>) et <strong>2 000 000 de requêtes GET</strong> (à <strong>0,0004 € pour 1 000 requêtes</strong>).</p><p>L'agence envisage en outre une règle de cycle de vie qui déplacerait <strong>500 Go</strong> de la classe Standard vers Glacier.</p><p>Toutes les questions attendent un montant en euros (le nombre seul suffit).</p><ol><li>Quel est le coût mensuel du stockage S3 Standard (2 000 Go) ?</li><li>Quel est le coût mensuel du stockage Glacier (1 000 Go) ?</li><li>Quel est le coût des requêtes PUT du mois ?</li><li>Quel est le coût des requêtes GET du mois ?</li><li>Quel est le total de la facture S3 du mois ?</li><li>Quelle économie mensuelle, en euros, la règle de cycle de vie (500 Go de Standard vers Glacier) apporterait-elle ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>S3_COST SIZE_GIB=1000 CLASS=STANDARD RETRIEVE_GIB=500</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le podcast OndeBasse stocke 500 Go d'épisodes en S3 Standard (0,023 €/Go) et 2 000 Go d'archives en Glacier (0,0036 €/Go).
+Ce mois : 100 000 PUT (0,005 €/1 000) et 1 000 000 GET (0,0004 €/1 000).
+
+1) Standard : 500 × 0,023 = 11,50 €.
+2) Glacier : 2 000 × 0,0036 = 7,20 €.
+3) PUT : 100 × 0,005 = 0,50 €.
+4) GET : 1 000 × 0,0004 = 0,40 €.
+5) Total : 11,50 + 7,20 + 0,50 + 0,40 = 19,60 €.
+6) Cycle de vie de 100 Go vers Glacier : 100 × 0,0194 = 1,94 € d'économie.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Le stockage se facture Go par Go : volume × prix unitaire ; les requêtes se facturent par tranche de 1 000.</li>
+        <li>L'économie de cycle de vie porte sur la différence de prix entre les deux classes, multipliée par le volume déplacé.</li>
+        <li>1. 2 000 × 0,023. 2. 1 000 × 0,0036. 3. 200 000 / 1 000 × 0,005. 4. 2 000 000 / 1 000 × 0,0004. 5. Additionnez les quatre lignes. 6. 500 × (0,023 − 0,0036).</li>
       </ol>
     </details>
   </div>
@@ -266,32 +271,31 @@ Résultat d’analyse attendu :<br>
      data-exercise="aws3-c5-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e2) — Validateur de Nom de Bucket S3 & Détecteur de Risques Publics
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le site de petites annonces Kazar fait tourner une base db.t3.medium à 0,08 €/h (730 h/mois).&#10;Sa charge : 80 % de lectures.&#10;&#10;1) Mono-AZ : 730 × 0,08 = 58,40 € par mois.&#10;2) Multi-AZ (secours qui double l'instance) : 116,80 € par mois.&#10;3) La secours multi-AZ ne sert aucune lecture.&#10;4) Pour les 80 % de lectures : ajouter un read replica.">
+  <script type="text/plain" data-lab-starter># Exercice — La base de données du comparateur Assurio
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 3 et 4 : le montant en euros. Question 5 : oui ou non.
 
-[Cas 1 — Bucket valide mais exposé (un flag BPA à false)]
-# Données : S3_AUDIT BUCKET=data-lake-raw-logs BPA=true,true,false,true
+[Question 1 — Objectif premier du multi-AZ]
 A_COMPLETER
 
-[Cas 2 — Erreur majuscules dans le nom]
-# Données : S3_AUDIT BUCKET=MonBucketInvalid BPA=true,true,true,true
+[Question 2 — Objectif premier du read replica]
 A_COMPLETER
 
-[Cas 3 — Erreur tiret adjacent à un point]
-# Données : S3_AUDIT BUCKET=data.-backup-bucket BPA=true,true,true,true
+[Question 3 — Coût mensuel en mono-AZ (en €)]
 A_COMPLETER
 
-[Cas 4 — Erreur format adresse IP]
-# Données : S3_AUDIT BUCKET=192.168.1.50 BPA=true,true,true,true
+[Question 4 — Coût mensuel en multi-AZ (en €)]
 A_COMPLETER
 
-[Cas 5 — Erreur longueur inférieure à 3 caractères]
-# Données : S3_AUDIT BUCKET=ab BPA=true,true,true,true
+[Question 5 — L'instance de secours peut-elle servir les lectures ?]
+A_COMPLETER
+
+[Question 6 — Option pour absorber les 70 % de lectures]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validateur de Nom de Bucket S3 &amp; Détecteur de Risques Publics</h3>
+    <h3 class="lab__title">Exercice 2 — La base de données du comparateur Assurio</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -300,30 +304,23 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c5-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Vérifier la conformité syntaxique globale d'un nom de bucket S3 et auditer les paramètres S3 Block Public Access.</p>
-    <div class="lab__brief"><p>Les règles de nommage universelles d'Amazon S3 imposent des contraintes strictes :<br><br>
-1. <strong>Règles de nom de bucket</strong> :<br>
-- Longueur comprise entre 3 et 63 caractères inclus.<br>
-- Uniquement lettres minuscules, chiffres, points <code>.</code> et tirets <code>-</code>.<br>
-- Doit obligatoirement commencer et se terminer par une lettre ou un chiffre.<br>
-- Ne doit pas ressembler à une adresse IP décimale à 4 octets (ex: <code>192.168.1.1</code>).<br>
-- Ne doit pas comporter deux points adjacents (<code>..</code>) ni de points et tirets contigus (<code>.-</code> ou <code>-.</code>).<br><br>
-2. <strong>Audit de sécurité (S3 Block Public Access)</strong> :<br>
-Les 4 paramètres doivent être à <code>true</code> : <code>BlockPublicAcls</code>, <code>IgnorePublicAcls</code>, <code>BlockPublicPolicy</code>, <code>RestrictPublicBuckets</code>.<br>
-Si l'un d'eux est à <code>false</code> -&gt; statut de risque <code>EXPOSED</code>, sinon <code>SECURE</code>.<br><br>
-Données du cas :<br>
-<code>S3_AUDIT BUCKET=&lt;nom&gt; BPA=&lt;bpa1,bpa2,bpa3,bpa4&gt;</code>.<br><br>
-Résultat d’analyse attendu :<br>
-Si nom valide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=VALID security_status=&lt;SECURE|EXPOSED&gt;</code>.<br>
-Si nom invalide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=INVALID reason=&lt;BAD_LENGTH|BAD_CHARS|BAD_EDGES|IP_FORMAT|BAD_DOT_DASH&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir entre RDS multi-AZ et read replica selon l'objectif (disponibilité ou délestage des lectures) et chiffrer le coût.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Assurio édite un comparateur d'assurances. Sa base MySQL tourne sur Amazon RDS avec une instance db.t3.medium facturée <strong>0,10 € par heure</strong> (grille simplifiée) ; on retient <strong>730 heures par mois</strong>. La charge mesurée se répartit en <strong>70 % de lectures</strong> et 30 % d'écritures. L'équipe hésite entre deux options :</p><ul><li><strong>multi-AZ</strong> : une instance de secours synchronisée dans une autre zone de disponibilité, avec bascule automatique en cas de panne ; l'instance de secours double la partie instance de la facture ;</li><li><strong>read replica</strong> : une copie asynchrone de la base, dédiée aux requêtes de lecture ; l'application doit cibler explicitement son point de terminaison pour les lectures.</li></ul><p>Les questions 3 et 4 attendent un montant ; les autres une réponse courte. La question 5 attend « oui » ou « non ».</p><ol><li>Quel est l'objectif premier d'un déploiement multi-AZ : haute disponibilité ou répartition des lectures ?</li><li>Quel est l'objectif premier d'un read replica ?</li><li>Quel est le coût mensuel (730 h) de l'instance en mono-AZ, en euros ?</li><li>Quel est le coût mensuel en multi-AZ, en euros, sachant que l'instance de secours double la partie instance ?</li><li>En multi-AZ classique, l'instance de secours peut-elle servir des requêtes de lecture ?</li><li>Pour absorber les 70 % de lectures, quelle option Assurio doit-elle ajouter : multi-AZ ou read replica ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>S3_AUDIT BUCKET=mon-bucket-prod-2026 BPA=true,true,true,true</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le site de petites annonces Kazar fait tourner une base db.t3.medium à 0,08 €/h (730 h/mois).
+Sa charge : 80 % de lectures.
+
+1) Mono-AZ : 730 × 0,08 = 58,40 € par mois.
+2) Multi-AZ (secours qui double l'instance) : 116,80 € par mois.
+3) La secours multi-AZ ne sert aucune lecture.
+4) Pour les 80 % de lectures : ajouter un read replica.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Le multi-AZ répond à la question « que se passe-t-il si ma zone tombe ? » ; le read replica répond à « mes lectures saturent-elles ma base ? ».</li>
+        <li>En multi-AZ, la facture d'instance double ; l'économie de lecture, elle, passe par un point de terminaison supplémentaire.</li>
+        <li>1. Pensez bascule automatique. 2. Pensez décharger les SELECT. 3. 730 × 0,10. 4. Doublez la ligne précédente. 5. La secours est-elle exposée ? 6. 70 % de la charge est de la lecture.</li>
       </ol>
     </details>
   </div>
@@ -333,24 +330,31 @@ Si nom invalide : <code>BUCKET_AUDIT: bucket=&lt;nom&gt; name_status=INVALID rea
      data-exercise="aws3-c5-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (aws3-c5-e3) — Calculateur de Capacité Provisionnée Amazon DynamoDB (RCU & WCU)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La table de suivi des colis de Colivie est provisionnée à 8 RCU et 20 WCU.&#10;&#10;1) Un élément de 3 Ko se lit fortement cohérent pour 1 RCU (3 ≤ 4).&#10;2) Un élément de 6 Ko en coûte 2 (6 dépasse 4, on arrondit à 8 : 2 tranches).&#10;3) Écrire un élément de 1,2 Ko consomme 2 WCU (arrondi à 2 Ko).&#10;4) Avec 8 RCU, la table sert 16 lectures faiblement cohérentes par seconde d'éléments de 4 Ko.">
+  <script type="text/plain" data-lab-starter># Exercice — La capacité provisionnée de la table DynamoDB de Notifly
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses : le nombre seul.
 
-[Cas 1 — Item de 10 KB avec lectures fortement cohérentes]
-# Données : DYNAMO_CAP SIZE_KB=10.0 READS_SEC=200 WRITES_SEC=20 READ_MODE=STRONG WRITE_MODE=STANDARD
+[Question 1 — Lectures fortement cohérentes par seconde (élément de 4 Ko)]
 A_COMPLETER
 
-[Cas 2 — Transactions complètes ACID en lecture et écriture]
-# Données : DYNAMO_CAP SIZE_KB=2.0 READS_SEC=50 WRITES_SEC=30 READ_MODE=TRANSACTIONAL WRITE_MODE=TRANSACTIONAL
+[Question 2 — Lectures faiblement cohérentes par seconde (élément de 4 Ko)]
 A_COMPLETER
 
-[Cas 3 — Lecture avec fractionnement (RCU arrondi au supérieur)]
-# Données : DYNAMO_CAP SIZE_KB=1.0 READS_SEC=5 WRITES_SEC=5 READ_MODE=EVENTUAL WRITE_MODE=STANDARD
+[Question 3 — RCU d'une lecture fortement cohérente d'un élément de 8 Ko]
+A_COMPLETER
+
+[Question 4 — WCU de l'écriture d'un élément de 2,5 Ko]
+A_COMPLETER
+
+[Question 5 — Écritures par seconde d'éléments de 1 Ko]
+A_COMPLETER
+
+[Question 6 — RCU d'une lecture fortement cohérente d'un élément de 12 Ko]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Calculateur de Capacité Provisionnée Amazon DynamoDB (RCU &amp; WCU)</h3>
+    <h3 class="lab__title">Exercice 3 — La capacité provisionnée de la table DynamoDB de Notifly</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -359,34 +363,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="aws3-c5-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer précisément les unités de capacité de lecture (RCU) et d'écriture (WCU) requises pour une table DynamoDB.</p>
-    <div class="lab__brief"><p>Dans Amazon DynamoDB, la capacité provisionnée se calcule selon la taille d'élément et le mode de cohérence :<br><br>
-1. <strong>Calcul des Read Capacity Units (RCU)</strong> :<br>
-- Unité de base : blocs de <strong>4 KB</strong> arrondis au supérieur : <code>Blocs_R = math.ceil(Item_Size_KB / 4.0)</code> (ou 1 si size &lt;= 4).<br>
-- Mode <code>EVENTUAL</code> (Éventuellement cohérent) : 0.5 RCU par lecture par seconde :<br>
-<code>RCU = Blocs_R * Reads_Sec * 0.5</code>.<br>
-- Mode <code>STRONG</code> (Fortement cohérent) : 1 RCU par lecture par seconde :<br>
-<code>RCU = Blocs_R * Reads_Sec * 1.0</code>.<br>
-- Mode <code>TRANSACTIONAL</code> (Lectures transactionnelles) : 2 RCU par lecture par seconde :<br>
-<code>RCU = Blocs_R * Reads_Sec * 2.0</code>.<br>
-Arrondir le RCU final à l'entier supérieur : <code>math.ceil(RCU)</code>.<br><br>
-2. <strong>Calcul des Write Capacity Units (WCU)</strong> :<br>
-- Unité de base : blocs de <strong>1 KB</strong> arrondis au supérieur : <code>Blocs_W = math.ceil(Item_Size_KB / 1.0)</code>.<br>
-- Mode <code>STANDARD</code> : 1 WCU par écriture par seconde :<br>
-<code>WCU = Blocs_W * Writes_Sec * 1.0</code>.<br>
-- Mode <code>TRANSACTIONAL</code> : 2 WCU par écriture par seconde :<br>
-<code>WCU = Blocs_W * Writes_Sec * 2.0</code>.<br><br>
-Données du cas :<br>
-<code>DYNAMO_CAP SIZE_KB=&lt;k&gt; READS_SEC=&lt;r&gt; WRITES_SEC=&lt;w&gt; READ_MODE=&lt;EVENTUAL|STRONG|TRANSACTIONAL&gt; WRITE_MODE=&lt;STANDARD|TRANSACTIONAL&gt;</code>.<br><br>
-Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rcu&gt; wcu=&lt;wcu&gt;</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer la consommation en RCU et WCU d'une table DynamoDB en capacité provisionnée.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Notifly gère les préférences de notification de ses 10 millions d'utilisateurs dans une table DynamoDB fonctionnant en <strong>capacité provisionnée</strong> : <strong>5 unités de lecture (RCU)</strong> et <strong>10 unités d'écriture (WCU)</strong>. Les éléments de la table pèsent entre 1 et 12 Ko.</p><p>Rappels du cours : <strong>1 WCU</strong> autorise 1 écriture par seconde d'un élément d'au plus 1 Ko (au-delà, on arrondit au Ko supérieur) ; <strong>1 RCU</strong> autorise 1 lecture fortement cohérente par seconde d'un élément d'au plus 4 Ko (au-delà, on arrondit au multiple de 4 Ko supérieur) ; une lecture faiblement cohérente consomme la moitié d'une lecture fortement cohérente.</p><p>Toutes les questions attendent un nombre.</p><ol><li>Combien de lectures fortement cohérentes par seconde d'un élément de 4 Ko la table autorise-t-elle ?</li><li>Combien de lectures faiblement cohérentes par seconde du même élément de 4 Ko la table autorise-t-elle ?</li><li>Combien de RCU consomme une lecture fortement cohérente d'un élément de 8 Ko ?</li><li>Combien de WCU consomme l'écriture d'un élément de 2,5 Ko ?</li><li>Avec 10 WCU, combien d'écritures par seconde d'éléments de 1 Ko la table autorise-t-elle ?</li><li>Combien de RCU consomme une lecture fortement cohérente d'un élément de 12 Ko ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DYNAMO_CAP SIZE_KB=3.5 READS_SEC=100 WRITES_SEC=50 READ_MODE=EVENTUAL WRITE_MODE=STANDARD</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La table de suivi des colis de Colivie est provisionnée à 8 RCU et 20 WCU.
+
+1) Un élément de 3 Ko se lit fortement cohérent pour 1 RCU (3 ≤ 4).
+2) Un élément de 6 Ko en coûte 2 (6 dépasse 4, on arrondit à 8 : 2 tranches).
+3) Écrire un élément de 1,2 Ko consomme 2 WCU (arrondi à 2 Ko).
+4) Avec 8 RCU, la table sert 16 lectures faiblement cohérentes par seconde d'éléments de 4 Ko.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Analysez scrupuleusement le format d'entrée les données d’entrée.</li>
-        <li>Respectez la casse et les séparateurs attendus en sortie.</li>
+        <li>Pour lire, découpez la taille de l'élément en tranches de 4 Ko arrondies vers le haut ; pour écrire, en tranches de 1 Ko arrondies vers le haut.</li>
+        <li>La lecture faiblement cohérente coûte moitié prix : une même table en sert deux fois plus.</li>
+        <li>1. 4 Ko tient dans 1 RCU. 2. La cohérence finale divise par 2. 3. 8 Ko = 2 tranches de 4 Ko. 4. 2,5 Ko s'arrondit à 3 Ko. 5. 1 Ko = 1 WCU. 6. 12 Ko = 3 tranches de 4 Ko.</li>
       </ol>
     </details>
   </div>
@@ -400,8 +392,8 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
       <p class="q__stem">Quelle durabilité théorique des données Amazon S3 garantit-il en répliquant automatiquement chaque objet sur au moins 3 Availability Zones ?</p>
       <div class="opts">
         <button class="opt">99.9%</button>
-        <button class="opt">99.99%</button>
         <button class="opt" data-correct="1">99.999999999% (11 neuf)</button>
+        <button class="opt">99.99%</button>
         <button class="opt">100% sans exception</button>
       </div>
       <div class="q__exp">Amazon S3 Standard est conçu pour offrir une durabilité de 99.999999999% (11 neuf) sur un an en distribuant les copies d'objets sur plusieurs centres de données indépendants.</div>
@@ -409,10 +401,10 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
     <div class="q">
       <p class="q__stem">Quelle classe de stockage Amazon S3 offre le tarif au Go le plus bas pour des archives légales à long terme nécessitant un délai de récupération de 12 à 48 heures ?</p>
       <div class="opts">
-        <button class="opt">S3 Standard</button>
+        <button class="opt" data-correct="1">S3 Glacier Deep Archive</button>
         <button class="opt">S3 Standard-IA</button>
         <button class="opt">S3 Glacier Flexible Retrieval</button>
-        <button class="opt" data-correct="1">S3 Glacier Deep Archive</button>
+        <button class="opt">S3 Standard</button>
       </div>
       <div class="q__exp">S3 Glacier Deep Archive est la classe de stockage la plus économique du cloud (~0.00099 $/Go/mois), idéale pour la conformité et la rétention réglementaire sur 7 à 10 ans.</div>
     </div>
@@ -420,19 +412,19 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
       <p class="q__stem">Quelle technologie de stockage AWS permet à des dizaines d'instances EC2 réparties dans plusieurs Availability Zones d'accéder simultanément au même système de fichiers partagé en NFS v4 ?</p>
       <div class="opts">
         <button class="opt">Amazon EBS gp3</button>
-        <button class="opt" data-correct="1">Amazon EFS (Elastic File System)</button>
-        <button class="opt">Instance Store local</button>
         <button class="opt">Amazon S3 Glacier</button>
+        <button class="opt">Instance Store local</button>
+        <button class="opt" data-correct="1">Amazon EFS (Elastic File System)</button>
       </div>
       <div class="q__exp">Amazon EFS est un système de fichiers partagé basé sur le protocole NFS v4 qui peut être monté simultanément sur des centaines d'instances réparties sur plusieurs AZs.</div>
     </div>
     <div class="q">
       <p class="q__stem">Dans une architecture de base de données Amazon RDS PostgreSQL, quelle est la fonction principale d'un déploiement Multi-AZ ?</p>
       <div class="opts">
-        <button class="opt">Doubler la vitesse d'exécution des requêtes de lecture</button>
+        <button class="opt">Répartir les requêtes de lecture entre le primaire et la réplique pour en doubler le débit</button>
+        <button class="opt">Fournir un accès gratuit et illimité pour les développeurs de l'entreprise pendant les phases de test</button>
         <button class="opt" data-correct="1">Assurer la haute disponibilité et la reprise automatique après sinistre via une réplique synchrone Standby</button>
-        <button class="opt">Fournir un accès gratuit pour les développeurs</button>
-        <button class="opt">Compresser les tables volumineuses</button>
+        <button class="opt">Compresser automatiquement les tables volumineuses pour économiser de l'espace de stockage</button>
       </div>
       <div class="q__exp">Le déploiement Multi-AZ assure la haute disponibilité en maintenant une réplique synchrone passive dans une autre zone. En cas de panne de l'instance primaire, le basculement est automatique.</div>
     </div>
@@ -440,8 +432,8 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
       <p class="q__stem">Combien de Read Capacity Units (RCU) sont nécessaires dans Amazon DynamoDB pour réaliser 100 lectures fortement cohérentes (Strongly Consistent) par seconde sur des éléments de 3.5 KB ?</p>
       <div class="opts">
         <button class="opt">25 RCU</button>
-        <button class="opt">50 RCU</button>
         <button class="opt" data-correct="1">100 RCU</button>
+        <button class="opt">50 RCU</button>
         <button class="opt">200 RCU</button>
       </div>
       <div class="q__exp">Un élément de 3.5 KB tient dans un bloc de 4 KB (math.ceil(3.5/4) = 1). Pour une lecture fortement cohérente, 1 lecture = 1 RCU. Donc 100 lectures/sec * 1 RCU = 100 RCU.</div>
@@ -449,8 +441,8 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
     <div class="q">
       <p class="q__stem">Quel mécanisme de sécurité Amazon S3 neutralise formellement toute tentative de rendre un bucket ou des objets publics, même si une politique permissive est appliquée ?</p>
       <div class="opts">
-        <button class="opt">AWS Shield</button>
         <button class="opt" data-correct="1">S3 Block Public Access</button>
+        <button class="opt">AWS Shield</button>
         <button class="opt">Amazon Inspector</button>
         <button class="opt">AWS WAF</button>
       </div>
@@ -459,10 +451,10 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
     <div class="q">
       <p class="q__stem">Quelle caractéristique distingue Amazon Aurora par rapport aux moteurs de bases de données RDS traditionnels (MySQL standard) ?</p>
       <div class="opts">
-        <button class="opt">Aurora stocke les données sur des disques magnétiques lents</button>
+        <button class="opt">Aurora stocke les données sur des disques magnétiques lents, bien moins coûteux que les volumes SSD</button>
+        <button class="opt">Aurora ne supporte pas le langage SQL et impose un langage de requêtes propriétaire spécifique</button>
+        <button class="opt">Aurora n'est disponible que dans une seule région à la fois, sans réplication inter-régions possible</button>
         <button class="opt" data-correct="1">Aurora réplique automatiquement 6 copies des données sur 3 Availability Zones et offre jusqu'à 5 fois les performances de MySQL</button>
-        <button class="opt">Aurora ne supporte pas le langage SQL</button>
-        <button class="opt">Aurora n'est disponible que dans une seule région</button>
       </div>
       <div class="q__exp">Amazon Aurora est un moteur cloud natif qui sépare le calcul et le stockage. Son système de stockage distribué réplique 6 copies des blocs sur 3 AZs avec un basculement ultra-rapide.</div>
     </div>
@@ -470,8 +462,8 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
       <p class="q__stem">Pour protéger les objets S3 contre les suppressions accidentelles et les ransomwares en conservant l'historique des modifications, quelle fonctionnalité doit être activée ?</p>
       <div class="opts">
         <button class="opt">S3 Transfer Acceleration</button>
-        <button class="opt" data-correct="1">S3 Versioning</button>
         <button class="opt">S3 Intelligent-Tiering</button>
+        <button class="opt" data-correct="1">S3 Versioning</button>
         <button class="opt">S3 Cross-Origin Resource Sharing (CORS)</button>
       </div>
       <div class="q__exp">Le versioning S3 conserve toutes les variantes d'un objet (création, écrasement, suppression). Une suppression place simplement un Delete Marker, permettant de restaurer la version antérieure.</div>
@@ -594,7 +586,7 @@ Résultat d’analyse attendu : <code>DYNAMO_SIZING: size=&lt;k&gt;KB rcu=&lt;rc
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -171,24 +169,28 @@
      data-exercise="sup3-c4-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="PROM_PARSE http_requests_total{method=&quot;GET&quot;,handler=&quot;/api&quot;} 1027">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c4-e1) — Parseur de Format d’Exposition Métrique Prometheus
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="La boutique en ligne Vertigo expose ses métriques Prometheus :&#10;orders_total 8421 (counter)&#10;cache_hit_ratio 0.93 (gauge)&#10;checkout_duration_seconds_bucket{le=&quot;0.5&quot;} 340 (histogram)&#10;payment_authorization_seconds{quantile=&quot;0.99&quot;} 0.412 (summary)&#10;&#10;1) orders_total : counter, il ne fait que croître.&#10;2) cache_hit_ratio : gauge, le taux de succès peut baisser.&#10;3) checkout_duration_seconds : histogram, les durées sont réparties par buckets.&#10;4) payment_authorization_seconds : summary, le quantile est calculé par l'application.&#10;5) Une accolade comme {code=&quot;200&quot;, carrier=&quot;colissimo&quot;} porte des labels.">
+  <script type="text/plain" data-lab-starter># Exercice — Les quatre types de métriques de la plateforme StreamVOD
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 à 4 : le nom du type. Question 5 : un court libellé.
 
-[Cas 1 — Métrique sans label mémoire vive libre]
-# Données : PROM_PARSE node_memory_MemFree_bytes 1048576
+[Question 1 — Type de métrique toujours croissant]
 A_COMPLETER
 
-[Cas 2 — Métrique avec valeur flottante et label unique]
-# Données : PROM_PARSE cpu_temperature_celsius{core="0"} 45.5
+[Question 2 — Type de métrique à valeur instantanée]
 A_COMPLETER
 
-[Cas 3 — Métrique up avec instance et job]
-# Données : PROM_PARSE up{job="node-exporter",instance="10.0.0.1:9100"} 1
+[Question 3 — Type de métrique à intervalles]
+A_COMPLETER
+
+[Question 4 — Type de métrique à quantiles]
+A_COMPLETER
+
+[Question 5 — Nature de handler="/api/play"]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Parseur de Format d’Exposition Métrique Prometheus</h3>
+    <h3 class="lab__title">Exercice 1 — Les quatre types de métriques de la plateforme StreamVOD</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -197,23 +199,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c4-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Analyser une ligne d'échantillon de métrique Prometheus OpenMetrics et extraire son nom, ses labels et sa valeur numérique.</p>
-    <div class="lab__brief"><p>Prometheus collecte ses métriques sous forme de flux textuel structuré :<br><br>
-Format d'un échantillon :<br>
-<code>metric_name{label1="val1",label2="val2"} 1234.56</code><br>
-ou sans label :<br>
-<code>metric_name 1048576</code><br><br>
-Données du cas : <code>PROM_PARSE &lt;ligne_echantillon&gt;</code>.<br>
-Résultat d’analyse attendu : <code>METRIC: name=&lt;name&gt; labels=&lt;k1=v1,k2=v2|NONE&gt; value=&lt;val&gt;</code>.<br>
-(Les étiquettes sont triées par nom alphabétique en sortie).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Distinguer counter, gauge, histogram et summary dans un format d'exposition Prometheus.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> La plateforme de vidéo à la demande StreamVOD expose ses métriques au format Prometheus. Extrait du point d'exposition collecté par le serveur :</p><table><tr><th>Ligne d'exposition</th><th>TYPE déclaré</th></tr><tr><th>http_requests_total{handler="/api/play"} 145203</th><td>counter</td></tr><tr><th>node_cpu_seconds_total{mode="idle"} 9812442</th><td>counter</td></tr><tr><th>queue_waiting_jobs 17</th><td>gauge</td></tr><tr><th>transcode_duration_seconds_bucket{le="0.1"} 1200</th><td>histogram</td></tr><tr><th>rpc_duration_seconds{quantile="0.95"} 0.007</th><td>summary</td></tr></table><p>Rappels du cours : un counter ne fait que croître et compte des événements cumulés ; une gauge donne une valeur instantanée qui peut baisser ; un histogram répartit les observations dans des intervalles (buckets) ; un summary expose des quantiles calculés par l'application elle-même.</p><ol><li>Quel type de métrique ne fait que croître et compte des événements cumulés ?</li><li>Quel type de métrique donne une valeur instantanée qui peut baisser, comme les tâches en attente ?</li><li>Quel type de métrique répartit les observations dans des intervalles (buckets) ?</li><li>Quel type de métrique expose directement des quantiles calculés côté application ?</li><li>Dans la série http_requests_total{handler="/api/play"}, que représente la partie handler="/api/play" ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROM_PARSE http_requests_total{method="GET",handler="/api"} 1027</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>La boutique en ligne Vertigo expose ses métriques Prometheus :
+orders_total 8421 (counter)
+cache_hit_ratio 0.93 (gauge)
+checkout_duration_seconds_bucket{le="0.5"} 340 (histogram)
+payment_authorization_seconds{quantile="0.99"} 0.412 (summary)
+
+1) orders_total : counter, il ne fait que croître.
+2) cache_hit_ratio : gauge, le taux de succès peut baisser.
+3) checkout_duration_seconds : histogram, les durées sont réparties par buckets.
+4) payment_authorization_seconds : summary, le quantile est calculé par l'application.
+5) Une accolade comme {code="200", carrier="colissimo"} porte des labels.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Utilisez une expression régulière pour séparer le nom, le bloc de labels entre accolades et la valeur.</li>
-        <li>Triez les paires de labels par ordre alphabétique de leurs clés.</li>
+        <li>Un counter ne descend jamais, sauf remise à zéro au redémarrage du processus : on ne l'utilise jamais seul, toujours avec rate().</li>
+        <li>Une gauge peut monter et descendre à chaque collecte : température, file d'attente, mémoire libre, taux de succès.</li>
+        <li>1. Cherchez la métrique de requêtes cumulées. 2. Les tâches en attente forment une valeur instantanée. 3. Les buckets signalent l'histogram. 4. Le quantile 0.95 exposé signale le summary. 5. La partie entre accolades qualifie la série : c'est un label.</li>
       </ol>
     </details>
   </div>
@@ -223,24 +229,28 @@ Résultat d’analyse attendu : <code>METRIC: name=&lt;name&gt; labels=&lt;k1=v1
      data-exercise="sup3-c4-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c4-e2) — Moteur de Calcul PromQL rate() et Agrégation sum by()
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Le portail MairieConnect expose le counter sessions_total.&#10;À 09 h 00, il vaut 20 000 ; à 09 h 02 (fenêtre de 2 minutes), il vaut 21 560.&#10;&#10;1) Variation : 21 560 − 20 000 = 1 560.&#10;2) Fenêtre : 2 minutes = 120 secondes.&#10;3) rate() : 1 560 / 120 = 13 sessions par seconde.">
+  <script type="text/plain" data-lab-starter># Exercice — Le rate() de l'API de suivi de colis LivraisonPlus
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Toutes les réponses sont des nombres seuls.
 
-[Cas 1 — Deux séries de production sur intervalle 60 secondes]
-# Données : PROMQL_RATE INTERVAL=60 GROUP=env SERIES=120:180:env=prod,host=srv1 SERIES=200:320:env=prod,host=srv2
+[Question 1 — Variation du counter de api-1]
 A_COMPLETER
 
-[Cas 2 — Série unique avec réinitialisation de compteur]
-# Données : PROMQL_RATE INTERVAL=120 GROUP=service SERIES=500:200:service=payment
+[Question 2 — Durée de la fenêtre (en secondes)]
 A_COMPLETER
 
-[Cas 3 — Deux groupes distincts frontend et backend]
-# Données : PROMQL_RATE INTERVAL=100 GROUP=tier SERIES=100:300:tier=front SERIES=50:250:tier=back SERIES=0:100:tier=front
+[Question 3 — rate() de api-1 (2 décimales)]
+A_COMPLETER
+
+[Question 4 — rate() de api-2]
+A_COMPLETER
+
+[Question 5 — Débit total de la plateforme (2 décimales)]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Moteur de Calcul PromQL rate() et Agrégation sum by()</h3>
+    <h3 class="lab__title">Exercice 2 — Le rate() de l'API de suivi de colis LivraisonPlus</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -249,24 +259,22 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c4-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Calculer le taux d'accroissement par seconde d'un compteur avec gestion des réinitialisations, puis agréger par étiquette.</p>
-    <div class="lab__brief"><p>En PromQL, <code>rate(v[interval])</code> calcule la dérivée par seconde :<br><br>
-1. <strong>Taux par seconde</strong> :<br>
-Si <code>final &gt;= init</code> : <code>delta = final - init</code>.<br>
-Si <code>final &lt; init</code> (redémarrage / compteur reset) : <code>delta = final</code>.<br>
-<code>taux = delta / interval</code>.<br><br>
-2. <strong>Agrégation sum by (LABEL)</strong> :<br>
-Somme des taux pour chaque valeur distincte de l'étiquette cible <code>GROUP</code>.<br><br>
-Données du cas : <code>PROMQL_RATE INTERVAL=&lt;sec&gt; GROUP=&lt;label&gt; SERIES=&lt;init:final:lbl=val,lbl=val&gt; [SERIES=...]</code>.<br>
-Résultat d’analyse attendu : <code>PROMQL: rates=[&lt;s1_taux:.2f&gt;,&lt;s2_taux:.2f&gt;] sum_by={&lt;val1&gt;:&lt;tot1:.2f&gt;,&lt;val2&gt;:&lt;tot2:.2f&gt;}</code> (clés de sum_by triées par ordre alphabétique).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Calculer un rate() PromQL à partir d'un counter échantillonné sur une fenêtre, puis agréger deux instances.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> L'API de suivi de colis LivraisonPlus tourne sur deux instances derrière un répartiteur de charge. Le counter <code>http_requests_total</code> est relevé sur chaque instance à 12 h 00 puis à 12 h 05, soit une fenêtre de 5 minutes :</p><table><tr><th>Instance</th><th>Valeur à 12 h 00</th><th>Valeur à 12 h 05</th></tr><tr><th>api-1</th><td>118 250</td><td>121 450</td></tr><tr><th>api-2</th><td>54 100</td><td>55 300</td></tr></table><p>Rappels du cours : rate() = variation du counter sur la fenêtre divisée par la durée de la fenêtre en secondes ; aucune des deux instances n'a redémarré pendant la fenêtre ; le débit total de la plateforme s'obtient en sommant les rate() des instances.</p><ol><li>Quelle est la variation du counter de l'instance api-1 sur la fenêtre ?</li><li>Quelle est la durée de la fenêtre, en secondes ?</li><li>Quel est le rate() de l'instance api-1, arrondi à 2 décimales (en requêtes par seconde) ?</li><li>Quel est le rate() de l'instance api-2 (en requêtes par seconde) ?</li><li>Quel est le débit total de la plateforme, arrondi à 2 décimales (en requêtes par seconde) ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>PROMQL_RATE INTERVAL=300 GROUP=status SERIES=1000:2500:service=cart,status=200 SERIES=500:1100:service=auth,status=200 SERIES=10:70:service=cart,status=500</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Le portail MairieConnect expose le counter sessions_total.
+À 09 h 00, il vaut 20 000 ; à 09 h 02 (fenêtre de 2 minutes), il vaut 21 560.
+
+1) Variation : 21 560 − 20 000 = 1 560.
+2) Fenêtre : 2 minutes = 120 secondes.
+3) rate() : 1 560 / 120 = 13 sessions par seconde.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Isolez les paramètres INTERVAL, GROUP et chaque argument SERIES.</li>
-        <li>Gérez le reset du compteur si final &lt; init.</li>
+        <li>Le rate() se calcule sur une fenêtre : soustrayez la valeur de départ de la valeur d'arrivée ; en cas de redémarrage, la fonction compense la remise à zéro du counter.</li>
+        <li>5 minutes = 300 secondes : c'est le diviseur commun des deux rate().</li>
+        <li>1. Variation de api-1 : 121 450 − 118 250. 2. Convertissez 5 minutes en secondes. 3. Divisez la variation par 300. 4. Même calcul pour api-2. 5. Additionnez les deux rate().</li>
       </ol>
     </details>
   </div>
@@ -276,24 +284,28 @@ Résultat d’analyse attendu : <code>PROMQL: rates=[&lt;s1_taux:.2f&gt;,&lt;s2_
      data-exercise="sup3-c4-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (sup3-c4-e3) — Routeur de Notifications Alertmanager (Grouping & Silences)
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="DataPort ouvre une maintenance de ses bases de 22 h 00 à 23 h 30, avec un silence sur job=&quot;db&quot;.&#10;Alertes reçues : HighLatency (warning, job=db) à 22 h 20 ; DiskFull (critical, job=web) à 22 h 40 ;&#10;HighLatency (warning, job=web) à 23 h 00.&#10;&#10;1) Seule l'alerte HighLatency de job=db est silencée.&#10;2) DiskFull, critical et hors silence, part vers l'astreinte.&#10;3) HighLatency de job=web, warning, arrive sur Slack.&#10;4) Le silence épargne les alertes des autres jobs : deux notifications partent pendant la fenêtre.">
+  <script type="text/plain" data-lab-starter># Exercice — Alertmanager : silences et routage pendant la migration de ShopExpress
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
+# Questions 1 et 5 : un court libellé. Questions 2 et 3 : le nombre. Question 4 : oui ou non.
 
-[Cas 1 — Deux alertes actives dans la même zone sans inhibition]
-# Données : ALERT_ROUTE GROUP_BY=zone SILENCE=NONE INHIBIT=NONE ALERTS=DBDown:alertname=DBDown,zone=eu-1|WebDown:alertname=WebDown,zone=eu-1
+[Question 1 — Alertes neutralisées par le silence]
 A_COMPLETER
 
-[Cas 2 — Silence global éliminant toutes les alertes de test]
-# Données : ALERT_ROUTE GROUP_BY=env SILENCE=env=test INHIBIT=NONE ALERTS=TestAlert:alertname=TestAlert,env=test
+[Question 2 — Notifications Slack pendant la fenêtre]
 A_COMPLETER
 
-[Cas 3 — Deux clusters de production distincts]
-# Données : ALERT_ROUTE GROUP_BY=cluster SILENCE=NONE INHIBIT=NONE ALERTS=ApiSlow:alertname=ApiSlow,cluster=alpha|WorkerDown:alertname=WorkerDown,cluster=beta
+[Question 3 — Notifications PagerDuty pendant la fenêtre]
+A_COMPLETER
+
+[Question 4 — L'alerte B sera-t-elle notifiée à 04 h 05 ?]
+A_COMPLETER
+
+[Question 5 — Critère de routage qui sépare C et D]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Routeur de Notifications Alertmanager (Grouping &amp; Silences)</h3>
+    <h3 class="lab__title">Exercice 3 — Alertmanager : silences et routage pendant la migration de ShopExpress</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -302,23 +314,24 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="sup3-c4-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Filtrer les alertes actives via les silences et règles d'inhibition puis regrouper les notifications.</p>
-    <div class="lab__brief"><p>Alertmanager évite la surcharge d'alertes en combinant filtrage et groupement :<br><br>
-1. <strong>Silences</strong> : Si un silence actif <code>SILENCE=k=v</code> correspond à un label de l'alerte, celle-ci est ignorée.<br>
-2. <strong>Inhibition</strong> : Si <code>INHIBIT=src:tgt:equal_key</code> est défini, toute alerte <code>tgt</code> est supprimée s'il existe une alerte <code>src</code> active ayant la même valeur sur le label <code>equal_key</code>.<br>
-3. <strong>Groupement</strong> : Les alertes conservées sont regroupées par la valeur de l'étiquette <code>GROUP_BY</code>.<br><br>
-Données du cas : <code>ALERT_ROUTE GROUP_BY=&lt;key&gt; SILENCE=&lt;k=v|NONE&gt; INHIBIT=&lt;src:tgt:eq|NONE&gt; ALERTS=&lt;name1:k=v,k=v|name2:...&gt;</code>.<br>
-Résultat d’analyse attendu : Pour chaque groupe (dans l'ordre alphabétique des valeurs du label groupé) :<br>
-<code>ALERT_GROUP: key=&lt;val&gt; count=&lt;n&gt; alerts=&lt;nom1,nom2...&gt;</code> (si aucune alerte : <code>ALERT_GROUP: key=NONE count=0 alerts=NONE</code>).</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Appliquer les règles d'Alertmanager (silence, groupement, routage par sévérité) à une nuit de migration.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> ShopExpress migre son cluster européen dans la nuit du samedi 14 au dimanche 15 juin, fenêtre de maintenance de <strong>02 h 00 à 04 h 00</strong>. Configuration Alertmanager : les alertes portant le cluster <code>eu-west</code> sont <strong>mises en silence</strong> pendant toute la fenêtre ; le groupement est réalisé par cluster ; le routage envoie la sévérité <code>critical</code> vers l'astreinte (PagerDuty) et la sévérité <code>warning</code> vers le canal Slack du NOC. Alertes reçues pendant la fenêtre :</p><table><tr><th>Alerte</th><th>Nom (alertname)</th><th>Sévérité</th><th>Cluster</th><th>Heure</th></tr><tr><th>A</th><td>HighCPU</td><td>warning</td><td>eu-west</td><td>02 h 15</td></tr><tr><th>B</th><td>ServiceDown</td><td>critical</td><td>eu-west</td><td>02 h 30</td></tr><tr><th>C</th><td>HighCPU</td><td>warning</td><td>us-east</td><td>02 h 45</td></tr><tr><th>D</th><td>ServiceDown</td><td>critical</td><td>us-east</td><td>03 h 50</td></tr></table><ol><li>Quelles alertes le silence neutralise-t-il pendant la fenêtre ?</li><li>Combien de notifications arrivent sur le canal Slack du NOC pendant la fenêtre ?</li><li>Combien de notifications arrivent vers l'astreinte PagerDuty pendant la fenêtre ?</li><li>Le silence expire à 04 h 00 et l'alerte B est toujours active à 04 h 05 : sera-t-elle notifiée à l'astreinte ?</li><li>Les alertes C et D portent le même cluster mais aboutissent dans deux canaux différents : quel critère de routage les sépare ?</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>ALERT_ROUTE GROUP_BY=cluster SILENCE=cluster=dev INHIBIT=NodeDown:InstanceHighCpu:node ALERTS=NodeDown:alertname=NodeDown,node=srv1,cluster=prod|InstanceHighCpu:alertname=InstanceHighCpu,node=srv1,cluster=prod|DiskFull:alertname=DiskFull,node=srv2,cluster=dev</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>DataPort ouvre une maintenance de ses bases de 22 h 00 à 23 h 30, avec un silence sur job="db".
+Alertes reçues : HighLatency (warning, job=db) à 22 h 20 ; DiskFull (critical, job=web) à 22 h 40 ;
+HighLatency (warning, job=web) à 23 h 00.
+
+1) Seule l'alerte HighLatency de job=db est silencée.
+2) DiskFull, critical et hors silence, part vers l'astreinte.
+3) HighLatency de job=web, warning, arrive sur Slack.
+4) Le silence épargne les alertes des autres jobs : deux notifications partent pendant la fenêtre.</pre></div>
     </div>
     <details class="lab__hints">
       <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Supprimez d'abord les alertes matchant le silence.</li>
-        <li>Vérifiez ensuite si les alertes restantes sont inhibées par une alerte source active.</li>
-        <li>Regroupez par la clef GROUP_BY et affichez chaque groupe.</li>
+        <li>Un silence filtre toutes les alertes qui correspondent à ses critères (ici le cluster eu-west) pendant sa période de validité, quelle que soit leur sévérité.</li>
+        <li>Une fois le silence expiré, les alertes toujours actives redeviennent notifiables : elles ne sont pas perdues.</li>
+        <li>1. Repérez les alertes du cluster eu-west. 2. Les warning hors silence vont sur Slack. 3. Les critical hors silence vont vers l'astreinte. 4. Comparez l'heure au terme du silence. 5. Même cluster, même nom pour C et D : seule leur gravité diffère.</li>
       </ol>
     </details>
   </div>
@@ -332,19 +345,19 @@ Résultat d’analyse attendu : Pour chaque groupe (dans l'ordre alphabétique d
       <p class="q__stem">Quel type de métrique Prometheus doit obligatoirement être utilisé pour compter le nombre total de requêtes HTTP traitées par une API web ?</p>
       <div class="opts">
         <button class="opt">Gauge</button>
-        <button class="opt" data-correct="1">Counter</button>
-        <button class="opt">Histogram</button>
         <button class="opt">Summary</button>
+        <button class="opt">Histogram</button>
+        <button class="opt" data-correct="1">Counter</button>
       </div>
       <div class="q__exp">Un volume cumulé d'événements qui ne fait qu'augmenter au cours du temps doit toujours être modélisé sous la forme d'un Counter.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pourquoi est-il formellement interdit d'inclure un identifiant d'utilisateur unique (ex: user_id) dans les labels d'une métrique Prometheus ?</p>
       <div class="opts">
-        <button class="opt">Car Prometheus ne supporte que les chiffres</button>
         <button class="opt" data-correct="1">Car cela génère une cardinalité explosive créant des millions de séries temporelles distinctes et sature la mémoire (RAM)</button>
-        <button class="opt">Car cela empêche les alertes par email</button>
-        <button class="opt">Car la loi RGPD interdit les métriques</button>
+        <button class="opt">Car Prometheus ne sait manipuler que des valeurs strictement numériques dans ses étiquettes</button>
+        <button class="opt">Car cela empêche mécaniquement l'envoi des notifications d'alerte par email aux équipes</button>
+        <button class="opt">Car la réglementation RGPD interdit formellement la collecte de métriques techniques sur les utilisateurs</button>
       </div>
       <div class="q__exp">Chaque combinaison unique de labels crée une nouvelle série temporelle en mémoire vive. Une cardinalité infinie sature rapidement la base TSDB de Prometheus.</div>
     </div>
@@ -362,8 +375,8 @@ Résultat d’analyse attendu : Pour chaque groupe (dans l'ordre alphabétique d
       <p class="q__stem">Sur quel port TCP standard l'exportateur système Node Exporter expose-t-il les métriques matérielles d'une machine Linux ?</p>
       <div class="opts">
         <button class="opt">Port 9090</button>
-        <button class="opt" data-correct="1">Port 9100</button>
         <button class="opt">Port 9093</button>
+        <button class="opt" data-correct="1">Port 9100</button>
         <button class="opt">Port 3000</button>
       </div>
       <div class="q__exp">Node Exporter écoute sur le port 9100/TCP. Le port 9090 est le serveur Prometheus, le 9093 Alertmanager et le 3000 Grafana.</div>
@@ -372,39 +385,39 @@ Résultat d’analyse attendu : Pour chaque groupe (dans l'ordre alphabétique d
       <p class="q__stem">Dans Alertmanager, quel mécanisme permet de bloquer automatiquement une alerte « HighCpuLoad » lorsqu'une alerte « HostDown » est déjà active sur le même serveur ?</p>
       <div class="opts">
         <button class="opt">Le silence temporaire (Silence)</button>
-        <button class="opt" data-correct="1">La règle d'inhibition (Inhibit Rule)</button>
-        <button class="opt">Le groupement d'alertes (Grouping)</button>
         <button class="opt">L'escalade SMTP</button>
+        <button class="opt">Le groupement d'alertes (Grouping)</button>
+        <button class="opt" data-correct="1">La règle d'inhibition (Inhibit Rule)</button>
       </div>
       <div class="q__exp">Les règles d'inhibition (Inhibit Rules) suppriment les alertes secondaires lorsque l'alerte racine (ex: panne totale de l'hôte) est déjà déclenchée sur la même étiquette.</div>
     </div>
     <div class="q">
       <p class="q__stem">Pour quel cas d'usage spécifique l'outil Prometheus Pushgateway a-t-il été conçu ?</p>
       <div class="opts">
-        <button class="opt">Pour superviser les bases de données SQL relationnelles</button>
+        <button class="opt">Pour superviser finement les bases de données SQL relationnelles de production</button>
         <button class="opt" data-correct="1">Pour collecter les métriques de jobs batchs ou scripts éphémères qui se terminent trop vite pour être scrapés</button>
-        <button class="opt">Pour afficher des graphiques dans un navigateur</button>
-        <button class="opt">Pour remplacer l'agent Zabbix</button>
+        <button class="opt">Pour afficher des tableaux de bord graphiques directement dans le navigateur des équipes techniques</button>
+        <button class="opt">Pour remplacer intégralement l'agent Zabbix sur l'ensemble du parc supervisé</button>
       </div>
       <div class="q__exp">La Pushgateway reçoit les métriques poussées par des scripts batchs courts (cron jobs) avant leur extinction, et les garde en mémoire pour le scraper Prometheus.</div>
     </div>
     <div class="q">
       <p class="q__stem">Quelle fonction PromQL permet de calculer le 95e centile (p95) de la latence d'une application à partir d'un Histogramme ?</p>
       <div class="opts">
-        <button class="opt">p95(http_request_duration_seconds)</button>
         <button class="opt" data-correct="1">histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))</button>
-        <button class="opt">rate(http_request_duration_seconds[95m])</button>
-        <button class="opt">quantile_95(http_request_duration_seconds)</button>
+        <button class="opt">p95(http_request_duration_seconds), fonction native de PromQL</button>
+        <button class="opt">rate(http_request_duration_seconds[95m]), le taux d'accroissement brut</button>
+        <button class="opt">quantile_95(http_request_duration_seconds), calcul direct du centile</button>
       </div>
       <div class="q__exp">histogram_quantile() calcule les centiles à partir des compteurs de buckets cumulatifs (identifiés par l'étiquette le).</div>
     </div>
     <div class="q">
       <p class="q__stem">Quel protocole de transport et quel format de sérialisation sont utilisés nativement par Prometheus pour scraper les métriques ?</p>
       <div class="opts">
-        <button class="opt">SNMP en UDP</button>
+        <button class="opt">Le protocole SNMP en UDP avec communauté</button>
+        <button class="opt">Une connexion SSH exécutant des commandes bash</button>
+        <button class="opt">Des WebSockets binaires persistantes et bidirectionnelles</button>
         <button class="opt" data-correct="1">Requêtes HTTP GET avec données au format texte OpenMetrics</button>
-        <button class="opt">Connexion SSH avec commandes bash</button>
-        <button class="opt">WebSockets binaires</button>
       </div>
       <div class="q__exp">Prometheus effectue des requêtes HTTP GET standard vers l'URL /metrics et parse le flux textuel structuré conforme au format OpenMetrics.</div>
     </div>
@@ -526,7 +539,7 @@ Résultat d’analyse attendu : Pour chaque groupe (dans l'ordre alphabétique d
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

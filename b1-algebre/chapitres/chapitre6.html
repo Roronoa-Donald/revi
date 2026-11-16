@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -26,7 +24,7 @@
 
 <header class="alnav"><div class="alnav__in">
   <a class="alnav__home" href="/" title="cours.interactifs — Tous les cours" aria-label="cours.interactifs — Tous les cours">
-    <span class="alnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-i-calculator"></use></svg></span>
+    <span class="alnav__mark"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-calculator"></use></svg></span>
     <span class="alnav__word">cours.interactifs</span>
   </a>
   <div class="alnav__ctx"><a href="/">Portail</a><span aria-hidden="true">/</span><a class="alnav__chip" href="../index.html">Algèbre B1</a></div>
@@ -160,11 +158,45 @@ Valeurs propres :  λ₁ = 5      λ₂ = 2</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>4. Labo Python appliqué</h2>
+
+<p>Le même pivot de Gauss donne le déterminant : produit des pivots, au signe près (un échange de lignes change le signe). Pour une matrice 2×2, les valeurs propres sont les racines de <code>λ² − tr(B)·λ + det(B)</code>.</p>
+<pre><code class="language-python">def det(matrice):
+    """Determinant par elimination de Gauss (fractions exactes)."""
+    from fractions import Fraction
+    m = [[Fraction(x) for x in ligne] for ligne in matrice]
+    n, d = len(m), Fraction(1)
+    for c in range(n):
+        p = next((i for i in range(c, n) if m[i][c] != 0), None)
+        if p is None:
+            return Fraction(0)
+        if p != c:
+            m[c], m[p] = m[p], m[c]
+            d = -d
+        d *= m[c][c]
+        for i in range(c + 1, n):
+            f = m[i][c] / m[c][c]
+            m[i] = [a - f * b for a, b in zip(m[i], m[c])]
+    return d
+
+B = [[2, 1], [1, 2]]
+trace, delta = B[0][0] + B[1][1], det(B)
+disc = trace * trace - 4 * delta
+l1, l2 = (trace + disc ** 0.5) / 2, (trace - disc ** 0.5) / 2
+print("det(B) =", delta, "valeurs propres :", l1, l2)</code></pre>
+<p><strong>Sortie attendue (CPython 3) :</strong></p>
+<pre><code>det(B) = 3 valeurs propres : 3.0 1.0</code></pre>
+<p>Vérification à la main : <code>det(B − λI) = (2 − λ)² − 1 = 0</code> donne λ = 1 et λ = 3.</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>4. Études de cas &amp; applications pratiques</h2>
+  <h2>5. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -212,10 +244,11 @@ A_COMPLETER
 7 8 9</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Développe selon la première ligne en alternant les signes : a(ei − fh) − b(di − fg) + c(dh − eg).</li>
         <li>Alterner les signes revient à multiplier chaque terme par (−1) puissance la position : + − +.</li>
+        <li>Alternez bien les signes (+, -, +) le long de la première ligne et contrôlez chacun des trois mineurs 2x2.</li>
       </ol>
     </details>
   </div>
@@ -261,10 +294,11 @@ A_COMPLETER
 2 3</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Le polynôme caractéristique s’écrit λ² − s·λ + p = 0, où s est la trace et p le déterminant.</li>
         <li>Le discriminant Δ = s² − 4p décide : négatif, pas de racine réelle ; sinon les racines sont (s ± √Δ)/2.</li>
+        <li>Vérifiez vos racines lambda1 et lambda2 avec s = trace(A) = lambda1 + lambda2 et p = det(A) = lambda1 * lambda2, ordonnées à deux décimales.</li>
       </ol>
     </details>
   </div>
@@ -322,24 +356,25 @@ A_COMPLETER
 3</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Chaque coordonnée de f(v) est le produit scalaire d’une ligne de la matrice avec v.</li>
         <li>La matrice est 2 × 3 : la première ligne donne la première coordonnée, la seconde la deuxième.</li>
+        <li>Chaque coordonnée de sortie est le produit scalaire d une ligne de la matrice (longueur 3) par le vecteur d entrée de R^3.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>5. QCM — niveau examen</h2>
+  <h2>6. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Que vaut <code>det [[a, b], [c, d]]</code> ?</p>
       <div class="opts">
-        <button class="opt">ad + bc</button>
         <button class="opt" data-correct="1">ad − bc</button>
+        <button class="opt">ad + bc</button>
         <button class="opt">ab − cd</button>
       </div>
       <div class="q__exp">Le produit de la diagonale moins le produit de l’anti-diagonale.</div>
@@ -357,17 +392,17 @@ A_COMPLETER
       <p class="q__stem">Que vaut <code>det(A · B)</code> ?</p>
       <div class="opts">
         <button class="opt">det(A) + det(B)</button>
-        <button class="opt" data-correct="1">det(A) · det(B)</button>
         <button class="opt">det(A) / det(B)</button>
+        <button class="opt" data-correct="1">det(A) · det(B)</button>
       </div>
-      <div class="q__exp">Le déterminant est multiplicatif.</div>
+      <div class="q__exp">Le déterminant est multiplicatif : det(A · B) = det(A) × det(B) ; l’addition ne se transmet pas au produit et la division n’a pas de sens ici.</div>
     </div>
     <div class="q">
       <p class="q__stem">Une application linéaire vérifie nécessairement…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">f(0) = 0</button>
-        <button class="opt">f(1) = 1</button>
         <button class="opt">f est croissante</button>
+        <button class="opt">f(1) = 1</button>
+        <button class="opt" data-correct="1">f(0) = 0</button>
       </div>
       <div class="q__exp">Test rapide : si f(0) ≠ 0, l’application n’est pas linéaire.</div>
     </div>
@@ -378,13 +413,13 @@ A_COMPLETER
         <button class="opt">son image est E</button>
         <button class="opt">sa matrice est carrée</button>
       </div>
-      <div class="q__exp">ker f = {0} ⇔ f injective.</div>
+      <div class="q__exp">Une application linéaire est injective si son noyau se réduit au vecteur nul ; « image égale E » décrit la surjectivité et une matrice carrée ne suffit pas.</div>
     </div>
     <div class="q">
       <p class="q__stem">Comment trouve-t-on les valeurs propres de A ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">en résolvant det(A − λI) = 0</button>
         <button class="opt">en calculant la trace</button>
+        <button class="opt" data-correct="1">en résolvant det(A − λI) = 0</button>
         <button class="opt">en inversant A</button>
       </div>
       <div class="q__exp">Les valeurs propres sont les racines du polynôme caractéristique.</div>
@@ -395,7 +430,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>6. Erreurs classiques — récapitulatif</h2>
+<h2>7. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -412,7 +447,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>7. Méthodologie de résolution</h2>
+<h2>8. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Étudier une application linéaire donnée par sa matrice</div>
@@ -429,7 +464,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>8. Révision active</h2>
+<h2>9. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -459,7 +494,7 @@ A_COMPLETER
 
 <section class="sec">
 
-<h2>9. Test de maîtrise</h2>
+<h2>10. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -508,7 +543,7 @@ A_COMPLETER
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

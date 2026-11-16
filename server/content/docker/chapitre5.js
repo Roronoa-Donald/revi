@@ -217,43 +217,43 @@ module.exports = {
     {
       stem: 'Quel est l’avantage fondamental de Docker Compose par rapport à des scripts de déploiement composés de commandes « docker run » ?',
       opts: [
-        'Il permet d’exécuter du code Java sans machine virtuelle',
-        'Il adopte une approche déclarative (Infrastructure as Code) permettant de décrire l’ensemble de la pile multi-conteneurs dans un fichier unique versionnable',
-        'Il supprime le besoin de disposer d’un système d’exploitation',
-        'Il rend les conteneurs compatibles avec les smartphones des années 1990'
+        "Il permet d’exécuter du code Java compilé sans machine virtuelle ni environnement d’exécution installé au préalable",
+        "Il supprime complètement le besoin de disposer d’un système d’exploitation sur la machine hôte physique",
+        "Il adopte une approche déclarative (Infrastructure as Code) permettant de décrire l’ensemble de la pile multi-conteneurs dans un fichier unique versionnable",
+        "Il rend les conteneurs directement compatibles avec les smartphones et les assistants vocaux grand public du marché"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Docker Compose centralise l’architecture (services, volumes, réseaux, configurations) dans un fichier YAML déclaratif garantissant des déploiements reproductibles et unifiés.'
     },
     {
       stem: 'Pourquoi une directive « depends_on: [database] » classique est-elle souvent insuffisante pour empêcher un conteneur d’API de crasher au démarrage ?',
       opts: [
-        'Parce que Compose ne lit pas cette directive',
-        'Parce que depends_on attend uniquement que le conteneur database soit démarré au sens système, pas que le moteur de base de données ait terminé son initialisation interne et écoute sur le port réseau',
-        'Parce que le port de la base de données est toujours fermé par défaut',
-        'Parce que les conteneurs refusent de communiquer entre eux sans clé SSH'
+        "Parce que Compose ignore purement et volontairement cette directive obsolète, qui n’a été conservée que pour de simples raisons de compatibilité descendante",
+        "Parce que le port réseau de la base de données reste toujours hermétiquement fermé par défaut, et ce même longtemps après la fin de son initialisation complète",
+        "Parce que les conteneurs refusent par principe de communiquer entre eux sans avoir préalablement échangé une clé SSH de confiance mutuelle",
+        "Parce que depends_on attend uniquement que le conteneur database soit démarré au sens système, pas que le moteur de base de données ait terminé son initialisation interne et écoute sur le port réseau"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Démarré ne signifie pas prêt : la base a besoin de quelques secondes pour charger ses fichiers et démarrer son écoute. Sans sonde healthcheck, l’API tente une connexion immédiate et plante.'
     },
     {
       stem: 'Quelle configuration Compose moderne permet d’attendre qu’un service de base de données soit pleinement opérationnel avant de lancer l’API ?',
       opts: [
-        'sleep 30 dans le script shell',
-        'Une directive healthcheck sur la base de données combinée à « depends_on: db: { condition: service_healthy } » dans l’API',
-        'En redémarrant le serveur physique',
-        'En désactivant le pare-feu'
+        "Une directive healthcheck sur la base de données combinée à « depends_on: db: { condition: service_healthy } » dans l’API",
+        "Une longue temporisation sleep 30 placée en tête du script shell de démarrage de l’API",
+        "En redémarrant entièrement le serveur physique hôte jusqu’à ce que la base soit prête",
+        "En désactivant complètement le pare-feu afin d’ouvrir tous les ports réseau de l’hôte"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L’option condition: service_healthy suspend le démarrage du service consommateur jusqu’à ce que le test de santé (healthcheck) du service requis réussisse avec succès.'
     },
     {
       stem: 'Que fait Docker Compose par défaut concernant le réseau lorsque l’on exécute « docker compose up » dans un projet sans déclaration explicite de bloc networks ?',
       opts: [
-        'Il désactive toute connectivité réseau pour tous les services',
-        'Il crée automatiquement un réseau bridge dédié portant le nom du projet et y connecte tous les services avec résolution DNS par nom',
-        'Il connecte tous les services au Wi-Fi public le plus proche',
-        'Il oblige l’utilisateur à saisir manuellement une adresse IPv6'
+        "Il désactive totalement la connectivité réseau pour tous les services de la pile applicative",
+        "Il crée automatiquement un réseau bridge dédié portant le nom du projet et y connecte tous les services avec résolution DNS par nom",
+        "Il connecte automatiquement tous les services au Wi-Fi public le plus proche de la machine hôte",
+        "Il oblige l’utilisateur à saisir manuellement une adresse IPv6 unique pour chaque service déclaré"
       ],
       correct: 1,
       exp: 'Compose instancie un réseau par défaut (projet_default) sur lequel tous les conteneurs sont automatiquement branchés et peuvent se joindre directement par leur nom de service.'
@@ -262,33 +262,33 @@ module.exports = {
       stem: 'Que produit la syntaxe d’interpolation « ${DB_PORT:-5432} » dans un fichier docker-compose.yml si la variable DB_PORT n’est pas définie dans l’environnement ni dans le fichier .env ?',
       opts: [
         'Le fichier plante avec une erreur de syntaxe YAML',
-        'La valeur par défaut « 5432 » est utilisée',
         'La valeur est remplacée par le mot « NULL »',
+        'La valeur par défaut « 5432 » est utilisée',
         'Le port 80 est attribué automatiquement'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'La syntaxe ${VAR:-defaut} utilise la valeur de repli si la variable est absente ou vide ; une variable définie et non vide est conservée.'
     },
     {
       stem: 'Pourquoi est-il impératif d’ajouter le fichier « .env » dans le fichier « .gitignore » du projet ?',
       opts: [
-        'Pour éviter que Git ne ralentisse la compilation',
-        'Pour empêcher la fuite de secrets de production (mots de passe, clés d’API, jetons de chiffrement) sur un référentiel de code partagé',
-        'Parce que Git ne supporte pas les fichiers commençant par un point',
-        'C’est une obligation légale de la CNIL sous peine d’amende'
+        "Pour éviter que le dépôt Git ne ralentisse sensiblement la compilation des conteneurs de l’application",
+        "Parce que Git ne supporte tout simplement pas les fichiers commençant par un point dans ses dépôts distants",
+        "C’est une obligation légale imposée par la CNIL, sous peine d’une lourde amende forfaitaire",
+        "Pour empêcher la fuite de secrets de production (mots de passe, clés d’API, jetons de chiffrement) sur un référentiel de code partagé"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le fichier .env renferme les secrets et identifiants sensibles de la configuration locale : il ne doit jamais être commité ni poussé sur un dépôt partagé (GitHub, GitLab).'
     },
     {
       stem: 'Quelle commande Docker Compose permet d’arrêter tous les conteneurs de la pile ET de supprimer définitivement tous les volumes de données persistants associés ?',
       opts: [
-        'docker compose stop',
         'docker compose down -v',
+        'docker compose stop',
         'docker compose delete --all',
         'docker compose rm --clean'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'docker compose down éteint les conteneurs et supprime le réseau. L’adjonction du drapeau -v (ou --volumes) détruit en plus les volumes nommés déclarés dans le fichier.'
     },
     {

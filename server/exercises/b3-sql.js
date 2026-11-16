@@ -12,7 +12,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Sélectionnez les tx_id distincts n’ayant ni COMMIT ni ROLLBACK\nSELECT DISTINCT tx_id FROM wal_journal;",
     "hints": [
       "Pour chaque identifiant non nul, cherchez s’il existe une ligne de fin pour la même transaction ; attention aux valeurs NULL avec NOT IN.",
-      "Ajoutez DISTINCT et ORDER BY tx_id ASC."
+      "Ajoutez DISTINCT et ORDER BY tx_id ASC.",
+      "1. Prendre chaque tx_id non nul. 2. Vérifier l’absence de ligne COMMIT ou ROLLBACK pour ce même identifiant. 3. Dédoublonner puis trier par tx_id croissant."
     ],
     "examples": [
       {
@@ -48,7 +49,8 @@ const SQL3_EXERCISES = [
         "expected": "+-------+\n| tx_id |\n+-------+\n| 622   |\n+-------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c1-e1\nSELECT DISTINCT journal.tx_id FROM wal_journal AS journal WHERE journal.tx_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM wal_journal AS fin WHERE fin.tx_id = journal.tx_id AND fin.op IN ('COMMIT', 'ROLLBACK')) ORDER BY journal.tx_id ASC;"
+    "solution": "-- Corrigé officiel sql3-c1-e1\nSELECT DISTINCT journal.tx_id FROM wal_journal AS journal WHERE journal.tx_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM wal_journal AS fin WHERE fin.tx_id = journal.tx_id AND fin.op IN ('COMMIT', 'ROLLBACK')) ORDER BY journal.tx_id ASC;",
+    "takeaway": "Dans un journal WAL, les transactions VALIDÉES (COMMIT) doivent être rejouées (REDO) tandis que les transactions non terminées sont annulées (UNDO)."
   },
   {
     "id": "sql3-c1-e2",
@@ -61,7 +63,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Filtrez les tuples visibles au snapshot_tx = 50\nSELECT tuple_id, valeur FROM mvcc_tuples;",
     "hints": [
       "Dans ce modèle fictif, un tuple est visible à tx=50 si xmin < 50 AND (xmax = 0 OR xmax >= 50).",
-      "Triez par tuple_id ASC."
+      "Triez par tuple_id ASC.",
+      "1. Ne garder que les tuples créés avant le snapshot (xmin inférieur à 50). 2. Écarter ceux supprimés avant lui (xmax non nul et inférieur à 50). 3. Ordonner par tuple_id croissant."
     ],
     "examples": [
       {
@@ -97,7 +100,8 @@ const SQL3_EXERCISES = [
         "expected": "+----------+--------+\n| tuple_id | valeur |\n+----------+--------+\n| 72       | v72    |\n+----------+--------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c1-e2\nSELECT tuple_id, valeur FROM mvcc_tuples WHERE xmin < 50 AND (xmax = 0 OR xmax >= 50) ORDER BY tuple_id ASC;"
+    "solution": "-- Corrigé officiel sql3-c1-e2\nSELECT tuple_id, valeur FROM mvcc_tuples WHERE xmin < 50 AND (xmax = 0 OR xmax >= 50) ORDER BY tuple_id ASC;",
+    "takeaway": "Sous MVCC, chaque snapshot ne voit que les versions de tuples dont xmin est validé avant le cliché et dont xmax est absent ou postérieur."
   },
   {
     "id": "sql3-c1-e3",
@@ -110,7 +114,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Identifiez pid_bloque, pid_bloqueur et ressource par auto-jointure\nSELECT pid, ressource FROM pg_locks_sim;",
     "hints": [
       "Faites une jointure de pg_locks_sim a (en attente, a.accorde = 0) avec pg_locks_sim d (détenteur, d.accorde = 1) sur a.ressource = d.ressource.",
-      "Renommez les colonnes AS pid_bloque, AS pid_bloqueur."
+      "Renommez les colonnes AS pid_bloque, AS pid_bloqueur.",
+      "1. Croiser la table des verrous avec elle-même sur la ressource. 2. Conserver les couples attente (accorde = 0) et détenteur (accorde = 1). 3. Renommer puis trier par pid bloqué croissant."
     ],
     "examples": [
       {
@@ -141,7 +146,8 @@ const SQL3_EXERCISES = [
         "expected": "+------------+--------------+-----------+\n| pid_bloque | pid_bloqueur | ressource |\n+------------+--------------+-----------+\n| 315        | 412          | factures  |\n+------------+--------------+-----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c1-e3\nSELECT a.pid AS pid_bloque, d.pid AS pid_bloqueur, a.ressource FROM pg_locks_sim a INNER JOIN pg_locks_sim d ON a.ressource = d.ressource WHERE a.accorde = 0 AND d.accorde = 1 ORDER BY pid_bloque ASC;"
+    "solution": "-- Corrigé officiel sql3-c1-e3\nSELECT a.pid AS pid_bloque, d.pid AS pid_bloqueur, a.ressource FROM pg_locks_sim a INNER JOIN pg_locks_sim d ON a.ressource = d.ressource WHERE a.accorde = 0 AND d.accorde = 1 ORDER BY pid_bloque ASC;",
+    "takeaway": "Un interblocage (deadlock) survient dès qu’un cycle apparaît dans le graphe d’attente des verrous entre transactions concurrentes."
   },
   {
     "id": "sql3-c2-e1",
@@ -154,7 +160,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Calculez total_lignes, card_pays et card_email\nSELECT COUNT(*) FROM commandes;",
     "hints": [
       "Utilisez COUNT(DISTINCT colonne) pour obtenir le nombre de valeurs uniques.",
-      "Nommez les trois colonnes total_lignes, card_pays et card_email."
+      "Nommez les trois colonnes total_lignes, card_pays et card_email.",
+      "1. Compter toutes les lignes de la table. 2. Compter les valeurs distinctes de chaque colonne ciblée. 3. Nommer les trois colonnes exactement comme exigé."
     ],
     "examples": [
       {
@@ -185,7 +192,8 @@ const SQL3_EXERCISES = [
         "expected": "+--------------+-----------+------------+\n| total_lignes | card_pays | card_email |\n+--------------+-----------+------------+\n| 2            | 2         | 1          |\n+--------------+-----------+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c2-e1\nSELECT COUNT(*) AS total_lignes, COUNT(DISTINCT code_pays) AS card_pays, COUNT(DISTINCT email_client) AS card_email FROM commandes;"
+    "solution": "-- Corrigé officiel sql3-c2-e1\nSELECT COUNT(*) AS total_lignes, COUNT(DISTINCT code_pays) AS card_pays, COUNT(DISTINCT email_client) AS card_email FROM commandes;",
+    "takeaway": "Un index B-Tree n’est rentable que lorsque la sélectivité (ratio de valeurs distinctes / lignes) filtre fortement la table cible."
   },
   {
     "id": "sql3-c2-e2",
@@ -198,7 +206,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Créez l’index partiel idx_cmd_en_cours puis interrogez la table\nSELECT id, montant FROM commandes;",
     "hints": [
       "SQLite et PostgreSQL supportent CREATE INDEX nom ON table(col) WHERE condition;",
-      "Ajoutez ensuite la requête SELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
+      "Ajoutez ensuite la requête SELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;",
+      "1. Créer l’index nommé sur la colonne client. 2. Restreindre sa portée aux lignes EN_COURS. 3. Écrire la requête de lecture filtrée et triée par id croissant."
     ],
     "examples": [
       {
@@ -234,7 +243,8 @@ const SQL3_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n+----+---------+\n| id | montant |\n+----+---------+\n| 81 | 15888   |\n+----+---------+\n(1 ligne retournée)\n\n+-------------+\n| est_partiel |\n+-------------+\n| 1           |\n+-------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c2-e2\nCREATE INDEX idx_cmd_en_cours ON commandes(client_id) WHERE statut = 'EN_COURS';\nSELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;"
+    "solution": "-- Corrigé officiel sql3-c2-e2\nCREATE INDEX idx_cmd_en_cours ON commandes(client_id) WHERE statut = 'EN_COURS';\nSELECT id, montant FROM commandes WHERE client_id = 10 AND statut = 'EN_COURS' ORDER BY id ASC;",
+    "takeaway": "Un index partiel (WHERE actif) réduit drastiquement la taille sur disque et le coût de mise à jour en n’indexant que le sous-ensemble chaud."
   },
   {
     "id": "sql3-c2-e3",
@@ -247,7 +257,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Sélectionnez les tables où n_dead_tup > 50 + 0.20 * n_live_tup\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim;",
     "hints": [
       "Écrivez directement la formule dans WHERE : n_dead_tup > 50 + 0.20 * n_live_tup.",
-      "Triez par n_dead_tup DESC."
+      "Triez par n_dead_tup DESC.",
+      "1. Appliquer le seuil autovacuum à chaque table. 2. Ne conserver que les dépassements stricts. 3. Ordonner par nombre de tuples morts décroissant."
     ],
     "examples": [
       {
@@ -283,7 +294,8 @@ const SQL3_EXERCISES = [
         "expected": "+---------+------------+------------+\n| relname | n_live_tup | n_dead_tup |\n+---------+------------+------------+\n| actives | 300        | 111        |\n+---------+------------+------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c2-e3\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim WHERE n_dead_tup > 50 + 0.20 * n_live_tup ORDER BY n_dead_tup DESC;"
+    "solution": "-- Corrigé officiel sql3-c2-e3\nSELECT relname, n_live_tup, n_dead_tup FROM pg_stat_user_tables_sim WHERE n_dead_tup > 50 + 0.20 * n_live_tup ORDER BY n_dead_tup DESC;",
+    "takeaway": "Surveiller le ratio de tuples morts déclenche VACUUM à temps pour recycler l’espace libre et éviter le grossissement excessif (bloat)."
   },
   {
     "id": "sql3-c3-e1",
@@ -296,7 +308,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Calculez cout_seq_scan pour chaque table de pg_class_sim\nSELECT relname FROM pg_class_sim;",
     "hints": [
       "Appliquez ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan.",
-      "Triez par cout_seq_scan ASC."
+      "Triez par cout_seq_scan ASC.",
+      "1. Appliquer la formule pages × 1.0 + lignes × 0.01 à chaque table. 2. Arrondir le résultat à 2 décimales. 3. Ordonner par coût croissant."
     ],
     "examples": [
       {
@@ -327,7 +340,8 @@ const SQL3_EXERCISES = [
         "expected": "+---------+---------------+\n| relname | cout_seq_scan |\n+---------+---------------+\n| psi     | 1             |\n| chi     | 4             |\n+---------+---------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c3-e1\nSELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;"
+    "solution": "-- Corrigé officiel sql3-c3-e1\nSELECT relname, ROUND(relpages * 1.0 + reltuples * 0.01, 2) AS cout_seq_scan FROM pg_class_sim ORDER BY cout_seq_scan ASC;",
+    "takeaway": "L’optimiseur par coûts (CBO) estime le parcours séquentiel en sommant pages lues multipliées par seq_page_cost et coût CPU par tuple."
   },
   {
     "id": "sql3-c3-e2",
@@ -340,7 +354,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Calculez datname et hit_ratio_pct\nSELECT datname FROM pg_stat_database_sim;",
     "hints": [
       "Multipliez par 100.0 (flottant) avant de diviser par (blks_hit + blks_read).",
-      "Enveloppez dans ROUND(..., 2) AS hit_ratio_pct."
+      "Enveloppez dans ROUND(..., 2) AS hit_ratio_pct.",
+      "1. Diviser les lectures en cache par le total des accès, puis multiplier par 100. 2. Arrondir à 2 décimales. 3. Ordonner par ratio décroissant."
     ],
     "examples": [
       {
@@ -371,7 +386,8 @@ const SQL3_EXERCISES = [
         "expected": "+---------+---------------+\n| datname | hit_ratio_pct |\n+---------+---------------+\n| db_chi  | 0             |\n+---------+---------------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c3-e2\nSELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;"
+    "solution": "-- Corrigé officiel sql3-c3-e2\nSELECT datname, ROUND(blks_hit * 100.0 / (blks_hit + blks_read), 2) AS hit_ratio_pct FROM pg_stat_database_sim ORDER BY hit_ratio_pct DESC;",
+    "takeaway": "Un Cache Hit Ratio proche de 99 % indique que l’ensemble de travail chaud tient dans les shared_buffers sans saturer les disques."
   },
   {
     "id": "sql3-c3-e3",
@@ -384,7 +400,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Créez l’index couvrant idx_cmd_annee_montant puis calculez SUM(montant) AS total_2025\nSELECT SUM(montant) FROM commandes;",
     "hints": [
       "Créez d’abord CREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);",
-      "Puis exécutez SELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
+      "Puis exécutez SELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;",
+      "1. Créer l’index couvrant sur (annee, montant) dans cet ordre. 2. Filtrer les lignes sur l’année 2025. 3. Agréger la somme des montants."
     ],
     "examples": [
       {
@@ -420,7 +437,8 @@ const SQL3_EXERCISES = [
         "expected": "Instruction exécutée avec succès (3 lignes modifiées).\n\n+------------+\n| total_2025 |\n+------------+\n| 40000      |\n+------------+\n(1 ligne retournée)\n\n+---------------+---------+\n| ordre_index   | partiel |\n+---------------+---------+\n| annee,montant | 0       |\n+---------------+---------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c3-e3\nCREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;"
+    "solution": "-- Corrigé officiel sql3-c3-e3\nCREATE INDEX idx_cmd_annee_montant ON commandes(annee, montant);\nSELECT SUM(montant) AS total_2025 FROM commandes WHERE annee = 2025;",
+    "takeaway": "Éviter d’envelopper une colonne indexée dans une fonction rend le prédicat SARGable et permet un Index Scan voire Index-Only Scan."
   },
   {
     "id": "sql3-c4-e1",
@@ -433,7 +451,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Utilisez LAG(ca, 1, 0) OVER (ORDER BY mois ASC)\nSELECT mois, ca FROM chiffre_affaires;",
     "hints": [
       "LAG(ca, 1, 0) renvoie la valeur de ca 1 ligne plus haut, ou 0 sur la toute première ligne.",
-      "Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation."
+      "Calculez ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation.",
+      "1. Ordonner les lignes par mois croissant. 2. Récupérer le CA de la ligne précédente, 0 par défaut. 3. Soustraire pour obtenir la variation."
     ],
     "examples": [
       {
@@ -469,7 +488,8 @@ const SQL3_EXERCISES = [
         "expected": "+------+----+--------------+-----------+\n| mois | ca | ca_precedent | variation |\n+------+----+--------------+-----------+\n| 1    | 5  | 0            | 5         |\n| 2    | 0  | 5            | -5        |\n| 3    | 5  | 0            | 5         |\n+------+----+--------------+-----------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c4-e1\nSELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;"
+    "solution": "-- Corrigé officiel sql3-c4-e1\nSELECT mois, ca, LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS ca_precedent, ca - LAG(ca, 1, 0) OVER (ORDER BY mois ASC) AS variation FROM chiffre_affaires ORDER BY mois ASC;",
+    "takeaway": "La fonction de fenêtre LAG() OVER lit la valeur d’une ligne précédente dans la partition sans écraser les lignes par un GROUP BY."
   },
   {
     "id": "sql3-c4-e2",
@@ -482,7 +502,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Sélectionnez les rangs <= 2 par département avec DENSE_RANK()\nSELECT departement, nom, salaire FROM employes;",
     "hints": [
       "Une fonction de fenêtrage ne peut pas figurer directement dans WHERE : calculez-la dans une CTE WITH classement AS (...).",
-      "Filtrez ensuite avec WHERE rang <= 2."
+      "Filtrez ensuite avec WHERE rang <= 2.",
+      "1. Calculer le rang dense par département et salaire décroissant dans une CTE. 2. Filtrer la CTE sur les rangs 1 et 2. 3. Trier par département, rang puis nom."
     ],
     "examples": [
       {
@@ -508,7 +529,8 @@ const SQL3_EXERCISES = [
         "expected": "+-------------+-----+---------+------+\n| departement | nom | salaire | rang |\n+-------------+-----+---------+------+\n| A           | E1  | 100     | 1    |\n| A           | E2  | 90      | 2    |\n| B           | E4  | 200     | 1    |\n+-------------+-----+---------+------+\n(3 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c4-e2\nWITH classement AS (\n  SELECT departement, nom, salaire, DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang\n  FROM employes\n)\nSELECT departement, nom, salaire, rang FROM classement WHERE rang <= 2 ORDER BY departement ASC, rang ASC, nom ASC;"
+    "solution": "-- Corrigé officiel sql3-c4-e2\nWITH classement AS (\n  SELECT departement, nom, salaire, DENSE_RANK() OVER (PARTITION BY departement ORDER BY salaire DESC) AS rang\n  FROM employes\n)\nSELECT departement, nom, salaire, rang FROM classement WHERE rang <= 2 ORDER BY departement ASC, rang ASC, nom ASC;",
+    "takeaway": "Combiner DENSE_RANK() dans une CTE avec un filtre sur le rang extrait proprement le Top-N par groupe tout en conservant les ex æquo."
   },
   {
     "id": "sql3-c4-e3",
@@ -521,7 +543,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Écrivez une CTE WITH RECURSIVE hierarchie(id, nom, niveau)\nSELECT id, nom FROM organigramme;",
     "hints": [
       "Le membre d’ancrage sélectionne la racine : SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL.",
-      "Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1."
+      "Après UNION ALL, joignez organigramme o à hierarchie h sur o.manager_id = h.id avec h.niveau + 1.",
+      "1. Ancrage : sélectionner les racines (manager NULL) au niveau 1. 2. Joindre les employés sur leur manager en incrémentant le niveau. 3. Trier par niveau puis identifiant."
     ],
     "examples": [
       {
@@ -552,7 +575,8 @@ const SQL3_EXERCISES = [
         "expected": "+----+-----------+--------+\n| id | nom       | niveau |\n+----+-----------+--------+\n| 40 | Direction | 1      |\n| 13 | Equipe    | 2      |\n| 72 | Analyste  | 3      |\n| 9  | Tech      | 4      |\n+----+-----------+--------+\n(4 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c4-e3\nWITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;"
+    "solution": "-- Corrigé officiel sql3-c4-e3\nWITH RECURSIVE hierarchie(id, nom, niveau) AS (\n  SELECT id, nom, 1 FROM organigramme WHERE manager_id IS NULL\n  UNION ALL\n  SELECT o.id, o.nom, h.niveau + 1 FROM organigramme o INNER JOIN hierarchie h ON o.manager_id = h.id\n)\nSELECT id, nom, niveau FROM hierarchie ORDER BY niveau ASC, id ASC;",
+    "takeaway": "WITH RECURSIVE enchaîne ancre initiale et membre récursif pour parcourir arbres ou nomenclatures SQL à profondeur arbitraire."
   },
   {
     "id": "sql3-c5-e1",
@@ -565,7 +589,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Créez le trigger conditionnel trg_alerte_decouvert avec WHEN NEW.solde < 0\nSELECT * FROM comptes;",
     "hints": [
       "Utilisez la clause WHEN NEW.solde < 0 avant BEGIN dans la définition du trigger.",
-      "Insérez (NEW.id, NEW.solde) dans alertes_fraude."
+      "Insérez (NEW.id, NEW.solde) dans alertes_fraude.",
+      "1. Déclarer le trigger AFTER UPDATE avec condition de solde négatif. 2. Insérer l’identifiant et le montant dans la table d’alertes. 3. Laisser la mise à jour d’origine s’effectuer."
     ],
     "examples": [
       {
@@ -596,7 +621,8 @@ const SQL3_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n(Requête exécutée avec 0 résultat)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c5-e1\nCREATE TRIGGER trg_alerte_decouvert\nAFTER UPDATE ON comptes\nFOR EACH ROW\nWHEN NEW.solde < 0\nBEGIN\n  INSERT INTO alertes_fraude VALUES (NEW.id, NEW.solde);\nEND;"
+    "solution": "-- Corrigé officiel sql3-c5-e1\nCREATE TRIGGER trg_alerte_decouvert\nAFTER UPDATE ON comptes\nFOR EACH ROW\nWHEN NEW.solde < 0\nBEGIN\n  INSERT INTO alertes_fraude VALUES (NEW.id, NEW.solde);\nEND;",
+    "takeaway": "Un déclencheur AFTER UPDATE ... WHEN garde l’audit et les alertes d’intégrité directement au plus près de la donnée, quel que soit le client."
   },
   {
     "id": "sql3-c5-e2",
@@ -609,7 +635,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Créez la vue v_dossiers_rls appliquant la politique RLS\nCREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE 1 = 0;",
     "hints": [
       "Créez CREATE VIEW v_dossiers_rls AS SELECT id, tenant_id, patient FROM dossiers_patients WHERE ...",
-      "Combinez les deux conditions avec OR."
+      "Combinez les deux conditions avec OR.",
+      "1. Restreindre les dossiers au tenant actif de la session. 2. Autoriser néanmoins le rôle SUPERADMIN à tout voir. 3. Exposer uniquement les trois colonnes demandées."
     ],
     "examples": [
       {
@@ -640,7 +667,8 @@ const SQL3_EXERCISES = [
         "expected": "Instruction exécutée avec succès (1 ligne modifiée).\n\n(Requête exécutée avec 0 résultat)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c5-e2\nCREATE VIEW v_dossiers_rls AS\nSELECT id, tenant_id, patient FROM dossiers_patients\nWHERE tenant_id = (SELECT tenant_actif FROM contexte_session)\n   OR (SELECT role_actif FROM contexte_session) = 'SUPERADMIN';"
+    "solution": "-- Corrigé officiel sql3-c5-e2\nCREATE VIEW v_dossiers_rls AS\nSELECT id, tenant_id, patient FROM dossiers_patients\nWHERE tenant_id = (SELECT tenant_actif FROM contexte_session)\n   OR (SELECT role_actif FROM contexte_session) = 'SUPERADMIN';",
+    "takeaway": "Les politiques RLS (Row-Level Security) filtrent chaque requête selon le locataire courant pour empêcher toute fuite inter-clients."
   },
   {
     "id": "sql3-c5-e3",
@@ -653,7 +681,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Créez le trigger trg_maj_stats AFTER INSERT ON commandes\nSELECT * FROM stats_clients;",
     "hints": [
       "Utilisez CREATE TRIGGER trg_maj_stats AFTER INSERT ON commandes FOR EACH ROW BEGIN ... END;",
-      "Mettez à jour stats_clients avec NEW.montant et NEW.client_id."
+      "Mettez à jour stats_clients avec NEW.montant et NEW.client_id.",
+      "1. Se déclencher après chaque insertion de commande. 2. Incrémenter le compteur et cumuler le montant pour le client concerné. 3. La ligne de synthèse du client existe déjà."
     ],
     "examples": [
       {
@@ -679,7 +708,8 @@ const SQL3_EXERCISES = [
         "expected": "Instruction exécutée avec succès (2 lignes modifiées).\n\nInstruction exécutée avec succès (1 ligne modifiée).\n\n+-----------+--------+---------------+\n| client_id | nb_cmd | cumul_montant |\n+-----------+--------+---------------+\n| 1         | 2      | 50000         |\n| 2         | 1      | 12000         |\n+-----------+--------+---------------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c5-e3\nCREATE TRIGGER trg_maj_stats\nAFTER INSERT ON commandes\nFOR EACH ROW\nBEGIN\n  UPDATE stats_clients\n  SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant\n  WHERE client_id = NEW.client_id;\nEND;"
+    "solution": "-- Corrigé officiel sql3-c5-e3\nCREATE TRIGGER trg_maj_stats\nAFTER INSERT ON commandes\nFOR EACH ROW\nBEGIN\n  UPDATE stats_clients\n  SET nb_cmd = nb_cmd + 1, cumul_montant = cumul_montant + NEW.montant\n  WHERE client_id = NEW.client_id;\nEND;",
+    "takeaway": "Maintenir une table de synthèse via trigger échange un léger surcoût en écriture contre des lectures analytiques instantanées."
   },
   {
     "id": "sql3-c6-e1",
@@ -692,7 +722,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Regroupez les mesures par partition trimestrielle p_q1..p_q4\nSELECT mois, valeur FROM mesures_iot;",
     "hints": [
       "Utilisez l’expression CASE WHEN pour calculer partition_cible.",
-      "Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC."
+      "Regroupez avec GROUP BY partition_cible ORDER BY partition_cible ASC.",
+      "1. Mapper chaque mois vers son trimestre avec des bornes cumulatives. 2. Grouper par partition cible. 3. Compter les lignes, sommer les valeurs, trier par partition."
     ],
     "examples": [
       {
@@ -728,7 +759,8 @@ const SQL3_EXERCISES = [
         "expected": "+-----------------+-----------+---------------+\n| partition_cible | nb_lignes | total_valeurs |\n+-----------------+-----------+---------------+\n| p_q1            | 2         | 13            |\n| p_q2            | 1         | 6             |\n| p_q3            | 1         | 12            |\n| p_q4            | 1         | 3             |\n+-----------------+-----------+---------------+\n(4 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c6-e1\nSELECT CASE WHEN mois <= 3 THEN 'p_q1' WHEN mois <= 6 THEN 'p_q2' WHEN mois <= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible, COUNT(*) AS nb_lignes, SUM(valeur) AS total_valeurs FROM mesures_iot GROUP BY partition_cible ORDER BY partition_cible ASC;"
+    "solution": "-- Corrigé officiel sql3-c6-e1\nSELECT CASE WHEN mois <= 3 THEN 'p_q1' WHEN mois <= 6 THEN 'p_q2' WHEN mois <= 9 THEN 'p_q3' ELSE 'p_q4' END AS partition_cible, COUNT(*) AS nb_lignes, SUM(valeur) AS total_valeurs FROM mesures_iot GROUP BY partition_cible ORDER BY partition_cible ASC;",
+    "takeaway": "Le partitionnement par intervalles permet l’élagage de partitions (partition pruning) afin de ne scanner que la tranche temporelle requise."
   },
   {
     "id": "sql3-c6-e2",
@@ -741,7 +773,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Calculez lag_mb = sent_lsn_mb - replay_lsn_mb pour chaque réplica\nSELECT application_name FROM pg_stat_replication_sim;",
     "hints": [
       "Soustrayez replay_lsn_mb de sent_lsn_mb et renommez la colonne AS lag_mb.",
-      "Triez par lag_mb DESC, application_name ASC."
+      "Triez par lag_mb DESC, application_name ASC.",
+      "1. Soustraire le LSN rejoué du LSN envoyé pour chaque réplique. 2. Renommer le résultat lag_mb. 3. Trier par retard décroissant puis nom d’application croissant."
     ],
     "examples": [
       {
@@ -772,7 +805,8 @@ const SQL3_EXERCISES = [
         "expected": "+------------------+------------+--------+\n| application_name | sync_state | lag_mb |\n+------------------+------------+--------+\n| rep_x            | sync       | 0      |\n| rep_y            | async      | 0      |\n+------------------+------------+--------+\n(2 lignes retournées)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c6-e2\nSELECT application_name, sync_state, sent_lsn_mb - replay_lsn_mb AS lag_mb FROM pg_stat_replication_sim ORDER BY lag_mb DESC, application_name ASC;"
+    "solution": "-- Corrigé officiel sql3-c6-e2\nSELECT application_name, sync_state, sent_lsn_mb - replay_lsn_mb AS lag_mb FROM pg_stat_replication_sim ORDER BY lag_mb DESC, application_name ASC;",
+    "takeaway": "Mesurer l’écart d’octets entre les LSN primaire et réplica détecte précocement un retard de réplication avant rupture de lecture."
   },
   {
     "id": "sql3-c6-e3",
@@ -785,7 +819,8 @@ const SQL3_EXERCISES = [
     "starter": "-- Sélectionnez le meilleur candidat REPLICA sain avec ORDER BY ... LIMIT 1\nSELECT node_name, received_lsn, priority FROM cluster_nodes;",
     "hints": [
       "Filtrez avec WHERE role = 'REPLICA' AND healthy = 1.",
-      "Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1."
+      "Triez avec ORDER BY received_lsn DESC, priority DESC LIMIT 1.",
+      "1. Ne garder que les réplicas sains. 2. Ordonner par LSN reçu décroissant puis priorité décroissante. 3. Ne retourner que la première ligne."
     ],
     "examples": [
       {
@@ -816,7 +851,8 @@ const SQL3_EXERCISES = [
         "expected": "+-----------+--------------+----------+\n| node_name | received_lsn | priority |\n+-----------+--------------+----------+\n| sirocco   | 8100         | 40       |\n+-----------+--------------+----------+\n(1 ligne retournée)"
       }
     ],
-    "solution": "-- Corrigé officiel sql3-c6-e3\nSELECT node_name, received_lsn, priority FROM cluster_nodes WHERE role = 'REPLICA' AND healthy = 1 ORDER BY received_lsn DESC, priority DESC LIMIT 1;"
+    "solution": "-- Corrigé officiel sql3-c6-e3\nSELECT node_name, received_lsn, priority FROM cluster_nodes WHERE role = 'REPLICA' AND healthy = 1 ORDER BY received_lsn DESC, priority DESC LIMIT 1;",
+    "takeaway": "L’élection de basculement automatique (Patroni) choisit le réplica sain le plus proche en LSN afin de minimiser la perte de transactions."
   }
 ];
 

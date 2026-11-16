@@ -194,12 +194,12 @@ module.exports = {
     {
       stem: 'Quelle caractéristique distingue fondamentalement une VM de Génération 2 d’une VM de Génération 1 ?',
       opts: [
-        'L’obligation d’utiliser des disques durs au format FAT16',
-        'Le microprogramme UEFI x64 avec support du démarrage sécurisé Secure Boot et disques SCSI',
-        'L’absence de toute carte réseau',
-        'La limitation de la mémoire vive à 512 Mo'
+        "Le microprogramme UEFI x64 avec support du démarrage sécurisé Secure Boot et disques SCSI",
+        "L’obligation d’utiliser exclusivement des disques durs au format FAT16 pour l’amorçage",
+        "L’absence totale de carte réseau dans la configuration matérielle de la machine virtuelle",
+        "La limitation stricte de la mémoire vive allouée à 512 Mo au maximum"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La Génération 2 abandonne les composants émulés (BIOS hérité, disques IDE) au profit de l’UEFI, du Secure Boot et de bus SCSI synthétiques rapides.'
     },
     {
@@ -207,21 +207,21 @@ module.exports = {
       opts: [
         'External vSwitch',
         'Internal vSwitch',
-        'Private vSwitch',
-        'Loopback vSwitch'
+        'Loopback vSwitch',
+        'Private vSwitch'
       ],
-      correct: 2,
+      correct: 3,
       exp: 'Le vSwitch Privé (Private) confine strictement la communication aux seules machines virtuelles qui y sont rattachées sur l’hôte physique.'
     },
     {
       stem: 'Dans la formule de calcul de la mémoire dynamique, à quoi correspond le Memory Buffer ?',
       opts: [
         'À la mémoire réservée pour la carte graphique de la VM',
-        'À un pourcentage de marge de sécurité conservé au-dessus de la demande courante de la VM',
         'Au fichier d’échange swap sur le disque dur physique',
+        'À un pourcentage de marge de sécurité conservé au-dessus de la demande courante de la VM',
         'À la taille maximale du disque virtuel VHDX'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Memory Buffer (20 % par défaut) ajoute une marge de RAM au-dessus de la demande instantanée pour absorber les pics de charge subits.'
     },
     {
@@ -238,34 +238,34 @@ module.exports = {
     {
       stem: 'Que se produit-il lors de la suppression d’un point de contrôle (checkpoint) dans Hyper-V ?',
       opts: [
-        'Le disque virtuel d’origine est immédiatement formaté',
-        'Les données du disque différentiel .avhdx sont fusionnées (Merge) dans le disque VHDX parent',
-        'La machine virtuelle est déconnectée du réseau local',
-        'L’hyperviseur doit être réinstallé'
+        "Les données du disque différentiel .avhdx sont fusionnées (Merge) dans le disque VHDX parent",
+        "Le disque virtuel d’origine est immédiatement formaté et l’ensemble des données perdu",
+        "La machine virtuelle est définitivement déconnectée du réseau local de l’entreprise",
+        "L’hyperviseur Hyper-V doit être complètement réinstallé sur le serveur hôte"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'La suppression d’un checkpoint déclenche une opération de fusion (Merge) qui réintègre les blocs modifiés du fichier .avhdx dans le parent.'
     },
     {
       stem: 'À quoi sert le composant VMBus dans l’architecture Hyper-V ?',
       opts: [
-        'À alimenter électriquement le processeur de la carte mère',
-        'À fournir un canal de communication haute performance en mémoire partagée entre les VSC et les VSP',
-        'À synchroniser l’heure du BIOS avec Internet',
-        'À imprimer des documents depuis la machine virtuelle'
+        "À alimenter électriquement le processeur et la carte mère du serveur physique",
+        "À synchroniser automatiquement l’heure du BIOS avec les serveurs de temps Internet",
+        "À imprimer des documents depuis la machine virtuelle vers l’imprimante physique",
+        "À fournir un canal de communication haute performance en mémoire partagée entre les VSC et les VSP"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le VMBus est le bus logiciel haute vitesse reliant les pilotes synthétiques des VMs aux pilotes physiques de la partition racine.'
     },
     {
       stem: 'Quel format de disque virtuel permet de stocker des fichiers jusqu’à une taille maximale de 64 To avec protection contre les corruptions ?',
       opts: [
         'VHD',
-        'VHDX',
         'VMDK',
+        'VHDX',
         'ISO'
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le format VHDX introduit avec Windows Server 2012 supporte jusqu’à 64 To, des secteurs de 4 Ko et une journalisation protégée contre les coupures.'
     }
   ],

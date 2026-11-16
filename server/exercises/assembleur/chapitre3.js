@@ -44,7 +44,8 @@ module.exports = [
         "expected": "BROCHE=7 MODE=SORTIE_HAUT"
       }
     ],
-    "solution": "[Exemple]\nBROCHE=5 MODE=SORTIE_HAUT\n\n[Cas 1 — Broche en entrée avec résistance de pull-up]\nBROCHE=2 MODE=ENTREE_PULLUP\n\n[Cas 2 — Broche en sortie à l’état bas]\nBROCHE=3 MODE=SORTIE_BAS\n\n[Cas 3 — Broche en entrée flottante haute impédance]\nBROCHE=0 MODE=ENTREE_FLOTTANTE\n\n[Cas 4 — Broche 7 en sortie haute]\nBROCHE=7 MODE=SORTIE_HAUT"
+    "solution": "[Exemple]\nBROCHE=5 MODE=SORTIE_HAUT\n\n[Cas 1 — Broche en entrée avec résistance de pull-up]\nBROCHE=2 MODE=ENTREE_PULLUP\n\n[Cas 2 — Broche en sortie à l’état bas]\nBROCHE=3 MODE=SORTIE_BAS\n\n[Cas 3 — Broche en entrée flottante haute impédance]\nBROCHE=0 MODE=ENTREE_FLOTTANTE\n\n[Cas 4 — Broche 7 en sortie haute]\nBROCHE=7 MODE=SORTIE_HAUT",
+    "takeaway": "Sur AVR, le registre DDRx fixe la direction (1=sortie, 0=entrée) avant que PORTx ne pilote le niveau logique ou le pull-up."
   },
   {
     "id": "asm2-c3-e2",
@@ -89,7 +90,8 @@ module.exports = [
         "expected": "FORMAT=LITTLE OCTETS=DD CC BB AA"
       }
     ],
-    "solution": "[Exemple]\nFORMAT=LITTLE OCTETS=78 56 34 12\n\n[Cas 1 — Décomposition Big-Endian standard]\nFORMAT=BIG OCTETS=12 34 56 78\n\n[Cas 2 — Mot 32 bits avec octets nuls en Little-Endian]\nFORMAT=LITTLE OCTETS=01 00 00 00\n\n[Cas 3 — Mot 32 bits avec octets nuls en Big-Endian]\nFORMAT=BIG OCTETS=00 00 00 01\n\n[Cas 4 — Mot hexadécimal symétrique]\nFORMAT=LITTLE OCTETS=DD CC BB AA"
+    "solution": "[Exemple]\nFORMAT=LITTLE OCTETS=78 56 34 12\n\n[Cas 1 — Décomposition Big-Endian standard]\nFORMAT=BIG OCTETS=12 34 56 78\n\n[Cas 2 — Mot 32 bits avec octets nuls en Little-Endian]\nFORMAT=LITTLE OCTETS=01 00 00 00\n\n[Cas 3 — Mot 32 bits avec octets nuls en Big-Endian]\nFORMAT=BIG OCTETS=00 00 00 01\n\n[Cas 4 — Mot hexadécimal symétrique]\nFORMAT=LITTLE OCTETS=DD CC BB AA",
+    "takeaway": "En Little-Endian (x86), l octet de poids faible se stocke à l adresse la plus basse, à l inverse du Big-Endian réseau."
   },
   {
     "id": "asm2-c3-e3",
@@ -102,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c3-e3) — Calcul d’adresse physique en mode réel x86 (Segment:Offset)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vecteur d’interruption du BIOS]\n# Données : 0x0000;0x0080\nA_COMPLETER\n\n[Cas 2 — Segment de données avec offset non nul]\n# Données : 0x1000;0x0250\nA_COMPLETER\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\n# Données : 0xFFFF;0x0010\nA_COMPLETER\n\n[Cas 4 — Pointeur de pile initial]\n# Données : 0x9000;0xFFFE\nA_COMPLETER\n",
     "hints": [
       "En mode réel x86, l’adresse physique 20 bits se calcule par la formule : Adresse_Physique = (Segment × 16) + Déplacement.",
-      "Multiplier un nombre hexadécimal par 16 équivaut à lui ajouter un zéro à droite (décalage de 4 bits)."
+      "Multiplier un nombre hexadécimal par 16 équivaut à lui ajouter un zéro à droite (décalage de 4 bits).",
+      "Pour chaque cas : multiplier le segment par seize, ajouter le déplacement, puis afficher l adresse en hexadécimal sur cinq chiffres suivie de sa valeur décimale."
     ],
     "examples": [
       {
@@ -133,6 +136,7 @@ module.exports = [
         "expected": "PHY=0x9FFFE DEC=655358"
       }
     ],
-    "solution": "[Exemple]\nPHY=0x07C00 DEC=31744\n\n[Cas 1 — Vecteur d’interruption du BIOS]\nPHY=0x00080 DEC=128\n\n[Cas 2 — Segment de données avec offset non nul]\nPHY=0x10250 DEC=66128\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\nPHY=0x100000 DEC=1048576\n\n[Cas 4 — Pointeur de pile initial]\nPHY=0x9FFFE DEC=655358"
+    "solution": "[Exemple]\nPHY=0x07C00 DEC=31744\n\n[Cas 1 — Vecteur d’interruption du BIOS]\nPHY=0x00080 DEC=128\n\n[Cas 2 — Segment de données avec offset non nul]\nPHY=0x10250 DEC=66128\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\nPHY=0x100000 DEC=1048576\n\n[Cas 4 — Pointeur de pile initial]\nPHY=0x9FFFE DEC=655358",
+    "takeaway": "En mode réel x86, l adresse physique 20 bits vaut (Segment << 4) + Offset (soit Segment * 16 + Offset)."
   }
 ];

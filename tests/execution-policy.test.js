@@ -16,9 +16,9 @@ const exercises = require('../server/exercises');
 const executeRoutes = require('../server/routes/execute');
 const exerciseRoutes = require('../server/routes/exercises');
 
-const executableLanguages = languages.listLanguages()
+const remoteLanguages = languages.listLanguages()
   .map(language => language.id)
-  .filter(language => language !== 'analyse');
+  .filter(language => !localRunner.canHandle(language));
 const unavailableMessage = 'Le moteur d’exécution est temporairement indisponible.';
 const successResponse = {
   ok: true,
@@ -90,7 +90,7 @@ test('sans fournisseur : aucun langage ne peut activer le repli local', async co
     if (environmentFlag === undefined) delete process.env.ALLOW_LOCAL_EXECUTION_FALLBACK;
     else process.env.ALLOW_LOCAL_EXECUTION_FALLBACK = environmentFlag;
     for (const allowLocal of [false, true]) {
-      for (const language of executableLanguages) {
+      for (const language of remoteLanguages) {
         await assert.rejects(
           execution.execute(payloadFor(language), { allowLocal }),
           error => error.code === 'not_configured' && error.userMessage === unavailableMessage,
@@ -112,14 +112,14 @@ test('Piston reste prioritaire pour tous les langages même avec les deux drapea
   state.pistonConfigured = true;
   state.oanorConfigured = true;
 
-  for (const language of executableLanguages) {
+  for (const language of remoteLanguages) {
     const result = await execution.execute(payloadFor(language), { allowLocal: true });
     assert.equal(result.provider, 'piston', language);
     assert.equal(result.status, 'success', language);
     assert.equal(result.stdout, 'résultat distant\n', language);
   }
 
-  assert.deepEqual(state.pistonCalls.map(payload => payload.languageId), executableLanguages);
+  assert.deepEqual(state.pistonCalls.map(payload => payload.languageId), remoteLanguages);
   assert.equal(state.oanorCalls.length, 0);
   assertNoLocalCalls(state);
 });
@@ -130,14 +130,14 @@ test('Oanor est utilisé lorsque Piston est absent, même avec les deux drapeaux
   const state = providerMocks(context);
   state.oanorConfigured = true;
 
-  for (const language of executableLanguages) {
+  for (const language of remoteLanguages) {
     const result = await execution.execute(payloadFor(language), { allowLocal: true });
     assert.equal(result.provider, 'oanor', language);
     assert.equal(result.status, 'success', language);
     assert.equal(result.stdout, 'résultat distant\n', language);
   }
 
-  assert.deepEqual(state.oanorCalls.map(payload => payload.languageId), executableLanguages);
+  assert.deepEqual(state.oanorCalls.map(payload => payload.languageId), remoteLanguages);
   assert.equal(state.pistonCalls.length, 0);
   assertNoLocalCalls(state);
 });
@@ -157,7 +157,7 @@ test('erreurs HTTP des fournisseurs : statuts conservés sans repli local', asyn
         data: { message: 'Refus du fournisseur de test.' },
         raw: ''
       };
-      for (const language of executableLanguages) {
+      for (const language of remoteLanguages) {
         const result = await execution.execute(payloadFor(language), { allowLocal: true });
         assert.equal(result.provider, provider, language);
         assert.equal(result.ok, false, language);
@@ -168,8 +168,8 @@ test('erreurs HTTP des fournisseurs : statuts conservés sans repli local', asyn
     }
   }
 
-  assert.equal(state.pistonCalls.length, executableLanguages.length * 2);
-  assert.equal(state.oanorCalls.length, executableLanguages.length * 2);
+  assert.equal(state.pistonCalls.length, remoteLanguages.length * 2);
+  assert.equal(state.oanorCalls.length, remoteLanguages.length * 2);
   assertNoLocalCalls(state);
 });
 
@@ -186,7 +186,7 @@ test('erreurs de transport : timeout et indisponibilité sont conservés', async
         userMessage: 'Message sûr du fournisseur.'
       });
       state[`${provider}Response`] = providerError;
-      for (const language of executableLanguages) {
+      for (const language of remoteLanguages) {
         await assert.rejects(
           execution.execute(payloadFor(language), { allowLocal: true }),
           error => error === providerError,
@@ -201,19 +201,17 @@ test('erreurs de transport : timeout et indisponibilité sont conservés', async
     }
   }
 
-  assert.equal(state.pistonCalls.length, executableLanguages.length * 2);
-  assert.equal(state.oanorCalls.length, executableLanguages.length * 2);
+  assert.equal(state.pistonCalls.length, remoteLanguages.length * 2);
+  assert.equal(state.oanorCalls.length, remoteLanguages.length * 2);
   assertNoLocalCalls(state);
 });
 
-test('API directes du moteur local : tous les interpréteurs refusent de lancer du code', async () => {
-  const entrypoints = [
+test('API directes du moteur local : interpréteurs système refusés, moteurs déterministes (algo, sql, analyse) isolés en mémoire', async () => {
+  const blocked = [
     ['python', 'runPython'],
-    ['javascript', 'runJavaScript'],
-    ['sql', 'runSql'],
-    ['algo', 'runPseudoCode']
+    ['javascript', 'runJavaScript']
   ];
-  for (const [language, method] of entrypoints) {
+  for (const [language, method] of blocked) {
     assert.equal(localRunner.canHandle(language), false, language);
     const dispatched = await localRunner.run(payloadFor(language));
     assert.equal(dispatched.ok, false, language);
@@ -222,12 +220,22 @@ test('API directes du moteur local : tous les interpréteurs refusent de lancer 
     assert.equal(direct.ok, false, method);
     assert.equal(direct.httpStatus, 503, method);
   }
-  for (const alias of ['py', 'js', 'pseudo-code', 'pseudocode']) {
+  for (const alias of ['py', 'js', 'shell', 'bash', 'sh', 'csharp', 'php']) {
     assert.equal(localRunner.canHandle(alias), false, alias);
     const result = await localRunner.run(payloadFor(alias));
     assert.equal(result.ok, false, alias);
     assert.equal(result.httpStatus, 503, alias);
   }
+
+  for (const safe of ['analyse', 'algo', 'pseudo-code', 'pseudocode', 'sql']) {
+    assert.equal(localRunner.canHandle(safe), true, safe);
+  }
+  const sqlRes = await localRunner.runSql('SELECT 2 + 3;', '');
+  assert.equal(sqlRes.ok, true);
+  assert.match(sqlRes.data.stdout, /\|\s*5\s*\|/);
+  const algoRes = await localRunner.runPseudoCode('algo Début\n  Afficher(42)\nFin', '');
+  assert.equal(algoRes.ok, true);
+  assert.equal(algoRes.data.stdout.trim(), '42');
 });
 
 test('analyse reste une sélection de texte, sans interpréter la réponse', async context => {

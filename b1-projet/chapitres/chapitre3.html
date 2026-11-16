@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -136,11 +134,35 @@
 
 </section>
 
+<section class="sec">
+
+<h2>5. Séparer modèle, vue et contrôleur</h2>
+
+<p>Le projet applique, sans le dire, le principe <strong>MVC</strong> : le <em>modèle</em> est <code>database.py</code> (accès aux données), la <em>vue</em> est l’interface Tkinter (widgets), le <em>contrôleur</em> est l’ensemble des fonctions appelées par les boutons, qui valident la saisie puis délèguent au modèle. Un écran ne contient jamais de SQL.</p>
+<pre><code># Modèle (database.py)
+def ajouter(self, nom, categorie, quantite, prix):
+    self.cursor.execute(
+        "INSERT INTO produits (nom, categorie, quantite, prix) VALUES (%s, %s, %s, %s)",
+        (nom, categorie, quantite, prix))
+    self.conn.commit()
+
+# Contrôleur (main.py), appelé par le bouton
+def on_ajouter(self):
+    nom = self.champ_nom.get().strip()
+    if not nom:
+        messagebox.showwarning("Saisie", "Le nom est obligatoire")
+        return
+    self.db.ajouter(nom, self.champ_cat.get(), int(self.champ_qte.get()), self.champ_prix.get())
+    self.rafraichir_tableau()</code></pre>
+<p>Les valeurs passent toujours par les paramètres <code>%s</code> de psycopg2, jamais par concaténation : c’est la protection contre l’injection SQL. En PHP, le même rôle est tenu par les requêtes préparées de PDO ; la règle est identique quel que soit le langage.</p>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Études de cas &amp; applications pratiques</h2>
+  <h2>6. Études de cas &amp; applications pratiques</h2>
   <p class="lead">Ces trois études de cas se réalisent directement dans la page. Complétez chaque grille d’analyse à partir des données du cas, puis lancez la validation pour vérifier vos réponses critère par critère.</p>
   <p>La validation compare vos réponses aux attendus des cas affichés ; elle ne vérifie pas votre capacité à traiter toutes les situations.</p>
   <p>En cas d’hésitation, le bouton <strong>Obtenir une aide formative générale</strong> fournit un conseil identique pour toutes les grilles, sans transmettre de réponse attendue ni utiliser le tuteur IA.</p>
@@ -148,39 +170,30 @@
      data-exercise="pr-c3-e1"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;entry widget&#10;pack layout&#10;messagebox boite&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c3-e1) — Widget ou méthode ?
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'épicerie d'à côté ouvre son application par un écran de connexion :&#10;texte « Identifiant » + une zone de saisie ;&#10;texte « Mot de passe » + une zone de saisie ;&#10;un bouton « Se connecter » ;&#10;une liste des trois dernières caisses clôturées.&#10;&#10;1) Les zones de saisie : des Entry (2).&#10;2) Les textes : des Label.&#10;3) Le bouton : un Button.&#10;4) La liste des caisses : une Listbox.&#10;5) Le contenu d'un Entry se lit avec get().">
+  <script type="text/plain" data-lab-starter># Exercice — Les widgets de l'écran principal
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Les six elements]
-# Données : 6
-# Données : entry widget
-# Données : label widget
-# Données : button widget
-# Données : treeview widget
-# Données : grid layout
-# Données : showerror boite
+[Question 1 — Widget de la zone où taper le nom]
 A_COMPLETER
 
-[Cas 2 — Trois confusions]
-# Données : 4
-# Données : pack widget
-# Données : entry layout
-# Données : messagebox widget
-# Données : button widget
+[Question 2 — Widget du texte fixe]
 A_COMPLETER
 
-[Cas 3 — Interface complete]
-# Données : 5
-# Données : treeview widget
-# Données : showinfo boite
-# Données : pack layout
-# Données : label widget
-# Données : askyesno boite
+[Question 3 — Widget du bouton Ajouter]
+A_COMPLETER
+
+[Question 4 — Widget du tableau des produits]
+A_COMPLETER
+
+[Question 5 — Widget d'une liste simple]
+A_COMPLETER
+
+[Question 6 — Méthode qui lit un Entry]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 1 — Widget ou méthode ?</h3>
+    <h3 class="lab__title">Exercice 1 — Les widgets de l'écran principal</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -189,20 +202,27 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="pr-c3-e1-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Associer chaque élément Tkinter du tutoriel à sa famille.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « element famille » : famille est un code parmi <code>widget</code>, <code>layout</code> ou <code>boite</code>. Éléments du tutoriel : Entry, Label, Button, Frame, Treeview → <code>widget</code> ; pack, grid → <code>layout</code> ; messagebox (showinfo, showerror, askyesno) → <code>boite</code>. Pour chaque ligne, indiquez <code>element : OK</code> ou <code>element : ERREUR</code>, puis <code>conformes : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Nommer les widgets Tkinter d'une maquette d'écran : Label, Entry, Button, Listbox, Treeview.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Troisième étape : l'interface. Kofi dessine sur papier l'écran principal de l'application, puis le décrit à Inès :</p><table><tr><th>Zone de l'écran</th><th>Élément affiché</th></tr><tr><td>Ligne 1</td><td>texte « Nom du produit », puis une zone pour taper le nom</td></tr><tr><td>Ligne 2</td><td>texte « Catégorie », puis une zone pour taper la catégorie</td></tr><tr><td>Ligne 3</td><td>texte « Quantité », puis une zone pour taper la quantité</td></tr><tr><td>Ligne 4</td><td>texte « Prix », puis une zone pour taper le prix</td></tr><tr><td>En bas du formulaire</td><td>un bouton « Ajouter » qui déclenche l'ajout au clic</td></tr><tr><td>Centre de la fenêtre</td><td>le tableau des produits en cinq colonnes (ID, Nom, Catégorie, Quantité, Prix)</td></tr></table><p>Rappel des widgets du cours : <strong>Label</strong> (texte fixe), <strong>Entry</strong> (saisie d'une ligne), <strong>Button</strong> (bouton d'action), <strong>Listbox</strong> (liste simple, une colonne), <strong>ttk.Treeview</strong> (tableau multi-colonnes).</p><ol><li>Quel widget crée la zone où la vendeuse tape le nom du produit ? (un mot anglais)</li><li>Quel widget affiche le texte fixe « Nom du produit » ? (un mot anglais)</li><li>Quel widget déclenche l'ajout quand on clique dessus ? (un mot anglais)</li><li>Quel widget ttk affiche le tableau des produits en cinq colonnes ? (un mot anglais)</li><li>Quel widget simple affiche une liste à une colonne, sans prix ni quantités ? (un mot anglais)</li><li>Quelle méthode lit le contenu tapé dans un Entry ? (un seul mot, sans parenthèses)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-entry widget
-pack layout
-messagebox boite
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'épicerie d'à côté ouvre son application par un écran de connexion :
+texte « Identifiant » + une zone de saisie ;
+texte « Mot de passe » + une zone de saisie ;
+un bouton « Se connecter » ;
+une liste des trois dernières caisses clôturées.
+
+1) Les zones de saisie : des Entry (2).
+2) Les textes : des Label.
+3) Le bouton : un Button.
+4) La liste des caisses : une Listbox.
+5) Le contenu d'un Entry se lit avec get().</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur l'élément : entry/label/button/treeview → widget, pack/grid → layout, messagebox → boite.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>Un widget, un métier : afficher un texte, saisir une ligne, déclencher une action, présenter une liste ou un tableau.</li>
+        <li>Le tableau des produits dépasse une simple colonne : le widget prévu par le cours vient du module ttk.</li>
+        <li>Le contenu tapé dans un champ de saisie ne se lit pas par magie : une méthode très courte du widget le rend.</li>
       </ol>
     </details>
   </div>
@@ -212,36 +232,30 @@ messagebox boite
      data-exercise="pr-c3-e2"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;nom clavier&#10;quantite 5&#10;prix -&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c3-e2) — Validation des champs de saisie
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="Écran de connexion d'une épicerie, en grille :&#10;ligne 0 : Label « Identifiant » / Entry identifiant&#10;ligne 1 : Label « Mot de passe » / Entry motdepasse&#10;ligne 2 : (vide) / Button « Entrer »&#10;&#10;1) Gestionnaire : grid.&#10;2) Les Entry sont en colonne 1.&#10;3) Le bouton est en ligne 2.&#10;4) Le bouton appelle sa fonction via command= ; la fonction déclenchée est le callback.">
+  <script type="text/plain" data-lab-starter># Exercice — La grille du formulaire
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Formulaire complet]
-# Données : 5
-# Données : nom clavier
-# Données : quantite 12
-# Données : prix 2500
-# Données : nom -
-# Données : prix zero
+[Question 1 — Gestionnaire en lignes et colonnes]
 A_COMPLETER
 
-[Cas 2 — Nombres invalides]
-# Données : 3
-# Données : quantite deux
-# Données : quantite -3
-# Données : prix -1
+[Question 2 — Colonne des Entry]
 A_COMPLETER
 
-[Cas 3 — Relecture fiche]
-# Données : 4
-# Données : nom ecran
-# Données : quantite 0
-# Données : prix 100
-# Données : nom -
+[Question 3 — Ligne du bouton Ajouter]
+A_COMPLETER
+
+[Question 4 — Mélanger pack et grid]
+A_COMPLETER
+
+[Question 5 — Paramètre du bouton]
+A_COMPLETER
+
+[Question 6 — Fonction déclenchée par l'événement]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 2 — Validation des champs de saisie</h3>
+    <h3 class="lab__title">Exercice 2 — La grille du formulaire</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -250,20 +264,25 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="pr-c3-e2-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Appliquer la validation du formulaire avant tout appel à la base.</p>
-    <div class="lab__brief"><p>La méthode <code>ajouter_produit()</code> du tutoriel refuse l'insertion si un champ obligatoire est vide, puis convertit quantite en int et prix en float. Analysez chaque ligne proposée « champ valeur » : champ est un code parmi <code>nom</code>, <code>quantite</code>, <code>prix</code> — valeur est le contenu saisi (un seul mot ; <code>-</code> = vide). Règles : nom non vide ; quantite nombre entier positif ; prix nombre positif. Pour chaque ligne, indiquez <code>champ : OK</code> si la règle est respectée, sinon <code>champ : REFUSE</code>, puis <code>valides : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Placer des widgets avec grid (row, column), relier une action avec command et nommer le callback.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Pour aligner proprement le formulaire, Kofi choisit le gestionnaire <strong>grid</strong> : chaque widget occupe une cellule repérée par <code>row</code> (ligne) et <code>column</code> (colonne). Il interdit formellement de mélanger <strong>pack</strong> et <strong>grid</strong> dans un même conteneur. Maquette exacte du formulaire :</p><table><tr><th></th><th>Colonne 0</th><th>Colonne 1</th></tr><tr><th>Ligne 0</th><td>Label « Nom »</td><td>Entry nom</td></tr><tr><th>Ligne 1</th><td>Label « Catégorie »</td><td>Entry categorie</td></tr><tr><th>Ligne 2</th><td>Label « Quantité »</td><td>Entry quantite</td></tr><tr><th>Ligne 3</th><td>Label « Prix »</td><td>Entry prix</td></tr><tr><th>Ligne 4</th><td>(vide)</td><td>Button « Ajouter »</td></tr></table><p>Le bouton est câblé par <code>Button(..., command=ajouter_produit)</code> : on passe la référence de la fonction, sans parenthèses.</p><ol><li>Quel gestionnaire de placement organise les widgets en lignes et colonnes ? (un mot anglais)</li><li>Dans quelle colonne se trouvent les quatre Entry ? (un nombre)</li><li>Sur quelle ligne (row) se trouve le bouton « Ajouter » ? (un nombre)</li><li>Peut-on mélanger pack et grid dans un même conteneur ? Répondez par oui ou non.</li><li>Quel paramètre du Button désigne la fonction appelée au clic ? (un mot anglais)</li><li>Comment appelle-t-on la fonction exécutée en réponse à un événement comme un clic ? (un mot anglais)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-nom clavier
-quantite 5
-prix -
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>Écran de connexion d'une épicerie, en grille :
+ligne 0 : Label « Identifiant » / Entry identifiant
+ligne 1 : Label « Mot de passe » / Entry motdepasse
+ligne 2 : (vide) / Button « Entrer »
+
+1) Gestionnaire : grid.
+2) Les Entry sont en colonne 1.
+3) Le bouton est en ligne 2.
+4) Le bouton appelle sa fonction via command= ; la fonction déclenchée est le callback.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur le champ : nom refuse seulement -, quantite/prix testent -gt 0 apres un test numerique.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>La grille se lit comme un tableau : les lignes et les colonnes commencent à zéro, et la maquette les numérote.</li>
+        <li>Deux gestionnaires de placement existent : celui qui empile et celui qui aligne en cellules ; ils ne partagent pas un conteneur.</li>
+        <li>Le paramètre du bouton reçoit la référence de la fonction, sans parenthèses ; la fonction déclenchée par l'événement porte un nom anglais précis.</li>
       </ol>
     </details>
   </div>
@@ -273,37 +292,30 @@ prix -
      data-exercise="pr-c3-e3"
      data-language="analyse"
      data-height="300"
-     data-stdin="3&#10;succes showinfo&#10;champs showwarning&#10;suppression askyesno&#10;">
-  <script type="text/plain" data-lab-starter># Grille d'analyse (pr-c3-e3) — Message ou boîte ?
-# Complétez la résolution demandée sous chaque cas ci-dessous :
+     data-stdin="L'application de l'épicerie affiche ses messages :&#10;1) prix laissé vide à l'enregistrement : showwarning (avertissement, on peut corriger) ;&#10;2) prix « abc » : la conversion échoue, ValueError, showerror ;&#10;3) article enregistré : showinfo ;&#10;4) suppression demandée : askyesno.&#10;&#10;1) Champ vide : showwarning.&#10;2) Conversion ratée : ValueError + showerror.&#10;3) Suppression : confirmation par askyesno.">
+  <script type="text/plain" data-lab-starter># Exercice — Protéger les saisies de la vendeuse
+# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.
 
-[Cas 1 — Les quatre dialogues]
-# Données : 4
-# Données : succes showinfo
-# Données : champs showwarning
-# Données : echec showerror
-# Données : suppression askyesno
+[Question 1 — Boîte de la situation 1]
 A_COMPLETER
 
-[Cas 2 — Trois erreurs]
-# Données : 4
-# Données : succes showerror
-# Données : echec showinfo
-# Données : suppression showinfo
-# Données : champs showwarning
+[Question 2 — Boîte de la situation 2]
 A_COMPLETER
 
-[Cas 3 — Revue UX]
-# Données : 5
-# Données : suppression askyesno
-# Données : succes showinfo
-# Données : echec showerror
-# Données : champs showwarning
-# Données : succes showinfo
+[Question 3 — Boîte de la situation 3]
+A_COMPLETER
+
+[Question 4 — Boîte de la situation 4]
+A_COMPLETER
+
+[Question 5 — Exception levée par une conversion ratée]
+A_COMPLETER
+
+[Question 6 — Validation avant ou après l'appel à la base]
 A_COMPLETER
 </script>
   <div class="lab__head">
-    <h3 class="lab__title">Exercice 3 — Message ou boîte ?</h3>
+    <h3 class="lab__title">Exercice 3 — Protéger les saisies de la vendeuse</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-book"></use></svg> Étude de cas</span>
       <span class="lab__formative">Formative</span>
@@ -312,27 +324,32 @@ A_COMPLETER
   </div>
   <div class="lab__body">
     <p class="lab__formative-notice" id="pr-c3-e3-formative-notice">Cette vérification est une aide à l’apprentissage : elle ne donne pas de note et ne valide pas les acquis.</p>
-    <p class="lab__goal"><strong>Objectif :</strong> Choisir la bonne boîte de dialogue Tkinter pour chaque situation.</p>
-    <div class="lab__brief"><p>Analysez chaque ligne proposée « situation boite » : boite est un code parmi <code>showinfo</code>, <code>showwarning</code>, <code>showerror</code> ou <code>askyesno</code>. Usages du tutoriel : produit ajouté avec succès → <code>showinfo</code> ; champs obligatoires non remplis → <code>showwarning</code> ; impossible de se connecter → <code>showerror</code> ; confirmation avant suppression → <code>askyesno</code>. Pour chaque ligne, indiquez <code>situation : conforme</code> ou <code>situation : a revoir</code>, puis <code>avis : X/n</code>.</p></div>
+    <p class="lab__goal"><strong>Objectif :</strong> Choisir la bonne boîte de dialogue (showinfo, showwarning, showerror, askyesno) et prévoir l'exception d'une conversion ratée.</p>
+    <div class="lab__brief"><p><strong>Énoncé.</strong> Mme Adjovi tape vite et se trompe parfois. Avant tout appel à la base, l'application valide les champs : obligatoires non vides, puis conversion de la quantité en entier et du prix en nombre, dans un try. Kofi rédige les scénarios de tests et choisit la boîte de dialogue adaptée à chaque situation :</p><table><tr><th>N°</th><th>Situation testée</th><th>Boîte attendue</th></tr><tr><td>1</td><td>La vendeuse valide le formulaire sans avoir tapé le nom</td><td>?</td></tr><tr><td>2</td><td>Elle tape « douze » dans le champ quantité : la conversion échoue</td><td>?</td></tr><tr><td>3</td><td>Le produit est enregistré dans la base</td><td>?</td></tr><tr><td>4</td><td>Elle demande la suppression d'un produit sélectionné</td><td>?</td></tr><tr><td>5</td><td>La connexion à PostgreSQL échoue au démarrage</td><td>?</td></tr></table><p>Rappel : <strong>showinfo</strong> (information de succès), <strong>showwarning</strong> (attention, on peut corriger), <strong>showerror</strong> (échec), <strong>askyesno</strong> (question oui/non).</p><ol><li>Quelle boîte convient à la situation 1 ? (un mot anglais)</li><li>Quelle boîte convient à la situation 2 ? (un mot anglais)</li><li>Quelle boîte annonce le succès de la situation 3 ? (un mot anglais)</li><li>Quelle boîte pose la question oui/non de la situation 4 ? (un mot anglais)</li><li>Quelle exception Python lève la conversion du texte « douze » en entier ? (un mot anglais)</li><li>La validation des champs a-t-elle lieu avant ou après l'appel à la base ? (un mot)</li></ol></div>
     <div class="lab__sample">
-      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>3
-succes showinfo
-champs showwarning
-suppression askyesno
-</pre></div>
+      <div class="lab__sample-part"><b>Cas d’exemple</b><pre>L'application de l'épicerie affiche ses messages :
+1) prix laissé vide à l'enregistrement : showwarning (avertissement, on peut corriger) ;
+2) prix « abc » : la conversion échoue, ValueError, showerror ;
+3) article enregistré : showinfo ;
+4) suppression demandée : askyesno.
+
+1) Champ vide : showwarning.
+2) Conversion ratée : ValueError + showerror.
+3) Suppression : confirmation par askyesno.</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
-        <li>Un case sur la situation : succes/ajoute → showinfo, champs/attention → showwarning, echec/connexion → showerror, suppression/confirme → askyesno.</li>
-        <li>Le bilan sort une seule fois, après la boucle.</li>
+        <li>Classez chaque situation : information, avertissement (on peut corriger), erreur (l'opération échoue), confirmation.</li>
+        <li>La conversion d'un texte en nombre peut échouer : Python lève alors une exception dédiée aux valeurs inattendues.</li>
+        <li>La règle du cours : la base ne doit jamais recevoir une donnée absurde — le garde-fou se place donc en amont de l'appel.</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
@@ -347,8 +364,8 @@ suppression askyesno
     <div class="q">
       <p class="q__stem">Le widget de saisie d'une ligne :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">Entry</button>
         <button class="opt">Label</button>
+        <button class="opt" data-correct="1">Entry</button>
         <button class="opt">Frame</button>
       </div>
       <div class="q__exp">Entry pour les champs host, nom, quantite…</div>
@@ -356,17 +373,17 @@ suppression askyesno
     <div class="q">
       <p class="q__stem">Le widget tableau multi-colonnes :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">ttk.Treeview</button>
-        <button class="opt">Entry</button>
         <button class="opt">Scrollbar</button>
+        <button class="opt">Entry</button>
+        <button class="opt" data-correct="1">ttk.Treeview</button>
       </div>
-      <div class="q__exp">Colonnes, en-têtes, sélection au clic.</div>
+      <div class="q__exp">ttk.Treeview affiche les lignes en colonnes, avec en-têtes et sélection au clic ; Entry ne saisit qu'une seule ligne de texte.</div>
     </div>
     <div class="q">
       <p class="q__stem">Le clic sur une ligne du Treeview déclenche…</p>
       <div class="opts">
-        <button class="opt" data-correct="1">le bind de sélection</button>
         <button class="opt">la fermeture</button>
+        <button class="opt" data-correct="1">le bind de sélection</button>
         <button class="opt">un commit</button>
       </div>
       <div class="q__exp">&lt;ButtonRelease-1&gt; remplit le formulaire.</div>
@@ -383,20 +400,20 @@ suppression askyesno
     <div class="q">
       <p class="q__stem">Confirmation avant suppression :</p>
       <div class="opts">
-        <button class="opt" data-correct="1">askyesno</button>
-        <button class="opt">showerror</button>
         <button class="opt">showinfo</button>
+        <button class="opt">showerror</button>
+        <button class="opt" data-correct="1">askyesno</button>
       </div>
       <div class="q__exp">La suppression n'a lieu que si l'utilisateur confirme.</div>
     </div>
     <div class="q">
       <p class="q__stem">La conversion int(quantite) se fait…</p>
       <div class="opts">
+        <button class="opt">directement dans la base PostgreSQL</button>
         <button class="opt" data-correct="1">dans un try pour attraper ValueError</button>
-        <button class="opt">dans la base</button>
-        <button class="opt">jamais</button>
+        <button class="opt">jamais : la saisie reste du texte</button>
       </div>
-      <div class="q__exp">ValueError → showerror : la base ne voit jamais de texte.</div>
+      <div class="q__exp">La conversion s'exécute dans un try : une saisie non numérique lève ValueError, interceptée par showerror ; la base ne voit jamais de texte.</div>
     </div>
     <div class="q">
       <p class="q__stem">À la fermeture de la fenêtre :</p>
@@ -413,7 +430,7 @@ suppression askyesno
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -429,7 +446,7 @@ suppression askyesno
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Méthode — câbler une action en trois gestes</div>
@@ -444,7 +461,7 @@ suppression askyesno
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -473,7 +490,7 @@ suppression askyesno
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -522,7 +539,7 @@ suppression askyesno
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

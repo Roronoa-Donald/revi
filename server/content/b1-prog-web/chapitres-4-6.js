@@ -194,12 +194,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quel sélecteur cible toutes les cartes portant la classe « item » ?', opts: ['#item', '.item', 'item'], correct: 1, exp: 'Le point introduit une classe ; # introduit un identifiant.' },
+      { stem: 'Quel sélecteur cible toutes les cartes portant la classe « item » ?', opts: ['#item', 'item', '.item'], correct: 2, exp: 'Le point introduit une classe ; # introduit un identifiant.' },
       { stem: 'Quelle est la spécificité de « div#main.item p » ?', opts: ['1 identifiant, 1 classe, 2 types', '0 identifiant, 2 classes, 1 type', '2 identifiants, 0 classe, 2 types'], correct: 0, exp: '#main donne un identifiant, .item une classe, div et p deux types.' },
       { stem: 'Deux règles de même spécificité se contredisent. Laquelle gagne ?', opts: ['la première écrite', 'la dernière écrite', 'celle du fichier le plus long'], correct: 1, exp: 'À spécificité égale, l’ordre d’apparition tranche : la dernière gagne.' },
-      { stem: 'Avec box-sizing: border-box, width: 300px désigne…', opts: ['la largeur du contenu seul', 'la largeur contenu + padding + bordure', 'la largeur avec les marges'], correct: 1, exp: 'border-box englobe padding et bordure ; les marges restent extérieures.' },
-      { stem: 'Quelle unité suit la taille de base du navigateur ?', opts: ['px', 'rem', 'cm'], correct: 1, exp: 'rem est relative à la taille de police de la racine : elle respecte les préférences du lecteur.' },
-      { stem: 'À quoi sert !important ?', opts: ['à accélérer le rendu', 'à forcer une déclaration, en dernier recours', 'à rendre un style hérité'], correct: 1, exp: 'C’est une exception qui casse la hiérarchie naturelle : à utiliser le moins possible.' }
+      { stem: 'Avec box-sizing: border-box, width: 300px désigne…', opts: ['la largeur du contenu seul', 'la largeur avec les marges', 'la largeur contenu + padding + bordure'], correct: 2, exp: 'border-box englobe padding et bordure ; les marges restent extérieures.' },
+      { stem: 'Quelle unité suit la taille de base du navigateur ?', opts: ['rem', 'px', 'cm'], correct: 0, exp: 'rem est relative à la taille de police de la racine : elle respecte les préférences du lecteur.' },
+      { stem: 'À quoi sert !important ?', opts: ["à accélérer le rendu de la page dans le navigateur","à forcer une déclaration, en dernier recours","à transmettre un style hérité aux éléments enfants"], correct: 1, exp: "!important fait primer une déclaration au sommet de la cascade, en dernier recours ; il n’accélère aucun rendu et ne transmet rien : il casse la hiérarchie naturelle." }
     ],
 
     pitfalls: [
@@ -450,12 +450,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Quel outil pour ranger des éléments sur une seule ligne, avec espacement ?', opts: ['grid', 'flexbox', 'position: absolute'], correct: 1, exp: 'Flexbox travaille sur un axe : c’est son terrain.' },
+      { stem: 'Quel outil pour ranger des éléments sur une seule ligne, avec espacement ?', opts: ['grid', 'position: absolute', 'flexbox'], correct: 2, exp: 'Flexbox travaille sur un axe : c’est son terrain.' },
       { stem: 'Dans un conteneur flex en row, que règle justify-content ?', opts: ['l’axe transversal', 'l’axe principal', 'les marges'], correct: 1, exp: 'justify-content agit sur l’axe principal ; align-items sur le transversal.' },
       { stem: 'Que signifie repeat(3, 1fr) ?', opts: ['trois colonnes égales', 'trois lignes de 1 pixel', 'une colonne de 3 pixels'], correct: 0, exp: 'fr est une fraction de l’espace restant : trois parts égales.' },
-      { stem: 'Quelle écriture fait couvrir toutes les colonnes à un élément ?', opts: ['grid-column: 1 / -1', 'width: 100%', 'display: block'], correct: 0, exp: 'De la première ligne de grille à la dernière : toute la largeur.' },
-      { stem: 'Que fait une media query (min-width: 600px) ?', opts: ['elle s’applique en dessous de 600px', 'elle s’applique à partir de 600px', 'elle mesure la hauteur'], correct: 1, exp: 'min-width est une borne basse : la règle s’applique dès que la largeur atteint 600px.' },
-      { stem: 'À quoi sert clamp(1.6rem, 4vw, 2.8rem) ?', opts: ['à borner une taille fluide entre deux limites', 'à centrer un texte', 'à empêcher le défilement'], correct: 0, exp: 'La taille suit 4vw mais reste comprise entre le minimum et le maximum.' }
+      { stem: 'Quelle écriture fait couvrir toutes les colonnes à un élément ?', opts: ['width: 100%', 'grid-column: 1 / -1', 'display: block'], correct: 1, exp: 'De la première ligne de grille à la dernière : toute la largeur.' },
+      { stem: 'Que fait une media query (min-width: 600px) ?', opts: ['elle s’applique en dessous de 600px', 'elle mesure la hauteur', 'elle s’applique à partir de 600px'], correct: 2, exp: 'min-width est une borne basse : la règle s’applique dès que la largeur atteint 600px.' },
+      { stem: 'À quoi sert clamp(1.6rem, 4vw, 2.8rem) ?', opts: ["à borner une taille fluide entre deux limites","à centrer un texte au milieu de sa boîte","à empêcher le défilement de la page entière"], correct: 0, exp: "clamp(min, fluide, max) : la taille suit 4vw mais reste comprise entre 1.6rem et 2.8rem ; la fonction borne une valeur, elle ne centre rien et ne bloque aucun défilement." }
     ],
 
     pitfalls: [
@@ -729,12 +729,12 @@ module.exports = [
     ],
 
     questions: [
-      { stem: 'Pourquoi placer un script avec defer plutôt qu’en haut de page ?', opts: ['il s’exécute après l’analyse du HTML', 'il s’exécute plus vite', 'il ne peut pas échouer'], correct: 0, exp: 'defer attend la fin de l’analyse : les éléments visés existent alors.' },
-      { stem: 'Quelle déclaration pour une valeur jamais réassignée ?', opts: ['var', 'let', 'const'], correct: 2, exp: 'const exprime une intention : la valeur ne changera pas.' },
-      { stem: 'Quelle méthode transforme chaque élément d’un tableau ?', opts: ['filter', 'map', 'sort'], correct: 1, exp: 'map renvoie un tableau de même longueur avec chaque élément transformé.' },
-      { stem: 'Que renvoie querySelector si rien ne correspond ?', opts: ['undefined', 'null', 'un tableau vide'], correct: 1, exp: 'null : c’est ce qui produit ensuite l’erreur « Cannot read properties of null ».' },
-      { stem: 'Que fait evenement.preventDefault() dans un submit ?', opts: ['il annule le rechargement de la page', 'il désactive le formulaire', 'il valide les champs'], correct: 0, exp: 'Il empêche le comportement par défaut du navigateur et laisse le script décider.' },
-      { stem: 'Comment afficher une saisie utilisateur sans risque ?', opts: ['innerHTML', 'textContent', 'insertAdjacentHTML'], correct: 1, exp: 'textContent traite la valeur comme du texte : aucune injection possible.' }
+      { stem: 'Pourquoi placer un script avec defer plutôt qu’en haut de page ?', opts: ['il s’exécute plus vite', 'il s’exécute après l’analyse du HTML', 'il ne peut pas échouer'], correct: 1, exp: 'defer attend la fin de l’analyse : les éléments visés existent alors.' },
+      { stem: 'Quelle déclaration pour une valeur jamais réassignée ?', opts: ['const', 'let', 'var'], correct: 0, exp: 'const exprime une intention : la valeur ne changera pas.' },
+      { stem: 'Quelle méthode transforme chaque élément d’un tableau ?', opts: ['filter', 'sort', 'map'], correct: 2, exp: 'map renvoie un tableau de même longueur avec chaque élément transformé.' },
+      { stem: 'Que renvoie querySelector si rien ne correspond ?', opts: ['undefined', 'un tableau vide', 'null'], correct: 2, exp: 'null : c’est ce qui produit ensuite l’erreur « Cannot read properties of null ».' },
+      { stem: 'Que fait evenement.preventDefault() dans un submit ?', opts: ['il désactive le formulaire', 'il annule le rechargement de la page', 'il valide les champs'], correct: 1, exp: 'Il empêche le comportement par défaut du navigateur et laisse le script décider.' },
+      { stem: 'Comment afficher une saisie utilisateur sans risque ?', opts: ['textContent', 'innerHTML', 'insertAdjacentHTML'], correct: 0, exp: 'textContent traite la valeur comme du texte : aucune injection possible.' }
     ],
 
     pitfalls: [

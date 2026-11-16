@@ -150,31 +150,31 @@ module.exports = {
       stem: 'Quelle stratégie de partitionnement convient le mieux à une table de transactions bancaires conservant 10 ans d’historique ?',
       opts: [
         'PARTITION BY HASH sur le montant',
-        'PARTITION BY RANGE sur la date de transaction (ex: mensuel)',
+        'Aucun partitionnement n’est possible sur des dates',
         'PARTITION BY LIST sur le nom du client',
-        'Aucun partitionnement n’est possible sur des dates'
+        'PARTITION BY RANGE sur la date de transaction (ex: mensuel)'
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Le partitionnement par intervalle (RANGE) sur la date permet un élagage massif sur les requêtes temporelles et un archivage facile des vieux mois.'
     },
     {
       stem: 'Qu’est-ce que le Partition Pruning dans PostgreSQL ?',
       opts: [
-        'La suppression définitive des anciennes partitions sur disque',
-        'La capacité de l’optimiseur à exclure les partitions physiques hors périmètre lors de l’exécution d’une requête',
-        'Le compactage des blocs mémoire dans le buffer pool',
-        'La défragmentation automatique des index B-Tree'
+        "La suppression définitive et automatique des anciennes partitions jugées obsolètes sur le disque",
+        "Le compactage régulier des blocs mémoire résidents dans le buffer pool partagé",
+        "La capacité de l’optimiseur à exclure les partitions physiques hors périmètre lors de l’exécution d’une requête",
+        "La défragmentation automatique et périodique des index B-Tree des tables"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'Le Partition Pruning ignore les partitions dont les contraintes contredisent les critères de la clause WHERE de la requête.'
     },
     {
       stem: 'Pourquoi PostgreSQL écrit-il dans le WAL avant d’écrire dans les pages de table sur disque ?',
       opts: [
-        'Parce que le WAL compresse les données',
-        'Pour assurer la durabilité ACID grâce à des écritures séquentielles rapides, tout en différant les écritures aléatoires sur les tables',
-        'Parce que les tables n’existent pas sur disque',
-        'Pour chiffrer les données à la volée'
+        "Parce que le journal WAL compresse fortement les données avant de les écrire sur les pages des tables sur disque",
+        "Pour assurer la durabilité ACID grâce à des écritures séquentielles rapides, tout en différant les écritures aléatoires sur les tables",
+        "Parce que les tables n’existent physiquement pas sur le disque, mais uniquement en mémoire vive",
+        "Pour chiffrer les données à la volée lors de chaque écriture sur le stockage persistant du serveur"
       ],
       correct: 1,
       exp: 'Le WAL doit être synchronisé avant l’écriture des pages de données correspondantes. Avec fsync et synchronous_commit activés, le COMMIT attend la synchronisation locale ; avec synchronous_commit = off, il peut être acquitté avant.'
@@ -182,43 +182,43 @@ module.exports = {
     {
       stem: 'Que se passe-t-il lors d’un Checkpoint dans PostgreSQL ?',
       opts: [
-        'Toutes les connexions clientes sont déconnectées',
-        'Les pages modifiées en mémoire (dirty buffers) sont écrites sur disque et synchronisées par fsync',
-        'La base de données est basculée en lecture seule',
-        'Toutes les tables sont vidées'
+        "Les pages modifiées en mémoire (dirty buffers) sont écrites sur disque et synchronisées par fsync",
+        "Toutes les connexions clientes actives sont brutalement déconnectées du serveur",
+        "La base de données entière est basculée temporairement en mode lecture seule",
+        "Toutes les tables de la base de données sont intégralement vidées de leur contenu"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'Le Checkpoint synchronise toutes les données modifiées en RAM avec les fichiers disque, bornant la durée de récupération en cas de crash.'
     },
     {
       stem: 'Quelle fonction PostgreSQL permet de calculer l’écart en octets entre deux Log Sequence Numbers (LSN) ?',
       opts: [
-        'pg_wal_lsn_diff(lsn1, lsn2)',
+        'SUBTRACT_WAL(lsn1, lsn2)',
         'pg_calculate_bytes(lsn1, lsn2)',
         'DIFF_LSN(lsn1, lsn2)',
-        'SUBTRACT_WAL(lsn1, lsn2)'
+        'pg_wal_lsn_diff(lsn1, lsn2)'
       ],
-      correct: 0,
+      correct: 3,
       exp: 'pg_wal_lsn_diff() calcule la différence numérique exacte en octets entre deux positions LSN fournies au format hexadécimal.'
     },
     {
       stem: 'Avec synchronous_standby_names configuré et synchronous_commit = on, quand PostgreSQL acquitte-t-il un COMMIT synchrone ?',
       opts: [
-        'Immédiatement après le calcul en RAM',
-        'Après synchronisation locale du WAL et confirmation durable du nombre ou quorum de standbys synchrones configuré',
-        'Exactement 5 minutes après la requête',
-        'Une fois par heure lors du checkpoint'
+        "Immédiatement après le calcul et la mise à jour des pages en mémoire vive du serveur",
+        "Exactement cinq minutes après la réception de la requête transactionnelle par le serveur primaire",
+        "Après synchronisation locale du WAL et confirmation durable du nombre ou quorum de standbys synchrones configuré",
+        "Une seule fois par heure, à l’occasion du checkpoint automatique planifié suivant"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'PostgreSQL attend la synchronisation locale puis la confirmation des standbys synchrones configurés. La protection au basculement dépend notamment de la survie et du choix d’une réplique ayant confirmé le WAL ; ce n’est pas une sauvegarde.'
     },
     {
       stem: 'Quel risque majeur présente un physical replication slot laissé actif alors que le serveur standby associé est éteint ?',
       opts: [
-        'Le serveur primaire redémarre en boucle',
-        'Le primaire conserve tous les fichiers WAL sans jamais les recycler, provoquant une saturation critique du disque',
-        'Les données de la table deviennent corrompues',
-        'Les requêtes SELECT sont refusées'
+        "Le serveur primaire entre dans une boucle infinie de redémarrages inopinés et répétés",
+        "Le primaire conserve tous les fichiers WAL sans jamais les recycler, provoquant une saturation critique du disque",
+        "Les données des tables répliquées deviennent progressivement corrompues et incohérentes",
+        "Toutes les requêtes SELECT de lecture sont désormais refusées aux clients connectés"
       ],
       correct: 1,
       exp: 'Un replication slot orphelin empêche le primaire de nettoyer ses WAL, saturant l’espace disque jusqu’au blocage total de la base.'

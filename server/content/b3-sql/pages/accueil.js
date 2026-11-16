@@ -63,7 +63,7 @@ function index(course, chapterList) {
     '    <div class="card">',
     '      <div class="card__head"><span class="badge">Laboratoire Code Lab</span></div>',
     '      <h3>18 exercices SQL</h3>',
-    '      <p>Les exercices proposent des données et des modèles pédagogiques. Leur correction automatique est temporairement suspendue.</p>',
+    '      <p>Les exercices proposent des données, des modèles pédagogiques et une correction automatique en SQLite (sql.js).</p>',
     '      <a class="btn btn--sm" href="chapitres/exercices.html">Voir les exercices</a>',
     '    </div>',
     '    <div class="card">',
@@ -154,7 +154,7 @@ function atelier(course) {
   const body = [
     crumbs,
     '  <h1>Éditeur SQL libre</h1>',
-    '  <p class="lead">Rédigez une requête SQL. Le bouton Exécuter utilise un service externe, s\'il est configuré ; sa disponibilité et son dialecte dépendent du service. Cet éditeur ne fournit pas une base PostgreSQL de production. La correction automatique des exercices du cours est temporairement suspendue.</p>',
+    '  <p class="lead">Rédigez une requête SQL : l’exécution s’appuie sur le moteur SQLite local (WebAssembly) ou sur le service configuré ; cet éditeur ne fournit pas une base PostgreSQL de production. Les 18 exercices du cours disposent de la correction automatique.</p>',
     '  <p>La requête initiale est un exemple autonome compatible avec SQLite. Utilisez une base de test adaptée pour les commandes propres à PostgreSQL.</p>',
     '',
     '  <div class="lab" data-lab',
@@ -185,7 +185,7 @@ function atelier(course) {
   return {
     'atelier.html': {
       title: 'Laboratoire SQL libre — ' + course.brand,
-      description: 'Éditeur SQL libre : exécution selon le service configuré, correction des exercices suspendue.',
+      description: 'Éditeur SQL libre : exécution SQLite locale ou selon le service configuré, correction automatique active.',
       active: 'atelier',
       body
     }

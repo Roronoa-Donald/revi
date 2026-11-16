@@ -68,7 +68,20 @@ async function initDB() {
 /**
  * Exécute une requête SQL
  */
+let customQueryRunner = null;
+
+function isConnected() {
+  return Boolean(pool || typeof customQueryRunner === 'function');
+}
+
+function setQueryRunnerForTest(fn) {
+  customQueryRunner = typeof fn === 'function' ? fn : null;
+}
+
 async function query(text, params) {
+  if (typeof customQueryRunner === 'function') {
+    return customQueryRunner(text, params);
+  }
   return pool.query(text, params);
 }
 
@@ -189,6 +202,14 @@ async function createSession(keyId, jti, fingerprint, platform) {
 async function getSessionByJti(jti) {
   const result = await query('SELECT * FROM sessions WHERE jti = $1', [jti]);
   return result.rows[0];
+}
+
+async function isSessionValid(jti) {
+  if (!jti) return false;
+  const session = await getSessionByJti(jti);
+  if (!session || !session.is_valid) return false;
+  if (session.expires_at && new Date(session.expires_at) <= new Date()) return false;
+  return true;
 }
 
 async function getAllSessions() {
@@ -838,6 +859,23 @@ async function getLatestPaymentForUser(userId) {
   return result.rows[0] || null;
 }
 
+/**
+ * Réserve atomiquement une transaction FedaPay pour crédit d'abonnement (anti-rejeu).
+ * Retourne la ligne insérée si la réservation a réussi, ou null si la transaction a déjà été créditée.
+ */
+async function claimFedapayTransaction(transactionId, { paymentId = null, userId = null, source = 'callback' } = {}) {
+  const txIdStr = String(transactionId || '').trim();
+  if (!txIdStr) return null;
+  const result = await query(
+    `INSERT INTO fedapay_credited_transactions (transaction_id, payment_id, user_id, source)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (transaction_id) DO NOTHING
+     RETURNING *`,
+    [txIdStr, paymentId || null, userId || null, source || 'callback']
+  );
+  return result.rows[0] || null;
+}
+
 async function recordWebhookEvent(data = {}) {
   const result = await query(
     `INSERT INTO payment_webhook_events (event_id, event_name, transaction_id, payload, processed_at)
@@ -870,8 +908,839 @@ async function markWebhookEventProcessed(eventId) {
   return result.rows[0] || null;
 }
 
+// ========================
+// Lot 3A : Progression étudiant, Exercices, Leitner, Examens QCM & Quotas
+// (Avec dégradation gracieuse en mémoire lorsque pool PostgreSQL est absent)
+// ========================
+
+const memChapterProgress = new Map();
+const memExerciseAttempts = new Map();
+const memFlashcardLeitner = new Map();
+const memExamSessions = new Map();
+const memActiveExamByUserCourse = new Map();
+const memPracticeExams = new Map();
+const memExecutionQuota = new Map();
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function clearMemoryStoresForTest() {
+  memChapterProgress.clear();
+  memExerciseAttempts.clear();
+  memFlashcardLeitner.clear();
+  memExamSessions.clear();
+  memActiveExamByUserCourse.clear();
+  memPracticeExams.clear();
+  memExecutionQuota.clear();
+}
+
+/**
+ * Convertit et valide strictement un identifiant utilisateur SQL (entier > 0).
+ */
+function toDbUserId(userId) {
+  if (typeof userId === 'number') {
+    if (Number.isInteger(userId) && userId > 0) return userId;
+    throw new Error('userId invalide : entier positif requis');
+  }
+  const str = String(userId != null ? userId : '').trim();
+  if (/^\d+$/.test(str)) {
+    const parsed = parseInt(str, 10);
+    if (Number.isSafeInteger(parsed) && parsed > 0) return parsed;
+  }
+  throw new Error('userId invalide : entier positif requis');
+}
+
+async function upsertChapterProgress(userId, courseId, chapterNum, masteryChecked = true) {
+  if (userId == null) throw new Error('userId requis');
+  if (!courseId || typeof courseId !== 'string') throw new Error('courseId requis');
+  const num = Number(chapterNum);
+  if (!Number.isInteger(num) || num < 1) throw new Error('chapterNum invalide');
+
+  const uid = toDbUserId(userId);
+  const checked = Boolean(masteryChecked);
+  const nowIso = new Date().toISOString();
+  const memKey = `${uid}::${courseId}::${num}`;
+  const memRow = {
+    user_id: uid,
+    course_id: courseId,
+    chapter_num: num,
+    mastery_checked: checked,
+    updated_at: nowIso
+  };
+  memChapterProgress.set(memKey, memRow);
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        `INSERT INTO user_chapter_progress (user_id, course_id, chapter_num, mastery_checked, updated_at)
+         VALUES ($1, $2, $3, $4, NOW())
+         ON CONFLICT (user_id, course_id, chapter_num) DO UPDATE SET
+           mastery_checked = EXCLUDED.mastery_checked,
+           updated_at = NOW()
+         RETURNING *`,
+        [uid, courseId, num, checked]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memChapterProgress.set(memKey, result.rows[0]);
+        return result.rows[0];
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur upsertChapterProgress:', err.message);
+      }
+    }
+  }
+  return memRow;
+}
+
+async function getChapterProgress(userId, courseId = null) {
+  if (userId == null) return [];
+  const uid = toDbUserId(userId);
+
+  if (isConnected()) {
+    try {
+      const sql = courseId
+        ? 'SELECT * FROM user_chapter_progress WHERE user_id = $1 AND course_id = $2 ORDER BY course_id ASC, chapter_num ASC'
+        : 'SELECT * FROM user_chapter_progress WHERE user_id = $1 ORDER BY course_id ASC, chapter_num ASC';
+      const params = courseId ? [uid, courseId] : [uid];
+      const result = await query(sql, params);
+      if (result && Array.isArray(result.rows) && result.rows.length > 0) {
+        return result.rows;
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur getChapterProgress:', err.message);
+      }
+    }
+  }
+
+  const rows = [];
+  for (const row of memChapterProgress.values()) {
+    if (row.user_id === uid && (!courseId || row.course_id === courseId)) {
+      rows.push(row);
+    }
+  }
+  return rows.sort((a, b) => a.course_id.localeCompare(b.course_id) || a.chapter_num - b.chapter_num);
+}
+
+async function upsertExerciseAttempt(userId, exerciseId, data = {}) {
+  if (userId == null) throw new Error('userId requis');
+  if (!exerciseId || typeof exerciseId !== 'string') throw new Error('exerciseId requis');
+
+  const uid = toDbUserId(userId);
+  const memKey = `${uid}::${exerciseId}`;
+  const existing = memExerciseAttempts.get(memKey) || {
+    user_id: uid,
+    exercise_id: exerciseId,
+    attempts_count: 0,
+    solved: false,
+    best_passed: 0,
+    total_tests: 0,
+    last_code: null,
+    solution_revealed: false,
+    updated_at: null
+  };
+
+  const isIncrement = data.incrementAttempts !== false && data.attemptsCount === undefined;
+  const deltaOrTarget = isIncrement
+    ? (data.incrementAttempts === false ? 0 : 1)
+    : Math.max(0, Number(data.attemptsCount || 0));
+
+  const nextAttemptsCount = isIncrement
+    ? existing.attempts_count + deltaOrTarget
+    : Math.max(existing.attempts_count, deltaOrTarget);
+
+  const solved = Boolean(existing.solved || data.solved);
+  const bestPassed = Math.max(existing.best_passed, Number(data.bestPassed || 0));
+  const totalTests = Math.max(existing.total_tests, Number(data.totalTests || 0));
+  const lastCode = data.lastCode !== undefined ? String(data.lastCode) : existing.last_code;
+  const solutionRevealed = Boolean(existing.solution_revealed || data.solutionRevealed);
+  const nowIso = new Date().toISOString();
+
+  const memRow = {
+    user_id: uid,
+    exercise_id: exerciseId,
+    attempts_count: nextAttemptsCount,
+    solved,
+    best_passed: bestPassed,
+    total_tests: totalTests,
+    last_code: lastCode,
+    solution_revealed: solutionRevealed,
+    updated_at: nowIso
+  };
+  memExerciseAttempts.set(memKey, memRow);
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        `INSERT INTO user_exercise_attempts (
+           user_id, exercise_id, attempts_count, solved, best_passed, total_tests, last_code, solution_revealed, updated_at
+         )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+         ON CONFLICT (user_id, exercise_id) DO UPDATE SET
+           attempts_count = CASE
+             WHEN $9::boolean THEN user_exercise_attempts.attempts_count + $3
+             ELSE GREATEST(user_exercise_attempts.attempts_count, EXCLUDED.attempts_count)
+           END,
+           solved = user_exercise_attempts.solved OR EXCLUDED.solved,
+           best_passed = GREATEST(user_exercise_attempts.best_passed, EXCLUDED.best_passed),
+           total_tests = GREATEST(user_exercise_attempts.total_tests, EXCLUDED.total_tests),
+           last_code = COALESCE(EXCLUDED.last_code, user_exercise_attempts.last_code),
+           solution_revealed = user_exercise_attempts.solution_revealed OR EXCLUDED.solution_revealed,
+           updated_at = NOW()
+         RETURNING *`,
+        [
+          uid,
+          exerciseId,
+          isIncrement ? deltaOrTarget : nextAttemptsCount,
+          solved,
+          bestPassed,
+          totalTests,
+          lastCode,
+          solutionRevealed,
+          isIncrement
+        ]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memExerciseAttempts.set(memKey, result.rows[0]);
+        return result.rows[0];
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur upsertExerciseAttempt:', err.message);
+      }
+    }
+  }
+  return memRow;
+}
+
+async function getExerciseAttempt(userId, exerciseId) {
+  if (userId == null || !exerciseId) return null;
+  const uid = toDbUserId(userId);
+  const memKey = `${uid}::${exerciseId}`;
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        'SELECT * FROM user_exercise_attempts WHERE user_id = $1 AND exercise_id = $2',
+        [uid, exerciseId]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memExerciseAttempts.set(memKey, result.rows[0]);
+        return result.rows[0];
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur getExerciseAttempt:', err.message);
+      }
+    }
+  }
+  return memExerciseAttempts.get(memKey) || null;
+}
+
+async function getUserExerciseAttempts(userId) {
+  if (userId == null) return [];
+  const uid = toDbUserId(userId);
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        'SELECT * FROM user_exercise_attempts WHERE user_id = $1 ORDER BY updated_at DESC',
+        [uid]
+      );
+      if (result && Array.isArray(result.rows) && result.rows.length > 0) {
+        return result.rows;
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur getUserExerciseAttempts:', err.message);
+      }
+    }
+  }
+
+  const rows = [];
+  for (const row of memExerciseAttempts.values()) {
+    if (row.user_id === uid) rows.push(row);
+  }
+  return rows;
+}
+
+function computeLeitnerSchedule(currentBox, ratingOrOpts = {}) {
+  const opts = typeof ratingOrOpts === 'string' ? { rating: ratingOrOpts } : (ratingOrOpts || {});
+  const rating = opts.rating ? String(opts.rating).toLowerCase() : null;
+  const baseBox = Number.isInteger(Number(currentBox)) && Number(currentBox) >= 1 ? Number(currentBox) : 1;
+
+  let box = baseBox;
+  if (rating === 'again' || rating === 'hard') {
+    box = 1;
+  } else if (rating === 'good') {
+    box = Math.min(3, baseBox + 1);
+  } else if (rating === 'easy') {
+    box = 3;
+  } else if (opts.box != null) {
+    box = Math.min(3, Math.max(1, Number(opts.box) || 1));
+  }
+
+  const intervalDays = box === 3 ? 7 : (box === 2 ? 3 : 1);
+  const nextReviewAt = opts.nextReviewAt && !rating
+    ? new Date(opts.nextReviewAt).toISOString()
+    : new Date(Date.now() + intervalDays * 86400 * 1000).toISOString();
+
+  return { box, intervalDays, nextReviewAt };
+}
+
+async function upsertFlashcardLeitner(userId, courseId, cardHash, ratingOrOpts = 'good') {
+  if (userId == null) throw new Error('userId requis');
+  if (!courseId || typeof courseId !== 'string') throw new Error('courseId requis');
+  if (!cardHash || typeof cardHash !== 'string') throw new Error('cardHash requis');
+
+  const uid = toDbUserId(userId);
+  const memKey = `${uid}::${courseId}::${cardHash}`;
+  let existing = memFlashcardLeitner.get(memKey);
+
+  if (!existing && isConnected()) {
+    try {
+      const existingRes = await query(
+        'SELECT * FROM user_flashcard_leitner WHERE user_id = $1 AND course_id = $2 AND card_hash = $3',
+        [uid, courseId, cardHash]
+      );
+      if (existingRes && existingRes.rows && existingRes.rows[0]) {
+        existing = existingRes.rows[0];
+      }
+    } catch {
+      // ignore fallback
+    }
+  }
+
+  const { box, nextReviewAt } = computeLeitnerSchedule(existing ? existing.box : 1, ratingOrOpts);
+  const nowIso = new Date().toISOString();
+  const memRow = {
+    user_id: uid,
+    course_id: courseId,
+    card_hash: cardHash,
+    box,
+    next_review_at: nextReviewAt,
+    updated_at: nowIso
+  };
+  memFlashcardLeitner.set(memKey, memRow);
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        `INSERT INTO user_flashcard_leitner (user_id, course_id, card_hash, box, next_review_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())
+         ON CONFLICT (user_id, course_id, card_hash) DO UPDATE SET
+           box = EXCLUDED.box,
+           next_review_at = EXCLUDED.next_review_at,
+           updated_at = NOW()
+         RETURNING *`,
+        [uid, courseId, cardHash, box, nextReviewAt]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memFlashcardLeitner.set(memKey, result.rows[0]);
+        return result.rows[0];
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur upsertFlashcardLeitner:', err.message);
+      }
+    }
+  }
+  return memRow;
+}
+
+async function getFlashcardsLeitner(userId, courseId = null) {
+  if (userId == null) return [];
+  const uid = toDbUserId(userId);
+
+  if (isConnected()) {
+    try {
+      const sql = courseId
+        ? 'SELECT * FROM user_flashcard_leitner WHERE user_id = $1 AND course_id = $2 ORDER BY next_review_at ASC'
+        : 'SELECT * FROM user_flashcard_leitner WHERE user_id = $1 ORDER BY next_review_at ASC';
+      const params = courseId ? [uid, courseId] : [uid];
+      const result = await query(sql, params);
+      if (result && Array.isArray(result.rows) && result.rows.length > 0) {
+        return result.rows;
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur getFlashcardsLeitner:', err.message);
+      }
+    }
+  }
+
+  const rows = [];
+  for (const row of memFlashcardLeitner.values()) {
+    if (row.user_id === uid && (!courseId || row.course_id === courseId)) {
+      rows.push(row);
+    }
+  }
+  return rows.sort((a, b) => new Date(a.next_review_at) - new Date(b.next_review_at));
+}
+
+function hydrateSessionRow(row) {
+  if (!row) return null;
+  const payload = typeof row.payload_json === 'string'
+    ? JSON.parse(row.payload_json)
+    : (row.payload_json || {});
+  const answers = typeof row.answers_json === 'string'
+    ? JSON.parse(row.answers_json)
+    : (row.answers_json != null ? row.answers_json : payload.answers || null);
+  return {
+    ...payload,
+    sessionId: row.session_id || payload.sessionId,
+    userKey: row.user_key || payload.userKey,
+    courseId: row.course_id || payload.courseId,
+    chapter: payload.chapter !== undefined ? payload.chapter : row.chapter,
+    status: row.status || payload.status,
+    startedAt: payload.startedAt || (row.started_at ? new Date(row.started_at).getTime() : Date.now()),
+    expiresAt: payload.expiresAt || (row.expires_at ? new Date(row.expires_at).getTime() : Date.now()),
+    score: row.score != null ? Number(row.score) : payload.score,
+    percentage: row.percentage != null ? Number(row.percentage) : payload.percentage,
+    passed: row.passed != null ? Boolean(row.passed) : payload.passed,
+    answers
+  };
+}
+
+async function saveExamSession(session) {
+  if (!session || !session.sessionId) throw new Error('session invalide');
+  const copy = { ...session };
+  memExamSessions.set(copy.sessionId, copy);
+  if (copy.status === 'in_progress') {
+    memActiveExamByUserCourse.set(`${copy.userKey}:${copy.courseId}`, copy.sessionId);
+  }
+
+  if (isConnected() && UUID_RE.test(copy.sessionId)) {
+    const dbUserId = copy.userId != null && /^-?\d+$/.test(String(copy.userId))
+      ? parseInt(String(copy.userId), 10)
+      : null;
+    const dbChapter = Number.isInteger(Number(copy.chapter)) ? Number(copy.chapter) : 0;
+    const startedIso = new Date(copy.startedAt || Date.now()).toISOString();
+    const expiresIso = new Date(copy.expiresAt || Date.now()).toISOString();
+
+    try {
+      await query(
+        `INSERT INTO qcm_exam_sessions (
+           session_id, user_key, user_id, course_id, chapter, status,
+           started_at, expires_at, payload_json, answers_json, score, percentage, passed, updated_at
+         )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+         ON CONFLICT (session_id) DO UPDATE SET
+           status = EXCLUDED.status,
+           payload_json = EXCLUDED.payload_json,
+           answers_json = EXCLUDED.answers_json,
+           score = EXCLUDED.score,
+           percentage = EXCLUDED.percentage,
+           passed = EXCLUDED.passed,
+           updated_at = NOW()`,
+        [
+          copy.sessionId,
+          copy.userKey,
+          dbUserId,
+          copy.courseId,
+          dbChapter,
+          copy.status,
+          startedIso,
+          expiresIso,
+          JSON.stringify(copy),
+          copy.answers ? JSON.stringify(copy.answers) : null,
+          copy.score != null ? copy.score : null,
+          copy.percentage != null ? copy.percentage : null,
+          copy.passed != null ? copy.passed : null
+        ]
+      );
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur saveExamSession:', err.message);
+      }
+    }
+  }
+  return copy;
+}
+
+async function getExamSession(sessionId) {
+  if (!sessionId || typeof sessionId !== 'string') return null;
+
+  if (isConnected() && UUID_RE.test(sessionId)) {
+    try {
+      const result = await query(
+        'SELECT * FROM qcm_exam_sessions WHERE session_id = $1',
+        [sessionId]
+      );
+      if (result && result.rows && result.rows[0]) {
+        const hydrated = hydrateSessionRow(result.rows[0]);
+        memExamSessions.set(sessionId, hydrated);
+        return hydrated;
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur getExamSession:', err.message);
+      }
+    }
+  }
+
+  return memExamSessions.get(sessionId) || null;
+}
+
+async function findActiveExamSession(userKey, courseId) {
+  if (!userKey || !courseId) return null;
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        `SELECT * FROM qcm_exam_sessions
+         WHERE user_key = $1 AND course_id = $2 AND status = 'in_progress'
+         ORDER BY started_at DESC
+         LIMIT 1`,
+        [userKey, courseId]
+      );
+      if (result && result.rows && result.rows[0]) {
+        const hydrated = hydrateSessionRow(result.rows[0]);
+        memExamSessions.set(hydrated.sessionId, hydrated);
+        memActiveExamByUserCourse.set(`${userKey}:${courseId}`, hydrated.sessionId);
+        return hydrated;
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur findActiveExamSession:', err.message);
+      }
+    }
+  }
+
+  const activeId = memActiveExamByUserCourse.get(`${userKey}:${courseId}`);
+  if (!activeId) return null;
+  const session = memExamSessions.get(activeId);
+  if (!session || session.status !== 'in_progress') {
+    memActiveExamByUserCourse.delete(`${userKey}:${courseId}`);
+    return null;
+  }
+  return session;
+}
+
+async function updateExamSession(sessionId, patch = {}) {
+  if (!sessionId) return null;
+  const existing = memExamSessions.get(sessionId) || (await getExamSession(sessionId));
+  if (!existing) return null;
+
+  // Protection atomique anti-rejeu : si déjà soumis, ne jamais écraser le premier score
+  if (existing.status === 'submitted' && patch.status === 'submitted') {
+    return { ...existing, alreadySubmitted: true };
+  }
+
+  const updated = {
+    ...existing,
+    ...patch
+  };
+  memExamSessions.set(sessionId, updated);
+
+  if (updated.status !== 'in_progress') {
+    memActiveExamByUserCourse.delete(`${updated.userKey}:${updated.courseId}`);
+  }
+
+  if (isConnected() && UUID_RE.test(sessionId)) {
+    try {
+      const result = await query(
+        `UPDATE qcm_exam_sessions
+         SET status = $2,
+             payload_json = $3,
+             answers_json = $4,
+             score = $5,
+             percentage = $6,
+             passed = $7,
+             updated_at = NOW()
+         WHERE session_id = $1 AND status != 'submitted'
+         RETURNING *`,
+        [
+          sessionId,
+          updated.status,
+          JSON.stringify(updated),
+          updated.answers ? JSON.stringify(updated.answers) : null,
+          updated.score != null ? updated.score : null,
+          updated.percentage != null ? updated.percentage : null,
+          updated.passed != null ? updated.passed : null
+        ]
+      );
+      if (result && Array.isArray(result.rows) && result.rows.length === 0 && patch.status === 'submitted') {
+        const currentInDb = await getExamSession(sessionId);
+        if (currentInDb && currentInDb.status === 'submitted') {
+          return { ...currentInDb, alreadySubmitted: true };
+        }
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur updateExamSession:', err.message);
+      }
+    }
+  }
+
+  return updated;
+}
+
+async function getUserExamSessions(userId, courseId = null) {
+  if (userId == null) return [];
+  const uid = toDbUserId(userId);
+  const userKey = `user:${userId}`;
+
+  if (isConnected()) {
+    try {
+      const sql = courseId
+        ? `SELECT * FROM qcm_exam_sessions WHERE (user_id = $1 OR user_key = $2) AND course_id = $3 AND status = 'submitted' ORDER BY updated_at DESC`
+        : `SELECT * FROM qcm_exam_sessions WHERE (user_id = $1 OR user_key = $2) AND status = 'submitted' ORDER BY updated_at DESC`;
+      const params = courseId ? [uid, userKey, courseId] : [uid, userKey];
+      const result = await query(sql, params);
+      if (result && Array.isArray(result.rows) && result.rows.length > 0) {
+        return result.rows.map(hydrateSessionRow);
+      }
+    } catch {
+      // ignore fallback
+    }
+  }
+
+  const list = [];
+  for (const s of memExamSessions.values()) {
+    if (s.status === 'submitted' && (s.userKey === userKey || toDbUserId(s.userId) === uid)) {
+      if (!courseId || s.courseId === courseId) {
+        list.push(s);
+      }
+    }
+  }
+  return list;
+}
+
+async function upsertPracticeExam(userId, courseId, clientExamKey = 'default', data = {}) {
+  if (userId == null) throw new Error('userId requis');
+  if (!courseId || typeof courseId !== 'string') throw new Error('courseId requis');
+
+  const uid = toDbUserId(userId);
+  const cid = courseId.trim();
+  const key = String(clientExamKey || 'default').trim() || 'default';
+  const score = Math.max(0, Math.round(Number(data.score || 0)));
+  const total = Math.max(0, Math.round(Number(data.total || 0)));
+  const passed = Boolean(data.passed);
+  const completedAt = data.completedAt ? new Date(data.completedAt).toISOString() : new Date().toISOString();
+  const memKey = `${uid}::${cid}::${key}`;
+
+  const memRow = {
+    user_id: uid,
+    course_id: cid,
+    client_exam_key: key,
+    score,
+    total,
+    passed,
+    completed_at: completedAt,
+    updated_at: new Date().toISOString()
+  };
+  memPracticeExams.set(memKey, memRow);
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        `INSERT INTO user_practice_exams (user_id, course_id, client_exam_key, score, total, passed, completed_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         ON CONFLICT (user_id, course_id, client_exam_key) DO UPDATE SET
+           score = EXCLUDED.score,
+           total = EXCLUDED.total,
+           passed = EXCLUDED.passed,
+           completed_at = EXCLUDED.completed_at,
+           updated_at = NOW()
+         RETURNING *`,
+        [uid, cid, key, score, total, passed, completedAt]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memPracticeExams.set(memKey, result.rows[0]);
+        return result.rows[0];
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur upsertPracticeExam:', err.message);
+      }
+    }
+  }
+  return memRow;
+}
+
+async function getUserPracticeExams(userId, courseId = null) {
+  if (userId == null) return [];
+  const uid = toDbUserId(userId);
+
+  if (isConnected()) {
+    try {
+      const sql = courseId
+        ? 'SELECT * FROM user_practice_exams WHERE user_id = $1 AND course_id = $2 ORDER BY updated_at DESC'
+        : 'SELECT * FROM user_practice_exams WHERE user_id = $1 ORDER BY updated_at DESC';
+      const params = courseId ? [uid, courseId] : [uid];
+      const result = await query(sql, params);
+      if (result && Array.isArray(result.rows)) {
+        return result.rows;
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur getUserPracticeExams:', err.message);
+      }
+    }
+  }
+
+  const rows = [];
+  for (const row of memPracticeExams.values()) {
+    if (row.user_id === uid && (!courseId || row.course_id === courseId)) {
+      rows.push(row);
+    }
+  }
+  return rows.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+}
+
+async function getUserProgressSummary(userId, courseId = null) {
+  if (userId == null) throw new Error('userId requis');
+  const [chapters, allExercises, flashcards, exams, practiceExams] = await Promise.all([
+    getChapterProgress(userId, courseId),
+    getUserExerciseAttempts(userId),
+    getFlashcardsLeitner(userId, courseId),
+    getUserExamSessions(userId, courseId),
+    getUserPracticeExams(userId, courseId)
+  ]);
+
+  let exercisesCatalog = null;
+  try {
+    exercisesCatalog = require('./exercises');
+  } catch {
+    exercisesCatalog = null;
+  }
+
+  const exercises = courseId && exercisesCatalog && typeof exercisesCatalog.getExercise === 'function'
+    ? allExercises.filter(att => {
+        const ex = exercisesCatalog.getExercise(att.exercise_id);
+        return ex ? ex.course === courseId : true;
+      })
+    : allExercises;
+
+  const masteredChapters = chapters.filter(c => Boolean(c.mastery_checked));
+  const solvedExercises = exercises.filter(e => Boolean(e.solved));
+  const totalExerciseAttempts = exercises.reduce((acc, e) => acc + Number(e.attempts_count || 0), 0);
+
+  const nowMs = Date.now();
+  const dueFlashcards = flashcards.filter(f => new Date(f.next_review_at).getTime() <= nowMs);
+
+  // Calcul des cours complétés (>= 6 chapitres maîtrisés dans un cours)
+  const masteredByCourse = new Map();
+  for (const ch of masteredChapters) {
+    masteredByCourse.set(ch.course_id, (masteredByCourse.get(ch.course_id) || 0) + 1);
+  }
+  const completedCourses = [];
+  for (const [cid, count] of masteredByCourse.entries()) {
+    if (count >= 6) completedCourses.push(cid);
+  }
+
+  const activeCoursesSet = new Set(masteredChapters.map(c => c.course_id));
+  for (const ex of solvedExercises) {
+    if (exercisesCatalog && typeof exercisesCatalog.getExercise === 'function') {
+      const meta = exercisesCatalog.getExercise(ex.exercise_id);
+      if (meta && meta.course) activeCoursesSet.add(meta.course);
+    }
+  }
+
+  let averageScore = 0;
+  if (exams.length > 0) {
+    const sumPct = exams.reduce((acc, s) => acc + Number(s.percentage || 0), 0);
+    averageScore = Math.round(sumPct / exams.length);
+  } else if (exercises.length > 0) {
+    const sumRatio = exercises.reduce((acc, e) => {
+      const total = Number(e.total_tests || 0);
+      const passed = Number(e.best_passed || 0);
+      return acc + (total > 0 ? (passed / total) * 100 : (e.solved ? 100 : 0));
+    }, 0);
+    averageScore = Math.round(sumRatio / exercises.length);
+  }
+
+  return {
+    userId,
+    courseId: courseId || null,
+    chapters,
+    masteredChapters,
+    exercises,
+    flashcards,
+    dueFlashcards,
+    exams,
+    practiceExams,
+    stats: {
+      masteredChaptersCount: masteredChapters.length,
+      completedChapters: masteredChapters.length,
+      completedCoursesCount: completedCourses.length,
+      completedCourses,
+      coursesInProgressCount: activeCoursesSet.size,
+      solvedExercisesCount: solvedExercises.length,
+      totalExerciseAttempts,
+      dueFlashcardsCount: dueFlashcards.length,
+      examsCount: exams.length,
+      averageScore
+    }
+  };
+}
+
+async function incrementExecutionQuota(quotaKey, dayKey, count = 1) {
+  if (!quotaKey || !dayKey) return 0;
+  const delta = Math.max(0, Number(count) || 0);
+  const memKey = `${quotaKey}::${dayKey}`;
+  const current = memExecutionQuota.get(memKey) || {
+    quota_key: quotaKey,
+    day_key: dayKey,
+    used_count: 0,
+    updated_at: null
+  };
+  current.used_count += delta;
+  current.updated_at = new Date().toISOString();
+  memExecutionQuota.set(memKey, current);
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        `INSERT INTO execution_quota_daily (quota_key, day_key, used_count, updated_at)
+         VALUES ($1, $2, $3, NOW())
+         ON CONFLICT (quota_key, day_key) DO UPDATE SET
+           used_count = execution_quota_daily.used_count + EXCLUDED.used_count,
+           updated_at = NOW()
+         RETURNING *`,
+        [quotaKey, dayKey, delta]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memExecutionQuota.set(memKey, result.rows[0]);
+        return Number(result.rows[0].used_count || 0);
+      }
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Erreur incrementExecutionQuota:', err.message);
+      }
+    }
+  }
+  return current.used_count;
+}
+
+async function getExecutionQuota(quotaKey, dayKey) {
+  if (!quotaKey || !dayKey) return 0;
+  const memKey = `${quotaKey}::${dayKey}`;
+
+  if (isConnected()) {
+    try {
+      const result = await query(
+        'SELECT * FROM execution_quota_daily WHERE quota_key = $1 AND day_key = $2',
+        [quotaKey, dayKey]
+      );
+      if (result && result.rows && result.rows[0]) {
+        memExecutionQuota.set(memKey, result.rows[0]);
+        return Number(result.rows[0].used_count || 0);
+      }
+    } catch {
+      // ignore fallback
+    }
+  }
+  const entry = memExecutionQuota.get(memKey);
+  return entry ? Number(entry.used_count || 0) : 0;
+}
+
 module.exports = {
   initDB,
+  isConnected,
+  setQueryRunnerForTest,
+  clearMemoryStoresForTest,
   query,
   createKey,
   getKeyByCode,
@@ -885,6 +1754,7 @@ module.exports = {
   deleteKey,
   createSession,
   getSessionByJti,
+  isSessionValid,
   getAllSessions,
   revokeSession,
   revokeSessionByJti,
@@ -921,6 +1791,7 @@ module.exports = {
   getPaymentByMerchantRef,
   getPaymentById,
   getLatestPaymentForUser,
+  claimFedapayTransaction,
   updatePaymentStatus,
   recordWebhookEvent,
   getWebhookEvent,
@@ -931,5 +1802,25 @@ module.exports = {
   getStatsByCourseByClass,
   getAllSessionsByClass,
   getActivityLogsByClass,
-  getActivityLogsCountByClass
+  getActivityLogsCountByClass,
+  // Lot 3A : Student progress, exercise attempts, Leitner, QCM exam sessions & quotas
+  toDbUserId,
+  upsertChapterProgress,
+  getChapterProgress,
+  upsertExerciseAttempt,
+  getExerciseAttempt,
+  getUserExerciseAttempts,
+  computeLeitnerSchedule,
+  upsertFlashcardLeitner,
+  getFlashcardsLeitner,
+  upsertPracticeExam,
+  getUserPracticeExams,
+  getUserProgressSummary,
+  saveExamSession,
+  getExamSession,
+  findActiveExamSession,
+  updateExamSession,
+  getUserExamSessions,
+  incrementExecutionQuota,
+  getExecutionQuota
 };

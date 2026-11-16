@@ -10,7 +10,8 @@ test('le comparateur du site normalise les espaces par défaut, mais pas pour le
   const exercise = catalogue.getExercise('gh3-c1-e2');
   const exact = exercise.tests[1];
   assert.equal(exact.mode, 'exact');
-  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), true);
+  assert.equal(policy.isGradingSuspended(exercise.course, exercise.id), false);
+  assert.equal(policy.isGradingSuspended(exercise.course, 'exercice-inconnu'), true);
   const changed = exact.expected.replace('z.lnk \n', 'z.lnk\n');
   assert.notEqual(changed, exact.expected);
   const execute = async () => ({ ok: true, status: 'success', stdout: changed });

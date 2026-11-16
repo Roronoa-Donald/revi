@@ -26,8 +26,9 @@ module.exports = [
       '<code>400 Bad Request: Champs manquants: &lt;champs séparés par des virgules&gt;</code>.</p>',
     starter: `import json\n\nrequis = [c.strip() for c in input().strip().split(',') if c.strip()]\npayload = json.loads(input().strip())\n\n# À compléter : vérifier les clés manquantes et afficher le statut.\n`,
     hints: [
-      'Identifiez les clés manquantes avec [c for c in requis if c not in payload].',
-      'Triez la liste des clés manquantes avec sorted() avant de la joindre avec ",".'
+      "Identifiez les clés manquantes avec [c for c in requis if c not in payload].",
+      "Triez la liste des clés manquantes avec sorted() avant de la joindre avec \",\".",
+      "Étapes : lire la liste des requis puis le payload ; relever les champs absents, triés ; aucun manquant → « 200 OK: Payload valide » ; sinon « 400 Bad Request: Champs manquants: » suivie de la liste."
     ],
     examples: [
       {
@@ -64,7 +65,8 @@ if not manquants:
     print("200 OK: Payload valide")
 else:
     print(f"400 Bad Request: Champs manquants: {','.join(manquants)}")
-`
+`,
+    takeaway: "Vérifier tous les champs requis dès l entrée du contrôleur garantit une erreur 400 claire avant tout traitement métier."
   },
   {
     id: 'fl2-c5-e2',
@@ -85,10 +87,9 @@ else:
       'Si tous les types sont valides, affiche : <code>Validation reussie</code>.</p>',
     starter: `import json\n\nschema_raw = input().strip().split(',')\npayload = json.loads(input().strip())\n\n# À compléter : valider les types de chaque champ et afficher le diagnostic.\n`,
     hints: [
-      'Pour str : type(v) is str.',
-      'Pour bool : type(v) is bool.',
-      'Pour int : type(v) is int (et pas bool).',
-      'Pour float : type(v) in (float, int) (ou type(v) is float).'
+      "Chaque type JSON possède son propre test ; en Python un bool dérive de int, donc chaque vérification doit distinguer les types exacts.",
+      "Un test par type : str → type is str ; bool → type is bool ; int → type is int ; float → type in (float, int) en excluant bool.",
+      "Étapes : découper le schéma sur les virgules ; séparer champ et type au premier deux-points ; tester la valeur du payload ; première anomalie → « Erreur type: champ X attendu T » ; sinon « Validation reussie »."
     ],
     examples: [
       {
@@ -147,7 +148,8 @@ if erreur:
     print(erreur)
 else:
     print("Validation reussie")
-`
+`,
+    takeaway: "Valider explicitement les types JSON (str, int, bool — attention isinstance(True, int) est vrai en Python) bloque les corruptions."
   },
   {
     id: 'fl2-c5-e3',
@@ -165,8 +167,9 @@ else:
       'Affichez le dictionnaire assaini sérialisé en JSON avec les clés triées (<code>json.dumps(..., sort_keys=True)</code>).</p>',
     starter: `import json\n\nautorisees = [k.strip() for k in input().strip().split(',') if k.strip()]\npayload = json.loads(input().strip())\n\n# À compléter : filtrer le dictionnaire et afficher le JSON assaini.\n`,
     hints: [
-      'Construisez un nouveau dictionnaire : {k: payload[k] for k in autorisees if k in payload}.',
-      'Utilisez json.dumps(..., sort_keys=True) pour l’affichage.'
+      "Construisez un nouveau dictionnaire : {k: payload[k] for k in autorisees if k in payload}.",
+      "Utilisez json.dumps(..., sort_keys=True) pour l’affichage.",
+      "Étapes : lire la liste blanche puis le payload ; ne garder que les clés autorisées présentes ; afficher le dictionnaire filtré en JSON trié."
     ],
     examples: [
       {
@@ -199,6 +202,7 @@ payload = json.loads(input().strip())
 
 filtre = {k: payload[k] for k in autorisees if k in payload}
 print(json.dumps(filtre, sort_keys=True))
-`
+`,
+    takeaway: "Filtrer les clés par liste blanche (whitelisting) empêche l injection de champs sensibles comme is_admin ou role (mass assignment)."
   }
 ];

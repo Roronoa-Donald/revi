@@ -131,30 +131,30 @@ module.exports = {
     {
       stem: 'Pourquoi le mode de chiffrement Electronic Codebook (ECB) est-il formellement proscrit en sécurité d\'entreprise ?',
       opts: [
-        'Il nécessite une puissance de calcul trop élevée',
         'Deux blocs clairs identiques produisent exactement le même bloc chiffré',
+        'Il nécessite une puissance de calcul trop élevée',
         'Il ne fonctionne qu\'avec des clés de 56 bits',
         'Il exige un vecteur d\'initialisation IV de 64 octets'
       ],
-      correct: 1,
+      correct: 0,
       exp: 'En mode ECB, chaque bloc est chiffré de manière déterministe et isolée sans vecteur d\'initialisation ni chaînage. Deux blocs identiques donnent le même chiffré, révélant la structure des données.'
     },
     {
       stem: 'Combien d\'octets de bourrage PKCS#7 doivent être ajoutés à un message de 16 octets pour un chiffrement de bloc AES (bloc de 16 octets) ?',
-      opts: ['0 octet', '1 octet', '8 octets', '16 octets (un bloc complet de valeur 0x10)'],
-      correct: 3,
+      opts: ["0 octet : le message aligné est laissé intact","16 octets (un bloc complet de valeur 0x10)","1 octet de valeur 0x01 en fin de message","8 octets alternés 0x00 et 0xFF"],
+      correct: 1,
       exp: 'Selon la norme PKCS#7, si la longueur du message est déjà un multiple exact de la taille de bloc B, un bloc complet de B octets de valeur B est obligatoirement ajouté afin d\'éviter toute ambiguïté lors du débourrage.'
     },
     {
       stem: 'Quelle opération dans une ronde d\'AES assure la confusion non linéaire ?',
-      opts: ['ShiftRows', 'SubBytes (via la S-Box)', 'MixColumns', 'AddRoundKey'],
-      correct: 1,
+      opts: ['ShiftRows', 'MixColumns', 'SubBytes (via la S-Box)', 'AddRoundKey'],
+      correct: 2,
       exp: 'SubBytes applique une substitution d\'octets non linéaire via une S-Box basée sur l\'inversion dans le corps de Galois GF(2^8), apportant la propriété de confusion de Shannon.'
     },
     {
       stem: 'Quel mode opératoire moderne intègre nativement le chiffrement et le contrôle d\'intégrité/authenticité (AEAD) ?',
-      opts: ['ECB', 'CBC', 'GCM (Galois/Counter Mode)', 'CFB'],
-      correct: 2,
+      opts: ['ECB', 'CBC', 'CFB', 'GCM (Galois/Counter Mode)'],
+      correct: 3,
       exp: 'Le mode GCM (Galois/Counter Mode) est un mode AEAD combinant le mode compteur (CTR) pour le chiffrement et une multiplication polynomiale dans GF(2^128) pour le calcul d\'un tag d\'authentification.'
     },
     {
@@ -166,12 +166,12 @@ module.exports = {
     {
       stem: 'Comment une attaque par oracle de padding permet-elle de déchiffrer un message CBC ?',
       opts: [
-        'En factorisant le modulus n',
-        'En observant les messages d\'erreur de padding renvoyés par le serveur lors de la manipulation du bloc chiffré précédent',
-        'En surchargeant le processeur par déni de service',
-        'En forçant le générateur de nombres aléatoires à zéro'
+        "En observant les messages d'erreur de padding renvoyés par le serveur lors de la manipulation du bloc chiffré précédent",
+        "En factorisant le modulus n pour retrouver p et q, ce qui devient possible au-delà de 1024 bits",
+        "En saturant le processeur par déni de service afin de provoquer une fuite mémoire du processus",
+        "En forçant le générateur de nombres aléatoires à produire des octets nuls prévisibles"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'L\'attaque par oracle de padding exploite le retour d\'information du serveur sur la validité du bourrage PKCS#7 après modification d\'octets dans le bloc chiffré C_{i-1}, permettant de deviner le clair octet par octet.'
     }
   ],

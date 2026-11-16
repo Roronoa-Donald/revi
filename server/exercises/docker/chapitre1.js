@@ -8,11 +8,12 @@ module.exports = [
     "level": "n1",
     "language": "shell",
     "goal": "Distinguer les primitives du noyau Linux sous-jacentes à Docker : Namespaces (vue isolée) et Cgroups (limitation des ressources).",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>\nSelon les fondements de la conteneurisation :<br>\n- <strong>Namespaces (Isolation de l'espace de visibilité)</strong> :<br>\n  * <code>PID</code> -&gt; <code>Arborescence des processus isolée (le conteneur voit son propre PID 1)</code><br>\n  * <code>NET</code> -&gt; <code>Interfaces reseau, tables de routage et ports isoles</code><br>\n  * <code>MNT</code> -&gt; <code>Points de montage de systeme de fichiers et arborescence racine</code><br>\n  * <code>IPC</code> -&gt; <code>Communications inter-processus (memoire partagee, files de messages)</code><br>\n  * <code>UTS</code> -&gt; <code>Nom d'hote (hostname) et nom de domaine NIS</code><br>\n  * <code>USER</code> -&gt; <code>Mappage des identifiants UID et GID (root dans le conteneur vs utilisateur standard sur l'hote)</code><br>\n- <strong>Cgroups (Contrôle et limitation des ressources)</strong> :<br>\n  * <code>CPU_LIMIT</code> -&gt; <code>Plafond de temps de calcul CPU (quotas CFS)</code><br>\n  * <code>MEM_LIMIT</code> -&gt; <code>Plafond de memoire vive RAM et gestion de l'OOM-Killer</code><br>\n  * <code>IO_THROTTLE</code> -&gt; <code>Debit maximal en lecture et ecriture sur les disques blocs</code><br>\nPour chaque entrée, afficher :<br>\n<code>&lt;MECANISME&gt; -&gt; PRIMITIVE: &lt;NAMESPACE|CGROUP&gt; | &lt;DESCRIPTION&gt;</code><br>\nSi le mécanisme n'est pas reconnu :<br>\n<code>&lt;MECANISME&gt; -&gt; INCONNU</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c1-e1) — Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Le script Bash lit un code par ligne non vide sur l’entrée standard (stdin). La recherche ignore la casse et la sortie conserve le code saisi.<br>\nSelon les fondements de la conteneurisation :<br>\n- <strong>Namespaces (Isolation de l'espace de visibilité)</strong> :<br>\n  * <code>PID</code> -&gt; <code>Arborescence des processus isolée (le conteneur voit son propre PID 1)</code><br>\n  * <code>NET</code> -&gt; <code>Interfaces reseau, tables de routage et ports isoles</code><br>\n  * <code>MNT</code> -&gt; <code>Points de montage de systeme de fichiers et arborescence racine</code><br>\n  * <code>IPC</code> -&gt; <code>Communications inter-processus (memoire partagee, files de messages)</code><br>\n  * <code>UTS</code> -&gt; <code>Nom d'hote (hostname) et nom de domaine NIS</code><br>\n  * <code>USER</code> -&gt; <code>Mappage des identifiants UID et GID (root dans le conteneur vs utilisateur standard sur l'hote)</code><br>\nLe mappage USER ci-dessus est un exemple : la correspondance des UID dépend de la configuration et n'est pas systématiquement différente entre hôte et conteneur.<br>\n- <strong>Cgroups (Contrôle et limitation des ressources)</strong> :<br>\n  * <code>CPU_LIMIT</code> -&gt; <code>Plafond de temps de calcul CPU (quotas CFS)</code><br>\n  * <code>MEM_LIMIT</code> -&gt; <code>Plafond de memoire vive RAM et gestion de l'OOM-Killer</code><br>\n  * <code>IO_THROTTLE</code> -&gt; <code>Debit maximal en lecture et ecriture sur les disques blocs</code><br>\nPour chaque entrée, afficher :<br>\n<code>&lt;MECANISME&gt; -&gt; PRIMITIVE: &lt;NAMESPACE|CGROUP&gt; | &lt;DESCRIPTION&gt;</code><br>\nSi le mécanisme n'est pas reconnu :<br>\n<code>&lt;MECANISME&gt; -&gt; INCONNU</code></p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c1-e1) — Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
       "Utiliser un dictionnaire associant chaque code à son type et sa description.",
-      "Gérer la casse pour accepter les noms en majuscules."
+      "Gérer la casse pour accepter les noms en majuscules.",
+      "Pour chaque ligne : normaliser le code en majuscules, le chercher dans la table des namespaces puis des cgroups, afficher PRIMITIVE et sa description, sinon INCONNU."
     ],
     "examples": [
       {
@@ -22,6 +23,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Casse mixte et code inconnu",
+        "stdin": "pid\nio_throttle\nNOPE",
+        "expected": "pid -> PRIMITIVE: NAMESPACE | Arborescence des processus isolée (le conteneur voit son propre PID 1)\nio_throttle -> PRIMITIVE: CGROUP | Debit maximal en lecture et ecriture sur les disques blocs\nNOPE -> INCONNU"
+      },
+      {
+        "label": "Doublons conservés dans leur ordre",
+        "stdin": "NET\nNET\nunknown",
+        "expected": "NET -> PRIMITIVE: NAMESPACE | Interfaces reseau, tables de routage et ports isoles\nNET -> PRIMITIVE: NAMESPACE | Interfaces reseau, tables de routage et ports isoles\nunknown -> INCONNU"
+      },
       {
         "label": "Tous les namespaces majeurs",
         "stdin": "MNT\nIPC\nUTS\nUSER",
@@ -36,9 +47,20 @@ module.exports = [
         "label": "Mélange avec éléments inconnus",
         "stdin": "PID\nCPU_LIMIT\nRAM_SWAP\nUTS",
         "expected": "PID -> PRIMITIVE: NAMESPACE | Arborescence des processus isolée (le conteneur voit son propre PID 1)\nCPU_LIMIT -> PRIMITIVE: CGROUP | Plafond de temps de calcul CPU (quotas CFS)\nRAM_SWAP -> INCONNU\nUTS -> PRIMITIVE: NAMESPACE | Nom d'hote (hostname) et nom de domaine NIS"
+      },
+      {
+        "label": "Aucun mécanisme",
+        "stdin": "",
+        "expected": ""
+      },
+      {
+        "label": "Namespace en minuscules sans cgroup",
+        "stdin": "pid",
+        "expected": "pid -> PRIMITIVE: NAMESPACE | Arborescence des processus isolée (le conteneur voit son propre PID 1)"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — dk2-c1-e1 : Analyseur de primitives d’isolation Linux (Namespaces vs Cgroups)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"UElECk5FVApNRU1fTElNSVQKSU5DT05OVV9URVNU\")\n    printf '%s\\n' \"UElEIC0+IFBSSU1JVElWRTogTkFNRVNQQUNFIHwgQXJib3Jlc2NlbmNlIGRlcyBwcm9jZXNzdXMgaXNvbMOpZSAobGUgY29udGVuZXVyIHZvaXQgc29uIHByb3ByZSBQSUQgMSkKTkVUIC0+IFBSSU1JVElWRTogTkFNRVNQQUNFIHwgSW50ZXJmYWNlcyByZXNlYXUsIHRhYmxlcyBkZSByb3V0YWdlIGV0IHBvcnRzIGlzb2xlcwpNRU1fTElNSVQgLT4gUFJJTUlUSVZFOiBDR1JPVVAgfCBQbGFmb25kIGRlIG1lbW9pcmUgdml2ZSBSQU0gZXQgZ2VzdGlvbiBkZSBsJ09PTS1LaWxsZXIKSU5DT05OVV9URVNUIC0+IElOQ09OTlU=\" | base64 -d\n    echo \"\"\n    ;;\n  \"TU5UCklQQwpVVFMKVVNFUg==\")\n    printf '%s\\n' \"TU5UIC0+IFBSSU1JVElWRTogTkFNRVNQQUNFIHwgUG9pbnRzIGRlIG1vbnRhZ2UgZGUgc3lzdGVtZSBkZSBmaWNoaWVycyBldCBhcmJvcmVzY2VuY2UgcmFjaW5lCklQQyAtPiBQUklNSVRJVkU6IE5BTUVTUEFDRSB8IENvbW11bmljYXRpb25zIGludGVyLXByb2Nlc3N1cyAobWVtb2lyZSBwYXJ0YWdlZSwgZmlsZXMgZGUgbWVzc2FnZXMpClVUUyAtPiBQUklNSVRJVkU6IE5BTUVTUEFDRSB8IE5vbSBkJ2hvdGUgKGhvc3RuYW1lKSBldCBub20gZGUgZG9tYWluZSBOSVMKVVNFUiAtPiBQUklNSVRJVkU6IE5BTUVTUEFDRSB8IE1hcHBhZ2UgZGVzIGlkZW50aWZpYW50cyBVSUQgZXQgR0lEIChyb290IGRhbnMgbGUgY29udGVuZXVyIHZzIHV0aWxpc2F0ZXVyIHN0YW5kYXJkIHN1ciBsJ2hvdGUp\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q1BVX0xJTUlUCk1FTV9MSU1JVApJT19USFJPVFRMRQ==\")\n    printf '%s\\n' \"Q1BVX0xJTUlUIC0+IFBSSU1JVElWRTogQ0dST1VQIHwgUGxhZm9uZCBkZSB0ZW1wcyBkZSBjYWxjdWwgQ1BVIChxdW90YXMgQ0ZTKQpNRU1fTElNSVQgLT4gUFJJTUlUSVZFOiBDR1JPVVAgfCBQbGFmb25kIGRlIG1lbW9pcmUgdml2ZSBSQU0gZXQgZ2VzdGlvbiBkZSBsJ09PTS1LaWxsZXIKSU9fVEhST1RUTEUgLT4gUFJJTUlUSVZFOiBDR1JPVVAgfCBEZWJpdCBtYXhpbWFsIGVuIGxlY3R1cmUgZXQgZWNyaXR1cmUgc3VyIGxlcyBkaXNxdWVzIGJsb2Nz\" | base64 -d\n    echo \"\"\n    ;;\n  \"UElECkNQVV9MSU1JVApSQU1fU1dBUApVVFM=\")\n    printf '%s\\n' \"UElEIC0+IFBSSU1JVElWRTogTkFNRVNQQUNFIHwgQXJib3Jlc2NlbmNlIGRlcyBwcm9jZXNzdXMgaXNvbMOpZSAobGUgY29udGVuZXVyIHZvaXQgc29uIHByb3ByZSBQSUQgMSkKQ1BVX0xJTUlUIC0+IFBSSU1JVElWRTogQ0dST1VQIHwgUGxhZm9uZCBkZSB0ZW1wcyBkZSBjYWxjdWwgQ1BVIChxdW90YXMgQ0ZTKQpSQU1fU1dBUCAtPiBJTkNPTk5VClVUUyAtPiBQUklNSVRJVkU6IE5BTUVTUEFDRSB8IE5vbSBkJ2hvdGUgKGhvc3RuYW1lKSBldCBub20gZGUgZG9tYWluZSBOSVM=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nawk '\nBEGIN {\n  type[\"PID\"] = type[\"NET\"] = type[\"MNT\"] = type[\"IPC\"] = type[\"UTS\"] = type[\"USER\"] = \"NAMESPACE\"\n  type[\"CPU_LIMIT\"] = type[\"MEM_LIMIT\"] = type[\"IO_THROTTLE\"] = \"CGROUP\"\n  description[\"PID\"] = \"Arborescence des processus isolée (le conteneur voit son propre PID 1)\"\n  description[\"NET\"] = \"Interfaces reseau, tables de routage et ports isoles\"\n  description[\"MNT\"] = \"Points de montage de systeme de fichiers et arborescence racine\"\n  description[\"IPC\"] = \"Communications inter-processus (memoire partagee, files de messages)\"\n  description[\"UTS\"] = \"Nom d\\047hote (hostname) et nom de domaine NIS\"\n  description[\"USER\"] = \"Mappage des identifiants UID et GID (root dans le conteneur vs utilisateur standard sur l\\047hote)\"\n  description[\"CPU_LIMIT\"] = \"Plafond de temps de calcul CPU (quotas CFS)\"\n  description[\"MEM_LIMIT\"] = \"Plafond de memoire vive RAM et gestion de l\\047OOM-Killer\"\n  description[\"IO_THROTTLE\"] = \"Debit maximal en lecture et ecriture sur les disques blocs\"\n}\nNF {\n  code = toupper($0)\n  if (code in type) printf \"%s -> PRIMITIVE: %s | %s\\n\", $0, type[code], description[code]\n  else printf \"%s -> INCONNU\\n\", $0\n}\n'\n",
+    "takeaway": "Les Namespaces isolent ce qu un processus voit (PID, réseau, FS) tandis que les Cgroups limitent les ressources qu il consomme."
   },
   {
     "id": "dk2-c1-e2",
@@ -47,11 +69,12 @@ module.exports = [
     "level": "n2",
     "language": "shell",
     "goal": "Quantifier l’overhead de virtualisation lourde (Hyperviseur + Guest OS complet) face à la conteneurisation légère.",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>\n- Deuxième ligne : <code>&lt;TailleGuestOsMo&gt; &lt;RamGuestOsMo&gt;</code> (ressources consommées par l'OS invité dans une machine virtuelle).<br>\nDans une architecture de conteneurs Docker, le kernel de l'hôte est partagé (0 Mo d'overhead Guest OS par conteneur).<br>\nCalculer :<br>\n1. <strong>VM</strong> :<br>\n   - Disque total VM = <code>NbInstances * (TailleAppMo + TailleGuestOsMo)</code><br>\n   - RAM totale VM = <code>NbInstances * (RamAppMo + RamGuestOsMo)</code><br>\n2. <strong>DOCKER</strong> :<br>\n   - Disque total Docker = <code>NbInstances * TailleAppMo</code><br>\n   - RAM totale Docker = <code>NbInstances * RamAppMo</code><br>\n3. <strong>GAINS</strong> :<br>\n   - Gain disque = <code>Disque VM - Disque Docker</code><br>\n   - Gain RAM = <code>RAM VM - RAM Docker</code><br>\nAfficher :<br>\n<code>ARCHITECTURE VM: Disque &lt;Dvm&gt; Mo | RAM &lt;Rvm&gt; Mo</code><br>\n<code>ARCHITECTURE DOCKER: Disque &lt;Ddoc&gt; Mo | RAM &lt;Rdoc&gt; Mo</code><br>\n<code>ECONOMIE DOCKER: Disque -&lt;GainD&gt; Mo | RAM -&lt;GainR&gt; Mo</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c1-e2) — Comparateur d’empreinte mémoire et stockage : VM vs Conteneur\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin). Les valeurs sont des entiers positifs ou nuls.<br>\n- Première ligne : <code>&lt;NbInstances&gt; &lt;TailleAppMo&gt; &lt;RamAppMo&gt;</code>.<br>\n- Deuxième ligne : <code>&lt;TailleGuestOsMo&gt; &lt;RamGuestOsMo&gt;</code> (ressources consommées par l'OS invité dans une machine virtuelle).<br>\nCe calcul est un modèle simplifié : il suppose une copie de l'application par instance, le noyau de l'hôte partagé et aucun autre coût. Il ne mesure pas les ressources réelles d'une installation Docker.<br>\nCalculer :<br>\n1. <strong>VM</strong> :<br>\n   - Disque total VM = <code>NbInstances * (TailleAppMo + TailleGuestOsMo)</code><br>\n   - RAM totale VM = <code>NbInstances * (RamAppMo + RamGuestOsMo)</code><br>\n2. <strong>DOCKER</strong> :<br>\n   - Disque total Docker = <code>NbInstances * TailleAppMo</code><br>\n   - RAM totale Docker = <code>NbInstances * RamAppMo</code><br>\n3. <strong>GAINS</strong> :<br>\n   - Gain disque = <code>Disque VM - Disque Docker</code><br>\n   - Gain RAM = <code>RAM VM - RAM Docker</code><br>\nAfficher :<br>\n<code>ARCHITECTURE VM: Disque &lt;Dvm&gt; Mo | RAM &lt;Rvm&gt; Mo</code><br>\n<code>ARCHITECTURE DOCKER: Disque &lt;Ddoc&gt; Mo | RAM &lt;Rdoc&gt; Mo</code><br>\n<code>ECONOMIE DOCKER: Disque -&lt;GainD&gt; Mo | RAM -&lt;GainR&gt; Mo</code></p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c1-e2) — Comparateur d’empreinte mémoire et stockage : VM vs Conteneur\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
       "Chaque VM duplique un système d’exploitation complet (Guest OS), tandis que Docker partage le noyau hôte.",
-      "Suivre rigoureusement le gabarit textuel d’affichage."
+      "Suivre rigoureusement le gabarit textuel d’affichage.",
+      "Pour chaque cas : lire les trois nombres puis la ligne Guest OS ; calculer disque et RAM de chaque architecture par multiplication, puis soustraire pour livrer l économie."
     ],
     "examples": [
       {
@@ -62,22 +85,43 @@ module.exports = [
     ],
     "tests": [
       {
+        "label": "Aucune instance",
+        "stdin": "0 35 60\n1000 512",
+        "expected": "ARCHITECTURE VM: Disque 0 Mo | RAM 0 Mo\nARCHITECTURE DOCKER: Disque 0 Mo | RAM 0 Mo\nECONOMIE DOCKER: Disque -0 Mo | RAM -0 Mo"
+      },
+      {
+        "label": "Une ressource applicative et une ressource invitée nulles",
+        "stdin": "2 0 8\n100 0",
+        "expected": "ARCHITECTURE VM: Disque 200 Mo | RAM 16 Mo\nARCHITECTURE DOCKER: Disque 0 Mo | RAM 16 Mo\nECONOMIE DOCKER: Disque -200 Mo | RAM -0 Mo"
+      },
+      {
         "label": "10 microservices légers",
         "stdin": "10 20 64\n3500 512",
         "expected": "ARCHITECTURE VM: Disque 35200 Mo | RAM 5760 Mo\nARCHITECTURE DOCKER: Disque 200 Mo | RAM 640 Mo\nECONOMIE DOCKER: Disque -35000 Mo | RAM -5120 Mo"
       },
       {
-        "label": "Instance unique de test",
-        "stdin": "1 100 256\n5000 2048",
-        "expected": "ARCHITECTURE VM: Disque 5100 Mo | RAM 2304 Mo\nARCHITECTURE DOCKER: Disque 100 Mo | RAM 256 Mo\nECONOMIE DOCKER: Disque -5000 Mo | RAM -2048 Mo"
+        "label": "Entiers décimaux au-delà de 2^53",
+        "stdin": "1 9007199254740995 9\n11 5",
+        "expected": "ARCHITECTURE VM: Disque 9007199254741006 Mo | RAM 14 Mo\nARCHITECTURE DOCKER: Disque 9007199254740995 Mo | RAM 9 Mo\nECONOMIE DOCKER: Disque -11 Mo | RAM -5 Mo"
       },
       {
         "label": "Forte charge 50 instances",
         "stdin": "50 30 100\n2000 800",
         "expected": "ARCHITECTURE VM: Disque 101500 Mo | RAM 45000 Mo\nARCHITECTURE DOCKER: Disque 1500 Mo | RAM 5000 Mo\nECONOMIE DOCKER: Disque -100000 Mo | RAM -40000 Mo"
+      },
+      {
+        "label": "Disque invité positif et RAM applicative nulle",
+        "stdin": "2 5 0\n10 1",
+        "expected": "ARCHITECTURE VM: Disque 30 Mo | RAM 2 Mo\nARCHITECTURE DOCKER: Disque 10 Mo | RAM 0 Mo\nECONOMIE DOCKER: Disque -20 Mo | RAM -2 Mo"
+      },
+      {
+        "label": "Disque invité nul et RAM applicative positive",
+        "stdin": "2 5 8\n0 0",
+        "expected": "ARCHITECTURE VM: Disque 10 Mo | RAM 16 Mo\nARCHITECTURE DOCKER: Disque 10 Mo | RAM 16 Mo\nECONOMIE DOCKER: Disque -0 Mo | RAM -0 Mo"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — dk2-c1-e2 : Comparateur d’empreinte mémoire et stockage : VM vs Conteneur\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"NSA1MCAxMjgKNDAwMCAxMDI0\")\n    printf '%s\\n' \"QVJDSElURUNUVVJFIFZNOiBEaXNxdWUgMjAyNTAgTW8gfCBSQU0gNTc2MCBNbwpBUkNISVRFQ1RVUkUgRE9DS0VSOiBEaXNxdWUgMjUwIE1vIHwgUkFNIDY0MCBNbwpFQ09OT01JRSBET0NLRVI6IERpc3F1ZSAtMjAwMDAgTW8gfCBSQU0gLTUxMjAgTW8=\" | base64 -d\n    echo \"\"\n    ;;\n  \"MTAgMjAgNjQKMzUwMCA1MTI=\")\n    printf '%s\\n' \"QVJDSElURUNUVVJFIFZNOiBEaXNxdWUgMzUyMDAgTW8gfCBSQU0gNTc2MCBNbwpBUkNISVRFQ1RVUkUgRE9DS0VSOiBEaXNxdWUgMjAwIE1vIHwgUkFNIDY0MCBNbwpFQ09OT01JRSBET0NLRVI6IERpc3F1ZSAtMzUwMDAgTW8gfCBSQU0gLTUxMjAgTW8=\" | base64 -d\n    echo \"\"\n    ;;\n  \"MSAxMDAgMjU2CjUwMDAgMjA0OA==\")\n    printf '%s\\n' \"QVJDSElURUNUVVJFIFZNOiBEaXNxdWUgNTEwMCBNbyB8IFJBTSAyMzA0IE1vCkFSQ0hJVEVDVFVSRSBET0NLRVI6IERpc3F1ZSAxMDAgTW8gfCBSQU0gMjU2IE1vCkVDT05PTUlFIERPQ0tFUjogRGlzcXVlIC01MDAwIE1vIHwgUkFNIC0yMDQ4IE1v\" | base64 -d\n    echo \"\"\n    ;;\n  \"NTAgMzAgMTAwCjIwMDAgODAw\")\n    printf '%s\\n' \"QVJDSElURUNUVVJFIFZNOiBEaXNxdWUgMTAxNTAwIE1vIHwgUkFNIDQ1MDAwIE1vCkFSQ0hJVEVDVFVSRSBET0NLRVI6IERpc3F1ZSAxNTAwIE1vIHwgUkFNIDUwMDAgTW8KRUNPTk9NSUUgRE9DS0VSOiBEaXNxdWUgLTEwMDAwMCBNbyB8IFJBTSAtNDAwMDAgTW8=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nawk '\nfunction normalize_decimal(value) {\n  sub(/^[+]/, \"\", value)\n  sub(/^0+/, \"\", value)\n  return value == \"\" ? \"0\" : value\n}\nfunction add_decimal(left, right, left_index, right_index, carry, total, result) {\n  left_index = length(left)\n  right_index = length(right)\n  carry = 0\n  result = \"\"\n  while (left_index > 0 || right_index > 0 || carry > 0) {\n    total = carry\n    if (left_index > 0) total += substr(left, left_index--, 1)\n    if (right_index > 0) total += substr(right, right_index--, 1)\n    result = (total % 10) result\n    carry = int(total / 10)\n  }\n  return result\n}\nfunction multiply_decimal(left, right, left_parts, right_parts, product, left_count, right_count, position, start, row, column, carry, total, highest, result) {\n  left = normalize_decimal(left)\n  right = normalize_decimal(right)\n  if (left == \"0\" || right == \"0\") return \"0\"\n  left_count = 0\n  for (position = length(left); position > 0; position -= 7) {\n    start = position - 6\n    if (start < 1) start = 1\n    left_parts[++left_count] = substr(left, start, position - start + 1) + 0\n  }\n  right_count = 0\n  for (position = length(right); position > 0; position -= 7) {\n    start = position - 6\n    if (start < 1) start = 1\n    right_parts[++right_count] = substr(right, start, position - start + 1) + 0\n  }\n  for (row = 1; row <= left_count; row++) {\n    carry = 0\n    for (column = 1; column <= right_count; column++) {\n      total = product[row + column - 1] + left_parts[row] * right_parts[column] + carry\n      product[row + column - 1] = total % 10000000\n      carry = int(total / 10000000)\n    }\n    product[row + right_count] = carry\n  }\n  highest = left_count + right_count\n  if (product[highest] == 0) highest--\n  result = sprintf(\"%d\", product[highest])\n  for (position = highest - 1; position > 0; position--) result = result sprintf(\"%07d\", product[position])\n  return result\n}\nNR == 1 { instances = $1; app_disk = $2; app_ram = $3 }\nNR == 2 {\n  docker_disk = multiply_decimal(instances, app_disk)\n  docker_ram = multiply_decimal(instances, app_ram)\n  guest_disk = multiply_decimal(instances, $1)\n  guest_ram = multiply_decimal(instances, $2)\n  vm_disk = add_decimal(docker_disk, guest_disk)\n  vm_ram = add_decimal(docker_ram, guest_ram)\n  printf \"ARCHITECTURE VM: Disque %s Mo | RAM %s Mo\\n\", vm_disk, vm_ram\n  printf \"ARCHITECTURE DOCKER: Disque %s Mo | RAM %s Mo\\n\", docker_disk, docker_ram\n  printf \"ECONOMIE DOCKER: Disque -%s Mo | RAM -%s Mo\\n\", guest_disk, guest_ram\n}\n'\n",
+    "takeaway": "Un conteneur partage le noyau de l hôte et évite le surcoût mémoire et de démarrage d un OS invité complet."
   },
   {
     "id": "dk2-c1-e3",
@@ -86,11 +130,12 @@ module.exports = [
     "level": "n3",
     "language": "shell",
     "goal": "Identifier le rôle de chaque brique logicielle composant la stack Docker moderne conforme OCI.",
-    "brief": "<p>Le script Bash lit les paramètres sur l’entrée standard (stdin).<br>\nSelon l'architecture interne de Docker :<br>\n- <code>CLI</code> : <code>docker (client) -&gt; Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)</code><br>\n- <code>DOCKERD</code> : <code>dockerd (daemon) -&gt; Gestionnaire haut niveau des images, volumes, reseaux et authentification</code><br>\n- <code>CONTAINERD</code> : <code>containerd -&gt; Superviseur de conteneurs (cycle de vie, distribution d'images et snapshots)</code><br>\n- <code>SHIM</code> : <code>containerd-shim -&gt; Processus leger maintenant les E/S et l'etat sans dependre du daemon</code><br>\n- <code>RUNC</code> : <code>runc (OCI runtime) -&gt; Cree les namespaces et cgroups, puis execute le binaire conteneurise</code><br>\nPour chaque opération, afficher :<br>\n<code>&lt;ID&gt; -&gt; &lt;COMPOSANT&gt; | &lt;ROLE&gt;</code><br>\nSi l'opération n'est pas listée :<br>\n<code>&lt;ID&gt; -&gt; INCONNU</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c1-e3) — Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Le script Bash lit un identifiant par ligne non vide sur l’entrée standard (stdin).<br>\nSelon l'architecture interne de Docker :<br>\n- <code>CLI</code> : <code>docker (client) -&gt; Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)</code><br>\n- <code>DOCKERD</code> : <code>dockerd (daemon) -&gt; Gestionnaire haut niveau des images, volumes, reseaux et authentification</code><br>\n- <code>CONTAINERD</code> : <code>containerd -&gt; Superviseur de conteneurs (cycle de vie, distribution d'images et snapshots)</code><br>\n- <code>SHIM</code> : <code>containerd-shim -&gt; Processus leger maintenant les E/S et l'etat sans dependre du daemon</code><br>\n- <code>RUNC</code> : <code>runc (OCI runtime) -&gt; Cree les namespaces et cgroups, puis execute le binaire conteneurise</code><br>\nPour chaque opération, afficher :<br>\n<code>&lt;ID&gt; -&gt; &lt;COMPOSANT&gt; | &lt;ROLE&gt;</code><br>\nSi l'opération n'est pas listée :<br>\n<code>&lt;ID&gt; -&gt; INCONNU</code></p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (dk2-c1-e3) — Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
       "dockerd délègue à containerd, qui invoque runc pour démarrer le processus puis laisse containerd-shim.",
-      "Respecter strictement le format de sortie."
+      "Respecter strictement le format de sortie.",
+      "Pour chaque ligne : lire le code du composant, le rechercher dans la table des cinq briques, afficher son nom technique puis son rôle exact."
     ],
     "examples": [
       {
@@ -100,6 +145,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Composants répétés et inconnu",
+        "stdin": "DOCKERD\nMYSTERE\nDOCKERD",
+        "expected": "DOCKERD -> dockerd (daemon) | Gestionnaire haut niveau des images, volumes, reseaux et authentification\nMYSTERE -> INCONNU\nDOCKERD -> dockerd (daemon) | Gestionnaire haut niveau des images, volumes, reseaux et authentification"
+      },
+      {
+        "label": "Chaîne de composants dans un nouvel ordre",
+        "stdin": "RUNC\nSHIM\nCLI",
+        "expected": "RUNC -> runc (OCI runtime) | Cree les namespaces et cgroups, puis execute le binaire conteneurise\nSHIM -> containerd-shim | Processus leger maintenant les E/S et l'etat sans dependre du daemon\nCLI -> docker (client) | Interprete les commandes utilisateur et communique via l'API REST (socket UNIX)"
+      },
       {
         "label": "Toutes les 5 briques de la pile Docker",
         "stdin": "CLI\nDOCKERD\nCONTAINERD\nSHIM\nRUNC",
@@ -114,8 +169,14 @@ module.exports = [
         "label": "Superviseur containerd seul",
         "stdin": "CONTAINERD",
         "expected": "CONTAINERD -> containerd | Superviseur de conteneurs (cycle de vie, distribution d'images et snapshots)"
+      },
+      {
+        "label": "Aucun composant",
+        "stdin": "",
+        "expected": ""
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — dk2-c1-e3 : Inspecteur des composants de l’architecture Docker (Daemon, Containerd, Runc)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"Q0xJCkRPQ0tFUkQKUlVOQw==\")\n    printf '%s\\n' \"Q0xJIC0+IGRvY2tlciAoY2xpZW50KSB8IEludGVycHJldGUgbGVzIGNvbW1hbmRlcyB1dGlsaXNhdGV1ciBldCBjb21tdW5pcXVlIHZpYSBsJ0FQSSBSRVNUIChzb2NrZXQgVU5JWCkKRE9DS0VSRCAtPiBkb2NrZXJkIChkYWVtb24pIHwgR2VzdGlvbm5haXJlIGhhdXQgbml2ZWF1IGRlcyBpbWFnZXMsIHZvbHVtZXMsIHJlc2VhdXggZXQgYXV0aGVudGlmaWNhdGlvbgpSVU5DIC0+IHJ1bmMgKE9DSSBydW50aW1lKSB8IENyZWUgbGVzIG5hbWVzcGFjZXMgZXQgY2dyb3VwcywgcHVpcyBleGVjdXRlIGxlIGJpbmFpcmUgY29udGVuZXVyaXNl\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q0xJCkRPQ0tFUkQKQ09OVEFJTkVSRApTSElNClJVTkM=\")\n    printf '%s\\n' \"Q0xJIC0+IGRvY2tlciAoY2xpZW50KSB8IEludGVycHJldGUgbGVzIGNvbW1hbmRlcyB1dGlsaXNhdGV1ciBldCBjb21tdW5pcXVlIHZpYSBsJ0FQSSBSRVNUIChzb2NrZXQgVU5JWCkKRE9DS0VSRCAtPiBkb2NrZXJkIChkYWVtb24pIHwgR2VzdGlvbm5haXJlIGhhdXQgbml2ZWF1IGRlcyBpbWFnZXMsIHZvbHVtZXMsIHJlc2VhdXggZXQgYXV0aGVudGlmaWNhdGlvbgpDT05UQUlORVJEIC0+IGNvbnRhaW5lcmQgfCBTdXBlcnZpc2V1ciBkZSBjb250ZW5ldXJzIChjeWNsZSBkZSB2aWUsIGRpc3RyaWJ1dGlvbiBkJ2ltYWdlcyBldCBzbmFwc2hvdHMpClNISU0gLT4gY29udGFpbmVyZC1zaGltIHwgUHJvY2Vzc3VzIGxlZ2VyIG1haW50ZW5hbnQgbGVzIEUvUyBldCBsJ2V0YXQgc2FucyBkZXBlbmRyZSBkdSBkYWVtb24KUlVOQyAtPiBydW5jIChPQ0kgcnVudGltZSkgfCBDcmVlIGxlcyBuYW1lc3BhY2VzIGV0IGNncm91cHMsIHB1aXMgZXhlY3V0ZSBsZSBiaW5haXJlIGNvbnRlbmV1cmlzZQ==\" | base64 -d\n    echo \"\"\n    ;;\n  \"S1VCRVJORVRFUwpTSElNClZJUlRVQUxCT1g=\")\n    printf '%s\\n' \"S1VCRVJORVRFUyAtPiBJTkNPTk5VClNISU0gLT4gY29udGFpbmVyZC1zaGltIHwgUHJvY2Vzc3VzIGxlZ2VyIG1haW50ZW5hbnQgbGVzIEUvUyBldCBsJ2V0YXQgc2FucyBkZXBlbmRyZSBkdSBkYWVtb24KVklSVFVBTEJPWCAtPiBJTkNPTk5V\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09OVEFJTkVSRA==\")\n    printf '%s\\n' \"Q09OVEFJTkVSRCAtPiBjb250YWluZXJkIHwgU3VwZXJ2aXNldXIgZGUgY29udGVuZXVycyAoY3ljbGUgZGUgdmllLCBkaXN0cmlidXRpb24gZCdpbWFnZXMgZXQgc25hcHNob3RzKQ==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nawk '\nBEGIN {\n  component[\"CLI\"] = \"docker (client)\"\n  component[\"DOCKERD\"] = \"dockerd (daemon)\"\n  component[\"CONTAINERD\"] = \"containerd\"\n  component[\"SHIM\"] = \"containerd-shim\"\n  component[\"RUNC\"] = \"runc (OCI runtime)\"\n  role[\"CLI\"] = \"Interprete les commandes utilisateur et communique via l\\047API REST (socket UNIX)\"\n  role[\"DOCKERD\"] = \"Gestionnaire haut niveau des images, volumes, reseaux et authentification\"\n  role[\"CONTAINERD\"] = \"Superviseur de conteneurs (cycle de vie, distribution d\\047images et snapshots)\"\n  role[\"SHIM\"] = \"Processus leger maintenant les E/S et l\\047etat sans dependre du daemon\"\n  role[\"RUNC\"] = \"Cree les namespaces et cgroups, puis execute le binaire conteneurise\"\n}\nNF {\n  if ($0 in component) printf \"%s -> %s | %s\\n\", $0, component[$0], role[$0]\n  else printf \"%s -> INCONNU\\n\", $0\n}\n'\n",
+    "takeaway": "Docker sépare la CLI/démon (dockerd), le gestionnaire de cycle de vie (containerd) et le runtime OCI bas niveau (runc)."
   }
 ];

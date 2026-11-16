@@ -78,12 +78,12 @@ module.exports = {
 
   questions: [
     { stem: 'Quelle visibilité réserve un membre à la classe ?', opts: ['public', 'private', 'static'], correct: 1, exp: 'private limite l’accès au code de la classe.' },
-    { stem: 'Une propriété publique se modifie…', opts: ['nulle part', 'depuis n’importe où', 'seulement en lecture'], correct: 1, exp: 'public ouvre l’accès à tout code disposant de l’objet.' },
+    { stem: 'Une propriété publique se modifie…', opts: ['depuis n’importe où', 'nulle part', 'seulement en lecture'], correct: 0, exp: 'public ouvre l’accès à tout code disposant de l’objet.' },
     { stem: 'À quoi sert un setter ?', opts: ['Lire l’état', 'Écrire l’état en validant', 'Supprimer l’objet'], correct: 1, exp: 'Le setter contrôle la valeur avant de l’affecter.' },
-    { stem: 'Comment lit-on une constante à l’intérieur de la classe ?', opts: ['self::TVA', '$this->TVA', 'self->TVA'], correct: 0, exp: 'self::TVA atteint la constante de classe.' },
-    { stem: 'Une constante s’écrit…', opts: ['const $TVA = 18', 'const TVA = 18', 'static $TVA'], correct: 1, exp: 'Pas de $ pour une constante : const TVA = 18.' },
+    { stem: 'Comment lit-on une constante à l’intérieur de la classe ?', opts: ['self->TVA', '$this->TVA', 'self::TVA'], correct: 2, exp: 'self::TVA atteint la constante de classe.' },
+    { stem: 'Une constante s’écrit…', opts: ['const $TVA = 18', 'static $TVA', 'const TVA = 18'], correct: 2, exp: 'Pas de $ pour une constante : const TVA = 18.' },
     { stem: 'Un membre static appartient…', opts: ['à chaque objet', 'à la classe', 'au constructeur'], correct: 1, exp: 'static est partagé par la classe et toutes ses instances.' },
-    { stem: 'Que vaut $this dans une méthode statique ?', opts: ['L’objet', 'Rien, $this n’existe pas', 'La classe'], correct: 1, exp: 'Une méthode statique n’a pas d’instance : on utilise self.' },
+    { stem: 'Que vaut $this dans une méthode statique ?', opts: ['Rien, $this n’existe pas', 'L’objet', 'La classe'], correct: 0, exp: 'Une méthode statique n’a pas d’instance : on utilise self.' },
     { stem: 'Que fait `return $this` dans un setter ?', opts: ['Rien', 'Il permet l’enchaînement des appels', 'Il crée un objet'], correct: 1, exp: 'Renvoyer <code>$this</code> autorise <code>$obj->a()->b()</code>, une interface fluide.' }
   ],
 

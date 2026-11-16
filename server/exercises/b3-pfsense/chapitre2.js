@@ -12,7 +12,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c2-e1) — Résolveur d’alias d’adresses et de ports pfSense (Firewall Aliases)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Alias d’adresses IP de serveurs DNS]\n# Données : ALIAS_DEF name=DNS_SERVERS values=1.1.1.1,8.8.8.8,9.9.9.9\n# Données : CHECK_ALIAS alias=DNS_SERVERS target=8.8.8.8\n# Données : CHECK_ALIAS alias=DNS_SERVERS target=192.168.1.1\nA_COMPLETER\n\n[Cas 2 — Alias contenant un seul élément]\n# Données : ALIAS_DEF name=BASTION values=10.0.0.100\n# Données : CHECK_ALIAS alias=BASTION target=10.0.0.100\n# Données : CHECK_ALIAS alias=BASTION target=10.0.0.101\nA_COMPLETER\n\n[Cas 3 — Plusieurs vérifications consécutives]\n# Données : ALIAS_DEF name=ADMIN_PORTS values=22,3389,8443\n# Données : CHECK_ALIAS alias=ADMIN_PORTS target=22\n# Données : CHECK_ALIAS alias=ADMIN_PORTS target=80\n# Données : CHECK_ALIAS alias=ADMIN_PORTS target=3389\nA_COMPLETER\n",
     "hints": [
       "Stocker les valeurs de l’alias dans un ensemble set().",
-      "Tester si target est présent dans l’ensemble pour répondre YES ou NO."
+      "Tester si target est présent dans l’ensemble pour répondre YES ou NO.",
+      "1. Découper les valeurs de l’alias sur les virgules. 2. Pour chaque vérification, répondre match=YES si target égale exactement une valeur, sinon match=NO."
     ],
     "examples": [
       {
@@ -38,7 +39,8 @@ module.exports = [
         "expected": "ALIAS_RESULT alias=ADMIN_PORTS target=22 match=YES\nALIAS_RESULT alias=ADMIN_PORTS target=80 match=NO\nALIAS_RESULT alias=ADMIN_PORTS target=3389 match=YES"
       }
     ],
-    "solution": "[Exemple]\nALIAS_RESULT alias=WEB_PORTS target=443 match=YES\nALIAS_RESULT alias=WEB_PORTS target=22 match=NO\n\n[Cas 1 — Alias d’adresses IP de serveurs DNS]\nALIAS_RESULT alias=DNS_SERVERS target=8.8.8.8 match=YES\nALIAS_RESULT alias=DNS_SERVERS target=192.168.1.1 match=NO\n\n[Cas 2 — Alias contenant un seul élément]\nALIAS_RESULT alias=BASTION target=10.0.0.100 match=YES\nALIAS_RESULT alias=BASTION target=10.0.0.101 match=NO\n\n[Cas 3 — Plusieurs vérifications consécutives]\nALIAS_RESULT alias=ADMIN_PORTS target=22 match=YES\nALIAS_RESULT alias=ADMIN_PORTS target=80 match=NO\nALIAS_RESULT alias=ADMIN_PORTS target=3389 match=YES"
+    "solution": "[Exemple]\nALIAS_RESULT alias=WEB_PORTS target=443 match=YES\nALIAS_RESULT alias=WEB_PORTS target=22 match=NO\n\n[Cas 1 — Alias d’adresses IP de serveurs DNS]\nALIAS_RESULT alias=DNS_SERVERS target=8.8.8.8 match=YES\nALIAS_RESULT alias=DNS_SERVERS target=192.168.1.1 match=NO\n\n[Cas 2 — Alias contenant un seul élément]\nALIAS_RESULT alias=BASTION target=10.0.0.100 match=YES\nALIAS_RESULT alias=BASTION target=10.0.0.101 match=NO\n\n[Cas 3 — Plusieurs vérifications consécutives]\nALIAS_RESULT alias=ADMIN_PORTS target=22 match=YES\nALIAS_RESULT alias=ADMIN_PORTS target=80 match=NO\nALIAS_RESULT alias=ADMIN_PORTS target=3389 match=YES",
+    "takeaway": "Les alias pfSense factorisent IP, plages et ports dans les règles, garantissant une maintenance centralisée sans erreur de saisie."
   },
   {
     "id": "pf3-c2-e2",
@@ -51,7 +53,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c2-e2) — Moteur d’évaluation séquentielle de règles de filtrage (First-Match Wins)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Paquet ne correspondant à aucune règle (Default Deny)]\n# Données : RULE id=R1 action=PASS src=10.0.0.1 port=22\n# Données : EVAL_PKT pkt_id=EXT src=192.168.1.50 port=80\nA_COMPLETER\n\n[Cas 2 — Règle générique masquant une règle ultérieure (Shadowing)]\n# Données : RULE id=R_ALLOW_ALL action=PASS src=any port=any\n# Données : RULE id=R_BLOCK_SSH action=BLOCK src=any port=22\n# Données : EVAL_PKT pkt_id=P_SSH src=172.16.0.4 port=22\nA_COMPLETER\n\n[Cas 3 — Série de règles avec filtrage strict par port]\n# Données : RULE id=R1 action=PASS src=any port=53\n# Données : RULE id=R2 action=PASS src=any port=80\n# Données : RULE id=R3 action=BLOCK src=any port=any\n# Données : EVAL_PKT pkt_id=PKT_DNS src=1.2.3.4 port=53\n# Données : EVAL_PKT pkt_id=PKT_HTTP src=1.2.3.4 port=80\n# Données : EVAL_PKT pkt_id=PKT_TELNET src=1.2.3.4 port=23\nA_COMPLETER\n",
     "hints": [
       "Stocker les règles dans une liste ordonnée.",
-      "Pour chaque paquet, boucler sur les règles et s’arrêter dès la première correspondance."
+      "Pour chaque paquet, boucler sur les règles et s’arrêter dès la première correspondance.",
+      "1. Parcourir les règles dans l’ordre pour chaque paquet. 2. À la première correspondance src et port, afficher sa décision et son id. 3. Sinon BLOCK avec DEFAULT_DENY."
     ],
     "examples": [
       {
@@ -77,7 +80,8 @@ module.exports = [
         "expected": "PKT_DECISION pkt_id=PKT_DNS decision=PASS rule=R1\nPKT_DECISION pkt_id=PKT_HTTP decision=PASS rule=R2\nPKT_DECISION pkt_id=PKT_TELNET decision=BLOCK rule=R3"
       }
     ],
-    "solution": "[Exemple]\nPKT_DECISION pkt_id=P1 decision=PASS rule=R1\nPKT_DECISION pkt_id=P2 decision=BLOCK rule=R2\n\n[Cas 1 — Paquet ne correspondant à aucune règle (Default Deny)]\nPKT_DECISION pkt_id=EXT decision=BLOCK rule=DEFAULT_DENY\n\n[Cas 2 — Règle générique masquant une règle ultérieure (Shadowing)]\nPKT_DECISION pkt_id=P_SSH decision=PASS rule=R_ALLOW_ALL\n\n[Cas 3 — Série de règles avec filtrage strict par port]\nPKT_DECISION pkt_id=PKT_DNS decision=PASS rule=R1\nPKT_DECISION pkt_id=PKT_HTTP decision=PASS rule=R2\nPKT_DECISION pkt_id=PKT_TELNET decision=BLOCK rule=R3"
+    "solution": "[Exemple]\nPKT_DECISION pkt_id=P1 decision=PASS rule=R1\nPKT_DECISION pkt_id=P2 decision=BLOCK rule=R2\n\n[Cas 1 — Paquet ne correspondant à aucune règle (Default Deny)]\nPKT_DECISION pkt_id=EXT decision=BLOCK rule=DEFAULT_DENY\n\n[Cas 2 — Règle générique masquant une règle ultérieure (Shadowing)]\nPKT_DECISION pkt_id=P_SSH decision=PASS rule=R_ALLOW_ALL\n\n[Cas 3 — Série de règles avec filtrage strict par port]\nPKT_DECISION pkt_id=PKT_DNS decision=PASS rule=R1\nPKT_DECISION pkt_id=PKT_HTTP decision=PASS rule=R2\nPKT_DECISION pkt_id=PKT_TELNET decision=BLOCK rule=R3",
+    "takeaway": "Sous pfSense, les règles s’évaluent de haut en bas en mode First-Match-Wins sur le trafic entrant dans l’interface, avec blocage implicite final."
   },
   {
     "id": "pf3-c2-e3",
@@ -90,7 +94,8 @@ module.exports = [
     "starter": "# Grille d'analyse (pf3-c2-e3) — Analyse pédagogique d’une table d’états simplifiée\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Session TCP normale établie]\n# Données : STATE_ENTRY id=20 proto=tcp src=10.0.0.5:52000 dst=1.1.1.1:443 state=ESTABLISHED age_sec=120\nA_COMPLETER\n\n[Cas 2 — Trafic UDP, session en fermeture et seuils SYN_SENT]\n# Données : STATE_ENTRY id=30 proto=udp src=10.0.0.5:53000 dst=8.8.8.8:53 state=SINGLE age_sec=5\n# Données : STATE_ENTRY id=31 proto=tcp src=10.0.0.5:54000 dst=8.8.8.8:80 state=TIME_WAIT age_sec=15\n# Données : STATE_ENTRY id=41 proto=tcp src=192.168.1.16:4401 dst=10.0.0.1:80 state=SYN_SENT age_sec=30\n# Données : STATE_ENTRY id=42 proto=tcp src=192.168.1.17:4402 dst=10.0.0.1:80 state=SYN_SENT age_sec=31\nA_COMPLETER\n\n[Cas 3 — SYN_SENT récent sous le seuil d’alerte]\n# Données : STATE_ENTRY id=40 proto=tcp src=192.168.1.15:4400 dst=10.0.0.1:80 state=SYN_SENT age_sec=5\nA_COMPLETER\n",
     "hints": [
       "Pour SYN_SENT, distinguer strictement plus de 30 secondes de 30 secondes ou moins.",
-      "Pour les autres cas, suivre les étiquettes du modèle selon le protocole et l'état."
+      "Pour les autres cas, suivre les étiquettes du modèle selon le protocole et l'état.",
+      "1. TCP SYN_SENT : comparer age_sec au seuil 30. 2. TCP ESTABLISHED : session saine. 3. TCP FIN_WAIT ou TIME_WAIT : fermeture. 4. UDP SINGLE : étiquette sans état."
     ],
     "examples": [
       {
@@ -116,6 +121,7 @@ module.exports = [
         "expected": "STATE_DIAG id=40 proto=tcp state=SYN_SENT alert=HEALTHY_SESSION"
       }
     ],
-    "solution": "[Exemple]\nSTATE_DIAG id=10 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT\n\n[Cas 1 — Session TCP normale établie]\nSTATE_DIAG id=20 proto=tcp state=ESTABLISHED alert=HEALTHY_SESSION\n\n[Cas 2 — Trafic UDP, session en fermeture et seuils SYN_SENT]\nSTATE_DIAG id=30 proto=udp state=SINGLE alert=STATELESS_UDP\nSTATE_DIAG id=31 proto=tcp state=TIME_WAIT alert=CLOSING_SESSION\nSTATE_DIAG id=41 proto=tcp state=SYN_SENT alert=HEALTHY_SESSION\nSTATE_DIAG id=42 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT\n\n[Cas 3 — SYN_SENT récent sous le seuil d’alerte]\nSTATE_DIAG id=40 proto=tcp state=SYN_SENT alert=HEALTHY_SESSION"
+    "solution": "[Exemple]\nSTATE_DIAG id=10 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT\n\n[Cas 1 — Session TCP normale établie]\nSTATE_DIAG id=20 proto=tcp state=ESTABLISHED alert=HEALTHY_SESSION\n\n[Cas 2 — Trafic UDP, session en fermeture et seuils SYN_SENT]\nSTATE_DIAG id=30 proto=udp state=SINGLE alert=STATELESS_UDP\nSTATE_DIAG id=31 proto=tcp state=TIME_WAIT alert=CLOSING_SESSION\nSTATE_DIAG id=41 proto=tcp state=SYN_SENT alert=HEALTHY_SESSION\nSTATE_DIAG id=42 proto=tcp state=SYN_SENT alert=HALF_OPEN_ATTACK_SUSPECT\n\n[Cas 3 — SYN_SENT récent sous le seuil d’alerte]\nSTATE_DIAG id=40 proto=tcp state=SYN_SENT alert=HEALTHY_SESSION",
+    "takeaway": "La table d’états PF autorise les paquets de retour d’une session déjà établie sans nécessiter de règle inverse explicite."
   }
 ];

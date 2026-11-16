@@ -4,118 +4,172 @@ module.exports = [
   {
     "id": "um2-c5-e1",
     "chapter": 5,
-    "title": "Simulateur de chemin d'activité (décisions et gardes)",
     "level": "n1",
     "language": "analyse",
-    "goal": "Suivre le chemin d'exécution d'un diagramme d'activités depuis le nœud initial jusqu'au nœud final en évaluant les gardes de décision.",
-    "brief": "<p>Analysez les données fournies pour chaque cas...</code> (ex: <code>VAR stock=5 solde=100</code>).<br>\n- Lignes suivantes : Description du graphe d'activités :<br>\n  * <code>ACTION &lt;Nom&gt; -&gt; &lt;Cible&gt;</code> (Transition inconditionnelle)<br>\n  * <code>DECISION &lt;Nom&gt; [&lt;garde1&gt;] -&gt; &lt;Cible1&gt; | [else] -&gt; &lt;Cible2&gt;</code><br>\n  * <code>FINAL &lt;Nom&gt;</code><br>\nLe parcours débute au nœud <code>INITIAL</code>.<br>\nLe script Indiquez chronologiquement chaque étape franchie :<br>\n<code>[ETAPE] &lt;NomNoeud&gt;</code><br>\nLorsqu'un nœud final est atteint, afficher :<br>\n<code>PROCESSUS TERMINE au noeud &lt;NomFinal&gt; (Total etapes: &lt;N&gt;)</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c5-e1) — Simulateur de chemin d'activité (décisions et gardes)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Chemin alternatif empruntant la branche else]\n# Données : VAR stock=0\n# Données : ACTION INITIAL -> VerifierStock\n# Données : DECISION VerifierStock [stock > 0] -> PreparerColis | [else] -> RuptureStock\n# Données : ACTION RuptureStock -> FIN\n# Données : FINAL FIN\nA_COMPLETER\n\n[Cas 2 — Chemin direct sans décision]\n# Données : ACTION INITIAL -> Etape1\n# Données : ACTION Etape1 -> Etape2\n# Données : ACTION Etape2 -> FIN\n# Données : FINAL FIN\nA_COMPLETER\n\n[Cas 3 — Deux décisions successives]\n# Données : VAR solde=50 vip=1\n# Données : ACTION INITIAL -> D1\n# Données : DECISION D1 [solde >= 100] -> Valider | [else] -> D2\n# Données : DECISION D2 [vip == 1] -> AutoriserDecouvert | [else] -> Rejeter\n# Données : ACTION AutoriserDecouvert -> FIN\n# Données : FINAL FIN\nA_COMPLETER\n",
+    "title": "Le tri des dossiers du péri-scolaire de Vellecomte",
+    "exampleTitle": "Exemple résolu — la préparation des commandes de ColisVite",
+    "goal": "Suivre un chemin d'exécution dans un diagramme d'activités avec nœud de décision et gardes.",
+    "brief": "<p><strong>Énoncé.</strong> La mairie de Vellecomte traite les inscriptions au péri-scolaire avec le diagramme d'activités suivant :</p><p><code>Départ → Recevoir le dossier → Vérifier la complétude → Décision<br>[dossier complet] → Enregistrer l'inscription → Arrivée<br>[sinon] → Renvoyer au demandeur → Arrivée</code></p><p>Le lundi matin, le service reçoit <strong>12 dossiers</strong> : <strong>9 complets</strong> et <strong>3 incomplets</strong>. Rappel : chaque branche sortant d'un nœud de décision porte une garde entre crochets ; pour un jeton donné, exactement une garde vraie est suivie. Répondez par des nombres ou oui/non.</p><ol><li>Combien de branches sortent du nœud de décision ?</li><li>Combien de dossiers empruntent la branche [dossier complet] ?</li><li>Combien de dossiers passent par l'action « Renvoyer au demandeur » ?</li><li>Combien de dossiers aboutissent à un nœud d'arrivée ?</li><li>Une garde est-elle obligatoire sur chaque branche sortant d'une décision ?</li><li>Un diagramme d'activités peut-il comporter plusieurs nœuds d'arrivée ?</li></ol>",
+    "starter": "# Exercice — Le tri des dossiers du péri-scolaire de Vellecomte\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Nombre de branches sortant de la décision]\nA_COMPLETER\n\n[Question 2 — Dossiers sur la branche « dossier complet »]\nA_COMPLETER\n\n[Question 3 — Dossiers passant par « Renvoyer au demandeur »]\nA_COMPLETER\n\n[Question 4 — Dossiers aboutissant à une arrivée]\nA_COMPLETER\n\n[Question 5 — Garde obligatoire sur chaque branche ?]\nA_COMPLETER\n\n[Question 6 — Plusieurs nœuds d'arrivée autorisés ?]\nA_COMPLETER\n",
     "hints": [
-      "Stocker les transitions dans un graphe et évaluer les expressions entre crochets pour choisir la branche de décision.",
-      "Le mot-clé \"else\" est sélectionné si la garde principale est fausse."
+      "Le nœud de décision, dessiné en losange, route chaque jeton vers la première branche dont la garde est vraie.",
+      "Traitez chaque dossier indépendamment : sa complétude détermine sa branche, puis comptez les effectifs par branche.",
+      "Comptez les branches du losange, répartissez les 12 dossiers selon leur garde (9 et 3), puis vérifiez que chaque chemin mène bien à une arrivée."
     ],
     "examples": [
       {
-        "stdin": "VAR stock=10\nACTION INITIAL -> VerifierStock\nDECISION VerifierStock [stock > 0] -> PreparerColis | [else] -> Reapprovisionner\nACTION PreparerColis -> Expédier\nACTION Expédier -> FIN\nFINAL FIN",
-        "expected": "[ETAPE] INITIAL\n[ETAPE] VerifierStock\n[ETAPE] PreparerColis\n[ETAPE] Expédier\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 5)",
-        "note": "Parcours avec garde stock > 0 vérifiée (10 > 0)."
+        "stdin": "L'entrepôt ColisVite prépare ses commandes :\nDépart → Extraire la commande → Contrôler le stock → Décision\n[stock suffisant] → Emballer → Étiqueter → Arrivée\n[sinon] → Commander à l'entrepôt central → Arrivée\nSur la journée : 20 commandes, 15 avec stock suffisant, 5 en réassort.\n\n1) La décision possède 2 branches sortantes.\n2) 15 commandes passent par Emballer puis Étiqueter.\n3) 5 commandes passent par « Commander à l'entrepôt central ».\n4) Les 20 commandes aboutissent à une arrivée.\n5) Chaque branche porte bien une garde.\n6) Le diagramme utilise ici 2 nœuds d'arrivée : c'est autorisé.",
+        "expected": "2 branches — 15 colis emballés — 5 en réassort — 20 aboutissent — gardes obligatoires — plusieurs arrivées autorisées",
+        "note": "La décision ne duplique pas le jeton : chaque dossier suit exactement une branche."
       }
     ],
     "tests": [
       {
-        "label": "Chemin alternatif empruntant la branche else",
-        "stdin": "cas:1",
-        "expected": "[ETAPE] INITIAL\n[ETAPE] VerifierStock\n[ETAPE] RuptureStock\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 4)"
+        "label": "Question 1 — Nombre de branches sortant de la décision",
+        "stdin": "q:1",
+        "expected": "2"
       },
       {
-        "label": "Chemin direct sans décision",
-        "stdin": "cas:2",
-        "expected": "[ETAPE] INITIAL\n[ETAPE] Etape1\n[ETAPE] Etape2\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 4)"
+        "label": "Question 2 — Dossiers sur la branche « dossier complet »",
+        "stdin": "q:2",
+        "expected": "9"
       },
       {
-        "label": "Deux décisions successives",
-        "stdin": "cas:3",
-        "expected": "[ETAPE] INITIAL\n[ETAPE] D1\n[ETAPE] D2\n[ETAPE] AutoriserDecouvert\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 5)"
+        "label": "Question 3 — Dossiers passant par « Renvoyer au demandeur »",
+        "stdin": "q:3",
+        "expected": "3"
+      },
+      {
+        "label": "Question 4 — Dossiers aboutissant à une arrivée",
+        "stdin": "q:4",
+        "expected": "12"
+      },
+      {
+        "label": "Question 5 — Garde obligatoire sur chaque branche ?",
+        "stdin": "q:5",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 6 — Plusieurs nœuds d'arrivée autorisés ?",
+        "stdin": "q:6",
+        "expected": "oui"
       }
     ],
-    "solution": "[Exemple]\n[ETAPE] INITIAL\n[ETAPE] VerifierStock\n[ETAPE] PreparerColis\n[ETAPE] Expédier\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 5)\n\n[Cas 1 — Chemin alternatif empruntant la branche else]\n[ETAPE] INITIAL\n[ETAPE] VerifierStock\n[ETAPE] RuptureStock\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 4)\n\n[Cas 2 — Chemin direct sans décision]\n[ETAPE] INITIAL\n[ETAPE] Etape1\n[ETAPE] Etape2\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 4)\n\n[Cas 3 — Deux décisions successives]\n[ETAPE] INITIAL\n[ETAPE] D1\n[ETAPE] D2\n[ETAPE] AutoriserDecouvert\n[ETAPE] FIN\nPROCESSUS TERMINE au noeud FIN (Total etapes: 5)"
+    "solution": "[Question 1 — Nombre de branches sortant de la décision]\n2\n\n[Question 2 — Dossiers sur la branche « dossier complet »]\n9\n\n[Question 3 — Dossiers passant par « Renvoyer au demandeur »]\n3\n\n[Question 4 — Dossiers aboutissant à une arrivée]\n12\n\n[Question 5 — Garde obligatoire sur chaque branche ?]\noui\n\n[Question 6 — Plusieurs nœuds d'arrivée autorisés ?]\noui",
+    "takeaway": "1) Le nœud de décision possède 2 branches sortantes : [dossier complet] et [sinon].\n2) 9 dossiers complets empruntent la branche [dossier complet].\n3) 3 dossiers incomplets passent par « Renvoyer au demandeur ».\n4) Les 12 dossiers aboutissent tous à un nœud d'arrivée (9 par une arrivée, 3 par l'autre).\n5) Oui : chaque branche sortant d'une décision porte une garde.\n6) Oui : un diagramme d'activités peut comporter plusieurs nœuds d'arrivée.\nContrôle : 9 dossiers sur la première branche + 3 sur la seconde = 12 dossiers traités, aucun perdu."
   },
   {
     "id": "um2-c5-e2",
     "chapter": 5,
-    "title": "Vérificateur de synchronisation Fork / Join",
     "level": "n2",
     "language": "analyse",
-    "goal": "Modéliser le parallélisme dans un diagramme d'activités avec barre de divergence (Fork) et barre de synchronisation (Join).",
-    "brief": "<p>Dans un diagramme d'activités UML :<br>\n- Une barre <strong>FORK</strong> scinde un flux unique en plusieurs branches exécutées en parallèle.<br>\n- Une barre <strong>JOIN</strong> attend impérativement la complétion de <strong>TOUTES</strong> les branches entrantes avant d'autoriser la poursuite du flux.<br>\nAnalysez les données fournies pour chaque cas...</code> (déclenche N branches)<br>\n- <code>JOIN &lt;NomJoin&gt; &lt;- &lt;B1&gt;,&lt;B2&gt;...</code> (attend toutes les branches)<br>\n- Les notifications d'achèvement de branches au format :<br>\n  <code>COMPLETE &lt;Branche&gt;</code>.<br>\nPour chaque complétion, afficher :<br>\n<code>[RECU] Branche &lt;B&gt; terminee (En attente join &lt;Join&gt;: &lt;Restantes&gt;)</code>.<br>\nLorsque la dernière branche requise par le Join est complétée :<br>\n<code>[SYNCHRONISE] Barre Join &lt;NomJoin&gt; franchie ! Poursuite du flux vers l'etape suivante.</code></p>",
-    "starter": "# Grille d'analyse (um2-c5-e2) — Vérificateur de synchronisation Fork / Join\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois branches avec exécution désordonnée]\n# Données : FORK F1 -> B1,B2,B3\n# Données : JOIN J1 <- B1,B2,B3\n# Données : COMPLETE B2\n# Données : COMPLETE B3\n# Données : COMPLETE B1\nA_COMPLETER\n\n[Cas 2 — Join bloqué avec branche manquante]\n# Données : FORK F1 -> A,B\n# Données : JOIN J1 <- A,B\n# Données : COMPLETE A\nA_COMPLETER\n\n[Cas 3 — Deux barres Join séquentielles]\n# Données : JOIN J1 <- A,B\n# Données : COMPLETE A\n# Données : COMPLETE B\n# Données : JOIN J2 <- C,D\n# Données : COMPLETE C\n# Données : COMPLETE D\nA_COMPLETER\n",
+    "title": "Le service en parallèle du restaurant Le Bocage d'Argent",
+    "exampleTitle": "Exemple résolu — l'assemblage du studio Instantané",
+    "goal": "Raisonner sur le parallélisme fork/join : branches concurrentes, barrière de synchronisation et jeton unique en sortie.",
+    "brief": "<p><strong>Énoncé.</strong> Le restaurant « Le Bocage d'Argent » modélise la préparation d'un menu. Après l'action « Enregistrer la commande », une barre de fork lance <strong>trois branches parallèles</strong> :</p><table><tr><th>Branche</th><th>Action</th><th>Durée</th></tr><tr><td>B1</td><td>Préparer l'entrée</td><td>12 minutes</td></tr><tr><td>B2</td><td>Préparer le plat</td><td>25 minutes</td></tr><tr><td>B3</td><td>Préparer le dessert</td><td>8 minutes</td></tr></table><p>Une barre de join attend l'achèvement des trois branches avant l'action « Servir le client ». Rappel : le join ne laisse passer le flux que lorsque toutes les branches entrantes sont terminées. Répondez par des nombres, le nom d'une action, ou oui/non.</p><ol><li>Combien de branches la barre de fork lance-t-elle en parallèle ?</li><li>Combien de branches doivent être terminées pour franchir le join ?</li><li>Quelle branche, dernière à se terminer, déclenche le franchissement du join ?</li><li>Après 12 minutes, combien de branches restent inachevées ?</li><li>Combien de flux ressortent du join une fois toutes les branches terminées ?</li><li>Le join se franchit-il dès qu'une seule branche est terminée ?</li></ol>",
+    "starter": "# Exercice — Le service en parallèle du restaurant Le Bocage d'Argent\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Pour la question 3, répondez par le nom de l'action (ex. Préparer le plat).\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Nombre de branches lancées par le fork]\nA_COMPLETER\n\n[Question 2 — Branches attendues par le join]\nA_COMPLETER\n\n[Question 3 — Dernière branche à se terminer]\nA_COMPLETER\n\n[Question 4 — Branches inachevées après 12 minutes]\nA_COMPLETER\n\n[Question 5 — Flux sortant du join]\nA_COMPLETER\n\n[Question 6 — Le join se franchit-il à la première fin de branche ?]\nA_COMPLETER\n",
     "hints": [
-      "Maintenir un ensemble des branches attendues par chaque barre de jointure (Join).",
-      "Le Join ne se débloque que lorsque son ensemble de branches manquantes devient vide."
+      "La barre de fork duplique le jeton : chaque branche reçoit son propre jeton et avance à son rythme.",
+      "La barre de join est une barrière de synchronisation : elle attend le dernier jeton, quelle que soit l'ordre d'arrivée.",
+      "Classez les branches par durée croissante pour identifier la dernière terminée, puis comptez à un instant donné celles qui ne sont pas finies."
     ],
     "examples": [
       {
-        "stdin": "FORK F1 -> B_Facturation,B_Livraison\nJOIN J1 <- B_Facturation,B_Livraison\nCOMPLETE B_Facturation\nCOMPLETE B_Livraison",
-        "expected": "[RECU] Branche B_Facturation terminee (En attente join J1: 1 restante)\n[RECU] Branche B_Livraison terminee (En attente join J1: 0 restante)\n[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante.",
-        "note": "Synchronisation de 2 flux parallèles."
+        "stdin": "Le studio photo Instantané modélise une commande :\nAprès « Recevoir la commande », un fork lance 3 branches :\nA « Développer les photos » (20 minutes), B « Imprimer le cadre » (35 minutes), C « Préparer le carton d'invitation » (10 minutes).\nUn join attend les trois branches avant « Assembler la commande ».\n\n1) Le fork lance 3 branches parallèles.\n2) Le join attend les 3 branches.\n3) La branche B (35 minutes) se termine en dernier : c'est elle qui déclenche le join.\n4) Après 20 minutes, seule la branche B reste inachevée : 1 branche.\n5) Un seul flux ressort du join vers « Assembler la commande ».",
+        "expected": "3 branches — 3 attendues au join — « Imprimer le cadre » dernière (35 min) — après 20 min : 1 branche restante — 1 flux en sortie",
+        "note": "La durée la plus longue impose le rythme : le join attend le jeton le plus lent."
       }
     ],
     "tests": [
       {
-        "label": "Trois branches avec exécution désordonnée",
-        "stdin": "cas:1",
-        "expected": "[RECU] Branche B2 terminee (En attente join J1: 2 restantes)\n[RECU] Branche B3 terminee (En attente join J1: 1 restante)\n[RECU] Branche B1 terminee (En attente join J1: 0 restante)\n[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante."
+        "label": "Question 1 — Nombre de branches lancées par le fork",
+        "stdin": "q:1",
+        "expected": "3"
       },
       {
-        "label": "Join bloqué avec branche manquante",
-        "stdin": "cas:2",
-        "expected": "[RECU] Branche A terminee (En attente join J1: 1 restante)"
+        "label": "Question 2 — Branches attendues par le join",
+        "stdin": "q:2",
+        "expected": "3"
       },
       {
-        "label": "Deux barres Join séquentielles",
-        "stdin": "cas:3",
-        "expected": "[RECU] Branche A terminee (En attente join J1: 1 restante)\n[RECU] Branche B terminee (En attente join J1: 0 restante)\n[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante.\n[RECU] Branche C terminee (En attente join J2: 1 restante)\n[RECU] Branche D terminee (En attente join J2: 0 restante)\n[SYNCHRONISE] Barre Join J2 franchie ! Poursuite du flux vers l'etape suivante."
+        "label": "Question 3 — Dernière branche à se terminer",
+        "stdin": "q:3",
+        "expected": "Préparer le plat||preparer le plat||Preparer le plat||B2||le plat||plat"
+      },
+      {
+        "label": "Question 4 — Branches inachevées après 12 minutes",
+        "stdin": "q:4",
+        "expected": "1"
+      },
+      {
+        "label": "Question 5 — Flux sortant du join",
+        "stdin": "q:5",
+        "expected": "1"
+      },
+      {
+        "label": "Question 6 — Le join se franchit-il à la première fin de branche ?",
+        "stdin": "q:6",
+        "expected": "non"
       }
     ],
-    "solution": "[Exemple]\n[RECU] Branche B_Facturation terminee (En attente join J1: 1 restante)\n[RECU] Branche B_Livraison terminee (En attente join J1: 0 restante)\n[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante.\n\n[Cas 1 — Trois branches avec exécution désordonnée]\n[RECU] Branche B2 terminee (En attente join J1: 2 restantes)\n[RECU] Branche B3 terminee (En attente join J1: 1 restante)\n[RECU] Branche B1 terminee (En attente join J1: 0 restante)\n[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante.\n\n[Cas 2 — Join bloqué avec branche manquante]\n[RECU] Branche A terminee (En attente join J1: 1 restante)\n\n[Cas 3 — Deux barres Join séquentielles]\n[RECU] Branche A terminee (En attente join J1: 1 restante)\n[RECU] Branche B terminee (En attente join J1: 0 restante)\n[SYNCHRONISE] Barre Join J1 franchie ! Poursuite du flux vers l'etape suivante.\n[RECU] Branche C terminee (En attente join J2: 1 restante)\n[RECU] Branche D terminee (En attente join J2: 0 restante)\n[SYNCHRONISE] Barre Join J2 franchie ! Poursuite du flux vers l'etape suivante."
+    "solution": "[Question 1 — Nombre de branches lancées par le fork]\n3\n\n[Question 2 — Branches attendues par le join]\n3\n\n[Question 3 — Dernière branche à se terminer]\nPréparer le plat\n\n[Question 4 — Branches inachevées après 12 minutes]\n1\n\n[Question 5 — Flux sortant du join]\n1\n\n[Question 6 — Le join se franchit-il à la première fin de branche ?]\nnon",
+    "takeaway": "1) Le fork lance 3 branches parallèles : B1, B2, B3.\n2) Le join attend l'achèvement des 3 branches.\n3) Le plat (25 minutes) est le plus long à préparer : « Préparer le plat » se termine en dernier et déclenche le join.\n4) Après 12 minutes, l'entrée (12 min) et le dessert (8 min) sont prêts : seul le plat reste, soit 1 branche inachevée.\n5) Un seul flux ressort du join, vers « Servir le client ».\n6) Non : le join attend toutes les branches, pas seulement la première terminée.\nContrôle : le service démarre après 25 minutes, la durée de la branche la plus lente."
   },
   {
     "id": "um2-c5-e3",
     "chapter": 5,
-    "title": "Partitionneur de responsabilités (Couloirs Swimlanes)",
     "level": "n3",
     "language": "analyse",
-    "goal": "Organiser les actions d'un processus métier dans leurs couloirs de responsabilité (swimlanes) et tracer les transferts inter-organisationnels.",
-    "brief": "<p>Analysez les données fournies pour chaque cas...</code><br>\n- La séquence ordonnée d'exécution : <code>SEQUENCE &lt;A1&gt; -&gt; &lt;A2&gt; -&gt; &lt;A3&gt;...</code><br>\nLe script doit afficher :<br>\n1. La chronologie des actions avec leur responsable :<br>\n   <code>1. &lt;Action&gt; [Assigne a : &lt;Couloir&gt;]</code><br>\n2. Le journal des transferts de responsabilité (chaque fois que deux actions consécutives changent de couloir) :<br>\n   <code>[TRANSFERT] &lt;CouloirSource&gt; -&gt; &lt;CouloirCible&gt; (Transition : &lt;ActionPrec&gt; vers &lt;ActionSuiv&gt;)</code><br>\n3. Le bilan : <code>TOTAL TRANSFERTS: &lt;N&gt;</code>.</p>",
-    "starter": "# Grille d'analyse (um2-c5-e3) — Partitionneur de responsabilités (Couloirs Swimlanes)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Allers-retours multiples entre trois couloirs]\n# Données : SWIMLANE Client : DemanderDevis,Accepter\n# Données : SWIMLANE Commercial : EtablirDevis\n# Données : SWIMLANE Comptabilite : EmettreFacture\n# Données : SEQUENCE DemanderDevis -> EtablirDevis -> Accepter -> EmettreFacture\nA_COMPLETER\n\n[Cas 2 — Aucun transfert (processus mono-acteur)]\n# Données : SWIMLANE Dev : Coder,Tester,Deposer\n# Données : SEQUENCE Coder -> Tester -> Deposer\nA_COMPLETER\n\n[Cas 3 — Action exécutée par rôle unique]\n# Données : SWIMLANE A : Act1\n# Données : SWIMLANE B : Act2\n# Données : SEQUENCE Act1 -> Act2\nA_COMPLETER\n",
+    "title": "Les couloirs de traitement des sinistres de l'assureur Sécuria",
+    "exampleTitle": "Exemple résolu — la note de frais du cabinet Astel",
+    "goal": "Lire un diagramme d'activités à couloirs (swimlanes) et identifier le responsable de chaque action.",
+    "brief": "<p><strong>Énoncé.</strong> L'assureur Sécuria modélise le traitement d'un sinistre habitation avec <strong>3 couloirs</strong> : Assuré, Guichet Sinistres et Expert. Les actions, dans l'ordre :</p><table><tr><th>Ordre</th><th>Action</th><th>Couloir responsable</th></tr><tr><td>1</td><td>Déclarer le sinistre</td><td>Assuré</td></tr><tr><td>2</td><td>Enregistrer le dossier</td><td>Guichet Sinistres</td></tr><tr><td>3</td><td>Estimer les dégâts</td><td>Expert</td></tr><tr><td>4</td><td>Décision [devis ≤ 1 500 €]</td><td>Guichet Sinistres</td></tr><tr><td>5a (si oui)</td><td>Indemniser directement</td><td>Guichet Sinistres</td></tr><tr><td>5b (sinon)</td><td>Mandater un réparateur</td><td>Expert</td></tr></table><p>Rappel : un couloir (swimlane) matérialise qui exécute chaque action du processus. Répondez par des nombres, le nom d'un couloir, ou oui/non.</p><ol><li>Combien de couloirs compte le diagramme ?</li><li>Dans quel couloir se trouve l'action « Estimer les dégâts » ?</li><li>Combien d'actions sont affectées au couloir Guichet Sinistres (hormis le nœud de décision) ?</li><li>Qui est responsable de l'action « Déclarer le sinistre » ?</li><li>Un couloir indique-t-il qui exécute chaque action ?</li><li>Combien d'actions, hors nœuds de contrôle et décision, compte le processus ?</li></ol>",
+    "starter": "# Exercice — Les couloirs de traitement des sinistres de l'assureur Sécuria\n# Lisez l'énoncé complet ci-dessus, puis répondez à chaque question dans son bloc.\n# Pour les questions 2 et 4, répondez par le nom du couloir (ex. Expert).\n# Les questions fermées se répondent par oui ou non.\n\n[Question 1 — Nombre de couloirs]\nA_COMPLETER\n\n[Question 2 — Couloir de « Estimer les dégâts »]\nA_COMPLETER\n\n[Question 3 — Actions du couloir Guichet Sinistres]\nA_COMPLETER\n\n[Question 4 — Responsable de « Déclarer le sinistre »]\nA_COMPLETER\n\n[Question 5 — Le couloir indique-t-il le responsable ?]\nA_COMPLETER\n\n[Question 6 — Nombre total d'actions]\nA_COMPLETER\n",
     "hints": [
-      "Associer chaque action à son couloir de nage unique dans un dictionnaire.",
-      "Comparer le couloir de l'action i avec le couloir de l'action i-1 pour détecter un changement d'intervenant."
+      "Chaque action est dessinée dans le couloir de celui qui l'exécute : la position dans le couloir donne le responsable.",
+      "Ne confondez pas le nœud de décision (losange) avec les actions (rectangles arrondis) : seules les actions comptent dans les dénombrements.",
+      "Listez les actions couloir par couloir (Assuré, Guichet Sinistres, Expert), additionnez-les, puis contrôlez avec le tableau."
     ],
     "examples": [
       {
-        "stdin": "SWIMLANE Client : SaisirCommande,Payer\nSWIMLANE Logistique : PreparerColis,Expedier\nSEQUENCE SaisirCommande -> Payer -> PreparerColis -> Expedier",
-        "expected": "1. SaisirCommande [Assigne a : Client]\n2. Payer [Assigne a : Client]\n3. PreparerColis [Assigne a : Logistique]\n4. Expedier [Assigne a : Logistique]\n[TRANSFERT] Client -> Logistique (Transition : Payer vers PreparerColis)\nTOTAL TRANSFERTS: 1",
-        "note": "Un seul transfert de responsabilité entre le Client et la Logistique."
+        "stdin": "Le cabinet Astel modélise sa note de frais avec 2 couloirs : Employé et Direction.\nActions :\n1. « Remplir la note de frais » — Employé\n2. « Joindre les justificatifs » — Employé\n3. « Contrôler la note » — Direction\n4. Décision [montant ≤ 80 €]\n5a (si oui) « Rembourser » — Direction ; 5b (sinon) « Faire valider par la direction générale » — Direction.\n\n1) Le diagramme compte 2 couloirs.\n2) « Joindre les justificatifs » est exécutée par l'Employé.\n3) La Direction exécute 3 actions : Contrôler, Rembourser, Faire valider.\n4) Le processus compte 5 actions au total (hors décision).\n5) Le couloir indique bien le responsable de chaque action.",
+        "expected": "2 couloirs — justificatifs : Employé — 3 actions pour la Direction — 5 actions au total — le couloir donne le responsable",
+        "note": "Le couloir répond à la question « qui fait quoi » : c'est la lecture première d'un diagramme d'activités à swimlanes."
       }
     ],
     "tests": [
       {
-        "label": "Allers-retours multiples entre trois couloirs",
-        "stdin": "cas:1",
-        "expected": "1. DemanderDevis [Assigne a : Client]\n2. EtablirDevis [Assigne a : Commercial]\n3. Accepter [Assigne a : Client]\n4. EmettreFacture [Assigne a : Comptabilite]\n[TRANSFERT] Client -> Commercial (Transition : DemanderDevis vers EtablirDevis)\n[TRANSFERT] Commercial -> Client (Transition : EtablirDevis vers Accepter)\n[TRANSFERT] Client -> Comptabilite (Transition : Accepter vers EmettreFacture)\nTOTAL TRANSFERTS: 3"
+        "label": "Question 1 — Nombre de couloirs",
+        "stdin": "q:1",
+        "expected": "3"
       },
       {
-        "label": "Aucun transfert (processus mono-acteur)",
-        "stdin": "cas:2",
-        "expected": "1. Coder [Assigne a : Dev]\n2. Tester [Assigne a : Dev]\n3. Deposer [Assigne a : Dev]\nTOTAL TRANSFERTS: 0"
+        "label": "Question 2 — Couloir de « Estimer les dégâts »",
+        "stdin": "q:2",
+        "expected": "Expert||expert||l'Expert||l'expert||couloir Expert"
       },
       {
-        "label": "Action exécutée par rôle unique",
-        "stdin": "cas:3",
-        "expected": "1. Act1 [Assigne a : A]\n2. Act2 [Assigne a : B]\n[TRANSFERT] A -> B (Transition : Act1 vers Act2)\nTOTAL TRANSFERTS: 1"
+        "label": "Question 3 — Actions du couloir Guichet Sinistres",
+        "stdin": "q:3",
+        "expected": "2"
+      },
+      {
+        "label": "Question 4 — Responsable de « Déclarer le sinistre »",
+        "stdin": "q:4",
+        "expected": "Assuré||assure||l'Assuré||l'assure"
+      },
+      {
+        "label": "Question 5 — Le couloir indique-t-il le responsable ?",
+        "stdin": "q:5",
+        "expected": "oui"
+      },
+      {
+        "label": "Question 6 — Nombre total d'actions",
+        "stdin": "q:6",
+        "expected": "5"
       }
     ],
-    "solution": "[Exemple]\n1. SaisirCommande [Assigne a : Client]\n2. Payer [Assigne a : Client]\n3. PreparerColis [Assigne a : Logistique]\n4. Expedier [Assigne a : Logistique]\n[TRANSFERT] Client -> Logistique (Transition : Payer vers PreparerColis)\nTOTAL TRANSFERTS: 1\n\n[Cas 1 — Allers-retours multiples entre trois couloirs]\n1. DemanderDevis [Assigne a : Client]\n2. EtablirDevis [Assigne a : Commercial]\n3. Accepter [Assigne a : Client]\n4. EmettreFacture [Assigne a : Comptabilite]\n[TRANSFERT] Client -> Commercial (Transition : DemanderDevis vers EtablirDevis)\n[TRANSFERT] Commercial -> Client (Transition : EtablirDevis vers Accepter)\n[TRANSFERT] Client -> Comptabilite (Transition : Accepter vers EmettreFacture)\nTOTAL TRANSFERTS: 3\n\n[Cas 2 — Aucun transfert (processus mono-acteur)]\n1. Coder [Assigne a : Dev]\n2. Tester [Assigne a : Dev]\n3. Deposer [Assigne a : Dev]\nTOTAL TRANSFERTS: 0\n\n[Cas 3 — Action exécutée par rôle unique]\n1. Act1 [Assigne a : A]\n2. Act2 [Assigne a : B]\n[TRANSFERT] A -> B (Transition : Act1 vers Act2)\nTOTAL TRANSFERTS: 1"
+    "solution": "[Question 1 — Nombre de couloirs]\n3\n\n[Question 2 — Couloir de « Estimer les dégâts »]\nExpert\n\n[Question 3 — Actions du couloir Guichet Sinistres]\n2\n\n[Question 4 — Responsable de « Déclarer le sinistre »]\nAssuré\n\n[Question 5 — Le couloir indique-t-il le responsable ?]\noui\n\n[Question 6 — Nombre total d'actions]\n5",
+    "takeaway": "1) Le diagramme compte 3 couloirs : Assuré, Guichet Sinistres, Expert.\n2) « Estimer les dégâts » est exécutée par l'Expert.\n3) Le Guichet Sinistres exécute 2 actions : « Enregistrer le dossier » et « Indemniser directement ».\n4) « Déclarer le sinistre » est le fait de l'Assuré.\n5) Oui : le couloir matérialise le responsable de chaque action.\n6) Le processus compte 5 actions : Déclarer, Enregistrer, Estimer, Indemniser, Mandater (hors décision).\nContrôle : 1 action (Assuré) + 2 (Guichet Sinistres) + 2 (Expert) = 5 actions, réparties sur 3 couloirs."
   }
 ];

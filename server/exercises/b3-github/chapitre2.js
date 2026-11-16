@@ -8,21 +8,31 @@ module.exports = [
     "level": "n1",
     "language": "shell",
     "goal": "Déterminer si une fusion de branches peut s’effectuer en Fast-Forward ou requiert un 3-Way Merge avec commit de fusion.",
-    "brief": "<p>Dans le graphe orienté acyclique (DAG) des commits de Git :<br>\n- Si le commit de tête de la branche courante (<code>base</code>) est un <strong>ancêtre direct</strong> de la branche à intégrer (<code>target</code>), Git avance simplement le pointeur sans créer de nouveau commit : c'est un <strong>Fast-Forward (FF)</strong>.<br>\n- Si les deux branches ont divergé depuis un ancêtre commun (Lowest Common Ancestor - LCA), un <strong>Three-Way Merge</strong> est nécessaire et un commit de fusion à 2 parents doit être généré.<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin). La déclaration des commits et de leurs parents :<br>\n   <code>COMMIT id=&lt;id&gt; parents=&lt;p1,p2...|NONE&gt;</code>.<br>\n2. La position des branches :<br>\n   <code>BRANCH name=&lt;nom&gt; commit=&lt;id&gt;</code>.<br>\n3. Une demande de fusion :<br>\n   <code>MERGE_REQUEST current=&lt;branche_base&gt; incoming=&lt;branche_target&gt;</code>.<br><br>\nAfficher :<br>\n<code>MERGE_STRATEGY from={incoming} into={current} type={FAST_FORWARD|THREE_WAY_MERGE} lca={lca_id}</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c2-e1) — Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Dans ce modèle de graphe Git, une avance rapide est possible lorsque le commit courant est un ancêtre du commit à intégrer. Si le commit à intégrer est déjà un ancêtre du commit courant, rien n'est à fusionner. Deux historiques divergents avec au moins une base commune demandent ici une fusion à trois voies ; Git refuse par défaut la fusion d'historiques sans ancêtre commun.<br><br>Déclarez d'abord les commits par <code>COMMIT id=&lt;id&gt; parents=&lt;p1,p2,...|NONE&gt;</code>, puis les branches par <code>BRANCH name=&lt;nom&gt; commit=&lt;id&gt;</code>, puis une ou plusieurs requêtes <code>MERGE_REQUEST current=&lt;branche&gt; incoming=&lt;branche&gt;</code>. Les identifiants sont distincts et sans espaces ; tous les parents et branches demandées existent, et le graphe est acyclique.<br><br>Pour chaque requête, affichez <code>MERGE_STRATEGY from={incoming} into={current} type={FAST_FORWARD|ALREADY_UP_TO_DATE|THREE_WAY_MERGE|NO_COMMON_ANCESTOR} lca={bases}</code>. <code>lca</code> vaut <code>NONE</code> sans base commune ; sinon, indiquez toutes les meilleures bases communes, triées par ordre des octets et séparées par des virgules. Une meilleure base commune n'est ancêtre d'aucune autre base commune distincte. Les options de fusion particulières ne sont pas modélisées.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c2-e1) — Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Construire la liste de tous les ancêtres de chaque commit en remontant les parents.",
-      "Si base_commit fait partie des ancêtres de incoming_commit, la fusion est FAST_FORWARD.",
-      "Sinon, trouver le plus proche ancêtre commun (LCA)."
+      "Constituez les ensembles d’ancêtres en incluant chaque tête elle-même.",
+      "Éliminez les ancêtres communs qui sont eux-mêmes ancêtres d’un autre ancêtre commun ; plusieurs meilleures bases peuvent subsister.",
+      "1. Ancêtres de chaque tête, tête incluse. 2. Intersection ; écarter un commun ancêtre d’un autre commun. 3. Base ancêtre de la cible : FAST_FORWARD, sinon 3-WAY ou déjà à jour. 4. Bases finales triées."
     ],
     "examples": [
       {
         "stdin": "COMMIT id=C1 parents=NONE\nCOMMIT id=C2 parents=C1\nCOMMIT id=C3 parents=C2\nBRANCH name=main commit=C1\nBRANCH name=feature commit=C3\nMERGE_REQUEST current=main incoming=feature",
         "expected": "MERGE_STRATEGY from=feature into=main type=FAST_FORWARD lca=C1",
-        "note": "C1 est un ancêtre direct de C3 : avance rapide du pointeur main vers C3."
+        "note": "C1 est un ancêtre de C3 : le pointeur peut avancer rapidement."
       }
     ],
     "tests": [
+      {
+        "label": "Branches identiques ou déjà intégrées",
+        "stdin": "COMMIT id=A parents=NONE\nCOMMIT id=B parents=A\nBRANCH name=main commit=B\nBRANCH name=same commit=B\nBRANCH name=old commit=A\nMERGE_REQUEST current=main incoming=same\nMERGE_REQUEST current=main incoming=old",
+        "expected": "MERGE_STRATEGY from=same into=main type=ALREADY_UP_TO_DATE lca=B\nMERGE_STRATEGY from=old into=main type=ALREADY_UP_TO_DATE lca=A"
+      },
+      {
+        "label": "Deux meilleures bases et historique sans parent commun",
+        "stdin": "COMMIT id=R parents=NONE\nCOMMIT id=A parents=R\nCOMMIT id=B parents=R\nCOMMIT id=M1 parents=A,B\nCOMMIT id=M2 parents=B,A\nCOMMIT id=U parents=NONE\nBRANCH name=main commit=M1\nBRANCH name=other commit=M2\nBRANCH name=unrelated commit=U\nMERGE_REQUEST current=main incoming=other\nMERGE_REQUEST current=main incoming=unrelated",
+        "expected": "MERGE_STRATEGY from=other into=main type=THREE_WAY_MERGE lca=A,B\nMERGE_STRATEGY from=unrelated into=main type=NO_COMMON_ANCESTOR lca=NONE"
+      },
       {
         "label": "Branches divergentes nécessitant un Three-Way Merge",
         "stdin": "COMMIT id=C1 parents=NONE\nCOMMIT id=C2 parents=C1\nCOMMIT id=C3 parents=C1\nBRANCH name=main commit=C2\nBRANCH name=feature commit=C3\nMERGE_REQUEST current=main incoming=feature",
@@ -37,9 +47,15 @@ module.exports = [
         "label": "Divergence après plusieurs commits communs",
         "stdin": "COMMIT id=R1 parents=NONE\nCOMMIT id=R2 parents=R1\nCOMMIT id=M1 parents=R2\nCOMMIT id=M2 parents=M1\nCOMMIT id=F1 parents=R2\nBRANCH name=main commit=M2\nBRANCH name=hotfix commit=F1\nMERGE_REQUEST current=main incoming=hotfix",
         "expected": "MERGE_STRATEGY from=hotfix into=main type=THREE_WAY_MERGE lca=R2"
+      },
+      {
+        "label": "Deux branches sur la même racine",
+        "stdin": "COMMIT id=A parents=NONE\nBRANCH name=main commit=A\nBRANCH name=feature commit=A\nMERGE_REQUEST current=main incoming=feature",
+        "expected": "MERGE_STRATEGY from=feature into=main type=ALREADY_UP_TO_DATE lca=A"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c2-e1 : Détecteur de stratégie de fusion : Fast-Forward vs 3-Way Merge\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"Q09NTUlUIGlkPUMxIHBhcmVudHM9Tk9ORQpDT01NSVQgaWQ9QzIgcGFyZW50cz1DMQpDT01NSVQgaWQ9QzMgcGFyZW50cz1DMgpCUkFOQ0ggbmFtZT1tYWluIGNvbW1pdD1DMQpCUkFOQ0ggbmFtZT1mZWF0dXJlIGNvbW1pdD1DMwpNRVJHRV9SRVFVRVNUIGN1cnJlbnQ9bWFpbiBpbmNvbWluZz1mZWF0dXJl\")\n    printf '%s\\n' \"TUVSR0VfU1RSQVRFR1kgZnJvbT1mZWF0dXJlIGludG89bWFpbiB0eXBlPUZBU1RfRk9SV0FSRCBsY2E9QzE=\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09NTUlUIGlkPUMxIHBhcmVudHM9Tk9ORQpDT01NSVQgaWQ9QzIgcGFyZW50cz1DMQpDT01NSVQgaWQ9QzMgcGFyZW50cz1DMQpCUkFOQ0ggbmFtZT1tYWluIGNvbW1pdD1DMgpCUkFOQ0ggbmFtZT1mZWF0dXJlIGNvbW1pdD1DMwpNRVJHRV9SRVFVRVNUIGN1cnJlbnQ9bWFpbiBpbmNvbWluZz1mZWF0dXJl\")\n    printf '%s\\n' \"TUVSR0VfU1RSQVRFR1kgZnJvbT1mZWF0dXJlIGludG89bWFpbiB0eXBlPVRIUkVFX1dBWV9NRVJHRSBsY2E9QzE=\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09NTUlUIGlkPUEgcGFyZW50cz1OT05FCkNPTU1JVCBpZD1CIHBhcmVudHM9QQpDT01NSVQgaWQ9QyBwYXJlbnRzPUIKQ09NTUlUIGlkPUQgcGFyZW50cz1DCkJSQU5DSCBuYW1lPXByb2QgY29tbWl0PUIKQlJBTkNIIG5hbWU9cmVsZWFzZSBjb21taXQ9RApNRVJHRV9SRVFVRVNUIGN1cnJlbnQ9cHJvZCBpbmNvbWluZz1yZWxlYXNl\")\n    printf '%s\\n' \"TUVSR0VfU1RSQVRFR1kgZnJvbT1yZWxlYXNlIGludG89cHJvZCB0eXBlPUZBU1RfRk9SV0FSRCBsY2E9Qg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"Q09NTUlUIGlkPVIxIHBhcmVudHM9Tk9ORQpDT01NSVQgaWQ9UjIgcGFyZW50cz1SMQpDT01NSVQgaWQ9TTEgcGFyZW50cz1SMgpDT01NSVQgaWQ9TTIgcGFyZW50cz1NMQpDT01NSVQgaWQ9RjEgcGFyZW50cz1SMgpCUkFOQ0ggbmFtZT1tYWluIGNvbW1pdD1NMgpCUkFOQ0ggbmFtZT1ob3RmaXggY29tbWl0PUYxCk1FUkdFX1JFUVVFU1QgY3VycmVudD1tYWluIGluY29taW5nPWhvdGZpeA==\")\n    printf '%s\\n' \"TUVSR0VfU1RSQVRFR1kgZnJvbT1ob3RmaXggaW50bz1tYWluIHR5cGU9VEhSRUVfV0FZX01FUkdFIGxjYT1SMg==\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nset -o pipefail\nexport LC_ALL=C\ndeclare -A parents=() branches=()\ncommit_pattern='^COMMIT id=([^[:space:]]+) parents=([^[:space:]]+)$'\nbranch_pattern='^BRANCH name=([^[:space:]]+) commit=([^[:space:]]+)$'\nrequest_pattern='^MERGE_REQUEST current=([^[:space:]]+) incoming=([^[:space:]]+)$'\ncollect_ancestors() {\n  local root=$1\n  local -n result=$2\n  local -a queue=(\"$root\") parent_list=()\n  local offset=0 node parent parent_text\n  result=()\n  while ((offset < ${#queue[@]})); do\n    node=${queue[offset]}\n    ((offset += 1))\n    [[ ${result[$node]+present} ]] && continue\n    result[$node]=1\n    parent_text=${parents[$node]}\n    [[ $parent_text == NONE ]] && continue\n    IFS=, read -r -a parent_list <<< \"$parent_text\"\n    for parent in \"${parent_list[@]}\"; do\n      queue+=(\"$parent\")\n    done\n  done\n}\nwhile IFS= read -r line || [[ -n $line ]]; do\n  if [[ $line =~ $commit_pattern ]]; then\n    parents[${BASH_REMATCH[1]}]=${BASH_REMATCH[2]}\n  elif [[ $line =~ $branch_pattern ]]; then\n    branches[${BASH_REMATCH[1]}]=${BASH_REMATCH[2]}\n  elif [[ $line =~ $request_pattern ]]; then\n    current=${BASH_REMATCH[1]}\n    incoming=${BASH_REMATCH[2]}\n    base=${branches[$current]}\n    target=${branches[$incoming]}\n    declare -A current_ancestors=() incoming_ancestors=() ancestors_other=()\n    collect_ancestors \"$base\" current_ancestors\n    collect_ancestors \"$target\" incoming_ancestors\n    common=()\n    best=()\n    for candidate in \"${!current_ancestors[@]}\"; do\n      [[ ${incoming_ancestors[$candidate]+present} ]] && common+=(\"$candidate\")\n    done\n    for candidate in \"${common[@]}\"; do\n      is_best=1\n      for other in \"${common[@]}\"; do\n        [[ $candidate == \"$other\" ]] && continue\n        collect_ancestors \"$other\" ancestors_other\n        if [[ ${ancestors_other[$candidate]+present} ]]; then\n          is_best=0\n          break\n        fi\n      done\n      ((is_best)) && best+=(\"$candidate\")\n    done\n    if ((${#best[@]} == 0)); then\n      strategy=NO_COMMON_ANCESTOR\n      lca=NONE\n    else\n      lca=$(printf '%s\\n' \"${best[@]}\" | sort | paste -sd, -)\n      if [[ ${current_ancestors[$target]+present} ]]; then\n        strategy=ALREADY_UP_TO_DATE\n      elif [[ ${incoming_ancestors[$base]+present} ]]; then\n        strategy=FAST_FORWARD\n      else\n        strategy=THREE_WAY_MERGE\n      fi\n    fi\n    printf 'MERGE_STRATEGY from=%s into=%s type=%s lca=%s\\n' \"$incoming\" \"$current\" \"$strategy\" \"$lca\"\n  fi\ndone\n",
+    "takeaway": "Fast-Forward avance simplement le pointeur quand l’historique est linéaire, alors qu’un 3-Way Merge crée un commit de fusion à deux parents."
   },
   {
     "id": "gh3-c2-e2",
@@ -48,11 +64,12 @@ module.exports = [
     "level": "n2",
     "language": "shell",
     "goal": "Simuler l’exécution des instructions de réécriture d’historique git-rebase-todo (pick, squash, reword, drop).",
-    "brief": "<p>Le rebase interactif (<code>git rebase -i</code>) permet de nettoyer un historique de commits avant de proposer une Pull Request.<br><br>\nActions supportées :<br>\n- <code>pick &lt;id&gt; &lt;msg&gt;</code> : conserve le commit tel quel.<br>\n- <code>reword &lt;id&gt; &lt;nouveau_msg&gt;</code> : conserve les modifications mais remplace le message du commit.<br>\n- <code>drop &lt;id&gt;</code> : supprime purement et simplement le commit de l’historique.<br>\n- <code>squash &lt;id&gt; &lt;msg&gt;</code> : fusionne ce commit dans le commit précédent en concaténant les messages sous la forme <code>{msg_precedent} + {msg_squashe}</code>.<br><br>\nLe script Bash lit les données sur l’entrée standard (stdin).<br><br>\nÀ l’issue de la réécriture, afficher le nouvel historique résultant :<br>\nPour chaque commit conservé :<br>\n<code>REBASED_COMMIT id={id} msg=\"{message}\"</code><br>\nEt la ligne finale :<br>\n<code>REBASE_SUMMARY total_commits={n}</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c2-e2) — Simulateur de Rebase Interactif (git rebase -i)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Le rebase interactif permet de réorganiser une série de commits. Simulez ici les actions <code>pick</code> et <code>reword</code> (ajouter le commit et son message fourni), <code>drop</code> (ignorer le commit) et <code>squash</code> (ajouter le message au dernier commit conservé, avec le séparateur <code> + </code>). Les identifiants sont fictifs et ne sont pas de nouveaux hachages Git.<br><br>Chaque ligne est <code>TODO action=&lt;action&gt; commit=&lt;id&gt; msg=&lt;message&gt;</code> ; <code>msg</code> est omis pour <code>drop</code>. Les messages tiennent sur une ligne et ne contiennent pas de guillemet double. Une entrée vide produit un historique vide. Si <code>squash</code> n'a aucun commit précédent, affichez uniquement <code>REBASE_ERROR reason=SQUASH_WITHOUT_PREVIOUS</code>.<br><br>Sinon, affichez chaque commit conservé dans l'ordre : <code>REBASED_COMMIT id={id} msg=\"{message}\"</code>, puis <code>REBASE_SUMMARY total_commits={n}</code>.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c2-e2) — Simulateur de Rebase Interactif (git rebase -i)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Gérer une liste de commits réécrits.",
-      "Lors d’un squash, modifier le dernier commit ajouté dans la liste en combinant les messages."
+      "Conservez deux listes parallèles pour les identifiants et les messages.",
+      "Un squash modifie seulement le dernier message conservé ; drop ne crée aucune entrée.",
+      "1. Parcourir les TODO dans l’ordre. 2. pick ou reword : ajouter id et message. 3. squash : concaténer au dernier conservé ; sans précédent : erreur. 4. drop : ignorer. 5. Afficher les commits puis le total."
     ],
     "examples": [
       {
@@ -62,6 +79,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Historique vide",
+        "stdin": "",
+        "expected": "REBASE_SUMMARY total_commits=0"
+      },
+      {
+        "label": "Squash sans commit précédent",
+        "stdin": "TODO action=squash commit=solo msg=impossible",
+        "expected": "REBASE_ERROR reason=SQUASH_WITHOUT_PREVIOUS"
+      },
       {
         "label": "Suppression de commit avec drop",
         "stdin": "TODO action=pick commit=A1 msg=Initial skeleton\nTODO action=drop commit=A2\nTODO action=pick commit=A3 msg=Ajout module BDD",
@@ -78,7 +105,8 @@ module.exports = [
         "expected": "REBASED_COMMIT id=K1 msg=\"Premier commit\"\nREBASED_COMMIT id=K2 msg=\"Second commit\"\nREBASE_SUMMARY total_commits=2"
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c2-e2 : Simulateur de Rebase Interactif (git rebase -i)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"VE9ETyBhY3Rpb249cGljayBjb21taXQ9QzEgbXNnPWZlYXQ6IGFqb3V0IGxvZ2luClRPRE8gYWN0aW9uPXNxdWFzaCBjb21taXQ9QzIgbXNnPWZpeDogY29ycmVjdGlvbiB0eXBvClRPRE8gYWN0aW9uPXJld29yZCBjb21taXQ9QzMgbXNnPWZlYXQ6IGFqb3V0IGxvZ291dCBwcm9wcmU=\")\n    printf '%s\\n' \"UkVCQVNFRF9DT01NSVQgaWQ9QzEgbXNnPSJmZWF0OiBham91dCBsb2dpbiArIGZpeDogY29ycmVjdGlvbiB0eXBvIgpSRUJBU0VEX0NPTU1JVCBpZD1DMyBtc2c9ImZlYXQ6IGFqb3V0IGxvZ291dCBwcm9wcmUiClJFQkFTRV9TVU1NQVJZIHRvdGFsX2NvbW1pdHM9Mg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"VE9ETyBhY3Rpb249cGljayBjb21taXQ9QTEgbXNnPUluaXRpYWwgc2tlbGV0b24KVE9ETyBhY3Rpb249ZHJvcCBjb21taXQ9QTIKVE9ETyBhY3Rpb249cGljayBjb21taXQ9QTMgbXNnPUFqb3V0IG1vZHVsZSBCREQ=\")\n    printf '%s\\n' \"UkVCQVNFRF9DT01NSVQgaWQ9QTEgbXNnPSJJbml0aWFsIHNrZWxldG9uIgpSRUJBU0VEX0NPTU1JVCBpZD1BMyBtc2c9IkFqb3V0IG1vZHVsZSBCREQiClJFQkFTRV9TVU1NQVJZIHRvdGFsX2NvbW1pdHM9Mg==\" | base64 -d\n    echo \"\"\n    ;;\n  \"VE9ETyBhY3Rpb249cGljayBjb21taXQ9MTAgbXNnPUZlYXR1cmUgYmFzZQpUT0RPIGFjdGlvbj1zcXVhc2ggY29tbWl0PTExIG1zZz1XSVAgdGVzdCAxClRPRE8gYWN0aW9uPXNxdWFzaCBjb21taXQ9MTIgbXNnPVdJUCB0ZXN0IDIKVE9ETyBhY3Rpb249cGljayBjb21taXQ9MTMgbXNnPURvY3M=\")\n    printf '%s\\n' \"UkVCQVNFRF9DT01NSVQgaWQ9MTAgbXNnPSJGZWF0dXJlIGJhc2UgKyBXSVAgdGVzdCAxICsgV0lQIHRlc3QgMiIKUkVCQVNFRF9DT01NSVQgaWQ9MTMgbXNnPSJEb2NzIgpSRUJBU0VfU1VNTUFSWSB0b3RhbF9jb21taXRzPTI=\" | base64 -d\n    echo \"\"\n    ;;\n  \"VE9ETyBhY3Rpb249cGljayBjb21taXQ9SzEgbXNnPVByZW1pZXIgY29tbWl0ClRPRE8gYWN0aW9uPXBpY2sgY29tbWl0PUsyIG1zZz1TZWNvbmQgY29tbWl0\")\n    printf '%s\\n' \"UkVCQVNFRF9DT01NSVQgaWQ9SzEgbXNnPSJQcmVtaWVyIGNvbW1pdCIKUkVCQVNFRF9DT01NSVQgaWQ9SzIgbXNnPSJTZWNvbmQgY29tbWl0IgpSRUJBU0VfU1VNTUFSWSB0b3RhbF9jb21taXRzPTI=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\nids=()\nmessages=()\npattern='^TODO action=([^[:space:]]+) commit=([^[:space:]]+)( msg=(.*))?$'\nwhile IFS= read -r line || [[ -n $line ]]; do\n  [[ $line =~ $pattern ]] || continue\n  action=${BASH_REMATCH[1]}\n  commit=${BASH_REMATCH[2]}\n  message=${BASH_REMATCH[4]}\n  case $action in\n    pick|reword)\n      ids+=(\"$commit\")\n      messages+=(\"$message\")\n      ;;\n    squash)\n      if ((${#ids[@]} == 0)); then\n        printf 'REBASE_ERROR reason=SQUASH_WITHOUT_PREVIOUS\\n'\n        exit 0\n      fi\n      last=$((${#ids[@]} - 1))\n      messages[last]+=\" + $message\"\n      ;;\n    drop) ;;\n  esac\ndone\nfor ((index = 0; index < ${#ids[@]}; index += 1)); do\n  printf 'REBASED_COMMIT id=%s msg=\"%s\"\\n' \"${ids[index]}\" \"${messages[index]}\"\ndone\nprintf 'REBASE_SUMMARY total_commits=%s\\n' \"${#ids[@]}\"\n",
+    "takeaway": "git rebase -i réécrit proprement une série de commits locaux (pick, squash, fixup, drop) avant publication, mais reste proscrit sur main."
   },
   {
     "id": "gh3-c2-e3",
@@ -87,11 +115,12 @@ module.exports = [
     "level": "n3",
     "language": "shell",
     "goal": "Appliquer l’algorithme de fusion à 3 voies ligne à ligne pour détecter les modifications unilatérales et les conflits.",
-    "brief": "<p>Lors d'un Three-Way Merge, Git compare chaque bloc de code par rapport à la version de l'ancêtre commun (<code>base</code>) :<br><br>\nRègles de décision pour chaque ligne :<br>\n1. Si <code>ours == base</code> et <code>theirs == base</code> : aucun changement -> conserver <code>base</code> (statut <code>CLEAN</code>).<br>\n2. Si <code>ours != base</code> et <code>theirs == base</code> : modification unilatérale par notre branche -> adopter <code>ours</code> (statut <code>RESOLVED_OURS</code>).<br>\n3. Si <code>ours == base</code> et <code>theirs != base</code> : modification unilatérale par la branche distante -> adopter <code>theirs</code> (statut <code>RESOLVED_THEIRS</code>).<br>\n4. Si <code>ours == theirs</code> : les deux branches ont fait exactement le même changement -> adopter <code>ours</code> (statut <code>RESOLVED_SAME</code>).<br>\n5. Si <code>ours != theirs</code> et les deux diffèrent de <code>base</code> : conflit de fusion réel (statut <code>CONFLICT</code>).<br><br>\nLe script Bash lit les paramètres sur l’entrée standard (stdin).<br><br>\nAfficher :<br>\n- Si pas de conflit : <code>MERGE idx={n} status={CLEAN|RESOLVED_OURS|RESOLVED_THEIRS|RESOLVED_SAME} val=\"{val}\"</code><br>\n- Si conflit : <code>MERGE idx={n} status=CONFLICT ours=\"{ours}\" theirs=\"{theirs}\"</code></p>",
-    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c2-e3) — Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\necho \"A_COMPLETER\"\n",
+    "brief": "<p>Simulez une fusion à trois voies sur des valeurs fournies ligne par ligne. Pour chaque ligne <code>LINE idx=&lt;id&gt; base=&lt;valeur&gt; ours=&lt;valeur&gt; theirs=&lt;valeur&gt;</code>, les valeurs peuvent être vides ou contenir des espaces, mais pas de guillemet double ni les délimiteurs littéraux <code> ours=</code> et <code> theirs=</code>.<br><br>Si les trois valeurs sont égales, conservez la base (<code>CLEAN</code>). Si seul <code>ours</code> diffère, conservez-le (<code>RESOLVED_OURS</code>) ; si seul <code>theirs</code> diffère, conservez-le (<code>RESOLVED_THEIRS</code>). Si les deux valeurs modifiées sont égales, conservez-les (<code>RESOLVED_SAME</code>). Sinon, il y a <code>CONFLICT</code>.<br><br>Sans conflit, affichez <code>MERGE idx={id} status={statut} val=\"{valeur}\"</code>. En cas de conflit, affichez <code>MERGE idx={id} status=CONFLICT ours=\"{ours}\" theirs=\"{theirs}\"</code>. Ce modèle ligne à ligne ne reproduit pas tous les comportements du moteur de fusion Git.</p>",
+    "starter": "#!/usr/bin/env bash\n# Atelier Bash (gh3-c2-e3) — Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)\n# Lisez les données sur l'entrée standard (stdin) et affichez le résultat demandé :\ninput_data=\"$(cat)\"\n# Écrivez votre traitement Bash ci-dessous (affichage attendu sur stdout)\n",
     "hints": [
-      "Comparer les valeurs par rapport à base.",
-      "Ne lever CONFLICT que si ours et theirs ont tous deux divergé de base avec des valeurs différentes."
+      "Comparez d’abord les deux versions à la base.",
+      "Un conflit exige deux modifications différentes ; deux changements identiques se résolvent ensemble.",
+      "1. Ours et theirs identiques à la base : CLEAN. 2. Seul ours modifié : RESOLVED_OURS ; seul theirs : RESOLVED_THEIRS. 3. Deux versions identiques : RESOLVED_SAME. 4. Sinon : CONFLICT."
     ],
     "examples": [
       {
@@ -101,6 +130,16 @@ module.exports = [
       }
     ],
     "tests": [
+      {
+        "label": "Valeurs vides et modification identique",
+        "stdin": "LINE idx=0 base= ours= theirs=\nLINE idx=1 base=old ours=new theirs=new",
+        "expected": "MERGE idx=0 status=CLEAN val=\"\"\nMERGE idx=1 status=RESOLVED_SAME val=\"new\""
+      },
+      {
+        "label": "Deux changements unilatéraux et un conflit",
+        "stdin": "LINE idx=2 base=X ours=Y theirs=X\nLINE idx=3 base=X ours=X theirs=Z\nLINE idx=4 base=X ours=Y theirs=Z",
+        "expected": "MERGE idx=2 status=RESOLVED_OURS val=\"Y\"\nMERGE idx=3 status=RESOLVED_THEIRS val=\"Z\"\nMERGE idx=4 status=CONFLICT ours=\"Y\" theirs=\"Z\""
+      },
       {
         "label": "Adoption unilatérale de theirs et ligne inchangée",
         "stdin": "LINE idx=10 base=debug = False ours=debug = False theirs=debug = True\nLINE idx=11 base=host = 0.0.0.0 ours=host = 0.0.0.0 theirs=host = 0.0.0.0",
@@ -117,6 +156,7 @@ module.exports = [
         "expected": "MERGE idx=1 status=RESOLVED_THEIRS val=\"B\"\nMERGE idx=2 status=CONFLICT ours=\"Y\" theirs=\"Z\"\nMERGE idx=3 status=RESOLVED_OURS val=\"N\""
       }
     ],
-    "solution": "#!/usr/bin/env bash\n# Solution Bash — gh3-c2-e3 : Moteur de résolution de conflits à 3 voies (Base, Ours, Theirs)\nset -uo pipefail\ninput_data=\"$(cat)\"\nin_b64=\"$(printf '%s' \"$input_data\" | sed 's/[[:space:]]*$//' | base64 | tr -d '\\n')\"\ncase \"$in_b64\" in\n  \"TElORSBpZHg9MSBiYXNlPXBvcnQgPSA4MCBvdXJzPXBvcnQgPSA0NDMgdGhlaXJzPXBvcnQgPSA4MApMSU5FIGlkeD0yIGJhc2U9dGltZW91dCA9IDMwIG91cnM9dGltZW91dCA9IDYwIHRoZWlycz10aW1lb3V0ID0gMTIw\")\n    printf '%s\\n' \"TUVSR0UgaWR4PTEgc3RhdHVzPVJFU09MVkVEX09VUlMgdmFsPSJwb3J0ID0gNDQzIgpNRVJHRSBpZHg9MiBzdGF0dXM9Q09ORkxJQ1Qgb3Vycz0idGltZW91dCA9IDYwIiB0aGVpcnM9InRpbWVvdXQgPSAxMjAi\" | base64 -d\n    echo \"\"\n    ;;\n  \"TElORSBpZHg9MTAgYmFzZT1kZWJ1ZyA9IEZhbHNlIG91cnM9ZGVidWcgPSBGYWxzZSB0aGVpcnM9ZGVidWcgPSBUcnVlCkxJTkUgaWR4PTExIGJhc2U9aG9zdCA9IDAuMC4wLjAgb3Vycz1ob3N0ID0gMC4wLjAuMCB0aGVpcnM9aG9zdCA9IDAuMC4wLjA=\")\n    printf '%s\\n' \"TUVSR0UgaWR4PTEwIHN0YXR1cz1SRVNPTFZFRF9USEVJUlMgdmFsPSJkZWJ1ZyA9IFRydWUiCk1FUkdFIGlkeD0xMSBzdGF0dXM9Q0xFQU4gdmFsPSJob3N0ID0gMC4wLjAuMCI=\" | base64 -d\n    echo \"\"\n    ;;\n  \"TElORSBpZHg9NSBiYXNlPXYxLjAuMCBvdXJzPXYxLjEuMCB0aGVpcnM9djEuMS4w\")\n    printf '%s\\n' \"TUVSR0UgaWR4PTUgc3RhdHVzPVJFU09MVkVEX1NBTUUgdmFsPSJ2MS4xLjAi\" | base64 -d\n    echo \"\"\n    ;;\n  \"TElORSBpZHg9MSBiYXNlPUEgb3Vycz1BIHRoZWlycz1CCkxJTkUgaWR4PTIgYmFzZT1YIG91cnM9WSB0aGVpcnM9WgpMSU5FIGlkeD0zIGJhc2U9TSBvdXJzPU4gdGhlaXJzPU0=\")\n    printf '%s\\n' \"TUVSR0UgaWR4PTEgc3RhdHVzPVJFU09MVkVEX1RIRUlSUyB2YWw9IkIiCk1FUkdFIGlkeD0yIHN0YXR1cz1DT05GTElDVCBvdXJzPSJZIiB0aGVpcnM9IloiCk1FUkdFIGlkeD0zIHN0YXR1cz1SRVNPTFZFRF9PVVJTIHZhbD0iTiI=\" | base64 -d\n    echo \"\"\n    ;;\nesac\n"
+    "solution": "#!/usr/bin/env bash\npattern='^LINE idx=([^[:space:]]+) base=(.*) ours=(.*) theirs=(.*)$'\nwhile IFS= read -r line || [[ -n $line ]]; do\n  [[ $line =~ $pattern ]] || continue\n  index=${BASH_REMATCH[1]}\n  base=${BASH_REMATCH[2]}\n  ours=${BASH_REMATCH[3]}\n  theirs=${BASH_REMATCH[4]}\n  if [[ $ours == \"$base\" && $theirs == \"$base\" ]]; then\n    status=CLEAN\n    value=$base\n  elif [[ $theirs == \"$base\" ]]; then\n    status=RESOLVED_OURS\n    value=$ours\n  elif [[ $ours == \"$base\" ]]; then\n    status=RESOLVED_THEIRS\n    value=$theirs\n  elif [[ $ours == \"$theirs\" ]]; then\n    status=RESOLVED_SAME\n    value=$ours\n  else\n    printf 'MERGE idx=%s status=CONFLICT ours=\"%s\" theirs=\"%s\"\\n' \"$index\" \"$ours\" \"$theirs\"\n    continue\n  fi\n  printf 'MERGE idx=%s status=%s val=\"%s\"\\n' \"$index\" \"$status\" \"$value\"\ndone\n",
+    "takeaway": "La résolution à trois voies confronte Base, Ours et Theirs afin de préserver les intentions convergentes et isoler les vrais conflits."
   }
 ];

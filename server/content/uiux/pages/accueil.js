@@ -120,7 +120,7 @@ function atelier(course) {
     '  <div class="lab" data-lab',
     '       data-language="analyse"',
     '       data-height="420">',
-    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\\\'analyse et cas d\\\'application.\\n[Cas 1 — Cas d\\\'application libre]\\n# Données :\\nA_COMPLETER\\n</script>',
+    '    <script type="text/plain" data-lab-starter># Zone libre : rédigez vos grilles d\'analyse et cas d\'application.\n[Cas 1 — Zone libre : simulez votre analyse UI/UX]\nA_COMPLETER\n</script>',
     '  </div>',
     '',
     '  <h2>Règles d’or de l’ergonomie et du design d’interface</h2>',

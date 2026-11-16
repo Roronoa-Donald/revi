@@ -169,32 +169,32 @@ module.exports = {
   questions: [
     {
       stem: 'Dans une signature numérique RSA, quelle clé est utilisée pour créer la signature et quelle clé est utilisée pour la vérifier ?',
-      opts: ['Création avec la clé publique, vérification avec la clé privée', 'Création avec la clé privée de l\'émetteur, vérification avec la clé publique de l\'émetteur', 'Création avec la clé symétrique AES, vérification avec le mot de passe', 'Création avec la clé privée du destinataire, vérification avec sa clé publique'],
-      correct: 1,
+      opts: ['Création avec la clé publique, vérification avec la clé privée', 'Création avec la clé symétrique AES, vérification avec le mot de passe', 'Création avec la clé privée de l\'émetteur, vérification avec la clé publique de l\'émetteur', 'Création avec la clé privée du destinataire, vérification avec sa clé publique'],
+      correct: 2,
       exp: 'Un schéma standard comme RSA-PSS utilise la clé privée pour signer et la clé publique correspondante pour vérifier. L\'identité dépend aussi du lien de confiance entre cette clé et le signataire.'
     },
     {
       stem: 'Quel champ d\'extension X.509 v3 est aujourd\'hui obligatoire pour valider la correspondance d\'un nom d\'hôte dans les navigateurs web ?',
-      opts: ['Common Name (CN)', 'Subject Alternative Name (SAN)', 'Organizational Unit (OU)', 'Locality Name (L)'],
-      correct: 1,
+      opts: ['Common Name (CN)', 'Locality Name (L)', 'Organizational Unit (OU)', 'Subject Alternative Name (SAN)'],
+      correct: 3,
       exp: 'La RFC 9525 vérifie un nom DNS de service dans une entrée dNSName du SAN ; le Common Name ne doit pas servir à identifier le service. La chaîne et les autres contraintes doivent aussi être vérifiées.'
     },
     {
       stem: 'Que signifie l\'extension « Basic Constraints: CA:FALSE » dans un certificat X.509 ?',
-      opts: ['Le certificat est révoqué immédiatement', 'Le certificat appartient à une entité finale et ne peut en aucun cas signer d\'autres certificats', 'Le certificat est exempté de date d\'expiration', 'Le certificat ne fonctionne que sur le protocole HTTP'],
-      correct: 1,
+      opts: ["Le certificat appartient à une entité finale et ne peut en aucun cas signer d'autres certificats","Le certificat est révoqué immédiatement par l'autorité de certification émettrice","Le certificat est exempté de date d'expiration et reste valable indéfiniment","Le certificat ne fonctionne que sur le protocole HTTP sans chiffrement TLS"],
+      correct: 0,
       exp: 'La contrainte CA:FALSE garantit que le certificat est un certificat feuille (serveur web ou utilisateur) et interdit strictement son utilisation pour émettre ou signer d\'autres certificats.'
     },
     {
       stem: 'Quel est l\'avantage majeur de l\'agrafage OCSP (OCSP Stapling) par rapport à une requête OCSP classique ?',
-      opts: ['Il rend les certificats gratuits', 'Il évite au client de contacter la CA, préservant la vie privée et réduisant la latence de connexion', 'Il remplace le chiffrement AES par RSA', 'Il supprime le besoin d\'une autorité racine'],
+      opts: ["Il rend les certificats gratuits et accessibles à tous les domaines publiés","Il évite au client de contacter la CA, préservant la vie privée et réduisant la latence de connexion","Il remplace le chiffrement symétrique AES par RSA dans le tunnel TLS établi","Il supprime le besoin d'une autorité de certification racine dans la chaîne"],
       correct: 1,
       exp: 'Avec l\'OCSP Stapling, le serveur web envoie lui-même la réponse OCSP signée et en cache lors du handshake TLS, ce qui évite au client d\'interroger la CA (zéro fuite d\'historique de navigation et connexion plus rapide).'
     },
     {
       stem: 'Pour un certificat portant le SAN « *.domaine.fr », lequel de ces noms de domaine sera considéré comme INVALIDE ?',
-      opts: ['www.domaine.fr', 'api.domaine.fr', 'mail.domaine.fr', 'espace.client.domaine.fr'],
-      correct: 3,
+      opts: ['www.domaine.fr', 'api.domaine.fr', 'espace.client.domaine.fr', 'mail.domaine.fr'],
+      correct: 2,
       exp: 'Le caractère générique wildcard « * » ne remplace qu\'un seul sous-niveau DNS. Il ne couvre pas « espace.client.domaine.fr » (qui comporte deux sous-niveaux) ni le domaine racine « domaine.fr ».'
     }
   ],

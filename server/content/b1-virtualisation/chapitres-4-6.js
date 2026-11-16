@@ -100,14 +100,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Dans la grille fictive, un serveur est « réveillé » quand…', opts: ['il passe de moins de 30 % à 80 % ou plus', 'il s’éteint la nuit', 'il change de salle'], correct: 0, exp: 'Ces seuils sont propres à l’exercice ; ils ne constituent pas une norme.' },
+      { q: 'Dans la grille fictive, un serveur est « réveillé » quand…', opts: ["il s’éteint automatiquement la nuit venue","il passe de moins de 30 % à 80 % ou plus","il change de salle pour rejoindre la baie"], correct: 1, exp: 'Ces seuils sont propres à l’exercice ; ils ne constituent pas une norme.' },
       { q: 'Dans le calcul fictif, 2,5 VM sont arrondies…', opts: ['au plafond de la division', 'à l’arrondi au plus proche', 'à la partie entière toujours'], correct: 0, exp: 'Le plafond vaut 3 ; il ne permet pas de dimensionner à lui seul un parc réel.' },
-      { q: 'Une économie négative signifie…', opts: ['que la consolidation coûte plus cher', 'que le calcul est faux', 'qu’il faut arrêter les VM'], correct: 0, exp: 'Le surcoût est possible : l’arithmétique tranche, sans complaisance.' },
-      { q: 'La règle de placement des VM est…', opts: ['le premier hôte suffisant, dans l’ordre du fichier', 'l’hôte le plus rapide', 'au hasard'], correct: 0, exp: 'Premier hôte dont la capacité restante couvre le besoin — l’ordre fait foi.' },
-      { q: 'Une VM sans place…', opts: ['ne décompte rien', 'décompte quand même', 'détruit le plan'], correct: 0, exp: 'Aucun hôte ne suffit : rien n’est consommé, elle reste à placer.' },
+      { q: 'Une économie négative signifie…', opts: ['qu’il faut arrêter les VM', 'que le calcul est faux', 'que la consolidation coûte plus cher'], correct: 2, exp: 'Le surcoût est possible : l’arithmétique tranche, sans complaisance.' },
+      { q: 'La règle de placement des VM est…', opts: ["l’hôte le plus rapide du parc, selon le benchmark","au hasard parmi les hôtes encore allumés","le premier hôte suffisant, dans l’ordre du fichier"], correct: 2, exp: 'Premier hôte dont la capacité restante couvre le besoin — l’ordre fait foi.' },
+      { q: 'Une VM sans place…', opts: ['décompte quand même', 'ne décompte rien', 'détruit le plan'], correct: 1, exp: 'Aucun hôte ne suffit : rien n’est consommé, elle reste à placer.' },
       { q: 'Un hôte dont la capacité restante vaut 0 est…', opts: ['entièrement alloué dans le modèle', 'forcément utilisé à 100 %', 'forcément cassé'], correct: 0, exp: 'La capacité est réservée ; l’utilisation réelle reste à mesurer.' },
-      { q: 'Le taux d’utilisation se mesure…', opts: ['avant et après la virtualisation', 'une seule fois, après', 'jamais, il se devine'], correct: 0, exp: 'Le réveil se prouve par deux mesures : le « avant » et le « après ».' },
-      { q: 'Le dossier de consolidation se lit…', opts: ['en une page chiffrée, reproductible par script', 'en un récit d’ingénieur', 'dans le journal des événements'], correct: 0, exp: 'Réveillés, VM, économie, restes : les quatre lignes que le responsable lit.' }
+      { q: 'Le taux d’utilisation se mesure…', opts: ['jamais, il se devine', 'une seule fois, après', 'avant et après la virtualisation'], correct: 2, exp: 'Le réveil se prouve par deux mesures : le « avant » et le « après ».' },
+      { q: 'Le dossier de consolidation se lit…', opts: ['en un récit d’ingénieur', 'en une page chiffrée, reproductible par script', 'dans le journal des événements'], correct: 1, exp: 'Réveillés, VM, économie, restes : les quatre lignes que le responsable lit.' }
     ],
 
     pitfalls: [
@@ -254,13 +254,13 @@ module.exports = [
 
     questions: [
       { q: 'Le concept illustré par l’histoire est…', opts: ['la mutualisation des ressources', 'la sauvegarde', 'le chiffrement'], correct: 0, exp: 'Plusieurs VM sur un même serveur, ressources partagées : la mutualisation.' },
-      { q: 'Le risque quand « trop de VM » sont créées…', opts: ['la surcharge du serveur', 'la perte de licence', 'la surchauffe du clavier'], correct: 0, exp: 'Mémoire épuisée, CPU saturé, réponses qui s’effondrent.' },
-      { q: 'Une VM qui dépasse la capacité est…', opts: ['refusée, sa charge non comptée', 'hébergée quand même', 'supprimée'], correct: 0, exp: 'Le contrôle précède l’ajout : refus sans consommation.' },
-      { q: 'Dans le modèle, le serveur est « plein » quand…', opts: ['la capacité allouée atteint la capacité disponible', 'il s’éteint', 'aucune VM n’existe'], correct: 0, exp: 'Aucune réservation ne peut s’ajouter dans le modèle ; l’utilisation réelle se mesure séparément.' },
+      { q: 'Le risque quand « trop de VM » sont créées…', opts: ['la perte de licence', 'la surcharge du serveur', 'la surchauffe du clavier'], correct: 1, exp: 'Mémoire épuisée, CPU saturé, réponses qui s’effondrent.' },
+      { q: 'Une VM qui dépasse la capacité est…', opts: ['supprimée', 'hébergée quand même', 'refusée, sa charge non comptée'], correct: 2, exp: 'Le contrôle précède l’ajout : refus sans consommation.' },
+      { q: 'Dans le modèle, le serveur est « plein » quand…', opts: ["la capacité allouée atteint la capacité disponible","il s’éteint dès que la première VM est posée","aucune VM n’existe encore sur cet hôte"], correct: 0, exp: 'Aucune réservation ne peut s’ajouter dans le modèle ; l’utilisation réelle se mesure séparément.' },
       { q: 'Les seuils d’alerte sont…', opts: ['CPU 90 %, RAM 90 %, réponses 500 ms', 'CPU 50 %, RAM 50 %, réponses 100 ms', 'CPU 99 %, RAM 99 %, réponses 1 s'], correct: 0, exp: 'Les trois seuils du cours, dans l’ordre de détection : cpu, ram, réponses.' },
-      { q: 'Plusieurs symptômes à la fois donnent…', opts: ['le cas « multiple »', 'un faux positif', 'une panne certaine'], correct: 0, exp: 'La grille classe ce cas « multiple » ; une investigation reste nécessaire.' },
-      { q: 'L’action conseillée en cas de surcharge est…', opts: ['déplacer une VM', 'éteindre le serveur', 'redémarrer tout'], correct: 0, exp: 'Une migration adaptée peut réduire la charge, avec une pause ou un impact possibles.' },
-      { q: '« Efficace mais pas surchargé » se obtient…', opts: ['en équilibrant les hôtes et en gardant les VM déplaçables', 'en ne virtualisant pas', 'en remplissant chaque hôte à 100 %'], correct: 0, exp: 'La réponse à la question de réflexion de l’histoire : charger, pas noyer.' }
+      { q: 'Plusieurs symptômes à la fois donnent…', opts: ['un faux positif', 'le cas « multiple »', 'une panne certaine'], correct: 1, exp: 'La grille classe ce cas « multiple » ; une investigation reste nécessaire.' },
+      { q: 'L’action conseillée en cas de surcharge est…', opts: ['redémarrer tout', 'éteindre le serveur', 'déplacer une VM'], correct: 2, exp: 'Une migration adaptée peut réduire la charge, avec une pause ou un impact possibles.' },
+      { q: '« Efficace mais pas surchargé » se obtient…', opts: ["en renonçant à toute virtualisation du parc","en remplissant chaque hôte à 100 % de sa capacité","en équilibrant les hôtes et en gardant les VM déplaçables"], correct: 2, exp: 'La réponse à la question de réflexion de l’histoire : charger, pas noyer.' }
     ],
 
     pitfalls: [
@@ -413,13 +413,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'L’ordre du pitch est…', opts: ['constat, idée, preuve, verdict', 'idée, constat, verdict, preuve', 'verdict, preuve, idée, constat'], correct: 0, exp: 'Le gaspillage d’abord, l’idée ensuite, la preuve qui suit, le verdict qui conclut.' },
+      { q: 'L’ordre du pitch est…', opts: ['idée, constat, verdict, preuve', 'constat, idée, preuve, verdict', 'verdict, preuve, idée, constat'], correct: 1, exp: 'Le gaspillage d’abord, l’idée ensuite, la preuve qui suit, le verdict qui conclut.' },
       { q: 'Le constat du pitch, c’est…', opts: ['le gaspillage mesuré : 80 % d’inactivité', 'l’installation de l’hyperviseur', 'le prix des licences'], correct: 0, exp: 'Sans constat chiffré, rien ne justifie le changement.' },
-      { q: 'Les trois lignes du bilan ?', a: 'Réveillés, moyenne avant, moyenne après.', opts: ['réveillés, moyennes avant/après', 'prix, panne, réparation', 'CPU, RAM, disque'], correct: 0, exp: 'Trois lignes qui résument la preuve : le matériel n’a pas changé, l’usage oui.' },
+      { q: 'Les trois lignes du bilan ?', a: 'Réveillés, moyenne avant, moyenne après.', opts: ['prix, panne, réparation', 'réveillés, moyennes avant/après', 'CPU, RAM, disque'], correct: 1, exp: 'Trois lignes qui résument la preuve : le matériel n’a pas changé, l’usage oui.' },
       { q: 'Les trois lettres du plan de réveil sont…', opts: ['virtualisable, économe, sûr', 'rapide, léger, sûr', 'vieux, éteint, neuf'], correct: 0, exp: 'v = matériel compatible, e = moins de 30 % d’utilisation, s = sauvegardes existantes.' },
-      { q: 'Un serveur « à étudier » doit préciser…', opts: ['la première lettre manquante (v, e, s)', 'son prix', 'son âge'], correct: 0, exp: 'La lettre manquante est la prochaine action concrète du plan.' },
-      { q: 'Le verdict « plan à ajuster » signifie…', opts: ['les serveurs sont prêts mais la charge dépasse', 'rien n’est possible', 'le plan est terminé'], correct: 0, exp: 'Il faut ajouter un hôte ou réduire les VM : le matériel est prêt, la charge non.' },
-      { q: 'Le verdict « plan impossible » arrive quand…', opts: ['au moins un serveur reste bloqué', 'la charge dépasse 200', 'tous sont réveillés'], correct: 0, exp: 'Un serveur sans ses trois lettres bloque le plan entier.' },
+      { q: 'Un serveur « à étudier » doit préciser…', opts: ["son prix d’achat et son coût d’entretien","son âge et sa date de mise en service","la première lettre manquante (v, e, s)"], correct: 2, exp: 'La lettre manquante est la prochaine action concrète du plan.' },
+      { q: 'Le verdict « plan à ajuster » signifie…', opts: ["rien n’est possible sans tout réinstaller","le plan est terminé et validé tel quel","les serveurs sont prêts mais la charge dépasse"], correct: 2, exp: 'Il faut ajouter un hôte ou réduire les VM : le matériel est prêt, la charge non.' },
+      { q: 'Le verdict « plan impossible » arrive quand…', opts: ['la charge dépasse 200', 'au moins un serveur reste bloqué', 'tous sont réveillés'], correct: 1, exp: 'Un serveur sans ses trois lettres bloque le plan entier.' },
       { q: 'La morale de l’histoire est…', opts: ['le succès n’exclut pas la vigilance', 'il ne faut jamais virtualiser', 'les serveurs sont paresseux'], correct: 0, exp: '« Il se plaignait quand même un peu » : un parc virtualisé se surveille (chapitre 5).' }
     ],
 

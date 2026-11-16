@@ -44,7 +44,8 @@ module.exports = [
         "expected": "HEX=0xFF BIN=11111111"
       }
     ],
-    "solution": "[Exemple]\nHEX=0x0F BIN=00001111\n\n[Cas 1 — Opération OR pour forcer des bits]\nHEX=0x81 BIN=10000001\n\n[Cas 2 — Opération XOR pour inverser un quartet]\nHEX=0xA5 BIN=10100101\n\n[Cas 3 — Opération AND masque nul]\nHEX=0x00 BIN=00000000\n\n[Cas 4 — Opération XOR identité (bascule complète)]\nHEX=0xFF BIN=11111111"
+    "solution": "[Exemple]\nHEX=0x0F BIN=00001111\n\n[Cas 1 — Opération OR pour forcer des bits]\nHEX=0x81 BIN=10000001\n\n[Cas 2 — Opération XOR pour inverser un quartet]\nHEX=0xA5 BIN=10100101\n\n[Cas 3 — Opération AND masque nul]\nHEX=0x00 BIN=00000000\n\n[Cas 4 — Opération XOR identité (bascule complète)]\nHEX=0xFF BIN=11111111",
+    "takeaway": "AND isole des bits à 0, OR force des bits à 1 et XOR bascule sélectivement les bits du masque."
   },
   {
     "id": "asm2-c1-e2",
@@ -57,7 +58,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c1-e2) — Décodage du Complément à 2 (8 bits & 16 bits)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Minimum 8 bits signé (-128)]\n# Données : 0x80;8\nA_COMPLETER\n\n[Cas 2 — Maximum 8 bits signé (+127)]\n# Données : 0x7F;8\nA_COMPLETER\n\n[Cas 3 — Valeur négative 16 bits (-1)]\n# Données : 0xFFFF;16\nA_COMPLETER\n\n[Cas 4 — Valeur négative 16 bits (-1000)]\n# Données : 0xFC18;16\nA_COMPLETER\n",
     "hints": [
       "Pour 8 bits, si la valeur >= 128 (0x80), soustrais 256 (2^8).",
-      "Pour 16 bits, si la valeur >= 32768 (0x8000), soustrais 65536 (2^16)."
+      "Pour 16 bits, si la valeur >= 32768 (0x8000), soustrais 65536 (2^16).",
+      "Pour chaque cas : lire la valeur hexadécimale et la largeur ; si le bit de poids fort est à 1, soustraire 2 puissance la largeur, sinon conserver la valeur telle quelle."
     ],
     "examples": [
       {
@@ -88,7 +90,8 @@ module.exports = [
         "expected": "DEC=-1000"
       }
     ],
-    "solution": "[Exemple]\nDEC=-1\n\n[Cas 1 — Minimum 8 bits signé (-128)]\nDEC=-128\n\n[Cas 2 — Maximum 8 bits signé (+127)]\nDEC=127\n\n[Cas 3 — Valeur négative 16 bits (-1)]\nDEC=-1\n\n[Cas 4 — Valeur négative 16 bits (-1000)]\nDEC=-1000"
+    "solution": "[Exemple]\nDEC=-1\n\n[Cas 1 — Minimum 8 bits signé (-128)]\nDEC=-128\n\n[Cas 2 — Maximum 8 bits signé (+127)]\nDEC=127\n\n[Cas 3 — Valeur négative 16 bits (-1)]\nDEC=-1\n\n[Cas 4 — Valeur négative 16 bits (-1000)]\nDEC=-1000",
+    "takeaway": "En complément à 2, le bit de poids fort négatif vaut -2^(n-1) : ainsi 0xFF sur 8 bits représente -1 et non +255."
   },
   {
     "id": "asm2-c1-e3",
@@ -101,7 +104,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c1-e3) — Décalages logiques & arithmétiques (SHL, SHR, SAR)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — SHR logique sur nombre négatif]\n# Données : 0x80;2;SHR\nA_COMPLETER\n\n[Cas 2 — SAR arithmétique préservant le bit de signe 1]\n# Données : 0x80;2;SAR\nA_COMPLETER\n\n[Cas 3 — SAR sur -2 (0xFE) décalé de 1]\n# Données : 0xFE;1;SAR\nA_COMPLETER\n\n[Cas 4 — SHL standard sans débordement]\n# Données : 0x0A;3;SHL\nA_COMPLETER\n",
     "hints": [
       "Pour SAR, si le bit 7 est à 1 (val >= 128), les bits insérés à gauche lors du shift doivent être des 1.",
-      "Une façon simple pour SAR : convertis en entier signé (-128..127), applique >> n, puis prends & 0xFF."
+      "Une façon simple pour SAR : convertis en entier signé (-128..127), applique >> n, puis prends & 0xFF.",
+      "Pour chaque cas : lire l opération, la valeur et le compte ; décaler en insérant des zéros pour SHL et SHR, le bit de signe pour SAR, puis reformater en hexadécimal."
     ],
     "examples": [
       {
@@ -132,7 +136,8 @@ module.exports = [
         "expected": "RES=0x50"
       }
     ],
-    "solution": "[Exemple]\nRES=0x00\n\n[Cas 1 — SHR logique sur nombre négatif]\nRES=0x20\n\n[Cas 2 — SAR arithmétique préservant le bit de signe 1]\nRES=0xE0\n\n[Cas 3 — SAR sur -2 (0xFE) décalé de 1]\nRES=0xFF\n\n[Cas 4 — SHL standard sans débordement]\nRES=0x50"
+    "solution": "[Exemple]\nRES=0x00\n\n[Cas 1 — SHR logique sur nombre négatif]\nRES=0x20\n\n[Cas 2 — SAR arithmétique préservant le bit de signe 1]\nRES=0xE0\n\n[Cas 3 — SAR sur -2 (0xFE) décalé de 1]\nRES=0xFF\n\n[Cas 4 — SHL standard sans débordement]\nRES=0x50",
+    "takeaway": "SHR insère des zéros à gauche (non signé) tandis que SAR duplique le bit de signe pour préserver la division signée par 2^k."
   },
   {
     "id": "asm2-c2-e1",
@@ -177,7 +182,8 @@ module.exports = [
         "expected": "RAX=0x1234567890ABCDEF EAX=0x90ABCDEF AX=0xCDEF AH=0xCD AL=0xEF"
       }
     ],
-    "solution": "[Exemple]\nRAX=0x1122334455667788 EAX=0x55667788 AX=0x7788 AH=0x77 AL=0x88\n\n[Cas 1 — Sous-registres nuls sur poids fort]\nRAX=0x00000000AABBCCDD EAX=0xAABBCCDD AX=0xCCDD AH=0xCC AL=0xDD\n\n[Cas 2 — Valeur maximale F]\nRAX=0xFFFFFFFFFFFFFFFF EAX=0xFFFFFFFF AX=0xFFFF AH=0xFF AL=0xFF\n\n[Cas 3 — Seulement AH et AL alimentés]\nRAX=0x0000000000001234 EAX=0x00001234 AX=0x1234 AH=0x12 AL=0x34\n\n[Cas 4 — Registre AL seul à 1]\nRAX=0x1234567890ABCDEF EAX=0x90ABCDEF AX=0xCDEF AH=0xCD AL=0xEF"
+    "solution": "[Exemple]\nRAX=0x1122334455667788 EAX=0x55667788 AX=0x7788 AH=0x77 AL=0x88\n\n[Cas 1 — Sous-registres nuls sur poids fort]\nRAX=0x00000000AABBCCDD EAX=0xAABBCCDD AX=0xCCDD AH=0xCC AL=0xDD\n\n[Cas 2 — Valeur maximale F]\nRAX=0xFFFFFFFFFFFFFFFF EAX=0xFFFFFFFF AX=0xFFFF AH=0xFF AL=0xFF\n\n[Cas 3 — Seulement AH et AL alimentés]\nRAX=0x0000000000001234 EAX=0x00001234 AX=0x1234 AH=0x12 AL=0x34\n\n[Cas 4 — Registre AL seul à 1]\nRAX=0x1234567890ABCDEF EAX=0x90ABCDEF AX=0xCDEF AH=0xCD AL=0xEF",
+    "takeaway": "Sur x86_64, AL/AH recouvrent les 16 bits AX, lui-même partie basse de EAX et RAX (écrire EAX remet à zéro les 32 bits hauts)."
   },
   {
     "id": "asm2-c2-e2",
@@ -222,7 +228,8 @@ module.exports = [
         "expected": "RES=0x82 ZF=0 CF=0 SF=1"
       }
     ],
-    "solution": "[Exemple]\nRES=0x04 ZF=0 CF=1 SF=0\n\n[Cas 1 — Soustraction donnant zéro (ZF=1)]\nRES=0x00 ZF=1 CF=0 SF=0\n\n[Cas 2 — Soustraction avec emprunt et signe négatif (CF=1, SF=1)]\nRES=0xFB ZF=0 CF=1 SF=1\n\n[Cas 3 — Addition normale sans retenue]\nRES=0x32 ZF=0 CF=0 SF=0\n\n[Cas 4 — Addition produisant un résultat négatif 8 bits (SF=1)]\nRES=0x82 ZF=0 CF=0 SF=1"
+    "solution": "[Exemple]\nRES=0x04 ZF=0 CF=1 SF=0\n\n[Cas 1 — Soustraction donnant zéro (ZF=1)]\nRES=0x00 ZF=1 CF=0 SF=0\n\n[Cas 2 — Soustraction avec emprunt et signe négatif (CF=1, SF=1)]\nRES=0xFB ZF=0 CF=1 SF=1\n\n[Cas 3 — Addition normale sans retenue]\nRES=0x32 ZF=0 CF=0 SF=0\n\n[Cas 4 — Addition produisant un résultat négatif 8 bits (SF=1)]\nRES=0x82 ZF=0 CF=0 SF=1",
+    "takeaway": "Le registre de drapeaux reflète le dernier calcul ALU : ZF=1 si résultat nul, SF=bit de signe, CF=retenue non signée."
   },
   {
     "id": "asm2-c2-e3",
@@ -267,7 +274,8 @@ module.exports = [
         "expected": "VAL=-120 OF=0 DIAG=NORMAL"
       }
     ],
-    "solution": "[Exemple]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 1 — Addition de négatifs avec dépassement (-70 + -60)]\nVAL=126 OF=1 DIAG=OVERFLOW\n\n[Cas 2 — Addition normale sans dépassement]\nVAL=70 OF=0 DIAG=NORMAL\n\n[Cas 3 — Soustraction avec dépassement (100 - -50)]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 4 — Soustraction normale aux bornes (-100 - 20 = -120)]\nVAL=-120 OF=0 DIAG=NORMAL"
+    "solution": "[Exemple]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 1 — Addition de négatifs avec dépassement (-70 + -60)]\nVAL=126 OF=1 DIAG=OVERFLOW\n\n[Cas 2 — Addition normale sans dépassement]\nVAL=70 OF=0 DIAG=NORMAL\n\n[Cas 3 — Soustraction avec dépassement (100 - -50)]\nVAL=-106 OF=1 DIAG=OVERFLOW\n\n[Cas 4 — Soustraction normale aux bornes (-100 - 20 = -120)]\nVAL=-120 OF=0 DIAG=NORMAL",
+    "takeaway": "Le drapeau de débordement OF=1 indique qu une addition signée a inversé le signe attendu (ex. deux positifs donnant un négatif)."
   },
   {
     "id": "asm2-c3-e1",
@@ -312,7 +320,8 @@ module.exports = [
         "expected": "BROCHE=7 MODE=SORTIE_HAUT"
       }
     ],
-    "solution": "[Exemple]\nBROCHE=5 MODE=SORTIE_HAUT\n\n[Cas 1 — Broche en entrée avec résistance de pull-up]\nBROCHE=2 MODE=ENTREE_PULLUP\n\n[Cas 2 — Broche en sortie à l’état bas]\nBROCHE=3 MODE=SORTIE_BAS\n\n[Cas 3 — Broche en entrée flottante haute impédance]\nBROCHE=0 MODE=ENTREE_FLOTTANTE\n\n[Cas 4 — Broche 7 en sortie haute]\nBROCHE=7 MODE=SORTIE_HAUT"
+    "solution": "[Exemple]\nBROCHE=5 MODE=SORTIE_HAUT\n\n[Cas 1 — Broche en entrée avec résistance de pull-up]\nBROCHE=2 MODE=ENTREE_PULLUP\n\n[Cas 2 — Broche en sortie à l’état bas]\nBROCHE=3 MODE=SORTIE_BAS\n\n[Cas 3 — Broche en entrée flottante haute impédance]\nBROCHE=0 MODE=ENTREE_FLOTTANTE\n\n[Cas 4 — Broche 7 en sortie haute]\nBROCHE=7 MODE=SORTIE_HAUT",
+    "takeaway": "Sur AVR, le registre DDRx fixe la direction (1=sortie, 0=entrée) avant que PORTx ne pilote le niveau logique ou le pull-up."
   },
   {
     "id": "asm2-c3-e2",
@@ -357,7 +366,8 @@ module.exports = [
         "expected": "FORMAT=LITTLE OCTETS=DD CC BB AA"
       }
     ],
-    "solution": "[Exemple]\nFORMAT=LITTLE OCTETS=78 56 34 12\n\n[Cas 1 — Décomposition Big-Endian standard]\nFORMAT=BIG OCTETS=12 34 56 78\n\n[Cas 2 — Mot 32 bits avec octets nuls en Little-Endian]\nFORMAT=LITTLE OCTETS=01 00 00 00\n\n[Cas 3 — Mot 32 bits avec octets nuls en Big-Endian]\nFORMAT=BIG OCTETS=00 00 00 01\n\n[Cas 4 — Mot hexadécimal symétrique]\nFORMAT=LITTLE OCTETS=DD CC BB AA"
+    "solution": "[Exemple]\nFORMAT=LITTLE OCTETS=78 56 34 12\n\n[Cas 1 — Décomposition Big-Endian standard]\nFORMAT=BIG OCTETS=12 34 56 78\n\n[Cas 2 — Mot 32 bits avec octets nuls en Little-Endian]\nFORMAT=LITTLE OCTETS=01 00 00 00\n\n[Cas 3 — Mot 32 bits avec octets nuls en Big-Endian]\nFORMAT=BIG OCTETS=00 00 00 01\n\n[Cas 4 — Mot hexadécimal symétrique]\nFORMAT=LITTLE OCTETS=DD CC BB AA",
+    "takeaway": "En Little-Endian (x86), l octet de poids faible se stocke à l adresse la plus basse, à l inverse du Big-Endian réseau."
   },
   {
     "id": "asm2-c3-e3",
@@ -370,7 +380,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c3-e3) — Calcul d’adresse physique en mode réel x86 (Segment:Offset)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Vecteur d’interruption du BIOS]\n# Données : 0x0000;0x0080\nA_COMPLETER\n\n[Cas 2 — Segment de données avec offset non nul]\n# Données : 0x1000;0x0250\nA_COMPLETER\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\n# Données : 0xFFFF;0x0010\nA_COMPLETER\n\n[Cas 4 — Pointeur de pile initial]\n# Données : 0x9000;0xFFFE\nA_COMPLETER\n",
     "hints": [
       "En mode réel x86, l’adresse physique 20 bits se calcule par la formule : Adresse_Physique = (Segment × 16) + Déplacement.",
-      "Multiplier un nombre hexadécimal par 16 équivaut à lui ajouter un zéro à droite (décalage de 4 bits)."
+      "Multiplier un nombre hexadécimal par 16 équivaut à lui ajouter un zéro à droite (décalage de 4 bits).",
+      "Pour chaque cas : multiplier le segment par seize, ajouter le déplacement, puis afficher l adresse en hexadécimal sur cinq chiffres suivie de sa valeur décimale."
     ],
     "examples": [
       {
@@ -401,7 +412,8 @@ module.exports = [
         "expected": "PHY=0x9FFFE DEC=655358"
       }
     ],
-    "solution": "[Exemple]\nPHY=0x07C00 DEC=31744\n\n[Cas 1 — Vecteur d’interruption du BIOS]\nPHY=0x00080 DEC=128\n\n[Cas 2 — Segment de données avec offset non nul]\nPHY=0x10250 DEC=66128\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\nPHY=0x100000 DEC=1048576\n\n[Cas 4 — Pointeur de pile initial]\nPHY=0x9FFFE DEC=655358"
+    "solution": "[Exemple]\nPHY=0x07C00 DEC=31744\n\n[Cas 1 — Vecteur d’interruption du BIOS]\nPHY=0x00080 DEC=128\n\n[Cas 2 — Segment de données avec offset non nul]\nPHY=0x10250 DEC=66128\n\n[Cas 3 — Adresse maximale accessible en mode réel sans A20]\nPHY=0x100000 DEC=1048576\n\n[Cas 4 — Pointeur de pile initial]\nPHY=0x9FFFE DEC=655358",
+    "takeaway": "En mode réel x86, l adresse physique 20 bits vaut (Segment << 4) + Offset (soit Segment * 16 + Offset)."
   },
   {
     "id": "asm2-c4-e1",
@@ -446,7 +458,8 @@ module.exports = [
         "expected": "TAILLE=6 OCTETS=FF 00 00 01 01 00"
       }
     ],
-    "solution": "[Exemple]\nTAILLE=4 OCTETS=0A 00 14 00\n\n[Cas 1 — Directive db pour octets consécutifs]\nTAILLE=4 OCTETS=41 42 43 00\n\n[Cas 2 — Directive dd pour entier 32 bits (1000 = 0x3E8)]\nTAILLE=4 OCTETS=E8 03 00 00\n\n[Cas 3 — Directive dq pour entier 64 bits (1)]\nTAILLE=8 OCTETS=01 00 00 00 00 00 00 00\n\n[Cas 4 — Directive dw avec trois entiers]\nTAILLE=6 OCTETS=FF 00 00 01 01 00"
+    "solution": "[Exemple]\nTAILLE=4 OCTETS=0A 00 14 00\n\n[Cas 1 — Directive db pour octets consécutifs]\nTAILLE=4 OCTETS=41 42 43 00\n\n[Cas 2 — Directive dd pour entier 32 bits (1000 = 0x3E8)]\nTAILLE=4 OCTETS=E8 03 00 00\n\n[Cas 3 — Directive dq pour entier 64 bits (1)]\nTAILLE=8 OCTETS=01 00 00 00 00 00 00 00\n\n[Cas 4 — Directive dw avec trois entiers]\nTAILLE=6 OCTETS=FF 00 00 01 01 00",
+    "takeaway": "db alloue 1 octet, dw 2 octets, dd 4 octets et dq 8 octets en mémoire en tenant compte du boutisme cible."
   },
   {
     "id": "asm2-c4-e2",
@@ -459,7 +472,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c4-e2) — Résolution d’adresses virtuelles de sections ELF\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Section de données initialisées .data]\n# Données : .data;0x00403000;0x00000100\nA_COMPLETER\n\n[Cas 2 — Section en lecture seule .rodata]\n# Données : .rodata;0x00402000;0x00000018\nA_COMPLETER\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\n# Données : .text;0x00400000;0x00000000\nA_COMPLETER\n\n[Cas 4 — Section .bss des variables globales non initialisées]\n# Données : .bss;0x00404000;0x000002A0\nA_COMPLETER\n",
     "hints": [
       "L’adresse virtuelle (VA) d’un symbole correspond à l’addition de l’adresse de base de la section et de son déplacement relatif.",
-      "Vérifiez la concordance entre la valeur décimale et la notation hexadécimale sur 32 bits."
+      "Vérifiez la concordance entre la valeur décimale et la notation hexadécimale sur 32 bits.",
+      "Pour chaque cas : additionner la base de la section et le déplacement du symbole, puis restituer la VA en hexadécimal 32 bits et sa valeur décimale."
     ],
     "examples": [
       {
@@ -490,7 +504,8 @@ module.exports = [
         "expected": "SECTION=.bss VA=0x004042A0 DEC=4211360"
       }
     ],
-    "solution": "[Exemple]\nSECTION=.text VA=0x00401050 DEC=4198480\n\n[Cas 1 — Section de données initialisées .data]\nSECTION=.data VA=0x00403100 DEC=4206848\n\n[Cas 2 — Section en lecture seule .rodata]\nSECTION=.rodata VA=0x00402018 DEC=4202520\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\nSECTION=.text VA=0x00400000 DEC=4194304\n\n[Cas 4 — Section .bss des variables globales non initialisées]\nSECTION=.bss VA=0x004042A0 DEC=4211360"
+    "solution": "[Exemple]\nSECTION=.text VA=0x00401050 DEC=4198480\n\n[Cas 1 — Section de données initialisées .data]\nSECTION=.data VA=0x00403100 DEC=4206848\n\n[Cas 2 — Section en lecture seule .rodata]\nSECTION=.rodata VA=0x00402018 DEC=4202520\n\n[Cas 3 — Symbole en tout début de section text (offset 0)]\nSECTION=.text VA=0x00400000 DEC=4194304\n\n[Cas 4 — Section .bss des variables globales non initialisées]\nSECTION=.bss VA=0x004042A0 DEC=4211360",
+    "takeaway": "L adresse virtuelle finale d un symbole vaut l adresse de chargement de sa section ELF augmentée de son offset relatif."
   },
   {
     "id": "asm2-c4-e3",
@@ -503,7 +518,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c4-e3) — Alignement mémoire & calcul de Padding (Directive ALIGN)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\n# Données : 0x2000;16\nA_COMPLETER\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\n# Données : 0x7FFF1008;16\nA_COMPLETER\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\n# Données : 0x00401001;4\nA_COMPLETER\n\n[Cas 4 — Alignement 8 octets sur petit offset]\n# Données : 0x1005;8\nA_COMPLETER\n",
     "hints": [
       "Pour aligner une adresse A sur une frontière de N octets, calculez le padding requis : (N - (A mod N)) mod N.",
-      "La nouvelle adresse alignée est égale à A + padding et doit être strictement divisible par N."
+      "La nouvelle adresse alignée est égale à A + padding et doit être strictement divisible par N.",
+      "Pour chaque cas : calculer le reste de l adresse modulo N ; s il est nul le padding vaut zéro, sinon N moins ce reste ; l adresse alignée est la somme des deux."
     ],
     "examples": [
       {
@@ -534,7 +550,8 @@ module.exports = [
         "expected": "PADDING=3 ALIGNEE=0x1008"
       }
     ],
-    "solution": "[Exemple]\nPADDING=1 ALIGNEE=0x1004\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\nPADDING=0 ALIGNEE=0x2000\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\nPADDING=8 ALIGNEE=0x7FFF1010\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\nPADDING=3 ALIGNEE=0x00401004\n\n[Cas 4 — Alignement 8 octets sur petit offset]\nPADDING=3 ALIGNEE=0x1008"
+    "solution": "[Exemple]\nPADDING=1 ALIGNEE=0x1004\n\n[Cas 1 — Adresse déjà parfaitement alignée sur 16 octets]\nPADDING=0 ALIGNEE=0x2000\n\n[Cas 2 — Alignement de pile sur 16 octets (convention x86_64 ABI)]\nPADDING=8 ALIGNEE=0x7FFF1010\n\n[Cas 3 — Alignement mot 32 bits (4 octets)]\nPADDING=3 ALIGNEE=0x00401004\n\n[Cas 4 — Alignement 8 octets sur petit offset]\nPADDING=3 ALIGNEE=0x1008",
+    "takeaway": "Aligner à la puissance de 2 A ajoute ((A - (pos % A)) % A) octets de bourrage pour éviter des lectures mémoire coûteuses."
   },
   {
     "id": "asm2-c5-e1",
@@ -579,7 +596,8 @@ module.exports = [
         "expected": "EAX=0 EBX=0 ECX=0 EDX=0"
       }
     ],
-    "solution": "[Exemple]\nEAX=42 EBX=42 ECX=0 EDX=0\n\n[Cas 1 — Chaîne de transferts entre les 4 registres]\nEAX=10 EBX=20 ECX=10 EDX=20\n\n[Cas 2 — Écrasement successif d’un même registre]\nEAX=100 EBX=0 ECX=50 EDX=0\n\n[Cas 3 — Copie croisée]\nEAX=999 EBX=999 ECX=999 EDX=999\n\n[Cas 4 — Valeur nulle explicite]\nEAX=0 EBX=0 ECX=0 EDX=0"
+    "solution": "[Exemple]\nEAX=42 EBX=42 ECX=0 EDX=0\n\n[Cas 1 — Chaîne de transferts entre les 4 registres]\nEAX=10 EBX=20 ECX=10 EDX=20\n\n[Cas 2 — Écrasement successif d’un même registre]\nEAX=100 EBX=0 ECX=50 EDX=0\n\n[Cas 3 — Copie croisée]\nEAX=999 EBX=999 ECX=999 EDX=999\n\n[Cas 4 — Valeur nulle explicite]\nEAX=0 EBX=0 ECX=0 EDX=0",
+    "takeaway": "MOV copie une source (immédiate, registre ou mémoire) vers la destination sans autoriser deux opérandes mémoire simultanés."
   },
   {
     "id": "asm2-c5-e2",
@@ -592,7 +610,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c5-e2) — Calcul d’adresse effective LEA (Base + Index * Scale + Disp)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Accès au premier élément sans déplacement (index 0)]\n# Données : 0x00405000;0;8;0x00000000\nA_COMPLETER\n\n[Cas 2 — Tableau d’entiers 64 bits (scale = 8)]\n# Données : 0x00500000;10;8;0x00000020\nA_COMPLETER\n\n[Cas 3 — Tableau de caractères (scale = 1)]\n# Données : 0x00100000;25;1;0x00000005\nA_COMPLETER\n\n[Cas 4 — Index négatif avec déplacement]\n# Données : 0x00402000;2;4;0x00000000\nA_COMPLETER\n",
     "hints": [
       "L’instruction LEA applique la formule d’adressage x86 : Adresse = Base + (Index × Facteur_Echelle) + Déplacement.",
-      "L’instruction LEA calcule uniquement l’adresse arithmétique sans jamais lire le contenu de la mémoire."
+      "L’instruction LEA calcule uniquement l’adresse arithmétique sans jamais lire le contenu de la mémoire.",
+      "Pour chaque cas : multiplier l index par le facteur d échelle, ajouter la base puis le déplacement, et afficher l adresse en hexadécimal et en décimal."
     ],
     "examples": [
       {
@@ -623,7 +642,8 @@ module.exports = [
         "expected": "ADRESSE=0x00402008 DEC=4202504"
       }
     ],
-    "solution": "[Exemple]\nADRESSE=0x00401020 DEC=4198432\n\n[Cas 1 — Accès au premier élément sans déplacement (index 0)]\nADRESSE=0x00405000 DEC=4214784\n\n[Cas 2 — Tableau d’entiers 64 bits (scale = 8)]\nADRESSE=0x00500070 DEC=5242992\n\n[Cas 3 — Tableau de caractères (scale = 1)]\nADRESSE=0x0010001E DEC=1048606\n\n[Cas 4 — Index négatif avec déplacement]\nADRESSE=0x00402008 DEC=4202504"
+    "solution": "[Exemple]\nADRESSE=0x00401020 DEC=4198432\n\n[Cas 1 — Accès au premier élément sans déplacement (index 0)]\nADRESSE=0x00405000 DEC=4214784\n\n[Cas 2 — Tableau d’entiers 64 bits (scale = 8)]\nADRESSE=0x00500070 DEC=5242992\n\n[Cas 3 — Tableau de caractères (scale = 1)]\nADRESSE=0x0010001E DEC=1048606\n\n[Cas 4 — Index négatif avec déplacement]\nADRESSE=0x00402008 DEC=4202504",
+    "takeaway": "LEA calcule Base + Index * Scale + Disp directement dans le registre cible sans déréférencer ni toucher à la RAM."
   },
   {
     "id": "asm2-c5-e3",
@@ -636,7 +656,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c5-e3) — Exécuteur d’opérations arithmétiques x86 (ADD, SUB, INC, DEC, NEG, XOR)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Opération NEG et soustraction]\n# Données : 5;NEG, SUB 3\nA_COMPLETER\n\n[Cas 2 — Remise à zéro classique par XOR sur lui-même]\n# Données : 123;XOR 123\nA_COMPLETER\n\n[Cas 3 — Incrémentations et décrémentations successives]\n# Données : 0;INC, INC, INC, DEC\nA_COMPLETER\n\n[Cas 4 — Séquence complète mixte]\n# Données : 50;ADD 50, XOR 15, NEG\nA_COMPLETER\n",
     "hints": [
       "Sur un registre 32 bits, conservez les calculs modulo 2^32 (plage 0 à 0xFFFFFFFF).",
-      "Pour interpréter la valeur signée, si le bit de poids fort vaut 1, appliquez la convention du complément à 2."
+      "Pour interpréter la valeur signée, si le bit de poids fort vaut 1, appliquez la convention du complément à 2.",
+      "Pour chaque cas : partir de la valeur initiale, appliquer les opérations dans l ordre modulo 2 puissance 32, puis livrer la valeur signée et l hexadécimal."
     ],
     "examples": [
       {
@@ -667,7 +688,8 @@ module.exports = [
         "expected": "VAL=-107 HEX=0xFFFFFF95"
       }
     ],
-    "solution": "[Exemple]\nVAL=14 HEX=0x0000000E\n\n[Cas 1 — Opération NEG et soustraction]\nVAL=-8 HEX=0xFFFFFFF8\n\n[Cas 2 — Remise à zéro classique par XOR sur lui-même]\nVAL=0 HEX=0x00000000\n\n[Cas 3 — Incrémentations et décrémentations successives]\nVAL=2 HEX=0x00000002\n\n[Cas 4 — Séquence complète mixte]\nVAL=-107 HEX=0xFFFFFF95"
+    "solution": "[Exemple]\nVAL=14 HEX=0x0000000E\n\n[Cas 1 — Opération NEG et soustraction]\nVAL=-8 HEX=0xFFFFFFF8\n\n[Cas 2 — Remise à zéro classique par XOR sur lui-même]\nVAL=0 HEX=0x00000000\n\n[Cas 3 — Incrémentations et décrémentations successives]\nVAL=2 HEX=0x00000002\n\n[Cas 4 — Séquence complète mixte]\nVAL=-107 HEX=0xFFFFFF95",
+    "takeaway": "Enchaîner ADD, SUB, NEG et XOR eax, eax (remise à zéro rapide) modifie à la fois les registres et les drapeaux ALU."
   },
   {
     "id": "asm2-c6-e1",
@@ -680,7 +702,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c6-e1) — Simulateur de pile x86 (PUSH & POP avec pointeur ESP)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Trois empilements successifs]\n# Données : PUSH 100, PUSH 200, PUSH 300\nA_COMPLETER\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\n# Données : PUSH 42, POP\nA_COMPLETER\n\n[Cas 3 — Multiples push et pop alternés]\n# Données : PUSH 1, PUSH 2, POP, PUSH 3, PUSH 4, POP\nA_COMPLETER\n\n[Cas 4 — Un seul push]\n# Données : PUSH 999\nA_COMPLETER\n",
     "hints": [
       "La pile x86 grandit vers le bas : chaque PUSH décrémente ESP de 4 octets et écrit au sommet.",
-      "Chaque POP lit la valeur au sommet et incrémente ESP de 4 octets."
+      "Chaque POP lit la valeur au sommet et incrémente ESP de 4 octets.",
+      "Pour chaque cas : partir de ESP à 0x1000, décrémenter puis écrire à chaque PUSH, lire puis incrémenter à chaque POP, et décrire l état final de la pile."
     ],
     "examples": [
       {
@@ -711,7 +734,8 @@ module.exports = [
         "expected": "ESP=0x0FFC SOMMET=999 TAILLE=1"
       }
     ],
-    "solution": "[Exemple]\nESP=0x0FF8 SOMMET=30 TAILLE=2\n\n[Cas 1 — Trois empilements successifs]\nESP=0x0FF4 SOMMET=300 TAILLE=3\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\nESP=0x1000 SOMMET=VIDE TAILLE=0\n\n[Cas 3 — Multiples push et pop alternés]\nESP=0x0FF8 SOMMET=3 TAILLE=2\n\n[Cas 4 — Un seul push]\nESP=0x0FFC SOMMET=999 TAILLE=1"
+    "solution": "[Exemple]\nESP=0x0FF8 SOMMET=30 TAILLE=2\n\n[Cas 1 — Trois empilements successifs]\nESP=0x0FF4 SOMMET=300 TAILLE=3\n\n[Cas 2 — Dépilement complet ramenant la pile à zéro]\nESP=0x1000 SOMMET=VIDE TAILLE=0\n\n[Cas 3 — Multiples push et pop alternés]\nESP=0x0FF8 SOMMET=3 TAILLE=2\n\n[Cas 4 — Un seul push]\nESP=0x0FFC SOMMET=999 TAILLE=1",
+    "takeaway": "Sur x86, PUSH décrémente ESP puis écrit en pile, tandis que POP lit au sommet puis ré-incrémente ESP (croissance vers le bas)."
   },
   {
     "id": "asm2-c6-e2",
@@ -724,7 +748,8 @@ module.exports = [
     "starter": "# Grille d'analyse (asm2-c6-e2) — Évaluateur de sauts conditionnels x86 (CMP & Jcc)\n# Complétez la résolution demandée sous chaque cas ci-dessous :\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\n# Données : 15;15;JE\nA_COMPLETER\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\n# Données : 15;20;JE\nA_COMPLETER\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\n# Données : 50;30;JG\nA_COMPLETER\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\n# Données : 50;30;JL\nA_COMPLETER\n",
     "hints": [
       "Comparez A et B avec l’opérateur correspondant : JE (==), JNE (!=), JG (>), JL (<), JGE (>=), JLE (<=).",
-      "Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE."
+      "Si la condition est vraie, DECISION=PRIS, sinon DECISION=IGNORE.",
+      "Pour chaque cas : évaluer la comparaison de A et B selon le mnémonique ; une condition vraie donne PRIS, une fausse donne IGNORE, avec la condition reformulée."
     ],
     "examples": [
       {
@@ -755,7 +780,8 @@ module.exports = [
         "expected": "DECISION=IGNORE COND=50 >= 30"
       }
     ],
-    "solution": "[Exemple]\nDECISION=PRIS COND=10 < 20\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\nDECISION=PRIS COND=15 == 15\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\nDECISION=IGNORE COND=15 != 20\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\nDECISION=PRIS COND=50 > 30\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\nDECISION=IGNORE COND=50 >= 30"
+    "solution": "[Exemple]\nDECISION=PRIS COND=10 < 20\n\n[Cas 1 — Saut d’égalité JE avec valeurs égales]\nDECISION=PRIS COND=15 == 15\n\n[Cas 2 — Saut d’égalité JE avec valeurs distinctes]\nDECISION=IGNORE COND=15 != 20\n\n[Cas 3 — Saut JG avec premier opérande supérieur]\nDECISION=PRIS COND=50 > 30\n\n[Cas 4 — Saut JL avec premier opérande supérieur (saut non pris)]\nDECISION=IGNORE COND=50 >= 30",
+    "takeaway": "CMP réalise une soustraction fictive mettant à jour les drapeaux ZF/SF/CF/OF lus ensuite par les sauts conditionnels JE, JG, JA."
   },
   {
     "id": "asm2-c6-e3",
@@ -800,6 +826,7 @@ module.exports = [
         "expected": "FRAME SUB_ESP=16 ARG1=[ebp+8] ARGN=[ebp+20] LOC1=[ebp-4] LOCN=[ebp-16]"
       }
     ],
-    "solution": "[Exemple]\nFRAME SUB_ESP=12 ARG1=[ebp+8] ARGN=[ebp+12] LOC1=[ebp-4] LOCN=[ebp-12]\n\n[Cas 1 — Fonction avec 1 argument et 1 locale]\nFRAME SUB_ESP=4 ARG1=[ebp+8] ARGN=[ebp+8] LOC1=[ebp-4] LOCN=[ebp-4]\n\n[Cas 2 — Fonction sans argument (void f(void)) et 2 locales]\nFRAME SUB_ESP=8 ARG1=AUCUN ARGN=AUCUN LOC1=[ebp-4] LOCN=[ebp-8]\n\n[Cas 3 — Fonction sans variables locales (purement calculatoire)]\nFRAME SUB_ESP=0 ARG1=[ebp+8] ARGN=[ebp+16] LOC1=AUCUN LOCN=AUCUN\n\n[Cas 4 — Quatre arguments et quatre locales]\nFRAME SUB_ESP=16 ARG1=[ebp+8] ARGN=[ebp+20] LOC1=[ebp-4] LOCN=[ebp-16]"
+    "solution": "[Exemple]\nFRAME SUB_ESP=12 ARG1=[ebp+8] ARGN=[ebp+12] LOC1=[ebp-4] LOCN=[ebp-12]\n\n[Cas 1 — Fonction avec 1 argument et 1 locale]\nFRAME SUB_ESP=4 ARG1=[ebp+8] ARGN=[ebp+8] LOC1=[ebp-4] LOCN=[ebp-4]\n\n[Cas 2 — Fonction sans argument (void f(void)) et 2 locales]\nFRAME SUB_ESP=8 ARG1=AUCUN ARGN=AUCUN LOC1=[ebp-4] LOCN=[ebp-8]\n\n[Cas 3 — Fonction sans variables locales (purement calculatoire)]\nFRAME SUB_ESP=0 ARG1=[ebp+8] ARGN=[ebp+16] LOC1=AUCUN LOCN=AUCUN\n\n[Cas 4 — Quatre arguments et quatre locales]\nFRAME SUB_ESP=16 ARG1=[ebp+8] ARGN=[ebp+20] LOC1=[ebp-4] LOCN=[ebp-16]",
+    "takeaway": "Le prologue cdecl (push ebp; mov ebp, esp) ancre un pointeur de cadre fixe pour accéder positivement aux arguments et négativement aux locales."
   }
 ];

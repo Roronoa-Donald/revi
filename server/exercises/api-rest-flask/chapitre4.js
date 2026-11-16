@@ -28,8 +28,9 @@ module.exports = [
       'affiche le code d’état exact suivi de son libellé officiel sous la forme <code>&lt;code&gt; &lt;libelle&gt;</code>.</p>',
     starter: `scenario = input().strip().lower()\n\n# À compléter : mapper le scénario vers le code HTTP approprié.\n`,
     hints: [
-      'Utilisez un dictionnaire Python associant chaque clé au tuple ou à la chaîne "CODE Libellé".',
-      'Exemple : "creation": "201 Created".'
+      "Utilisez un dictionnaire Python associant chaque clé au tuple ou à la chaîne \"CODE Libellé\".",
+      "Exemple : \"creation\": \"201 Created\".",
+      "Étapes : lire le scénario en minuscules ; le chercher dans la table des codes ; trouvé → afficher « CODE Libellé » ; sinon afficher « 500 Internal Server Error »."
     ],
     examples: [
       {
@@ -90,7 +91,8 @@ table = {
 }
 
 print(table.get(scenario, '500 Internal Server Error'))
-`
+`,
+    takeaway: "Choisissez 200 OK, 201 Created, 204 No Content, 400 Bad Request, 404 Not Found ou 409 Conflict selon l issue réelle."
   },
   {
     id: 'fl2-c4-e2',
@@ -150,7 +152,8 @@ payload = {
 }
 
 print(json.dumps(payload, sort_keys=True))
-`
+`,
+    takeaway: "Standardiser un JSON d erreur {code, error, message} permet aux clients API de traiter uniformément les refus."
   },
   {
     id: 'fl2-c4-e3',
@@ -219,6 +222,7 @@ enveloppe = {
 }
 
 print(json.dumps(enveloppe, sort_keys=True))
-`
+`,
+    takeaway: "Renvoyer {total, page, limit, items} protège serveur et client contre le transfert de collections entières non bornées."
   }
 ];

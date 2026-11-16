@@ -147,44 +147,44 @@ module.exports = {
     },
     {
       stem: 'Quel est l\'avantage décisif du protocole IAX2 par rapport au protocole SIP pour interconnecter deux serveurs Asterisk distants à travers des routeurs NAT ?',
-      opts: ['IAX2 ne supporte que la vidéo', 'IAX2 transporte à la fois la signalisation et tous les flux voix sur un port UDP unique (4569/UDP)', 'IAX2 nécessite une adresse IP publique statique par téléphone', 'IAX2 est un protocole standard de l\'ITU-T'],
-      correct: 1,
+      opts: ["IAX2 ne supporte que la transmission vidéo sur les liens inter-sites","IAX2 nécessite une adresse IP publique statique dédiée pour chaque téléphone déployé","IAX2 transporte à la fois la signalisation et tous les flux voix sur un port UDP unique (4569/UDP)","IAX2 est un protocole normalisé et standardisé par l'UIT-T en 2015"],
+      correct: 2,
       exp: 'IAX2 multiplexe l\'ensemble des canaux de signalisation et de voix sur le port 4569/UDP unique, éliminant totalement les problèmes de traversée de pare-feu et de NAT.'
     },
     {
       stem: 'Quel protocole standardisé assure le chiffrement symétrique en temps réel de la charge utile des paquets audio vocaux contre les écoutes illégales ?',
-      opts: ['HTTPS', 'SRTP (Secure RTP)', 'SSH', 'IPsec AH'],
-      correct: 1,
+      opts: ['SRTP (Secure RTP)', 'HTTPS', 'SSH', 'IPsec AH'],
+      correct: 0,
       exp: 'SRTP (Secure Real-time Transport Protocol, RFC 3711) chiffre les trames audio en utilisant l\'algorithme AES (typiquement AES-128).'
     },
     {
       stem: 'Sur quel port TCP la signalisation SIPS (SIP over TLS) écoute-t-elle par défaut pour garantir la confidentialité des identifiants et des métadonnées d\'appel ?',
-      opts: ['Port 5060/TCP', 'Port 5061/TCP', 'Port 443/TCP', 'Port 8443/TCP'],
-      correct: 1,
+      opts: ['Port 5060/TCP', 'Port 8443/TCP', 'Port 443/TCP', 'Port 5061/TCP'],
+      correct: 3,
       exp: 'Par convention IETF RFC 3261, SIP en clair utilise le port 5060 (UDP/TCP), et SIPS sécurisé par TLS utilise le port 5061/TCP.'
     },
     {
       stem: 'Comment appelle-t-on le mécanisme économique qui compare automatiquement les tarifs opérateurs selon le préfixe du numéro composé pour acheminer l\'appel sortant au moindre coût ?',
-      opts: ['ACD (Automatic Call Distribution)', 'LCR (Least Cost Routing)', 'STUN (Session Traversal)', 'CTI (Computer Telephony Integration)'],
-      correct: 1,
+      opts: ['ACD (Automatic Call Distribution)', 'CTI (Computer Telephony Integration)', 'STUN (Session Traversal)', 'LCR (Least Cost Routing)'],
+      correct: 3,
       exp: 'Le routage au moindre coût (Least Cost Routing, LCR) sélectionne dynamiquement le trunk le plus avantageux financièrement selon la destination.'
     },
     {
       stem: 'Quel code de réponse SIP indique un échec d\'authentification par mot de passe et est surveillé par Fail2ban pour détecter les attaques par force brute ?',
-      opts: ['100 Trying', '180 Ringing', '200 OK', '401 Unauthorized (ou 403 Forbidden)'],
-      correct: 3,
+      opts: ['100 Trying', '180 Ringing', '401 Unauthorized (ou 403 Forbidden)', '200 OK'],
+      correct: 2,
       exp: 'Le code 401 Unauthorized (et 403 Forbidden) signale un échec de mot de passe ; leur répétition anormale depuis une même IP caractérise une attaque brute-force.'
     },
     {
       stem: 'Dans une file d\'attente queues.conf, à quoi sert le paramètre wrapuptime (ex: wrapuptime=15) ?',
-      opts: ['À limiter la durée maximale de l\'appel à 15 minutes', 'À accorder un temps de repos de 15 secondes à l\'agent après la fin d\'un appel avant de lui renvoyer un nouvel appel', 'À faire sonner le poste pendant 15 secondes', 'À bloquer la file si plus de 15 personnes attendent'],
+      opts: ["À limiter la durée maximale de chaque conversation traitée par un agent à 15 minutes","À accorder un temps de repos de 15 secondes à l'agent après la fin d'un appel avant de lui renvoyer un nouvel appel","À faire sonner le poste de l'agent pendant 15 secondes avant de déclencher le rappel","À bloquer l'entrée de la file d'attente si plus de 15 personnes patientent en ligne"],
       correct: 1,
       exp: 'Le wrapuptime est le délai de grâce (en secondes) alloué à l\'opérateur après un appel pour rédiger ses notes de dossier avant d\'être à nouveau sollicité.'
     },
     {
       stem: 'Pourquoi est-il dangereux de configurer le chiffrement audio SRTP sans chiffrer préalablement la signalisation d\'appel avec SIP TLS ?',
-      opts: ['Car les téléphones plantent immédiatement', 'Car les clés symétriques de déchiffrement SRTP sont échangées en clair dans le corps SDP des messages SIP', 'Car le codec G.711 refuse le chiffrement', 'Car la loi interdit le chiffrement partiel'],
-      correct: 1,
+      opts: ["Car les clés symétriques de déchiffrement SRTP sont échangées en clair dans le corps SDP des messages SIP","Car les téléphones SIP plantent immédiatement lors de l'établissement de la session","Car le codec G.711 refuse par conception tout chiffrement de sa charge utile","Car la réglementation interdit explicitement le chiffrement partiel des communications"],
+      correct: 0,
       exp: 'Dans la négociation SDES, les clés secrètes SRTP transitent en clair dans l\'attribut a=crypto du SDP. Sans TLS, un attaquant capture la clé et déchiffre la voix instantanément.'
     }
   ],

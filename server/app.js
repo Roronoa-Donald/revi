@@ -95,6 +95,7 @@ function buildApp(opts = {}) {
   fastify.register(require('./routes/ai-chat'), { prefix: '/api' });
   fastify.register(require('./routes/execute'), { prefix: '/api' });
   fastify.register(require('./routes/exercises'), { prefix: '/api' });
+  fastify.register(require('./routes/progress'), { prefix: '/api' });
   fastify.register(require('./routes/preparation'), { prefix: '/api/preparation' });
   fastify.register(require('./routes/qcm'), { prefix: '/api/qcm' });
   fastify.register(require('./routes/fedapay'));

@@ -111,16 +111,16 @@ test('PED-001 : Les 52 cours non-informatiques utilisent exclusivement le mode �
         );
       }
 
-      // Structure de grille d'analyse
+      // Structure de grille d'analyse ou d'exercice multi-questions
       assert.match(
         ex.starter,
-        /^# Grille d(?:'|’|e )(?:analyse|calcul) \([a-z0-9-]+\) —/m,
-        `${courseId} / ${ex.id} : starter doit débuter par l'entête # Grille d'analyse ou de calcul (id) — titre`
+        /^(?:# Grille d(?:'|’|e )(?:analyse|calcul) \([a-z0-9-]+\) —|# Exercice — )/m,
+        `${courseId} / ${ex.id} : starter doit débuter par un entête reconnu (# Grille ... ou # Exercice — ...)`
       );
       assert.match(
         ex.starter,
-        /\[Cas 1\b/i,
-        `${courseId} / ${ex.id} : starter doit contenir au moins la section [Cas 1]`
+        /\[(?:Cas|Question)\s+1\b/i,
+        `${courseId} / ${ex.id} : starter doit contenir au moins la section [Cas 1] ou [Question 1]`
       );
       assert.match(
         ex.starter,
@@ -128,12 +128,12 @@ test('PED-001 : Les 52 cours non-informatiques utilisent exclusivement le mode �
         `${courseId} / ${ex.id} : starter doit comporter des marqueurs A_COMPLETER`
       );
 
-      // Tests ciblent cas:1..N
+      // Tests ciblent cas:1..N ou q:1..N
       for (let i = 0; i < ex.tests.length; i++) {
-        assert.strictEqual(
+        assert.match(
           ex.tests[i].stdin,
-          `cas:${i + 1}`,
-          `${courseId} / ${ex.id} : test ${i} doit avoir stdin: 'cas:${i + 1}'`
+          new RegExp(`^(?:cas|q):${i + 1}$`),
+          `${courseId} / ${ex.id} : test ${i} doit avoir stdin 'cas:${i + 1}' ou 'q:${i + 1}'`
         );
         assert.ok(
           ex.tests[i].expected && ex.tests[i].expected.trim().length > 0,

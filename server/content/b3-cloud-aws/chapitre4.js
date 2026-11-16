@@ -171,32 +171,32 @@ module.exports = {
   questions: [
     {
       stem: 'Hors BYOIP, combien d\'adresses IPv4 utilisables pour des instances sont disponibles dans un sous-réseau AWS /24 (256 adresses au total) ?',
-      opts: ['256 adresses', '254 adresses', '251 adresses', '250 adresses'],
-      correct: 2,
+      opts: ['251 adresses', '254 adresses', '256 adresses', '250 adresses'],
+      correct: 0,
       exp: 'Hors BYOIP, AWS réserve les quatre premières et la dernière adresse du CIDR : il reste 256 - 5 = 251 adresses assignables. Les valeurs dépendent de la base du sous-réseau.'
     },
     {
       stem: 'Dans quel type de sous-réseau une NAT Gateway doit-elle obligatoirement être déployée pour permettre aux serveurs privés de joindre Internet ?',
-      opts: ['Dans un sous-réseau public possédant une route vers une Internet Gateway', 'Dans un sous-réseau privé isolé', 'Sur un serveur physique sur site', 'Dans une Edge Location CloudFront'],
-      correct: 0,
+      opts: ["Dans un sous-réseau privé isolé, sans aucune route vers l'extérieur du VPC","Dans un sous-réseau public possédant une route vers une Internet Gateway","Sur un serveur physique sur site de l'entreprise, dans la zone démilitarisée","Dans une Edge Location CloudFront la plus proche des utilisateurs finaux"],
+      correct: 1,
       exp: 'Une NAT Gateway doit obligatoirement résider dans un sous-réseau public associé à une Elastic IP pour pouvoir relayer les flux vers l\'Internet Gateway du VPC.'
     },
     {
       stem: 'Pourquoi n\'est-il PAS nécessaire d\'autoriser explicitement les ports clients en sortie dans un Security Group lorsqu\'un flux entrant HTTP (port 80) est accepté ?',
-      opts: ['Car le port 80 est gratuit', 'Car les Security Groups sont avec état (Stateful) : le trafic retour d\'une connexion acceptée est automatiquement autorisé', 'Car AWS désactive les pare-feux en sortie', 'Car l\'Internet Gateway gère le filtrage sortant'],
-      correct: 1,
+      opts: ["Car le trafic sur le port 80 est exempté de toute facturation de transfert réseau sortant vers Internet","Car AWS désactive les pare-feux en sortie pour toutes les instances d'un sous-réseau public","Car les Security Groups sont avec état (Stateful) : le trafic retour d'une connexion acceptée est automatiquement autorisé","Car l'Internet Gateway gère lui-même le filtrage sortant à la place des Security Groups"],
+      correct: 2,
       exp: 'Les Security Groups sont Stateful : ils mémorisent l\'état des flux établis. Si le flux entrant est autorisé, le paquet retour vers le client est automatiquement permis.'
     },
     {
       stem: 'Comment les règles d\'une Network ACL (NACL) sont-elles évaluées par AWS lorsqu\'un paquet arrive à la frontière d\'un sous-réseau ?',
-      opts: ['Toutes les règles sont évaluées ensemble de façon aléatoire', 'Par ordre croissant de numéro de règle (1, 100, 200...) : la première règle correspondante s\'applique immédiatement', 'Les règles Deny sont toujours prioritaires quel que soit leur numéro', 'Par ordre alphabétique de protocole'],
-      correct: 1,
+      opts: ["Toutes les règles sont évaluées simultanément et la plus permissive l'emporte en cas de conflit","Les règles Deny sont toujours prioritaires quel que soit leur numéro dans la liste évaluée","Par ordre alphabétique du nom de protocole déclaré, d'ICMP à UDP, à numéro de règle égal","Par ordre croissant de numéro de règle (1, 100, 200...) : la première règle correspondante s'applique immédiatement"],
+      correct: 3,
       exp: 'Les NACLs évaluent les règles dans l\'ordre strictement croissant de leur numéro. Dès qu\'une règle correspond au trafic (Allow ou Deny), la décision est prise et l\'évaluation s\'arrête.'
     },
     {
       stem: 'Pourquoi le VPC Peering classique entre VPC A, VPC B et VPC C ne permet-il pas à A de communiquer avec C si seuls les peerings A-B et B-C sont configurés ?',
-      opts: ['Car le VPC Peering n\'est pas compatible avec IPv4', 'Car le routage par VPC Peering est strictement non-transitif : il n\'y a pas de routage par rebond via un VPC intermédiaire', 'Car B bloque le trafic par défaut', 'Car il faut redémarrer les VPCs'],
-      correct: 1,
+      opts: ["Car le routage par VPC Peering est strictement non-transitif : il n'y a pas de routage par rebond via un VPC intermédiaire","Car le VPC Peering n'est compatible qu'avec IPv6, le trafic IPv4 devant passer par un tunnel VPN","Car le VPC B bloque par défaut tout trafic provenant d'un VPC non appairé directement avec lui","Car il faut redémarrer les trois VPC pour que les tables de routage se propagent entre les pairs"],
+      correct: 0,
       exp: 'Le peering VPC ne supporte pas le routage transitif. Pour que A et C communiquent, il faut soit créer un peering direct A-C, soit utiliser une AWS Transit Gateway.'
     },
     {
@@ -207,8 +207,8 @@ module.exports = {
     },
     {
       stem: 'Quel service d\'interconnexion physique dédiée permet de relier un centre de données sur site à un VPC AWS avec une bande passante garantie de 1 à 100 Gbps ?',
-      opts: ['AWS Direct Connect', 'VPC Peering', 'AWS Storage Gateway', 'Internet Gateway'],
-      correct: 0,
+      opts: ['Internet Gateway', 'VPC Peering', 'AWS Storage Gateway', 'AWS Direct Connect'],
+      correct: 3,
       exp: 'AWS Direct Connect établit une liaison réseau en fibre dédiée privée entre les locaux d\'une entreprise et AWS, contournant entièrement l\'Internet public pour garantir performance et sécurité.'
     },
     {

@@ -11,9 +11,7 @@
 <meta property="og:type" content="article">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="/assets/css/fonts.css">
 <link rel="stylesheet" href="/assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/cours.css">
 <link rel="stylesheet" href="/assets/css/code-lab.css">
@@ -142,15 +140,43 @@ tail -f /var/log/syslog    # suivre un fichier en direct</code></pre>
 
 </section>
 
+<section class="sec">
+
+<h2>5. Unités et timers systemd, filtrage journalctl, durcissement SSH et fail2ban</h2>
+
+<p>Au niveau B2, l’administrateur conçoit ses propres unités <strong>systemd</strong> dans <code>/etc/systemd/system/</code> : un fichier <code>backup.service</code> (sections <code>[Unit]</code>, <code>[Service]</code> avec <code>Type=oneshot</code>, <code>User=</code>, <code>ExecStart=</code>) déclenché par un fichier <code>backup.timer</code> (directive <code>OnCalendar=*-*-* 02:30:00</code> et <code>Persistent=true</code>, inspecté via <code>systemctl list-timers</code> après <code>systemctl daemon-reload</code>).</p>
+<p>L’investigation des pannes combine les filtres temporels et de sévérité de <code>journalctl</code> :</p>
+<pre><code>journalctl -u ssh -p warning --since "2 hours ago" --no-pager
+journalctl -b -1 -p err                    # Erreurs critiques du démarrage précédent</code></pre>
+<p>Enfin, tout serveur Linux exposé est verrouillé par le <strong>durcissement OpenSSH</strong> (<code>/etc/ssh/sshd_config</code> validé via <code>sshd -t</code>) et la protection active <strong>fail2ban</strong> :</p>
+<pre><code># /etc/ssh/sshd_config — Durcissement bastion B2
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+MaxAuthTries 3
+
+# /etc/fail2ban/jail.local — Bannissement automatique après échecs SSH
+[sshd]
+enabled  = true
+maxretry = 4
+findtime = 10m
+bantime  = 1h
+# Vérification : fail2ban-client status sshd</code></pre>
+
+</section>
+
   <section class="sec">
 
 <!-- code-labs:start -->
   <div id="exercices">
-  <h2>5. Exercices de code</h2>
-  <p class="lead">La correction automatique des exercices de cette section est temporairement suspendue. Les énoncés et les exemples restent disponibles.</p>
+  <h2>6. Exercices de code</h2>
+  <p class="lead">Ces trois exercices se font dans la page. L’éditeur du navigateur exécute le code
+  et la validation fait tourner des jeux de tests indépendants :
+  réussir l’exemple affiché ne suffit donc pas, il faut traiter le cas général.</p>
+  <p>En cas d’erreur, le bouton <strong>Expliquer mon erreur</strong> interroge le tuteur : il décrit ce qui
+  s’est passé et par où chercher, sans jamais écrire le code de la solution — c’est le principe de l’exercice.</p>
 <div class="lab" id="lx2-c6-e1" data-lab
      data-exercise="lx2-c6-e1"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="3&#10;ssh active&#10;nginx inactive&#10;mysql failed&#10;">
@@ -166,13 +192,11 @@ done
     <h3 class="lab__title">Exercice 1 — Superviser un service</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Décider de l’action à mener selon l’état d’un service systemd.</p>
-    <p class="lab__note" id="lx2-c6-e1-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « service etat » où <code>etat</code> vaut <code>active</code>, <code>inactive</code> ou <code>failed</code>. Il affiche pour chacun <code>service : rien a faire</code> (active), <code>service : demarrer</code> (inactive) ou <code>service : redemarrer</code> (failed). Terminez par <code>alertes : X</code>, le nombre de services non actifs.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
@@ -186,10 +210,11 @@ mysql : redemarrer
 alertes : 2</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Trois cas : active, inactive (démarrer), failed (redémarrer).</li>
         <li>Une alerte est comptée pour tout service qui n’est pas active.</li>
+        <li>Étapes : pour chaque service, active → « rien a faire » ; inactive → « demarrer » et une alerte ; failed → « redemarrer » et une alerte ; conclure par « alertes : N ».</li>
       </ol>
     </details>
   </div>
@@ -197,7 +222,6 @@ alertes : 2</pre></div>
 
 <div class="lab" id="lx2-c6-e2" data-lab
      data-exercise="lx2-c6-e2"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="3&#10;101 running&#10;205 sleeping&#10;309 zombie&#10;">
@@ -213,13 +237,11 @@ done
     <h3 class="lab__title">Exercice 2 — Détecter un processus anormal</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n2">Niveau 2 — Application</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Repérer les processus zombies et dresser la liste des actifs.</p>
-    <p class="lab__note" id="lx2-c6-e2-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « pid etat » où <code>etat</code> vaut <code>running</code>, <code>sleeping</code> ou <code>zombie</code>. Il affiche <code>pid : actif</code>, <code>pid : en attente</code> ou <code>pid : a nettoyer</code>, puis termine par <code>zombies : X</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>3
@@ -233,10 +255,11 @@ done
 zombies : 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>Trois états possibles : running, sleeping, zombie.</li>
         <li>Seuls les zombies alimentent le compteur final.</li>
+        <li>Étapes : pour chaque processus, running → « actif », sleeping → « en attente » ; zombie → « a nettoyer » et un zombie de plus ; conclure par « zombies : N ».</li>
       </ol>
     </details>
   </div>
@@ -244,7 +267,6 @@ zombies : 1</pre></div>
 
 <div class="lab" id="lx2-c6-e3" data-lab
      data-exercise="lx2-c6-e3"
-     data-grading-suspended="1"
      data-language="shell"
      data-height="300"
      data-stdin="2&#10;6 30 sauvegarde&#10;23 0 nettoyage&#10;">
@@ -260,13 +282,11 @@ done
     <h3 class="lab__title">Exercice 3 — Vérifier une tâche planifiée</h3>
     <div class="lab__meta">
       <span class="lab__lang"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-terminal"></use></svg> Bash</span>
-      <span class="lab__training">Entraînement, non noté</span>
       <span class="badge badge--n3">Niveau 3 — Raisonnement</span>
     </div>
   </div>
   <div class="lab__body">
     <p class="lab__goal"><strong>Objectif :</strong> Classer les tâches cron selon qu’elles s’exécutent le matin ou l’après-midi.</p>
-    <p class="lab__note" id="lx2-c6-e3-grading-notice">La correction automatique de cet exercice est temporairement suspendue : les preuves de fiabilité des tests sont incomplètes ou périmées.</p>
     <div class="lab__brief"><p>Le script lit <strong>n lignes</strong> « heure minute tache ». Une tâche dont <code>heure</code> est strictement inférieure à 12 s’exécute <strong>le matin</strong> ; sinon elle s’exécute <strong>l’après-midi</strong>. Il affiche <code>tache : matin</code> ou <code>tache : apres-midi</code>, puis termine par <code>matin : X</code>.</p></div>
     <div class="lab__sample">
       <div class="lab__sample-part"><b>Entrée du programme</b><pre>2
@@ -278,24 +298,25 @@ nettoyage : apres-midi
 matin : 1</pre></div>
     </div>
     <details class="lab__hints">
-      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Deux indices, rédigés en mots</summary>
+      <summary><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-lightbulb"></use></svg> Trois indices, rédigés en mots</summary>
       <ol>
         <li>La comparaison se fait sur l’heure seule : [ "$heure" -lt 12 ].</li>
         <li>Midi (12) et au-delà sont considérés comme l’après-midi.</li>
+        <li>Étapes : pour chaque tâche, lire l’heure ; strictement inférieure à 12 → « tache : matin » et incrémenter le compteur ; sinon « tache : apres-midi » ; conclure par « matin : N ».</li>
       </ol>
     </details>
   </div>
 </div>
   </div>
   <!-- code-labs:end -->
-  <h2>6. QCM — niveau examen</h2>
+  <h2>7. QCM — niveau examen</h2>
 
   <div class="qcm">
     <div class="q">
       <p class="q__stem">Que fait systemctl restart nginx ?</p>
       <div class="opts">
-        <button class="opt">arrête le service</button>
         <button class="opt" data-correct="1">redémarre le service</button>
+        <button class="opt">arrête le service</button>
         <button class="opt">désactive le service</button>
       </div>
       <div class="q__exp">restart relance le service, utile quand son état est failed.</div>
@@ -304,8 +325,8 @@ matin : 1</pre></div>
       <p class="q__stem">État d’un service arrêté mais installé ?</p>
       <div class="opts">
         <button class="opt">active</button>
-        <button class="opt" data-correct="1">inactive</button>
         <button class="opt">failed</button>
+        <button class="opt" data-correct="1">inactive</button>
       </div>
       <div class="q__exp">inactive signifie arrêté ; failed signifie en échec après une tentative.</div>
     </div>
@@ -313,16 +334,16 @@ matin : 1</pre></div>
       <p class="q__stem">Un processus zombie…</p>
       <div class="opts">
         <button class="opt">consomme le processeur</button>
-        <button class="opt" data-correct="1">est terminé mais non récupéré</button>
         <button class="opt">est un virus</button>
+        <button class="opt" data-correct="1">est terminé mais non récupéré</button>
       </div>
       <div class="q__exp">Il est fini mais son parent n’a pas récupéré son code de retour.</div>
     </div>
     <div class="q">
       <p class="q__stem">Que fait kill -9 ?</p>
       <div class="opts">
-        <button class="opt">arrête proprement</button>
         <button class="opt" data-correct="1">force l’arrêt immédiat</button>
+        <button class="opt">arrête proprement</button>
         <button class="opt">redémarre</button>
       </div>
       <div class="q__exp">-9 envoie SIGKILL : arrêt forcé, sans nettoyage, en dernier recours.</div>
@@ -334,7 +355,7 @@ matin : 1</pre></div>
         <button class="opt" data-correct="1">5</button>
         <button class="opt">7</button>
       </div>
-      <div class="q__exp">Cinq champs de temps, puis la commande.</div>
+      <div class="q__exp">Une ligne crontab ouvre sur cinq champs d’ordonnancement (minute, heure, jour du mois, mois, jour de la semaine) puis la commande : ni 3 ni 7.</div>
     </div>
     <div class="q">
       <p class="q__stem">0 6 * * * s’exécute…</p>
@@ -348,9 +369,9 @@ matin : 1</pre></div>
     <div class="q">
       <p class="q__stem">Quelle commande lit le journal d’un service ?</p>
       <div class="opts">
-        <button class="opt" data-correct="1">journalctl -u nginx</button>
-        <button class="opt">ls -l</button>
         <button class="opt">crontab -e</button>
+        <button class="opt">ls -l</button>
+        <button class="opt" data-correct="1">journalctl -u nginx</button>
       </div>
       <div class="q__exp">journalctl -u filtre le journal par unité de service.</div>
     </div>
@@ -358,8 +379,8 @@ matin : 1</pre></div>
       <p class="q__stem">Quelle action pour un service failed ?</p>
       <div class="opts">
         <button class="opt">rien</button>
-        <button class="opt">start</button>
         <button class="opt" data-correct="1">restart</button>
+        <button class="opt">start</button>
       </div>
       <div class="q__exp">Un service en échec se redémarre (restart) ; inactive se démarre (start).</div>
     </div>
@@ -369,7 +390,7 @@ matin : 1</pre></div>
 
 <section class="sec">
 
-<h2>7. Erreurs classiques — récapitulatif</h2>
+<h2>8. Erreurs classiques — récapitulatif</h2>
 
   <div class="box box--pitfall">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-warning"></use></svg> À reconnaître en examen</div>
@@ -386,7 +407,7 @@ matin : 1</pre></div>
 
 <section class="sec">
 
-<h2>8. Méthodologie de résolution</h2>
+<h2>9. Méthodologie de résolution</h2>
 
   <div class="box box--method">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-compass"></use></svg> Diagnostiquer puis agir</div>
@@ -403,7 +424,7 @@ matin : 1</pre></div>
 
 <section class="sec">
 
-<h2>9. Révision active</h2>
+<h2>10. Révision active</h2>
 
   <div class="box box--revision">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-pin"></use></svg> Résumé essentiel</div>
@@ -433,7 +454,7 @@ matin : 1</pre></div>
 
 <section class="sec">
 
-<h2>10. Test de maîtrise</h2>
+<h2>11. Test de maîtrise</h2>
 
   <div class="box box--tech">
     <div class="box__title"><svg class="ic" aria-hidden="true" focusable="false"><use href="/assets/img/ui-icons.svg#i-chart"></use></svg> Comment vous auto-évaluer</div>
@@ -482,7 +503,7 @@ matin : 1</pre></div>
             {left: "$$", right: "$$", display: true},
             {left: "\\[", right: "\\]", display: true},
             {left: "$", right: "$", display: false},
-            {left: "\\)", right: "\\)", display: false}
+            {left: "\\(", right: "\\)", display: false}
           ],
           ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"],
           throwOnError: false

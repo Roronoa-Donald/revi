@@ -32,6 +32,18 @@ module.exports = {
 
   sections: [
     {
+      title: 'Progression spiralaire B1 → B2 → B3 &amp; Périmètre de SQL B2',
+      html: [
+        box('tech', 'Rappel des acquis B1 (/b1-sql/) &amp; Répartition des rôles entre SQL B2 (/sql/) et SQL Avancé B3 (/b3-sql/)', 'compass',
+          '    <p>Ce cours <strong>SQL B2</strong> s’inscrit au cœur d’une progression spiralaire en trois paliers sans redondance :</p>\n' +
+          '    <ul>\n' +
+          '      <li><strong>Socle B1 (<a href="/b1-sql/index.html">/b1-sql/</a> &amp; <a href="/b1-merise/index.html">/b1-merise/</a>) :</strong> requêtes fondamentales (<code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code>, jointures simples) et conception MCD/MLD.</li>\n' +
+          '      <li><strong>Périmètre de ce cours SQL B2 (<code>/sql/</code> — Ingénierie applicative &amp; modélisation) :</strong> conception formelle du schéma relationnel (<code>CREATE TABLE</code>, <code>PRIMARY KEY</code>, <code>FOREIGN KEY</code>, <code>CHECK</code>), logique tri-valuée <code>NULL</code>, jointures et fenêtrage analytique, <strong>vues</strong> (<code>VIEW</code> et vues matérialisées), <strong>procédures stockées</strong>, <strong>déclencheurs (triggers <code>BEFORE</code>/<code>AFTER</code> avec <code>NEW</code>/<code>OLD</code>)</strong> et maîtrise applicative des <strong>transactions ACID</strong>.</li>\n' +
+          '      <li><strong>Cap vers le niveau B3 (<a href="/b3-sql/index.html">/b3-sql/</a> — Internals DBA &amp; Haute Performance) :</strong> le module B3 se consacre quant à lui à l’architecture interne du moteur SGBD : planificateur par les coûts (<code>EXPLAIN ANALYZE</code>, arbitrage <code>Seq Scan</code> vs <code>Index Scan</code>), stratégies d’indexation spécialisées (<code>B-Tree</code>, <code>GIN</code>, <code>BRIN</code>), concurrence <code>MVCC</code> et anomalies d’isolation, journalisation <code>WAL</code> et <code>streaming replication</code>.</li>\n' +
+          '    </ul>')
+      ].join('\n')
+    },
+    {
       title: 'Le Modèle Relationnel &amp; Typage Strict des Données SQL',
       html: [
         '<p>Introduit par Edgar F. Codd en 1970, le <strong>modèle relationnel</strong> organise l’information sous forme de tables ' +
@@ -121,12 +133,12 @@ module.exports = {
     {
       stem: 'Pour stocker des montants monétaires dans une base de données de production, quel type SQL garantit l’absence totale d’erreurs d’arrondi binaire ?',
       opts: [
-        'DECIMAL(p, s) ou NUMERIC(p, s)',
         'FLOAT',
+        'DECIMAL(p, s) ou NUMERIC(p, s)',
         'DOUBLE PRECISION',
         'REAL'
       ],
-      correct: 0,
+      correct: 1,
       exp: 'Les types flottants (FLOAT, DOUBLE) utilisent une représentation binaire IEEE 754 qui engendre des erreurs d’arrondi sur les fractions décimales. DECIMAL/NUMERIC stocke les nombres en base 10 exacte et est le standard obligatoire en finance.'
     },
     {
@@ -143,34 +155,34 @@ module.exports = {
     {
       stem: 'Quelle est la différence majeure entre les instructions TRUNCATE TABLE et DELETE FROM sans clause WHERE ?',
       opts: [
-        'TRUNCATE est une commande DDL rapide qui désalloue directement les blocs de stockage sans journaliser chaque ligne, alors que DELETE est du DML journalisé ligne par ligne',
-        'TRUNCATE supprime la table elle-même du schéma, contrairement à DELETE',
-        'DELETE réinitialise automatiquement les compteurs auto-incrémentés, contrairement à TRUNCATE',
-        'TRUNCATE nécessite obligatoirement d’indiquer une condition WHERE'
+        "TRUNCATE supprime définitivement la table elle-même ainsi que l’intégralité de sa structure du schéma de la base, contrairement à DELETE",
+        "DELETE réinitialise automatiquement les compteurs auto-incrémentés à zéro après le vidage, contrairement à TRUNCATE",
+        "TRUNCATE nécessite obligatoirement d’indiquer une clause WHERE de filtrage précise pour pouvoir s’exécuter correctement",
+        "TRUNCATE est une commande DDL rapide qui désalloue directement les blocs de stockage sans journaliser chaque ligne, alors que DELETE est du DML journalisé ligne par ligne"
       ],
-      correct: 0,
+      correct: 3,
       exp: 'TRUNCATE est une instruction DDL qui vide la table instantanément en libérant les pages de disque sans enregistrer chaque suppression dans le journal des transactions (WAL), ce qui la rend considérablement plus rapide que DELETE.'
     },
     {
       stem: 'Dans une table d’association modélisant les lignes d’une commande, comment interdire qu’un même produit soit présent plusieurs fois dans une même commande ?',
       opts: [
-        'En définissant une clé primaire composite : PRIMARY KEY (id_commande, id_produit)',
-        'En ajoutant un index non unique sur id_commande',
         'En utilisant une clé étrangère simple sur id_produit',
+        'En ajoutant un index non unique sur id_commande',
+        'En définissant une clé primaire composite : PRIMARY KEY (id_commande, id_produit)',
         'En écrivant un commentaire dans le code applicatif'
       ],
-      correct: 0,
+      correct: 2,
       exp: 'La clé primaire composite PRIMARY KEY (id_commande, id_produit) impose l’unicité stricte du couple (id_commande, id_produit) au niveau du moteur relationnel.'
     },
     {
       stem: 'Dans PostgreSQL, quelle définition accepte uniquement des valeurs strictement positives, finies et non NULL ?',
       opts: [
-        'colonne NUMERIC NOT NULL CHECK (colonne > 0 AND colonne < \'Infinity\'::numeric)',
-        'colonne NUMERIC CHECK (colonne > 0)',
-        'colonne NUMERIC NOT NULL CHECK (colonne > 0)',
-        'colonne NUMERIC UNIQUE'
+        "colonne NUMERIC CHECK (colonne > 0), sans contrainte de nullité",
+        "colonne NUMERIC NOT NULL CHECK (colonne > 0 AND colonne < 'Infinity'::numeric)",
+        "colonne NUMERIC NOT NULL CHECK (colonne > 0), sans borne haute",
+        "colonne NUMERIC UNIQUE, garantissant des valeurs strictement positives"
       ],
-      correct: 0,
+      correct: 1,
       exp: 'CHECK rejette FALSE mais accepte NULL (UNKNOWN) : NOT NULL impose la présence. PostgreSQL classe NaN et Infinity au-dessus de zéro ; la borne colonne < \'Infinity\'::numeric exclut ces deux valeurs si un prix fini est exigé.'
     }
   ],

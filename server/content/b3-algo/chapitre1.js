@@ -81,77 +81,77 @@ module.exports = {
       "stem": "Quelle est la complexité temporelle asymptotique au pire des cas de l’algorithme de tri fusion (Mergesort) sur un tableau de taille n ?",
       "opts": [
         "O(n)",
-        "O(n log n)",
         "O(n^2)",
+        "O(n log n)",
         "O(log n)"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Le tri fusion découpe le tableau en 2 moitiés (a=2, b=2) et fusionne en O(n) (d=1). Par le Théorème Maître c = log2(2) = 1 = d, nous sommes au Cas 2 donnant Theta(n log n)."
     },
     {
       "stem": "Soit la relation T(n) = 3*T(n/2) + Theta(n). Quel cas du Théorème Maître s’applique ?",
       "opts": [
-        "Cas 1 car log2(3) ≈ 1.58 > 1, donnant Theta(n^1.58)",
+        "Le théorème maître ne s’applique pas ici",
         "Cas 2 car le découpage est en 2",
         "Cas 3 car n domine",
-        "Le théorème maître ne s’applique pas ici"
+        "Cas 1 car log2(3) ≈ 1.58 > 1, donnant Theta(n^1.58)"
       ],
-      "correct": 0,
+      "correct": 3,
       "exp": "Ici a=3, b=2, d=1. c = log2(3) ≈ 1.585. Comme c > d, nous sommes au Cas 1 : les feuilles dominent, donnant une complexité en Theta(n^{1.58})."
     },
     {
       "stem": "Si f(n) = 5*n^2 + 100*n + 42, quelle est la notation Theta exacte de f(n) ?",
       "opts": [
-        "Theta(n)",
         "Theta(n^2)",
+        "Theta(n)",
         "Theta(n^3)",
         "Theta(100n)"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "Pour n -> infini, le terme n^2 domine tous les autres et les constantes multiplicatives sont éliminées dans la définition de Theta. f(n) = Theta(n^2)."
     },
     {
       "stem": "Quelle est la profondeur maximale de pile atteinte par le calcul récursif naïf de Fibonacci fib(n) = fib(n-1) + fib(n-2) ?",
       "opts": [
         "O(1)",
-        "O(log n)",
         "O(n)",
+        "O(log n)",
         "O(2^n)"
       ],
-      "correct": 2,
+      "correct": 1,
       "exp": "Bien que le nombre d’appels totaux soit O(2^n), la pile d’appels explore une branche jusqu’à la feuille la plus profonde, qui atteint au maximum une profondeur n (branche gauche tout en fib(n-1))."
     },
     {
       "stem": "Que signifie formellement f(n) = Omega(g(n)) ?",
       "opts": [
         "f(n) est majorée par g(n)",
-        "f(n) est minorée par c*g(n) pour n assez grand",
         "f(n) et g(n) sont strictement égales",
+        "f(n) est minorée par c*g(n) pour n assez grand",
         "f(n) tend vers 0 plus vite que g(n)"
       ],
-      "correct": 1,
+      "correct": 2,
       "exp": "Grand Omega fournit une minoration asymptotique : il existe c > 0 et n0 tels que pour tout n >= n0, f(n) >= c * g(n)."
     },
     {
       "stem": "Soit la relation T(n) = T(n/2) + Theta(1). Quelle est la complexité résultante ?",
       "opts": [
         "Theta(1)",
-        "Theta(log n)",
+        "Theta(n log n)",
         "Theta(n)",
-        "Theta(n log n)"
+        "Theta(log n)"
       ],
-      "correct": 1,
+      "correct": 3,
       "exp": "a=1, b=2, d=0. c = log2(1) = 0. Comme c = d = 0, le Cas 2 s’applique : Theta(n^0 log n) = Theta(log n). C’est la recherche dichotomique."
     },
     {
       "stem": "Dans quel scénario une fonction récursive linéaire provoque-t-elle un Stack Overflow ?",
       "opts": [
-        "Quand elle s’exécute trop vite",
         "Quand la profondeur d’appels dépasse la limite allouée à la pile d’exécution (ex: n = 100 000 en Python)",
-        "Quand elle utilise des variables globales",
-        "Quand elle renvoie un entier négatif"
+        "Quand le processeur exécute les appels trop vite pour que la mémoire cache suive le rythme des calculs",
+        "Quand elle manipule des variables globales qui s’accumulent dans la pile sans être libérées entre les appels",
+        "Quand elle renvoie un entier négatif qui corrompt l’adresse de retour du cadre de pile de l’appelant"
       ],
-      "correct": 1,
+      "correct": 0,
       "exp": "Chaque appel empilant un cadre, une récursion de 100 000 niveaux dépasse largement la limite standard de la pile (par défaut 1 000 en Python, paramétrable via sys.setrecursionlimit)."
     },
     {

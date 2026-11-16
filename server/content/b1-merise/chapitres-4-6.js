@@ -95,14 +95,14 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Une occurrence d\'entité, c\'est…', opts: ['une entité parmi d\'autres', 'un élément individualisé de l\'entité', 'une association'], correct: 1, exp: '« Kossi » est une occurrence de l\'entité Client.' },
-      { q: 'Un identifiant doit être…', opts: ['stable, minimal, univalué', 'long, chiffré, secret', 'numérique et daté'], correct: 0, exp: 'Stable (ne change pas), minimal (le moins de propriétés), univalué (une valeur par occurrence).' },
-      { q: '(0,n) côté Client sur Commander signifie…', opts: ['un client commande au moins un produit', 'un client commande zéro ou plusieurs produits', 'un produit a plusieurs clients'], correct: 1, exp: 'La cardinalité se lit depuis l\'entité qu\'elle orne : zéro à plusieurs.' },
+      { q: 'Une occurrence d\'entité, c\'est…', opts: ["une entité placée parmi d'autres entités","une association entre deux entités","un élément individualisé de l'entité"], correct: 2, exp: '« Kossi » est une occurrence de l\'entité Client.' },
+      { q: 'Un identifiant doit être…', opts: ['long, chiffré, secret', 'stable, minimal, univalué', 'numérique et daté'], correct: 1, exp: 'Stable (ne change pas), minimal (le moins de propriétés), univalué (une valeur par occurrence).' },
+      { q: '(0,n) côté Client sur Commander signifie…', opts: ['un client commande zéro ou plusieurs produits', 'un client commande au moins un produit', 'un produit a plusieurs clients'], correct: 0, exp: 'La cardinalité se lit depuis l\'entité qu\'elle orne : zéro à plusieurs.' },
       { q: '« Une facture concerne un et un seul client » se traduit par…', opts: ['1,n côté Facture', '1,1 côté Facture', '0,1 côté Facture'], correct: 1, exp: 'Exactement un client par facture : (1,1).' },
-      { q: '« Un client existe dès sa première facture » donne côté Client…', opts: ['0,n', '1,n', '1,1'], correct: 1, exp: 'Au moins une facture : min = 1 ; plusieurs possibles : max = n.' },
-      { q: 'L\'association Commander porte QtéCdée : que peut-on en déduire ?', opts: ['Ses deux maximums sont forcément n', 'Elle porte une propriété', 'Elle est forcément réflexive'], correct: 1, exp: 'La propriété portée ne détermine pas les cardinalités.' },
-      { q: 'Une association sans donnée portée peut-elle avoir deux maximums n ?', opts: ['Oui', 'Non', 'Seulement si elle est réflexive'], correct: 0, exp: 'Une association n–n peut être sans propriété : ses cardinalités restent déterminantes.' },
-      { q: 'Un identifiant composé est…', opts: ['interdit', 'constitué de plusieurs propriétés élémentaires', 'une clé étrangère'], correct: 1, exp: 'Plusieurs propriétés élémentaires forment ensemble l\'identifiant (NumCde + RefPdt).' }
+      { q: '« Un client existe dès sa première facture » donne côté Client…', opts: ['0,n', '1,1', '1,n'], correct: 2, exp: 'Au moins une facture : min = 1 ; plusieurs possibles : max = n.' },
+      { q: 'L\'association Commander porte QtéCdée : que peut-on en déduire ?', opts: ['Elle porte une propriété', 'Ses deux maximums sont forcément n', 'Elle est forcément réflexive'], correct: 0, exp: 'La propriété portée ne détermine pas les cardinalités.' },
+      { q: 'Une association sans donnée portée peut-elle avoir deux maximums n ?', opts: ['Non', 'Oui', 'Seulement si elle est réflexive'], correct: 1, exp: 'Une association n–n peut être sans propriété : ses cardinalités restent déterminantes.' },
+      { q: 'Un identifiant composé est…', opts: ["constitué de plusieurs propriétés élémentaires","interdit en modélisation conceptuelle","une clé étrangère vers une autre entité"], correct: 0, exp: 'Plusieurs propriétés élémentaires forment ensemble l\'identifiant (NumCde + RefPdt).' }
     ],
 
     pitfalls: [
@@ -235,13 +235,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Le MLD est…', opts: ['la forme machinale du MCD', 'une copie du MCD', 'le modèle physique'], correct: 0, exp: 'Le MCD n\'est pas compréhensible par l\'ordinateur ; le MLD est sa forme machinale (relationnelle).' },
-      { q: 'Une clé étrangère est…', opts: ['un ou plusieurs attributs référençant une clé primaire ou unique', 'un attribut décoratif', 'toujours composée'], correct: 0, exp: 'Elle référence une clé primaire ou unique admissible, dans la même table ou une autre ; elle peut être simple ou composée.' },
+      { q: 'Le MLD est…', opts: ['le modèle physique', 'une copie du MCD', 'la forme machinale du MCD'], correct: 2, exp: 'Le MCD n\'est pas compréhensible par l\'ordinateur ; le MLD est sa forme machinale (relationnelle).' },
+      { q: 'Une clé étrangère est…', opts: ["un attribut purement décoratif sans contrainte","une clé obligatoirement composée de plusieurs attributs","un ou plusieurs attributs référençant une clé primaire ou unique"], correct: 2, exp: 'Elle référence une clé primaire ou unique admissible, dans la même table ou une autre ; elle peut être simple ou composée.' },
       { q: 'Le symbole # marque…', opts: ['la clé primaire', 'la clé étrangère', 'un commentaire'], correct: 1, exp: 'COMMANDE (NumCde, DateCde, #NumClt) : NumClt référence CLIENT.' },
       { q: 'Règle 1 du passage MCD → MLD :', opts: ['toute entité devient une table', 'toute association devient une table', 'rien ne change'], correct: 0, exp: 'L\'identifiant devient clé primaire, les propriétés deviennent attributs.' },
-      { q: 'Une association binaire n–n sans propriété devient…', opts: ['une table de liaison', 'rien', 'une vue obligatoire'], correct: 0, exp: 'La table de liaison est nécessaire même sans propriété portée ; le couple d’identifiants peut être sa clé.' },
-      { q: 'Pour une association 1–n, où migre la clé étrangère ?', opts: ['Dans une table de liaison obligatoire', 'Dans la table côté maximum 1', 'Nulle part'], correct: 1, exp: 'La clé de l’autre entité migre côté maximum 1 avec les éventuelles propriétés de l’association.' },
-      { q: 'L\'intégrité référentielle impose…', opts: ['que la fk référence une clé primaire ou unique existante, sous réserve des règles NULL', 'que la table soit triée', 'que les champs soient textes'], correct: 0, exp: 'Pas de NumClt 25 si les clients s\'arrêtent à 15 ; une clé unique admissible peut aussi être référencée.' },
+      { q: 'Une association binaire n–n sans propriété devient…', opts: ['une vue obligatoire', 'rien', 'une table de liaison'], correct: 2, exp: 'La table de liaison est nécessaire même sans propriété portée ; le couple d’identifiants peut être sa clé.' },
+      { q: 'Pour une association 1–n, où migre la clé étrangère ?', opts: ['Dans la table côté maximum 1', 'Dans une table de liaison obligatoire', 'Nulle part'], correct: 0, exp: 'La clé de l’autre entité migre côté maximum 1 avec les éventuelles propriétés de l’association.' },
+      { q: 'L\'intégrité référentielle impose…', opts: ["que la table référencée soit toujours triée selon sa clé primaire","que la fk référence une clé primaire ou unique existante, sous réserve des règles NULL","que tous les champs liés soient obligatoirement de type texte"], correct: 1, exp: 'Pas de NumClt 25 si les clients s\'arrêtent à 15 ; une clé unique admissible peut aussi être référencée.' },
       { q: 'L\'intégrité de relation impose…', opts: ['clé primaire unique et non nulle', 'une fk par table', 'des index partout'], correct: 0, exp: 'Pas de doublon de clé, pas de ligne sans clé.' }
     ],
 
@@ -372,13 +372,13 @@ module.exports = [
     ],
 
     questions: [
-      { q: 'Une base non normalisée souffre surtout de…', opts: ['redondances et anomalies de mise à jour', 'trop de tables', 'manque de utilisateurs'], correct: 0, exp: 'Redondance, anomalies d\'insertion, de mise à jour et de suppression.' },
-      { q: 'La 1FN exige…', opts: ['une clé et des attributs monovalués non décomposables', 'trois tables minimum', 'des clés étrangères'], correct: 0, exp: 'Clé unique et stable, attributs atomiques.' },
-      { q: 'EMPLOYE (Nom, Prénom, Enfants, Diplômes) viole…', opts: ['la 1FN', 'la 2FN seulement', 'rien'], correct: 0, exp: 'Enfants et Diplômes sont multivalués et décomposables : pas en 1FN.' },
-      { q: 'La 2FN se vérifie seulement si…', opts: ['la clé est composée', 'la table a des fk', 'la base est petite'], correct: 0, exp: 'À clé simple, la 1FN implique déjà la 2FN.' },
+      { q: 'Une base non normalisée souffre surtout de…', opts: ["un nombre excessif de tables","redondances et anomalies de mise à jour","un manque d'utilisateurs déclarés"], correct: 1, exp: 'Redondance, anomalies d\'insertion, de mise à jour et de suppression.' },
+      { q: 'La 1FN exige…', opts: ["au moins trois tables pour chaque relation","une clé étrangère dans chacune des tables","une clé et des attributs monovalués non décomposables"], correct: 2, exp: 'Clé unique et stable, attributs atomiques.' },
+      { q: 'EMPLOYE (Nom, Prénom, Enfants, Diplômes) viole…', opts: ['rien', 'la 2FN seulement', 'la 1FN'], correct: 2, exp: 'Enfants et Diplômes sont multivalués et décomposables : pas en 1FN.' },
+      { q: 'La 2FN se vérifie seulement si…', opts: ['la table a des fk', 'la clé est composée', 'la base est petite'], correct: 1, exp: 'À clé simple, la 1FN implique déjà la 2FN.' },
       { q: 'DesignationPdt ne dépend que de RefPdt dans LIGNE_CDE : c\'est…', opts: ['une dépendance partielle', 'une dépendance transitive', 'une CIF'], correct: 0, exp: 'Un attribut dépend d\'une partie de la clé composée : 2FN violée.' },
-      { q: 'Num_client → code_categ → nom_categ : c\'est…', opts: ['une dépendance transitive', 'une dépendance partielle', 'une intégrité de domaine'], correct: 0, exp: 'nom_categ dépend d\'un attribut non clé (code_categ) : 3FN violée.' },
-      { q: 'Le remède à la 3FN violée est…', opts: ['sortir l\'attribut transitif dans sa table', 'dupliquer la colonne', 'supprimer la clé'], correct: 0, exp: 'Décomposer : (code_categ, nom_categ) devient une table CATEGORIE.' },
+      { q: 'Num_client → code_categ → nom_categ : c\'est…', opts: ['une dépendance partielle', 'une dépendance transitive', 'une intégrité de domaine'], correct: 1, exp: 'nom_categ dépend d\'un attribut non clé (code_categ) : 3FN violée.' },
+      { q: 'Le remède à la 3FN violée est…', opts: ["dupliquer la colonne dans toutes les tables","supprimer la clé primaire de la table","sortir l'attribut transitif dans sa table"], correct: 2, exp: 'Décomposer : (code_categ, nom_categ) devient une table CATEGORIE.' },
       { q: '« La clé, toute la clé, rien que la clé » résume…', opts: ['1FN, 2FN, 3FN', 'les trois intégrités', 'les trois sous-systèmes'], correct: 0, exp: 'Clé (1FN), toute la clé (2FN, pas de dépendance partielle), rien que la clé (3FN, pas de transitive).' }
     ],
 

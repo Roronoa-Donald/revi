@@ -1,26 +1,13 @@
 /**
  * Exercices de code — Programmation Web (B1), 3 par module, en JavaScript.
  *
- * Le cours couvre HTML, CSS et JavaScript ; les exercices portent donc sur ce
- * qui se <em>calcule</em> : structure d'une URL, familles de codes HTTP, lecture
- * d'un extrait HTML, validation de formulaire, échappement, spécificité CSS,
- * modèle de boîte, unités relatives, flexbox, grille responsive et construction
- * du DOM à partir de données.
- *
- * Les exercices sont exécutés par Node (liste blanche OANOR : `javascript`).
- * Comme le DOM n'existe pas hors navigateur, aucune fiche ne le manipule :
- * chaque fiche lit son entrée standard et écrit son résultat — c'est la logique
- * que l'élève réutilisera ensuite dans une page, débarrassée du navigateur.
- *
- * Idiome de lecture commun, montré dans chaque code de départ :
- *   const fs = require('fs');
- *   const lignes = fs.readFileSync(0, 'utf8').trim().split('\n');
- *
- * Même contrat que les autres catalogues : `brief`, `starter`, `examples`
- * (visibles), `tests` (cachés), `hints` (en mots), `solution` (serveur seul).
+ * Chapitre 1 porte sur le protocole HTTP et l'anatomie des URL.
+ * Chapitres 2 à 6 (`preview: 'html'`) produisent de véritables composants
+ * HTML5, feuilles CSS (<style>) et widgets DOM/JS rendus en direct dans
+ * l'onglet « Aperçu Web » (iframe `sandbox="allow-scripts"` sans
+ * `allow-same-origin`) tout en restant évaluables côté serveur Node/Oanor.
  */
 
-/** Lecture de l'entrée standard, ligne à ligne. */
 const LIRE = `const fs = require('fs');
 const lignes = fs.readFileSync(0, 'utf8').trim().split('\\n');
 `;
@@ -48,9 +35,11 @@ const url = lignes[0];
 // À compléter : afficher le protocole, l’hôte, le chemin et la requête.
 `,
     hints: [
-      'Comment repérer la position d’un séparateur et vérifier s’il est absent ?',
-      'Pour couper une chaîne en deux à un séparateur, slice() suffit : slice(0, i) et slice(i + 1).'
+      "Comment repérer la position d’un séparateur et vérifier s’il est absent ?",
+      "Pour couper une chaîne en deux à un séparateur, slice() suffit : slice(0, i) et slice(i + 1).",
+      "Coupez d’abord à « :// », puis au premier « / » pour le chemin et à « ? » pour la requête (sinon « - »)."
     ],
+    takeaway: 'Une URL HTTP se découpe de gauche à droite en schéma (://), autorité (hôte:port), chemin (/) et chaîne de requête (?).',
     examples: [
       { stdin: 'https://campus.exemple.fr/cours/index.html?page=2', expected: 'https\ncampus.exemple.fr\n/cours/index.html\npage=2', note: 'Les quatre composantes, dans l’ordre.' }
     ],
@@ -95,9 +84,11 @@ const codes = lignes.slice(1, 1 + n).map(Number);
 // À compléter : afficher chaque code suivi de sa famille.
 `,
     hints: [
-      'Quel chiffre du code permet de reconnaître sa famille ?',
-      'Une table qui associe le chiffre des centaines au libellé évite cinq if imbriqués.'
+      "Quel chiffre du code permet de reconnaître sa famille ?",
+      "Une table qui associe le chiffre des centaines au libellé évite cinq if imbriqués.",
+      "Prenez Math.floor(code / 100) pour indexer les 5 libellés : 1 information, 2 succès, 3 redirection, 4 erreur client, 5 erreur serveur."
     ],
+    takeaway: 'Le chiffre des centaines d’un statut HTTP (1xx à 5xx) indique immédiatement si la requête réussit, redirige ou échoue côté client/serveur.',
     examples: [
       { stdin: '3\n200\n404\n301', expected: '200 succès\n404 erreur client\n301 redirection', note: 'Trois codes, trois familles.' }
     ],
@@ -146,9 +137,11 @@ const methodes = lignes.slice(1, 1 + n);
 // À compléter : afficher chaque méthode suivie de « oui » ou « non ».
 `,
     hints: [
-      'Comment vérifier si une méthode appartient au groupe des méthodes idempotentes ?',
-      'La casse compte : normalise en majuscules si l’entrée n’est pas garantie.'
+      "Comment vérifier si une méthode appartient au groupe des méthodes idempotentes ?",
+      "La casse compte : normalisez en majuscules avec .trim().toUpperCase().",
+      "Testez si la méthode figure dans ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS', 'TRACE'] → oui, sinon (POST, PATCH) → non."
     ],
+    takeaway: 'En HTTP, GET, HEAD, PUT, DELETE, OPTIONS et TRACE sont définies idempotentes, contrairement à POST et PATCH.',
     examples: [
       { stdin: '2\nGET\nPOST', expected: 'GET oui\nPOST non', note: 'GET est défini comme idempotent ; POST ne le garantit pas.' }
     ],
@@ -172,40 +165,53 @@ for (const methode of methodes) {
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Module 2 — HTML : structure et sémantique
+  // Module 2 — HTML : structure sémantique (avec Aperçu Web sandboxé)
   // ═══════════════════════════════════════════════════════════════════════
   {
     id: 'web-c2-e1',
     chapter: 2,
     level: 'n1',
     language: 'javascript',
-    title: 'Titre de la page',
-    goal: 'Extraire le contenu d’une balise parmi un extrait de HTML.',
-    brief: '<p>Le programme reçoit un extrait de HTML, une ligne par ligne. Affichez le contenu de la ' +
-      'balise <code>&lt;title&gt;</code>, espaces de début et de fin retirés. Si l’extrait n’en contient ' +
-      'aucune, affichez <code>-</code>.</p>',
+    preview: 'html',
+    title: 'Construire une page HTML5 sémantique',
+    goal: 'Assembler les repères HTML5 (<header>, <nav>, <main>, <footer>) et observer leur rendu.',
+    brief: '<p>Le programme reçoit une ligne <code>titre</code> puis un entier <code>n</code> et <code>n</code> liens ' +
+      '<code>libelle|href</code>. Construisez et affichez le balisage HTML5 exact (à voir aussi dans <strong>Aperçu Web</strong>) : ' +
+      '<code>&lt;header&gt;&lt;h1&gt;titre&lt;/h1&gt;&lt;nav&gt;&lt;a href="href"&gt;libelle&lt;/a&gt;...&lt;/nav&gt;&lt;/header&gt;</code>, ' +
+      'suivi de <code>&lt;main&gt;&lt;p&gt;Contenu principal&lt;/p&gt;&lt;/main&gt;</code> et <code>&lt;footer&gt;Pied de page&lt;/footer&gt;</code> ' +
+      '(un bloc par ligne, liens séparés par un espace).</p>',
     starter: LIRE + `
-const html = lignes.join('\\n');
+const titre = lignes[0].trim();
+const n = Number(lignes[1]);
+const liens = lignes.slice(2, 2 + n);
 
-// À compléter : afficher le contenu de <title>, ou « - » s’il n’y en a pas.
+// À compléter : construire et afficher <header>, <main> et <footer> en HTML5.
 `,
     hints: [
-      'Une expression régulière non gourmande — /<title>([\\s\\S]*?)<\\/title>/ — capture ce qui est entre les deux balises.',
-      'Le caractère \\s dans une expression régulière couvre aussi les retours à la ligne.'
+      "Découpez chaque lien sur '|' avec .split('|') pour obtenir [libelle, href].",
+      "Enveloppez la barre de liens dans <nav>...</nav> à l’intérieur de <header>, sans oublier <main> et <footer>.",
+      "Assemblez les 3 lignes : `<header><h1>${titre}</h1><nav>${ancres}</nav></header>`, `<main><p>Contenu principal</p></main>`, `<footer>Pied de page</footer>`."
     ],
+    takeaway: 'Les balises sémantiques <header>, <nav>, <main> et <footer> structurent une page pour les navigateurs et les lecteurs d’écran bien mieux que des <div>.',
     examples: [
-      { stdin: '<html>\n<head><title>Mes notes</title></head>\n</html>', expected: 'Mes notes', note: 'Le contenu de la balise, sans les balises.' }
+      { stdin: 'Mon Campus\n2\nAccueil|/index.html\nCours|/cours.html', expected: '<header><h1>Mon Campus</h1><nav><a href="/index.html">Accueil</a> <a href="/cours.html">Cours</a></nav></header>\n<main><p>Contenu principal</p></main>\n<footer>Pied de page</footer>', note: 'Cliquez sur Exécuter puis consultez l’onglet Aperçu Web.' }
     ],
     tests: [
-      { label: 'Espaces autour du titre', stdin: '<head>\n<title>   Espaces   </title>\n</head>', expected: 'Espaces' },
-      { label: 'Entité HTML dans le titre', stdin: '<head>\n    <title>Cours B1 &amp; B2</title>\n</head>', expected: 'Cours B1 &amp; B2' },
-      { label: 'Titre absent', stdin: '<main>\n<p>Aucun titre</p>\n</main>', expected: '-' }
+      { label: 'Un seul lien de navigation', stdin: 'Portail B1\n1\nAtelier|/atelier.html', expected: '<header><h1>Portail B1</h1><nav><a href="/atelier.html">Atelier</a></nav></header>\n<main><p>Contenu principal</p></main>\n<footer>Pied de page</footer>' },
+      { label: 'Trois liens', stdin: 'Docs\n3\nHTML|#html\nCSS|#css\nJS|#js', expected: '<header><h1>Docs</h1><nav><a href="#html">HTML</a> <a href="#css">CSS</a> <a href="#js">JS</a></nav></header>\n<main><p>Contenu principal</p></main>\n<footer>Pied de page</footer>' },
+      { label: 'Navigation vide', stdin: 'Page Vide\n0', expected: '<header><h1>Page Vide</h1><nav></nav></header>\n<main><p>Contenu principal</p></main>\n<footer>Pied de page</footer>' }
     ],
     solution: LIRE + `
-const html = lignes.join('\\n');
+const titre = lignes[0].trim();
+const n = Number(lignes[1]);
+const liens = lignes.slice(2, 2 + n).map(l => {
+  const [libelle, href] = l.trim().split('|');
+  return '<a href="' + href + '">' + libelle + '</a>';
+}).join(' ');
 
-const trouve = /<title>([\\s\\S]*?)<\\/title>/.exec(html);
-console.log(trouve ? trouve[1].trim() : '-');
+console.log('<header><h1>' + titre + '</h1><nav>' + liens + '</nav></header>');
+console.log('<main><p>Contenu principal</p></main>');
+console.log('<footer>Pied de page</footer>');
 `
   },
   {
@@ -213,34 +219,52 @@ console.log(trouve ? trouve[1].trim() : '-');
     chapter: 2,
     level: 'n2',
     language: 'javascript',
-    title: 'Adresses des liens',
-    goal: 'Parcourir un document et extraire une valeur d’attribut, quel que soit l’ordre des attributs.',
-    brief: '<p>Le programme reçoit un extrait de HTML, une ligne par ligne. Affichez la valeur de ' +
-      'l’attribut <code>href</code> de chaque lien, une par ligne, <strong>dans l’ordre d’apparition</strong>. ' +
-      'Un lien sans <code>href</code> ne produit rien ; <code>href</code> écrite en majuscules ne compte pas.</p>',
+    preview: 'html',
+    title: 'Tableau HTML accessible avec caption et th',
+    goal: 'Générer un vrai tableau HTML structuré (<caption>, <thead>, <tbody>, <th scope="col">).',
+    brief: '<p>Le programme reçoit une ligne <code>legende</code>, puis un entier <code>n</code> et <code>n</code> lignes ' +
+      '<code>nom|note</code>. Affichez un tableau HTML accessible complet sur une ligne par balise principale : ' +
+      '<code>&lt;table&gt;</code>, <code>&lt;caption&gt;legende&lt;/caption&gt;</code>, ' +
+      '<code>&lt;thead&gt;&lt;tr&gt;&lt;th scope="col"&gt;Nom&lt;/th&gt;&lt;th scope="col"&gt;Note&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</code>, ' +
+      '<code>&lt;tbody&gt;</code> puis chaque ligne <code>&lt;tr&gt;&lt;td&gt;nom&lt;/td&gt;&lt;td&gt;note&lt;/td&gt;&lt;/tr&gt;</code>, puis <code>&lt;/tbody&gt;</code> et <code>&lt;/table&gt;</code>.</p>',
     starter: LIRE + `
-const html = lignes.join('\\n');
+const legende = lignes[0].trim();
+const n = Number(lignes[1]);
+const lignesTableau = lignes.slice(2, 2 + n);
 
-// À compléter : afficher les adresses des liens, une par ligne.
+// À compléter : générer le <table> avec <caption>, <thead> (<th scope="col">) et <tbody>.
 `,
     hints: [
-      'matchAll() renvoie tous les résultats d’une expression régulière globale, avec leurs groupes de capture.',
-      'Le motif doit accepter d’autres attributs avant href : <a[^>]*href="([^"]*)" .'
+      "Un tableau accessible relie toujours un titre (<caption>) et des en-têtes explicites (<th scope=\"col\">).",
+      "Séparez les colonnes de chaque ligne avec .split('|') avant de produire <tr><td>...</td><td>...</td></tr>.",
+      "N’oubliez pas de fermer </tbody> puis </table> après la boucle sur les lignes."
     ],
+    takeaway: '<caption> décrit le sujet du tableau et <th scope="col"> associe explicitement chaque colonne à ses cellules <td> pour l’accessibilité.',
     examples: [
-      { stdin: '<nav>\n<a href="/cours.html">Cours</a>\n<p>texte</p>\n<a href="https://x.fr" target="_blank">X</a>\n</nav>', expected: '/cours.html\nhttps://x.fr', note: 'Deux liens, deux adresses.' }
+      { stdin: 'Notes B1\n2\nAda|18\nLinus|15', expected: '<table>\n<caption>Notes B1</caption>\n<thead><tr><th scope="col">Nom</th><th scope="col">Note</th></tr></thead>\n<tbody>\n<tr><td>Ada</td><td>18</td></tr>\n<tr><td>Linus</td><td>15</td></tr>\n</tbody>\n</table>' }
     ],
     tests: [
-      { label: 'Un seul lien', stdin: '<p><a href="/notes">Mes notes</a></p>', expected: '/notes' },
-      { label: 'Attribut après d’autres', stdin: '<a class="btn" id="go" href="/atelier">Atelier</a>', expected: '/atelier' },
-      { label: 'Lien sans href ignoré', stdin: '<a name="ancre">Ancre</a>\n<a href="/a">A</a>\n<a href="/b">B</a>', expected: '/a\n/b' }
+      { label: 'Une seule ligne', stdin: 'Bilan\n1\nGrace|19', expected: '<table>\n<caption>Bilan</caption>\n<thead><tr><th scope="col">Nom</th><th scope="col">Note</th></tr></thead>\n<tbody>\n<tr><td>Grace</td><td>19</td></tr>\n</tbody>\n</table>' },
+      { label: 'Trois étudiants', stdin: 'Semestre 1\n3\nAlice|14\nBob|11\nChloé|17', expected: '<table>\n<caption>Semestre 1</caption>\n<thead><tr><th scope="col">Nom</th><th scope="col">Note</th></tr></thead>\n<tbody>\n<tr><td>Alice</td><td>14</td></tr>\n<tr><td>Bob</td><td>11</td></tr>\n<tr><td>Chloé</td><td>17</td></tr>\n</tbody>\n</table>' },
+      { label: 'Ligne supplémentaire ignorée', stdin: 'Test\n1\nNora|16\nExtra|0', expected: '<table>\n<caption>Test</caption>\n<thead><tr><th scope="col">Nom</th><th scope="col">Note</th></tr></thead>\n<tbody>\n<tr><td>Nora</td><td>16</td></tr>\n</tbody>\n</table>' }
     ],
     solution: LIRE + `
-const html = lignes.join('\\n');
+const legende = lignes[0].trim();
+const n = Number(lignes[1]);
+const entrees = lignes.slice(2, 2 + n);
 
-for (const lien of html.matchAll(/<a[^>]*href="([^"]*)"/g)) {
-  console.log(lien[1]);
+const out = [
+  '<table>',
+  '<caption>' + legende + '</caption>',
+  '<thead><tr><th scope="col">Nom</th><th scope="col">Note</th></tr></thead>',
+  '<tbody>'
+];
+for (const ligne of entrees) {
+  const [nom, note] = ligne.trim().split('|');
+  out.push('<tr><td>' + nom + '</td><td>' + note + '</td></tr>');
 }
+out.push('</tbody>', '</table>');
+console.log(out.join('\\n'));
 `
   },
   {
@@ -248,93 +272,114 @@ for (const lien of html.matchAll(/<a[^>]*href="([^"]*)"/g)) {
     chapter: 2,
     level: 'n3',
     language: 'javascript',
-    title: 'Hiérarchie des titres',
-    goal: 'Contrôler une règle d’accessibilité qui se vérifie sans navigateur.',
-    brief: '<p>Une page est bien structurée si son premier titre est un <code>h1</code> et si l’on ne ' +
-      'descend jamais de plus d’un niveau d’un titre au suivant. Le programme reçoit un entier ' +
-      '<code>n</code>, puis <code>n</code> noms de balises de titres (<code>h1</code>…<code>h6</code>, un par ' +
-      'ligne). Affichez <code>conforme</code> ou <code>non conforme</code>.</p>',
+    preview: 'html',
+    title: 'Plan de titres HTML et validation sémantique',
+    goal: 'Contrôler une hiérarchie h1–h6 sans saut de niveau et générer l’aperçu structuré correspondant.',
+    brief: '<p>Une page est bien structurée si son premier titre est un <code>h1</code> et si l’on ne descend jamais ' +
+      'de plus d’un niveau d’un titre au suivant. Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes ' +
+      '<code>niveau|texte</code> (ex. <code>h2|Introduction</code>). S’il est conforme, affichez ' +
+      '<code>&lt;article data-conforme="1"&gt;</code> puis chaque balise <code>&lt;hX&gt;texte&lt;/hX&gt;</code> puis ' +
+      '<code>&lt;/article&gt;</code> ; sinon affichez <code>&lt;p role="alert"&gt;Hierarchie non conforme&lt;/p&gt;</code>.</p>',
     starter: LIRE + `
 const n = Number(lignes[0]);
-const titres = lignes.slice(1, 1 + n).map(texte => Number(texte.trim()[1]));
+const items = lignes.slice(1, 1 + n).map(l => {
+  const [balise, texte] = l.trim().split('|');
+  return { balise, niveau: Number(balise[1]), texte };
+});
 
-// À compléter : afficher « conforme » ou « non conforme ».
+// À compléter : vérifier h1 initial et écart <= 1 à la descente, puis émettre l'article HTML ou l'alerte.
 `,
     hints: [
-      'Deux règles à vérifier : le premier niveau vaut 1, et chaque niveau ne dépasse pas le précédent de plus de 1.',
-      'Remonter d’un h3 à un h2 est autorisé : seule la descente trop rapide pose problème.'
+      "Le premier élément doit avoir niveau === 1 ; pour chaque suivant i > 0, vérifiez items[i].niveau <= items[i - 1].niveau + 1.",
+      "Remonter d’un h3 vers un h2 est valide : seule une descente brusque (ex. h1 → h3) enfreint l’accessibilité.",
+      "Si conforme vaut true, entourez les `<${b}>${texte}</${b}>` de `<article data-conforme=\"1\">` et `</article>`."
     ],
+    takeaway: 'Ne jamais sauter de niveau de titre (ex. h1 → h3) garantit un plan de document navigable au lecteur d’écran.',
     examples: [
-      { stdin: '3\nh1\nh2\nh3', expected: 'conforme', note: 'Descente d’un niveau à la fois.' }
+      { stdin: '3\nh1|Cours Web\nh2|Chapitre 2\nh3|Balises', expected: '<article data-conforme="1">\n<h1>Cours Web</h1>\n<h2>Chapitre 2</h2>\n<h3>Balises</h3>\n</article>' }
     ],
     tests: [
-      { label: 'La page commence par h2', stdin: '2\nh2\nh3', expected: 'non conforme' },
-      { label: 'Saut de deux niveaux', stdin: '3\nh1\nh3\nh4', expected: 'non conforme' },
-      { label: 'Deux titres de même niveau', stdin: '5\nh1\nh2\nh2\nh3\nh4', expected: 'conforme' },
-      { label: 'Ligne surnuméraire ignorée', stdin: '2\nh1\nh2\nh3', expected: 'conforme' },
-      { label: 'Ligne hors quota non conforme ignorée', stdin: '2\nh1\nh2\nh5', expected: 'conforme' }
+      { label: 'Commence par h2', stdin: '2\nh2|Sous-titre\nh3|Suite', expected: '<p role="alert">Hierarchie non conforme</p>' },
+      { label: 'Saut h1 vers h3', stdin: '2\nh1|Titre\nh3|Saut', expected: '<p role="alert">Hierarchie non conforme</p>' },
+      { label: 'Remontée h3 vers h2 autorisée', stdin: '4\nh1|Site\nh2|Part 1\nh3|Detail\nh2|Part 2', expected: '<article data-conforme="1">\n<h1>Site</h1>\n<h2>Part 1</h2>\n<h3>Detail</h3>\n<h2>Part 2</h2>\n</article>' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
-const titres = lignes.slice(1, 1 + n).map(texte => Number(texte.trim()[1]));
+const items = lignes.slice(1, 1 + n).map(l => {
+  const [balise, texte] = l.trim().split('|');
+  return { balise, niveau: Number(balise[1]), texte };
+});
 
-let conforme = titres[0] === 1;
-for (let i = 1; i < titres.length; i++) {
-  if (titres[i] > titres[i - 1] + 1) conforme = false;
+let conforme = items.length > 0 && items[0].niveau === 1;
+for (let i = 1; i < items.length; i++) {
+  if (items[i].niveau > items[i - 1].niveau + 1) conforme = false;
 }
 
-console.log(conforme ? 'conforme' : 'non conforme');
+if (!conforme) {
+  console.log('<p role="alert">Hierarchie non conforme</p>');
+} else {
+  const out = ['<article data-conforme="1">'];
+  for (const it of items) {
+    out.push('<' + it.balise + '>' + it.texte + '</' + it.balise + '>');
+  }
+  out.push('</article>');
+  console.log(out.join('\\n'));
+}
 `
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Module 3 — Formulaires, validation et sécurité
+  // Module 3 — Formulaires HTML5, validation et sécurité XSS
   // ═══════════════════════════════════════════════════════════════════════
   {
     id: 'web-c3-e1',
     chapter: 3,
     level: 'n2',
     language: 'javascript',
-    title: 'Valider une adresse électronique',
-    goal: 'Écrire une validation explicite plutôt que de se reposer sur le navigateur.',
-    brief: '<p>Le programme reçoit une adresse électronique sur une seule ligne. Elle est valide si elle ' +
-      'contient <strong>exactement un</strong> <code>@</code>, si la partie avant est non vide, si la partie ' +
-      'après contient un point qui n’est ni le premier ni le dernier caractère, et si elle ne contient aucun ' +
-      'espace. Affichez <code>valide</code> ou <code>invalide</code>.</p>',
+    preview: 'html',
+    title: 'Formulaire e-mail HTML5 et retour d’état',
+    goal: 'Construire un formulaire HTML5 accessible (<label for>) et afficher un retour de validation.',
+    brief: '<p>Le programme reçoit une adresse e-mail sur une ligne. Elle est valide s’il y a exactement un <code>@</code>, ' +
+      'une partie locale non vide, un domaine contenant un <code>.</code> ni au début ni à la fin, et aucun espace. ' +
+      'Affichez le composant HTML de formulaire à 3 lignes : ' +
+      '<code>&lt;form class="champ"&gt;</code>, <code>&lt;label for="email"&gt;Courriel&lt;/label&gt;&lt;input id="email" type="email" value="ADRESSE"&gt;</code> ' +
+      '(échappez <code>"</code>, <code>&lt;</code>, <code>&gt;</code> dans value si besoin? Ici entrées simples alphanumériques), ' +
+      'et <code>&lt;p role="status" data-etat="valide|invalide"&gt;valide|invalide&lt;/p&gt;&lt;/form&gt;</code>.</p>',
     starter: LIRE + `
-const adresse = lignes[0];
+const adresse = lignes[0].trim();
 
-// À compléter : afficher « valide » ou « invalide ».
+// À compléter : valider l'adresse et générer le <form> avec <label> + <input type="email"> + retour <p role="status">.
 `,
     hints: [
-      'Compte les @ avec split("@"): le tableau obtenu ne doit contenir que deux éléments.',
-      'Pour la partie domaine : elle doit contenir un point, et ni commencer ni finir par ce point.'
+      "Vérifiez que l’adresse ne contient pas d’espace, a split('@').length === 2, un identifiant local non vide, et un '.' interne au domaine.",
+      "Associez toujours <label for=\"email\"> au champ <input id=\"email\" type=\"email\">.",
+      "Émettez exactement <p role=\"status\" data-etat=\"...\">valide|invalide</p></form> en dernière ligne."
     ],
+    takeaway: 'Un <label for="..."> lié à l’id du champ rend le formulaire utilisable au clavier/lecteur d’écran, en complément d’une validation JS explicite.',
     examples: [
-      { stdin: 'etudiant.b1@campus.fr', expected: 'valide', note: 'Un seul @, domaine avec un point, pas d’espace.' }
+      { stdin: 'etudiant.b1@campus.fr', expected: '<form class="champ">\n<label for="email">Courriel</label><input id="email" type="email" value="etudiant.b1@campus.fr">\n<p role="status" data-etat="valide">valide</p></form>' }
     ],
     tests: [
-      { label: 'Sans arobase', stdin: 'pas-une-adresse', expected: 'invalide' },
-      { label: 'Partie locale vide', stdin: '@domaine.fr', expected: 'invalide' },
-      { label: 'Domaine sans point', stdin: 'nom@domaine', expected: 'invalide' },
-      { label: 'Espace interdit', stdin: 'user name@domaine.fr', expected: 'invalide' },
-      { label: 'Domaine court valide', stdin: 'contact@x.org', expected: 'valide' },
-      { label: 'Domaine minimal deux lettres', stdin: 'test@a.b', expected: 'valide' }
+      { label: 'Sans arobase', stdin: 'pas-une-adresse', expected: '<form class="champ">\n<label for="email">Courriel</label><input id="email" type="email" value="pas-une-adresse">\n<p role="status" data-etat="invalide">invalide</p></form>' },
+      { label: 'Domaine sans point', stdin: 'nom@domaine', expected: '<form class="champ">\n<label for="email">Courriel</label><input id="email" type="email" value="nom@domaine">\n<p role="status" data-etat="invalide">invalide</p></form>' },
+      { label: 'Espace interdit', stdin: 'user name@domaine.fr', expected: '<form class="champ">\n<label for="email">Courriel</label><input id="email" type="email" value="user name@domaine.fr">\n<p role="status" data-etat="invalide">invalide</p></form>' },
+      { label: 'Domaine court valide', stdin: 'contact@x.org', expected: '<form class="champ">\n<label for="email">Courriel</label><input id="email" type="email" value="contact@x.org">\n<p role="status" data-etat="valide">valide</p></form>' }
     ],
     solution: LIRE + `
-const adresse = lignes[0];
+const adresse = lignes[0].trim();
 
-function valide(texte) {
-  if (texte.includes(' ')) return false;
-  const parties = texte.split('@');
-  if (parties.length !== 2) return false;
-  const [locale, domaine] = parties;
-  if (!locale) return false;
-  const point = domaine.indexOf('.');
-  return point > 0 && point < domaine.length - 1;
+function estValide(texte) {
+  if (!texte || texte.includes(' ')) return false;
+  const parts = texte.split('@');
+  if (parts.length !== 2 || !parts[0]) return false;
+  const point = parts[1].indexOf('.');
+  return point > 0 && point < parts[1].length - 1;
 }
 
-console.log(valide(adresse) ? 'valide' : 'invalide');
+const etat = estValide(adresse) ? 'valide' : 'invalide';
+console.log('<form class="champ">');
+console.log('<label for="email">Courriel</label><input id="email" type="email" value="' + adresse + '">');
+console.log('<p role="status" data-etat="' + etat + '">' + etat + '</p></form>');
 `
   },
   {
@@ -342,46 +387,45 @@ console.log(valide(adresse) ? 'valide' : 'invalide');
     chapter: 3,
     level: 'n3',
     language: 'javascript',
-    title: 'Force d’un mot de passe',
-    goal: 'Compter des critères, puis traduire un score en conseil lisible.',
-    brief: '<p>Le programme reçoit un mot de passe sur une seule ligne. Comptez cinq critères : au moins ' +
-      '8 caractères ; au moins une majuscule ; au moins une minuscule ; au moins un chiffre ; au moins un ' +
-      'caractère qui n’est ni lettre ni chiffre. Affichez <code>score conseil</code> où le conseil vaut ' +
-      '<code>faible</code> (score ≤ 2), <code>moyen</code> (3 ou 4) ou <code>fort</code> (5).</p>',
+    preview: 'html',
+    title: 'Indicateur HTML/CSS de force de mot de passe',
+    goal: 'Évaluer 5 critères de robustesse et restituer une jauge CSS colorée dans l’aperçu.',
+    brief: '<p>Le programme reçoit un mot de passe. Évaluez 5 critères : ≥ 8 caractères ; ≥ 1 majuscule ; ≥ 1 minuscule ; ' +
+      '≥ 1 chiffre ; ≥ 1 caractère spécial (<code>[^A-Za-z0-9]</code>). Calculez <code>score</code> et <code>conseil</code> ' +
+      '(<code>faible</code> si score ≤ 2, <code>moyen</code> si 3–4, <code>fort</code> si 5). Affichez le bloc HTML+CSS : ' +
+      '<code>&lt;style&gt;.jauge{padding:8px;border-radius:6px}.faible{background:#fee2e2;color:#991b1b}.moyen{background:#fef3c7;color:#92400e}.fort{background:#dcfce7;color:#166534}&lt;/style&gt;</code> ' +
+      'puis <code>&lt;div class="jauge CONSEIL" data-score="SCORE"&gt;SCORE/5 : CONSEIL&lt;/div&gt;</code>.</p>',
     starter: LIRE + `
 const motDePasse = lignes[0];
 
-// À compléter : compter les cinq critères, puis afficher « score conseil ».
+// À compléter : compter les 5 critères et afficher le <style> + <div class="jauge ...">.
 `,
     hints: [
-      'Trois expressions régulières (majuscule, minuscule, chiffre) suffisent ; le caractère spécial s’obtient par différence.',
-      'Les critères vrais valent 1 et les faux 0 : la somme donne directement le score.'
+      "Sommez les 5 booléens avec [length >= 8, /[A-Z]/, /[a-z]/, /[0-9]/, /[^A-Za-z0-9]/].filter(Boolean).length.",
+      "Déduisez conseil : score <= 2 ? 'faible' : score < 5 ? 'moyen' : 'fort'.",
+      "Affichez la ligne <style> exacte suivie du <div class=\"jauge ...\" data-score=\"...\">SCORE/5 : CONSEIL</div>."
     ],
+    takeaway: 'Un retour visuel immédiat associe calcul de règles JS et classes CSS sémantiques (.faible, .moyen, .fort) sans exposer le mot de passe en clair.',
     examples: [
-      { stdin: 'B1-secret!', expected: '5 fort', note: 'Longueur, majuscule, minuscule, chiffre et symbole.' }
+      { stdin: 'B1-secret!', expected: '<style>.jauge{padding:8px;border-radius:6px}.faible{background:#fee2e2;color:#991b1b}.moyen{background:#fef3c7;color:#92400e}.fort{background:#dcfce7;color:#166534}</style>\n<div class="jauge fort" data-score="5">5/5 : fort</div>' }
     ],
     tests: [
-      { label: 'Lettres minuscules seulement', stdin: 'abcdefgh', expected: '2 faible' },
-      { label: 'Tout sauf un symbole', stdin: 'Abcdefg1', expected: '4 moyen' },
-      { label: 'Trop court', stdin: 'abc', expected: '1 faible' },
-      { label: 'Mot de passe complet valide', stdin: 'Exemple1!', expected: '5 fort' },
-      { label: 'Majuscule non initiale', stdin: 'Bbcdefg1', expected: '4 moyen' }
+      { label: 'Minuscules seules', stdin: 'abcdefgh', expected: '<style>.jauge{padding:8px;border-radius:6px}.faible{background:#fee2e2;color:#991b1b}.moyen{background:#fef3c7;color:#92400e}.fort{background:#dcfce7;color:#166534}</style>\n<div class="jauge faible" data-score="2">2/5 : faible</div>' },
+      { label: 'Moyen sans symbole', stdin: 'Abcdefg1', expected: '<style>.jauge{padding:8px;border-radius:6px}.faible{background:#fee2e2;color:#991b1b}.moyen{background:#fef3c7;color:#92400e}.fort{background:#dcfce7;color:#166534}</style>\n<div class="jauge moyen" data-score="4">4/5 : moyen</div>' },
+      { label: 'Trop court', stdin: 'abc', expected: '<style>.jauge{padding:8px;border-radius:6px}.faible{background:#fee2e2;color:#991b1b}.moyen{background:#fef3c7;color:#92400e}.fort{background:#dcfce7;color:#166534}</style>\n<div class="jauge faible" data-score="1">1/5 : faible</div>' }
     ],
     solution: LIRE + `
 const motDePasse = lignes[0];
-
-const criteres = [
+const score = [
   motDePasse.length >= 8,
   /[A-Z]/.test(motDePasse),
   /[a-z]/.test(motDePasse),
   /[0-9]/.test(motDePasse),
   /[^A-Za-z0-9]/.test(motDePasse)
-];
-
-const score = criteres.filter(Boolean).length;
+].filter(Boolean).length;
 const conseil = score <= 2 ? 'faible' : score < 5 ? 'moyen' : 'fort';
-
-console.log(score + ' ' + conseil);
+console.log('<style>.jauge{padding:8px;border-radius:6px}.faible{background:#fee2e2;color:#991b1b}.moyen{background:#fef3c7;color:#92400e}.fort{background:#dcfce7;color:#166534}</style>');
+console.log('<div class="jauge ' + conseil + '" data-score="' + score + '">' + score + '/5 : ' + conseil + '</div>');
 `
   },
   {
@@ -389,92 +433,83 @@ console.log(score + ' ' + conseil);
     chapter: 3,
     level: 'n3',
     language: 'javascript',
-    title: 'Échapper du HTML',
-    goal: 'Neutraliser un texte saisi par l’utilisateur avant de l’insérer dans une page.',
-    brief: '<p>Le programme reçoit un texte saisi par un visiteur, sur une seule ligne. Affichez ce texte ' +
-      'après échappement : <code>&amp;</code> devient <code>&amp;amp;</code>, <code>&lt;</code> devient ' +
-      '<code>&amp;lt;</code>, <code>&gt;</code> devient <code>&amp;gt;</code>, <code>"</code> devient ' +
-      '<code>&amp;quot;</code> et <code>\'</code> devient <code>&amp;#39;</code>.</p>',
+    preview: 'html',
+    title: 'Neutraliser une injection XSS dans un composant HTML',
+    goal: 'Échapper toute saisie utilisateur avant insertion dans du HTML afin qu’un <script> reste un texte inoffensif.',
+    brief: '<p>Le programme reçoit une saisie visiteur sur une ligne. Échappez dans l’ordre <code>&amp;</code> (→ <code>&amp;amp;</code>), ' +
+      '<code>&lt;</code> (→ <code>&amp;lt;</code>), <code>&gt;</code> (→ <code>&amp;gt;</code>), <code>"</code> (→ <code>&amp;quot;</code>) ' +
+      'et <code>\'</code> (→ <code>&amp;#39;</code>), puis affichez : ' +
+      '<code>&lt;article class="commentaire"&gt;&lt;p&gt;TEXTE_ECHAPPE&lt;/p&gt;&lt;/article&gt;</code>. ' +
+      'Vérifiez dans l’Aperçu Web que <code>&lt;script&gt;</code> s’affiche littéralement sans s’exécuter.</p>',
     starter: LIRE + `
 const texte = lignes[0];
 
-// À compléter : afficher le texte échappé.
+// À compléter : échapper &, <, >, " et ' puis envelopper dans <article class="commentaire"><p>...</p></article>.
 `,
     hints: [
-      'L’ordre des remplacements n’est pas neutre : commence impérativement par le & , sinon vous ré-échapperez les entités créées.',
-      'replace() avec une expression régulière globale — le drapeau g — remplace toutes les occurrences, pas seulement la première.'
+      "Commencez obligatoirement par remplacer & → &amp; avant < et >, sinon vos propres entités seront double-échappées.",
+      "Utilisez .replace(/.../g, ...) sur les 5 caractères sensibles.",
+      "Enveloppez le résultat dans '<article class=\"commentaire\"><p>' + echappe + '</p></article>'."
     ],
+    takeaway: 'Échapper & en premier puis <, >, ", \' empêche tout texte saisi de devenir du code HTML/JS exécutable (faille XSS).',
     examples: [
-      { stdin: '5 < 10 & "ok"', expected: '5 &lt; 10 &amp; &quot;ok&quot;', note: 'Chaque caractère sensible est remplacé.' }
+      { stdin: '5 < 10 & "ok"', expected: '<article class="commentaire"><p>5 &lt; 10 &amp; &quot;ok&quot;</p></article>' }
     ],
     tests: [
-      { label: 'Tentative d’injection', stdin: '<script>alert(1)</script>', expected: '&lt;script&gt;alert(1)&lt;/script&gt;' },
-      { label: 'Apostrophe et guillemets', stdin: 'C\'est "vrai"', expected: 'C&#39;est &quot;vrai&quot;' },
-      { label: 'Texte sans caractère sensible', stdin: 'Rien a signaler', expected: 'Rien a signaler' }
+      { label: 'Injection script bloquée', stdin: '<script>alert(1)</script>', expected: '<article class="commentaire"><p>&lt;script&gt;alert(1)&lt;/script&gt;</p></article>' },
+      { label: 'Apostrophe et guillemets', stdin: 'C\'est "vrai"', expected: '<article class="commentaire"><p>C&#39;est &quot;vrai&quot;</p></article>' },
+      { label: 'Texte sain', stdin: 'Rien a signaler', expected: '<article class="commentaire"><p>Rien a signaler</p></article>' }
     ],
     solution: LIRE + `
 const texte = lignes[0];
-
 const echappe = texte
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
-
-console.log(echappe);
+console.log('<article class="commentaire"><p>' + echappe + '</p></article>');
 `
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Module 4 — CSS : sélecteurs, cascade et modèle de boîte
+  // Module 4 — CSS : sélecteurs, variables, modèle de boîte
   // ═══════════════════════════════════════════════════════════════════════
   {
     id: 'web-c4-e1',
     chapter: 4,
-    level: 'n3',
+    level: 'n2',
     language: 'javascript',
-    title: 'Spécificité d’un sélecteur',
-    goal: 'Calculer le triplet (identifiants, classes, types) qui décide du style gagnant.',
-    brief: '<p>Le programme reçoit un sélecteur CSS sur une seule ligne (sans virgule, combinateurs par ' +
-      'espaces). Affichez ses trois compteurs sur une ligne : nombre d’<strong>identifiants</strong> ' +
-      '(<code>#…</code>), nombre de <strong>classes</strong> (<code>.…</code>, y compris plusieurs sur un ' +
-      'même élément) et nombre de <strong>types</strong> (noms de balises). Le sélecteur universel ' +
-      '<code>*</code> ne compte pas.</p>',
+    preview: 'html',
+    title: 'Feuille CSS : variables et spécificité des cartes',
+    goal: 'Générer une feuille <style> avec variables CSS (--accent) et vérifier la priorité de classe modificateur.',
+    brief: '<p>Le programme reçoit une ligne <code>titre|couleur|prioritaire</code> (<code>prioritaire</code> vaut <code>oui</code> ou <code>non</code>). ' +
+      'Produisez une carte HTML stylée : ligne 1 <code>&lt;style&gt;:root{--accent:COULEUR}.carte{border:2px solid #cbd5e1;padding:12px;border-radius:8px}.carte--top{border-color:var(--accent);background:#eff6ff}&lt;/style&gt;</code>, ' +
+      'ligne 2 <code>&lt;section class="carte[ carte--top]"&gt;&lt;h2&gt;TITRE&lt;/h2&gt;&lt;/section&gt;</code> (ajoutez <code>carte--top</code> uniquement si <code>prioritaire === "oui"</code>).</p>',
     starter: LIRE + `
-const selecteur = lignes[0];
+const [titre, couleur, prioritaire] = lignes[0].trim().split('|');
 
-// À compléter : afficher ids, classes et types séparés par des espaces.
+// À compléter : afficher le <style> avec --accent et la <section class="carte..."> correspondante.
 `,
     hints: [
-      'Découpez sur les espaces pour obtenir les éléments du sélecteur : chacun se juge séparément.',
-      'Un élément qui commence par . peut porter plusieurs classes : compte les points, pas les éléments.'
+      "Injectez la couleur dans --accent via :root{--accent:" + "COULEUR}.",
+      "Si prioritaire vaut 'oui', la classe devient 'carte carte--top' ; sinon simplement 'carte'.",
+      "En CSS, .carte--top gagne sur .carte par l’ordre de déclaration à spécificité égale (0,1,0)."
     ],
+    takeaway: 'Les variables CSS (--accent) centralisent les couleurs réutilisables et la cascade départage les classes selon leur ordre ou spécificité.',
     examples: [
-      { stdin: 'div#main.item p', expected: '1 1 2', note: 'Un identifiant, une classe, deux types.' }
+      { stdin: 'Alerte réseau|#dc2626|oui', expected: '<style>:root{--accent:#dc2626}.carte{border:2px solid #cbd5e1;padding:12px;border-radius:8px}.carte--top{border-color:var(--accent);background:#eff6ff}</style>\n<section class="carte carte--top"><h2>Alerte réseau</h2></section>' }
     ],
     tests: [
-      { label: 'Deux classes sur le même élément', stdin: '.btn.btn--primary', expected: '0 2 0' },
-      { label: 'Identifiant en tête', stdin: '#app section h2', expected: '1 0 2' },
-      { label: 'Sélecteur universel', stdin: '*', expected: '0 0 0' },
-      { label: 'Balises courantes', stdin: 'div.card span', expected: '0 1 2' },
-      { label: 'Balise personnalisée avec majuscule', stdin: 'Main', expected: '0 0 1' }
+      { label: 'Carte standard', stdin: 'Note B1|#2563eb|non', expected: '<style>:root{--accent:#2563eb}.carte{border:2px solid #cbd5e1;padding:12px;border-radius:8px}.carte--top{border-color:var(--accent);background:#eff6ff}</style>\n<section class="carte"><h2>Note B1</h2></section>' },
+      { label: 'Carte prioritaire verte', stdin: 'Validation|#16a34a|oui', expected: '<style>:root{--accent:#16a34a}.carte{border:2px solid #cbd5e1;padding:12px;border-radius:8px}.carte--top{border-color:var(--accent);background:#eff6ff}</style>\n<section class="carte carte--top"><h2>Validation</h2></section>' },
+      { label: 'Autre accent sans mise en avant', stdin: 'Archive|#9333ea|non', expected: '<style>:root{--accent:#9333ea}.carte{border:2px solid #cbd5e1;padding:12px;border-radius:8px}.carte--top{border-color:var(--accent);background:#eff6ff}</style>\n<section class="carte"><h2>Archive</h2></section>' }
     ],
     solution: LIRE + `
-const selecteur = lignes[0];
-
-let ids = 0;
-let classes = 0;
-let types = 0;
-
-for (const element of selecteur.trim().split(/\\s+/)) {
-  ids += (element.match(/#/g) || []).length;
-  classes += (element.match(/\\./g) || []).length;
-  // Le premier caractère dit si l’élément commence par un nom de balise.
-  if (/^[a-zA-Z]/.test(element)) types++;
-}
-
-console.log(ids + ' ' + classes + ' ' + types);
+const [titre, couleur, prioritaire] = lignes[0].trim().split('|');
+const cls = prioritaire === 'oui' ? 'carte carte--top' : 'carte';
+console.log('<style>:root{--accent:' + couleur + '}.carte{border:2px solid #cbd5e1;padding:12px;border-radius:8px}.carte--top{border-color:var(--accent);background:#eff6ff}</style>');
+console.log('<section class="' + cls + '"><h2>' + titre + '</h2></section>');
 `
   },
   {
@@ -482,40 +517,41 @@ console.log(ids + ' ' + classes + ' ' + types);
     chapter: 4,
     level: 'n3',
     language: 'javascript',
-    title: 'Modèle de boîte : content-box ou border-box',
-    goal: 'Voir par le calcul ce que change box-sizing sur la largeur réellement occupée.',
-    brief: '<p>Le programme reçoit une ligne <code>largeur padding border margin</code> (quatre nombres de ' +
-      'pixels). Affichez trois lignes : la largeur de la boîte avec <code>box-sizing: content-box</code> ' +
-      '(largeur de contenu + 2·padding + 2·border) ; la place totale occupée avec les marges, dans tous les ' +
-      'cas (largeur déclarée + 2·margin) ; enfin la largeur de contenu restante avec ' +
-      '<code>box-sizing: border-box</code> (largeur déclarée − 2·padding − 2·border).</p>',
+    preview: 'html',
+    title: 'Comparateur visuel content-box vs border-box',
+    goal: 'Générer deux boîtes CSS côte à côte pour visualiser la différence de largeur finale entre content-box et border-box.',
+    brief: '<p>Le programme reçoit <code>largeur padding bordure</code> (3 entiers en px). Calculez la largeur rendue en ' +
+      '<code>content-box</code> (<code>largeur + 2*padding + 2*bordure</code>) et la largeur utile du contenu en ' +
+      '<code>border-box</code> (<code>largeur - 2*padding - 2*bordure</code>). Affichez : ' +
+      'ligne 1 <code>&lt;style&gt;.box{width:Lpx;padding:Ppx;border:Bpx solid #2563eb;margin-bottom:8px;background:#dbeafe}.cb{box-sizing:content-box}.bb{box-sizing:border-box}&lt;/style&gt;</code>, ' +
+      'ligne 2 <code>&lt;div class="box cb"&gt;content-box : total TOTALpx&lt;/div&gt;</code>, ' +
+      'ligne 3 <code>&lt;div class="box bb"&gt;border-box : contenu CONTENUpx&lt;/div&gt;</code>.</p>',
     starter: LIRE + `
-const [largeur, padding, bordure, marge] = lignes[0].split(' ').map(Number);
+const [largeur, padding, bordure] = lignes[0].trim().split(' ').map(Number);
 
-// À compléter : afficher les trois largeurs, sur trois lignes.
+// À compléter : calculer total content-box et contenu border-box, puis émettre <style> et les 2 <div>.
 `,
     hints: [
-      'En content-box, la largeur déclarée ne concerne que le contenu : les marges internes et la bordure s’ajoutent.',
-      'En border-box, la largeur déclarée englobe padding et bordure ; le contenu rétrécit d’autant.'
+      "En content-box, la largeur totale vaut largeur + 2 * padding + 2 * bordure.",
+      "En border-box, la largeur totale reste égale à largeur, donc la zone de contenu vaut largeur - 2 * padding - 2 * bordure.",
+      "Ouvrez Aperçu Web après exécution pour comparer visuellement la largeur des deux boîtes bleues."
     ],
+    takeaway: 'Avec box-sizing: border-box, width inclut padding et border, évitant les débordements fréquents avec content-box.',
     examples: [
-      { stdin: '200 10 2 5', expected: '224\n210\n176', note: '200 + 20 + 4 = 224 ; 200 + 10 = 210 ; 200 − 20 − 4 = 176.' }
+      { stdin: '200 10 2', expected: '<style>.box{width:200px;padding:10px;border:2px solid #2563eb;margin-bottom:8px;background:#dbeafe}.cb{box-sizing:content-box}.bb{box-sizing:border-box}</style>\n<div class="box cb">content-box : total 224px</div>\n<div class="box bb">border-box : contenu 176px</div>' }
     ],
     tests: [
-      { label: 'Boîte sans ornement', stdin: '100 0 0 0', expected: '100\n100\n100' },
-      { label: 'Sans marge', stdin: '300 20 5 0', expected: '350\n300\n250' },
-      { label: 'Petit padding et grande marge', stdin: '150 5 1 8', expected: '162\n166\n138' }
+      { label: 'Boîte nue', stdin: '100 0 0', expected: '<style>.box{width:100px;padding:0px;border:0px solid #2563eb;margin-bottom:8px;background:#dbeafe}.cb{box-sizing:content-box}.bb{box-sizing:border-box}</style>\n<div class="box cb">content-box : total 100px</div>\n<div class="box bb">border-box : contenu 100px</div>' },
+      { label: 'Grand padding', stdin: '300 20 5', expected: '<style>.box{width:300px;padding:20px;border:5px solid #2563eb;margin-bottom:8px;background:#dbeafe}.cb{box-sizing:content-box}.bb{box-sizing:border-box}</style>\n<div class="box cb">content-box : total 350px</div>\n<div class="box bb">border-box : contenu 250px</div>' },
+      { label: 'Bordure fine', stdin: '150 5 1', expected: '<style>.box{width:150px;padding:5px;border:1px solid #2563eb;margin-bottom:8px;background:#dbeafe}.cb{box-sizing:content-box}.bb{box-sizing:border-box}</style>\n<div class="box cb">content-box : total 162px</div>\n<div class="box bb">border-box : contenu 138px</div>' }
     ],
     solution: LIRE + `
-const [largeur, padding, bordure, marge] = lignes[0].split(' ').map(Number);
-
-const contentBox = largeur + 2 * padding + 2 * bordure;
-const placeTotale = largeur + 2 * marge;
-const contenuEnBorderBox = largeur - 2 * padding - 2 * bordure;
-
-console.log(contentBox);
-console.log(placeTotale);
-console.log(contenuEnBorderBox);
+const [largeur, padding, bordure] = lignes[0].trim().split(' ').map(Number);
+const total = largeur + 2 * padding + 2 * bordure;
+const contenu = largeur - 2 * padding - 2 * bordure;
+console.log('<style>.box{width:' + largeur + 'px;padding:' + padding + 'px;border:' + bordure + 'px solid #2563eb;margin-bottom:8px;background:#dbeafe}.cb{box-sizing:content-box}.bb{box-sizing:border-box}</style>');
+console.log('<div class="box cb">content-box : total ' + total + 'px</div>');
+console.log('<div class="box bb">border-box : contenu ' + contenu + 'px</div>');
 `
   },
   {
@@ -523,80 +559,89 @@ console.log(contenuEnBorderBox);
     chapter: 4,
     level: 'n3',
     language: 'javascript',
-    title: 'Convertir rem, em et px',
-    goal: 'Maîtriser les unités relatives, qui font toute la différence en responsive.',
-    brief: '<p>Le programme reçoit une taille de référence en pixels, puis un entier <code>n</code>, puis ' +
-      '<code>n</code> déclarations de la forme <code>valeur unité</code>, où l’unité vaut <code>px</code>, ' +
-      '<code>rem</code> (1 rem = taille de référence) ou <code>em</code> (l’élément parent a ici la taille de ' +
-      'référence). Affichez chaque valeur convertie en pixels, deux décimales, une par ligne.</p>',
+    preview: 'html',
+    title: 'Échelle typographique CSS en rem et px',
+    goal: 'Convertir des unités CSS relatives (rem, em, px) en pixels et afficher leur rendu typographique.',
+    brief: '<p>Le programme reçoit une base <code>rootPx</code> (ex. <code>16</code>), puis <code>n</code> et <code>n</code> lignes ' +
+      '<code>libelle|valeur unite</code> (<code>px</code>, <code>rem</code> ou <code>em</code> par rapport à la base). ' +
+      'Pour chaque entrée, calculez la taille en pixels avec 2 décimales et affichez ' +
+      '<code>&lt;p style="font-size:XX.XXpx"&gt;libelle (XX.XXpx)&lt;/p&gt;</code>.</p>',
     starter: LIRE + `
 const base = Number(lignes[0]);
 const n = Number(lignes[1]);
-const declarations = lignes.slice(2, 2 + n);
+const entrees = lignes.slice(2, 2 + n);
 
-// À compléter : afficher chaque déclaration convertie en pixels, deux décimales.
+// À compléter : convertir px/rem/em en px (.toFixed(2)) et afficher <p style="font-size:...px">...</p>.
 `,
     hints: [
-      'toFixed(2) formate un nombre à deux décimales.',
-      'px se recopie tel quel ; rem et em multiplient par la taille de référence.'
+      "Séparez libelle et expression sur '|', puis valeur et unite sur ' '.",
+      "Multipliez par base si l’unité est rem ou em ; gardez la valeur brute si c’est px.",
+      "Formatez avec .toFixed(2) à la fois dans style=\"font-size:...px\" et dans le texte entre parenthèses."
     ],
+    takeaway: 'En CSS, 1 rem dépend toujours de la taille de <html> tandis que 1 em dépend du parent, permettant des interfaces proportionnelles et zoomables.',
     examples: [
-      { stdin: '16\n3\n1.5 rem\n2 em\n10 px', expected: '24.00\n32.00\n10.00', note: '16 × 1,5 = 24 ; 16 × 2 = 32 ; 10 px reste 10.' }
+      { stdin: '16\n3\nTitre|1.5 rem\nSous-titre|2 em\nNote|10 px', expected: '<p style="font-size:24.00px">Titre (24.00px)</p>\n<p style="font-size:32.00px">Sous-titre (32.00px)</p>\n<p style="font-size:10.00px">Note (10.00px)</p>' }
     ],
     tests: [
-      { label: 'Base 20', stdin: '20\n2\n1 rem\n0.5 em', expected: '20.00\n10.00' },
-      { label: 'Base 12', stdin: '12\n2\n2 rem\n3 px', expected: '24.00\n3.00' },
-      { label: 'Décimal', stdin: '16\n1\n1.25 em', expected: '20.00' }
+      { label: 'Base 20', stdin: '20\n2\nNormal|1 rem\nPetit|0.5 em', expected: '<p style="font-size:20.00px">Normal (20.00px)</p>\n<p style="font-size:10.00px">Petit (10.00px)</p>' },
+      { label: 'Base 12', stdin: '12\n2\nGros|2 rem\nMicro|3 px', expected: '<p style="font-size:24.00px">Gros (24.00px)</p>\n<p style="font-size:3.00px">Micro (3.00px)</p>' },
+      { label: 'Décimal', stdin: '16\n1\nCorps|1.25 em', expected: '<p style="font-size:20.00px">Corps (20.00px)</p>' }
     ],
     solution: LIRE + `
 const base = Number(lignes[0]);
 const n = Number(lignes[1]);
-const declarations = lignes.slice(2, 2 + n);
+const entrees = lignes.slice(2, 2 + n);
 
-for (const declaration of declarations) {
-  const [valeur, unite] = declaration.trim().split(' ');
-  const nombre = Number(valeur);
-  const pixels = unite === 'px' ? nombre : nombre * base;
-  console.log(pixels.toFixed(2));
+for (const e of entrees) {
+  const [libelle, expr] = e.trim().split('|');
+  const [val, unite] = expr.trim().split(' ');
+  const num = Number(val);
+  const px = (unite === 'px' ? num : num * base).toFixed(2);
+  console.log('<p style="font-size:' + px + 'px">' + libelle + ' (' + px + 'px)</p>');
 }
 `
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Module 5 — CSS : mise en page et responsive
+  // Module 5 — CSS : Flexbox, Grid et Responsive
   // ═══════════════════════════════════════════════════════════════════════
   {
     id: 'web-c5-e1',
     chapter: 5,
     level: 'n2',
     language: 'javascript',
-    title: 'Largeur des éléments d’un flex',
-    goal: 'Calculer la place réellement disponible quand une flexbox partage son espace.',
-    brief: '<p>Le programme reçoit une ligne <code>largeur_du_conteneur espacement nombre_d’éléments</code>. ' +
-      'Affichez la largeur de chaque élément, arrondie à deux décimales, sachant que les espacements séparent ' +
-      'les éléments et que <code>nombre − 1</code> espaces sont consommés.</p>',
+    preview: 'html',
+    title: 'Rangée Flexbox réelle avec display: flex et gap',
+    goal: 'Construire un conteneur Flexbox (display: flex; gap) et calculer la largeur exacte de chaque carte.',
+    brief: '<p>Le programme reçoit <code>conteneur gap nombre</code> (trois nombres). La largeur d’une carte vaut ' +
+      '<code>(conteneur - (nombre - 1) * gap) / nombre</code> à 2 décimales. Affichez : ' +
+      'ligne 1 <code>&lt;style&gt;.flex{display:flex;gap:GAPpx;max-width:CONTENEURpx}.item{flex:0 0 LARGEURpx;background:#e0f2fe;padding:8px;text-align:center}&lt;/style&gt;</code>, ' +
+      'ligne 2 <code>&lt;div class="flex"&gt;</code> + <code>nombre</code> blocs <code>&lt;div class="item"&gt;LARGEURpx&lt;/div&gt;</code> + <code>&lt;/div&gt;</code>.</p>',
     starter: LIRE + `
-const [conteneur, espacement, nombre] = lignes[0].split(' ').map(Number);
+const [conteneur, gap, nombre] = lignes[0].trim().split(' ').map(Number);
 
-// À compléter : afficher la largeur d’un élément, deux décimales.
+// À compléter : calculer largeur à 2 décimales, puis afficher le <style> Flexbox et la <div class="flex">.
 `,
     hints: [
-      'Pour 4 éléments, il y a 3 espaces : l’espace disponible est conteneur − (nombre − 1) × espacement.',
-      'Divise ensuite par le nombre d’éléments, puis formate avec toFixed(2).'
+      "Pour N éléments séparés par gap, il y a exactement N - 1 gouttières entre eux.",
+      "Calculez largeur = ((conteneur - (nombre - 1) * gap) / nombre).toFixed(2).",
+      "Répétez '<div class=\"item\">' + largeur + 'px</div>' nombre fois dans <div class=\"flex\">...</div>."
     ],
+    takeaway: 'En Flexbox, gap n’est inséré qu’entre les enfants (n - 1 espaces) et laisse chaque item calculer sa base sur l’espace restant.',
     examples: [
-      { stdin: '1000 20 4', expected: '235.00', note: '1000 − 60 = 940 ; 940/4 = 235.' }
+      { stdin: '1000 20 4', expected: '<style>.flex{display:flex;gap:20px;max-width:1000px}.item{flex:0 0 235.00px;background:#e0f2fe;padding:8px;text-align:center}</style>\n<div class="flex"><div class="item">235.00px</div><div class="item">235.00px</div><div class="item">235.00px</div><div class="item">235.00px</div></div>' }
     ],
     tests: [
-      { label: 'Trois cartes', stdin: '600 10 3', expected: '193.33' },
-      { label: 'Deux éléments collés', stdin: '320 0 2', expected: '160.00' },
-      { label: 'Cinq colonnes espacées', stdin: '900 40 5', expected: '148.00' }
+      { label: 'Trois cartes', stdin: '600 10 3', expected: '<style>.flex{display:flex;gap:10px;max-width:600px}.item{flex:0 0 193.33px;background:#e0f2fe;padding:8px;text-align:center}</style>\n<div class="flex"><div class="item">193.33px</div><div class="item">193.33px</div><div class="item">193.33px</div></div>' },
+      { label: 'Deux éléments collés', stdin: '320 0 2', expected: '<style>.flex{display:flex;gap:0px;max-width:320px}.item{flex:0 0 160.00px;background:#e0f2fe;padding:8px;text-align:center}</style>\n<div class="flex"><div class="item">160.00px</div><div class="item">160.00px</div></div>' },
+      { label: 'Deux larges cartes', stdin: '500 20 2', expected: '<style>.flex{display:flex;gap:20px;max-width:500px}.item{flex:0 0 240.00px;background:#e0f2fe;padding:8px;text-align:center}</style>\n<div class="flex"><div class="item">240.00px</div><div class="item">240.00px</div></div>' }
     ],
     solution: LIRE + `
-const [conteneur, espacement, nombre] = lignes[0].split(' ').map(Number);
-
-const disponible = conteneur - (nombre - 1) * espacement;
-console.log((disponible / nombre).toFixed(2));
+const [conteneur, gap, nombre] = lignes[0].trim().split(' ').map(Number);
+const largeur = ((conteneur - (nombre - 1) * gap) / nombre).toFixed(2);
+const items = Array.from({ length: nombre }, () => '<div class="item">' + largeur + 'px</div>').join('');
+console.log('<style>.flex{display:flex;gap:' + gap + 'px;max-width:' + conteneur + 'px}.item{flex:0 0 ' + largeur + 'px;background:#e0f2fe;padding:8px;text-align:center}</style>');
+console.log('<div class="flex">' + items + '</div>');
 `
   },
   {
@@ -604,39 +649,39 @@ console.log((disponible / nombre).toFixed(2));
     chapter: 5,
     level: 'n2',
     language: 'javascript',
-    title: 'Grille responsive : nombre de colonnes',
-    goal: 'Traduire des points de rupture (breakpoints) en règle de mise en page.',
-    brief: '<p>La mise en page utilise trois paliers : <strong>1 colonne</strong> sous ' +
-      '600 px, <strong>2 colonnes</strong> de 600 à 899 px, <strong>3 colonnes</strong> à partir de ' +
-      '900 px. Le programme reçoit un entier <code>n</code>, puis <code>n</code> largeurs de fenêtre ' +
-      '(une par ligne). Affichez pour chacune <code>largeur colonnes</code>.</p>',
+    preview: 'html',
+    title: 'Grille CSS responsive selon la largeur d’écran',
+    goal: 'Générer une CSS Grid (grid-template-columns: repeat(k, 1fr)) adaptée à un point de rupture.',
+    brief: '<p>Selon la largeur reçue sur une ligne : <strong>1 colonne</strong> (&lt; 600 px), <strong>2 colonnes</strong> (600–899 px), ' +
+      '<strong>3 colonnes</strong> (≥ 900 px). Affichez un aperçu HTML+CSS avec autant de cartes que de colonnes : ' +
+      'ligne 1 <code>&lt;style&gt;.grille{display:grid;grid-template-columns:repeat(COLS,1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}&lt;/style&gt;</code>, ' +
+      'ligne 2 <code>&lt;div class="grille" data-width="LARGEUR" data-cols="COLS"&gt;</code> + <code>COLS</code> blocs <code>&lt;div class="col"&gt;Col i&lt;/div&gt;</code> + <code>&lt;/div&gt;</code>.</p>',
     starter: LIRE + `
-const n = Number(lignes[0]);
-const largeurs = lignes.slice(1, 1 + n).map(Number);
+const largeur = Number(lignes[0]);
 
-// À compléter : afficher chaque largeur suivie du nombre de colonnes.
+// À compléter : choisir 1, 2 ou 3 colonnes selon largeur puis générer <style> et <div class="grille">.
 `,
     hints: [
-      'Les paliers se lisent dans l’ordre : la première condition vraie décide.',
-      'Attention aux bornes : 600 appartient au palier des 2 colonnes, 900 à celui des 3.'
+      "Paliers CSS Mobile-First : largeur < 600 ? 1 : largeur < 900 ? 2 : 3.",
+      "Injectez cols dans repeat(COLS,1fr) et dans data-cols=\"COLS\".",
+      "Répétez <div class=\"col\">Col i</div> pour i allant de 1 à cols."
     ],
+    takeaway: 'En responsive mobile-first, on part d’une colonne sur petit écran et on augmente grid-template-columns aux points de rupture (@media).',
     examples: [
-      { stdin: '1\n1200', expected: '1200 3', note: 'Au-delà de 900 px, trois colonnes.' }
+      { stdin: '1200', expected: '<style>.grille{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}</style>\n<div class="grille" data-width="1200" data-cols="3"><div class="col">Col 1</div><div class="col">Col 2</div><div class="col">Col 3</div></div>' }
     ],
     tests: [
-      { label: 'Téléphone', stdin: '1\n375', expected: '375 1' },
-      { label: 'Tablette, borne basse des deux colonnes', stdin: '1\n600', expected: '600 2' },
-      { label: 'Trois largeurs', stdin: '3\n599\n899\n900', expected: '599 1\n899 2\n900 3' },
-      { label: 'Ligne surnuméraire ignorée', stdin: '2\n400\n700\n1200', expected: '400 1\n700 2' }
+      { label: 'Smartphone 375px', stdin: '375', expected: '<style>.grille{display:grid;grid-template-columns:repeat(1,1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}</style>\n<div class="grille" data-width="375" data-cols="1"><div class="col">Col 1</div></div>' },
+      { label: 'Tablette 600px', stdin: '600', expected: '<style>.grille{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}</style>\n<div class="grille" data-width="600" data-cols="2"><div class="col">Col 1</div><div class="col">Col 2</div></div>' },
+      { label: 'Borne haute tablette 899px', stdin: '899', expected: '<style>.grille{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}</style>\n<div class="grille" data-width="899" data-cols="2"><div class="col">Col 1</div><div class="col">Col 2</div></div>' },
+      { label: 'Bureau 900px exact', stdin: '900', expected: '<style>.grille{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}</style>\n<div class="grille" data-width="900" data-cols="3"><div class="col">Col 1</div><div class="col">Col 2</div><div class="col">Col 3</div></div>' }
     ],
     solution: LIRE + `
-const n = Number(lignes[0]);
-const largeurs = lignes.slice(1, 1 + n).map(Number);
-
-for (const largeur of largeurs) {
-  const colonnes = largeur < 600 ? 1 : largeur < 900 ? 2 : 3;
-  console.log(largeur + ' ' + colonnes);
-}
+const largeur = Number(lignes[0]);
+const cols = largeur < 600 ? 1 : largeur < 900 ? 2 : 3;
+const blocs = Array.from({ length: cols }, (_, i) => '<div class="col">Col ' + (i + 1) + '</div>').join('');
+console.log('<style>.grille{display:grid;grid-template-columns:repeat(' + cols + ',1fr);gap:12px}.col{background:#f1f5f9;padding:12px;border:1px solid #cbd5e1}</style>');
+console.log('<div class="grille" data-width="' + largeur + '" data-cols="' + cols + '">' + blocs + '</div>');
 `
   },
   {
@@ -644,62 +689,67 @@ for (const largeur of largeurs) {
     chapter: 5,
     level: 'n3',
     language: 'javascript',
-    title: 'Position d’une cellule dans une grille',
-    goal: 'Retrouver ligne et colonne d’un élément placé dans une grille à n colonnes.',
-    brief: '<p>Le programme reçoit une ligne <code>colonnes position</code> : le nombre de colonnes de la ' +
-      'grille et le rang de l’élément (le premier élément est en position 1, dans la première ligne). ' +
-      'Affichez <code>ligne colonne</code>, tous deux comptés à partir de 1.</p>',
+    preview: 'html',
+    title: 'Placement explicite grid-row et grid-column',
+    goal: 'Placer visuellement une tuile à sa position exacte dans une CSS Grid avec grid-row et grid-column.',
+    brief: '<p>Le programme reçoit <code>colonnes position</code> (1-indexés). Calculez <code>ligne = Math.ceil(position / colonnes)</code> et ' +
+      '<code>colonne = ((position - 1) % colonnes) + 1</code>. Affichez : ' +
+      'ligne 1 <code>&lt;style&gt;.g{display:grid;grid-template-columns:repeat(COLS,1fr);gap:6px}.cible{grid-row:LIGNE;grid-column:COLONNE;background:#2563eb;color:#fff;padding:10px;text-align:center}&lt;/style&gt;</code>, ' +
+      'ligne 2 <code>&lt;div class="g"&gt;&lt;div class="cible"&gt;L LIGNE C COLONNE&lt;/div&gt;&lt;/div&gt;</code>.</p>',
     starter: LIRE + `
-const [colonnes, position] = lignes[0].split(' ').map(Number);
+const [colonnes, position] = lignes[0].trim().split(' ').map(Number);
 
-// À compléter : afficher le numéro de ligne puis le numéro de colonne.
+// À compléter : calculer ligne et colonne puis émettre la CSS Grid ciblée.
 `,
     hints: [
-      'Le rang 1 correspond à la ligne 1, colonne 1 : c’est exactement le cas où la division tombait juste.',
-      'Math.ceil(position / colonnes) donne la ligne ; le reste de la division donne la colonne.'
+      "Pour passer d’un rang 1-indexé aux coordonnées (ligne, colonne), soustrayez 1 avant le modulo : ((position - 1) % colonnes) + 1.",
+      "Math.ceil(position / colonnes) donne directement le numéro de ligne.",
+      "Injectez ces valeurs dans grid-row et grid-column puis vérifiez la position dans Aperçu Web."
     ],
+    takeaway: 'grid-row et grid-column positionnent directement un enfant sur n’importe quelle cellule nommée ou numérotée d’une grille CSS.',
     examples: [
-      { stdin: '3 7', expected: '3 1', note: 'Septième élément : ligne 3, colonne 1.' }
+      { stdin: '3 7', expected: '<style>.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.cible{grid-row:3;grid-column:1;background:#2563eb;color:#fff;padding:10px;text-align:center}</style>\n<div class="g"><div class="cible">L 3 C 1</div></div>' }
     ],
     tests: [
-      { label: 'Fin de première ligne', stdin: '4 4', expected: '1 4' },
-      { label: 'Deux colonnes', stdin: '2 5', expected: '3 1' },
-      { label: 'Premier élément', stdin: '1 1', expected: '1 1' }
+      { label: 'Fin de première ligne', stdin: '4 4', expected: '<style>.g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.cible{grid-row:1;grid-column:4;background:#2563eb;color:#fff;padding:10px;text-align:center}</style>\n<div class="g"><div class="cible">L 1 C 4</div></div>' },
+      { label: 'Deux colonnes rang 5', stdin: '2 5', expected: '<style>.g{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.cible{grid-row:3;grid-column:1;background:#2563eb;color:#fff;padding:10px;text-align:center}</style>\n<div class="g"><div class="cible">L 3 C 1</div></div>' },
+      { label: 'Origine', stdin: '1 1', expected: '<style>.g{display:grid;grid-template-columns:repeat(1,1fr);gap:6px}.cible{grid-row:1;grid-column:1;background:#2563eb;color:#fff;padding:10px;text-align:center}</style>\n<div class="g"><div class="cible">L 1 C 1</div></div>' }
     ],
     solution: LIRE + `
-const [colonnes, position] = lignes[0].split(' ').map(Number);
-
+const [colonnes, position] = lignes[0].trim().split(' ').map(Number);
 const ligne = Math.ceil(position / colonnes);
 const colonne = ((position - 1) % colonnes) + 1;
-
-console.log(ligne + ' ' + colonne);
+console.log('<style>.g{display:grid;grid-template-columns:repeat(' + colonnes + ',1fr);gap:6px}.cible{grid-row:' + ligne + ';grid-column:' + colonne + ';background:#2563eb;color:#fff;padding:10px;text-align:center}</style>');
+console.log('<div class="g"><div class="cible">L ' + ligne + ' C ' + colonne + '</div></div>');
 `
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // Module 6 — JavaScript : données, DOM et événements
+  // Module 6 — JavaScript : données, DOM réel et événements interactifs
   // ═══════════════════════════════════════════════════════════════════════
   {
     id: 'web-c6-e1',
     chapter: 6,
     level: 'n2',
     language: 'javascript',
-    title: 'Construire une liste HTML depuis des données',
-    goal: 'Produire le balisage que l’on injecterait dans le DOM, à partir d’un tableau.',
-    brief: '<p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes ' +
-      '<code>nom note</code>. Affichez une liste HTML : la ligne <code>&lt;ul&gt;</code>, puis une ligne ' +
-      '<code>&lt;li&gt;nom : note&lt;/li&gt;</code> par étudiant dans l’ordre reçu, puis la ligne ' +
-      '<code>&lt;/ul&gt;</code>.</p>',
+    preview: 'html',
+    title: 'Construire une liste HTML réelle depuis des données',
+    goal: 'Transformer un tableau de données en une liste <ul> stylée et rendue dans l’Aperçu Web.',
+    brief: '<p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes <code>nom note</code>. ' +
+      'Affichez la liste HTML : <code>&lt;ul&gt;</code>, puis une ligne <code>&lt;li&gt;nom : note&lt;/li&gt;</code> ' +
+      'par étudiant dans l’ordre reçu, puis <code>&lt;/ul&gt;</code>.</p>',
     starter: LIRE + `
 const n = Number(lignes[0]);
 const eleves = lignes.slice(1, 1 + n);
 
-// À compléter : afficher la liste HTML construite à partir des données.
+// À compléter : produire <ul>, un <li>nom : note</li> par étudiant, puis </ul>.
 `,
     hints: [
-      'Un tableau de morceaux rejoint avec join("\\n") produit du HTML lisible.',
-      'Le format exact demandé est « nom : note » avec un espace avant et après les deux-points.'
+      "Utilisez .pop() sur la ligne découpée par ' ' pour isoler la note finale, puis .join(' ') pour conserver un nom composé.",
+      "Le format exact demandé est `<li>${nom} : ${note}</li>` avec un espace de chaque côté des deux-points.",
+      "Consultez l’onglet Aperçu Web pour visualiser la liste à puces générée."
     ],
+    takeaway: 'Séparer les données brutes du gabarit HTML (via map + join ou createElement) rend le rendu dynamique fiable et maintenable.',
     examples: [
       { stdin: '2\nAda 18\nLinus 15', expected: '<ul>\n<li>Ada : 18</li>\n<li>Linus : 15</li>\n</ul>', note: 'Deux élèves, deux lignes de liste.' }
     ],
@@ -721,7 +771,6 @@ for (const eleve of eleves) {
   morceaux.push('<li>' + nom + ' : ' + note + '</li>');
 }
 morceaux.push('</ul>');
-
 console.log(morceaux.join('\\n'));
 `
   },
@@ -730,43 +779,47 @@ console.log(morceaux.join('\\n'));
     chapter: 6,
     level: 'n3',
     language: 'javascript',
-    title: 'Filtrer et trier un tableau',
-    goal: 'Enchaîner filter() et sort() : le geste le plus fréquent du JavaScript de données.',
-    brief: '<p>Le programme reçoit un entier <code>n</code>, puis <code>n</code> lignes ' +
-      '<code>nom note</code>. Affichez les noms des étudiants ayant <strong>au moins 10</strong>, triés par ' +
-      'note décroissante, puis par ordre alphabétique en cas d’égalité, un nom par ligne.</p>',
+    preview: 'html',
+    title: 'Tableau d’admis filtré et trié en HTML',
+    goal: 'Enchaîner filter() et sort() pour produire une liste HTML ordonnée des étudiants admis.',
+    brief: '<p>Le programme reçoit <code>n</code> puis <code>n</code> lignes <code>nom note</code>. Ne gardez que les admis ' +
+      '(<code>note &gt;= 10</code>), triez par note décroissante puis par ordre alphabétique du nom (<code>localeCompare</code>). ' +
+      'Affichez <code>&lt;ol class="admis"&gt;</code>, puis chaque <code>&lt;li&gt;nom (note/20)&lt;/li&gt;</code>, puis <code>&lt;/ol&gt;</code>.</p>',
     starter: LIRE + `
 const n = Number(lignes[0]);
 const eleves = lignes.slice(1, 1 + n);
 
-// À compléter : afficher les noms des admis, triés par note décroissante.
+// À compléter : filter >= 10, sort note desc puis nom asc, et émettre <ol class="admis">...</ol>.
 `,
     hints: [
-      'sort() prend une fonction de comparaison ; elle renvoie un nombre négatif pour placer a avant b.',
-      'En cas d’égalité de notes, compare les noms avec localeCompare().'
+      "Triez avec `(a, b) => b.note - a.note || a.nom.localeCompare(b.nom)` pour départager les égalités.",
+      "Ne modifiez pas la note affichée : conservez l’entier/décimal d’origine dans `<li>${nom} (${note}/20)</li>`.",
+      "Entourez les lignes par `<ol class=\"admis\">` et `</ol>`."
     ],
+    takeaway: 'En JavaScript, filter().sort() prépare les données avant le rendu DOM, garantissant ordre déterministe et séparation logique/affichage.',
     examples: [
-      { stdin: '3\nAda 18\nBob 8\nChloe 15', expected: 'Ada\nChloe', note: 'Bob est éliminé avec 8.' }
+      { stdin: '3\nAda 18\nBob 8\nChloe 15', expected: '<ol class="admis">\n<li>Ada (18/20)</li>\n<li>Chloe (15/20)</li>\n</ol>' }
     ],
     tests: [
-      { label: 'Égalité tranchée par ordre alphabétique', stdin: '2\nAl 12\nBo 12', expected: 'Al\nBo' },
-      { label: 'Un seul admis', stdin: '2\nZoe 10\nYves 4', expected: 'Zoe' },
-      { label: 'Ordre déjà mélangé', stdin: '4\nA 15\nB 20\nC 9\nD 17', expected: 'B\nD\nA' },
-      { label: 'Ligne surnuméraire ignorée', stdin: '2\nAl 12\nBo 14\nCy 16', expected: 'Bo\nAl' }
+      { label: 'Égalité alphabétique', stdin: '2\nBo 12\nAl 12', expected: '<ol class="admis">\n<li>Al (12/20)</li>\n<li>Bo (12/20)</li>\n</ol>' },
+      { label: 'Un seul admis à 10', stdin: '2\nZoe 10\nYves 9', expected: '<ol class="admis">\n<li>Zoe (10/20)</li>\n</ol>' },
+      { label: 'Aucun admis', stdin: '2\nA 5\nB 9', expected: '<ol class="admis">\n</ol>' },
+      { label: 'Ligne surnuméraire ignorée', stdin: '2\nAl 12\nBo 14\nCy 16', expected: '<ol class="admis">\n<li>Bo (14/20)</li>\n<li>Al (12/20)</li>\n</ol>' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
-const eleves = lignes.slice(1, 1 + n);
+const admis = lignes.slice(1, 1 + n).map(l => {
+  const parts = l.trim().split(' ');
+  const note = Number(parts.pop());
+  return { nom: parts.join(' '), note };
+}).filter(e => e.note >= 10).sort((a, b) => b.note - a.note || a.nom.localeCompare(b.nom));
 
-const fiches = eleves.map(ligne => {
-  const parties = ligne.trim().split(' ');
-  return { nom: parties.slice(0, -1).join(' '), note: Number(parties[parties.length - 1]) };
-});
-
-fiches
-  .filter(fiche => fiche.note >= 10)
-  .sort((a, b) => b.note - a.note || a.nom.localeCompare(b.nom))
-  .forEach(fiche => console.log(fiche.nom));
+const out = ['<ol class="admis">'];
+for (const e of admis) {
+  out.push('<li>' + e.nom + ' (' + e.note + '/20)</li>');
+}
+out.push('</ol>');
+console.log(out.join('\\n'));
 `
   },
   {
@@ -774,49 +827,45 @@ fiches
     chapter: 6,
     level: 'n3',
     language: 'javascript',
-    title: 'Simuler un gestionnaire d’événements',
-    goal: 'Faire l’état des lieux d’un compteur avant de l’écrire dans le DOM.',
-    brief: '<p>Un bouton déclenche un JavaScript qui gère deux événements : <code>click</code> incrémente ' +
-      'un compteur, <code>reset</code> le remet à zéro. Le programme reçoit un entier <code>n</code>, puis ' +
-      '<code>n</code> noms d’événements (un par ligne). Affichez sur la première ligne le nombre total de ' +
-      '<code>click</code> reçus, puis sur la seconde la valeur finale du compteur.</p>',
+    preview: 'html',
+    title: 'Compteur DOM interactif avec état initial et événements',
+    goal: 'Simuler une séquence d’événements click/reset et générer un composant DOM cliquable en direct.',
+    brief: '<p>Le programme reçoit <code>n</code>, puis <code>n</code> événements (<code>click</code> ou <code>reset</code>). ' +
+      'Calculez le cumul <code>totalClics</code> et l’état courant <code>valeur</code> (repart à 0 sur <code>reset</code>). ' +
+      'Affichez ce composant HTML+JS cliquable dans l’Aperçu Web : ' +
+      '<code>&lt;div class="widget" data-clics="TOTAL" data-valeur="VAL"&gt;&lt;span id="v"&gt;VAL&lt;/span&gt; (&lt;span id="t"&gt;TOTAL&lt;/span&gt; clics) &lt;button id="b"&gt;+1&lt;/button&gt; &lt;button id="r"&gt;RAZ&lt;/button&gt;&lt;/div&gt;</code> ' +
+      'suivi d’une balise <code>&lt;script&gt;</code> qui incrémente <code>v</code> et <code>t</code> au clic sur <code>#b</code> et remet <code>v</code> à 0 sur <code>#r</code>.</p>',
     starter: LIRE + `
 const n = Number(lignes[0]);
-const evenements = lignes.slice(1, 1 + n);
+const events = lignes.slice(1, 1 + n).map(e => e.trim());
 
-// À compléter : afficher le nombre total de clics, puis la valeur finale du compteur.
+// À compléter : compter totalClics et valeur courante, puis émettre le composant DOM + <script> interactif.
 `,
     hints: [
-      'Ce sont deux informations différentes : un clic suivi d’une remise à zéro compte 1 clic mais laisse 0.',
-      'deux variables : une qui ne fait que croître, une qui peut revenir à zéro.'
+      "Maintenez deux compteurs distincts : click incrémente totalClics et valeur ; reset ne remet que valeur à 0.",
+      "Dans le <script> émis, initialisez let total = TOTAL, val = VAL puis branchez addEventListener('click', ...) sur document.getElementById('b') et 'r'.",
+      "Testez directement les boutons +1 et RAZ dans l’onglet Aperçu Web."
     ],
+    takeaway: 'addEventListener relie l’interface DOM à un état JavaScript mutable que les gestionnaires mettent à jour sans recharger la page.',
     examples: [
-      { stdin: '4\nclick\nclick\nreset\nclick', expected: '3\n1', note: 'Trois clics au total, mais un seul après la remise à zéro.' }
+      { stdin: '4\nclick\nclick\nreset\nclick', expected: '<div class="widget" data-clics="3" data-valeur="1"><span id="v">1</span> (<span id="t">3</span> clics) <button id="b">+1</button> <button id="r">RAZ</button></div>\n<script>(function(){var t=3,v=1,ev=document.getElementById("v"),et=document.getElementById("t");document.getElementById("b").addEventListener("click",function(){t++;v++;ev.textContent=v;et.textContent=t;});document.getElementById("r").addEventListener("click",function(){v=0;ev.textContent=v;});})();</script>' }
     ],
     tests: [
-      { label: 'Aucune remise à zéro', stdin: '4\nclick\nclick\nclick\nclick', expected: '4\n4' },
-      { label: 'Remise à zéro initiale', stdin: '2\nreset\nreset', expected: '0\n0' },
-      { label: 'Alternance', stdin: '5\nclick\nreset\nclick\nclick\nreset', expected: '3\n0' },
-      { label: 'Ligne surnuméraire ignorée', stdin: '2\nclick\nclick\nreset', expected: '2\n2' }
+      { label: 'Quatre clics directs', stdin: '4\nclick\nclick\nclick\nclick', expected: '<div class="widget" data-clics="4" data-valeur="4"><span id="v">4</span> (<span id="t">4</span> clics) <button id="b">+1</button> <button id="r">RAZ</button></div>\n<script>(function(){var t=4,v=4,ev=document.getElementById("v"),et=document.getElementById("t");document.getElementById("b").addEventListener("click",function(){t++;v++;ev.textContent=v;et.textContent=t;});document.getElementById("r").addEventListener("click",function(){v=0;ev.textContent=v;});})();</script>' },
+      { label: 'Remise à zéro', stdin: '2\nreset\nreset', expected: '<div class="widget" data-clics="0" data-valeur="0"><span id="v">0</span> (<span id="t">0</span> clics) <button id="b">+1</button> <button id="r">RAZ</button></div>\n<script>(function(){var t=0,v=0,ev=document.getElementById("v"),et=document.getElementById("t");document.getElementById("b").addEventListener("click",function(){t++;v++;ev.textContent=v;et.textContent=t;});document.getElementById("r").addEventListener("click",function(){v=0;ev.textContent=v;});})();</script>' },
+      { label: 'Alternance et ligne surnuméraire', stdin: '2\nclick\nclick\nreset', expected: '<div class="widget" data-clics="2" data-valeur="2"><span id="v">2</span> (<span id="t">2</span> clics) <button id="b">+1</button> <button id="r">RAZ</button></div>\n<script>(function(){var t=2,v=2,ev=document.getElementById("v"),et=document.getElementById("t");document.getElementById("b").addEventListener("click",function(){t++;v++;ev.textContent=v;et.textContent=t;});document.getElementById("r").addEventListener("click",function(){v=0;ev.textContent=v;});})();</script>' }
     ],
     solution: LIRE + `
 const n = Number(lignes[0]);
-const evenements = lignes.slice(1, 1 + n).map(e => e.trim());
-
-let clics = 0;
-let compteur = 0;
-
-for (const evenement of evenements) {
-  if (evenement === 'click') {
-    clics++;
-    compteur++;
-  } else if (evenement === 'reset') {
-    compteur = 0;
-  }
+const events = lignes.slice(1, 1 + n).map(e => e.trim());
+let t = 0;
+let v = 0;
+for (const ev of events) {
+  if (ev === 'click') { t++; v++; }
+  else if (ev === 'reset') { v = 0; }
 }
-
-console.log(clics);
-console.log(compteur);
+console.log('<div class="widget" data-clics="' + t + '" data-valeur="' + v + '"><span id="v">' + v + '</span> (<span id="t">' + t + '</span> clics) <button id="b">+1</button> <button id="r">RAZ</button></div>');
+console.log('<script>(function(){var t=' + t + ',v=' + v + ',ev=document.getElementById("v"),et=document.getElementById("t");document.getElementById("b").addEventListener("click",function(){t++;v++;ev.textContent=v;et.textContent=t;});document.getElementById("r").addEventListener("click",function(){v=0;ev.textContent=v;});})();<\\/script>');
 `
   }
 ];

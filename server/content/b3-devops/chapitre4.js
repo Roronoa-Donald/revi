@@ -148,43 +148,43 @@ module.exports = {
     {
       stem: 'Quelle différence fondamentale sépare la Livraison Continue (Continuous Delivery) du Déploiement Continu (Continuous Deployment) ?',
       opts: [
-        'La livraison continue ne teste pas le code',
-        'Le déploiement continu envoie automatiquement chaque commit validé en production sans validation humaine, tandis que la livraison continue requiert une approbation manuelle pour la mise en prod',
-        'La livraison continue est réservée aux applications mobiles',
-        'Le déploiement continu ne fonctionne que sur le cloud AWS'
+        "La livraison continue exclut toute phase de tests automatisés et pousse chaque commit en production sans aucune vérification préalable du code",
+        "La livraison continue est strictement réservée aux applications mobiles natives tandis que le déploiement continu ne s’applique qu’aux logiciels embarqués",
+        "Le déploiement continu envoie automatiquement chaque commit validé en production sans validation humaine, tandis que la livraison continue requiert une approbation manuelle pour la mise en prod",
+        "Le déploiement continu fonctionne exclusivement sur l’infrastructure du cloud AWS et demeure impossible sur des serveurs physiques on-premise"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'En Continuous Delivery, le paquet est prêt et testé, mais un humain déclenche le passage en production. En Continuous Deployment, l’ensemble de la chaîne est automatisé de bout en bout jusqu’à la prod.'
     },
     {
       stem: 'Dans une stratégie de déploiement Blue/Green, comment s’effectue la bascule vers la nouvelle version du logiciel ?',
       opts: [
-        'En réinstallant manuellement le système d’exploitation de tous les serveurs un par un',
-        'En basculant instantanément l’aiguillage du trafic au niveau du routeur ou de l’équilibreur de charge vers le nouvel environnement (Green)',
-        'En coupant l’électricité du datacenter pendant 10 minutes',
-        'En demandant à chaque client de vider son cache de navigateur'
+        "En réinstallant manuellement le système d’exploitation de chacun des serveurs de l’ancien environnement, un par un, pendant la nuit",
+        "En coupant l’alimentation électrique du datacenter pendant dix minutes afin de forcer le redémarrage complet de tous les services",
+        "En demandant à chaque client final de vider manuellement le cache de son navigateur pour recharger la nouvelle version déployée",
+        "En basculant instantanément l’aiguillage du trafic au niveau du routeur ou de l’équilibreur de charge vers le nouvel environnement (Green)"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'L’environnement Green est déployé et vérifié à blanc à côté de l’environnement Blue actif. La bascule se fait en modifiant la cible du répartiteur de charge en une fraction de seconde.'
     },
     {
       stem: 'Quel est l’intérêt majeur d’une « Canary Release » (déploiement canari) par rapport à un déploiement massif classique ?',
       opts: [
-        'Elle divise par deux la facture de bande passante réseau',
-        'Elle achemine d’abord un très faible pourcentage du trafic réel (ex. 5%) vers la nouvelle version pour détecter les anomalies avant de généraliser le déploiement',
-        'Elle supprime le besoin de surveiller les logs de production',
-        'Elle permet de compiler le code directement dans le navigateur du client'
+        "Elle achemine d’abord un très faible pourcentage du trafic réel (ex. 5%) vers la nouvelle version pour détecter les anomalies avant de généraliser le déploiement",
+        "Elle divise par deux la facture de bande passante réseau de l’entreprise en répartissant les requêtes sur deux hébergeurs distincts",
+        "Elle supprime entièrement le besoin de surveiller les journaux de production puisque la nouvelle version est présumée stable par défaut",
+        "Elle permet de compiler le code applicatif directement dans le navigateur de chaque client afin d’alléger les serveurs de production"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'À l’image des canaris autrefois descendus dans les mines de charbon pour détecter le coup de grisou, la Canary Release expose un échantillon d’utilisateurs réels pour tester la fiabilité sans exposer l’ensemble du public.'
     },
     {
       stem: 'Pourquoi le patron de conception « Expand and Contract » est-il obligatoire pour faire du Zero-Downtime Deployment sur une base de données ?',
       opts: [
-        'Pour compresser les tables de données et libérer de l’espace disque',
-        'Pour assurer que le schéma de base de données reste compatible simultanément avec l’ancienne version et la nouvelle version du code durant la phase de transition',
-        'Pour désactiver les clés primaires sur les tables transactionnelles',
-        'Pour convertir automatiquement MySQL en MongoDB'
+        "Pour compresser les tables de données volumineuses et libérer de l’espace disque sur les serveurs de base de données en production",
+        "Pour assurer que le schéma de base de données reste compatible simultanément avec l’ancienne version et la nouvelle version du code durant la phase de transition",
+        "Pour désactiver temporairement les clés primaires et les contraintes d’intégrité sur les tables transactionnelles durant la migration",
+        "Pour convertir automatiquement une base MySQL relationnelle en base documentaire MongoDB sans réécriture du code applicatif"
       ],
       correct: 1,
       exp: 'Pendant un déploiement sans coupure, des instances de l’ancienne et de la nouvelle version tournent conjointement. Le schéma de base doit donc pouvoir être lu et écrit par les deux versions sans erreur.'
@@ -192,32 +192,32 @@ module.exports = {
     {
       stem: 'Que signifie l’adage DevOps « Deploy is not Release » (Déployer n’est pas Publier) ?',
       opts: [
-        'Le code ne doit jamais être envoyé sur les serveurs de production',
-        'L’acheminement technique du code sur l’infrastructure de production est décorrélé de son activation fonctionnelle visible par les utilisateurs finaux',
-        'Il faut deux équipes juridiques distinctes pour chaque projet',
-        'Le déploiement se fait uniquement sur support physique (DVD)'
+        "Le code applicatif ne doit en aucun cas être envoyé sur les serveurs de production avant la signature du contrat de maintenance",
+        "Il faut obligatoirement deux équipes juridiques distinctes, l’une chargée du déploiement technique et l’autre de la publication",
+        "L’acheminement technique du code sur l’infrastructure de production est décorrélé de son activation fonctionnelle visible par les utilisateurs finaux",
+        "Le déploiement du code s’effectue uniquement sur support physique, par envoi postal de DVD gravés vers chaque datacenter"
       ],
-      correct: 1,
+      correct: 2,
       exp: 'On peut déployer du code en production de manière continue tout en maintenant la fonctionnalité éteinte derrière un Feature Flag jusqu’au moment commercial ou marketing opportun.'
     },
     {
       stem: 'Qu’est-ce qu’un « Kill Switch » implémenté via un Feature Flag en exploitation ?',
       opts: [
-        'Un script qui détruit la base de données en cas d’attaque pirate',
-        'Un interrupteur logiciel d’urgence permettant de désactiver instantanément une fonctionnalité défaillante ou trop lourde sans re-déployer de code',
-        'Un bouton physique situé sur la façade du serveur physique',
-        'Un protocole de déconnexion automatique des développeurs le soir'
+        "Un script d’urgence qui détruit intégralement la base de données afin d’empêcher toute exfiltration lors d’une attaque pirate",
+        "Un bouton physique de mise hors tension situé sur la façade de chacun des serveurs physiques de production",
+        "Un protocole de déconnexion automatique et forcée de tous les développeurs connectés chaque soir à la fermeture des bureaux",
+        "Un interrupteur logiciel d’urgence permettant de désactiver instantanément une fonctionnalité défaillante ou trop lourde sans re-déployer de code"
       ],
-      correct: 1,
+      correct: 3,
       exp: 'Un Kill Switch permet aux équipes d’astreinte de désactiver à chaud un composant causant une surcharge CPU ou un bogue critique par simple changement de configuration instantané.'
     },
     {
       stem: 'Quel risque technique majeur engendre l’accumulation excessive de Feature Flags non nettoyés dans une base de code ?',
       opts: [
-        'Une saturation de l’espace disque du serveur Git',
-        'Une dette technique exponentielle due à la combinatoire d’embranchements conditionnels (code spaghetti) et au risque d’activation de code mort',
-        'Une interdiction de compiler par le compilateur',
-        'Une augmentation des impôts sur les sociétés'
+        "Une saturation progressive de l’espace disque du serveur Git due au volume croissant des fichiers de configuration de drapeaux",
+        "Une dette technique exponentielle due à la combinatoire d’embranchements conditionnels (code spaghetti) et au risque d’activation de code mort",
+        "Un allongement drastique du temps de compilation, chaque drapeau devant être évalué dynamiquement au lancement du programme",
+        "Une obligation réglementaire de déclarer chaque nouveau drapeau auprès de la CNIL avant toute mise en production"
       ],
       correct: 1,
       exp: 'Chaque drapeau ajoute des branches logiques if/else. Si les vieux flags ne sont pas élagués après généralisation, la combinatoire des tests devient ingérable et des comportements imprévus surviennent.'
@@ -225,12 +225,12 @@ module.exports = {
     {
       stem: 'Dans une stratégie Rolling Update sous Kubernetes, que spécifie le paramètre « maxUnavailable » ?',
       opts: [
-        'La durée maximale en minutes d’un incident de production',
-        'Le nombre ou pourcentage maximum de pods autorisés à être indisponibles simultanément durant la mise à jour progressive',
-        'Le nombre maximal de développeurs pouvant commiter en même temps',
-        'La mémoire vive maximale allouée au conteneur'
+        "Le nombre ou pourcentage maximum de pods autorisés à être indisponibles simultanément durant la mise à jour progressive",
+        "La durée maximale en minutes tolérée pour un incident de production avant le déclenchement de la procédure d’escalade",
+        "Le nombre maximal de développeurs autorisés à soumettre des commits simultanément sur le dépôt du projet",
+        "La quantité de mémoire vive maximale allouée à chaque conteneur lors de sa recréation par le contrôleur"
       ],
-      correct: 1,
+      correct: 0,
       exp: 'maxUnavailable garantit qu’un pourcentage suffisant de répliques reste opérationnel en continu pour continuer à absorber le trafic usuel sans dégradation de service.'
     }
   ],

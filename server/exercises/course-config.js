@@ -179,6 +179,13 @@ module.exports = {
     idPrefix: 'sq',
     title: 'Bases de données & SQL B1'
   },
+  'b1-vb-excel': {
+    dir: 'b1-vb-excel',
+    chapterDir: 'chapitres',
+    chapters: 6,
+    idPrefix: 'vba',
+    title: 'VB Excel B1'
+  },
   'linux': {
     dir: 'linux',
     chapterDir: 'chapitres',
