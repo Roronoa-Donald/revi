@@ -679,10 +679,13 @@ async function getUserById(id) {
 
 async function createUser(email, passwordHash, displayName, level) {
   const lvl = ['b1', 'b2', 'b3'].includes(String(level || '').toLowerCase()) ? String(level).toLowerCase() : 'b2';
+  const cleanName = displayName && String(displayName).trim()
+    ? String(displayName).trim().slice(0, 120)
+    : null;
   const result = await query(
     `INSERT INTO users (email, password_hash, display_name, level)
      VALUES ($1, $2, $3, $4) RETURNING *`,
-    [String(email).toLowerCase().trim(), passwordHash, displayName || null, lvl]
+    [String(email).toLowerCase().trim().slice(0, 255), passwordHash, cleanName, lvl]
   );
   return result.rows[0];
 }

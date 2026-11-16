@@ -106,7 +106,8 @@ async function simulatedQuery(text, params = []) {
         { name: '004_ai_config.sql' },
         { name: '005_fedapay_webhook_events.sql' },
         { name: '006_student_progress_and_exams.sql' },
-        { name: '007_fedapay_and_progress_integrity.sql' }
+        { name: '007_fedapay_and_progress_integrity.sql' },
+        { name: '008_auth_schema_hardening.sql' }
       ]
     };
   }

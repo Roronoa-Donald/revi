@@ -12,18 +12,27 @@ const { initDB } = require('../server/db');
 
 let app;
 let dbInitialized = false;
+let initPromise = null;
 
 /**
  * Initialise l'app Fastify + la DB (une seule fois par cold start)
  */
 async function getApp() {
   if (!app) {
-    app = buildApp({ logger: false });
+    // Garder les logs d'erreur actifs dans Vercel Functions (ne pas avaler fastify.log.error)
+    app = buildApp({ logger: { level: 'error' } });
     await app.ready();
   }
   if (!dbInitialized) {
-    await initDB();
-    dbInitialized = true;
+    if (!initPromise) {
+      initPromise = initDB()
+        .then(() => { dbInitialized = true; })
+        .catch((err) => {
+          initPromise = null;
+          throw err;
+        });
+    }
+    await initPromise;
   }
   return app;
 }

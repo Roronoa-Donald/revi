@@ -5,13 +5,27 @@ const { hashPassword, verifyPassword, generateToken, sha256 } = require('../util
 const mailer = require('../mailer');
 const { COURSES, COURSE_ICONS, COURSE_THEMES, LEVELS, LEVEL_LABELS, normalizeLevel, coursesForLevel, getCourseLevel } = require('../middleware/access-control');
 
-const JWT_SECRET = process.env.JWT_SECRET;
 const IS_PROD = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
 const SESSION_DAYS = 30;
 
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (typeof secret !== 'string') return null;
+  const trimmed = secret.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 // Options de cookie symétriques pose/suppression (fix clearCookie + COOKIE_DOMAIN)
 function cookieBaseOptions() {
-  return { path: '/', domain: process.env.COOKIE_DOMAIN || undefined };
+  const raw = String(process.env.COOKIE_DOMAIN || '').trim();
+  if (!raw) return { path: '/', domain: undefined };
+  // Évite un crash setCookie si COOKIE_DOMAIN contient un schéma/chemin invalide (ex: https://site.vercel.app)
+  const cleaned = raw.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').split(':')[0].trim();
+  if (!cleaned || /[^a-z0-9.-]/i.test(cleaned)) {
+    console.warn('[auth] COOKIE_DOMAIN invalide ignoré:', raw);
+    return { path: '/', domain: undefined };
+  }
+  return { path: '/', domain: cleaned };
 }
 
 function isEmailValid(email) {
@@ -32,6 +46,11 @@ function subscriptionPayload(user) {
  * toute session précédente est révoquée (nouvel appareil = ancien kické).
  */
 async function establishSession(reply, user, fingerprintHash) {
+  const jwtSecret = getJwtSecret();
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET non configuré dans les variables d\'environnement');
+  }
+
   // Conservation de jusqu'à 3 sessions simultanées (PC, mobile, onglets)
   // Révoque uniquement les sessions actives excédentaires les plus anciennes.
   await db.query(
@@ -56,7 +75,7 @@ async function establishSession(reply, user, fingerprintHash) {
 
   const token = jwt.sign(
     { userId: user.id, jti },
-    JWT_SECRET,
+    jwtSecret,
     { expiresIn: `${SESSION_DAYS}d` }
   );
 
@@ -76,11 +95,12 @@ async function establishSession(reply, user, fingerprintHash) {
  * Vérifie : JWT, session DB valide, user actif.
  */
 async function resolveUser(request) {
+  const jwtSecret = getJwtSecret();
   const token = request.cookies.auth_token;
-  if (!token) return null;
+  if (!token || !jwtSecret) return null;
   let decoded;
   try {
-    decoded = jwt.verify(token, JWT_SECRET);
+    decoded = jwt.verify(token, jwtSecret);
   } catch (e) {
     return null;
   }
@@ -120,7 +140,16 @@ module.exports = async function authRoutes(fastify) {
   fastify.post('/register', {
     config: { rateLimit: { max: 5, timeWindow: '1 minute' } }
   }, async (request, reply) => {
+    let createdUser = null;
     try {
+      if (!getJwtSecret()) {
+        console.error('[auth] POST /api/register impossible : JWT_SECRET manquant ou vide.');
+        return reply.code(503).send({
+          success: false,
+          message: 'Service temporairement indisponible : configuration de session serveur manquante.'
+        });
+      }
+
       const { email, password, displayName, fingerprint, level } = request.body || {};
 
       if (!isEmailValid(email)) {
@@ -138,7 +167,8 @@ module.exports = async function authRoutes(fastify) {
         return reply.code(409).send({ success: false, message: 'Un compte existe déjà avec cet email. Connecte-toi.' });
       }
 
-      const user = await db.createUser(email, hashPassword(String(password)), displayName, chosenLevel);
+      createdUser = await db.createUser(email, hashPassword(String(password)), displayName, chosenLevel);
+      const user = createdUser;
       const fpHash = fingerprint ? hashFingerprint(fingerprint) : null;
       if (fpHash) await db.touchUserLogin(user.id, fpHash);
 
@@ -159,6 +189,18 @@ module.exports = async function authRoutes(fastify) {
         ...subscriptionPayload(user)
       });
     } catch (err) {
+      if (createdUser && createdUser.id) {
+        // Évite un compte orphelin sans session si la pose de session/JWT échoue juste après INSERT.
+        try {
+          await db.query('DELETE FROM users WHERE id = $1', [createdUser.id]);
+        } catch (rollbackErr) {
+          console.error('[auth] Rollback utilisateur après échec /register:', rollbackErr && rollbackErr.message);
+        }
+      }
+      if (err && err.code === '23505') {
+        return reply.code(409).send({ success: false, message: 'Un compte existe déjà avec cet email. Connecte-toi.' });
+      }
+      console.error('[auth] Erreur POST /api/register:', err && (err.stack || err.message || err));
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur lors de l\'inscription.' });
     }
@@ -172,6 +214,14 @@ module.exports = async function authRoutes(fastify) {
     config: { rateLimit: { max: 10, timeWindow: '1 minute' } }
   }, async (request, reply) => {
     try {
+      if (!getJwtSecret()) {
+        console.error('[auth] POST /api/login impossible : JWT_SECRET manquant ou vide.');
+        return reply.code(503).send({
+          success: false,
+          message: 'Service temporairement indisponible : configuration de session serveur manquante.'
+        });
+      }
+
       const { email, password, fingerprint } = request.body || {};
       if (!email || !password) {
         return reply.code(400).send({ success: false, message: 'Email et mot de passe requis.' });
@@ -216,6 +266,7 @@ module.exports = async function authRoutes(fastify) {
         ...subscriptionPayload(user)
       });
     } catch (err) {
+      console.error('[auth] Erreur POST /api/login:', err && (err.stack || err.message || err));
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur lors de la connexion.' });
     }
@@ -242,6 +293,7 @@ module.exports = async function authRoutes(fastify) {
         ...subscriptionPayload(resolved.user)
       });
     } catch (err) {
+      console.error('[auth] Erreur GET /api/verify:', err && (err.stack || err.message || err));
       fastify.log.error(err);
       return reply.send({ authenticated: false });
     }
@@ -319,16 +371,19 @@ module.exports = async function authRoutes(fastify) {
    */
   fastify.post('/logout', async (request, reply) => {
     try {
+      const jwtSecret = getJwtSecret();
       const token = request.cookies.auth_token;
-      if (token) {
+      if (token && jwtSecret) {
         try {
-          const decoded = jwt.verify(token, JWT_SECRET);
+          const decoded = jwt.verify(token, jwtSecret);
           await db.revokeSessionByJti(decoded.jti);
         } catch (e) { /* token invalide, on supprime quand même */ }
       }
       reply.clearCookie('auth_token', cookieBaseOptions());
       return reply.send({ success: true });
     } catch (err) {
+      console.error('[auth] Erreur POST /api/logout:', err && (err.stack || err.message || err));
+      fastify.log.error(err);
       return reply.code(500).send({ success: false });
     }
   });
@@ -377,6 +432,7 @@ module.exports = async function authRoutes(fastify) {
       }
       return reply.send(generic);
     } catch (err) {
+      console.error('[auth] Erreur POST /api/forgot-password:', err && (err.stack || err.message || err));
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur.' });
     }
@@ -413,6 +469,7 @@ module.exports = async function authRoutes(fastify) {
 
       return reply.send({ success: true, message: 'Mot de passe mis à jour. Tu peux te connecter.' });
     } catch (err) {
+      console.error('[auth] Erreur POST /api/forgot-password:', err && (err.stack || err.message || err));
       fastify.log.error(err);
       return reply.code(500).send({ success: false, message: 'Erreur serveur.' });
     }
